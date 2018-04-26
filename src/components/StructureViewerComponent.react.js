@@ -16,23 +16,28 @@ export default class StructureViewerComponent extends Component {
 
 	makeCrystal(crystal_json) {
 
-		const crystal = new THREE.Object3D();
-		crystal.name = 'crystal';
-		crystal.castsShadow = true;
-		crystal.receivesShadow = true;
+		if (typeof crystal_json !== 'undefined') {
 
-		const atoms = this.makeAtoms(crystal_json)
-		crystal.add(atoms)
 
-		const bonds = this.makeBonds(crystal_json, atoms)
-		crystal.add(bonds)
+			const crystal = new THREE.Object3D();
+			crystal.name = 'crystal';
+			crystal.castsShadow = true;
+			crystal.receivesShadow = true;
 
-		//const unit_cell = this.makeUnitCell(crystal_json)
-		//crystal.add(unit_cell)
+			const atoms = this.makeAtoms(crystal_json)
+			crystal.add(atoms)
 
-		//const polyhedra = this.makePolyhedra(crystal_json, atoms)
-		//crystal.add(polyhedra)
-		return crystal
+			const bonds = this.makeBonds(crystal_json, atoms)
+			crystal.add(bonds)
+
+			//const unit_cell = this.makeUnitCell(crystal_json)
+			//crystal.add(unit_cell)
+
+			//const polyhedra = this.makePolyhedra(crystal_json, atoms)
+			//crystal.add(polyhedra)
+			return crystal
+
+		}
 
 	}
 
@@ -148,8 +153,7 @@ export default class StructureViewerComponent extends Component {
 			width / -2,
 			width / 2,
 			height / 2,
-			height / -2,
-			-2000, 2000);
+			height / -2, -2000, 2000);
 
 		camera.position.z = 2;
 
@@ -178,9 +182,9 @@ export default class StructureViewerComponent extends Component {
 		const pointLight = new THREE.PointLight(0xffffff);
 		camera.add(pointLight)
 
-		if (typeof this.crystal !== 'undefined') {
+		if (typeof this.props.data !== 'undefined') {
 
-			const crystal = this.crystal;
+			const crystal = this.makeCrystal(this.props.data);
 
 			scene.add(crystal);
 			camera.lookAt(crystal.position);
@@ -201,27 +205,37 @@ export default class StructureViewerComponent extends Component {
 		this.renderer = renderer
 
 		// Controls
-		var controls = new OrbitControls(camera, this.renderer.domElement);
+		const controls = new OrbitControls(camera, this.renderer.domElement);
 
 		this.mount.appendChild(this.renderer.domElement)
 		this.start();
-		
+
 	}
-	
-	componentWillUpdate(nextProps, nextState){
-		
-		
-		const atoms = this.scene.getObjectByName('atoms');
-		atoms.visible = nextProps.showAtoms;
-		
-		//if (typeof data !== 'undefined') {
-		//	const oldCrystal = self.scene.getObjectByName('crystal');
-		//	self.scene.remove(oldCrystal); 
-		//	//this.crystal = this.makeCrystal(data);
-		//	//self.scene.add(this.crystal);
-		//	
-		//}
-		
+
+	componentWillUpdate(nextProps, nextState) {
+
+		if (nextProps.data !== this.props.data) {
+			if (typeof this.scene !== 'undefined') {
+				var oldCrystal = this.scene.getObjectByName('crystal');
+				this.scene.remove(oldCrystal);
+				this.crystal = this.makeCrystal(nextProps.data);
+				this.scene.add(this.crystal);
+			}
+		}
+
+		if (typeof this.crystal !== 'undefined') {
+			const all_options = ['atoms', 'bonds', 'unit_cell', 'polyhedra']
+			const crystal = this.crystal
+			if (nextProps.visibilityOptions != this.props.visibilityOptions) {
+				all_options.forEach(function(option) {
+					var object = crystal.getObjectByName(option);
+					if (typeof object !== "undefined") {
+						object.visible = nextProps.visibilityOptions.includes(option)
+					}
+				})
+			}
+		}
+
 	}
 
 	componentWillUnmount() {
@@ -253,12 +267,8 @@ export default class StructureViewerComponent extends Component {
 			id,
 			setProps,
 			data,
-			showAtoms
+			visibilityOptions
 		} = this.props;
-		
-		if (typeof data !== 'undefined') {
-			this.crystal = this.makeCrystal(data);
-		}
 
 		return ( <
 			div id = {
@@ -292,13 +302,13 @@ StructureViewerComponent.propTypes = {
 	 * by pymatgen's MaterialsProjectStructureVis class
 	 */
 	data: PropTypes.object,
-	
+
 	/**
 	 * Whether or not to display atoms
 	 *
 	 */
-	showAtoms: PropTypes.bool,
-	
+	visibilityOptions: PropTypes.array,
+
 	/**
 	 * Dash-assigned callback that should be called whenever any of the
 	 * properties change

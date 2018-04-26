@@ -18,7 +18,7 @@ mpr = MPRester()
 crystal = loadfn('crystal.json')
 
 formula_input_button = html.Div([
-                                dcc.Input(id='input-box', type='text', placeholder='Enter a formula...'),
+                                dcc.Input(id='input-box', type='text', placeholder='Enter a formula or mp-id...'),
                                 html.Button('Submit', id='button')
                             ])
 
@@ -28,18 +28,18 @@ draw_options = dcc.Checklist(
         {'label': 'Draw Atoms', 'value': 'atoms'},
         {'label': 'Draw Bonds', 'value': 'bonds'},
         {'label': 'Draw Polyhedra', 'value': 'polyhedra'},
-        {'label': 'Draw Unit Cell', 'value': 'unit_cell'},
-        {'label': 'Animate', 'value': 'animate'}
+        {'label': 'Draw Unit Cell', 'value': 'unit_cell'}
     ],
-    values=['atoms', 'bonds', 'polyhedra', 'unit_cell', 'animate']
+    values=['atoms', 'bonds', 'polyhedra', 'unit_cell']
 )
 
 bonding_methods = [str(c.__name__) for c in NearNeighbors.__subclasses__()]
 bonding_options = dcc.Dropdown(
+    id='bonding_options',
     options=[
         {'label': method, 'value': method} for method in bonding_methods
     ],
-    value='MinimumDistanceNN'
+    value='MinimumOKeeffeNN'
 )
 
 app.layout = html.Div([
@@ -84,20 +84,24 @@ mp_viewer.StructureViewerComponent()
 @app.callback(
     dash.dependencies.Output('viewer-container', 'children'),
     [dash.dependencies.Input('button', 'n_clicks'),
-     dash.dependencies.Input('draw_options', 'values')],
+     dash.dependencies.Input('draw_options', 'values'),
+     dash.dependencies.Input('bonding_options', 'value')],
     [dash.dependencies.State('input-box', 'value')])
-def update_output(n_clicks, draw_options, value):
+def update_output(n_clicks, draw_options, bonding_option, value):
+    
+    print('Triggered!')
     
     value = value or "NaCl"
     
     structure = mpr.get_structures(value)[0]
 
-    crystal_json =  MaterialsProjectStructureVis(structure).json
+    crystal_json =  MaterialsProjectStructureVis(structure,
+    bonding_strategy=bonding_option).json
     
     # TODO: should edit the React component to be able to just update its contents
     viewer = mp_viewer.StructureViewerComponent(
                                     data=crystal_json,
-                                    showAtoms='atoms' in draw_options
+                                    visibilityOptions=draw_options,
                                 )
                                 
     return viewer
