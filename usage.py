@@ -23,6 +23,7 @@ formula_input_button = html.Div([
                             ])
 
 draw_options = dcc.Checklist(
+    id='draw_options',
     options=[
         {'label': 'Draw Atoms', 'value': 'atoms'},
         {'label': 'Draw Bonds', 'value': 'bonds'},
@@ -74,7 +75,7 @@ app.layout = html.Div([
                         ]
                     )]),
                     html.Div(className='one columns'),
-mp_viewer.StructureViewerComponent(label='empty')
+mp_viewer.StructureViewerComponent()
 
 ])
 
@@ -82,9 +83,10 @@ mp_viewer.StructureViewerComponent(label='empty')
 
 @app.callback(
     dash.dependencies.Output('viewer-container', 'children'),
-    [dash.dependencies.Input('button', 'n_clicks')],
+    [dash.dependencies.Input('button', 'n_clicks'),
+     dash.dependencies.Input('draw_options', 'values')],
     [dash.dependencies.State('input-box', 'value')])
-def update_output(n_clicks, value):
+def update_output(n_clicks, draw_options, value):
     
     value = value or "NaCl"
     
@@ -94,12 +96,12 @@ def update_output(n_clicks, value):
     
     # TODO: should edit the React component to be able to just update its contents
     viewer = mp_viewer.StructureViewerComponent(
-                                    value='my-value',
-                                    label='my-label',
-                                    data=crystal_json
+                                    data=crystal_json,
+                                    showAtoms='atoms' in draw_options
                                 )
                                 
     return viewer
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)

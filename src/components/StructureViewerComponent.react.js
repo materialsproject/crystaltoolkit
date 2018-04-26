@@ -205,17 +205,22 @@ export default class StructureViewerComponent extends Component {
 
 		this.mount.appendChild(this.renderer.domElement)
 		this.start();
+		
 	}
 	
-	componentWillUpdate(){
+	componentWillUpdate(nextProps, nextState){
 		
-		if (typeof data !== 'undefined') {
-			const oldCrystal = self.scene.getObjectByName('crystal');
-			self.scene.remove(oldCrystal); 
-			//this.crystal = this.makeCrystal(data);
-			//self.scene.add(this.crystal);
-			
-		}
+		
+		const atoms = this.scene.getObjectByName('atoms');
+		atoms.visible = nextProps.showAtoms;
+		
+		//if (typeof data !== 'undefined') {
+		//	const oldCrystal = self.scene.getObjectByName('crystal');
+		//	self.scene.remove(oldCrystal); 
+		//	//this.crystal = this.makeCrystal(data);
+		//	//self.scene.add(this.crystal);
+		//	
+		//}
 		
 	}
 
@@ -246,10 +251,9 @@ export default class StructureViewerComponent extends Component {
 	render() {
 		const {
 			id,
-			label,
 			setProps,
-			value,
-			data
+			data,
+			showAtoms
 		} = this.props;
 		
 		if (typeof data !== 'undefined') {
@@ -284,16 +288,17 @@ StructureViewerComponent.propTypes = {
 	id: PropTypes.string,
 
 	/**
-	 * A label that will be printed when this component is rendered.
+	 * JSON describing the visualization of the crystal structure, generated
+	 * by pymatgen's MaterialsProjectStructureVis class
 	 */
-	label: PropTypes.string.isRequired,
-
-	/**
-	 * The value displayed in the input
-	 */
-	value: PropTypes.string,
-
 	data: PropTypes.object,
+	
+	/**
+	 * Whether or not to display atoms
+	 *
+	 */
+	showAtoms: PropTypes.bool,
+	
 	/**
 	 * Dash-assigned callback that should be called whenever any of the
 	 * properties change
