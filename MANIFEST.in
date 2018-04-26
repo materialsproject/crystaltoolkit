@@ -1,0 +1,5 @@
+include mp_viewer/bundle.js
+include mp_viewer/bundle.js.map
+include mp_viewer/metadata.json
+include README.md
+include LICENSE.md
