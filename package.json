@@ -29,9 +29,11 @@
     "builder": "3.2.2",
     "copyfiles": "^1.2.0",
     "dash-components-archetype": "^0.2.11",
+    "orbit-controls-es6": "^1.0.12",
     "prop-types": "^15.5.9",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "three": "^0.92.0"
   },
   "devDependencies": {
     "dash-components-archetype-dev": "^0.2.11",
