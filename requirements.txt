@@ -1,3 +1,9 @@
+dash==0.18.3
+dash-core-components==0.12.6
+dash-html-components==0.7.0
+dash-renderer==0.10.0
+pymatgen>=2018.4.20
+
 --index-url https://pypi.python.org/simple/
 
 -e .
