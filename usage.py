@@ -18,8 +18,9 @@ mpr = MPRester()
 crystal = loadfn('crystal.json')
 
 formula_input_button = html.Div([
-                                dcc.Input(id='input-box', type='text', placeholder='Enter a formula or mp-id...'),
-                                html.Button('Submit', id='button')
+                                dcc.Input(id='input-box', type='text', placeholder='Enter a formula or mp-id'),
+                                html.Span(' '),
+                                html.Button('Load', id='button')
                             ])
 
 draw_options = dcc.Checklist(
@@ -55,11 +56,10 @@ app.layout = html.Div([
                         style={'text-align': 'right'},
                         children=[
                             html.Div(id='viewer-container',children=[
-                                #mp_viewer.StructureViewerComponent(
-                                #    value='my-value',
-                                #    label='my-label',
-                                #    data=crystal
-                                #)
+                                mp_viewer.StructureViewerComponent(
+                                id='viewer',
+                                                                    data=crystal
+                                                                )
                             ])
                         ]
                     ),
@@ -74,37 +74,36 @@ app.layout = html.Div([
                             bonding_options
                         ]
                     )]),
-                    html.Div(className='one columns'),
-mp_viewer.StructureViewerComponent()
+                    html.Div(className='one columns')
 
 ])
 
 
 
 @app.callback(
-    dash.dependencies.Output('viewer-container', 'children'),
+    dash.dependencies.Output('viewer', 'data'),
     [dash.dependencies.Input('button', 'n_clicks'),
-     dash.dependencies.Input('draw_options', 'values'),
      dash.dependencies.Input('bonding_options', 'value')],
     [dash.dependencies.State('input-box', 'value')])
-def update_output(n_clicks, draw_options, bonding_option, value):
-    
-    print('Triggered!')
-    
-    value = value or "NaCl"
+def update_crystal_displayed(n_clicks, bonding_option, value):
+
+    if not value:
+        return crystal
+
+    value = value
     
     structure = mpr.get_structures(value)[0]
 
     crystal_json =  MaterialsProjectStructureVis(structure,
     bonding_strategy=bonding_option).json
     
-    # TODO: should edit the React component to be able to just update its contents
-    viewer = mp_viewer.StructureViewerComponent(
-                                    data=crystal_json,
-                                    visibilityOptions=draw_options,
-                                )
-                                
-    return viewer
+    return crystal_json
+    
+@app.callback(
+    dash.dependencies.Output('viewer', 'visibilityOptions'),
+    [dash.dependencies.Input('draw_options', 'values')])
+def update_visible_elements(draw_options):
+    return draw_options
 
 
 if __name__ == '__main__':
