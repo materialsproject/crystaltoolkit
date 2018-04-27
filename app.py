@@ -9,6 +9,7 @@ import json
 from base64 import urlsafe_b64decode
 from zlib import decompress
 from urllib.parse import parse_qs
+from uuid import uuid4
 
 from dash.dependencies import Input, Output, State
 
@@ -237,6 +238,9 @@ def update_crystal_displayed(structure, bonding_option, color_scheme):
 def update_visible_elements(draw_options):
     return draw_options
 
+
+app.server.secret_key = str(uuid4())
+server = app.server
 
 if __name__ == '__main__':
     app.run_server(debug=True)
