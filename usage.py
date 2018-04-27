@@ -35,13 +35,21 @@ draw_options = dcc.Checklist(
 )
 
 bonding_methods = [str(c.__name__) for c in NearNeighbors.__subclasses__()]
-bonding_options = dcc.Dropdown(
+bonding_options = html.Div([html.Label("Bonding Algorithm"),dcc.Dropdown(
     id='bonding_options',
     options=[
         {'label': method, 'value': method} for method in bonding_methods
     ],
     value='MinimumOKeeffeNN'
-)
+)])
+
+color_options = html.Div([html.Label("Color Code"),dcc.Dropdown(
+    id='color_options',
+    options=[
+        {'label': option, 'value': option} for option in ['VESTA', 'Jmol']
+    ],
+    value='VESTA'
+)])
 
 app.layout = html.Div([
     html.Br(),
@@ -71,31 +79,60 @@ app.layout = html.Div([
                             html.Br(),
                             draw_options,
                             html.Br(),
-                            bonding_options
+                            bonding_options,
+                            html.Br(),
+                            color_options
                         ]
                     )]),
                     html.Div(className='one columns')
-
 ])
 
+@app.callback(
+    dash.dependencies.Output('color_options', 'options'),
+    [dash.dependencies.Input('button', 'n_clicks')],
+    [dash.dependencies.State('input-box', 'value')])
+def update_color_options(n_clicks, input_formula_mpid):
+    
+    options = ['VESTA', 'Jmol'] 
 
+    if  input_formula_mpid:
+        
+        structure = mpr.get_structures(input_formula_mpid)[0]
+        options += structure.site_properties.keys()
+    
+    def pretty_rewrite(option):
+        
+        pretty_mapping = {
+            'magmom': 'Magnetic moment',
+            'coordination_no': 'Coordination number (from database)',
+            'forces': 'Forces'
+        }
+        
+        if option in pretty_mapping.keys():
+            return pretty_mapping[option]
+        else:
+            return option
+    
+    return [
+        {'label': pretty_rewrite(option), 'value': option} for option in options
+    ]
 
 @app.callback(
     dash.dependencies.Output('viewer', 'data'),
     [dash.dependencies.Input('button', 'n_clicks'),
-     dash.dependencies.Input('bonding_options', 'value')],
+     dash.dependencies.Input('bonding_options', 'value'),
+     dash.dependencies.Input('color_options', 'value')],
     [dash.dependencies.State('input-box', 'value')])
-def update_crystal_displayed(n_clicks, bonding_option, value):
+def update_crystal_displayed(n_clicks, bonding_option, color_option, input_formula_mpid):
 
-    if not value:
+    if not input_formula_mpid:
         return crystal
-
-    value = value
     
-    structure = mpr.get_structures(value)[0]
+    structure = mpr.get_structures(input_formula_mpid)[0]
 
     crystal_json =  MaterialsProjectStructureVis(structure,
-    bonding_strategy=bonding_option).json
+    bonding_strategy=bonding_option,
+    color_scheme=color_option).json
     
     return crystal_json
     
