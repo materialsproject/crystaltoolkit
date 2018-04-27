@@ -5,6 +5,6 @@ dash-renderer==0.10.0
 gunicorn>=19.7.1
 pymatgen>=2018.4.20
 
-ruamel.yaml==0.15.37
+pyyaml==0.15.37
 
 -e .
