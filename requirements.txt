@@ -6,5 +6,6 @@ gunicorn>=19.7.1
 pymatgen>=2018.4.20
 
 PyYAML>=3.12
+networkx>=2.0
 
 -e .
