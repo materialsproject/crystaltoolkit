@@ -14,8 +14,9 @@ from dash.dependencies import Input, Output, State
 
 from monty.serialization import loadfn
 
+from structure_vis_mp import MPVisualizer
+
 from pymatgen import MPRester, Structure
-from pymatgen.vis.structure_vis_mp import MaterialsProjectStructureVis
 from pymatgen.analysis.local_env import NearNeighbors
 
 app = dash.Dash('')
@@ -47,9 +48,9 @@ LAYOUT_VISIBILITY_OPTIONS = dcc.Checklist(
         {'label': 'Draw Atoms', 'value': 'atoms'},
         {'label': 'Draw Bonds', 'value': 'bonds'},
         {'label': 'Draw Polyhedra', 'value': 'polyhedra'},
-        {'label': 'Draw Unit Cell', 'value': 'unit_cell'}
+        {'label': 'Draw Unit Cell', 'value': 'unitcell'}
     ],
-    values=['atoms', 'bonds', 'polyhedra', 'unit_cell']
+    values=['atoms', 'bonds', 'polyhedra', 'unitcell']
 )
 
 LAYOUT_BONDING_DROPDOWN = html.Div([html.Label("Bonding Algorithm"), dcc.Dropdown(
@@ -76,6 +77,7 @@ LAYOUT_DEVELOPER_TEXTBOX = dcc.Textarea(
            'height': '400px', 'font-family': 'monospace'}
 )
 
+app.title = "MP Viewer"
 # master app layout, includes layouts defined above
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -93,7 +95,7 @@ app.layout = html.Div([
                     html.Div(id='viewer-container', children=[
                         mp_viewer.StructureViewerComponent(
                             id='viewer',
-                            data=MaterialsProjectStructureVis(DEFAULT_STRUCTURE,
+                            data=MPVisualizer(DEFAULT_STRUCTURE,
                                                               bonding_strategy=
                                                               DEFAULT_BONDING_METHOD,
                                                               color_scheme=
@@ -212,6 +214,7 @@ def format_query_string(n_clicks, input_formula_mpid, current_val):
     else:
         return "?query={}".format(input_formula_mpid)
 
+
 @app.callback(
     Output('viewer', 'data'),
     [Input('structure', 'value'),
@@ -221,7 +224,7 @@ def update_crystal_displayed(structure, bonding_option, color_scheme):
 
     structure = Structure.from_str(structure, fmt='json')
 
-    crystal_json = MaterialsProjectStructureVis(structure,
+    crystal_json = MPVisualizer(structure,
                                                 bonding_strategy=bonding_option,
                                                 color_scheme=color_scheme).json
 

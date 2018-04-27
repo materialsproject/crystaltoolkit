@@ -5,12 +5,15 @@ import PropTypes from 'prop-types';
 import * as THREE from 'three';
 import OrbitControls from 'orbit-controls-es6';
 
+// DEVELOPER NOTE: This is written by a novice JavaScript/React developer,
+// here be dragons.
+
+// TODO: replace all Geometries with BufferGeometries
+// TODO: add a prop to animate atoms
+
 /**
- * StructureViewerComponent is an example component.
- * It takes a property, `label`, and
- * displays it.
- * It renders an input with the property `value`
- * which is editable by the user.
+ * StructureViewerComponent is ...
+ * ...
  */
 export default class StructureViewerComponent extends Component {
 
@@ -30,11 +33,12 @@ export default class StructureViewerComponent extends Component {
 			const bonds = this.makeBonds(crystal_json, atoms)
 			crystal.add(bonds)
 
-			//const unit_cell = this.makeUnitCell(crystal_json)
-			//crystal.add(unit_cell)
+			const unit_cell = this.makeUnitCell(crystal_json)
+			crystal.add(unit_cell)
 
-			//const polyhedra = this.makePolyhedra(crystal_json, atoms)
-			//crystal.add(polyhedra)
+			const polyhedra = this.makePolyhedra(crystal_json, atoms)
+			crystal.add(polyhedra)
+
 			return crystal
 
 		}
@@ -118,19 +122,62 @@ export default class StructureViewerComponent extends Component {
 
 	}
 
-	//makeUnitCell(crystal_json){
-	//
-	//    const points = crystal_json.unit_cell.points.map(p => new THREE.Vector3(...p))
-	//
-	//    const unitcell_geometry = new THREE.ConvexGeometry( points );
-	//    const unitcell_material = new THREE.MeshBasicMaterial( {color: 0x00ff00, transparent: true, opacity: 0.5} );
-	//    const edges = new THREE.EdgesGeometry( unitcell_geometry );
-	//
-	//    const unitcell = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x0 } ) );
-	//    unitcell.name = 'unitcell';
-	//
-	//    return unitcell
-	//}
+	makeUnitCell(crystal_json) {
+
+		const unitcell_geometry = new THREE.Geometry();
+		crystal_json.unit_cell.points.map(p => unitcell_geometry.vertices.push(new THREE.Vector3(...p)))
+		crystal_json.unit_cell.hull.map(p => unitcell_geometry.faces.push(new THREE.Face3(...p)))
+
+		const edges = new THREE.EdgesGeometry(unitcell_geometry);
+
+		const unitcell = new THREE.LineSegments(edges,
+			new THREE.LineBasicMaterial({
+				color: 0x0,
+				linewidth: 1
+			}));
+		unitcell.name = 'unitcell';
+
+		return unitcell
+	}
+
+	makePolyhedra(crystal_json, atoms) {
+
+		const polyhedra = new THREE.Object3D();
+		polyhedra.name = 'polyhedra';
+
+		crystal_json.polyhedra.polyhedra_list.forEach(function(polyhedron) {
+
+			const polyhedron_geometry = new THREE.Geometry();
+			polyhedron.points.map(p => polyhedron_geometry.vertices.push(new THREE.Vector3(...p)))
+			polyhedron.hull.map(p => polyhedron_geometry.faces.push(new THREE.Face3(...p)))
+
+			// TODO: change to store center atom too so we can look up colour!
+			const polyhedron_color = new THREE.Color(...crystal_json.atoms[polyhedron.center]['bond_color']);
+			//var polyhedron_color = atoms.children[polyhedron.center].material.color;
+			const polyhedron_material = new THREE.MeshBasicMaterial({
+				color: polyhedron_color,
+				transparent: false,
+				opacity: 0.5
+			});
+
+			const polyhedron_object = new THREE.Mesh(polyhedron_geometry, polyhedron_material)
+			//const polyhedron_edges = new THREE.EdgesGeometry(polyhedron_geometry);
+			//const polyhedron_edges_lines = new THREE.LineSegments(polyhedron_edges, new THREE.LineBasicMaterial({
+			//	color: 0x0,
+			//	lineWidth: 1
+			//}));
+
+			polyhedron_object.name = polyhedron.name
+			//polyhedron_edges_lines.name = polyhedron.name
+
+			polyhedra.add(polyhedron_object);
+			//polyhedra.add(polyhedron_edges_lines)
+
+		})
+
+		return polyhedra
+
+	}
 
 
 	constructor(props) {
@@ -224,7 +271,7 @@ export default class StructureViewerComponent extends Component {
 		}
 
 		if (typeof this.crystal !== 'undefined') {
-			const all_options = ['atoms', 'bonds', 'unit_cell', 'polyhedra']
+			const all_options = ['atoms', 'bonds', 'unitcell', 'polyhedra']
 			const crystal = this.crystal
 			if (nextProps.visibilityOptions != this.props.visibilityOptions) {
 				all_options.forEach(function(option) {
