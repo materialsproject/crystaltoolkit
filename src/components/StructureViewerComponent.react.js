@@ -144,6 +144,8 @@ export default class StructureViewerComponent extends Component {
 
 		const polyhedra = new THREE.Object3D();
 		polyhedra.name = 'polyhedra';
+		
+		this.available_polyhedra = crystal_json.polyhedra.polyhedra_types
 
 		crystal_json.polyhedra.polyhedra_list.forEach(function(polyhedron) {
 
@@ -151,27 +153,20 @@ export default class StructureViewerComponent extends Component {
 			polyhedron.points.map(p => polyhedron_geometry.vertices.push(new THREE.Vector3(...p)))
 			polyhedron.hull.map(p => polyhedron_geometry.faces.push(new THREE.Face3(...p)))
 
-			// TODO: change to store center atom too so we can look up colour!
-			const polyhedron_color = new THREE.Color(...crystal_json.atoms[polyhedron.center]['bond_color']);
-			//var polyhedron_color = atoms.children[polyhedron.center].material.color;
-			const polyhedron_material = new THREE.MeshBasicMaterial({
-				color: polyhedron_color,
-				transparent: false,
-				opacity: 0.5
-			});
+			const polyhedron_color = atoms.children[polyhedron.center].material.color;
+			const polyhedron_material = StructureViewerComponent.getMaterial(polyhedron_color);
 
 			const polyhedron_object = new THREE.Mesh(polyhedron_geometry, polyhedron_material)
-			//const polyhedron_edges = new THREE.EdgesGeometry(polyhedron_geometry);
-			//const polyhedron_edges_lines = new THREE.LineSegments(polyhedron_edges, new THREE.LineBasicMaterial({
-			//	color: 0x0,
-			//	lineWidth: 1
-			//}));
+			const polyhedron_edges = new THREE.EdgesGeometry(polyhedron_geometry);
+			const polyhedron_edges_lines = new THREE.LineSegments(polyhedron_edges, new THREE.LineBasicMaterial({
+				color: 0x0,
+				linewidth: 1
+			}));
 
 			polyhedron_object.name = polyhedron.name
-			//polyhedron_edges_lines.name = polyhedron.name
-
-			polyhedra.add(polyhedron_object);
-			//polyhedra.add(polyhedron_edges_lines)
+			polyhedron_object.add(polyhedron_edges_lines)
+			
+			polyhedra.add(polyhedron_object)
 
 		})
 
@@ -271,7 +266,10 @@ export default class StructureViewerComponent extends Component {
 		}
 
 		if (typeof this.crystal !== 'undefined') {
-			const all_options = ['atoms', 'bonds', 'unitcell', 'polyhedra']
+			var all_options = ['atoms', 'bonds', 'unitcell', 'polyhedra']
+			if (typeof this.available_polyhedra !== 'undefined') {
+				all_options.push(...this.available_polyhedra)
+			}
 			const crystal = this.crystal
 			if (nextProps.visibilityOptions != this.props.visibilityOptions) {
 				all_options.forEach(function(option) {
@@ -352,7 +350,7 @@ StructureViewerComponent.propTypes = {
 	data: PropTypes.object,
 
 	/**
-	 * Whether or not to display atoms
+	 * Whether or not to display atoms, bonds, etc.
 	 *
 	 */
 	visibilityOptions: PropTypes.array,

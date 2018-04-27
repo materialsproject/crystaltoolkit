@@ -134,7 +134,7 @@
           "name": "array"
         },
         "required": false,
-        "description": "Whether or not to display atoms"
+        "description": "Whether or not to display atoms, bonds, etc."
       },
       "setProps": {
         "type": {

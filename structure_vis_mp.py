@@ -434,8 +434,11 @@ class MPVisualizer:
                 # a pretty name, helps with filtering too
                 site = self.structure_graph.structure[site_idx]
                 species = ", ".join(map(str, list(site.species_and_occu.keys())))
-                polyhedron_type = '{}-centered polyhedra'.format(species)
+                polyhedron_type = '{}-centered'.format(species)
                 polyhedra_types.add(polyhedron_type)
+
+                polyhedron_color = site.properties['display_color'][0] \
+                    if site.is_ordered else [55, 55, 55]
 
                 polyhedra.append({
                     'type': 'convex',
@@ -443,6 +446,7 @@ class MPVisualizer:
                     'points': polyhedron_points_cart,
                     'hull': tri.convex_hull,
                     'name': polyhedron_type,
+                    'color': polyhedron_color,
                     'center': site_idx
                 })
 

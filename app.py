@@ -43,16 +43,25 @@ LAYOUT_FORMULA_INPUT = html.Div([
     html.Button('Load', id='button')
 ])
 
-LAYOUT_VISIBILITY_OPTIONS = dcc.Checklist(
-    id='draw_options',
-    options=[
-        {'label': 'Draw Atoms', 'value': 'atoms'},
-        {'label': 'Draw Bonds', 'value': 'bonds'},
-        {'label': 'Draw Polyhedra', 'value': 'polyhedra'},
-        {'label': 'Draw Unit Cell', 'value': 'unitcell'}
-    ],
-    values=['atoms', 'bonds', 'polyhedra', 'unitcell']
-)
+LAYOUT_VISIBILITY_OPTIONS = html.Div([
+    dcc.Checklist(
+        id='visibility_options',
+        options=[
+            {'label': 'Draw Atoms', 'value': 'atoms'},
+            {'label': 'Draw Bonds', 'value': 'bonds'},
+            {'label': 'Draw Polyhedra', 'value': 'polyhedra'},
+            {'label': 'Draw Unit Cell', 'value': 'unitcell'}
+        ],
+        values=['atoms', 'bonds', 'polyhedra', 'unitcell']
+    )])
+
+LAYOUT_POLYHEDRA_VISIBILITY_OPTIONS = html.Div([
+    html.Label("Choose Polyhedra"),
+    dcc.Dropdown(
+        id='polyhedra_visibility_options',
+        options=[],
+        multi=True
+    )])
 
 LAYOUT_BONDING_DROPDOWN = html.Div([html.Label("Bonding Algorithm"), dcc.Dropdown(
     id='bonding_options',
@@ -70,13 +79,13 @@ LAYOUT_COLOR_SCHEME_DROPDOWN = html.Div([html.Label("Color Code"), dcc.Dropdown(
     value=DEFAULT_COLOR_SCHEME
 )])
 
-LAYOUT_DEVELOPER_TEXTBOX = dcc.Textarea(
+LAYOUT_DEVELOPER_TEXTBOX = html.Div([html.Label("Enter Structure JSON:"), dcc.Textarea(
     id='structure',
     placeholder='Developer console',
     value='',
     style={'width': '100%', 'overflow-y': 'scroll',
            'height': '400px', 'font-family': 'monospace'}
-)
+)])
 
 app.title = "MP Viewer"
 # master app layout, includes layouts defined above
@@ -97,10 +106,10 @@ app.layout = html.Div([
                         mp_viewer.StructureViewerComponent(
                             id='viewer',
                             data=MPVisualizer(DEFAULT_STRUCTURE,
-                                                              bonding_strategy=
-                                                              DEFAULT_BONDING_METHOD,
-                                                              color_scheme=
-                                                              DEFAULT_COLOR_SCHEME).json
+                                              bonding_strategy=
+                                              DEFAULT_BONDING_METHOD,
+                                              color_scheme=
+                                              DEFAULT_COLOR_SCHEME).json
                         )
                     ])
                 ]
@@ -112,6 +121,8 @@ app.layout = html.Div([
                     LAYOUT_FORMULA_INPUT,
                     html.Br(),
                     LAYOUT_VISIBILITY_OPTIONS,
+                    html.Br(),
+                    LAYOUT_POLYHEDRA_VISIBILITY_OPTIONS,
                     html.Br(),
                     LAYOUT_BONDING_DROPDOWN,
                     html.Br(),
@@ -165,43 +176,58 @@ def update_color_options(n_clicks, input_formula_mpid):
         for option in available_options
     ]
 
+
 @app.callback(
     Output('structure', 'value'),
     [Input('url', 'search')]
 )
 def update_structure(search_query):
 
-    # strip leading ? from query, and parse into dict
-    search_query = parse_qs(search_query[1:])
-
-    if 'structure' in search_query:
-        payload = search_query['structure'][0]
-        payload = urlsafe_b64decode(payload)
-        payload = decompress(payload)
-        structure = Structure.from_str(payload, fmt='json')
-    elif 'query' in search_query:
-        structure = mpr.get_structures(search_query['query'][0])[0]
+    if search_query:
+        # strip leading ? from query, and parse into dict
+        search_query = parse_qs(search_query[1:])
+        if 'structure' in search_query:
+            payload = search_query['structure'][0]
+            payload = urlsafe_b64decode(payload)
+            payload = decompress(payload)
+            structure = Structure.from_str(payload, fmt='json')
+        elif 'query' in search_query:
+            structure = mpr.get_structures(search_query['query'][0])[0]
     else:
         structure = DEFAULT_STRUCTURE
 
-
     return json.dumps(json.loads(structure.to_json()), indent=4)
+
 
 @app.callback(
     Output('mp_text', 'children'),
     [Input('structure', 'value')]
 )
 def find_structure_on_mp(structure):
-
     structure = Structure.from_str(structure, fmt='json')
     mpids = mpr.find_structure(structure)
     if mpids:
         links = ", ".join(["[{}](https://materialsproject.org/materials/{})".format(mpid, mpid)
-                          for mpid in mpids])
+                           for mpid in mpids])
         return dcc.Markdown("This structure is available on Materials Project: {}".format(links))
     else:
         return ""
 
+
+@app.callback(
+    Output('polyhedra_visibility_options', 'options'),
+    [Input('viewer', 'data')]
+)
+def update_available_polyhedra(viewer_data):
+    available_polyhedra = viewer_data['polyhedra']['polyhedra_types']
+    return [{'label': polyhedron, 'value': polyhedron} for polyhedron in available_polyhedra]
+
+@app.callback(
+    Output('polyhedra_visibility_options', 'value'),
+    [Input('viewer', 'data')]
+)
+def update_default_polyhedra(viewer_data):
+    return viewer_data['polyhedra']['polyhedra_types']
 
 @app.callback(
     Output('url', 'search'),
@@ -209,7 +235,6 @@ def find_structure_on_mp(structure):
     [State('input-box', 'value'),
      State('url', 'search')])
 def format_query_string(n_clicks, input_formula_mpid, current_val):
-
     if not input_formula_mpid:
         return current_val
     else:
@@ -222,21 +247,21 @@ def format_query_string(n_clicks, input_formula_mpid, current_val):
      Input('bonding_options', 'value'),
      Input('color_schemes', 'value')])
 def update_crystal_displayed(structure, bonding_option, color_scheme):
-
     structure = Structure.from_str(structure, fmt='json')
 
     crystal_json = MPVisualizer(structure,
-                                                bonding_strategy=bonding_option,
-                                                color_scheme=color_scheme).json
+                                bonding_strategy=bonding_option,
+                                color_scheme=color_scheme).json
 
     return crystal_json
 
 
 @app.callback(
     Output('viewer', 'visibilityOptions'),
-    [Input('draw_options', 'values')])
-def update_visible_elements(draw_options):
-    return draw_options
+    [Input('visibility_options', 'values'),
+     Input('polyhedra_visibility_options', 'value')])
+def update_visible_elements(visibility_options, polyhedra_visibility_options):
+    return visibility_options + polyhedra_visibility_options
 
 
 app.server.secret_key = str(uuid4())
