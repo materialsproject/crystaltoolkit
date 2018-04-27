@@ -1,0 +1,148 @@
+{
+  "src/components/StructureViewerComponent.react.js": {
+    "description": "StructureViewerComponent is ...\n...",
+    "displayName": "StructureViewerComponent",
+    "methods": [
+      {
+        "name": "makeCrystal",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "crystal_json",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "getMaterial",
+        "docblock": null,
+        "modifiers": [
+          "static"
+        ],
+        "params": [
+          {
+            "name": "color",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "makeAtoms",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "crystal_json",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "makeBonds",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "crystal_json",
+            "type": null
+          },
+          {
+            "name": "atoms",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "makeUnitCell",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "crystal_json",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "makePolyhedra",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "crystal_json",
+            "type": null
+          },
+          {
+            "name": "atoms",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "start",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "stop",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "animate",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "renderScene",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      }
+    ],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this compnent in Dash callbacks"
+      },
+      "data": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "JSON describing the visualization of the crystal structure, generated\nby pymatgen's MaterialsProjectStructureVis class"
+      },
+      "visibilityOptions": {
+        "type": {
+          "name": "array"
+        },
+        "required": false,
+        "description": "Whether or not to display atoms"
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called whenever any of the\nproperties change"
+      }
+    }
+  }
+}

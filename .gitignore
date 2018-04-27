@@ -4,8 +4,8 @@ dist/
 lib/
 lib/bundle.js*
 node_modules/
-mp_viewer/metadata.json
-mp_viewer/bundle.js*
+# mp_viewer/metadata.json
+# mp_viewer/bundle.js*
 .npm
 vv/
 venv/
