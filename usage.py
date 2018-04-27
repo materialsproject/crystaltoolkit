@@ -3,7 +3,12 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 
+import numpy as np
 import json
+
+from base64 import urlsafe_b64decode
+from zlib import decompress
+from urllib.parse import parse_qs
 
 from dash.dependencies import Input, Output, State
 
@@ -67,13 +72,15 @@ LAYOUT_DEVELOPER_TEXTBOX = dcc.Textarea(
     id='structure',
     placeholder='Developer console',
     value='',
-    style={'width': '100%', 'overflow-y': 'scroll', 'height': '400px'}
+    style={'width': '100%', 'overflow-y': 'scroll',
+           'height': '400px', 'font-family': 'monospace'}
 )
 
 # master app layout, includes layouts defined above
 app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
     html.Br(),
-    html.H1('MP Viewer', style={'text-align': 'center'}),
+    html.H1('', style={'text-align': 'center'}),
     html.Br(),
     html.Div(
         className='row',
@@ -107,6 +114,8 @@ app.layout = html.Div([
                     html.Br(),
                     LAYOUT_COLOR_SCHEME_DROPDOWN,
                     html.Br(),
+                    html.Div(id='mp_text'),
+                    html.Br(),
                     LAYOUT_DEVELOPER_TEXTBOX
                 ]
             ),
@@ -129,42 +138,79 @@ def update_color_options(n_clicks, input_formula_mpid):
     :param input_formula_mpid:
     :return:
     """
-    options = ['VESTA', 'Jmol']
+
+    default_options = ['VESTA', 'Jmol']
+    available_options = default_options.copy()
 
     if input_formula_mpid:
         structure = mpr.get_structures(input_formula_mpid)[0]
-        options += structure.site_properties.keys()
+        for key, props in structure.site_properties.items():
+            props = np.array(props)
+            if len(props.shape) == 1:
+                # can't color-code for vectors,
+                # should draw arrows for these instead
+                available_options.append(key)
 
     def pretty_rewrite(option):
-
-        pretty_mapping = {
-            'magmom': 'Magnetic moment',
-            'coordination_no': 'Coordination number (from database)',
-            'forces': 'Forces'
-        }
-
-        if option in pretty_mapping.keys():
-            return pretty_mapping[option]
+        if option not in default_options:
+            return "Site property: {}".format(option)
         else:
             return option
 
     return [
-        {'label': pretty_rewrite(option), 'value': option} for option in options
+        {'label': pretty_rewrite(option), 'value': option}
+        for option in available_options
     ]
 
 @app.callback(
     Output('structure', 'value'),
-    [Input('button', 'n_clicks')],
-    [State('input-box', 'value')])
-def retrieve_structure(n_clicks, input_formula_mpid):
+    [Input('url', 'search')]
+)
+def update_structure(search_query):
 
-    if not input_formula_mpid:
-        structure = DEFAULT_STRUCTURE
+    # strip leading ? from query, and parse into dict
+    search_query = parse_qs(search_query[1:])
+
+    if 'structure' in search_query:
+        payload = search_query['structure'][0]
+        payload = urlsafe_b64decode(payload)
+        payload = decompress(payload)
+        structure = Structure.from_str(payload, fmt='json')
+    elif 'query' in search_query:
+        structure = mpr.get_structures(search_query['query'][0])[0]
     else:
-        structure = mpr.get_structures(input_formula_mpid)[0]
+        structure = DEFAULT_STRUCTURE
+
 
     return json.dumps(json.loads(structure.to_json()), indent=4)
 
+@app.callback(
+    Output('mp_text', 'children'),
+    [Input('structure', 'value')]
+)
+def find_structure_on_mp(structure):
+
+    structure = Structure.from_str(structure, fmt='json')
+    mpids = mpr.find_structure(structure)
+    if mpids:
+        links = ", ".join(["[{}](https://materialsproject.org/materials/{})".format(mpid, mpid)
+                          for mpid in mpids])
+        return dcc.Markdown("This structure is available on Materials Project: {}".format(links))
+    else:
+        return ""
+
+
+@app.callback(
+    Output('url', 'search'),
+    [Input('button', 'n_clicks')],
+    [State('input-box', 'value'),
+     State('url', 'search')])
+def format_query_string(n_clicks, input_formula_mpid, current_val):
+
+    if not input_formula_mpid:
+        return current_val
+    else:
+        return "?query={}".format(input_formula_mpid)
 
 @app.callback(
     Output('viewer', 'data'),
