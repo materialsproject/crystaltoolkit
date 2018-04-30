@@ -300,7 +300,7 @@ export default class StructureViewerComponent extends Component {
 	}
 
 	animate() {
-		this.crystal.rotation.y += 0.002;
+		//this.crystal.rotation.y += 0.002;
 		this.renderScene()
 		this.frameId = window.requestAnimationFrame(this.animate)
 	}
