@@ -155,11 +155,12 @@ export default class StructureViewerComponent extends Component {
 
 			const polyhedron_color = atoms.children[polyhedron.center].material.color;
 			const polyhedron_material = StructureViewerComponent.getMaterial(polyhedron_color);
+            polyhedron_material.side = THREE.DoubleSide;
 
 			const polyhedron_object = new THREE.Mesh(polyhedron_geometry, polyhedron_material)
 			const polyhedron_edges = new THREE.EdgesGeometry(polyhedron_geometry);
 			const polyhedron_edges_lines = new THREE.LineSegments(polyhedron_edges, new THREE.LineBasicMaterial({
-				color: 0x0,
+				color: polyhedron_color,
 				linewidth: 1
 			}));
 

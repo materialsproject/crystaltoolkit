@@ -21,6 +21,7 @@ from pymatgen import MPRester, Structure
 from pymatgen.analysis.local_env import NearNeighbors
 
 app = dash.Dash('')
+app.title = "MP Viewer"
 
 app.scripts.config.serve_locally = True
 app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
@@ -52,7 +53,7 @@ LAYOUT_VISIBILITY_OPTIONS = html.Div([
             {'label': 'Draw Polyhedra', 'value': 'polyhedra'},
             {'label': 'Draw Unit Cell', 'value': 'unitcell'}
         ],
-        values=['atoms', 'bonds', 'polyhedra', 'unitcell']
+        values=['atoms', 'bonds', 'unitcell']
     )])
 
 LAYOUT_POLYHEDRA_VISIBILITY_OPTIONS = html.Div([
@@ -87,7 +88,6 @@ LAYOUT_DEVELOPER_TEXTBOX = html.Div([html.Label("Enter Structure JSON:"), dcc.Te
            'height': '400px', 'font-family': 'monospace'}
 )])
 
-app.title = "MP Viewer"
 # master app layout, includes layouts defined above
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),

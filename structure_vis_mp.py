@@ -429,26 +429,30 @@ class MPVisualizer:
                                          for (site, image) in polyhedron_points]
 
                 # calculate the hull
-                tri = Delaunay(polyhedron_points_cart)
+                #print(len(polyhedron_points_cart))
+                #print(polyhedron_points_cart)
 
-                # a pretty name, helps with filtering too
-                site = self.structure_graph.structure[site_idx]
-                species = ", ".join(map(str, list(site.species_and_occu.keys())))
-                polyhedron_type = '{}-centered'.format(species)
-                polyhedra_types.add(polyhedron_type)
+                try:
+                    tri = Delaunay(polyhedron_points_cart)
 
-                polyhedron_color = site.properties['display_color'][0] \
-                    if site.is_ordered else [55, 55, 55]
+                    # a pretty name, helps with filtering too
+                    site = self.structure_graph.structure[site_idx]
+                    species = ", ".join(map(str, list(site.species_and_occu.keys())))
+                    polyhedron_type = '{}-centered'.format(species)
+                    polyhedra_types.add(polyhedron_type)
 
-                polyhedra.append({
-                    'type': 'convex',
-                    'points_idx': polyhedron_points_idx,
-                    'points': polyhedron_points_cart,
-                    'hull': tri.convex_hull,
-                    'name': polyhedron_type,
-                    'color': polyhedron_color,
-                    'center': site_idx
-                })
+                    polyhedra.append({
+                        'type': 'convex',
+                        'points_idx': polyhedron_points_idx,
+                        'points': polyhedron_points_cart,
+                        'hull': tri.convex_hull,
+                        'name': polyhedron_type,
+                        'center': site_idx
+                    })
+
+
+                except Exception as e:
+                    print(e)
 
         return {
             'polyhedra': {
