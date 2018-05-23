@@ -3,7 +3,7 @@ dash-renderer>=0.12.1
 dash-html-components>=0.10.0
 dash-core-components>=0.22.1
 gunicorn>=19.7.1
-pymatgen>=2018.4.20
+pymatgen>=2018.5.22
 
 PyYAML>=3.12
 networkx>=2.0
