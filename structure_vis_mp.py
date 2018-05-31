@@ -28,6 +28,7 @@ from pymatgen.vis.structure_vtk import EL_COLORS
 
 from scipy.spatial import Delaunay
 
+
 class MPVisualizer:
     """
     Class takes a Structure or StructureGraph and outputs a
@@ -106,8 +107,7 @@ class MPVisualizer:
                 bonding_strategy_kwargs = bonding_strategy_kwargs or {}
                 bonding_strategy = self.allowed_bonding_strategies[bonding_strategy](**bonding_strategy_kwargs)
                 self.structure_graph = StructureGraph.with_local_env_strategy(structure,
-                                                                              bonding_strategy,
-                                                                              decorate=False)
+                                                                              bonding_strategy)
             self.lattice = structure.lattice
         else:
             self.structure_graph = structure
@@ -139,12 +139,46 @@ class MPVisualizer:
         self._bonds = []
         self._polyhedra = []
 
+        # TODO: remove side effects
         json.update(self._generate_atoms())
         json.update(self._generate_bonds())
         json.update(self._generate_polyhedra())
         json.update(self._generate_unit_cell())
 
         return json
+
+    @property
+    def graph_json(self):
+
+        # adds display colors as site properties
+        self._generate_colors()
+
+        nodes = []
+        edges = []
+
+        for node in self.structure_graph.graph.nodes():
+
+            r, g, b = self.structure_graph.structure[node].properties['display_color'][0]
+            color = "rgb({},{},{})".format(r, g, b)
+
+            nodes.append({
+                'id': node,
+                'label': node,
+                'color': color
+            })
+
+        for u, v, d in self.structure_graph.graph.edges(data=True):
+
+            edge = {'from': u, 'to': v, 'arrows': ''}
+
+            to_jimage = d['to_jimage']
+            if to_jimage != (0, 0, 0):
+                edge['arrows'] = 'to'
+                edge['label'] = str(to_jimage)
+
+            edges.append(edge)
+
+        return {'nodes': nodes, 'edges': edges}
 
     def _generate_atoms(self):
 
@@ -283,7 +317,7 @@ class MPVisualizer:
             'atoms': atoms
         }
 
-    def _generate_bonds(self):
+    def _generate_bonds(self, bonds=..., atom_indexes=...):
 
         # most of bonding logic is done inside _generate_atoms
         # why? because to decide which atoms we want to draw, we
@@ -307,7 +341,7 @@ class MPVisualizer:
             'bonds': bonds
         }
 
-    def _generate_colors(self):
+    def _generate_colors(self): # TODO change to return colors
 
         structure = self.structure_graph.structure
 
@@ -383,7 +417,7 @@ class MPVisualizer:
             'unit_cell': unit_cell
         }
 
-    def _generate_polyhedra(self):
+    def _generate_polyhedra(self, bonds=..., atom_indexes=..., atom_cart=...):
 
         if not self.bonded_atoms_outside_unit_cell:
             raise ValueError("All bonds from unit cell must be drawn to be able to reliably "
