@@ -3,13 +3,17 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 
+from dash_react_graph_vis import GraphComponent
+
 import numpy as np
 import json
+import functools
 
-from base64 import urlsafe_b64decode
+from base64 import urlsafe_b64decode, b64decode
 from zlib import decompress
 from urllib.parse import parse_qs
 from uuid import uuid4
+from tempfile import NamedTemporaryFile
 
 from dash.dependencies import Input, Output, State
 
@@ -17,10 +21,11 @@ from monty.serialization import loadfn
 
 from structure_vis_mp import MPVisualizer
 
+from pymatgen import __version__ as pymatgen_version
 from pymatgen import MPRester, Structure
 from pymatgen.analysis.local_env import NearNeighbors
 
-app = dash.Dash('')
+app = dash.Dash()
 app.title = "MP Viewer"
 
 app.scripts.config.serve_locally = True
@@ -30,7 +35,24 @@ mpr = MPRester()
 
 DEFAULT_STRUCTURE = loadfn('default_structure.json')
 DEFAULT_COLOR_SCHEME = 'VESTA'
-DEFAULT_BONDING_METHOD = 'MinimumOKeeffeNN'
+DEFAULT_BONDING_METHOD = 'CrystalNN'
+DEFAULT_GRAPH_OPTIONS = {
+    'edges': {
+        'smooth': {
+            'type': 'dynamic'
+        },
+        'length': 250,
+        'color': {
+            'inherit': 'both'
+        }
+    },
+    'physics': {
+        'solver': 'forceAtlas2Based',
+        'forceAtlas2Based': {
+            'avoidOverlap': 1.0
+        }
+    }
+}
 
 AVAILABLE_BONDING_METHODS = [str(c.__name__)
                              for c in NearNeighbors.__subclasses__()]
@@ -44,10 +66,30 @@ LAYOUT_FORMULA_INPUT = html.Div([
     html.Button('Load', id='button')
 ])
 
+LAYOUT_UPLOAD_INPUT = html.Div([
+    dcc.Upload(id='upload-data',
+        children=html.Div([
+            'Drag and Drop or ',
+            html.A('Select File')
+        ]),
+        style={
+            'width': '100%',
+            'height': '60px',
+            'lineHeight': '60px',
+            'borderWidth': '1px',
+            'borderStyle': 'dashed',
+            'borderRadius': '5px',
+            'textAlign': 'center',
+            'margin': '10px'
+        },
+        multiple=True)
+])
+
 LAYOUT_VISIBILITY_OPTIONS = html.Div([
     dcc.Checklist(
         id='visibility_options',
         options=[
+            {'label': 'Auto Rotate', 'value': 'rotate'},
             {'label': 'Draw Atoms', 'value': 'atoms'},
             {'label': 'Draw Bonds', 'value': 'bonds'},
             {'label': 'Draw Polyhedra', 'value': 'polyhedra'},
@@ -88,9 +130,28 @@ LAYOUT_DEVELOPER_TEXTBOX = html.Div([html.Label("Enter Structure JSON:"), dcc.Te
            'height': '400px', 'font-family': 'monospace'}
 )])
 
+LAYOUT_STRUCTURE_VIEWER = html.Div(id='viewer-container', children=[
+    mp_viewer.StructureViewerComponent(
+        id='viewer',
+        data=MPVisualizer(DEFAULT_STRUCTURE,
+                          bonding_strategy=DEFAULT_BONDING_METHOD,
+                          color_scheme=DEFAULT_COLOR_SCHEME).json
+    )], style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+
+LAYOUT_GRAPH_VIEWER = html.Div(id='graph-container', children=[
+    GraphComponent(
+        id='graph',
+        graph=MPVisualizer(DEFAULT_STRUCTURE,
+                           bonding_strategy=DEFAULT_BONDING_METHOD,
+                           color_scheme=DEFAULT_COLOR_SCHEME).graph_json,
+        options=DEFAULT_GRAPH_OPTIONS
+    )], style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+
 # master app layout, includes layouts defined above
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
+    html.Div(children=[LAYOUT_STRUCTURE_VIEWER, LAYOUT_GRAPH_VIEWER],
+             id='preload', style={'display': 'none'}),
     html.Br(),
     html.H1('', style={'text-align': 'center'}),
     html.Br(),
@@ -102,15 +163,16 @@ app.layout = html.Div([
                 className='seven columns',
                 style={'text-align': 'right'},
                 children=[
-                    html.Div(id='viewer-container', children=[
-                        mp_viewer.StructureViewerComponent(
-                            id='viewer',
-                            data=MPVisualizer(DEFAULT_STRUCTURE,
-                                              bonding_strategy=
-                                              DEFAULT_BONDING_METHOD,
-                                              color_scheme=
-                                              DEFAULT_COLOR_SCHEME).json
-                        )
+                    html.Div([
+                        dcc.Tabs(
+                            tabs=[
+                                {'label': 'Structure', 'value': 'structure'},
+                                {'label': 'Bonding Graph', 'value': 'graph'}
+                            ],
+                            value='structure',
+                            id='tabs'),
+                        html.Div(id='tab-output',
+                                 style={'border-style': 'solid'})
                     ])
                 ]
             ),
@@ -118,8 +180,18 @@ app.layout = html.Div([
                 className='three columns',
                 style={'text-align': 'left'},
                 children=[
+                    html.H2('MP Viewer'),
+                    html.Div('Powered by pymatgen v{} and the Materials Project. '
+                             'Contact mkhorton@lbl with bug reports.'.format(pymatgen_version)),
+                    html.Hr(),
+                    html.H5('Input'),
                     LAYOUT_FORMULA_INPUT,
                     html.Br(),
+                    LAYOUT_UPLOAD_INPUT,
+                    html.Br(),
+                    html.Div(id='mp_text'),
+                    html.Hr(),
+                    html.H5('Options'),
                     LAYOUT_VISIBILITY_OPTIONS,
                     html.Br(),
                     LAYOUT_POLYHEDRA_VISIBILITY_OPTIONS,
@@ -127,9 +199,8 @@ app.layout = html.Div([
                     LAYOUT_BONDING_DROPDOWN,
                     html.Br(),
                     LAYOUT_COLOR_SCHEME_DROPDOWN,
-                    html.Br(),
-                    html.Div(id='mp_text'),
-                    html.Br(),
+                    html.Hr(),
+                    html.H5('Developer'),
                     LAYOUT_DEVELOPER_TEXTBOX
                 ]
             ),
@@ -179,11 +250,27 @@ def update_color_options(n_clicks, input_formula_mpid):
 
 @app.callback(
     Output('structure', 'value'),
-    [Input('url', 'search')]
+    [Input('url', 'search'),
+     Input('upload-data', 'contents'),
+     Input('upload-data', 'filename'),
+     Input('upload-data', 'last_modified')]
 )
-def update_structure(search_query):
+def update_structure(search_query, list_of_contents, list_of_filenames, list_of_modified_dates):
 
-    if search_query:
+    if list_of_contents is not None:
+
+        # assume we only want the first input for now
+        content_type, content_string = list_of_contents[0].split(',')
+        decoded_contents = b64decode(content_string)
+        name = list_of_filenames[0]
+
+        # necessary to write to file so pymatgen's filetype detection can work
+        with NamedTemporaryFile(suffix=name) as tmp:
+            tmp.write(decoded_contents)
+            tmp.flush()
+            structure = Structure.from_file(tmp.name)
+
+    elif search_query:
         # strip leading ? from query, and parse into dict
         search_query = parse_qs(search_query[1:])
         if 'structure' in search_query:
@@ -196,7 +283,7 @@ def update_structure(search_query):
     else:
         structure = DEFAULT_STRUCTURE
 
-    return json.dumps(json.loads(structure.to_json()), indent=4)
+    return json.dumps(structure.as_dict(verbosity=0), indent=4)
 
 
 @app.callback(
@@ -204,12 +291,12 @@ def update_structure(search_query):
     [Input('structure', 'value')]
 )
 def find_structure_on_mp(structure):
-    structure = Structure.from_str(structure, fmt='json')
+    structure = Structure.from_dict(json.loads(structure))
     mpids = mpr.find_structure(structure)
     if mpids:
         links = ", ".join(["[{}](https://materialsproject.org/materials/{})".format(mpid, mpid)
                            for mpid in mpids])
-        return dcc.Markdown("This structure is available on Materials Project: {}".format(links))
+        return dcc.Markdown("This material is available on the Materials Project: {}".format(links))
     else:
         return ""
 
@@ -242,26 +329,67 @@ def format_query_string(n_clicks, input_formula_mpid, current_val):
 
 
 @app.callback(
-    Output('viewer', 'data'),
-    [Input('structure', 'value'),
-     Input('bonding_options', 'value'),
-     Input('color_schemes', 'value')])
-def update_crystal_displayed(structure, bonding_option, color_scheme):
-    structure = Structure.from_str(structure, fmt='json')
-
-    crystal_json = MPVisualizer(structure,
-                                bonding_strategy=bonding_option,
-                                color_scheme=color_scheme).json
-
-    return crystal_json
-
-
-@app.callback(
     Output('viewer', 'visibilityOptions'),
     [Input('visibility_options', 'values'),
      Input('polyhedra_visibility_options', 'value')])
 def update_visible_elements(visibility_options, polyhedra_visibility_options):
     return visibility_options + polyhedra_visibility_options
+
+
+@functools.lru_cache(1024)
+def get_structure_viewer_json(structure, bonding_option=None,
+                              color_scheme=None):
+
+    # TODO: change to MontyDecoder ? so that we can load sg too
+    structure = Structure.from_str(structure, fmt='json')
+
+    mp_vis = MPVisualizer(structure, bonding_strategy=bonding_option, color_scheme=color_scheme)
+
+    try:
+        json = mp_vis.json
+        json_error = False
+    except Exception as e:
+        json = str(e)
+        json_error = True
+
+    try:
+        graph_json = mp_vis.graph_json
+        graph_json_error = False
+    except Exception as e:
+        graph_json = str(e)
+        graph_json_error = True
+
+    return (json, json_error, graph_json, graph_json_error)
+
+@app.callback(
+    Output('tab-output', 'children'),
+    [Input('tabs', 'value'),
+     Input('structure', 'value'),
+     Input('bonding_options', 'value'),
+     Input('color_schemes', 'value')])
+def display_content(value, structure, bonding_option, color_scheme):
+
+    json, json_error, graph_json, graph_json_error = \
+        get_structure_viewer_json(structure, bonding_option=bonding_option,
+                                  color_scheme=color_scheme)
+
+    if value == 'structure':
+        if json_error:
+            return html.Div(json, id='error',
+                            style={'font-family':'monospace', 'color': 'red'})
+        else:
+            return html.Div(id='viewer-container', children=[
+                mp_viewer.StructureViewerComponent(id='viewer', data=json)],
+                            style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+    elif value == 'graph':
+        if graph_json_error:
+            return html.Div(graph_json, id='error',
+                            style={'font-family': 'monospace', 'color': 'red'})
+        else:
+            return html.Div(id='graph-container', children=[
+                GraphComponent(id='graph', graph=graph_json, options=DEFAULT_GRAPH_OPTIONS)],
+                            style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+
 
 
 app.server.secret_key = str(uuid4())
