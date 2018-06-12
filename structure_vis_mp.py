@@ -17,17 +17,21 @@ import os
 import numpy as np
 
 from enum import Enum
-from collections import namedtuple
+from collections import namedtuple, defaultdict, OrderedDict
 from monty.serialization import loadfn
 from matplotlib.cm import get_cmap
+import warnings
+import itertools
 
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
+from pymatgen.core.periodic_table import Specie
+from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.vis.structure_vtk import EL_COLORS
+from pymatgen.core.structure import Structure
 
 from scipy.spatial import Delaunay
-
 
 class MPVisualizer:
     """
@@ -38,15 +42,17 @@ class MPVisualizer:
     allowed_bonding_strategies = {subclass.__name__:subclass
                                   for subclass in NearNeighbors.__subclasses__()}
 
+    available_radius_strategies = ('atomic', 'bvanalyzer_ionic', 'average_ionic',
+                                   'covalent', 'van_der_waals', 'atomic_calculated')
+
     def __init__(self, structure, bonding_strategy='MinimumOKeeffeNN',
                  bonding_strategy_kwargs=None,
                  color_scheme="VESTA", color_scale=None,
-                 radius_strategy="ionic",
-                 coordination_polyhedra=False,
+                 radius_strategy="average_ionic",
                  draw_image_atoms=True,
                  repeat_of_atoms_on_boundaries=True,
-                 bonded_atoms_outside_unit_cell=True,
-                 scale=None):
+                 bonded_sites_outside_display_area=True,
+                 display_repeats=((0, 2), (0, 2), (0, 2))):
         """
         This class is used to generate a generic JSON of geometric primitives
         that can be parsed by a 3D rendering tool such as Three.js or Blender.
@@ -84,16 +90,16 @@ class MPVisualizer:
             radius_strategy: options are "ionic" or "van_der_Waals":
             by default, will use ionic radii if oxidation states are supplied or if BVAnalyzer
             can supply oxidation states, otherwise will use average ionic radius
-            coordination_polyhedra: if False, will not calculate coordination polyhedra,
-            if True will calculate coordination polyhedra taking the smallest atoms as
-            the vertices of the polyhedra, if a tuple of ints is supplied will only draw
-            polyhedra with those number of vertices (e.g. supplying (4,6) will only draw
-            tetrahedra and octahedra)
         """
+        # TODO: update docstring
 
-        # draw periodic repeats if requested
-        if scale:
-            structure = structure * scale
+        # ensure fractional co-ordinates are normalized to be in [0,1)
+        # (this is actually not guaranteed by Structure)
+        if isinstance(structure, Structure):
+            structure = structure.as_dict(verbosity=0)
+            for site in structure['sites']:
+                site['abc'] = np.mod(site['abc'], 1)
+            structure = Structure.from_dict(structure)
 
         # we assume most uses of this class will give a structure as an input argument,
         # meaning we have to calculate the graph for bonding information, however if
@@ -108,50 +114,49 @@ class MPVisualizer:
                 bonding_strategy = self.allowed_bonding_strategies[bonding_strategy](**bonding_strategy_kwargs)
                 self.structure_graph = StructureGraph.with_local_env_strategy(structure,
                                                                               bonding_strategy)
-            self.lattice = structure.lattice
+                cns = [self.structure_graph.get_coordination_of_site(i)
+                       for i in range(len(structure))]
+                self.structure_graph.structure.add_site_property('coordination_no', cns)
         else:
             self.structure_graph = structure
-            self.lattice = self.structure_graph.structure.lattice
 
-        if coordination_polyhedra:
-            # TODO: coming soon
-            raise NotImplementedError
+        self.structure = self.structure_graph.structure
+        self.lattice = self.structure_graph.structure.lattice
 
         self.color_scheme = color_scheme
         self.color_scale = color_scale
         self.radius_strategy = radius_strategy
-        self.coordination_polyhedra = coordination_polyhedra
         self.draw_image_atoms = draw_image_atoms
-        self.repeat_of_atoms_on_boundaries = repeat_of_atoms_on_boundaries
-        self.bonded_atoms_outside_unit_cell = bonded_atoms_outside_unit_cell
+        self.bonded_sites_outside_display_area = bonded_sites_outside_display_area
+        self.display_range = display_repeats
+
+        # categorize site properties so we know which can be used for color schemes etc.
+        self.site_prop_names = self._analyze_site_props()
+
+        self.color_legend = self._generate_colors()  # adds 'display_color' site prop
+        self._generate_radii()  # adds 'display_radius' site prop
 
     @property
     def json(self):
 
-        json = {}
+        atoms = self._generate_atoms()
+        bonds = self._generate_bonds(atoms)
+        polyhedra_json = self._generate_polyhedra(atoms, bonds)
+        unit_cell_json = self._generate_unit_cell()
 
-        # adds display colors as site properties
-        self._generate_colors()
-
-        # used to keep track of atoms outside periodic boundaries for bonding
-        self._atom_indexes = {}
-        self._site_images_to_draw = {}
-        self._bonds = []
-        self._polyhedra = []
-
-        # TODO: remove side effects
-        json.update(self._generate_atoms())
-        json.update(self._generate_bonds())
-        json.update(self._generate_polyhedra())
-        json.update(self._generate_unit_cell())
+        json = {
+            'atoms': list(atoms.values()),
+            'bonds': list(bonds.values()),
+            'polyhedra': polyhedra_json,
+            'unit_cell': unit_cell_json,
+            'color_legend': self.color_legend,
+            'site_props': self.site_prop_names
+        }
 
         return json
 
     @property
     def graph_json(self):
-
-        # adds display colors as site properties
-        self._generate_colors()
 
         nodes = []
         edges = []
@@ -159,7 +164,7 @@ class MPVisualizer:
         for node in self.structure_graph.graph.nodes():
 
             r, g, b = self.structure_graph.structure[node].properties['display_color'][0]
-            color = "rgb({},{},{})".format(r, g, b)
+            color = "#{:02x}{:02x}{:02x}".format(r, g, b)
 
             nodes.append({
                 'id': node,
@@ -172,6 +177,10 @@ class MPVisualizer:
             edge = {'from': u, 'to': v, 'arrows': ''}
 
             to_jimage = d['to_jimage']
+
+            # TODO: check these edge weights
+            dist = self.structure.get_distance(u, v, to_jimage)
+            edge['length'] = 50*dist
             if to_jimage != (0, 0, 0):
                 edge['arrows'] = 'to'
                 edge['label'] = str(to_jimage)
@@ -180,172 +189,227 @@ class MPVisualizer:
 
         return {'nodes': nodes, 'edges': edges}
 
+    def _analyze_site_props(self):
+
+        # store list of site props that are vectors, so these can be displayed as arrows
+        # (implicitly assumes all site props for a given key are same type)
+        site_prop_names = defaultdict(list)
+        for name, props in self.structure_graph.structure.site_properties.items():
+            if isinstance(props[0], float) or isinstance(props[0], int):
+                site_prop_names['scalar'].append(name)
+            elif isinstance(props[0], list) and len(props[0]) == 3:
+                if isinstance(props[0][0], list) and len(props[0][0]) == 3:
+                    site_prop_names['matrix'].append(name)
+                else:
+                    site_prop_names['vector'].append(name)
+            elif isinstance(props[0], str):
+                site_prop_names['categorical'].append(name)
+
+        return site_prop_names
+
     def _generate_atoms(self):
-
-        # try to work out oxidation states
-        trans = AutoOxiStateDecorationTransformation
-        try:
-            bv_structure = trans.apply_transformation(self.structure_graph.structure)
-        except:
-            # if we can't assign valences juse use original structure
-            bv_structure = self.structure_graph.structure
-
-        self._bonds = []
 
         # to translate atoms so that geometric center at (0, 0, 0)
         # in global co-ordinate system
-        lattice = self.structure_graph.structure.lattice
-        geometric_center = lattice.get_cartesian_coords((0.5, 0.5, 0.5))
+        x_center = 0.5 * (max(self.display_range[0]) - min(self.display_range[0]))
+        y_center = 0.5 * (max(self.display_range[1]) - min(self.display_range[1]))
+        z_center = 0.5 * (max(self.display_range[2]) - min(self.display_range[2]))
+        self.geometric_center = self.lattice.get_cartesian_coords((x_center, y_center, z_center))
 
-        # used to easily find positions of atoms that lie on periodic boundaries
-        adjacent_images = [
-            (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1),
-            (1, 1, 0), (1, -1, 0), (-1, 1, 0), (-1, -1, 0),
-            (0, 1, 1), (0, 1, -1), (0, -1, 1), (0, -1, -1),
-            (1, 0, 1), (1, 0, -1), (-1, 0, 1), (-1, 0, -1),
-            (1, 1, 1), (1, 1, -1), (1, -1, 1), (-1, 1, 1),
-            (1, -1, -1), (-1, 1, -1), (-1, -1, 1), (-1, -1, -1)
-        ]
+        ranges = [range(int(np.sign(r[0])*np.ceil(np.abs(r[0]))),
+                        1+int(np.sign(r[1])*np.ceil(np.abs(r[1])))) for r in self.display_range]
+        possible_images = list(itertools.product(*ranges))
 
-        self.site_images_to_draw = {i:[] for i in range(len(self.structure_graph))}
-        for site_idx, site in enumerate(self.structure_graph.structure):
+        site_images_to_draw = defaultdict(list)
 
-            images_to_draw = [(0, 0, 0)]
-            if self.repeat_of_atoms_on_boundaries:
-                possible_positions = [site.frac_coords + adjacent_image
-                                      for adjacent_image in adjacent_images]
-                # essentially find which atoms lie on periodic boundaries, and
-                # draw their repeats
-                images_to_draw += [image for image, p in zip(adjacent_images, possible_positions)
-                                  if 0 <= p[0] <= 1 and 0 <= p[1] <= 1 and 0 <= p[2] <= 1]
+        lower_corner = np.array([min(r) for r in self.display_range])
+        upper_corner = np.array([max(r) for r in self.display_range])
+        for idx, site in enumerate(self.structure):
+            for image in possible_images:
+                frac_coords = np.add(image, site.frac_coords)
+                if np.all(np.less_equal(lower_corner, frac_coords)) \
+                        and np.all(np.less_equal(frac_coords, upper_corner)):
+                    site_images_to_draw[idx].append(image)
 
-            self.site_images_to_draw[site_idx] += images_to_draw
-
-            # get bond information for site
-            # why? to know if we want to draw an image atom,
-            # we have to know what bonds are present
-            for image in images_to_draw:
-
+        images_to_add = defaultdict(list)
+        if self.bonded_sites_outside_display_area:
+            for site_idx, images in site_images_to_draw.items():
                 for u, v, d in self.structure_graph.graph.edges(nbunch=site_idx, data=True):
 
-                    to_jimage = tuple(np.add(d['to_jimage'], image))
-                    self._bonds.append((site_idx, image, v, to_jimage))
+                    for image in images:
+                        # check bonds going in both directions, i.e. from u or from v
+                        # to_image is defined from u going to v
+                        to_image = tuple(np.add(d['to_jimage'], image).astype(int))
 
-                    if to_jimage not in self.site_images_to_draw[v]:
-                        self.site_images_to_draw[v].append(to_jimage)
+                        # make sure we're drawing the site the bond is going to
+                        if to_image not in site_images_to_draw[v]:
+                            images_to_add[v].append(to_image)
 
-                    if self.bonded_atoms_outside_unit_cell and \
-                                    to_jimage != (0, 0, 0) and image == (0, 0, 0):
+                        # and also the site the bond is coming from
+                        from_image_complement = tuple(np.multiply(-1, to_image))
+                        if from_image_complement not in site_images_to_draw[u]:
+                            images_to_add[u] = from_image_complement
 
-                        from_image_complement = tuple(np.multiply(-1, to_jimage))
-                        self._bonds.append((site_idx, from_image_complement, v, (0, 0, 0)))
+        atoms = OrderedDict()
+        for site_idx, images in site_images_to_draw.items():
 
-                        if from_image_complement not in self.site_images_to_draw[site_idx]:
-                            self.site_images_to_draw[site_idx].append(from_image_complement)
+            site = self.structure[site_idx]
 
-        atoms = []
-        self._atoms_cart = {}
-        for atom_idx, (site_idx, images) in enumerate(self.site_images_to_draw.items()):
+            # for disordered structures
+            occu_start = 0.0
+            fragments = []
+
+            for comp_idx, (sp, occu) in enumerate(site.species_and_occu.items()):
+
+                # in disordered structures, we fractionally color-code spheres,
+                # drawing a sphere segment from phi_end to phi_start
+                # (think a sphere pie chart)
+                phi_frac_end = occu_start + occu
+                phi_frac_start = occu_start
+                occu_start = phi_frac_end
+
+                radius = site.properties['display_radius'][comp_idx]
+                color = site.properties['display_color'][comp_idx]
+
+                name = "{}".format(sp)
+                if occu != 1.0:
+                    name += " ({}% occupancy)".format(occu)
+
+                fragments.append(
+                    {
+                        'radius': radius,
+                        'color': color,
+                        'name': name,
+                        'phi_start': phi_frac_start * np.pi * 2,
+                        'phi_end': phi_frac_end * np.pi * 2
+                    }
+                )
+
+            bond_color = fragments[0]['color'] if site.is_ordered else [55, 55, 55]
+
+            # TODO: do some appropriate scaling here
+            if 'vector' in self.site_prop_names:
+                vectors = {name:site.properties[name] for name in self.site_prop_names['vector']}
+            else:
+                vectors = None
+
+            if 'matrix' in self.site_prop_names:
+                matrices = {name:site.properties[name] for name in self.site_prop_names['matrix']}
+            else:
+                matrices = None
 
             for image in images:
 
-                self._atom_indexes[(site_idx, image)] = len(atoms)
-
-                # for disordered structures
-                occu_start = 0.0
-                fragments = []
-
-                site = self.structure_graph.structure[site_idx]
                 position_cart = list(np.subtract(
-                    lattice.get_cartesian_coords(np.add(site.frac_coords, image)),
-                    geometric_center))
+                    self.lattice.get_cartesian_coords(np.add(site.frac_coords, image)),
+                    self.geometric_center))
 
-                self._atoms_cart[(site_idx, image)] = position_cart
-
-                for comp_idx, (sp, occu) in enumerate(site.species_and_occu.items()):
-
-                    # in disordered structures, we fractionally color-code spheres,
-                    # drawing a sphere segment from phi_end to phi_start
-                    # (think a sphere pie chart)
-                    phi_frac_end = occu_start + occu
-                    phi_frac_start = occu_start
-                    occu_start = phi_frac_end
-
-                    bv_site = bv_structure[site_idx]
-
-                    # get radius of sphere we want to draw
-                    if self.radius_strategy == 'ionic':
-                        radius = getattr(bv_site.specie, "ionic_radius",
-                                         bv_site.specie.average_ionic_radius)
-                    else:
-                        radius = site.species.van_der_waals_radius
-
-                    color = site.properties['display_color'][comp_idx]
-
-                    # generate a label (e.g. to use for mouse-over text)
-                    if not bv_structure.is_ordered and sp != bv_structure[site_idx].specie:
-                        # if we can guess what oxidation states are present,
-                        # add them as a label ... we only attempt this for ordered structures
-                        name = "{} (detected as likely {})".format(site.specie,
-                                                                   bv_structure[site_idx].specie)
-                    else:
-                        name = "{}".format(sp)
-
-                    if occu != 1.0:
-                        name += " ({}% occupancy)".format(occu)
-
-                    fragments.append(
-                        {
-                            'radius': radius,
-                            'color': color,
-                            'name': name,
-                            'phi_start': phi_frac_start*np.pi*2,
-                            'phi_end': phi_frac_end*np.pi*2
-                        }
-                    )
-
-
-                atoms.append({
+                atoms[(site_idx, image)] = {
                     'type': 'sphere',
                     'position': position_cart,
-                    'bond_color': fragments[0]['color'] if site.is_ordered else [55, 55, 55],
+                    'bond_color': bond_color,
                     'fragments': fragments,
-                    'ghost': True if image != (0, 0, 0) else False
-                })
+                    'vectors': vectors,
+                    'matrices': matrices
+                }
 
-        return {
-            'atoms': atoms
-        }
+        return atoms
 
-    def _generate_bonds(self, bonds=..., atom_indexes=...):
+    def _generate_bonds(self, atoms):
 
-        # most of bonding logic is done inside _generate_atoms
-        # why? because to decide which atoms we want to draw, we
-        # first have to construct the bonds
+        bonds_set = set()
+        atoms = list(atoms.keys())
 
-        bonds = []
+        for site_idx, image in atoms:
+            for u, v, d in self.structure_graph.graph.edges(nbunch=site_idx, data=True):
 
-        for from_site_idx, from_image, to_site_idx, to_image in self._bonds:
+                to_image = tuple(np.add(d['to_jimage'], image).astype(int))
 
-            from_atom_idx = self._atom_indexes[(from_site_idx, from_image)]
-            to_atom_idx = self._atom_indexes[(to_site_idx, to_image)]
-            bond = {
-                'from_atom_index': from_atom_idx,
-                'to_atom_index': to_atom_idx
-            }
+                bond = frozenset({(u, image), (v, to_image)})
+                bonds_set.add(bond)
 
-            if bond not in bonds:
-                bonds.append(bond)
+        bonds = OrderedDict()
+        for bond in bonds_set:
 
-        return {
-            'bonds': bonds
-        }
+            bond = tuple(bond)
 
-    def _generate_colors(self): # TODO change to return colors
+            try:
+                from_atom_idx = atoms.index(bond[0])
+                to_atom_idx = atoms.index(bond[1])
+            except ValueError:
+                pass  # one of the atoms in the bond isn't being drawn
+            else:
+                bonds[bond] = {
+                    'from_atom_index': from_atom_idx,
+                    'to_atom_index': to_atom_idx
+                }
+
+        return bonds
+
+    def _generate_radii(self):
 
         structure = self.structure_graph.structure
 
-        # TODO: get color scale object from matplotlib
+        # don't calculate radius if one is explicitly supplied
+        if 'display_radius' in structure.site_properties:
+            return
+
+        if self.radius_strategy is 'bvanalyzer_ionic':
+
+            trans = AutoOxiStateDecorationTransformation()
+            try:
+                structure = trans.apply_transformation(self.structure_graph.structure)
+            except:
+                # if we can't assign valences use average ionic
+                self.radius_strategy = 'average_ionic'
+
+        radii = []
+        for site_idx, site in enumerate(structure):
+
+            site_radii = []
+
+            for comp_idx, (sp, occu) in enumerate(site.species_and_occu.items()):
+
+                radius = None
+
+                if self.radius_strategy not in self.available_radius_strategies:
+                    raise ValueError("Unknown radius strategy {}, choose from: {}"
+                                     .format(self.radius_strategy, self.available_radius_strategies))
+
+                if self.radius_strategy is 'atomic':
+                    radius = sp.atomic_radius
+                elif self.radius_strategy is 'bvanalyzer_ionic' and isinstance(sp, Specie):
+                    radius = sp.ionic_radius
+                elif self.radius_strategy is 'average_ionic':
+                    radius = sp.average_ionic_radius
+                elif self.radius_strategy is 'covalent':
+                    el = str(getattr(sp, 'element', sp))
+                    radius = CovalentRadius.radius[el]
+                elif self.radius_strategy is 'van_der_waals':
+                    radius = sp.van_der_waals_radius
+                elif self.radius_strategy is 'atomic_calculated':
+                    radius = sp.atomic_radius_calculated
+
+                if not radius:
+                    warnings.warn('Radius unknown for {} and strategy {}, '
+                                  'setting to 1.0.'.format(sp, self.radius_strategy))
+                    radius = 1.0
+
+                site_radii.append(radius)
+
+            radii.append(site_radii)
+
+        self.structure_graph.structure.add_site_property('display_radius', radii)
+
+
+    def _generate_colors(self):
+
+        structure = self.structure_graph.structure
+        legend = {}
+
+        # don't calculate color if one is explicitly supplied
+        if 'display_color' in structure.site_properties:
+            return legend  # don't know what the color legend (meaning) is, so return empty legend
 
         if self.color_scheme not in ('VESTA', 'Jmol'):
 
@@ -354,11 +418,11 @@ class MPVisualizer:
                                  'for disordered structures, color schemes based '
                                  'on site properties are ill-defined.')
 
-            if self.color_scheme in structure.site_properties:
+            if self.color_scheme in self.site_prop_names.get('scalar', []):
 
                 props = np.array(structure.site_properties[self.color_scheme])
 
-                if min(props) < 0:
+                if min(props) < 0 and max(props) > 0:
                     # by default, use blue-grey-red color scheme,
                     # so that zero is ~ grey, and positive/negative
                     # are red/blue
@@ -378,14 +442,34 @@ class MPVisualizer:
                 # normalize in [0, 1] range, as expected by cmap
                 props = (props - min(props)) / (max(props) - min(props))
 
-                # TODO: reduce calls to cmap here
-                colors = [[[int(cmap(x)[0]*255),
-                            int(cmap(x)[1]*255),
-                            int(cmap(x)[2]*255)]] for x in props]
+                props_cmap = [cmap(x) for x in props]
+
+                colors = [[[int(c[0]*255),
+                            int(c[1]*255),
+                            int(c[2]*255)]] for c in props_cmap]
+
+                # construct legend
+                c = "#{:02x}{:02x}{:02x}".format(*cmap(color_min)[0:3])
+                legend[c] = color_min
+                if color_max != color_min:
+
+                    c = "#{:02x}{:02x}{:02x}".format(*cmap(color_max)[0:3])
+                    legend[c] = color_max
+
+                    color_mid = (color_max-color_min)/2
+                    if color_max%1 == 0 and color_min%1 == 0  and color_max-color_min > 1:
+                        color_mid = int(color_mid)
+
+                    c = "#{:02x}{:02x}{:02x}".format(*cmap(color_mid)[0:3])
+                    legend[c] = color_mid
+
+            elif self.color_scheme in self.site_prop_names.get('categorical', []):
+                raise NotImplementedError
+                # iter() a palettable  palettable.colorbrewer.qualitative cmap.colors, check len, Set1_9 ?
 
             else:
                 raise ValueError('Unsupported color scheme. Should be "VESTA", "Jmol" or '
-                                 'a site property.')
+                                 'a scalar or categorical site property.')
         else:
 
             colors = []
@@ -393,36 +477,47 @@ class MPVisualizer:
                 elements = [sp.as_dict()['element'] for sp, _ in site.species_and_occu.items()]
                 colors.append([EL_COLORS[self.color_scheme][element] for element in elements])
 
+                # construct legend
+                for element in elements:
+                    color = "#{:02x}{:02x}{:02x}".format(*EL_COLORS[self.color_scheme][element])
+                    legend[color] = element
+
         self.structure_graph.structure.add_site_property('display_color', colors)
+
+        return legend
 
     def _generate_unit_cell(self):
 
-        frac_vertices = [
-            [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
-            [1, 1, 0], [0, 1, 1], [1, 0, 1], [1, 1, 1]
+        o = -self.geometric_center
+        a, b, c = self.lattice.matrix[0], self.lattice.matrix[1], self.lattice.matrix[2]
+
+        line_pairs = [
+            o, o+a, o, o+b, o, o+c,
+            o+a, o+a+b, o+a, o+a+c,
+            o+b, o+b+a, o+b, o+b+c,
+            o+c, o+c+a, o+c, o+c+b,
+            o+a+b, o+a+b+c, o+a+c, o+a+b+c, o+b+c, o+a+b+c
         ]
 
-        cart_vertices = [list(self.lattice.get_cartesian_coords(np.subtract(vert, (0.5, 0.5, 0.5))))
-                         for vert in frac_vertices]
-
-        tri = Delaunay(cart_vertices)
+        line_pairs = [line.tolist() for line in line_pairs]
 
         unit_cell = {
-                'type': 'convex',
-                'points': cart_vertices,
-                'hull': tri.convex_hull.tolist(),
-            }
-
-        return {
-            'unit_cell': unit_cell
+            'type': 'lines',
+            'lines': line_pairs
         }
 
-    def _generate_polyhedra(self, bonds=..., atom_indexes=..., atom_cart=...):
+        return unit_cell
 
-        if not self.bonded_atoms_outside_unit_cell:
-            raise ValueError("All bonds from unit cell must be drawn to be able to reliably "
-                             "draw co-ordination polyhedra, please set "
-                             "bonded_atoms_outside_unit_cell to True.")
+    def _generate_polyhedra(self, atoms, bonds):
+
+        return {
+            'polyhedra_types': [],
+            'polyhedra_list': []
+        }
+
+        atoms = list(atoms.keys())
+        bonds = list(bonds.keys())
+        print(bonds)
 
         # this just creates a list of all bonded atoms from each site
         # (this isn't used for the bonding itself, otherwise we'd be
@@ -463,8 +558,6 @@ class MPVisualizer:
                                          for (site, image) in polyhedron_points]
 
                 # calculate the hull
-                #print(len(polyhedron_points_cart))
-                #print(polyhedron_points_cart)
 
                 try:
                     tri = Delaunay(polyhedron_points_cart)

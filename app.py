@@ -8,10 +8,13 @@ from dash_react_graph_vis import GraphComponent
 import numpy as np
 import json
 import functools
+import warnings
+import random
 
 from base64 import urlsafe_b64decode, b64decode
 from zlib import decompress
-from urllib.parse import parse_qs
+from ast import literal_eval
+from urllib.parse import parse_qsl, urlencode, urlparse
 from uuid import uuid4
 from tempfile import NamedTemporaryFile
 
@@ -24,18 +27,41 @@ from structure_vis_mp import MPVisualizer
 from pymatgen import __version__ as pymatgen_version
 from pymatgen import MPRester, Structure
 from pymatgen.analysis.local_env import NearNeighbors
+from pymatgen.util.string import unicodeify
 
 app = dash.Dash()
 app.title = "MP Viewer"
 
 app.scripts.config.serve_locally = True
-app.css.append_css({'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
+app.css.append_css({'external_url': 'https://codepen.io/mkhorton/pen/aKmNxW.css'})
+app.config['suppress_callback_exceptions'] = True
 
 mpr = MPRester()
 
+# TODO move this to css file
+error_style = {'font-family':'monospace', 'color': 'rgb(211, 84, 0)',
+               'text-align': 'left', 'font-size': '1.2em'}
+
 DEFAULT_STRUCTURE = loadfn('default_structure.json')
-DEFAULT_COLOR_SCHEME = 'VESTA'
-DEFAULT_BONDING_METHOD = 'CrystalNN'
+
+DEFAULT_OPTIONS = {
+    'display': 'structure',
+    'range_a_min': 0,
+    'range_b_min': 0,
+    'range_c_min': 0,
+    'range_a_max': 1,
+    'range_b_max': 1,
+    'range_c_max': 1,
+    'atoms': True,
+    'bonds': True,
+    'polyhedra': True,
+    'unitcell': True,
+    'structure': None,
+    'bonding_method': 'CrystalNN',
+    'radius_method': 'average_ionic',
+    'color_scheme': 'VESTA'
+}
+
 DEFAULT_GRAPH_OPTIONS = {
     'edges': {
         'smooth': {
@@ -57,20 +83,34 @@ DEFAULT_GRAPH_OPTIONS = {
 AVAILABLE_BONDING_METHODS = [str(c.__name__)
                              for c in NearNeighbors.__subclasses__()]
 
-# to help with readability, each component of the app is defined
-# in a modular way below; these are all then included in the app.layout
+ALL_MPIDS = loadfn('all_mpids.json')
 
-LAYOUT_FORMULA_INPUT = html.Div([
-    dcc.Input(id='input-box', type='text', placeholder='Enter a formula or mp-id'),
-    html.Span(' '),
-    html.Button('Load', id='button')
-])
+# to help with readability, each component of the app is defined
+# in a modular way below which are then all then included in the app.layout
+
+def help_layout(message):
+    return html.Div([" \u003f\u20dd ", html.Span(message, className="tooltiptext")],
+                    className="tooltip")
+
+def layout_formula_input(value):
+    return html.Div([
+        html.Label('Load from Materials Project:'),
+        dcc.Input(id='input-box', type='text', placeholder='Enter a formula or mp-id', value=value,
+                  style={'float': 'left', 'width': 'auto'}),
+        html.Span(' '),
+        html.Button('Load', id='button')
+    ])
 
 LAYOUT_UPLOAD_INPUT = html.Div([
+    html.Label('or load from a local file:'),
     dcc.Upload(id='upload-data',
         children=html.Div([
-            'Drag and Drop or ',
-            html.A('Select File')
+            html.Span(
+            ['Drag and Drop or ',
+            html.A('Select File')],
+            id='upload-label'),
+            help_layout("Upload any file that pymatgen supports, "
+                        "including CIF and VASP file formats.")
         ]),
         style={
             'width': '100%',
@@ -80,161 +120,183 @@ LAYOUT_UPLOAD_INPUT = html.Div([
             'borderStyle': 'dashed',
             'borderRadius': '5px',
             'textAlign': 'center',
-            'margin': '10px'
         },
         multiple=True)
 ])
 
-LAYOUT_VISIBILITY_OPTIONS = html.Div([
-    dcc.Checklist(
-        id='visibility_options',
-        options=[
-            {'label': 'Auto Rotate', 'value': 'rotate'},
-            {'label': 'Draw Atoms', 'value': 'atoms'},
-            {'label': 'Draw Bonds', 'value': 'bonds'},
-            {'label': 'Draw Polyhedra', 'value': 'polyhedra'},
-            {'label': 'Draw Unit Cell', 'value': 'unitcell'}
-        ],
-        values=['atoms', 'bonds', 'unitcell']
-    )])
+@app.callback(
+    Output('upload-label', 'children'),
+    [Input('upload-data', 'filename')],
+    [State('upload-label', 'children')]
+)
+def callback_upload_label(filenames, current_upload_label):
+    """
+    Displays the filename of any uploaded data.
+    """
+    if filenames:
+        return "{}".format(", ".join(filenames))
+    else:
+        return current_upload_label
 
-LAYOUT_POLYHEDRA_VISIBILITY_OPTIONS = html.Div([
+@app.callback(
+    Output('input-box', 'value'),
+    [Input('upload-data', 'filename')],
+    [State('input-box', 'value')]
+)
+def callback_query_label(filenames, current_query):
+    """
+    Clears the current query if data is uploaded from a file.
+    """
+    if filenames:
+        return []
+    else:
+        return current_query
+
+
+def layout_visibility_checklist(values):
+    return html.Div([
+        dcc.Checklist(
+            id='visibility_options',
+            options=[
+                {'label': 'Show Atoms', 'value': 'atoms'},
+                {'label': 'Show Bonds', 'value': 'bonds'},
+                {'label': 'Show Polyhedra', 'value': 'polyhedra'},
+                {'label': 'Show Unit Cell', 'value': 'unitcell'}
+            ],
+            values=values
+        )
+    ])
+
+
+def layout_polyhedra_visibility_dropdown(value):
+    default_options = [value] if value else []
+    return html.Div([
     html.Label("Choose Polyhedra"),
     dcc.Dropdown(
         id='polyhedra_visibility_options',
-        options=[],
-        multi=True
+        options=default_options,
+        multi=True,
+        value=value
     )])
 
-LAYOUT_BONDING_DROPDOWN = html.Div([html.Label("Bonding Algorithm"), dcc.Dropdown(
-    id='bonding_options',
-    options=[
-        {'label': method, 'value': method} for method in AVAILABLE_BONDING_METHODS
-    ],
-    value=DEFAULT_BONDING_METHOD
+
+def layout_bonding_method_dropdown(value):
+    return html.Div([html.Label("Bonding Algorithm"), dcc.Dropdown(
+        id='bonding_options',
+        options=[
+            {'label': method, 'value': method} for method in AVAILABLE_BONDING_METHODS
+        ],
+        value=value
 )])
 
-LAYOUT_COLOR_SCHEME_DROPDOWN = html.Div([html.Label("Color Code"), dcc.Dropdown(
-    id='color_schemes',
-    options=[
-        {'label': option, 'value': option} for option in ['VESTA', 'Jmol']
-    ],
-    value=DEFAULT_COLOR_SCHEME
+
+def layout_color_scheme_dropdown(value):
+    default_color_schemes = ['VESTA', 'Jmol']
+    if value not in default_color_schemes:
+        default_color_schemes += value
+    return html.Div([html.Label("Color Scheme"), dcc.Dropdown(
+        id='color_schemes',
+        options=[
+            {'label': option, 'value': option} for option in default_color_schemes
+        ],
+        value=value
 )])
 
-LAYOUT_DEVELOPER_TEXTBOX = html.Div([html.Label("Enter Structure JSON:"), dcc.Textarea(
-    id='structure',
-    placeholder='Developer console',
-    value='',
-    style={'width': '100%', 'overflow-y': 'scroll',
-           'height': '400px', 'font-family': 'monospace'}
-)])
 
-LAYOUT_STRUCTURE_VIEWER = html.Div(id='viewer-container', children=[
-    mp_viewer.StructureViewerComponent(
-        id='viewer',
-        data=MPVisualizer(DEFAULT_STRUCTURE,
-                          bonding_strategy=DEFAULT_BONDING_METHOD,
-                          color_scheme=DEFAULT_COLOR_SCHEME).json
-    )], style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+def layout_structure_json_textarea(value):
+    return html.Div([
+        html.Div([
+            html.Br(),
+            html.Label("Edit crystal structure live as pymatgen structure JSON:"),
+            dcc.Textarea(
+                id='structure',
+                placeholder='Paste JSON from a pymatgen Structure object here,'
+                            'using output from Structure.to_json()',
+                value='',
+                style={'overflow-y': 'scroll', 'width': '100%',
+                       'height': '80vh', 'font-family': 'monospace'})
+        ], className="six columns"),
+        html.Div([
+            html.Br(),
+            html.Label("", id='structure-highlighted-error', style=error_style),
+            dcc.SyntaxHighlighter(
+                id='structure-highlighted',
+                children="",
+                language='javascript',
+                showLineNumbers=True,
+                customStyle={'overflow-y': 'scroll', 'height': '80vh'})
+        ], className="six columns")
+    ], className="row")
 
-LAYOUT_GRAPH_VIEWER = html.Div(id='graph-container', children=[
-    GraphComponent(
-        id='graph',
-        graph=MPVisualizer(DEFAULT_STRUCTURE,
-                           bonding_strategy=DEFAULT_BONDING_METHOD,
-                           color_scheme=DEFAULT_COLOR_SCHEME).graph_json,
-        options=DEFAULT_GRAPH_OPTIONS
-    )], style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+@app.callback(
+    Output('structure-highlighted', 'children'),
+    [Input('structure', 'value')]
+)
+def callback_highlighted_json(structure_json):
+    return str(structure_json)
 
-# master app layout, includes layouts defined above
-app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.Div(children=[LAYOUT_STRUCTURE_VIEWER, LAYOUT_GRAPH_VIEWER],
-             id='preload', style={'display': 'none'}),
-    html.Br(),
-    html.H1('', style={'text-align': 'center'}),
-    html.Br(),
-    html.Div(
-        className='row',
-        children=[
-            html.Div(className='one columns'),
-            html.Div(
-                className='seven columns',
-                style={'text-align': 'right'},
-                children=[
-                    html.Div([
-                        dcc.Tabs(
-                            tabs=[
-                                {'label': 'Structure', 'value': 'structure'},
-                                {'label': 'Bonding Graph', 'value': 'graph'}
-                            ],
-                            value='structure',
-                            id='tabs'),
-                        html.Div(id='tab-output',
-                                 style={'border-style': 'solid'})
-                    ])
-                ]
-            ),
-            html.Div(
-                className='three columns',
-                style={'text-align': 'left'},
-                children=[
-                    html.H2('MP Viewer'),
-                    html.Div('Powered by pymatgen v{} and the Materials Project. '
-                             'Contact mkhorton@lbl with bug reports.'.format(pymatgen_version)),
-                    html.Hr(),
-                    html.H5('Input'),
-                    LAYOUT_FORMULA_INPUT,
-                    html.Br(),
-                    LAYOUT_UPLOAD_INPUT,
-                    html.Br(),
-                    html.Div(id='mp_text'),
-                    html.Hr(),
-                    html.H5('Options'),
-                    LAYOUT_VISIBILITY_OPTIONS,
-                    html.Br(),
-                    LAYOUT_POLYHEDRA_VISIBILITY_OPTIONS,
-                    html.Br(),
-                    LAYOUT_BONDING_DROPDOWN,
-                    html.Br(),
-                    LAYOUT_COLOR_SCHEME_DROPDOWN,
-                    html.Hr(),
-                    html.H5('Developer'),
-                    LAYOUT_DEVELOPER_TEXTBOX
-                ]
-            ),
-            html.Div(className='one columns')
-        ])
-])
+@app.callback(
+    Output('structure-highlighted-error', 'children'),
+    [Input('structure', 'value')]
+)
+def callback_highlighted_json_error(structure_json):
+    try:
+        structure_dict = json.loads(structure_json)
+        Structure.from_dict(structure_dict)
+        return ""
+    except Exception as e:
+        return "Invalid JSON: {}".format(e)
+
+
+def layout_structure_viewer(data, visibilityOptions):
+    return html.Div(id='viewer-container', children=[
+        mp_viewer.StructureViewerComponent(
+            id='structure-viewer',
+            data=data,
+            visibilityOptions=visibilityOptions
+        )], style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+
+
+def layout_graph_viewer(graph):
+    return html.Div(id='graph-container', children=[
+        GraphComponent(
+            id='graph',
+            graph=graph,
+            options=DEFAULT_GRAPH_OPTIONS
+        )], style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+
+
+def layout_view_range(value):
+    return html.Div([html.Label("View Range"),
+                     dcc.Slider(
+                         id='view-range', min=0, max=3, step=1,
+                         value=value,
+                         marks={i: str(i) for i in range(4)}
+                     )])
 
 
 @app.callback(
     Output('color_schemes', 'options'),
-    [Input('button', 'n_clicks')],
-    [State('input-box', 'value')])
-def update_color_options(n_clicks, input_formula_mpid):
+    [Input('structure', 'value')])
+def callback_structure_viewer_to_color_options(structure_json):
     """
     Callback to update the available color scheme options
     (this is dynamic based on the structure site properties
     available).
-
-    :param n_clicks: triggered when the load button is clicked
-    :param input_formula_mpid:
-    :return:
     """
+    # TODO: rewrite from MPStructureVisualizer output
 
-    default_options = ['VESTA', 'Jmol']
-    available_options = default_options.copy()
+    default_options = ('VESTA', 'Jmol')
+    available_options = list(default_options)
 
-    if input_formula_mpid:
-        structure = mpr.get_structures(input_formula_mpid)[0]
-        for key, props in structure.site_properties.items():
-            props = np.array(props)
-            if len(props.shape) == 1:
-                # can't color-code for vectors,
-                # should draw arrows for these instead
-                available_options.append(key)
+    structure = Structure.from_dict(json.loads(structure_json))
+    for key, props in structure.site_properties.items():
+        props = np.array(props)
+        # "coordination_no" from MPRester should be deprecated ...
+        if len(props.shape) == 1 and key != "coordination_no":
+            # can't color-code for vectors,
+            # should draw arrows for these instead
+            available_options.append(key)
 
     def pretty_rewrite(option):
         if option not in default_options:
@@ -249,13 +311,34 @@ def update_color_options(n_clicks, input_formula_mpid):
 
 
 @app.callback(
-    Output('structure', 'value'),
-    [Input('url', 'search'),
-     Input('upload-data', 'contents'),
-     Input('upload-data', 'filename'),
-     Input('upload-data', 'last_modified')]
+    Output('url', 'search'),
+    [Input('button', 'n_clicks')],
+    [State('input-box', 'value')]
 )
-def update_structure(search_query, list_of_contents, list_of_filenames, list_of_modified_dates):
+def callback_update_query_string(input_formula_mpid_nclicks, input_formula_mpid):
+
+    query = {}
+
+    if input_formula_mpid:
+        query['query'] = input_formula_mpid
+
+    formatted_query = "?{}".format(urlencode(query))
+
+    if formatted_query != "?":
+        return formatted_query
+    else:
+        return ""
+
+
+@app.callback(
+    Output('structure', 'value'),
+    [Input('upload-data', 'contents'),
+     Input('upload-data', 'filename'),
+     Input('upload-data', 'last_modified'),
+     Input('url', 'search')]
+)
+def callback_update_structure(list_of_contents, list_of_filenames, list_of_modified_dates,
+                              search_query):
 
     if list_of_contents is not None:
 
@@ -272,16 +355,20 @@ def update_structure(search_query, list_of_contents, list_of_filenames, list_of_
 
     elif search_query:
         # strip leading ? from query, and parse into dict
-        search_query = parse_qs(search_query[1:])
+        search_query = dict(parse_qsl(search_query[1:]))
         if 'structure' in search_query:
             payload = search_query['structure'][0]
             payload = urlsafe_b64decode(payload)
             payload = decompress(payload)
             structure = Structure.from_str(payload, fmt='json')
-        elif 'query' in search_query:
-            structure = mpr.get_structures(search_query['query'][0])[0]
+        else:
+            structure = mpr.get_structures(search_query['query'])[0]
     else:
-        structure = DEFAULT_STRUCTURE
+        random_mpid = random.choice(ALL_MPIDS)
+        try:
+            structure = mpr.get_structure_by_material_id(random_mpid)
+        except:
+            structure = DEFAULT_STRUCTURE
 
     return json.dumps(structure.as_dict(verbosity=0), indent=4)
 
@@ -290,110 +377,249 @@ def update_structure(search_query, list_of_contents, list_of_filenames, list_of_
     Output('mp_text', 'children'),
     [Input('structure', 'value')]
 )
-def find_structure_on_mp(structure):
+def callback_structure_to_mp_link(structure):
     structure = Structure.from_dict(json.loads(structure))
     mpids = mpr.find_structure(structure)
+    formula = unicodeify(structure.composition.reduced_formula)
     if mpids:
         links = ", ".join(["[{}](https://materialsproject.org/materials/{})".format(mpid, mpid)
                            for mpid in mpids])
-        return dcc.Markdown("This material is available on the Materials Project: {}".format(links))
+        return dcc.Markdown("{} is available on the Materials Project: {}".format(formula, links))
     else:
         return ""
 
 
 @app.callback(
     Output('polyhedra_visibility_options', 'options'),
-    [Input('viewer', 'data')]
+    [Input('structure-viewer', 'data')]
 )
-def update_available_polyhedra(viewer_data):
+def callback_structure_viewer_to_polyhedra_options(viewer_data):
     available_polyhedra = viewer_data['polyhedra']['polyhedra_types']
     return [{'label': polyhedron, 'value': polyhedron} for polyhedron in available_polyhedra]
 
 @app.callback(
     Output('polyhedra_visibility_options', 'value'),
-    [Input('viewer', 'data')]
+    [Input('structure-viewer', 'data')]
 )
-def update_default_polyhedra(viewer_data):
+def callback_structure_viewer_to_default_polyhedra(viewer_data):
     return viewer_data['polyhedra']['polyhedra_types']
 
 @app.callback(
-    Output('url', 'search'),
-    [Input('button', 'n_clicks')],
-    [State('input-box', 'value'),
-     State('url', 'search')])
-def format_query_string(n_clicks, input_formula_mpid, current_val):
-    if not input_formula_mpid:
-        return current_val
-    else:
-        return "?query={}".format(input_formula_mpid)
-
-
-@app.callback(
-    Output('viewer', 'visibilityOptions'),
+    Output('structure-viewer', 'visibilityOptions'),
     [Input('visibility_options', 'values'),
      Input('polyhedra_visibility_options', 'value')])
-def update_visible_elements(visibility_options, polyhedra_visibility_options):
+def callback_update_visible_elements(visibility_options, polyhedra_visibility_options):
+    polyhedra_visibility_options = polyhedra_visibility_options or []
     return visibility_options + polyhedra_visibility_options
 
 
 @functools.lru_cache(1024)
 def get_structure_viewer_json(structure, bonding_option=None,
-                              color_scheme=None):
+                              color_scheme=None,
+                              display_repeats=((0, 2), (0, 2), (0, 2))):
 
     # TODO: change to MontyDecoder ? so that we can load sg too
     structure = Structure.from_str(structure, fmt='json')
 
-    mp_vis = MPVisualizer(structure, bonding_strategy=bonding_option, color_scheme=color_scheme)
+    mp_vis = MPVisualizer(structure,
+                          bonding_strategy=bonding_option,
+                          color_scheme=color_scheme,
+                          display_repeats=display_repeats)
 
     try:
         json = mp_vis.json
         json_error = False
     except Exception as e:
-        json = str(e)
-        json_error = True
+        warnings.warn(e)
+        json = {'error': str(e)}
 
     try:
         graph_json = mp_vis.graph_json
-        graph_json_error = False
     except Exception as e:
-        graph_json = str(e)
-        graph_json_error = True
+        warnings.warn(e)
+        graph_json = {'error': str(e)}
 
-    return (json, json_error, graph_json, graph_json_error)
+    return (json, graph_json)
 
 @app.callback(
-    Output('tab-output', 'children'),
-    [Input('tabs', 'value'),
-     Input('structure', 'value'),
-     Input('bonding_options', 'value'),
-     Input('color_schemes', 'value')])
-def display_content(value, structure, bonding_option, color_scheme):
+    Output('tab-output-graph', 'style'),
+    [Input('tabs', 'value')]
+)
+def callback_tab_output_graph(tab):
+    if tab == 'graph':
+        return {}
+    else:
+        return {'display': 'none'}
 
-    json, json_error, graph_json, graph_json_error = \
+@app.callback(
+    Output('tab-output-json', 'style'),
+    [Input('tabs', 'value')]
+)
+def callback_tab_output_json(tab):
+    if tab == 'json':
+        return {}
+    else:
+        return {'display': 'none'}
+
+@app.callback(
+    Output('tab-output-structure', 'style'),
+    [Input('tabs', 'value')]
+)
+def callback_tab_output_structure(tab):
+    if tab == 'structure':
+        return {}
+    else:
+        return {'display': 'none'}
+
+
+@app.callback(
+     Output('structure-viewer', 'data'),
+     [Input('structure', 'value'),
+      Input('bonding_options', 'value'),
+      Input('color_schemes', 'value'),
+      Input('view-range', 'value')]
+)
+def callback_structure_viewer_data(structure, bonding_option, color_scheme, range):
+
+    range = (0, range)
+    display_repeats = (range, range, range)
+
+    json, graph_json = \
         get_structure_viewer_json(structure, bonding_option=bonding_option,
-                                  color_scheme=color_scheme)
+                                  color_scheme=color_scheme, display_repeats=display_repeats)
 
-    if value == 'structure':
-        if json_error:
-            return html.Div(json, id='error',
-                            style={'font-family':'monospace', 'color': 'red'})
-        else:
-            return html.Div(id='viewer-container', children=[
-                mp_viewer.StructureViewerComponent(id='viewer', data=json)],
-                            style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
-    elif value == 'graph':
-        if graph_json_error:
-            return html.Div(graph_json, id='error',
-                            style={'font-family': 'monospace', 'color': 'red'})
-        else:
-            return html.Div(id='graph-container', children=[
-                GraphComponent(id='graph', graph=graph_json, options=DEFAULT_GRAPH_OPTIONS)],
-                            style={'height': '80vh', 'width': '100%', 'overflow': 'hidden'})
+    # TODO parse error
 
+    return json
+
+@app.callback(
+    Output('graph', 'graph'),
+    [Input('structure', 'value'),
+     Input('bonding_options', 'value'),
+     Input('color_schemes', 'value'),
+     Input('view-range', 'value')]
+)
+def callback_structure_viewer_data(structure, bonding_option, color_scheme, range):
+
+    range = (0, range)
+    display_repeats = (range, range, range)
+
+    json, graph_json = \
+        get_structure_viewer_json(structure, bonding_option=bonding_option,
+                                  color_scheme=color_scheme, display_repeats=display_repeats)
+
+    # TODO parse error
+
+    return graph_json
+
+
+
+def master_layout(options):
+
+    options = dict(options)
+
+    mpid_formula = options.get('query', random.choice(ALL_MPIDS))
+
+    visibility_values = [val for val
+                         in ['atoms', 'bonds',
+                             'unitcell', 'polyhedra']
+                         if options[val]]
+
+    hidden_style = {'display': 'none'}
+    visible_style = {}
+    tab_style = {'structure': visible_style, 'graph': visible_style, 'json': visible_style}
+    #tab_style[options['display']] = visible_style
+    # TODO: fix
+
+    view_range_value = options['range_a_max']
+    bonding_method_value = options['bonding_method']
+    color_scheme_value = options['color_scheme']
+
+    try:
+        structure = mpr.get_structure_by_material_id(mpid_formula)
+    except:
+        structure = DEFAULT_STRUCTURE # TODO replace, no default
+
+    vis = MPVisualizer(structure,
+                       bonding_strategy=options['bonding_method'],
+                       color_scheme=options['color_scheme'])
+
+    data = vis.json
+    graph = vis.graph_json
+    json_value = vis.structure.to_json()
+
+    structure_tab = layout_structure_viewer(data, visibility_values)
+    graph_tab = layout_graph_viewer(graph)
+    json_tab = layout_structure_json_textarea(json_value)
+
+    return html.Div([
+        dcc.Location(id='url', refresh=False),
+        html.Br(),
+        html.Div(
+            className='row',
+            children=[
+                html.Div(className='one columns'),
+                html.Div(
+                    className='seven columns',
+                    children=[
+                        html.Div([
+                            dcc.Tabs(
+                                tabs=[
+                                    {'label': 'Structure', 'value': 'structure'},
+                                    {'label': 'Bonding Graph', 'value': 'graph'},
+                                    {'label': 'JSON', 'value': 'json'}
+                                ],
+                                value=options['display'],
+                                id='tabs'),
+                            html.Div([structure_tab],
+                                     id='tab-output-structure', style=tab_style['structure']),
+                            html.Div([graph_tab],
+                                     id='tab-output-graph', style=tab_style['graph']),
+                            html.Div([json_tab],
+                                     id='tab-output-json', style=tab_style['json']),
+                            html.Hr(),
+                            html.Div('Powered by pymatgen v{}. '
+                                     'Contact mkhorton@lbl with bug reports. '
+                                     'Currently only periodic structures supported, molecules '
+                                     'coming soon.'.format(
+                                pymatgen_version),
+                                     style={'text-align': 'left'})
+                        ])
+                    ]
+                ),
+                html.Div(
+                    className='three columns',
+                    style={'text-align': 'left'},
+                    children=[
+                        html.H5('Input'),
+                        layout_formula_input(mpid_formula),
+                        html.Br(),
+                        LAYOUT_UPLOAD_INPUT,
+                        html.Br(),
+                        html.Div(id='mp_text'),
+                        html.Hr(),
+                        html.H5('Options'),
+                        html.Br(),
+                        layout_visibility_checklist(visibility_values),
+                        html.Br(),
+                        layout_polyhedra_visibility_dropdown(None),
+                        html.Br(),
+                        layout_view_range(view_range_value),
+                        html.Br(),
+                        layout_bonding_method_dropdown(bonding_method_value),
+                        html.Br(),
+                        layout_color_scheme_dropdown(color_scheme_value),
+                    ]
+                ),
+                html.Div(className='one columns')
+            ])
+    ])
 
 
 app.server.secret_key = str(uuid4())
 server = app.server
+
+app.layout = master_layout(DEFAULT_OPTIONS)
 
 if __name__ == '__main__':
     app.run_server(debug=True)

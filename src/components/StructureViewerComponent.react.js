@@ -49,7 +49,7 @@ export default class StructureViewerComponent extends Component {
 		return new THREE.MeshPhongMaterial({
 			color: color,
 			shininess: 1,
-			reflectivity: 0.5,
+			reflectivity: 1,
 			specular: 0xffffff
 		});
 	}
@@ -124,11 +124,8 @@ export default class StructureViewerComponent extends Component {
 
 	makeUnitCell(crystal_json) {
 
-		const unitcell_geometry = new THREE.Geometry();
-		crystal_json.unit_cell.points.map(p => unitcell_geometry.vertices.push(new THREE.Vector3(...p)))
-		crystal_json.unit_cell.hull.map(p => unitcell_geometry.faces.push(new THREE.Face3(...p)))
-
-		const edges = new THREE.EdgesGeometry(unitcell_geometry);
+		const edges = new THREE.Geometry();
+		crystal_json.unit_cell.lines.map(p => edges.vertices.push(new THREE.Vector3(...p)))
 
 		const unitcell = new THREE.LineSegments(edges,
 			new THREE.LineBasicMaterial({
@@ -152,21 +149,16 @@ export default class StructureViewerComponent extends Component {
 			const polyhedron_geometry = new THREE.Geometry();
 			polyhedron.points.map(p => polyhedron_geometry.vertices.push(new THREE.Vector3(...p)))
 			polyhedron.hull.map(p => polyhedron_geometry.faces.push(new THREE.Face3(...p)))
+			polyhedron_geometry.computeFaceNormals();
 
 			const polyhedron_color = atoms.children[polyhedron.center].material.color;
 			const polyhedron_material = StructureViewerComponent.getMaterial(polyhedron_color);
             polyhedron_material.side = THREE.DoubleSide;
 
 			const polyhedron_object = new THREE.Mesh(polyhedron_geometry, polyhedron_material)
-			const polyhedron_edges = new THREE.EdgesGeometry(polyhedron_geometry);
-			const polyhedron_edges_lines = new THREE.LineSegments(polyhedron_edges, new THREE.LineBasicMaterial({
-				color: polyhedron_color,
-				linewidth: 1
-			}));
 
 			polyhedron_object.name = polyhedron.name
-			polyhedron_object.add(polyhedron_edges_lines)
-			
+
 			polyhedra.add(polyhedron_object)
 
 		})
@@ -222,7 +214,7 @@ export default class StructureViewerComponent extends Component {
 		const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x222222, 0.003);
 		scene.add(hemisphereLight)
 
-		const pointLight = new THREE.PointLight(0xffffff);
+		const pointLight = new THREE.PointLight(0xffffff, 1.2);
 		camera.add(pointLight)
 
 		if (typeof this.props.data !== 'undefined') {
@@ -261,6 +253,7 @@ export default class StructureViewerComponent extends Component {
 			if (typeof this.scene !== 'undefined') {
 				var oldCrystal = this.scene.getObjectByName('crystal');
 				this.scene.remove(oldCrystal);
+				//FIXME: oldCrystal.dispose();
 				this.crystal = this.makeCrystal(nextProps.data);
 				this.scene.add(this.crystal);
 			}
@@ -317,14 +310,11 @@ export default class StructureViewerComponent extends Component {
 			visibilityOptions
 		} = this.props;
 
-		return ( <
-			div id = {
-				id
-			}
-			style = {
+		return ( <div id={id}
+		style = {
 				{
-					'width': '100%',
-					'padding-bottom': '75%'
+					'width': 'inherit',
+					'height': 'inherit'
 				}
 			}
 			ref = {
