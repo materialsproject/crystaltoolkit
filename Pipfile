@@ -1,0 +1,27 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+dash = ">=0.21.0"
+dash-renderer = ">=0.12.1"
+dash-html-components = ">=0.10.0"
+dash-core-components = ">=0.22.1"
+gunicorn = ">=19.7.1"
+pymatgen = ">=2018.4.20"
+pyyaml = ">=3.12"
+networkx = ">=2.0"
+"008b9b7" = {path = "/Users/work/Development/git/mp-viewer", editable = true}
+
+
+[dev-packages]
+
+
+
+[requires]
+
+python_version = "3.6"

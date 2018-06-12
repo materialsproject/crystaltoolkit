@@ -9,3 +9,4 @@ PyYAML>=3.12
 networkx>=2.0
 
 -e .
+https://github.com/mkhorton/dash-react-graph-vis/archive/master.zip
