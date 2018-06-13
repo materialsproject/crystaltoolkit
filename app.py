@@ -29,12 +29,16 @@ from pymatgen import MPRester, Structure
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.util.string import unicodeify
 
+from raven import Client
+
 app = dash.Dash()
 app.title = "MP Viewer"
 
 app.scripts.config.serve_locally = True
 app.css.append_css({'external_url': 'https://codepen.io/mkhorton/pen/aKmNxW.css'})
 app.config['suppress_callback_exceptions'] = True
+
+sentry = Client()
 
 mpr = MPRester()
 
@@ -49,9 +53,9 @@ DEFAULT_OPTIONS = {
     'range_a_min': 0,
     'range_b_min': 0,
     'range_c_min': 0,
-    'range_a_max': 1,
-    'range_b_max': 1,
-    'range_c_max': 1,
+    'range_a_max': 2,
+    'range_b_max': 2,
+    'range_c_max': 2,
     'atoms': True,
     'bonds': True,
     'polyhedra': True,
@@ -88,9 +92,26 @@ ALL_MPIDS = loadfn('all_mpids.json')
 # to help with readability, each component of the app is defined
 # in a modular way below which are then all then included in the app.layout
 
-def help_layout(message):
-    return html.Div([" \u003f\u20dd ", html.Span(message, className="tooltiptext")],
+def layout_help(message):
+    return html.Span([" \u003f\u20dd ", html.Span(message, className="tooltiptext")],
                     className="tooltip")
+
+def layout_color(hex_code, label):
+    c = tuple(int(hex_code[1:][i:i+2], 16) for i in (0, 2, 4))
+    fontcolor = '#000000' if 1 - (c[0] * 0.299 + c[1] * 0.587
+                                  + c[2] * 0.114) / 255 < 0.5 else '#ffffff'
+    return html.Span(label, style={"width": "40px", "height": "40px", "line-height": "40px",
+                                      "border-radius": "1px", "background": hex_code,
+                                      "display": "inline-block",
+                                   "font-weight": "bold",
+                                   "color": fontcolor,
+                                      "border": "1px solid black",
+                                   "margin": "2px",
+                                   "position": "relative",
+                                   "text-align": "center",
+    "top": "50%",
+    "transform": "translateY(-50 %)"
+    })
 
 def layout_formula_input(value):
     return html.Div([
@@ -101,6 +122,17 @@ def layout_formula_input(value):
         html.Button('Load', id='button')
     ])
 
+@app.callback(
+    Output('legend', 'children'),
+    [Input('structure-viewer', 'data')]
+)
+def callback_color_legend(data):
+    color_legend = data.get('color_legend', None)
+    if color_legend:
+        return html.Div([layout_color(hex_code, label) for hex_code, label in color_legend.items()])
+    else:
+        return []
+
 LAYOUT_UPLOAD_INPUT = html.Div([
     html.Label('or load from a local file:'),
     dcc.Upload(id='upload-data',
@@ -109,7 +141,7 @@ LAYOUT_UPLOAD_INPUT = html.Div([
             ['Drag and Drop or ',
             html.A('Select File')],
             id='upload-label'),
-            help_layout("Upload any file that pymatgen supports, "
+            layout_help("Upload any file that pymatgen supports, "
                         "including CIF and VASP file formats.")
         ]),
         style={
@@ -181,7 +213,11 @@ def layout_polyhedra_visibility_dropdown(value):
 
 
 def layout_bonding_method_dropdown(value):
-    return html.Div([html.Label("Bonding Algorithm"), dcc.Dropdown(
+    return html.Div([html.Span("Bonding Algorithm"),
+                     layout_help("Determining whether a bond should be present between two atoms from geometry "
+               "alone is not trivial. There are several algorithms available to do this in "
+               "pymatgen, with CrystalNN recommended for periodic structures and JMolNN for "
+               "molecules."), dcc.Dropdown(
         id='bonding_options',
         options=[
             {'label': method, 'value': method} for method in AVAILABLE_BONDING_METHODS
@@ -194,7 +230,12 @@ def layout_color_scheme_dropdown(value):
     default_color_schemes = ['VESTA', 'Jmol']
     if value not in default_color_schemes:
         default_color_schemes += value
-    return html.Div([html.Label("Color Scheme"), dcc.Dropdown(
+    return html.Div([html.Span("Color Scheme"),
+                     layout_help("JMol and VESTA color schemes have become de facto "
+                                 "standards for visualizing atoms. It is also possible "
+                                 "to color-code by any scalar site property that may be "
+                                 "attached to the structure."),
+                     dcc.Dropdown(
         id='color_schemes',
         options=[
             {'label': option, 'value': option} for option in default_color_schemes
@@ -421,21 +462,24 @@ def get_structure_viewer_json(structure, bonding_option=None,
     # TODO: change to MontyDecoder ? so that we can load sg too
     structure = Structure.from_str(structure, fmt='json')
 
+
     mp_vis = MPVisualizer(structure,
                           bonding_strategy=bonding_option,
                           color_scheme=color_scheme,
                           display_repeats=display_repeats)
 
+    json = mp_vis.json
     try:
         json = mp_vis.json
-        json_error = False
     except Exception as e:
+        sentry.captureException()
         warnings.warn(e)
         json = {'error': str(e)}
 
     try:
         graph_json = mp_vis.graph_json
     except Exception as e:
+        sentry.captureException()
         warnings.warn(e)
         graph_json = {'error': str(e)}
 
@@ -525,11 +569,6 @@ def master_layout(options):
                              'unitcell', 'polyhedra']
                          if options[val]]
 
-    hidden_style = {'display': 'none'}
-    visible_style = {}
-    tab_style = {'structure': visible_style, 'graph': visible_style, 'json': visible_style}
-    #tab_style[options['display']] = visible_style
-    # TODO: fix
 
     view_range_value = options['range_a_max']
     bonding_method_value = options['bonding_method']
@@ -540,9 +579,14 @@ def master_layout(options):
     except:
         structure = DEFAULT_STRUCTURE # TODO replace, no default
 
+    display_repeats = ((options['range_a_min'], options['range_a_max']),
+                       (options['range_b_min'], options['range_b_max']),
+                       (options['range_c_min'], options['range_c_max']))
+
     vis = MPVisualizer(structure,
                        bonding_strategy=options['bonding_method'],
-                       color_scheme=options['color_scheme'])
+                       color_scheme=options['color_scheme'],
+                       display_repeats=display_repeats)
 
     data = vis.json
     graph = vis.graph_json
@@ -572,16 +616,17 @@ def master_layout(options):
                                 value=options['display'],
                                 id='tabs'),
                             html.Div([structure_tab],
-                                     id='tab-output-structure', style=tab_style['structure']),
+                                     id='tab-output-structure'),
                             html.Div([graph_tab],
-                                     id='tab-output-graph', style=tab_style['graph']),
+                                     id='tab-output-graph'),
                             html.Div([json_tab],
-                                     id='tab-output-json', style=tab_style['json']),
+                                     id='tab-output-json'),
                             html.Hr(),
                             html.Div('Powered by pymatgen v{}. '
                                      'Contact mkhorton@lbl with bug reports. '
                                      'Currently only periodic structures supported, molecules '
-                                     'coming soon.'.format(
+                                     'coming soon. Known bugs: initial loading slow, some minor '
+                                     'visual artifacts including lighting.'.format(
                                 pymatgen_version),
                                      style={'text-align': 'left'})
                         ])
@@ -609,6 +654,10 @@ def master_layout(options):
                         layout_bonding_method_dropdown(bonding_method_value),
                         html.Br(),
                         layout_color_scheme_dropdown(color_scheme_value),
+                        html.Br(),
+                        html.Div(children=html.Div([layout_color(hex_code, label)
+                                                    for hex_code, label in data['color_legend'].items()]),
+                                 id="legend")
                     ]
                 ),
                 html.Div(className='one columns')
