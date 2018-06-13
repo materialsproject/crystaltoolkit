@@ -52,6 +52,7 @@ class MPVisualizer:
                  draw_image_atoms=True,
                  repeat_of_atoms_on_boundaries=True,
                  bonded_sites_outside_display_area=True,
+                 symmetrize=True,
                  display_repeats=((0, 2), (0, 2), (0, 2))):
         """
         This class is used to generate a generic JSON of geometric primitives
@@ -248,7 +249,7 @@ class MPVisualizer:
                         # and also the site the bond is coming from
                         from_image_complement = tuple(np.multiply(-1, to_image))
                         if from_image_complement not in site_images_to_draw[u]:
-                            images_to_add[u] = from_image_complement
+                            images_to_add[u].append(from_image_complement)
 
         atoms = OrderedDict()
         for site_idx, images in site_images_to_draw.items():
@@ -443,6 +444,9 @@ class MPVisualizer:
                 props = (props - min(props)) / (max(props) - min(props))
 
                 props_cmap = [cmap(x) for x in props]
+
+                def _cmap(x):
+                    ...
 
                 colors = [[[int(c[0]*255),
                             int(c[1]*255),

@@ -167,6 +167,46 @@ export default class StructureViewerComponent extends Component {
 
 	}
 
+	disposeNode(parentObject) {
+	// https://stackoverflow.com/questions/33152132/
+        parentObject.traverse(function (node) {
+            if (node instanceof THREE.Mesh) {
+                if (node.geometry) {
+                    node.geometry.dispose();
+                }
+                if (node.material) {
+                    var materialArray;
+                    if (node.material instanceof THREE.MeshFaceMaterial || node.material instanceof THREE.MultiMaterial) {
+                        materialArray = node.material.materials;
+                    }
+                    else if(node.material instanceof Array) {
+                        materialArray = node.material;
+                    }
+                    if(materialArray) {
+                        materialArray.forEach(function (mtrl, idx) {
+                            if (mtrl.map) mtrl.map.dispose();
+                            if (mtrl.lightMap) mtrl.lightMap.dispose();
+                            if (mtrl.bumpMap) mtrl.bumpMap.dispose();
+                            if (mtrl.normalMap) mtrl.normalMap.dispose();
+                            if (mtrl.specularMap) mtrl.specularMap.dispose();
+                            if (mtrl.envMap) mtrl.envMap.dispose();
+                            mtrl.dispose();
+                        });
+                    }
+                    else {
+                        if (node.material.map) node.material.map.dispose();
+                        if (node.material.lightMap) node.material.lightMap.dispose();
+                        if (node.material.bumpMap) node.material.bumpMap.dispose();
+                        if (node.material.normalMap) node.material.normalMap.dispose();
+                        if (node.material.specularMap) node.material.specularMap.dispose();
+                        if (node.material.envMap) node.material.envMap.dispose();
+                        node.material.dispose();
+                    }
+                }
+            }
+        });
+    }
+
 
 	constructor(props) {
 		super(props)
@@ -253,7 +293,7 @@ export default class StructureViewerComponent extends Component {
 			if (typeof this.scene !== 'undefined') {
 				var oldCrystal = this.scene.getObjectByName('crystal');
 				this.scene.remove(oldCrystal);
-				//FIXME: oldCrystal.dispose();
+				this.disposeNode(oldCrystal);
 				this.crystal = this.makeCrystal(nextProps.data);
 				this.scene.add(this.crystal);
 			}
