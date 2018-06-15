@@ -7,22 +7,23 @@ from dash_react_graph_vis import GraphComponent
 
 import numpy as np
 import json
-import functools
 import warnings
 import random
+import os
 
 from base64 import urlsafe_b64decode, b64decode
 from zlib import decompress
-from ast import literal_eval
 from urllib.parse import parse_qsl, urlencode, urlparse
 from uuid import uuid4
 from tempfile import NamedTemporaryFile
 
 from dash.dependencies import Input, Output, State
 
+from flask_caching import Cache
+
 from monty.serialization import loadfn
 
-from structure_vis_mp import MPVisualizer
+from structure_vis_mp import PymatgenVisualizationIntermediateFormat
 
 from pymatgen import __version__ as pymatgen_version
 from pymatgen import MPRester, Structure
@@ -37,6 +38,13 @@ app.title = "MP Viewer"
 app.scripts.config.serve_locally = True
 app.css.append_css({'external_url': 'https://codepen.io/mkhorton/pen/aKmNxW.css'})
 app.config['suppress_callback_exceptions'] = True
+
+cache = Cache(app.server, config={
+    # try 'filesystem' if you don't want to setup redis
+    'CACHE_TYPE': 'redis',
+    'CACHE_REDIS_URL': os.environ.get('REDIS_URL', 'localhost:6379'),
+    'CACHE_DEFAULT_TIMEOUT': 0
+})
 
 sentry = Client()
 
@@ -100,7 +108,7 @@ def layout_color(hex_code, label):
     c = tuple(int(hex_code[1:][i:i+2], 16) for i in (0, 2, 4))
     fontcolor = '#000000' if 1 - (c[0] * 0.299 + c[1] * 0.587
                                   + c[2] * 0.114) / 255 < 0.5 else '#ffffff'
-    return html.Span(label, style={"width": "40px", "height": "40px", "line-height": "40px",
+    return html.Span(label, style={"min-width": "40px", "width":"auto", "height": "40px", "line-height": "40px",
                                       "border-radius": "1px", "background": hex_code,
                                       "display": "inline-block",
                                    "font-weight": "bold",
@@ -443,7 +451,7 @@ def callback_structure_viewer_to_polyhedra_options(viewer_data):
     [Input('structure-viewer', 'data')]
 )
 def callback_structure_viewer_to_default_polyhedra(viewer_data):
-    return viewer_data['polyhedra']['polyhedra_types']
+    return viewer_data['polyhedra']['default_polyhedra_types']
 
 @app.callback(
     Output('structure-viewer', 'visibilityOptions'),
@@ -454,7 +462,7 @@ def callback_update_visible_elements(visibility_options, polyhedra_visibility_op
     return visibility_options + polyhedra_visibility_options
 
 
-@functools.lru_cache(1024)
+@cache.memoize()
 def get_structure_viewer_json(structure, bonding_option=None,
                               color_scheme=None,
                               display_repeats=((0, 2), (0, 2), (0, 2))):
@@ -463,10 +471,10 @@ def get_structure_viewer_json(structure, bonding_option=None,
     structure = Structure.from_str(structure, fmt='json')
 
 
-    mp_vis = MPVisualizer(structure,
-                          bonding_strategy=bonding_option,
-                          color_scheme=color_scheme,
-                          display_repeats=display_repeats)
+    mp_vis = PymatgenVisualizationIntermediateFormat(structure,
+                                                     bonding_strategy=bonding_option,
+                                                     color_scheme=color_scheme,
+                                                     display_repeats=display_repeats)
 
     json = mp_vis.json
     try:
@@ -476,6 +484,7 @@ def get_structure_viewer_json(structure, bonding_option=None,
         warnings.warn(e)
         json = {'error': str(e)}
 
+    mp_vis.graph_json
     try:
         graph_json = mp_vis.graph_json
     except Exception as e:
@@ -506,7 +515,7 @@ def callback_tab_output_json(tab):
         return {'display': 'none'}
 
 @app.callback(
-    Output('tab-output-structure', 'style'),
+    Output('tab-output=structure', 'style'),
     [Input('tabs', 'value')]
 )
 def callback_tab_output_structure(tab):
@@ -583,10 +592,10 @@ def master_layout(options):
                        (options['range_b_min'], options['range_b_max']),
                        (options['range_c_min'], options['range_c_max']))
 
-    vis = MPVisualizer(structure,
-                       bonding_strategy=options['bonding_method'],
-                       color_scheme=options['color_scheme'],
-                       display_repeats=display_repeats)
+    vis = PymatgenVisualizationIntermediateFormat(structure,
+                                                  bonding_strategy=options['bonding_method'],
+                                                  color_scheme=options['color_scheme'],
+                                                  display_repeats=display_repeats)
 
     data = vis.json
     graph = vis.graph_json
@@ -615,6 +624,7 @@ def master_layout(options):
                                 ],
                                 value=options['display'],
                                 id='tabs'),
+                            html.Div(id='tab-output'),
                             html.Div([structure_tab],
                                      id='tab-output-structure'),
                             html.Div([graph_tab],
@@ -623,10 +633,10 @@ def master_layout(options):
                                      id='tab-output-json'),
                             html.Hr(),
                             html.Div('Powered by pymatgen v{}. '
-                                     'Contact mkhorton@lbl with bug reports. '
+                                     'Please report bugs. '
                                      'Currently only periodic structures supported, molecules '
-                                     'coming soon. Known bugs: initial loading slow, some minor '
-                                     'visual artifacts including lighting.'.format(
+                                     'coming soon. Initial loading known to be slow until '
+                                     'we deploy in production.'.format(
                                 pymatgen_version),
                                      style={'text-align': 'left'})
                         ])
@@ -637,7 +647,7 @@ def master_layout(options):
                     style={'text-align': 'left'},
                     children=[
                         html.H5('Input'),
-                        layout_formula_input(mpid_formula),
+                        layout_formula_input(""),
                         html.Br(),
                         LAYOUT_UPLOAD_INPUT,
                         html.Br(),
