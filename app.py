@@ -681,4 +681,4 @@ server = app.server
 app.layout = master_layout(DEFAULT_OPTIONS)
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
