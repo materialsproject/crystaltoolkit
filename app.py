@@ -40,9 +40,8 @@ app.css.append_css({'external_url': 'https://codepen.io/mkhorton/pen/aKmNxW.css'
 app.config['suppress_callback_exceptions'] = True
 
 cache = Cache(app.server, config={
-    # try 'filesystem' if you don't want to setup redis
-    'CACHE_TYPE': 'redis',
-    'CACHE_REDIS_URL': os.environ.get('REDIS_URL', 'localhost:6379'),
+    'CACHE_TYPE': 'filesystem',
+    #'CACHE_REDIS_URL': os.environ.get('REDIS_URL', 'localhost:6379'),
     'CACHE_DEFAULT_TIMEOUT': 0
 })
 
