@@ -17,7 +17,7 @@ from dash.dependencies import Input, Output, State
 
 from monty.serialization import loadfn
 
-from structure_vis_mp import MPVisualizer
+from structure_vis_mp import PymatgenVisualizationIntermediateFormat
 
 from pymatgen import MPRester, Structure
 
@@ -36,10 +36,10 @@ DEFAULT_BONDING_METHOD = 'CrystalNN'
 LAYOUT_STRUCTURE_VIEWER = html.Div(id='viewer-container', children=[
                         mp_viewer.StructureViewerComponent(
                             id='viewer',
-                            data=MPVisualizer(DEFAULT_STRUCTURE,
-                                              bonding_strategy=
+                            data=PymatgenVisualizationIntermediateFormat(DEFAULT_STRUCTURE,
+                                                                         bonding_strategy=
                                               DEFAULT_BONDING_METHOD,
-                                              color_scheme=
+                                                                         color_scheme=
                                               DEFAULT_COLOR_SCHEME).json
                         )
                     ], style={'height': '100%', 'width': '100%'})

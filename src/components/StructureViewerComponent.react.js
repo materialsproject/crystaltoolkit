@@ -143,25 +143,33 @@ export default class StructureViewerComponent extends Component {
 		polyhedra.name = 'polyhedra';
 		
 		this.available_polyhedra = crystal_json.polyhedra.polyhedra_types
+		this.default_polyhedra = crystal_json.polyhedra.default_polyhedra_types
 
-		crystal_json.polyhedra.polyhedra_list.forEach(function(polyhedron) {
+		for (var polyhedron_type in crystal_json.polyhedra.polyhedra_by_type) {
 
-			const polyhedron_geometry = new THREE.Geometry();
-			polyhedron.points.map(p => polyhedron_geometry.vertices.push(new THREE.Vector3(...p)))
-			polyhedron.hull.map(p => polyhedron_geometry.faces.push(new THREE.Face3(...p)))
-			polyhedron_geometry.computeFaceNormals();
+		    const polyhedra_type_object = new THREE.Object3D();
+		    polyhedra_type_object.name = polyhedron_type;
 
-			const polyhedron_color = atoms.children[polyhedron.center].material.color;
-			const polyhedron_material = StructureViewerComponent.getMaterial(polyhedron_color);
-            polyhedron_material.side = THREE.DoubleSide;
+		    crystal_json.polyhedra.polyhedra_by_type[polyhedron_type].forEach(function(polyhedron) {
 
-			const polyhedron_object = new THREE.Mesh(polyhedron_geometry, polyhedron_material)
+			    const polyhedron_geometry = new THREE.Geometry();
+			    polyhedron.points.map(p => polyhedron_geometry.vertices.push(new THREE.Vector3(...p)))
+			    polyhedron.hull.map(p => polyhedron_geometry.faces.push(new THREE.Face3(...p)))
+			    polyhedron_geometry.computeFaceNormals();
 
-			polyhedron_object.name = polyhedron.name
+			    const polyhedron_color = atoms.children[polyhedron.center].material.color;
+			    const polyhedron_material = StructureViewerComponent.getMaterial(polyhedron_color);
+                polyhedron_material.side = THREE.DoubleSide;
 
-			polyhedra.add(polyhedron_object)
+			    const polyhedron_object = new THREE.Mesh(polyhedron_geometry, polyhedron_material)
 
-		})
+			    polyhedra_type_object.add(polyhedron_object)
+
+			})
+
+            polyhedra.add(polyhedra_type_object);
+
+		}
 
 		return polyhedra
 
@@ -243,19 +251,22 @@ export default class StructureViewerComponent extends Component {
 
 		// Lighting
 
-		const ambientLight = new THREE.AmbientLight(0x555555, 0.002);
+		const ambientLight = new THREE.AmbientLight(0xffffff, 0.002);
 		scene.add(ambientLight)
 
-		const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.0015);
+		const directionalLight = new THREE.DirectionalLight(0xffffff, 0.0015);
 		directionalLight.position.set(-1, 1, 1).normalize();
 		scene.add(directionalLight);
-		scene.add(directionalLight.target);
 
-		const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x222222, 0.003);
+		const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x222222, 0.0015);
 		scene.add(hemisphereLight)
 
-		const pointLight = new THREE.PointLight(0xffffff, 1.2);
-		camera.add(pointLight)
+		//const pointLight = new THREE.PointLight(0xffffff, 0.05);
+		//camera.add(pointLight)
+        //const pointLightHelper = new THREE.PointLightHelper( pointLight, 1, 0xff0000 );
+        //scene.add( pointLightHelper );
+
+		scene.add(camera)
 
 		if (typeof this.props.data !== 'undefined') {
 

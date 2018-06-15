@@ -33,26 +33,26 @@ from pymatgen.core.structure import Structure
 
 from scipy.spatial import Delaunay
 
-class MPVisualizer:
+class PymatgenVisualizationIntermediateFormat:
     """
     Class takes a Structure or StructureGraph and outputs a
     list of primitives (spheres, cylinders, etc.) for drawing purposes.
     """
 
-    allowed_bonding_strategies = {subclass.__name__:subclass
-                                  for subclass in NearNeighbors.__subclasses__()}
+    available_bonding_strategies = {subclass.__name__:subclass
+                                    for subclass in NearNeighbors.__subclasses__()}
 
     available_radius_strategies = ('atomic', 'bvanalyzer_ionic', 'average_ionic',
                                    'covalent', 'van_der_waals', 'atomic_calculated')
 
-    def __init__(self, structure, bonding_strategy='MinimumOKeeffeNN',
+    def __init__(self, structure, bonding_strategy='MinimumDistanceNN',
                  bonding_strategy_kwargs=None,
                  color_scheme="VESTA", color_scale=None,
                  radius_strategy="average_ionic",
                  draw_image_atoms=True,
                  repeat_of_atoms_on_boundaries=True,
                  bonded_sites_outside_display_area=True,
-                 symmetrize=True,
+                 symmetrize=True,  # TODO
                  display_repeats=((0, 2), (0, 2), (0, 2))):
         """
         This class is used to generate a generic JSON of geometric primitives
@@ -106,13 +106,13 @@ class MPVisualizer:
         # meaning we have to calculate the graph for bonding information, however if
         # the graph is already known and supplied, we will use that
         if not isinstance(structure, StructureGraph):
-            if bonding_strategy not in self.allowed_bonding_strategies.keys():
+            if bonding_strategy not in self.available_bonding_strategies.keys():
                 raise ValueError("Bonding strategy not supported. Please supply a name "
                                  "of a NearNeighbor subclass, choose from: {}"
-                                 .format(", ".join(self.allowed_bonding_strategies.keys())))
+                                 .format(", ".join(self.available_bonding_strategies.keys())))
             else:
                 bonding_strategy_kwargs = bonding_strategy_kwargs or {}
-                bonding_strategy = self.allowed_bonding_strategies[bonding_strategy](**bonding_strategy_kwargs)
+                bonding_strategy = self.available_bonding_strategies[bonding_strategy](**bonding_strategy_kwargs)
                 self.structure_graph = StructureGraph.with_local_env_strategy(structure,
                                                                               bonding_strategy)
                 cns = [self.structure_graph.get_coordination_of_site(i)
@@ -124,7 +124,7 @@ class MPVisualizer:
         self.structure = self.structure_graph.structure
         self.lattice = self.structure_graph.structure.lattice
 
-        self.color_scheme = color_scheme
+        self.color_scheme = color_scheme  # TODO: add coord as option
         self.color_scale = color_scale
         self.radius_strategy = radius_strategy
         self.draw_image_atoms = draw_image_atoms
@@ -206,7 +206,7 @@ class MPVisualizer:
             elif isinstance(props[0], str):
                 site_prop_names['categorical'].append(name)
 
-        return site_prop_names
+        return dict(site_prop_names)
 
     def _generate_atoms(self):
 
@@ -307,6 +307,7 @@ class MPVisualizer:
 
                 atoms[(site_idx, image)] = {
                     'type': 'sphere',
+                    'idx': len(atoms),
                     'position': position_cart,
                     'bond_color': bond_color,
                     'fragments': fragments,
@@ -443,29 +444,25 @@ class MPVisualizer:
                 # normalize in [0, 1] range, as expected by cmap
                 props = (props - min(props)) / (max(props) - min(props))
 
-                props_cmap = [cmap(x) for x in props]
+                def _get_color(x):
+                    return [int(c*255) for c in cmap(x)[0:3]]
 
-                def _cmap(x):
-                    ...
-
-                colors = [[[int(c[0]*255),
-                            int(c[1]*255),
-                            int(c[2]*255)]] for c in props_cmap]
+                colors = [[_get_color(x)] for x in props]
 
                 # construct legend
-                c = "#{:02x}{:02x}{:02x}".format(*cmap(color_min)[0:3])
-                legend[c] = color_min
+                c = "#{:02x}{:02x}{:02x}".format(*_get_color(color_min))
+                legend[c] = "{}".format(color_min)
                 if color_max != color_min:
 
-                    c = "#{:02x}{:02x}{:02x}".format(*cmap(color_max)[0:3])
-                    legend[c] = color_max
+                    c = "#{:02x}{:02x}{:02x}".format(*_get_color(color_max))
+                    legend[c] = "{}".format(color_max)
 
                     color_mid = (color_max-color_min)/2
                     if color_max%1 == 0 and color_min%1 == 0  and color_max-color_min > 1:
                         color_mid = int(color_mid)
 
-                    c = "#{:02x}{:02x}{:02x}".format(*cmap(color_mid)[0:3])
-                    legend[c] = color_mid
+                    c = "#{:02x}{:02x}{:02x}".format(*_get_color(color_mid))
+                    legend[c] = "{}".format(color_mid)
 
             elif self.color_scheme in self.site_prop_names.get('categorical', []):
                 raise NotImplementedError
@@ -514,80 +511,102 @@ class MPVisualizer:
 
     def _generate_polyhedra(self, atoms, bonds):
 
-        return {
-            'polyhedra_types': [],
-            'polyhedra_list': []
-        }
+        # TODO: this function is a bit confusing
+        # mostly due to number of similarly-named data structures ... rethink?
 
-        atoms = list(atoms.keys())
-        bonds = list(bonds.keys())
-        print(bonds)
+        potential_polyhedra_by_site = {}
+        for idx, site in enumerate(self.structure):
+            connected_sites = self.structure_graph.get_connected_sites(idx)
+            neighbors_sp = [cn[0].species_string for cn in connected_sites]
+            neighbors_idx = [cn.index for cn in connected_sites]
+            # could enforce len(set(neighbors_sp)) == 1 here if we want to only
+            # draw polyhedra when neighboring atoms are all the same
+            if len(neighbors_sp) > 2:
+                # store num expected vertices, we don't want to draw incomplete polyhedra
+                potential_polyhedra_by_site[idx] = len(neighbors_sp)
 
-        # this just creates a list of all bonded atoms from each site
-        # (this isn't used for the bonding itself, otherwise we'd be
-        # double counting bonds, but for polyhedra, in principle each
-        # site has its own polyhedra defined)
-        potential_polyhedra = {i:[] for i in range(len(self.structure_graph))}
+        polyhedra = defaultdict(list)
+        for ((from_site_idx, from_image), (to_site_idx, to_image)), d in bonds.items():
+            if from_site_idx in potential_polyhedra_by_site:
+                polyhedra[(from_site_idx, from_image)].append((to_site_idx, to_image))
+            if to_site_idx in potential_polyhedra_by_site:
+                polyhedra[(to_site_idx, to_image)].append((from_site_idx, from_image))
 
-        for from_site_idx, from_image, to_site_idx, to_image in self._bonds:
-            if from_image == (0, 0, 0):
-                potential_polyhedra[from_site_idx].append((to_site_idx, to_image))
-            if to_image == (0, 0, 0):
-                potential_polyhedra[to_site_idx].append((from_site_idx, from_image))
+        # discard polyhedra with incorrect coordination (e.g. half the polyhedra's atoms are
+        # not in the draw range so would be cut off)
+        polyhedra = {k:v for k, v in polyhedra.items()
+                     if len(v) == potential_polyhedra_by_site[k[0]]}
 
-        # sort sites for which polyhedra we should prioritize: we don't want
-        # polyhedra to intersect each other
-        # TODO: placeholder
-        sorted_sites_idxs = list(range(len(self.structure_graph)))
+        polyhedra_by_species = defaultdict(list)
+        for k in polyhedra.keys():
+            polyhedra_by_species[self.structure[k[0]].species_string].append(k)
 
-        # now we actually store the polyhedra we want!
-        # a single polyhedron is simply a list of atom indexes that form
-        # its vertices; a convex hull algorithm is necessary to actually
-        # construct the faces
-        polyhedra = []
-        polyhedra_types = set()
-        for site_idx in sorted_sites_idxs:
-            if site_idx in potential_polyhedra:
-                polyhedron_points = potential_polyhedra[site_idx]
-                # remove the polyhedron's vertices from the list of potential polyhedra centers
-                for (site, image) in polyhedron_points:
-                    if image == (0, 0, 0) and site in potential_polyhedra:
-                        del potential_polyhedra[site]
-                # and look up the actual positions in the array of atoms we're drawing
+        polyhedra_json_by_species = {}
+        polyhedra_by_species_vertices = {}
+        polyhedra_by_species_centres = {}
+        for sp, polyhedra_centres in polyhedra_by_species.items():
+            polyhedra_json = []
+            polyhedra_vertices = []
+            for polyhedron_centre in polyhedra_centres:
 
-                polyhedron_points_cart = [self._atoms_cart[(site, image)]
-                                          for (site, image) in polyhedron_points]
+                # book-keeping to prevent intersecting polyhedra
+                polyhedron_vertices = polyhedra[polyhedron_centre]
+                polyhedra_vertices += polyhedron_vertices
 
-                polyhedron_points_idx = [self._atom_indexes[(site, image)]
-                                         for (site, image) in polyhedron_points]
+                polyhedron_points_cart = [atoms[vert]['position']
+                                          for vert in polyhedron_vertices]
+                polyhedron_points_idx = [atoms[vert]['idx']
+                                         for vert in polyhedron_vertices]
+                polyhedron_center_idx = atoms[polyhedron_centre]['idx']
 
-                # calculate the hull
-
+                # Delaunay can fail in some edge cases
                 try:
-                    tri = Delaunay(polyhedron_points_cart)
 
-                    # a pretty name, helps with filtering too
-                    site = self.structure_graph.structure[site_idx]
-                    species = ", ".join(map(str, list(site.species_and_occu.keys())))
-                    polyhedron_type = '{}-centered'.format(species)
-                    polyhedra_types.add(polyhedron_type)
+                    hull = Delaunay(polyhedron_points_cart).convex_hull.tolist()
 
-                    polyhedra.append({
+                    # TODO: storing duplicate info here ... ?
+                    polyhedra_json.append({
                         'type': 'convex',
                         'points_idx': polyhedron_points_idx,
                         'points': polyhedron_points_cart,
-                        'hull': tri.convex_hull,
-                        'name': polyhedron_type,
-                        'center': site_idx
+                        'hull': hull,
+                        'center': polyhedron_center_idx
                     })
-
 
                 except Exception as e:
                     print(e)
 
+            polyhedron_centres = set(polyhedra_centres)
+            polyhedron_vertices = set(polyhedra_vertices)
+
+            if not polyhedron_vertices.intersection(polyhedra_centres):
+                name = "{}-centered".format(sp)
+                polyhedra_json_by_species[name] = polyhedra_json
+                polyhedra_by_species_centres[name] = polyhedron_centres
+                polyhedra_by_species_vertices[name] = polyhedron_vertices
+
+        if polyhedra_json_by_species:
+
+            # get compatible sets of polyhedra
+            compatible_subsets = {(k, ): len(v) for k, v in polyhedra_json_by_species.items()}
+            for r in range(2, len(polyhedra_json_by_species)+1):
+                for subset in itertools.combinations(polyhedra_json_by_species.keys(), r):
+                    compatible = True
+                    all_centres = set.union(*[polyhedra_by_species_vertices[sp] for sp in subset])
+                    all_verts = set.union(*[polyhedra_by_species_centres[sp] for sp in subset])
+                    if not all_verts.intersection(all_centres):
+                        compatible_subsets[tuple(subset)] = len(all_centres)
+
+            # sort by longest subset, secondary sort by radius
+            compatible_subsets = sorted(compatible_subsets.items(), key=lambda s: -s[1])
+            default_polyhedra = list(compatible_subsets[0][0])
+
+        else:
+
+            default_polyhedra = []
+
         return {
-            'polyhedra': {
-                'polyhedra_list': polyhedra,
-                'polyhedra_types': list(polyhedra_types)
-            }
+            'polyhedra_by_type': polyhedra_json_by_species,
+            'polyhedra_types': list(polyhedra_json_by_species.keys()),
+            'default_polyhedra_types': default_polyhedra
         }
