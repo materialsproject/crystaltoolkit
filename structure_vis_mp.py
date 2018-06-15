@@ -579,7 +579,8 @@ class PymatgenVisualizationIntermediateFormat:
             polyhedron_centres = set(polyhedra_centres)
             polyhedron_vertices = set(polyhedra_vertices)
 
-            if not polyhedron_vertices.intersection(polyhedra_centres):
+            if (not polyhedron_vertices.intersection(polyhedra_centres)) \
+                    and len(polyhedra_json) > 0 :
                 name = "{}-centered".format(sp)
                 polyhedra_json_by_species[name] = polyhedra_json
                 polyhedra_by_species_centres[name] = polyhedron_centres
