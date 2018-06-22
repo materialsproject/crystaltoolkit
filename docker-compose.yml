@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+  dash_app:
+    container_name: dash_app
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8050:8050"
+    command: gunicorn -w 4 -b :8050 app:server --timeout 300
+
+  ngnix:
+    image: "nginx:stable-alpine"
+    restart: always
+    ports:
+      - "8051:8050"
+    depends_on:
+      - dash_app
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
