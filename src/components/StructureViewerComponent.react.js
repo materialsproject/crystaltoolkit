@@ -344,7 +344,8 @@ export default class StructureViewerComponent extends Component {
 	}
 
 	animate() {
-		//this.crystal.rotation.y += 0.002;
+	    const { rotationSpeed } = this.props;
+		this.crystal.rotation.y += rotationSpeed;
 		this.renderScene()
 		this.frameId = window.requestAnimationFrame(this.animate)
 	}
@@ -379,6 +380,10 @@ export default class StructureViewerComponent extends Component {
 	}
 }
 
+StructureViewerComponent.defaultProps = {
+    rotationSpeed: 0.001
+}
+
 StructureViewerComponent.propTypes = {
 	/**
 	 * The ID used to identify this compnent in Dash callbacks
@@ -393,9 +398,16 @@ StructureViewerComponent.propTypes = {
 
 	/**
 	 * Whether or not to display atoms, bonds, etc.
-	 *
+	 * (This also includes specific polyhedra tags, might
+	 *  separate this into a separate prop later)
 	 */
 	visibilityOptions: PropTypes.array,
+
+	/**
+	 * Amount to rotate about y-axis per frame
+	 *
+	 */
+	 rotationSpeed: PropTypes.number,
 
 	/**
 	 * Dash-assigned callback that should be called whenever any of the
