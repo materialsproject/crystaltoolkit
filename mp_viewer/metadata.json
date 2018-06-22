@@ -146,7 +146,18 @@
           "name": "array"
         },
         "required": false,
-        "description": "Whether or not to display atoms, bonds, etc."
+        "description": "Whether or not to display atoms, bonds, etc.\n(This also includes specific polyhedra tags, might\n separate this into a separate prop later)"
+      },
+      "rotationSpeed": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Amount to rotate about y-axis per frame",
+        "defaultValue": {
+          "value": "0.001",
+          "computed": false
+        }
       },
       "setProps": {
         "type": {
