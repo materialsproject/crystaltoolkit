@@ -40,8 +40,8 @@ app.css.append_css({'external_url': 'https://codepen.io/mkhorton/pen/aKmNxW.css'
 app.config['suppress_callback_exceptions'] = True
 
 cache = Cache(app.server, config={
-    'CACHE_TYPE': 'filesystem',
-    #'CACHE_REDIS_URL': os.environ.get('REDIS_URL', 'localhost:6379'),
+    'CACHE_TYPE': 'redis',
+    'CACHE_REDIS_URL': os.environ.get('REDIS_URL', 'localhost:6379'),
     'CACHE_DEFAULT_TIMEOUT': 0
 })
 
@@ -483,7 +483,6 @@ def get_structure_viewer_json(structure, bonding_option=None,
         warnings.warn(e)
         json = {'error': str(e)}
 
-    mp_vis.graph_json
     try:
         graph_json = mp_vis.graph_json
     except Exception as e:
@@ -514,7 +513,7 @@ def callback_tab_output_json(tab):
         return {'display': 'none'}
 
 @app.callback(
-    Output('tab-output=structure', 'style'),
+    Output('tab-output-structure', 'style'),
     [Input('tabs', 'value')]
 )
 def callback_tab_output_structure(tab):
@@ -560,7 +559,7 @@ def callback_structure_viewer_data(structure, bonding_option, color_scheme, rang
         get_structure_viewer_json(structure, bonding_option=bonding_option,
                                   color_scheme=color_scheme, display_repeats=display_repeats)
 
-    # TODO parse error
+    # TODO: display error
 
     return graph_json
 
