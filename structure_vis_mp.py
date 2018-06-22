@@ -555,8 +555,12 @@ class PymatgenVisualizationIntermediateFormat:
 
                 polyhedron_points_cart = [atoms[vert]['position']
                                           for vert in polyhedron_vertices]
+                polyhedron_points_cart.append(atoms[polyhedron_centre]['position'])
+
                 polyhedron_points_idx = [atoms[vert]['idx']
                                          for vert in polyhedron_vertices]
+                polyhedron_points_idx.append(atoms[polyhedron_centre]['idx'])
+
                 polyhedron_center_idx = atoms[polyhedron_centre]['idx']
 
                 # Delaunay can fail in some edge cases
