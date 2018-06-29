@@ -2,130 +2,7 @@
   "src/components/StructureViewerComponent.react.js": {
     "description": "StructureViewerComponent is ...\n...",
     "displayName": "StructureViewerComponent",
-    "methods": [
-      {
-        "name": "makeCrystal",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "crystal_json",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "getMaterial",
-        "docblock": null,
-        "modifiers": [
-          "static"
-        ],
-        "params": [
-          {
-            "name": "color",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "makeAtoms",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "crystal_json",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "makeBonds",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "crystal_json",
-            "type": null
-          },
-          {
-            "name": "atoms",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "makeUnitCell",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "crystal_json",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "makePolyhedra",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "crystal_json",
-            "type": null
-          },
-          {
-            "name": "atoms",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "disposeNode",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "parentObject",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "start",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
-        "returns": null
-      },
-      {
-        "name": "stop",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
-        "returns": null
-      },
-      {
-        "name": "animate",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
-        "returns": null
-      },
-      {
-        "name": "renderScene",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
-        "returns": null
-      }
-    ],
+    "methods": [],
     "props": {
       "id": {
         "type": {
@@ -143,7 +20,7 @@
       },
       "visibilityOptions": {
         "type": {
-          "name": "array"
+          "name": "object"
         },
         "required": false,
         "description": "Whether or not to display atoms, bonds, etc.\n(This also includes specific polyhedra tags, might\n separate this into a separate prop later)"
@@ -165,6 +42,24 @@
         },
         "required": false,
         "description": "Dash-assigned callback that should be called whenever any of the\nproperties change"
+      },
+      "n_screenshot_requests": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Increment to trigger a screenshot request",
+        "defaultValue": {
+          "value": "0",
+          "computed": false
+        }
+      },
+      "screenshot": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Screenshot as PNG data URI."
       }
     }
   }
