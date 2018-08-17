@@ -25,14 +25,17 @@ export default class StructureViewerComponent extends Component {
 	componentDidMount() {
 
 	    this.structure_viewer = new StructureViewer(this.props.data, this.mount)
-	    this.rotationSpeed = this.props.rotationSpeed
 
 	}
 
 	componentWillUpdate(nextProps, nextState) {
 
 		if (nextProps.data !== this.props.data) {
-		    this.structure_viewer.replaceCrystal(nextProps.data);
+		    if (this.structure_viewer.crystal !== 'undefined') {
+		        this.structure_viewer.replaceCrystal(nextProps.data);
+		    } else {
+		        this.structure_viewer.makeCrystal(nextProps.data);
+		    }
 		}
 
 		if (typeof this.structure_viewer !== 'undefined') {
@@ -97,7 +100,7 @@ export default class StructureViewerComponent extends Component {
 }
 
 StructureViewerComponent.defaultProps = {
-    rotationSpeed: 0.001,
+    rotationSpeed: 0,
     n_screenshot_requests: 0
 }
 

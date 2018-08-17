@@ -32,7 +32,7 @@
         "required": false,
         "description": "Amount to rotate about y-axis per frame",
         "defaultValue": {
-          "value": "0.001",
+          "value": "0",
           "computed": false
         }
       },
