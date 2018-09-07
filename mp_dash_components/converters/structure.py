@@ -51,7 +51,7 @@ class StructureIntermediateFormat:
                  color_scheme="Jmol", color_scale=None,
                  radius_strategy="average_ionic",
                  draw_image_atoms=True,
-                 bonded_sites_outside_display_area=True,
+                 bonded_sites_outside_display_area=False,
                  symmetrize=False,
                  display_repeats=((0, 1.99), (0, 1.99), (0, 1.99))):
         """
