@@ -55,7 +55,6 @@ def mp_structure_component(structure, id=None, *args, **kwargs):
 
     if isinstance(structure, Structure):
         intermediate_json = StructureIntermediateFormat(structure, *args, **kwargs).json
-        return StructureViewerComponent(id=id, data=intermediate_json,
-                                        visibilityOptions=['atoms', 'bonds', 'unitcell'])
+        return StructureViewerComponent(id=id, data=intermediate_json)
     else:
         raise ValueError
