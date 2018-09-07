@@ -7,7 +7,7 @@ _current_path = _os.path.dirname(_os.path.abspath(__file__))
 
 _components = _dash.development.component_loader.load_components(
     _os.path.join(_current_path, 'metadata.json'),
-    'mp_viewer'
+    'mp_dash_components'
 )
 
 _this_module = _sys.modules[__name__]
@@ -17,10 +17,10 @@ _js_dist = [
     {
         "relative_package_path": "bundle.js",
         "external_url": (
-            "https://unpkg.com/mp-viewer@{}"
-            "/mp_viewer/bundle.js"
+            "https://unpkg.com/mp-dash-components@{}"
+            "/mp_dash_components/bundle.js"
         ).format(__version__),
-        "namespace": "mp_viewer"
+        "namespace": "mp_dash_components"
     }
 ]
 
