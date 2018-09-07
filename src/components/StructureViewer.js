@@ -242,13 +242,13 @@ export default class StructureViewer {
     this.renderer = renderer;
     this.directionalLight = directionalLight;
 
-    this.addCrystal(crystal_json);
-
     // Controls
     const controls = new OrbitControls(camera, this.renderer.domElement);
 
     dom_elt.appendChild(this.renderer.domElement);
     this.start();
+
+    this.addCrystal(crystal_json);
   }
 
   changeVisibility(visibilityOptions) {
