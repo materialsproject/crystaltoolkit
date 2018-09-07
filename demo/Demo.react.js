@@ -12,7 +12,7 @@ class Demo extends Component {
     render() {
         return (
             <div>
-                <h1>mp-viewer Demo</h1>
+                <h1>mp-dash-components Demo</h1>
 
                 <hr/>
                 <h2>ExampleComponent</h2>

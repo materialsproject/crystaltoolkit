@@ -30,6 +30,7 @@ from pymatgen.core.periodic_table import Specie
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.vis.structure_vtk import EL_COLORS
 from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from scipy.spatial import Delaunay
 
@@ -45,15 +46,14 @@ class PymatgenVisualizationIntermediateFormat:
     available_radius_strategies = ('atomic', 'bvanalyzer_ionic', 'average_ionic',
                                    'covalent', 'van_der_waals', 'atomic_calculated')
 
-    def __init__(self, structure, bonding_strategy='MinimumDistanceNN',
+    def __init__(self, structure, bonding_strategy='CrystalNN',
                  bonding_strategy_kwargs=None,
-                 color_scheme="VESTA", color_scale=None,
+                 color_scheme="Jmol", color_scale=None,
                  radius_strategy="average_ionic",
                  draw_image_atoms=True,
-                 repeat_of_atoms_on_boundaries=True,
                  bonded_sites_outside_display_area=True,
-                 symmetrize=True,  # TODO
-                 display_repeats=((0, 2), (0, 2), (0, 2))):
+                 symmetrize=False,
+                 display_repeats=((0, 1.99), (0, 1.99), (0, 1.99))):
         """
         This class is used to generate a generic JSON of geometric primitives
         that can be parsed by a 3D rendering tool such as Three.js or Blender.
@@ -94,13 +94,23 @@ class PymatgenVisualizationIntermediateFormat:
         """
         # TODO: update docstring
 
-        # ensure fractional co-ordinates are normalized to be in [0,1)
-        # (this is actually not guaranteed by Structure)
         if isinstance(structure, Structure):
+
+            # ensure fractional co-ordinates are normalized to be in [0,1)
+            # (this is actually not guaranteed by Structure)
             structure = structure.as_dict(verbosity=0)
             for site in structure['sites']:
                 site['abc'] = np.mod(site['abc'], 1)
             structure = Structure.from_dict(structure)
+
+            if symmetrize:
+                sga = SpacegroupAnalyzer(structure)
+                structure = sga.get_conventional_standard_structure()
+                self.primitive_lattice = sga.get_primitive_standard_structure().lattice
+
+            if not structure.is_ordered:
+                # calculating bonds in disordered structures is currently very flaky
+                bonding_strategy = 'CutOffDictNN'
 
         # we assume most uses of this class will give a structure as an input argument,
         # meaning we have to calculate the graph for bonding information, however if
@@ -113,8 +123,12 @@ class PymatgenVisualizationIntermediateFormat:
             else:
                 bonding_strategy_kwargs = bonding_strategy_kwargs or {}
                 bonding_strategy = self.available_bonding_strategies[bonding_strategy](**bonding_strategy_kwargs)
-                self.structure_graph = StructureGraph.with_local_env_strategy(structure,
-                                                                              bonding_strategy)
+                try:
+                    self.structure_graph = StructureGraph.with_local_env_strategy(structure,
+                                                                                  bonding_strategy)
+                except:
+                    # for some reason computing bonds failed, so lets not have bonds
+                    self.structure_graph = StructureGraph.with_empty_graph(structure)
                 cns = [self.structure_graph.get_coordination_of_site(i)
                        for i in range(len(structure))]
                 self.structure_graph.structure.add_site_property('coordination_no', cns)
@@ -155,6 +169,12 @@ class PymatgenVisualizationIntermediateFormat:
         }
 
         return json
+
+    @staticmethod
+    def _buffer_json(json):
+        """
+
+        """
 
     @property
     def graph_json(self):
@@ -251,6 +271,9 @@ class PymatgenVisualizationIntermediateFormat:
                         if from_image_complement not in site_images_to_draw[u]:
                             images_to_add[u].append(from_image_complement)
 
+        for idx, images in images_to_add.items():
+            site_images_to_draw[idx] += images
+
         atoms = OrderedDict()
         for site_idx, images in site_images_to_draw.items():
 
@@ -290,7 +313,7 @@ class PymatgenVisualizationIntermediateFormat:
 
             # TODO: do some appropriate scaling here
             if 'vector' in self.site_prop_names:
-                vectors = {name:site.properties[name] for name in self.site_prop_names['vector']}
+                vectors = {name: site.properties[name] for name in self.site_prop_names['vector']}
             else:
                 vectors = None
 
@@ -403,7 +426,6 @@ class PymatgenVisualizationIntermediateFormat:
 
         self.structure_graph.structure.add_site_property('display_radius', radii)
 
-
     def _generate_colors(self):
 
         structure = self.structure_graph.structure
@@ -489,25 +511,35 @@ class PymatgenVisualizationIntermediateFormat:
 
     def _generate_unit_cell(self):
 
-        o = -self.geometric_center
-        a, b, c = self.lattice.matrix[0], self.lattice.matrix[1], self.lattice.matrix[2]
+        unit_cells = {}
 
-        line_pairs = [
-            o, o+a, o, o+b, o, o+c,
-            o+a, o+a+b, o+a, o+a+c,
-            o+b, o+b+a, o+b, o+b+c,
-            o+c, o+c+a, o+c, o+c+b,
-            o+a+b, o+a+b+c, o+a+c, o+a+b+c, o+b+c, o+a+b+c
-        ]
+        def get_lines_for_lattice(lattice, line_style):
 
-        line_pairs = [line.tolist() for line in line_pairs]
+            o = -self.geometric_center
+            a, b, c = lattice.matrix[0], lattice.matrix[1], self.lattice.matrix[2]
 
-        unit_cell = {
-            'type': 'lines',
-            'lines': line_pairs
-        }
+            line_pairs = [
+                o, o+a, o, o+b, o, o+c,
+                o+a, o+a+b, o+a, o+a+c,
+                o+b, o+b+a, o+b, o+b+c,
+                o+c, o+c+a, o+c, o+c+b,
+                o+a+b, o+a+b+c, o+a+c, o+a+b+c, o+b+c, o+a+b+c
+            ]
 
-        return unit_cell
+            line_pairs = [line.tolist() for line in line_pairs]
+
+            return {
+                'type': 'lines',
+                'style': line_style,
+                'lines': line_pairs
+            }
+
+        unit_cells['default_cell'] = get_lines_for_lattice(self.lattice, 'solid')
+
+        if hasattr(self, 'primitive_lattice'):
+            unit_cells['primitive_cell'] = get_lines_for_lattice(self.primitive_lattice, 'dashed')
+
+        return unit_cells
 
     def _generate_polyhedra(self, atoms, bonds):
 

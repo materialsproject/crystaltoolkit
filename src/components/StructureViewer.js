@@ -302,6 +302,17 @@ export default class StructureViewer {
     }
   }
 
+  showVectors(vector_list) {
+  }
+
+  showEllipsoids(ellipsoid_list) {
+  }
+
+  changeColorScheme(new_scheme) {
+  }
+
+
+
   static disposeNode(parentObject) {
     // https://stackoverflow.com/questions/33152132/
     parentObject.traverse(function(node) {

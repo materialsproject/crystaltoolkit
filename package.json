@@ -1,19 +1,19 @@
 {
-  "name": "mp-viewer",
+  "name": "mp-dash-components",
   "version": "0.0.1",
   "description": "Component for viewing crystallographic structures for the Materials Project.",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mkhorton/mp-viewer.git"
+    "url": "https://github.com/mkhorton/mp-dash-components.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mkhorton/mp-viewer/issues"
+    "url": "https://github.com/mkhorton/mp-dash-components/issues"
   },
-  "homepage": "https://github.com/mkhorton/mp-viewer",
+  "homepage": "https://github.com/mkhorton/mp-dash-components",
   "scripts": {
-    "copy-lib": "copyfiles -u 1 lib/* mp_viewer",
+    "copy-lib": "copyfiles -u 1 lib/* mp_dash_components",
     "demo": "builder run demo",
     "install-local": "npm run copy-lib && python setup.py install",
     "prepublish": "npm test && builder run build-dist && npm run copy-lib",
@@ -23,7 +23,7 @@
     "test": "builder run check",
     "test-watch": "builder run test-frontend-watch",
     "test-debug": "builder run test-frontend-debug",
-    "uninstall-local": "pip uninstall mp-viewer -y"
+    "uninstall-local": "pip uninstall mp-dash-components -y"
   },
   "dependencies": {
     "builder": "3.2.2",

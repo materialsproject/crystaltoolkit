@@ -1,12 +1,12 @@
 from setuptools import setup
 
-exec (open('mp_viewer/version.py').read())
+exec (open('mp_dash_components/version.py').read())
 
 setup(
-    name='mp_viewer',
+    name='mp_dash_components',
     version=__version__,
     author='mkhorton',
-    packages=['mp_viewer'],
+    packages=['mp_dash_components'],
     include_package_data=True,
     license='MIT',
     description='Component for viewing crystallographic structures for the Materials Project.',
