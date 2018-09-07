@@ -34,7 +34,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from scipy.spatial import Delaunay
 
-class PymatgenVisualizationIntermediateFormat:
+class StructureIntermediateFormat:
     """
     Class takes a Structure or StructureGraph and outputs a
     list of primitives (spheres, cylinders, etc.) for drawing purposes.
