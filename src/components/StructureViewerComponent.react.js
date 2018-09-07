@@ -24,7 +24,7 @@ export default class StructureViewerComponent extends Component {
 
 	componentDidMount() {
 
-	    this.structure_viewer = new StructureViewer(this.props.data, this.mount)
+	    this.structure_viewer = new StructureViewer(this.props.data, this.mount);
 
 	}
 
@@ -34,7 +34,7 @@ export default class StructureViewerComponent extends Component {
 		    if (this.structure_viewer.crystal !== 'undefined') {
 		        this.structure_viewer.replaceCrystal(nextProps.data);
 		    } else {
-		        this.structure_viewer.makeCrystal(nextProps.data);
+		        this.structure_viewer.addCrystal(nextProps.data);
 		    }
 		}
 
