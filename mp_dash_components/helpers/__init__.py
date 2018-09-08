@@ -1,13 +1,11 @@
-from mp_dash_components.converters.structure import StructureIntermediateFormat
-from mp_dash_components import StructureViewerComponent
-
 import dash_core_components as dcc
 import dash_html_components as html
 
-
 from json import loads, dumps
 from monty.json import MSONable, MontyDecoder
-from pymatgen.core import Structure
+
+from mp_dash_components.layouts.structure import structure_layout
+from pymatgen import Structure
 
 
 def sanitize_input(msonable_object):
@@ -32,7 +30,7 @@ def sanitize_input(msonable_object):
     return msonable_object
 
 
-def mp_component(msonable_object, id=None, *args, **kwargs):
+def mp_component(msonable_object, app, id=None, *args, **kwargs):
     """
     :param msonable_object: an MSONable object, or the JSON string representation
     of an MSONable object, or the dictionary representation of an MSONable object
@@ -42,22 +40,8 @@ def mp_component(msonable_object, id=None, *args, **kwargs):
     msonable_object = sanitize_input(msonable_object)
 
     if isinstance(msonable_object, Structure):
-        return mp_structure_component(msonable_object, structure_viewer_id=id, *args, **kwargs)
+        return structure_layout(msonable_object, app, structure_viewer_id=id, *args, **kwargs)
     elif isinstance(msonable_object, str):
         return dcc.SyntaxHighlighter(id=id, children="'''\n{}\n'''".format(msonable_object))
     else:
         raise ValueError("Cannot generate a layout for this object.")
-
-
-def mp_structure_component(structure, structure_viewer_id=None, *args, **kwargs):
-
-    structure = sanitize_input(structure)
-
-    if isinstance(structure, Structure):
-        intermediate_json = StructureIntermediateFormat(structure, *args, **kwargs).json
-        structure_dict = structure.as_dict(verbosity=0)
-        return StructureViewerComponent(id=structure_viewer_id,
-                                        structure=structure_dict,
-                                        data=intermediate_json)
-    else:
-        raise ValueError

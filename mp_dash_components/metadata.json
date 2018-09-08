@@ -25,6 +25,17 @@
         "required": false,
         "description": "The pymatgen Structure, stored for convenience (not used internally by viewer)"
       },
+      "generationOptions": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Options used for generating visualization, stored for convenience (not used internally by viewer)",
+        "defaultValue": {
+          "value": "{}",
+          "computed": false
+        }
+      },
       "visibilityOptions": {
         "type": {
           "name": "object"

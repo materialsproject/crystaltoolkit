@@ -2,6 +2,46 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
+from mp_dash_components.converters.structure import StructureIntermediateFormat
+from mp_dash_components import StructureViewerComponent
+
+from pymatgen.core import Structure
+
+
+def structure_layout(structure, app,
+                     structure_viewer_id="structure-viewer", **kwargs):
+
+    def generate_layout(structure, structure_viewer_id):
+
+        if isinstance(structure, Structure):
+            structure_dict = structure.as_dict(verbosity=0)
+            intermediate_json = StructureIntermediateFormat(structure).json
+            return StructureViewerComponent(id=structure_viewer_id,
+                                            structure=structure_dict,
+                                            data=intermediate_json,
+                                            **kwargs)
+        else:
+            raise ValueError
+
+    def generate_callbacks(structure_viewer_id, app):
+
+        @app.callback(
+            Output(structure_viewer_id, 'data'),
+            [Input(structure_viewer_id, 'generationOptions')],
+            [State(structure_viewer_id, 'structure')]
+        )
+        def generate_visualization_data(generationOptions, structure):
+            generationOptions = generationOptions or {}
+            print(generationOptions)
+            structure = Structure.from_dict(structure)
+            intermediate_json = StructureIntermediateFormat(structure, **generationOptions).json
+            return intermediate_json
+
+    layout = generate_layout(structure, structure_viewer_id)
+    generate_callbacks(structure_viewer_id, app)
+
+    return layout
+
 
 def structure_view_options_layout(structure_viewer_id, app,
                                   polyhedra_options=False,
@@ -59,7 +99,8 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
             options=[
                 {'label': k, 'value': v} for k, v in nn_mapping.items()
             ],
-            value='CrystalNN'
+            value='CrystalNN',
+            id=f'{structure_viewer_id}_bonding_algorithm'
         )
 
         return options
@@ -67,10 +108,14 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
     def generate_callbacks(structure_viewer_id, app):
 
         @app.callback(
-            Output(structure_viewer_id, "data"),
-            [Input()],
-            State(structure_viewer_id, "structure")
+            Output(structure_viewer_id, 'generationOptions'),
+            [Input(f'{structure_viewer_id}_bonding_algorithm', 'value')],
+            [State(structure_viewer_id, 'generationOptions')]
         )
+        def update_structure_viewer_data(bonding_algorithm, currentGenerationOptions):
+            generationOptions = currentGenerationOptions or {}
+            generationOptions['bonding_strategy'] = bonding_algorithm
+            return generationOptions
 
     layout = generate_layout(structure_viewer_id)
     generate_callbacks(structure_viewer_id, app)

@@ -41,7 +41,7 @@ class StructureIntermediateFormat:
     list of primitives (spheres, cylinders, etc.) for drawing purposes.
     """
 
-    available_bonding_strategies = {subclass.__name__:subclass
+    available_bonding_strategies = {subclass.__name__: subclass
                                     for subclass in NearNeighbors.__subclasses__()}
 
     available_radius_strategies = ('atomic', 'bvanalyzer_ionic', 'average_ionic',

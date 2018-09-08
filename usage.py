@@ -17,9 +17,10 @@ app.config['suppress_callback_exceptions'] = True
 example_structure = loadfn('example_files/example_structure.json')
 
 app.layout = html.Div([
-    mp_component(example_structure, id='structure-viewer'),
+    mp_component(example_structure, app=app, id='structure-viewer'),
     structure_view_options_layout(structure_viewer_id='structure-viewer', app=app),
-    structure_screenshot_button(structure_viewer_id='structure-viewer', app=app)
+    structure_screenshot_button(structure_viewer_id='structure-viewer', app=app),
+    structure_bonding_algorithm(structure_viewer_id='structure-viewer', app=app)
 ], style={'width': '500px', 'height': '500px'})
 
 if __name__ == '__main__':
