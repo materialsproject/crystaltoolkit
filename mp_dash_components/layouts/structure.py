@@ -2,11 +2,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
+import dash_table_experiments as dt
+
 from mp_dash_components.converters.structure import StructureIntermediateFormat
 from mp_dash_components import StructureViewerComponent
 
 from pymatgen.core import Structure
 
+from itertools import combinations_with_replacement
 
 def structure_layout(structure, app,
                      structure_viewer_id="structure-viewer", **kwargs):
@@ -103,19 +106,63 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
             id=f'{structure_viewer_id}_bonding_algorithm'
         )
 
-        return options
+        custom_cutoffs = html.Div([
+            dt.DataTable(
+                rows=[{'A': None, 'B': None, 'A-B /Å': None}],
+                row_selectable=True,
+                filterable=False,
+                sortable=True,
+                editable=True,
+                selected_row_indices=[],
+                max_rows_in_viewport=4,
+                id=f'{structure_viewer_id}_bonding_algorithm_custom_cutoffs'
+            )],
+            id=f'{structure_viewer_id}_bonding_algorithm_custom_cutoffs_container',
+            style={'display': 'none'})
+
+        return html.Div([options, custom_cutoffs])
 
     def generate_callbacks(structure_viewer_id, app):
 
         @app.callback(
             Output(structure_viewer_id, 'generationOptions'),
-            [Input(f'{structure_viewer_id}_bonding_algorithm', 'value')],
+            [Input(f'{structure_viewer_id}_bonding_algorithm', 'value'),
+             Input(f'{structure_viewer_id}_bonding_algorithm_custom_cutoffs', 'rows')],
             [State(structure_viewer_id, 'generationOptions')]
         )
-        def update_structure_viewer_data(bonding_algorithm, currentGenerationOptions):
-            generationOptions = currentGenerationOptions or {}
-            generationOptions['bonding_strategy'] = bonding_algorithm
-            return generationOptions
+        def update_structure_viewer_data(bonding_algorithm, custom_cutoffs_rows,
+                                         current_generation_options):
+            generation_options = current_generation_options or {}
+            generation_options['bonding_strategy'] = bonding_algorithm
+            if bonding_algorithm == 'CutOffDictNN':
+                # this is not the format CutOffDictNN expects (since that is not JSON
+                # serializable), so we store as a list of tuples instead
+                # TODO: make CutOffDictNN args JSON serializable
+                custom_cutoffs = [(row['A'], row['B'], float(row['A-B /Å']))
+                                  for row in custom_cutoffs_rows]
+                generation_options['bonding_strategy_kwargs'] = {'cut_off_dict': custom_cutoffs}
+            return generation_options
+
+        @app.callback(
+            Output(f'{structure_viewer_id}_bonding_algorithm_custom_cutoffs', 'rows'),
+            [Input(structure_viewer_id, 'structure')]
+        )
+        def update_custom_bond_options(structure):
+            structure = Structure.from_dict(structure)
+            species = map(str, structure.types_of_specie)
+            rows = [{'A': combination[0], 'B': combination[1], 'A-B /Å': 0}
+                    for combination in combinations_with_replacement(species, 2)]
+            return rows
+
+        @app.callback(
+            Output(f'{structure_viewer_id}_bonding_algorithm_custom_cutoffs_container', 'style'),
+            [Input(f'{structure_viewer_id}_bonding_algorithm', 'value')]
+        )
+        def show_hide_custom_bond_options(bonding_algorithm):
+            if bonding_algorithm == 'CutOffDictNN':
+                return {}
+            else:
+                return {'display': 'none'}
 
     layout = generate_layout(structure_viewer_id)
     generate_callbacks(structure_viewer_id, app)
