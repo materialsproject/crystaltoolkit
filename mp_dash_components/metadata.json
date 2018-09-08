@@ -18,6 +18,13 @@
         "required": false,
         "description": "JSON describing the visualization of the crystal structure, generated\nby pymatgen's MaterialsProjectStructureVis class"
       },
+      "structure": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "The pymatgen Structure, stored for convenience (not used internally by viewer)"
+      },
       "visibilityOptions": {
         "type": {
           "name": "object"

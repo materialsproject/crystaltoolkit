@@ -34,6 +34,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from scipy.spatial import Delaunay
 
+
 class StructureIntermediateFormat:
     """
     Class takes a Structure or StructureGraph and outputs a
