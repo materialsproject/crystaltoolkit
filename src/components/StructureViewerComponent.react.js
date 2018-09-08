@@ -90,7 +90,8 @@ export default class StructureViewerComponent extends Component {
 
 StructureViewerComponent.defaultProps = {
     rotationSpeed: 0,
-    n_screenshot_requests: 0
+    n_screenshot_requests: 0,
+    generationOptions: {}
 }
 
 StructureViewerComponent.propTypes = {
@@ -109,6 +110,11 @@ StructureViewerComponent.propTypes = {
 	 * The pymatgen Structure, stored for convenience (not used internally by viewer)
 	 */
 	structure: PropTypes.object,
+
+	/**
+	 * Options used for generating visualization, stored for convenience (not used internally by viewer)
+	 */
+	generationOptions: PropTypes.object,
 
 	/**
 	 * Whether or not to display atoms, bonds, etc.
