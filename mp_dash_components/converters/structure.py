@@ -123,6 +123,11 @@ class StructureIntermediateFormat:
                                  .format(", ".join(self.available_bonding_strategies.keys())))
             else:
                 bonding_strategy_kwargs = bonding_strategy_kwargs or {}
+                if bonding_strategy == 'CutOffDictNN':
+                    if 'cut_off_dict' in bonding_strategy_kwargs:
+                        # TODO: remove this hack by making args properly JSON serializable
+                        bonding_strategy_kwargs['cut_off_dict'] = {(x[0], x[1]):x[2]
+                                                                   for x in bonding_strategy_kwargs['cut_off_dict']}
                 bonding_strategy = self.available_bonding_strategies[bonding_strategy](**bonding_strategy_kwargs)
                 try:
                     self.structure_graph = StructureGraph.with_local_env_strategy(structure,
