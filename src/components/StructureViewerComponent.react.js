@@ -38,27 +38,16 @@ export default class StructureViewerComponent extends Component {
 		    }
 		}
 
-		if (typeof this.structure_viewer !== 'undefined') {
-			//var all_options = ['atoms', 'bonds', 'unitcell', 'polyhedra']
-			//if (typeof this.available_polyhedra !== 'undefined') {
-			//	all_options.push(...this.available_polyhedra)
-			//}
-			//const crystal = this.crystal
+		if (typeof this.structure_viewer.crystal !== 'undefined') {
 			if (nextProps.visibilityOptions != this.props.visibilityOptions) {
 			    this.structure_viewer.changeVisibility(nextProps.visibilityOptions)
 			}
-			//	all_options.forEach(function(option) {
-			//		var object = crystal.getObjectByName(option);
-			//		if (typeof object !== "undefined") {
-			//			object.visible = nextProps.visibilityOptions.includes(option)
-			//		}
-			//	})
-			//}
 		}
 
 		if (nextProps.n_screenshot_requests != this.props.n_screenshot_requests) {
 		    // this is correct in React?
-		    this.props.screenshot = this.structure_viewer.renderer.domElement.toDataURL();
+		    nextProps.screenshot = this.structure_viewer.renderer.domElement.toDataURL();
+		    console.log(this.structure_viewer.renderer.domElement.toDataURL());
 		}
 
 		if (nextProps.rotationSpeed != this.structure_viewer.rotationSpeed) {
@@ -117,6 +106,11 @@ StructureViewerComponent.propTypes = {
 	data: PropTypes.object,
 
 	/**
+	 * The pymatgen Structure, stored for convenience (not used internally by viewer)
+	 */
+	structure: PropTypes.object,
+
+	/**
 	 * Whether or not to display atoms, bonds, etc.
 	 * (This also includes specific polyhedra tags, might
 	 *  separate this into a separate prop later)
@@ -127,7 +121,7 @@ StructureViewerComponent.propTypes = {
 	 * Amount to rotate about y-axis per frame
 	 *
 	 */
-	 rotationSpeed: PropTypes.number,
+	rotationSpeed: PropTypes.number,
 
 	/**
 	 * Dash-assigned callback that should be called whenever any of the

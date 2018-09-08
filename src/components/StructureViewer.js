@@ -303,12 +303,15 @@ export default class StructureViewer {
   }
 
   showVectors(vector_list) {
+  // TODO
   }
 
   showEllipsoids(ellipsoid_list) {
+  // TODO
   }
 
   changeColorScheme(new_scheme) {
+  // TODO
   }
 
 
