@@ -18,7 +18,7 @@
         "required": false,
         "description": "JSON describing the visualization of the crystal structure, generated\nby pymatgen's MaterialsProjectStructureVis class"
       },
-      "structure": {
+      "value": {
         "type": {
           "name": "object"
         },

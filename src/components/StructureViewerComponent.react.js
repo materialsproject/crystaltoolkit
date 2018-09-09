@@ -109,7 +109,7 @@ StructureViewerComponent.propTypes = {
 	/**
 	 * The pymatgen Structure, stored for convenience (not used internally by viewer)
 	 */
-	structure: PropTypes.object,
+	value: PropTypes.object,
 
 	/**
 	 * Options used for generating visualization, stored for convenience (not used internally by viewer)
