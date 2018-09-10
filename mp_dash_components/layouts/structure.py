@@ -528,10 +528,10 @@ def structure_import_from_mpid(structure_id, app, **kwargs):
 
         @app.callback(
             Output(f'{structure_id}_choose_container', 'style'),
-            [Input(f'{structure_id}_choose', 'value')],
+            [Input(f'{structure_id}_choose', 'options')],
         )
-        def load_structure_choices(value):
-            if type(value) == int and value > 1:
+        def load_structure_choices(options):
+            if options and len(options) > 1:
                 return {}
             else:
                 return {'display': 'none'}
