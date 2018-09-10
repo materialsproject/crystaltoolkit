@@ -168,41 +168,10 @@ def update_mpid_query_value(mpid):
     else:
         raise PreventUpdate
 
-#@app.callback(
-#    Output('json-editor-structure', 'value'),
-#    [Input('random-structure', 'children')],
-#    [State('json-editor-structure', 'value')]
-#)
-#def pass_structure_from_random_to_editor(structure, current_value):
-#    if structure:
-#        return structure
-#    else:
-#        return current_value
 
-#,
-#     Input('uploaded-structure', 'children'),
-#    Input('query-structure', 'children'),
-#
-#
-
-### chain our structures together
-#structure_locations = [
-#    ('uploaded-structure', 'value'),
-#    ('json-editor-structure', 'value')
-#]
-#for i in range(len(structure_locations)-1):
-#    from_structure = structure_locations[i]
-#    to_structure = structure_locations[i+1]
-#    @app.callback(
-#        Output(*to_structure),
-#        [Input(*from_structure)]
-#    )
-#    def update_structure(structure):
-#        try:
-#            structure = sanitize_input(structure)
-#            return dumps(structure.as_dict(verbosity=0), indent=4)
-#        except:
-#            raise PreventUpdate
+from uuid import uuid4
+app.server.secret_key = str(uuid4())
+server = app.server
 
 if __name__ == '__main__':
     app.run_server(debug=False)
