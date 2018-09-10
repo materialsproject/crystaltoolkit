@@ -256,6 +256,50 @@ def structure_color_scheme_choice(structure_viewer_id, app, **kwargs):
     return layout
 
 
+def structure_view_range(structure_viewer_id, app, **kwargs):
+
+    def generate_layout(structure_viewer_id):
+
+        view_range = html.Div([
+            html.Label("View Range"),
+            dcc.RadioItems(options=[
+                {'label': 'Display Single Unit Cell', 'value': 'single'},
+                {'label': 'Display Expanded Unit Cell', 'value': 'expanded'}
+            ], value='expanded', id=f'{structure_viewer_id}_view_range')
+        ])
+
+        generation_options_hidden_div = html.Div(id=f'{structure_viewer_id}_view_range_generation_options',
+                                                 style={'display': 'none'})
+
+        return html.Div([view_range, generation_options_hidden_div])
+
+    def generate_callbacks(structure_viewer_id, app):
+
+        @app.callback(
+            Output(f'{structure_viewer_id}_view_range_generation_options', 'value'),
+            [Input(f'{structure_viewer_id}_view_range', 'value')],
+            [State(structure_viewer_id, 'value')]
+        )
+        def update_color_choice(view_range, structure):
+
+            if view_range == 'expanded':
+                if len(Structure.from_dict(structure)) <= 12:
+                    range = (0, 2.99)
+                else:
+                    range = (0, 1.99)
+            else:
+                range = (0, 0.99)
+
+            display_repeats = (range, range, range)
+
+            return {'display_repeats': display_repeats}
+
+    layout = generate_layout(structure_viewer_id)
+    generate_callbacks(structure_viewer_id, app)
+
+    return layout
+
+
 def structure_import_from_file(structure_id, app, **kwargs):
 
     def generate_layout(structure_id):
