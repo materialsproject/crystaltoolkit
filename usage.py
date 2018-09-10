@@ -85,7 +85,7 @@ app.layout = html.Div([
              structure_view_range(structure_viewer_id='structure-viewer', app=app),
              html.Br(),
              structure_color_scheme_choice(structure_viewer_id='structure-viewer', app=app)],
-            open=False
+            open=True
         ),
         html.Br(),
         html.Details(
@@ -93,7 +93,7 @@ app.layout = html.Div([
              html.Br(),
              structure_bonding_algorithm(structure_viewer_id='structure-viewer', app=app),
              ],
-            open=False
+            open=True
         ),
         html.Br(),
         html.Details(
@@ -173,5 +173,12 @@ from uuid import uuid4
 app.server.secret_key = str(uuid4())
 server = app.server
 
+import flask
+import os
+@server.route('/favicon.ico')
+def favicon():
+    return flask.send_from_directory(os.path.join(server.root_path),
+                                     'favicon.ico')
+
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
