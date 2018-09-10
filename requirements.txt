@@ -1,8 +1,9 @@
-dash>=0.21.0
-dash-renderer>=0.12.1
-dash-html-components>=0.10.0
-dash-core-components==0.21.0rc1
-dash-table-experiments
+dash>=0.26.4
+dash-core-components>=0.28.3
+dash-html-components>=0.11.0
+dash-renderer>=0.13.2
+dash-table-experiments>=0.6.0
+
 gunicorn>=19.7.1
 https://github.com/materialsproject/pymatgen/archive/master.zip
 
@@ -13,4 +14,3 @@ raven>=6.9.0
 Flask-Caching>=1.3.3
 
 -e .
-https://github.com/mkhorton/dash-react-graph-vis/archive/master.zip
