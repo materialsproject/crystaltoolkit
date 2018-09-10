@@ -109,17 +109,16 @@ def temp_bug_fix(val):
     raise PreventUpdate
 
 
-#@app.callback(
-#    Output('json-editor-structure', 'value'),
-#    [Input('uploaded-structure', 'value')],
-#    [State('json-editor-structure', 'value')]
-#)
-#def pass_structure_from_upload_to_editor(structure, current_value):
-#    try:
-#        structure = Structure.from_dict(loads(structure))
-#        return dumps(structure.as_dict(verbosity=0), indent=4)
-#    except:
-#        raise PreventUpdate
+@app.callback(
+    Output('json-editor-structure', 'value'),
+    [Input('uploaded-structure', 'children')],
+    [State('json-editor-structure', 'value')]
+)
+def pass_structure_from_upload_to_editor(structure, current_value):
+    if structure:
+        return structure
+    else:
+        return current_value
 
 ### chain our structures together
 #structure_locations = [
