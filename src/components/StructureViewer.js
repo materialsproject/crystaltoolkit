@@ -244,6 +244,7 @@ export default class StructureViewer {
 
     // Controls
     const controls = new OrbitControls(camera, this.renderer.domElement);
+    controls.enableKeys = false;
 
     dom_elt.appendChild(this.renderer.domElement);
     this.start();

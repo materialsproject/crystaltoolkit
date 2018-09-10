@@ -11,6 +11,7 @@ from mp_dash_components.layouts.misc import help_layout
 
 from pymatgen.core import Structure
 from pymatgen.ext.matproj import MPRester
+from pymatgen.util.string import unicodeify
 
 from itertools import combinations_with_replacement, chain
 
@@ -42,7 +43,10 @@ def structure_layout(structure, app,
 
         if isinstance(structure, Structure):
             structure_dict = structure.as_dict(verbosity=0)
-            intermediate_json = StructureIntermediateFormat(structure).json
+            intermediate_json = StructureIntermediateFormat(structure,
+                                                            display_repeats=((0, 0.99),
+                                                                             (0, 0.99),
+                                                                             (0, 0.99))).json
             return StructureViewerComponent(id=structure_viewer_id,
                                             value=structure_dict,
                                             data=intermediate_json,
@@ -89,7 +93,7 @@ def structure_view_options_layout(structure_viewer_id, app,
                 {'label': 'Show Polyhedra', 'value': 'polyhedra'},
                 {'label': 'Show Unit Cell', 'value': 'unitcell'}
             ],
-            values=['atoms', 'bonds', 'unitcell'],
+            values=['atoms', 'bonds', 'polyhedra', 'unitcell'],
             **kwargs
         )
 
@@ -136,7 +140,7 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
         custom_cutoffs = html.Div([
             html.Br(),
             dt.DataTable(
-                rows=[{'A': None, 'B': None, 'A-B /Å': None}],
+                rows=[{'A': None, 'B': None, 'A—B /Å': None}],
                 row_selectable=False,
                 filterable=False,
                 sortable=True,
@@ -168,7 +172,7 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
                 # this is not the format CutOffDictNN expects (since that is not JSON
                 # serializable), so we store as a list of tuples instead
                 # TODO: make CutOffDictNN args JSON serializable
-                custom_cutoffs = [(row['A'], row['B'], float(row['A-B /Å']))
+                custom_cutoffs = [(row['A'], row['B'], float(row['A—B /Å']))
                                   for row in custom_cutoffs_rows]
                 options['bonding_strategy_kwargs'] = {'cut_off_dict': custom_cutoffs}
             return options
@@ -182,7 +186,7 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
             # can't use type_of_specie because it doesn't work with disordered structures
             species = set(map(str, chain.from_iterable([list(c.keys())
                                                         for c in structure.species_and_occu])))
-            rows = [{'A': combination[0], 'B': combination[1], 'A-B /Å': 0}
+            rows = [{'A': combination[0], 'B': combination[1], 'A—B /Å': 0}
                     for combination in combinations_with_replacement(species, 2)]
             return rows
 
@@ -282,7 +286,7 @@ def structure_view_range(structure_viewer_id, app, **kwargs):
             dcc.RadioItems(options=[
                 {'label': 'Display Single Unit Cell', 'value': 'single'},
                 {'label': 'Display Expanded Unit Cell', 'value': 'expanded'}
-            ], value='expanded', id=f'{structure_viewer_id}_view_range')
+            ], value='single', id=f'{structure_viewer_id}_view_range')
         ])
 
         generation_options_hidden_div = html.Div(id=f'{structure_viewer_id}_view_range_generation_options',
@@ -502,7 +506,8 @@ def structure_import_from_mpid(structure_id, app, **kwargs):
                 structures = mpr.get_structures(query)
             if structures:
                 return [{
-                    'label': f'{structure.composition.reduced_formula} {structure.get_space_group_info()[0]}',
+                    'label': f'{unicodeify(structure.composition.reduced_formula)} '
+                             f'{structure.get_space_group_info()[0]}',
                     'value': idx
                 } for idx, structure in enumerate(structures)]
 
@@ -526,7 +531,7 @@ def structure_import_from_mpid(structure_id, app, **kwargs):
             [Input(f'{structure_id}_choose', 'value')],
         )
         def load_structure_choices(value):
-            if type(value) == int:
+            if type(value) == int and value > 1:
                 return {}
             else:
                 return {'display': 'none'}
@@ -542,7 +547,8 @@ def structure_random_input(structure_id, app, mpid_list, **kwargs):
     def generate_layout(structure_id):
 
         hidden_structure_div = html.Div(id=structure_id, style={'display': 'none'})
-        random_button = html.Button('🎲', id=f'{structure_id}_random_button')
+        random_button = html.Button('🎲', id=f'{structure_id}_random_button',
+                                    style={'font-size': 'x-large'})
 
         return html.Div([html.Label('Load random structure:'), random_button, hidden_structure_div])
 
@@ -565,6 +571,7 @@ def structure_random_input(structure_id, app, mpid_list, **kwargs):
     generate_callbacks(structure_id, app)
 
     return layout
+
 
 def structure_graph(structure_viewer_id, app, **kwargs):
 
@@ -806,7 +813,7 @@ def structure_viewer_header(structure_viewer_id, app, **kwargs):
         )
         def update_title(structure):
             structure = Structure.from_dict(structure)
-            return structure.composition.reduced_formula
+            return unicodeify(structure.composition.reduced_formula)
 
     layout = generate_layout(structure_viewer_id)
     generate_callbacks(structure_viewer_id, app)
