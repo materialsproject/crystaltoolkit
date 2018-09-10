@@ -1,6 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
 import dash_table_experiments as dt
 
@@ -11,6 +12,10 @@ from mp_dash_components.layouts.misc import help_layout
 from pymatgen.core import Structure
 
 from itertools import combinations_with_replacement
+
+from tempfile import NamedTemporaryFile
+from base64 import b64decode
+from json import dumps, loads
 
 import numpy as np
 
@@ -278,94 +283,56 @@ def structure_import_from_file(structure_id, app, **kwargs):
                        multiple=True)
         ])
 
-        return upload
+        hidden_structure_div = html.Div(style={'display': 'none'})
 
-    ##ef generate_callbacks(in_structure_id, out_structure_id, app):
+        return html.Div([upload, hidden_structure_div])
 
-    #   @app.callback(
-    #       Output(out_structure_id, 'value'),
-    #       [Input(in_structure_id, 'value')]
-    #   )
-    #   def pass_input():
-    #       ...
+    def generate_callbacks(structure_id, app):
 
-    #   @app.callback(
-    #     Output('upload-label', 'children'),
-    #      [Input('upload-data', 'filename')],
-    #      [State('upload-label', 'children')]
-    #   )
-    #   def callback_upload_label(filenames, current_upload_label):
-    #      """
-    #      Displays the filename of any uploaded data.
-    #      """
-    #      if filenames:
-    #          return "{}".format(", ".join(filenames))
-    #      else:
-    #          return current_upload_label
+        @app.callback(
+          Output(f'{structure_id}_upload_label', 'children'),
+           [Input(f'{structure_id}_upload_data', 'filename')],
+           [State(f'{structure_id}_upload_label', 'children')]
+        )
+        def callback_upload_label(filenames, current_upload_label):
+           """
+           Displays the filename of any uploaded data.
+           """
+           if filenames:
+               return "{}".format(", ".join(filenames))
+           else:
+               return current_upload_label
 
-    #   @app.callback(
-    #      Output('input-box', 'value'),
-    #      [Input('upload-data', 'filename')],
-    #      [State('input-box', 'value')]
-    #   )
-    #   def callback_query_label(filenames, current_query):
-    #      """
-    #      Clears the current query if data is uploaded from a file.
-    #      """
-    #      if filenames:
-    #          return []
-    #      else:
-    #          return current_query
+        @app.callback(
+             Output(structure_id, 'value'),
+             [Input('upload-data', 'contents'),
+              Input('upload-data', 'filename'),
+              Input('upload-data', 'last_modified')]
+        )
+        def callback_update_structure(list_of_contents, list_of_filenames,
+                                        list_of_modified_dates):
 
+            if list_of_contents is not None:
 
-    #   @app.callback(
-    #      Output('structure', 'value'),
-    #      [Input('upload-data', 'contents'),
-    #       Input('upload-data', 'filename'),
-    #       Input('upload-data', 'last_modified'),
-    #       Input('url', 'search')]
-    #   )
-    #   def callback_update_structure(list_of_contents, list_of_filenames,
-    #                                 list_of_modified_dates,
-    #                                 search_query):
+                # assume we only want the first input for now
+                content_type, content_string = list_of_contents[0].split(',')
+                decoded_contents = b64decode(content_string)
+                name = list_of_filenames[0]
 
-    #      if list_of_contents is not None:
+                # necessary to write to file so pymatgen's filetype detection can work
+                with NamedTemporaryFile(suffix=name) as tmp:
+                    tmp.write(decoded_contents)
+                    tmp.flush()
+                    structure = Structure.from_file(tmp.name)
 
-    #          # assume we only want the first input for now
-    #          content_type, content_string = list_of_contents[0].split(',')
-    #          decoded_contents = b64decode(content_string)
-    #          name = list_of_filenames[0]
+                return structure.as_dict(verbosity=0)
 
-    #          # necessary to write to file so pymatgen's filetype detection can work
-    #          with NamedTemporaryFile(suffix=name) as tmp:
-    #              tmp.write(decoded_contents)
-    #              tmp.flush()
-    #              structure = Structure.from_file(tmp.name)
+            else:
 
-    #      elif search_query:
-    #          # strip leading ? from query, and parse into dict
-    #          search_query = dict(parse_qsl(search_query[1:]))
-    #          if 'structure' in search_query:
-    #              payload = search_query['structure'][0]
-    #              payload = urlsafe_b64decode(payload)
-    #              payload = decompress(payload)
-    #              structure = Structure.from_str(payload, fmt='json')
-    #          else:
-    #              structure = mpr.get_structures(search_query['query'])[0]
-    #      else:
-    #          random_mpid = random.choice(ALL_MPIDS)
-    #          try:
-    #              structure = mpr.get_structure_by_material_id(random_mpid)
-    #          except:
-    #              structure = DEFAULT_STRUCTURE
-
-    #      return json.dumps(structure.as_dict(verbosity=0), indent=4)
-
-
-
+                return None
 
     layout = generate_layout(structure_id)
-    #generate_callbacks(structure_viewer_id, app)
+    generate_callbacks(structure_id, app)
 
     return layout
 
@@ -417,6 +384,81 @@ def structure_graph(structure_viewer_id, app, **kwargs):
     return layout
 
 
+def json_editor(structure_id, app, **kwargs):
+
+    def generate_layout(structure_id):
+
+        # TODO move this to css file
+        error_style = {'font-family': 'monospace', 'color': 'rgb(211, 84, 0)',
+                       'text-align': 'left', 'font-size': '1.2em'}
+
+        layout = html.Div([
+            html.Div([
+                html.Br(),
+                html.Label("Edit crystal structure live as pymatgen structure JSON "
+                           "(in Python, use Structure.to_json() to generate):"),
+                dcc.Textarea(
+                    id=structure_id,
+                    placeholder='Paste JSON from a pymatgen Structure object here, '
+                                'using output from Structure.to_json()',
+                    value="",
+                    style={'overflow-y': 'scroll', 'width': '100%',
+                           'height': '100%', 'font-family': 'monospace',
+                           'min-height': '200px'})
+           ], className="six columns"),
+           html.Div([
+               html.Br(),
+               html.Label("", id=f'{structure_id}-highlighted-error', style=error_style),
+               dcc.SyntaxHighlighter(
+                   id=f'{structure_id}-highlighted',
+                   children="",
+                   language='javascript',
+                   showLineNumbers=True,
+                   customStyle={'overflow-y': 'scroll', 'height': '100%', 'min-height': '200px'})
+           ], className="six columns")
+        ], className="row")
+
+        return html.Div([layout], style={'padding': '10px'})
+
+    def generate_callbacks(structure_id, all):
+
+        @app.callback(
+            Output(f'{structure_id}-highlighted', 'children'),
+            [Input(structure_id, 'value')]
+        )
+        def callback_highlighted_json(structure):
+            try:
+                structure = loads(structure)
+                return dumps(Structure.from_dict(structure).as_dict(verbosity=0), indent=4)
+            except:
+                raise PreventUpdate
+
+        @app.callback(
+            Output(f'{structure_id}-highlighted-error', 'children'),
+            [Input(structure_id, 'value')]
+        )
+        def callback_highlighted_json_error(structure):
+            try:
+                structure = loads(structure)
+                Structure.from_dict(structure)
+                return ""
+            except Exception as e:
+                try:
+                    if "None" in structure:
+                        error_msg = "Use Structure.to_json() to generate JSON, not Structure.as_dict(" \
+                                    "). "
+                    elif len(structure) > 0 and structure[0] == "'":
+                        error_msg = "Do not include initial or final quotes when pasting JSON. "
+                    else:
+                        error_msg = str(e)
+                except:
+                    error_msg = str(e)
+            return error_msg
+
+    layout = generate_layout(structure_id)
+    generate_callbacks(structure_id, app)
+
+    return layout
 
 def structure_screenshot_button(structure_viewer_id, app, **kwargs):
     """
