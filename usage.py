@@ -3,6 +3,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
+from dash.exceptions import PreventUpdate
+
 from mp_dash_components.helpers import mp_component
 from mp_dash_components.layouts.structure import *
 from mp_dash_components.layouts.misc import *
@@ -35,7 +37,10 @@ app.layout = html.Div([
             dcc.Tab(label="Bonding Graph", value="graph-tab",
                     children=[html.Div([structure_graph(structure_viewer_id='structure-viewer', app=app)],
                                        style=tab_style)]),
-            dcc.Tab(label="JSON Editor", value="json-tab")
+            dcc.Tab(label="JSON Editor", value="json-tab",
+                    children=[
+                        html.Div([json_editor(structure_id='json-editor-structure', app=app)],
+                                 style=tab_style)])
         ])
     ], className='seven columns'),
     html.Div([
@@ -87,6 +92,16 @@ combine_option_dicts([
         'structure-viewer_bonding_algorithm_generation_options',
         'structure-viewer_color_scheme_choice_generation_options'
 ], 'structure-viewer', 'generationOptions', app=app)
+
+
+# TODO: remove!
+@app.callback(
+    Output('tabs', 'children'),
+    [Input('tabs', 'value')]
+)
+def temp_bug_fix(val):
+    # stop tabs from switching back to first tab on every callback!
+    raise PreventUpdate
 
 if __name__ == '__main__':
     app.run_server(debug=True)
