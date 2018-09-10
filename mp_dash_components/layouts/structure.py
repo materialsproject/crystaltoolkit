@@ -553,10 +553,13 @@ def structure_random_input(structure_id, app, mpid_list, **kwargs):
             [Input(f'{structure_id}_random_button', 'n_clicks')]
         )
         def get_random_structure(n_clicks):
-            mpid = choice(mpid_list)
-            with MPRester() as mpr:
-                structure = mpr.get_structure_by_material_id(mpid)
-            return dump_structure(structure)
+            if n_clicks:
+                mpid = choice(mpid_list)
+                with MPRester() as mpr:
+                    structure = mpr.get_structure_by_material_id(mpid)
+                return dump_structure(structure)
+            else:
+                raise PreventUpdate
 
     layout = generate_layout(structure_id)
     generate_callbacks(structure_id, app)

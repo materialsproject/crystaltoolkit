@@ -13,7 +13,7 @@ from mp_dash_components.layouts.misc import *
 from monty.serialization import loadfn
 
 app = dash.Dash()
-app.title = "Materials Project Dash Component Examples"
+app.title = "Structure Viewer"
 
 app.scripts.config.serve_locally = True
 app.config['suppress_callback_exceptions'] = True
@@ -151,14 +151,22 @@ def pass_structures_between_components(*args):
     all_structures = [loads(structure) for structure in all_structures if structure]
     all_structures = sorted(all_structures, key=lambda x: -x['_created_at'])
 
-    print(all_structures)
-
     if len(all_structures) > 0:
         structure = all_structures[0]
         del structure['_created_at']
         return dumps(structure, indent=4)
     else:
         return current_value
+
+@app.callback(
+    Output('query-structure_mpid_input', 'value'),
+    [Input('url_mpid', 'children')]
+)
+def update_mpid_query_value(mpid):
+    if mpid:
+        return mpid
+    else:
+        raise PreventUpdate
 
 #@app.callback(
 #    Output('json-editor-structure', 'value'),
@@ -197,4 +205,4 @@ def pass_structures_between_components(*args):
 #            raise PreventUpdate
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
