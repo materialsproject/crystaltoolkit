@@ -180,5 +180,6 @@ def favicon():
     return flask.send_from_directory(os.path.join(server.root_path),
                                      'favicon.ico')
 
+
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
