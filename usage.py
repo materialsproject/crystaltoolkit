@@ -57,6 +57,8 @@ app.layout = html.Div([
              html.Br(),
              structure_view_options_layout(structure_viewer_id='structure-viewer', app=app),
              html.Br(),
+             structure_view_range(structure_viewer_id='structure-viewer', app=app),
+             html.Br(),
              structure_color_scheme_choice(structure_viewer_id='structure-viewer', app=app)],
             open=True
         ),
@@ -89,8 +91,9 @@ app.layout = html.Div([
 
 # hack because Dash doesn't support multiple callbacks to single output
 combine_option_dicts([
-        'structure-viewer_bonding_algorithm_generation_options',
-        'structure-viewer_color_scheme_choice_generation_options'
+    'structure-viewer_bonding_algorithm_generation_options',
+    'structure-viewer_color_scheme_choice_generation_options',
+    'structure-viewer_view_range_generation_options'
 ], 'structure-viewer', 'generationOptions', app=app)
 
 
