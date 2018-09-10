@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 
 from dash.exceptions import PreventUpdate
 
-from mp_dash_components.helpers import mp_component
+from mp_dash_components.helpers import mp_component, sanitize_input
 from mp_dash_components.layouts.structure import *
 from mp_dash_components.layouts.misc import *
 
@@ -39,8 +39,10 @@ app.layout = html.Div([
                                        style=tab_style)]),
             dcc.Tab(label="JSON Editor", value="json-tab",
                     children=[
-                        html.Div([json_editor(structure_id='json-editor-structure', app=app)],
-                                 style=tab_style)])
+                        html.Div([json_editor(structure_id='json-editor-structure', app=app,
+                                              initial_structure=example_structure,
+                                              structure_viewer_id='structure-viewer')],
+                                  style=tab_style)])
         ])
     ], className='seven columns'),
     html.Div([
@@ -105,6 +107,38 @@ combine_option_dicts([
 def temp_bug_fix(val):
     # stop tabs from switching back to first tab on every callback!
     raise PreventUpdate
+
+
+#@app.callback(
+#    Output('json-editor-structure', 'value'),
+#    [Input('uploaded-structure', 'value')],
+#    [State('json-editor-structure', 'value')]
+#)
+#def pass_structure_from_upload_to_editor(structure, current_value):
+#    try:
+#        structure = Structure.from_dict(loads(structure))
+#        return dumps(structure.as_dict(verbosity=0), indent=4)
+#    except:
+#        raise PreventUpdate
+
+### chain our structures together
+#structure_locations = [
+#    ('uploaded-structure', 'value'),
+#    ('json-editor-structure', 'value')
+#]
+#for i in range(len(structure_locations)-1):
+#    from_structure = structure_locations[i]
+#    to_structure = structure_locations[i+1]
+#    @app.callback(
+#        Output(*to_structure),
+#        [Input(*from_structure)]
+#    )
+#    def update_structure(structure):
+#        try:
+#            structure = sanitize_input(structure)
+#            return dumps(structure.as_dict(verbosity=0), indent=4)
+#        except:
+#            raise PreventUpdate
 
 if __name__ == '__main__':
     app.run_server(debug=True)

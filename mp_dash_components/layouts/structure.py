@@ -327,7 +327,7 @@ def structure_import_from_file(structure_id, app, **kwargs):
                        multiple=True)
         ])
 
-        hidden_structure_div = html.Div(style={'display': 'none'})
+        hidden_structure_div = html.Div(id=structure_id, style={'display': 'none'})
 
         return html.Div([upload, hidden_structure_div])
 
@@ -348,10 +348,10 @@ def structure_import_from_file(structure_id, app, **kwargs):
                return current_upload_label
 
         @app.callback(
-             Output(structure_id, 'value'),
-             [Input('upload-data', 'contents'),
-              Input('upload-data', 'filename'),
-              Input('upload-data', 'last_modified')]
+             Output(structure_id, 'children'),
+             [Input(f'{structure_id}_upload_data', 'contents'),
+              Input(f'{structure_id}_upload_data', 'filename'),
+              Input(f'{structure_id}_upload_data', 'last_modified')]
         )
         def callback_update_structure(list_of_contents, list_of_filenames,
                                         list_of_modified_dates):
@@ -369,7 +369,7 @@ def structure_import_from_file(structure_id, app, **kwargs):
                     tmp.flush()
                     structure = Structure.from_file(tmp.name)
 
-                return structure.as_dict(verbosity=0)
+                return dumps(structure.as_dict(verbosity=0), indent=4)
 
             else:
 
@@ -428,7 +428,12 @@ def structure_graph(structure_viewer_id, app, **kwargs):
     return layout
 
 
-def json_editor(structure_id, app, **kwargs):
+def json_editor(structure_id, app, initial_structure=None, structure_viewer_id=None, **kwargs):
+
+    if isinstance(initial_structure, Structure):
+        initial_value = dumps(initial_structure.as_dict(verbosity=0), indent=4)
+    else:
+        initial_value = ""
 
     def generate_layout(structure_id):
 
@@ -436,7 +441,7 @@ def json_editor(structure_id, app, **kwargs):
         error_style = {'font-family': 'monospace', 'color': 'rgb(211, 84, 0)',
                        'text-align': 'left', 'font-size': '1.2em'}
 
-        layout = html.Div([
+        editor = html.Div([
             html.Div([
                 html.Br(),
                 html.Label("Edit crystal structure live as pymatgen structure JSON "
@@ -445,10 +450,11 @@ def json_editor(structure_id, app, **kwargs):
                     id=structure_id,
                     placeholder='Paste JSON from a pymatgen Structure object here, '
                                 'using output from Structure.to_json()',
-                    value="",
+                    value=initial_value,
                     style={'overflow-y': 'scroll', 'width': '100%',
-                           'height': '100%', 'font-family': 'monospace',
-                           'min-height': '200px'})
+                           'height': '70vh',
+                           'max-height': '80vh', 'font-family': 'monospace',
+                           'min-height': '100px'})
            ], className="six columns"),
            html.Div([
                html.Br(),
@@ -458,11 +464,12 @@ def json_editor(structure_id, app, **kwargs):
                    children="",
                    language='javascript',
                    showLineNumbers=True,
-                   customStyle={'overflow-y': 'scroll', 'height': '100%', 'min-height': '200px'})
+                   customStyle={'overflow-y': 'scroll', 'height': '70vh', 'min-height': '100px',
+                                'max-height': '80vh'})
            ], className="six columns")
         ], className="row")
 
-        return html.Div([layout], style={'padding': '10px'})
+        return html.Div([editor], style={'padding': '10px'})
 
     def generate_callbacks(structure_id, all):
 
@@ -499,10 +506,23 @@ def json_editor(structure_id, app, **kwargs):
                     error_msg = str(e)
             return error_msg
 
+        if structure_viewer_id:
+            @app.callback(
+                Output(structure_viewer_id, 'value'),
+                [Input(structure_id, 'value')]
+            )
+            def update_displayed_structure(structure):
+                try:
+                    structure = Structure.from_dict(loads(structure))
+                    return structure.as_dict(verbosity=0)
+                except:
+                    raise PreventUpdate
+
     layout = generate_layout(structure_id)
     generate_callbacks(structure_id, app)
 
     return layout
+
 
 def structure_screenshot_button(structure_viewer_id, app, **kwargs):
     """

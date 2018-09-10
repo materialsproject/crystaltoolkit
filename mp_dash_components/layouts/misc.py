@@ -23,6 +23,7 @@ def combine_option_dicts(list_of_option_components,
         # to one output, we have to do this
 
         d = args[-1] or {}
+        print(args)
 
         for opt in args[:-1]:
             d.update(opt)
