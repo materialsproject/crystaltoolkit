@@ -10,14 +10,29 @@ from mp_dash_components import StructureViewerComponent, GraphComponent
 from mp_dash_components.layouts.misc import help_layout
 
 from pymatgen.core import Structure
+from pymatgen.ext.matproj import MPRester
 
-from itertools import combinations_with_replacement
+from itertools import combinations_with_replacement, chain
 
 from tempfile import NamedTemporaryFile
-from base64 import b64decode
+from base64 import urlsafe_b64decode, b64decode
 from json import dumps, loads
+from zlib import decompress
+from urllib.parse import parse_qsl
+from random import choice
 
 import numpy as np
+
+
+import datetime, time
+def _get_time():
+    # TODO: this seems bad, used to display 'latest' structure
+    return time.mktime(datetime.datetime.now().timetuple())
+
+def dump_structure(structure):
+    d = structure.as_dict(verbosity=0)
+    d['_created_at'] = _get_time()
+    return dumps(d, indent=4)
 
 
 def structure_layout(structure, app,
@@ -101,7 +116,7 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
     def generate_layout(structure_viewer_id):
 
         nn_mapping = {
-            "CrystalNN (default)": "CrystalNN",
+            "CrystalNN": "CrystalNN",
             "Custom Bonds": "CutOffDictNN",
             "Jmol Bonding": "JMolNN",
             "Minimum Distance (10% tolerance)": "MinimumDistanceNN",
@@ -114,7 +129,7 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
             options=[
                 {'label': k, 'value': v} for k, v in nn_mapping.items()
             ],
-            value='CrystalNN',
+            value='BrunnerNN_reciprocal',
             id=f'{structure_viewer_id}_bonding_algorithm'
         )
 
@@ -164,7 +179,9 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
         )
         def update_custom_bond_options(structure):
             structure = Structure.from_dict(structure)
-            species = map(str, structure.types_of_specie)
+            # can't use type_of_specie because it doesn't work with disordered structures
+            species = set(map(str, chain.from_iterable([list(c.keys())
+                                                        for c in structure.species_and_occu])))
             rows = [{'A': combination[0], 'B': combination[1], 'A-B /Å': 0}
                     for combination in combinations_with_replacement(species, 2)]
             return rows
@@ -230,7 +247,7 @@ def structure_color_scheme_choice(structure_viewer_id, app, **kwargs):
                 if len(props.shape) == 1 and key != "coordination_no":
                     # can't color-code for vectors,
                     # should draw arrows for these instead
-                    structure.append(key)
+                    available_options.append(key)
 
             def pretty_rewrite(option):
                 if option not in default_color_schemes:
@@ -369,7 +386,7 @@ def structure_import_from_file(structure_id, app, **kwargs):
                     tmp.flush()
                     structure = Structure.from_file(tmp.name)
 
-                return dumps(structure.as_dict(verbosity=0), indent=4)
+                return dump_structure(structure)
 
             else:
 
@@ -380,6 +397,171 @@ def structure_import_from_file(structure_id, app, **kwargs):
 
     return layout
 
+
+def structure_import_from_url(url_id, app, **kwargs):
+
+    def generate_layout(url_id):
+        hidden_structure_div = html.Div(id=f'{url_id}_structure', style={'display': 'none'})
+        hidden_mpid_div = html.Div(id=f'{url_id}_mpid', style={'display': 'none'})
+        return html.Div([hidden_structure_div, hidden_mpid_div], style={'display': 'none'})
+
+    def generate_callbacks(url_id, app):
+
+        @app.callback(
+            Output(f'{url_id}_structure', 'children'),
+            [Input(url_id, 'search')]
+        )
+        def load_structure_from_url(search_query):
+            if (search_query is None) or (search_query is ""):
+                raise PreventUpdate
+            # strip leading ? from query, and parse into dict
+            search_query = dict(parse_qsl(search_query[1:]))
+            if 'structure' in search_query:
+                payload = search_query['structure']
+                payload = urlsafe_b64decode(payload)
+                payload = decompress(payload).decode('ascii')
+                structure = Structure.from_dict(loads(payload))
+                return dump_structure(structure)
+            elif 'query' in search_query:
+                with MPRester() as mpr:
+                    structure = mpr.get_structures(search_query['query'])[0]
+                    return dump_structure(structure)
+            else:
+                raise PreventUpdate
+
+        @app.callback(
+            Output(f'{url_id}_mpid', 'children'),
+            [Input(url_id, 'search')]
+        )
+        def update_mpid(search_query):
+            if (search_query is None) or (search_query is ""):
+                raise PreventUpdate
+            # strip leading ? from query, and parse into dict
+            search_query = dict(parse_qsl(search_query[1:]))
+            if 'query' in search_query:
+                return search_query['query']
+            else:
+                raise PreventUpdate
+
+    layout = generate_layout(url_id)
+    generate_callbacks(url_id, app)
+
+    return layout
+
+
+def structure_import_from_mpid(structure_id, app, **kwargs):
+
+    def generate_layout(structure_id):
+        hidden_structure_div = html.Div(id=structure_id, style={'display': 'none'})
+
+        mpid_input = html.Div([
+            html.Label('Load from Materials Project:'),
+            dcc.Input(id=f'{structure_id}_mpid_input', type='text', placeholder='Enter a formula or mp-id',
+                      value='',
+                      style={'float': 'left', 'width': 'auto'}),
+            html.Span(' '),
+            html.Button('Load', id=f'{structure_id}_mpid_input_button'),
+            html.Br(),
+            html.Div(dcc.Dropdown(id=f'{structure_id}_choose'), id=f'{structure_id}_choose_container',
+                     style={'display': 'none'})
+        ])
+
+        return html.Div([hidden_structure_div, mpid_input])
+
+    def generate_callbacks(structure_id, app):
+
+        @app.callback(
+            Output(structure_id, 'children'),
+            [Input(f'{structure_id}_mpid_input_button', 'n_clicks'),
+             Input(f'{structure_id}_choose', 'value')],
+            [State(f'{structure_id}_mpid_input', 'value')]
+        )
+        def load_structure_from_query(n_clicks, choice, query):
+            if (query is None) or (query is ""):
+                raise PreventUpdate
+            with MPRester() as mpr:
+                structures = mpr.get_structures(query)
+            if structures:
+                if choice:
+                    structure = structures[choice]
+                else:
+                    structure = structures[0]
+                return dump_structure(structure)
+            else:
+                raise PreventUpdate
+
+        @app.callback(
+            Output(f'{structure_id}_choose', 'options'),
+            [Input(f'{structure_id}_mpid_input_button', 'n_clicks')],
+            [State(f'{structure_id}_mpid_input', 'value')]
+        )
+        def load_structure_choices(n_clicks, query):
+            if (query is None) or (query is ""):
+                raise PreventUpdate
+            with MPRester() as mpr:
+                structures = mpr.get_structures(query)
+            if structures:
+                return [{
+                    'label': f'{structure.composition.reduced_formula} {structure.get_space_group_info()[0]}',
+                    'value': idx
+                } for idx, structure in enumerate(structures)]
+
+        @app.callback(
+            Output(f'{structure_id}_choose', 'value'),
+            [Input(f'{structure_id}_mpid_input_button', 'n_clicks')],
+            [State(f'{structure_id}_mpid_input', 'value')]
+        )
+        def load_structure_choices(n_clicks, query):
+            if (query is None) or (query is ""):
+                raise PreventUpdate
+            with MPRester() as mpr:
+                structures = mpr.get_structures(query)
+            if structures:
+                return 0
+            else:
+                return None
+
+        @app.callback(
+            Output(f'{structure_id}_choose_container', 'style'),
+            [Input(f'{structure_id}_choose', 'value')],
+        )
+        def load_structure_choices(value):
+            if type(value) == int:
+                return {}
+            else:
+                return {'display': 'none'}
+
+    layout = generate_layout(structure_id)
+    generate_callbacks(structure_id, app)
+
+    return layout
+
+
+def structure_random_input(structure_id, app, mpid_list, **kwargs):
+
+    def generate_layout(structure_id):
+
+        hidden_structure_div = html.Div(id=structure_id, style={'display': 'none'})
+        random_button = html.Button('🎲', id=f'{structure_id}_random_button')
+
+        return html.Div([html.Label('Load random structure:'), random_button, hidden_structure_div])
+
+    def generate_callbacks(structure_id, app):
+
+        @app.callback(
+            Output(structure_id, 'children'),
+            [Input(f'{structure_id}_random_button', 'n_clicks')]
+        )
+        def get_random_structure(n_clicks):
+            mpid = choice(mpid_list)
+            with MPRester() as mpr:
+                structure = mpr.get_structure_by_material_id(mpid)
+            return dump_structure(structure)
+
+    layout = generate_layout(structure_id)
+    generate_callbacks(structure_id, app)
+
+    return layout
 
 def structure_graph(structure_viewer_id, app, **kwargs):
 
@@ -524,6 +706,44 @@ def json_editor(structure_id, app, initial_structure=None, structure_viewer_id=N
     return layout
 
 
+def structure_inspector(structure_id, app, **kwargs):
+
+    def generate_layout(structure_id):
+        return dcc.Markdown(id=f'{structure_id}_inspector')
+
+    def generate_callbacks(structure_id, app):
+
+        @app.callback(
+            Output(f'{structure_id}_inspector', 'children'),
+            [Input(structure_id, 'value')]
+        )
+        def analyze_structure(structure):
+            # TODO: in some places, structure stored as text, in other places as dict
+            structure = Structure.from_dict(structure)
+            text = []
+
+            spacegroup = structure.get_space_group_info()
+            text.append("Space group: {} ({})".format(spacegroup[0], spacegroup[1]))
+
+            with MPRester() as mpr:
+                mpids = mpr.find_structure(structure)
+            if mpids:
+                links = ", ".join(
+                    ["[{}](https://materialsproject.org/materials/{})".format(mpid, mpid)
+                     for mpid in mpids])
+                text.append("This material is available on the Materials Project: {}".format(links))
+
+            text = "\n\n".join(text)
+
+            return text
+
+
+    layout = generate_layout(structure_id)
+    generate_callbacks(structure_id, app)
+
+    return layout
+
+
 def structure_screenshot_button(structure_viewer_id, app, **kwargs):
     """
     BETA!
@@ -560,6 +780,73 @@ def structure_screenshot_button(structure_viewer_id, app, **kwargs):
         )
         def return_screenshot(screenshot):
             return screenshot
+
+    layout = generate_layout(structure_viewer_id)
+    generate_callbacks(structure_viewer_id, app)
+
+    return layout
+
+
+def structure_viewer_header(structure_viewer_id, app, **kwargs):
+
+    def generate_layout(structure_viewer_id):
+
+        title = html.H1(id=f'{structure_viewer_id}_title', style={'display': 'inline-block'})
+
+        return title
+
+    def generate_callbacks(structure_viewer_id, app):
+
+        @app.callback(
+            Output(f'{structure_viewer_id}_title', 'children'),
+            [Input(structure_viewer_id, 'value')]
+        )
+        def update_title(structure):
+            structure = Structure.from_dict(structure)
+            return structure.composition.reduced_formula
+
+    layout = generate_layout(structure_viewer_id)
+    generate_callbacks(structure_viewer_id, app)
+
+    return layout
+
+
+def structure_viewer_legend(structure_viewer_id, app, **kwargs):
+
+    def layout_color(hex_code, label):
+        c = tuple(int(hex_code[1:][i:i + 2], 16) for i in (0, 2, 4))
+        fontcolor = '#000000' if 1 - (c[0] * 0.299 + c[1] * 0.587
+                                      + c[2] * 0.114) / 255 < 0.5 else '#ffffff'
+        return html.Span(label, style={"min-width": "40px", "width": "auto", "height": "40px",
+                                       "line-height": "40px",
+                                       "border-radius": "1px", "background": hex_code,
+                                       "display": "inline-block",
+                                       "font-weight": "bold",
+                                       "color": fontcolor,
+                                       "border": "1px solid black",
+                                       "margin": "2px",
+                                       "position": "relative",
+                                       "text-align": "center",
+                                       "top": "50%",
+                                       "transform": "translateY(-50 %)"
+                                       })
+
+    def generate_layout(structure_viewer_id):
+
+        legend = html.Div(id=f'{structure_viewer_id}_legend')
+
+        return legend # html.Div([html.Label('Legend'), legend])
+
+    def generate_callbacks(structure_viewer_id, app):
+
+        @app.callback(
+            Output(f'{structure_viewer_id}_legend', 'children'),
+            [Input(structure_viewer_id, 'data')]
+        )
+        def update_legend(data):
+            # TODO: this is pretty inefficient! update ...
+            return [layout_color(hex_code, label)
+                    for hex_code, label in data.get('color_legend', {}).items()]
 
     layout = generate_layout(structure_viewer_id)
     generate_callbacks(structure_viewer_id, app)
