@@ -4,18 +4,18 @@ from dash.dependencies import Input, Output, State
 
 
 def help_layout(help_message):
-    return html.Span([" ? ", html.Span(help_message, className="tooltiptext")],
+    return html.Span([" ", html.Span(help_message, className="tooltiptext")],
                      className="tooltip")
 
 
 def combine_option_dicts(list_of_option_components,
-                         output_component, output_component_property, app):
+                         output_component_id, output_component_property, app):
 
     @app.callback(
-        Output(output_component, output_component_property),
+        Output(output_component_id, output_component_property),
         [Input(option_component, 'value')
          for option_component in list_of_option_components],
-        [State(output_component, output_component_property)]
+        [State(output_component_id, output_component_property)]
     )
     def combine_options(*args):
 

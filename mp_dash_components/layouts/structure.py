@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 import dash_table_experiments as dt
 
 from mp_dash_components.converters.structure import StructureIntermediateFormat
-from mp_dash_components import StructureViewerComponent
+from mp_dash_components import StructureViewerComponent, GraphComponent
 from mp_dash_components.layouts.misc import help_layout
 
 from pymatgen.core import Structure
@@ -34,8 +34,8 @@ def structure_layout(structure, app,
 
         @app.callback(
             Output(structure_viewer_id, 'data'),
-            [Input(structure_viewer_id, 'generationOptions')],
-            [State(structure_viewer_id, 'value')]
+            [Input(structure_viewer_id, 'generationOptions'),
+             Input(structure_viewer_id, 'value')]
         )
         def generate_visualization_data(generationOptions, structure):
             generationOptions = generationOptions or {}
@@ -98,7 +98,7 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
         nn_mapping = {
             "CrystalNN (default)": "CrystalNN",
             "Custom Bonds": "CutOffDictNN",
-            "Jmol": "JMolNN",
+            "Jmol Bonding": "JMolNN",
             "Minimum Distance (10% tolerance)": "MinimumDistanceNN",
             "O'Keeffe's Algorithm": "MinimumOKeeffeNN",
             "Hoppe's ECoN Algorithm": "EconNN",
@@ -114,23 +114,25 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
         )
 
         custom_cutoffs = html.Div([
+            html.Br(),
             dt.DataTable(
                 rows=[{'A': None, 'B': None, 'A-B /Å': None}],
-                row_selectable=True,
+                row_selectable=False,
                 filterable=False,
                 sortable=True,
                 editable=True,
                 selected_row_indices=[],
-                max_rows_in_viewport=4,
                 id=f'{structure_viewer_id}_bonding_algorithm_custom_cutoffs'
-            )],
+            ),
+            html.Br()
+        ],
             id=f'{structure_viewer_id}_bonding_algorithm_custom_cutoffs_container',
             style={'display': 'none'})
 
         generation_options_hidden_div = html.Div(id=f'{structure_viewer_id}_bonding_algorithm_generation_options',
                                                  style={'display': 'none'})
 
-        return html.Div([options, custom_cutoffs, generation_options_hidden_div])
+        return html.Div([html.Label('Bonding Algorithm'), options, custom_cutoffs, generation_options_hidden_div])
 
     def generate_callbacks(structure_viewer_id, app):
 
@@ -178,9 +180,9 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
     return layout
 
 
-def structure_color_options(structure_viewer_id, app, **kwargs):
+def structure_color_scheme_choice(structure_viewer_id, app, **kwargs):
 
-    default_color_schemes = ['VESTA', 'Jmol']
+    default_color_schemes = ['Jmol', 'VESTA']
 
     def generate_layout(structure_viewer_id):
 
@@ -196,7 +198,7 @@ def structure_color_options(structure_viewer_id, app, **kwargs):
                     {'label': option, 'value': option}
                     for option in default_color_schemes
                 ],
-                value='Jmol'
+                value=default_color_schemes[0]
             )
         ])
 
@@ -250,13 +252,170 @@ def structure_color_options(structure_viewer_id, app, **kwargs):
 
 
 def structure_import_from_file(structure_id, app, **kwargs):
-    pass
+
+    def generate_layout(structure_id):
+
+        upload = html.Div([
+            html.Label('Load from a local file:'),
+            dcc.Upload(id=f'{structure_id}_upload_data',
+                       children=html.Div([
+                           html.Span(
+                               ['Drag and Drop or ',
+                                html.A('Select File')],
+                               id=f'{structure_id}_upload_label'),
+                           help_layout("Upload any file that pymatgen supports, "
+                                       "including CIF and VASP file formats.")
+                       ]),
+                       style={
+                           'width': '100%',
+                           'height': '60px',
+                           'lineHeight': '60px',
+                           'borderWidth': '1px',
+                           'borderStyle': 'dashed',
+                           'borderRadius': '5px',
+                           'textAlign': 'center',
+                       },
+                       multiple=True)
+        ])
+
+        return upload
+
+    ##ef generate_callbacks(in_structure_id, out_structure_id, app):
+
+    #   @app.callback(
+    #       Output(out_structure_id, 'value'),
+    #       [Input(in_structure_id, 'value')]
+    #   )
+    #   def pass_input():
+    #       ...
+
+    #   @app.callback(
+    #     Output('upload-label', 'children'),
+    #      [Input('upload-data', 'filename')],
+    #      [State('upload-label', 'children')]
+    #   )
+    #   def callback_upload_label(filenames, current_upload_label):
+    #      """
+    #      Displays the filename of any uploaded data.
+    #      """
+    #      if filenames:
+    #          return "{}".format(", ".join(filenames))
+    #      else:
+    #          return current_upload_label
+
+    #   @app.callback(
+    #      Output('input-box', 'value'),
+    #      [Input('upload-data', 'filename')],
+    #      [State('input-box', 'value')]
+    #   )
+    #   def callback_query_label(filenames, current_query):
+    #      """
+    #      Clears the current query if data is uploaded from a file.
+    #      """
+    #      if filenames:
+    #          return []
+    #      else:
+    #          return current_query
 
 
+    #   @app.callback(
+    #      Output('structure', 'value'),
+    #      [Input('upload-data', 'contents'),
+    #       Input('upload-data', 'filename'),
+    #       Input('upload-data', 'last_modified'),
+    #       Input('url', 'search')]
+    #   )
+    #   def callback_update_structure(list_of_contents, list_of_filenames,
+    #                                 list_of_modified_dates,
+    #                                 search_query):
+
+    #      if list_of_contents is not None:
+
+    #          # assume we only want the first input for now
+    #          content_type, content_string = list_of_contents[0].split(',')
+    #          decoded_contents = b64decode(content_string)
+    #          name = list_of_filenames[0]
+
+    #          # necessary to write to file so pymatgen's filetype detection can work
+    #          with NamedTemporaryFile(suffix=name) as tmp:
+    #              tmp.write(decoded_contents)
+    #              tmp.flush()
+    #              structure = Structure.from_file(tmp.name)
+
+    #      elif search_query:
+    #          # strip leading ? from query, and parse into dict
+    #          search_query = dict(parse_qsl(search_query[1:]))
+    #          if 'structure' in search_query:
+    #              payload = search_query['structure'][0]
+    #              payload = urlsafe_b64decode(payload)
+    #              payload = decompress(payload)
+    #              structure = Structure.from_str(payload, fmt='json')
+    #          else:
+    #              structure = mpr.get_structures(search_query['query'])[0]
+    #      else:
+    #          random_mpid = random.choice(ALL_MPIDS)
+    #          try:
+    #              structure = mpr.get_structure_by_material_id(random_mpid)
+    #          except:
+    #              structure = DEFAULT_STRUCTURE
+
+    #      return json.dumps(structure.as_dict(verbosity=0), indent=4)
+
+
+
+
+    layout = generate_layout(structure_id)
+    #generate_callbacks(structure_viewer_id, app)
+
+    return layout
 
 
 def structure_graph(structure_viewer_id, app, **kwargs):
-    pass
+
+    default_graph_options = {
+        'edges': {
+            'smooth': {
+                'type': 'dynamic'
+            },
+            'length': 250,
+            'color': {
+                'inherit': 'both'
+            }
+        },
+        'physics': {
+            'solver': 'forceAtlas2Based',
+            'forceAtlas2Based': {
+                'avoidOverlap': 1.0
+            }
+        }
+    }
+
+    def generate_layout(structure_viewer_id):
+
+        graph = GraphComponent(id=f'{structure_viewer_id}_bonding_graph',
+                               graph={},
+                               options=default_graph_options)
+
+        return graph
+
+    def generate_callbacks(structure_viewer_id, app):
+
+        @app.callback(
+            Output(f'{structure_viewer_id}_bonding_graph', 'graph'),
+            [Input(structure_viewer_id, 'value'),
+             Input(structure_viewer_id, 'generationOptions')]
+        )
+        def update_graph(structure, generationOptions):
+            generationOptions = generationOptions or {}
+            structure = Structure.from_dict(structure)
+            graph_json = StructureIntermediateFormat(structure, **generationOptions).graph_json
+            return graph_json
+
+    layout = generate_layout(structure_viewer_id)
+    generate_callbacks(structure_viewer_id, app)
+
+    return layout
+
 
 
 def structure_screenshot_button(structure_viewer_id, app, **kwargs):

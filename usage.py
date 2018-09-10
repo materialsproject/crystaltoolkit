@@ -14,20 +14,79 @@ app.title = "Materials Project Dash Component Examples"
 
 app.scripts.config.serve_locally = True
 app.config['suppress_callback_exceptions'] = True
+app.css.append_css({'external_url': 'https://codepen.io/mkhorton/pen/aKmNxW.css'})
 
 example_structure = loadfn('example_files/example_structure.json')
 
+tab_style = {'width': '100%', 'height': '80vh',
+             'border': '1px solid #d6d6d6', 'border-top': 'none',
+             'box-sizing': 'border-box'}
+
 app.layout = html.Div([
-    mp_component(example_structure, app=app, id='structure-viewer'),
-    structure_view_options_layout(structure_viewer_id='structure-viewer', app=app),
-    # structure_screenshot_button(structure_viewer_id='structure-viewer', app=app),  # beta
-    structure_bonding_algorithm(structure_viewer_id='structure-viewer', app=app),
-    structure_color_options(structure_viewer_id='structure-viewer', app=app),
-    combine_option_dicts([
+    html.Br(),
+    html.Br(),
+    html.Div(className='one columns'),
+    html.Div([
+        #html.H1('Crystal Toolkit 2.0'),
+        dcc.Tabs(id="tabs", value="structure-tab", children=[
+            dcc.Tab(label="Structure", value="structure-tab",
+                    children=[html.Div([mp_component(example_structure, app=app, id='structure-viewer')],
+                                       style=tab_style)]),
+            dcc.Tab(label="Bonding Graph", value="graph-tab",
+                    children=[html.Div([structure_graph(structure_viewer_id='structure-viewer', app=app)],
+                                       style=tab_style)]),
+            dcc.Tab(label="JSON Editor", value="json-tab")
+        ])
+    ], className='seven columns'),
+    html.Div([
+        html.Details(
+            [html.Summary(html.H4(' Load Structure', style={'display': 'inline'})),
+             html.Br(),
+             structure_import_from_file(structure_id='uploaded-structure', app=app)
+             ],
+            open=True
+        ),
+        html.Br(),
+        html.Details(
+            [html.Summary(html.H4(' View Options', style={'display': 'inline'})),
+             html.Br(),
+             structure_view_options_layout(structure_viewer_id='structure-viewer', app=app),
+             html.Br(),
+             structure_color_scheme_choice(structure_viewer_id='structure-viewer', app=app)],
+            open=True
+        ),
+        html.Br(),
+        html.Details(
+            [html.Summary(html.H4(' Algorithm Options', style={'display': 'inline'})),
+             html.Br(),
+             structure_bonding_algorithm(structure_viewer_id='structure-viewer', app=app),
+             ],
+            open=True
+        ),
+        html.Br(),
+        html.Details(
+            [html.Summary(html.H4(' Transformations', style={'display': 'inline'})),
+             html.Span('Not implemented yet. Coming soon!')
+             ],
+            open=False
+        ),
+        html.Br(),
+        html.Details(
+            [html.Summary(html.H4(' Submit to MPComplete', style={'display': 'inline'})),
+             html.Span('Not implemented yet. Coming soon!')
+             ],
+            open=False
+        ),
+        # structure_screenshot_button(structure_viewer_id='structure-viewer', app=app),  # beta
+    ], className='three columns'),
+    html.Div(className='one columns'),
+], className='rows')
+
+# hack because Dash doesn't support multiple callbacks to single output
+combine_option_dicts([
         'structure-viewer_bonding_algorithm_generation_options',
         'structure-viewer_color_scheme_choice_generation_options'
-    ], 'structure-viewer', 'generationOptions', app=app)
-], style={'width': '500px', 'height': '500px'})
+], 'structure-viewer', 'generationOptions', app=app)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
