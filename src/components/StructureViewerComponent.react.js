@@ -36,6 +36,7 @@ export default class StructureViewerComponent extends Component {
 		    } else {
 		        this.structure_viewer.addCrystal(nextProps.data);
 		    }
+		    this.structure_viewer.changeVisibility(nextProps.visibilityOptions);
 		}
 
 		if (typeof this.structure_viewer.crystal !== 'undefined') {
