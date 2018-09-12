@@ -122,7 +122,7 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
         nn_mapping = {
             "CrystalNN": "CrystalNN",
             "Custom Bonds": "CutOffDictNN",
-            "Jmol Bonding": "JMolNN",
+            "Jmol Bonding": "JmolNN",
             "Minimum Distance (10% tolerance)": "MinimumDistanceNN",
             "O'Keeffe's Algorithm": "MinimumOKeeffeNN",
             "Hoppe's ECoN Algorithm": "EconNN",
@@ -389,6 +389,11 @@ def structure_import_from_file(structure_id, app, **kwargs):
                     tmp.write(decoded_contents)
                     tmp.flush()
                     structure = Structure.from_file(tmp.name)
+
+                # TODO: remove (eventually, after vector support added)
+                if 'magmom' in structure.site_properties:
+                    structure.add_site_property('magmom',
+                                                [float(m) for m in structure.site_properties['magmom']])
 
                 return dump_structure(structure)
 
