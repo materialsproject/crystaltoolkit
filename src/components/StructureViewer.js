@@ -212,7 +212,9 @@ export default class StructureViewer {
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
-      alpha: true
+      alpha: true,
+      gammaInput: true,
+      gammaOutput: true
     });
 
     renderer.setPixelRatio(window.devicePixelRatio * 1.5);
@@ -313,6 +315,12 @@ export default class StructureViewer {
 
   changeColorScheme(new_scheme) {
   // TODO
+  }
+
+  setQuality(quality) {
+  // TODO
+  // can tweak geometry detail, pixel ratio, antialias (int ? from 0-100)
+
   }
 
 
@@ -419,5 +427,10 @@ export default class StructureViewer {
 
   renderScene() {
     this.renderer.render(this.scene, this.camera);
+  }
+
+  takeScreenshot() {
+    this.renderScene();
+    window.open(this.renderer.domElement.toDataURL("image/png"), "Final");
   }
 }
