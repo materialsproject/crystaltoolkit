@@ -65,7 +65,7 @@ app.layout = html.Div([
              html.Br(),
              structure_random_input(structure_id='random-structure', app=app, mpid_list=all_mpids)
              ],
-            open=True
+            open=False
         ),
         html.Br(),
         html.Details(
@@ -74,7 +74,7 @@ app.layout = html.Div([
              structure_viewer_legend(structure_viewer_id='structure-viewer', app=app),
              html.Br(),
              structure_inspector(structure_id='structure-viewer', app=app)],
-            open=True
+            open=False
         ),
         html.Br(),
         html.Details(
@@ -85,7 +85,7 @@ app.layout = html.Div([
              structure_view_range(structure_viewer_id='structure-viewer', app=app),
              html.Br(),
              structure_color_scheme_choice(structure_viewer_id='structure-viewer', app=app)],
-            open=True
+            open=False
         ),
         html.Br(),
         html.Details(
@@ -93,24 +93,30 @@ app.layout = html.Div([
              html.Br(),
              structure_bonding_algorithm(structure_viewer_id='structure-viewer', app=app),
              ],
-            open=True
+            open=False
         ),
         html.Br(),
         html.Details(
             [html.Summary(html.H4(' Transformations', style={'display': 'inline'})),
-             html.Span('Not implemented yet. Coming soon!'),
-             #replace_species_transformation()
+             all_structure_transformations_layout('transformed-structure', app=app)
              ],
             open=False
         ),
         html.Br(),
         html.Details(
-            [html.Summary(html.H4(' Submit to MPComplete', style={'display': 'inline'})),
-             html.Span('Not implemented yet. Coming soon!')
-             ],
+            [html.Summary(
+                html.H4(' Export Structure', style={'display': 'inline'})),
+            ],
             open=False
         ),
-        structure_screenshot_button(structure_viewer_id='structure-viewer', app=app),  # beta
+        #html.Br(),
+        #html.Details(
+        #    [html.Summary(html.H4(' Submit to MPComplete', style={'display': 'inline'})),
+        #     html.Span('Not implemented yet. Coming soon!')
+        #     ],
+        #    open=False
+        #),
+        #structure_screenshot_button(structure_viewer_id='structure-viewer', app=app),  # beta
     ], className='three columns'),
     html.Div(className='one columns'),
 ], className='rows')
@@ -139,7 +145,8 @@ def temp_bug_fix(val):
         Input('random-structure', 'children'),
         Input('url_structure', 'children'),
         Input('uploaded-structure', 'children'),
-        Input('query-structure', 'children')
+        Input('query-structure', 'children'),
+        Input('transformed-structure', 'children')
     ],
     [State('json-editor-structure', 'value')]
 )
@@ -182,4 +189,4 @@ def favicon():
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)

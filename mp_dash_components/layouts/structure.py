@@ -133,7 +133,7 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
             options=[
                 {'label': k, 'value': v} for k, v in nn_mapping.items()
             ],
-            value='BrunnerNN_reciprocal',
+            value='CrystalNN',
             id=f'{structure_viewer_id}_bonding_algorithm'
         )
 
@@ -156,7 +156,8 @@ def structure_bonding_algorithm(structure_viewer_id, app, **kwargs):
         generation_options_hidden_div = html.Div(id=f'{structure_viewer_id}_bonding_algorithm_generation_options',
                                                  style={'display': 'none'})
 
-        return html.Div([html.Label('Bonding Algorithm'), options, custom_cutoffs, generation_options_hidden_div])
+        return html.Div([html.Label('Bonding Algorithm'), options,
+                         custom_cutoffs, generation_options_hidden_div])
 
     def generate_callbacks(structure_viewer_id, app):
 
@@ -348,7 +349,8 @@ def structure_import_from_file(structure_id, app, **kwargs):
                        multiple=True)
         ])
 
-        hidden_structure_div = html.Div(id=structure_id, style={'display': 'none'})
+        hidden_structure_div = html.Div(id=structure_id,
+                                        style={'display': 'none'})
 
         return html.Div([upload, hidden_structure_div])
 
@@ -375,7 +377,7 @@ def structure_import_from_file(structure_id, app, **kwargs):
               Input(f'{structure_id}_upload_data', 'last_modified')]
         )
         def callback_update_structure(list_of_contents, list_of_filenames,
-                                        list_of_modified_dates):
+                                      list_of_modified_dates):
 
             if list_of_contents is not None:
 
@@ -555,7 +557,8 @@ def structure_random_input(structure_id, app, mpid_list, **kwargs):
         random_button = html.Button('🎲', id=f'{structure_id}_random_button',
                                     style={'font-size': 'x-large'})
 
-        return html.Div([html.Label('Load random structure:'), random_button, hidden_structure_div])
+        return html.Div([html.Label('Load random structure:'),
+                         random_button, hidden_structure_div])
 
     def generate_callbacks(structure_id, app):
 
@@ -616,7 +619,8 @@ def structure_graph(structure_viewer_id, app, **kwargs):
         def update_graph(structure, generationOptions):
             generationOptions = generationOptions or {}
             structure = Structure.from_dict(structure)
-            graph_json = StructureIntermediateFormat(structure, **generationOptions).graph_json
+            graph_json = StructureIntermediateFormat(structure,
+                                                     **generationOptions).graph_json
             return graph_json
 
     layout = generate_layout(structure_viewer_id)

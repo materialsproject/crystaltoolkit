@@ -47,9 +47,9 @@ export default class StructureViewerComponent extends Component {
 
 		if (nextProps.n_screenshot_requests != this.props.n_screenshot_requests) {
 		    // this is correct in React?
-		    this.setState({screenshot: this.structure_viewer.renderer.domElement.toDataURL()});
-		    console.log(this.structure_viewer.renderer.domElement.toDataURL());
-		    this.structure_viewer.takeScreenshot();
+		    //this.setState({screenshot: this.structure_viewer.renderer.domElement.toDataURL()});
+		    //console.log(this.structure_viewer.renderer.domElement.toDataURL());
+		    //this.structure_viewer.takeScreenshot();
 		}
 
 		if (nextProps.rotationSpeed != this.structure_viewer.rotationSpeed) {

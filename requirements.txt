@@ -1,8 +1,10 @@
 dash>=0.26.4
-dash-core-components==0.30.0rc1
+dash-core-components>=0.30.0rc1
 dash-html-components>=0.11.0
 dash-renderer>=0.13.2
 dash-table-experiments>=0.6.0
+
+pymatgen>=2018.11.6
 
 gunicorn>=19.7.1
 https://github.com/materialsproject/pymatgen/archive/master.zip
