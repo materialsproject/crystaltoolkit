@@ -93,8 +93,6 @@ export default class StructureViewer {
                 const material = StructureViewer.getMaterial(color);
                 material.side = THREE.DoubleSide;
                 const sphereSegment = new THREE.Mesh(geometry, material);
-                sphereSegment.receiveShadow = StructureViewer.sceneDefaults().quality.shadow;
-                sphereSegment.castShadow = StructureViewer.sceneDefaults().quality.shadow;
                 atomObject.add(sphereSegment);
             });
             atomObject.position.set(...atom.position);
@@ -281,7 +279,7 @@ export default class StructureViewer {
             gammaInput: true,
             gammaOutput: true,
             gammaFactor: 2.2,
-            shadowMapEnabled: true
+            shadowMapEnabled: false
         });
 
         renderer.setPixelRatio(window.devicePixelRatio * this.settings.quality.pixelRatio);
@@ -295,7 +293,6 @@ export default class StructureViewer {
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.003);
         directionalLight.position.set(-2, 2, 2);
-        directionalLight.castsShadow = StructureViewer.sceneDefaults().quality.shadows;
         camera.add(directionalLight);
 
         const hemisphereLight = new THREE.HemisphereLight(
@@ -306,8 +303,8 @@ export default class StructureViewer {
         //camera.add(hemisphereLight);
 
         // Helpers (for positioning lights, not for production)
-        const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 2, 0x0000ff);
-        scene.add(directionalLightHelper);
+        //const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 2, 0x0000ff);
+        //scene.add(directionalLightHelper);
 
         scene.add(camera);
 
@@ -508,7 +505,7 @@ export default class StructureViewer {
     }
 
     takeScreenshot() {
-        this.renderScene();
-        window.open(this.renderer.domElement.toDataURL("image/png"), "Final");
+        //this.renderScene();
+        //window.open(this.renderer.domElement.toDataURL("image/png"), "Final");
     }
 }
