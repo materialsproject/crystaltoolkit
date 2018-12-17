@@ -72,6 +72,8 @@ class MPComponent(ABC):
         be derived from main id followed by an underscore, for example, for an
         input box layout a suitable id name might be f"{self.id}_input".
 
+        The underlying store (self._store) *must* be included in self.layouts.
+
         :return: A dictionary with names of layouts as keys (str) and Dash
         layouts as values. Preferred keys include:
         "main" for the primary layout for this component,
@@ -89,10 +91,12 @@ class MPComponent(ABC):
         component author.
         """
         return {
+            "main": html.Div(id=f"{self.id}_main"),
             "error": html.Div(id=f"{self.id}_error", className="mpc_error"),
             "warning": html.Div(id=f"{self.id}_warning", className="mpc_warning"),
             "label": html.Label(id=f"{self.id}_label", className="mpc_label"),
             "help": dcc.Markdown(id=f"{self.id}_help", className="mpc_help"),
+            "store": self._store
         }
 
     @abstractmethod
@@ -100,9 +104,9 @@ class MPComponent(ABC):
     def all_layouts(self):
         """
         :return: A Dash layout for the full component, for example including
-        both the main component and controls for that component.
+        both the main component and controls for that component. Must
         """
-        return NotImplementedError
+        return html.Div(list(self.layouts.values()))
 
     @abstractmethod
     def _generate_callbacks(self, app):
