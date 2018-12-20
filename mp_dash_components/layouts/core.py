@@ -48,7 +48,11 @@ class MPComponent(ABC):
         if self.app:
             self._generate_callbacks(self.app)
 
-        self._store = dcc.Store(id=id, data=contents.to_json())
+        self._contents = contents
+        if contents is not None:
+            self._store = dcc.Store(id=id, data=contents.to_json())
+        else:
+            self._store = dcc.Store(id=id)
 
     @property
     def id(self):
