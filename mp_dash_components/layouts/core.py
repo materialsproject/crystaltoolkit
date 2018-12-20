@@ -9,7 +9,6 @@ from time import mktime
 from warnings import warn
 from dash import Dash
 from dash.dependencies import Input, Output
-from uuid import uuid4
 
 
 class MPComponent(ABC):
@@ -27,7 +26,7 @@ class MPComponent(ABC):
         """
 
         if id is None:
-            id = str(uuid4())[0:8]
+            id = self.__class__.__name__
 
         if id in MPComponent._instances:
             raise ValueError(
