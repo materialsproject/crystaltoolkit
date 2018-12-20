@@ -15,10 +15,12 @@ class MPComponent(ABC):
 
     _instances = {}
 
-    def __init__(self, id=None, contents=None, app=None):
+    def __init__(self, id=None, origin_component=None, contents=None, app=None):
         """
         :param id: a unique id for this component, if not specified a random
         one will be chosen
+        :param origin_component: if specified, component will reference the
+        Store in the origin MPComponent instead of creating its own Store
         :param contents: an object that can be serialized using the MSON
         protocol, can be set to None initially
         :param app: Dash app to generate callbacks, if None will look for 'app'
@@ -47,19 +49,32 @@ class MPComponent(ABC):
         if self.app:
             self._generate_callbacks(self.app)
 
-        self._contents = contents
-        if contents is not None:
-            self._store = dcc.Store(id=id, data=contents.to_json())
+        if origin_component is None:
+            self._contents = contents
+            self._store_id = id
+            if contents is not None:
+                self._store = dcc.Store(id=id, data=contents.to_json())
+            else:
+                self._store = dcc.Store(id=id)
         else:
-            self._store = dcc.Store(id=id)
+            self._contents = origin_component._contents
+            self._store = origin_component._store
+            self._store_id =  origin_component._store_id
 
     @property
     def id(self):
         """
-        The primary id for this component, corresponding to its underlying
-        Store.
+        The primary id for this component.
         """
         return self._id
+
+    @property
+    def store_id(self):
+        """
+        The id for the primary Store backing this component, usually corresponds
+        to the primary id unless primary Store references another component.
+        """
+        return self._store_id
 
     @staticmethod
     def to_data(msonable_obj):
@@ -71,7 +86,7 @@ class MPComponent(ABC):
         :return: A JSON string (a string is preferred over a dict since this can
         be easily memoized)
         """
-        return msonable_obj.to_json()
+        return dumps(msonable_obj, cls=MontyEncoder, indent=4)
 
     @staticmethod
     def from_data(data):
@@ -100,12 +115,15 @@ class MPComponent(ABC):
         if self.app is None:
             raise AttributeError("No app defined, callbacks cannot be created.")
 
-        dest_store_id, origin_store_id = self.id, origin_component.id
-
         if origin_store_suffix:
-            origin_store_id += f'_{origin_store_suffix}'
+            origin_store_id = f'{self.id}_{origin_store_suffix}'
+        else:
+            origin_store_id = origin_component.store_id
+
         if this_store_suffix:
-            dest_store_id += f'_{this_store_suffix}'
+            dest_store_id = f'{self.id}_{this_store_suffix}'
+        else:
+            dest_store_id = self.store_id
 
         @self.app.callback(
             Output(dest_store_id, "data"),
