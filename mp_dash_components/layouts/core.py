@@ -9,20 +9,25 @@ from time import mktime
 from warnings import warn
 from dash import Dash
 from dash.dependencies import Input, Output
+from uuid import uuid4
 
 
 class MPComponent(ABC):
 
     _instances = {}
 
-    def __init__(self, id, msonable_object=None, app=None):
+    def __init__(self, id=None, msonable_object=None, app=None):
         """
-        :param id: a unique id for this component
+        :param id: a unique id for this component, if not specified a random
+        one will be chosen
         :param msonable_object: an object that can be serialized using the MSON
         protocol, can be set to None initially
         :param app: Dash app to generate callbacks, if None will look for 'app'
         in global scope
         """
+
+        if id is None:
+            id = str(uuid4())[0:8]
 
         if id in MPComponent._instances:
             raise ValueError(
