@@ -16,11 +16,11 @@ class MPComponent(ABC):
 
     _instances = {}
 
-    def __init__(self, id=None, msonable_object=None, app=None):
+    def __init__(self, id=None, contents=None, app=None):
         """
         :param id: a unique id for this component, if not specified a random
         one will be chosen
-        :param msonable_object: an object that can be serialized using the MSON
+        :param contents: an object that can be serialized using the MSON
         protocol, can be set to None initially
         :param app: Dash app to generate callbacks, if None will look for 'app'
         in global scope
@@ -48,7 +48,7 @@ class MPComponent(ABC):
         if self.app:
             self._generate_callbacks(self.app)
 
-        self._store = dcc.Store(id=id, data=msonable_object.to_json())
+        self._store = dcc.Store(id=id, data=contents.to_json())
 
     @property
     def id(self):
