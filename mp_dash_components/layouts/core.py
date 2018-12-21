@@ -8,7 +8,7 @@ from datetime import datetime
 from time import mktime
 from warnings import warn
 from dash import Dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 
 class MPComponent(ABC):
@@ -46,20 +46,20 @@ class MPComponent(ABC):
         elif app is None:
             warn("No app defined, callbacks cannot be created.")
 
-        if self.app:
-            self._generate_callbacks(self.app)
-
         if origin_component is None:
             self._contents = contents
             self._store_id = id
             if contents is not None:
                 self._store = dcc.Store(id=id, data=contents.to_json())
             else:
-                self._store = dcc.Store(id=id)
+                self._store = dcc.Store(id=id, data="")
         else:
             self._contents = origin_component._contents
-            self._store = origin_component._store
-            self._store_id =  origin_component._store_id
+            self._store = html.Div() # origin_component._store
+            self._store_id = origin_component._store_id
+
+        if self.app:
+            self._generate_callbacks(self.app)
 
     @property
     def id(self):
@@ -127,9 +127,10 @@ class MPComponent(ABC):
 
         @self.app.callback(
             Output(dest_store_id, "data"),
-            [Input(origin_store_id, "data")]
+            [Input(origin_store_id, "modified_timestamp")],
+            [State(origin_store_id, "data")]
         )
-        def update_store(data):
+        def update_store(modified_timestamp, data):
             return data
 
     @property
@@ -170,7 +171,6 @@ class MPComponent(ABC):
         }
 
     @property
-    @abstractmethod
     def all_layouts(self):
         """
         :return: A Dash layout for the full component, for example including
@@ -187,3 +187,5 @@ class MPComponent(ABC):
         times, but it's important the callbacks are defined on the server.
         """
         raise NotImplementedError
+
+
