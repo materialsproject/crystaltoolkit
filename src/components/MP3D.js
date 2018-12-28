@@ -15,10 +15,12 @@ export default class MP3D {
                 antialias: true,
                 transparent_background: true,
                 pixelRatio: 1.5,
-                sphere_segments: 32,
+                sphereSegments: 32,
+                cylinderSegments: 8,
                 reflections: false
             },
             other: {
+                autorotate: true,
                 sphereScale: 1.0,
                 cylinderScale: 1.0
             },
@@ -27,6 +29,12 @@ export default class MP3D {
                     type: 'DirectionalLight',
                     args: ["#ffffff", 0.003],
                     position: [-2, 2, 2]
+                },
+                {
+                    type: 'AmbientLight',
+                    args: ['#222222', 10],
+                    position: [10, 10, 10]
+
                 }
             ],
             material: {
@@ -58,12 +66,12 @@ export default class MP3D {
         renderer.setClearColor(0xffffff, 0);
         renderer.setSize(width, height);
 
+        const scene = new THREE.Scene();
+        this.scene = scene;
+
         // Lights
 
-        const ambientLight = new THREE.AmbientLight(0x222222, 0.015);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.05);
-        directionalLight.position.set(-2, 2, 2);
+        this.makeLights(scene, this.settings.lights);
 
         // Camera
 
@@ -80,28 +88,33 @@ export default class MP3D {
         camera.position.z = 2;
 
         this.camera = camera;
-        camera.add(ambientLight);
-        camera.add(directionalLight);
+        scene.add(camera);
+
 
         // Action
 
-        const scene = new THREE.Scene();
-        this.scene = scene;
-        scene.add(camera);
+        this.addToScene(scene, scene_json);
 
-        const root_obj = this.construct_root_obj(scene_json);
-        scene.add(root_obj);
+        // light-weight animation system, replace later
+        //this.currentAnimationFrame = 0;
+        //this.animations = {
+        //    '0': [
+        //        {'position': new THREE.Vector3(0, 0, 0)},//
+        //        {'position': new THREE.Vector3(0, 0, 1)},
+        //        {'position': new THREE.Vector3(0, 0, 2)}
+        //        ]
+        //};
 
         const controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         controls.enableKeys = false;
-
-        window.console.log(root_obj);
 
         dom_elt.appendChild(renderer.domElement);
         this.start();
     }
 
-    construct_root_obj(scene_json) {
+    addToScene(scene, scene_json) {
+
+        MP3D.disposeNodebyName(scene, scene_json.name);
 
         const root_obj = new THREE.Object3D();
         root_obj.name = scene_json.name;
@@ -109,7 +122,7 @@ export default class MP3D {
         function traverse_scene(o, parent, self) {
             o.contents.forEach(function (sub_o) {
                 if (sub_o.hasOwnProperty('type')) {
-                    parent.add(self.make_object(sub_o));
+                    parent.add(self.makeObject(sub_o));
                 } else {
                     let new_parent = new THREE.Object3D();
                     new_parent.name = sub_o.name;
@@ -121,33 +134,103 @@ export default class MP3D {
 
         traverse_scene(scene_json, root_obj, this);
 
-        return root_obj;
+        window.console.log(root_obj);
+
+        scene.add(root_obj);
 
     }
 
-    make_object(object_json) {
+     makeLights(scene, light_json) {
+
+        MP3D.disposeNodebyName(scene, 'lights');
+
+        const lights = new THREE.Object3D();
+        lights.name = 'lights';
+
+        light_json.forEach(function (light) {
+            switch (light.type) {
+                case "DirectionalLight":
+                    var lightObj = new THREE.DirectionalLight(...light.args);
+                    if (light.helper) {
+                        let lightHelper = new THREE.DirectionalLightHelper(lightObj);
+                        lightObj.add(lightHelper);
+                    }
+                    break;
+                case "AmbientLight":
+                    var lightObj = new THREE.AmbientLight(...light.args);
+            }
+            if (light.hasOwnProperty('position')) {
+                lightObj.position.set(...light.position);
+            }
+            lights.add(lightObj);
+        });
+
+        scene.add(lights);
+
+    }
+
+    makeObject(object_json) {
 
         const obj = new THREE.Object3D();
         obj.name = object_json.name;
 
         switch (object_json.type) {
-            case "sphere":
+            case "sphere": {
+
                 const geom = new THREE.SphereBufferGeometry(
-                    object_json.radius,
-                    this.settings.quality.sphere_segments,
-                    this.settings.quality.sphere_segments,
+                    object_json.radius * this.settings.other.sphereScale,
+                    this.settings.quality.sphereSegments,
+                    this.settings.quality.sphereSegments,
                     object_json.phi_start || 0,
                     object_json.phi_end || Math.PI * 2
                 );
                 const mat = this.makeMaterial(object_json.color);
-                object_json.positions.forEach(function(position) {
+                
+                object_json.positions.forEach(function (position) {
                     const mesh = new THREE.Mesh(geom, mat);
                     mesh.position.set(...position);
                     obj.add(mesh);
                 });
+
                 return obj;
-            case "cylinder":
-                break;
+            }
+            case "cylinder": {
+
+                const geom = new THREE.CylinderBufferGeometry(
+                    object_json.radius * this.settings.other.cylinderScale,
+                    object_json.radius * this.settings.other.cylinderScale,
+                    this.settings.quality.cylinderSegments
+                );
+                const mat = this.makeMaterial(object_json.color);
+
+                object_json.positions.forEach(function (position) {
+
+                    // the following is technically correct but could be optimized?
+
+                    const mesh = new THREE.Mesh(geom, mat);
+                    const vec_a = new THREE.Vector3(...position[0]);
+                    const vec_b = new THREE.Vector3(...position[1]);
+                    const vec_rel = vec_b.sub(vec_a);
+                    const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5));
+
+                    // scale cylinder to correct length, and set origin at midpoint of cylinder
+                    mesh.scale.y = Math.sqrt(vec_rel.length())/2;
+                    mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z);
+
+                    // rotate cylinder into correct orientation
+                    const vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
+                    const quaternion = new THREE.Quaternion();
+                    quaternion.setFromUnitVectors(
+                        vec_y,
+                        vec_rel.normalize()
+                    );
+                    mesh.setRotationFromQuaternion( quaternion );
+
+                    obj.add(mesh);
+                });
+
+                return obj
+            }
             case "lines":
                 break;
             case "arrow":
@@ -179,6 +262,54 @@ export default class MP3D {
 
     renderScene() {
         this.renderer.render(this.scene, this.camera);
+    }
+
+    static disposeNodebyName(scene, name) {
+        let object = scene.getObjectByName(name);
+        if (typeof object !== "undefined") {
+            MP3D.disposeNode(object);
+        }
+    }
+
+    static disposeNode(parentObject) {
+        // https://stackoverflow.com/questions/33152132/
+        parentObject.traverse(function (node) {
+            if (node instanceof THREE.Mesh) {
+                if (node.geometry) {
+                    node.geometry.dispose();
+                }
+                if (node.material) {
+                    var materialArray;
+                    if (
+                        node.material instanceof THREE.MeshFaceMaterial ||
+                        node.material instanceof THREE.MultiMaterial
+                    ) {
+                        materialArray = node.material.materials;
+                    } else if (node.material instanceof Array) {
+                        materialArray = node.material;
+                    }
+                    if (materialArray) {
+                        materialArray.forEach(function (mtrl, idx) {
+                            if (mtrl.map) mtrl.map.dispose();
+                            if (mtrl.lightMap) mtrl.lightMap.dispose();
+                            if (mtrl.bumpMap) mtrl.bumpMap.dispose();
+                            if (mtrl.normalMap) mtrl.normalMap.dispose();
+                            if (mtrl.specularMap) mtrl.specularMap.dispose();
+                            if (mtrl.envMap) mtrl.envMap.dispose();
+                            mtrl.dispose();
+                        });
+                    } else {
+                        if (node.material.map) node.material.map.dispose();
+                        if (node.material.lightMap) node.material.lightMap.dispose();
+                        if (node.material.bumpMap) node.material.bumpMap.dispose();
+                        if (node.material.normalMap) node.material.normalMap.dispose();
+                        if (node.material.specularMap) node.material.specularMap.dispose();
+                        if (node.material.envMap) node.material.envMap.dispose();
+                        node.material.dispose();
+                    }
+                }
+            }
+        });
     }
 
 }
