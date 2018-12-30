@@ -16,7 +16,7 @@ export default class MP3DComponent extends Component {
 
 	componentDidMount() {
 
-	    this.viewer = new MP3D(this.props.data, this.mount);
+	    this.viewer = new MP3D(this.props.data, this.mount, this.props.settings);
 
 	}
 
@@ -33,7 +33,8 @@ export default class MP3DComponent extends Component {
 		const {
 			id,
 			setProps,
-			data
+			data,
+			settings
 		} = this.props;
 
 		return ( <div id={id}
@@ -72,9 +73,9 @@ MP3DComponent.propTypes = {
 	value: PropTypes.object,
 
 	/**
-	 * Options used for generating visualization, stored for convenience (not used internally by viewer)
+	 * Options used for generating scene
 	 */
-	generationOptions: PropTypes.object,
+	settings: PropTypes.object,
 
 	/**
 	 * Dash-assigned callback that should be called whenever any of the
