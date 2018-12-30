@@ -7,7 +7,7 @@ This module gives a Python interface to generate JSON for the
 Simple3DSceneComponent. To use, create a Scene whose contents can either be a
 a list of any of the geometric primitives defined below (e.g. Spheres,
 Cylinders, etc.) or can be another Scene. Then use scene_to_json() to convert
-the Scene to the JSON format to apss to Simple3DSceneComponent's data attribute.
+the Scene to the JSON format to pass to Simple3DSceneComponent's data attribute.
 """
 
 
@@ -91,6 +91,21 @@ class Cylinders:
     color: Optional[str] = None
     radius: Optional[float] = None
     type: str = field(default='cylinders', init=False)  # private field
+
+
+@dataclass
+class Cubes:
+    """
+    Create a set of cubes. All cubes will have the same color and width.
+    :param positions: This is a list of lists corresponding to the vector
+    positions of the cubes.
+    :param color: Cube color as a hexadecimal string, e.g. #ff0000
+    :param width: The width of the cube, defaults to 1.
+    """
+    positions: List[List[float]]
+    color: Optional[str] = None
+    width: Optional[float] = None
+    type: str = field(default='spheres', init=False)  # private field
 
 
 @dataclass
