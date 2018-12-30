@@ -200,14 +200,14 @@ export default class Simple3DScene {
         obj.name = object_json.name;
 
         switch (object_json.type) {
-            case "sphere": {
+            case "spheres": {
 
                 const geom = new THREE.SphereBufferGeometry(
                     object_json.radius * this.settings.other.sphereScale,
                     this.settings.quality.sphereSegments,
                     this.settings.quality.sphereSegments,
-                    object_json.phi_start || 0,
-                    object_json.phi_end || Math.PI * 2
+                    object_json.phiStart || 0,
+                    object_json.phiEnd || Math.PI * 2
                 );
                 const mat = this.makeMaterial(object_json.color);
 
@@ -218,7 +218,7 @@ export default class Simple3DScene {
                     meshes.push(mesh);
                 });
 
-                // TODO: test!
+                // TODO: test axes are correct!
                 if (object_json.ellipsoids) {
                     const vec_z = new THREE.Vector3(0, 0, 1);
                     const quaternion = new THREE.Quaternion();
@@ -241,23 +241,25 @@ export default class Simple3DScene {
 
                 return obj;
             }
-            case "cylinder": {
+            case "cylinders": {
+
+                const radius = object_json.radius || 1;
 
                 const geom = new THREE.CylinderBufferGeometry(
-                    object_json.radius * this.settings.other.cylinderScale,
-                    object_json.radius * this.settings.other.cylinderScale,
+                    radius * this.settings.other.cylinderScale,
+                    radius * this.settings.other.cylinderScale,
                     1.0,
                     this.settings.quality.cylinderSegments
                 );
                 const mat = this.makeMaterial(object_json.color);
 
-                object_json.positions.forEach(function (position) {
+                object_json.positionPairs.forEach(function (positionPair) {
 
                     // the following is technically correct but could be optimized?
 
                     const mesh = new THREE.Mesh(geom, mat);
-                    const vec_a = new THREE.Vector3(...position[0]);
-                    const vec_b = new THREE.Vector3(...position[1]);
+                    const vec_a = new THREE.Vector3(...positionPair[0]);
+                    const vec_b = new THREE.Vector3(...positionPair[1]);
                     const vec_rel = vec_b.sub(vec_a);
 
                     // scale cylinder to correct length
@@ -336,7 +338,6 @@ export default class Simple3DScene {
             case "convex": {
 
                 const points = object_json.positions.map(p => new THREE.Vector3(...p));
-                console.log(points);
                 const geom = new THREE.ConvexBufferGeometry(points);
 
                 const mat = this.makeMaterial(object_json.color, object_json.opacity || 1);
@@ -350,11 +351,11 @@ export default class Simple3DScene {
 
                 return obj;
             }
-            case "arrow": {
+            case "arrows": {
                 // take inspiration from ArrowHelper, user cones and cylinders
                 return obj;
             }
-            case "label": {
+            case "labels": {
                 // Not implemented
                 //THREE.CSS2DObject
                 return obj;
