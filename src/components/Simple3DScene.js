@@ -283,6 +283,22 @@ export default class Simple3DScene {
 
                 return obj
             }
+            case "cubes": {
+                const geom = new THREE.BoxBufferGeometry(
+                    object_json.width * this.settings.other.sphereScale,
+                    object_json.width * this.settings.other.sphereScale,
+                    object_json.width * this.settings.other.sphereScale
+                );
+                const mat = this.makeMaterial(object_json.color);
+
+                object_json.positions.forEach(function (position) {
+                    const mesh = new THREE.Mesh(geom, mat);
+                    mesh.position.set(...position);
+                    obj.add(mesh);
+                });
+
+                return obj;
+            }
             case "lines": {
                 const verts = new THREE.Float32BufferAttribute([].concat.apply([], object_json.positions), 3);
                 const geom = new THREE.BufferGeometry();
