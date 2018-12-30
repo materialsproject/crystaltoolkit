@@ -1,6 +1,6 @@
 import * as THREE from "three-full";
 
-export default class MP3D {
+export default class Simple3DScene {
 
     constructor(scene_json, dom_elt, settings) {
 
@@ -128,7 +128,7 @@ export default class MP3D {
 
     addToScene(scene, scene_json) {
 
-        MP3D.disposeNodebyName(scene, scene_json.name);
+        Simple3DScene.disposeNodebyName(scene, scene_json.name);
 
         const root_obj = new THREE.Object3D();
         root_obj.name = scene_json.name;
@@ -156,7 +156,7 @@ export default class MP3D {
 
      makeLights(scene, light_json) {
 
-        MP3D.disposeNodebyName(scene, 'lights');
+        Simple3DScene.disposeNodebyName(scene, 'lights');
 
         const lights = new THREE.Object3D();
         lights.name = 'lights';
@@ -209,6 +209,8 @@ export default class MP3D {
                 object_json.positions.forEach(function (position) {
                     const mesh = new THREE.Mesh(geom, mat);
                     mesh.position.set(...position);
+                    // handle scale, rotation here to display ellipsoids
+                    // mesh.scale.set(1, 1.2, 1.5);
                     obj.add(mesh);
                 });
 
@@ -286,27 +288,50 @@ export default class MP3D {
                 const geom = new THREE.BufferGeometry();
                 geom.addAttribute('position', verts);
 
+                const mat = this.makeMaterial(object_json.color, object_json.opacity || 1);
+
                 if (object_json.normals) {
                     const normals = new THREE.Float32BufferAttribute([].concat.apply([], object_json.normals), 3);
                     geom.addAttribute('normal', normals);
                 } else {
                     geom.computeFaceNormals();
+                    mat.side = THREE.DoubleSide;  // not sure if this is necessary if we compute normals correctly
                 }
 
-                const mat = this.makeMaterial(object_json.color, object_json.opacity);
-
                 if (object_json.opacity) {
-                    mat.side = THREE.DoubleSide;  // not sure if this is necessary if we compute normals correctly
                     mat.transparent = true;
                     mat.depthWrite = false;
                 }
 
+                const mesh = new THREE.Mesh(geom, mat);
+                obj.add(mesh);
+
                 return obj;
             }
             case "convex": {
+
+                const points = object_json.positions.map(p => new THREE.Vector3(...p));
+                console.log(points);
+                const geom = new THREE.ConvexBufferGeometry(points);
+
+                const mat = this.makeMaterial(object_json.color, object_json.opacity || 1);
+                if (object_json.opacity) {
+                    mat.transparent = true;
+                    mat.depthWrite = false;
+                }
+
+                const mesh = new THREE.Mesh(geom, mat);
+                obj.add(mesh);
+
                 return obj;
             }
             case "arrow": {
+                // Not implemented
+                return obj;
+            }
+            case "label": {
+                // Not implemented
+                //THREE.CSS2DObject
                 return obj;
             }
             default: {
@@ -317,11 +342,16 @@ export default class MP3D {
     }
 
     makeMaterial(color, opacity) {
-        return new THREE.MeshStandardMaterial({
-            color: color || '#52afb0',
-            roughness: 0.1, metalness: 0.0,
-            opacity: opacity || 1.0
-        })
+
+        const parameters = Object.assign(this.settings.material.parameters,
+                    {color: color || '#52afb0', opacity: opacity || 1.0});
+
+        switch (this.settings.material.type) {
+            case "MeshStandardMaterial": {
+                return new THREE.MeshStandardMaterial(parameters);
+            }
+        }
+
     }
 
     start() {
@@ -343,10 +373,17 @@ export default class MP3D {
         this.renderer.render(this.scene, this.camera);
     }
 
+    toggleVisibility(namesToVisibility) {
+
+        // for names in nodeNameMap ... if 1, show, if 0 hide
+
+    }
+
     static disposeNodebyName(scene, name) {
+        // name is not necessarily unique, make this recursive ?
         let object = scene.getObjectByName(name);
         if (typeof object !== "undefined") {
-            MP3D.disposeNode(object);
+            Simple3DScene.disposeNode(object);
         }
     }
 
