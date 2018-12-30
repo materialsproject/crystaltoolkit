@@ -32,15 +32,19 @@ export default class MP3D {
                 },
                 {
                     type: 'AmbientLight',
-                    args: ['#222222', 10],
+                    args: ['#222222', 0.015],
                     position: [10, 10, 10]
 
+                },
+                {
+                    type: 'HemisphereLight',
+                    args: ['#ffffff', '#222222', 0.0025]
                 }
             ],
             material: {
                 type: 'MeshStandardMaterial',
                 parameters: {
-                    roughness: 0.07,
+                    roughness: 0.2,
                     metalness: 0.0
                 }
             }
@@ -69,10 +73,6 @@ export default class MP3D {
         const scene = new THREE.Scene();
         this.scene = scene;
 
-        // Lights
-
-        this.makeLights(scene, this.settings.lights);
-
         // Camera
 
         // TODO: change so camera dimensions match scene, not dom_elt?
@@ -90,6 +90,9 @@ export default class MP3D {
         this.camera = camera;
         scene.add(camera);
 
+        // Lights
+
+        this.makeLights(scene, this.settings.lights);
 
         // Action
 
@@ -110,6 +113,17 @@ export default class MP3D {
 
         dom_elt.appendChild(renderer.domElement);
         this.start();
+
+        // allow resize
+
+        function onWindowResize(){
+        //    //camera.aspect = dom_elt.innerWidth / dom_elt.innerHeight;
+        //    //camera.updateProjectionMatrix();
+        //    //renderer.setSize( dom_elt.innerWidth, dom_elt.innerHeight );
+            console.log( 'dom', renderer.domElement.innerWidth)//, dom_elt.innerHeight );
+        }
+
+        window.addEventListener( 'resize', onWindowResize, false );
     }
 
     addToScene(scene, scene_json) {
@@ -152,18 +166,24 @@ export default class MP3D {
                 case "DirectionalLight":
                     var lightObj = new THREE.DirectionalLight(...light.args);
                     if (light.helper) {
-                        let lightHelper = new THREE.DirectionalLightHelper(lightObj);
+                        let lightHelper = new THREE.DirectionalLightHelper(lightObj, 5, '#ffff00');
                         lightObj.add(lightHelper);
                     }
                     break;
                 case "AmbientLight":
                     var lightObj = new THREE.AmbientLight(...light.args);
+                    break;
+                case "HemisphereLight":
+                    var lightObj = new THREE.HemisphereLight(...light.args);
+                    break;
             }
             if (light.hasOwnProperty('position')) {
                 lightObj.position.set(...light.position);
             }
             lights.add(lightObj);
         });
+
+        window.console.log("lights", lights);
 
         scene.add(lights);
 
@@ -185,7 +205,7 @@ export default class MP3D {
                     object_json.phi_end || Math.PI * 2
                 );
                 const mat = this.makeMaterial(object_json.color);
-                
+
                 object_json.positions.forEach(function (position) {
                     const mesh = new THREE.Mesh(geom, mat);
                     mesh.position.set(...position);
@@ -199,6 +219,7 @@ export default class MP3D {
                 const geom = new THREE.CylinderBufferGeometry(
                     object_json.radius * this.settings.other.cylinderScale,
                     object_json.radius * this.settings.other.cylinderScale,
+                    1.0,
                     this.settings.quality.cylinderSegments
                 );
                 const mat = this.makeMaterial(object_json.color);
@@ -211,10 +232,12 @@ export default class MP3D {
                     const vec_a = new THREE.Vector3(...position[0]);
                     const vec_b = new THREE.Vector3(...position[1]);
                     const vec_rel = vec_b.sub(vec_a);
-                    const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5));
 
-                    // scale cylinder to correct length, and set origin at midpoint of cylinder
-                    mesh.scale.y = Math.sqrt(vec_rel.length())/2;
+                    // scale cylinder to correct length
+                    mesh.scale.y = vec_rel.length();
+
+                    // set origin at midpoint of cylinder
+                    const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5));
                     mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z);
 
                     // rotate cylinder into correct orientation
@@ -231,18 +254,74 @@ export default class MP3D {
 
                 return obj
             }
-            case "lines":
-                break;
-            case "arrow":
-                break;
-            case "surface":
-                break;
+            case "lines": {
+                const verts = new THREE.Float32BufferAttribute([].concat.apply([], object_json.positions), 3);
+                const geom = new THREE.BufferGeometry();
+                geom.addAttribute('position', verts);
+
+                let mat;
+                if (object_json.dashSize || object_json.scale || object_json.gapSize) {
+                    mat = new THREE.LineDashedMaterial({
+                        color: object_json.color || '#000000',
+                        linewidth: object_json.line_width || 1,
+                        scale: object_json.scale || 1,
+                        dashSize: object_json.dashSize || 3,
+                        gapSize: object_json.gapSize || 1
+                    })
+                } else {
+                    mat = new THREE.LineBasicMaterial({
+                        color: object_json.color || '#2c3c54',
+                        linewidth: object_json.line_width || 1
+                    });
+                }
+
+                const mesh = new THREE.LineSegments(geom, mat);
+                obj.add(mesh);
+
+                return obj;
+            }
+            case "surface": {
+
+                const verts = new THREE.Float32BufferAttribute([].concat.apply([], object_json.positions), 3);
+                const geom = new THREE.BufferGeometry();
+                geom.addAttribute('position', verts);
+
+                if (object_json.normals) {
+                    const normals = new THREE.Float32BufferAttribute([].concat.apply([], object_json.normals), 3);
+                    geom.addAttribute('normal', normals);
+                } else {
+                    geom.computeFaceNormals();
+                }
+
+                const mat = this.makeMaterial(object_json.color, object_json.opacity);
+
+                if (object_json.opacity) {
+                    mat.side = THREE.DoubleSide;  // not sure if this is necessary if we compute normals correctly
+                    mat.transparent = true;
+                    mat.depthWrite = false;
+                }
+
+                return obj;
+            }
+            case "convex": {
+                return obj;
+            }
+            case "arrow": {
+                return obj;
+            }
+            default: {
+                return obj;
+            }
         }
 
     }
 
-    makeMaterial(color) {
-        return new THREE.MeshStandardMaterial({color: color, roughness: 0.1, metalness: 0.0})
+    makeMaterial(color, opacity) {
+        return new THREE.MeshStandardMaterial({
+            color: color || '#52afb0',
+            roughness: 0.1, metalness: 0.0,
+            opacity: opacity || 1.0
+        })
     }
 
     start() {
