@@ -96,17 +96,7 @@ export default class Simple3DScene {
 
         // Action
 
-        this.addToScene(scene, scene_json);
-
-        // light-weight animation system, replace later
-        //this.currentAnimationFrame = 0;
-        //this.animations = {
-        //    '0': [
-        //        {'position': new THREE.Vector3(0, 0, 0)},//
-        //        {'position': new THREE.Vector3(0, 0, 1)},
-        //        {'position': new THREE.Vector3(0, 0, 2)}
-        //        ]
-        //};
+        this.addToScene(scene_json);
 
         const controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         controls.enableKeys = false;
@@ -115,20 +105,35 @@ export default class Simple3DScene {
         this.start();
 
         // allow resize
-
-        function onWindowResize(){
-        //    //camera.aspect = dom_elt.innerWidth / dom_elt.innerHeight;
-        //    //camera.updateProjectionMatrix();
-        //    //renderer.setSize( dom_elt.innerWidth, dom_elt.innerHeight );
-            console.log( 'dom', renderer.domElement.innerWidth)//, dom_elt.innerHeight );
-        }
-
-        window.addEventListener( 'resize', onWindowResize, false );
+        //function onWindowResize(){
+        //    // not implemented
+        //}
+        //window.addEventListener( 'resize', onWindowResize, false );
     }
 
-    addToScene(scene, scene_json) {
+    downloadScreenshot(filename) {
 
-        Simple3DScene.disposeNodebyName(scene, scene_json.name);
+        // using method from Three.js editor
+
+        // create a link and hide it from end-user
+        var link = document.createElement( 'a' );
+	    link.style.display = 'none';
+	    document.body.appendChild( link );
+
+	    // force a render (in case buffer has been cleared)
+        this.renderScene();
+        // and set link href to renderer contents
+		link.href = this.renderer.domElement.toDataURL("image/png"); // URL.createObjectURL( blob );
+
+        // click link to download
+		link.download = filename || 'screenshot.png';
+		link.click();
+
+    }
+
+    addToScene(scene_json) {
+
+        Simple3DScene.disposeNodebyName(this.scene, scene_json.name);
 
         const root_obj = new THREE.Object3D();
         root_obj.name = scene_json.name;
@@ -150,7 +155,7 @@ export default class Simple3DScene {
 
         window.console.log(root_obj);
 
-        scene.add(root_obj);
+        this.scene.add(root_obj);
 
     }
 
@@ -206,12 +211,32 @@ export default class Simple3DScene {
                 );
                 const mat = this.makeMaterial(object_json.color);
 
+                const meshes = [];
                 object_json.positions.forEach(function (position) {
                     const mesh = new THREE.Mesh(geom, mat);
                     mesh.position.set(...position);
-                    // handle scale, rotation here to display ellipsoids
-                    // mesh.scale.set(1, 1.2, 1.5);
-                    obj.add(mesh);
+                    meshes.push(mesh);
+                });
+
+                // TODO: test!
+                if (object_json.ellipsoids) {
+                    const vec_z = new THREE.Vector3(0, 0, 1);
+                    const quaternion = new THREE.Quaternion();
+                    object_json.ellipsoids.rotations.forEach(function (rotation, index){
+                        const rotation_vec = new THREE.Vector3(...rotation);
+                        quaternion.setFromUnitVectors(
+                            vec_z,
+                            rotation_vec.normalize()
+                        );
+                        meshes[index].setRotationFromQuaternion( quaternion);
+                    });
+                    object_json.ellipsoids.scales.forEach(function (scale, index){
+                        meshes[index].scale.set(...scale);
+                    });
+                }
+
+                meshes.forEach(function (mesh) {
+                   obj.add(mesh);
                 });
 
                 return obj;
@@ -326,7 +351,7 @@ export default class Simple3DScene {
                 return obj;
             }
             case "arrow": {
-                // Not implemented
+                // take inspiration from ArrowHelper, user cones and cylinders
                 return obj;
             }
             case "label": {

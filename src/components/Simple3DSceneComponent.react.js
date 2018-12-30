@@ -19,25 +19,34 @@ export default class Simple3DSceneComponent extends Component {
 
 	componentDidMount() {
 
-	    this.viewer = new Simple3DScene(this.props.data, this.mount, this.props.settings);
+	    this.scene = new Simple3DScene(this.props.data, this.mount, this.props.settings);
 
 	}
 
 	componentWillUpdate(nextProps, nextState) {
 
+		if (nextProps.nScreenshotRequests !== this.props.nScreenshotRequests) {
+		    this.scene.downloadScreenshot()
+		}
+
+		if (nextProps.data !== this.props.data) {
+		    this.scene.addToScene(nextProps.data)
+		}
+
+		if (nextProps.toggleVisibility !== this.props.toggleVisibility) {
+			this.scene.toggleVisibility(nextProps.toggleVisibility)
+		}
+
 	}
 
 	componentWillUnmount() {
-	    this.viewer.stop();
-		this.mount.removeChild(this.viewer.renderer.domElement);
+	    this.scene.stop();
+		this.mount.removeChild(this.scene.renderer.domElement);
 	}
 
 	render() {
 		const {
-			id,
-			setProps,
-			data,
-			settings
+			id
 		} = this.props;
 
 		return ( <div id={id}
@@ -79,6 +88,11 @@ Simple3DSceneComponent.propTypes = {
 	 * and 0 to hide it
      */
     toggleVisibility: PropTypes.object,
+
+    /**
+	 * Increment to trigger a screenshot download.
+     */
+    nScreenshotRequests: PropTypes.number,
 
 	/**
 	 * Dash-assigned callback that should be called whenever any of the
