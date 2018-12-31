@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict
-
+from itertools import chain
+from collections import defaultdict
 
 """
 This module gives a Python interface to generate JSON for the
@@ -47,7 +48,58 @@ def scene_to_json(scene):
     return remove_defaults(asdict(scene))
 
 
-@dataclass
+def merge_primitives(primitives):
+    """
+    If primitives are of the same type but differ only in position, they
+    are merged together. This is a small optimization, has not been benchmarked.
+    :param primitives: list of primitives (Spheres, Cylinders, etc.)
+    :return: list of primitives
+    """
+    spheres = defaultdict(list)
+    cylinders = defaultdict(list)
+    remainder = []
+
+    for primitive in primitives:
+        if isinstance(primitive, Spheres):
+            key = f"{primitive.color}_{primitive.radius:.2f}_{primitive.phiStart:.2f}_{primitive.phiEnd:.2f}"
+            spheres[key].append(primitive)
+        elif isinstance(primitive, Cylinders):
+            key = f"{primitive.color}_{primitive.radius:.2f}"
+            cylinders[key].append(primitive)
+        else:
+            remainder.append(primitive)
+
+    new_spheres = []
+    for key, sphere_list in spheres.items():
+        new_positions = list(chain.from_iterable([sphere.positions for sphere in sphere_list]))
+        new_ellipsoids_rotations = list(chain.from_iterable([sphere.ellipsoids['rotations'] if sphere.ellipsoids else None for sphere in sphere_list]))
+        new_ellipsoids_scales = list(chain.from_iterable([sphere.ellipsoids['scales'] if sphere.ellipsoids else None for sphere in sphere_list]))
+        if any(new_ellipsoids_rotations):
+            new_ellipsoids = {'rotations': new_ellipsoids_rotations, 'scales': new_ellipsoids_scales}
+        else:
+            new_ellipsoids = None
+        new_spheres.append(Spheres(
+            positions=new_positions,
+            color=sphere_list[0].color,
+            radius=sphere_list[0].radius,
+            phiStart=sphere_list[0].phiStart,
+            phiEnd=sphere_list[0].phiEnd,
+            ellipsoids=new_ellipsoids,
+        ))
+
+    new_cylinders = []
+    for key, cylinder_list in cylinders.items():
+        new_positionPairs = list(chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list]))
+        new_cylinders.append(Cylinders(
+            positionPairs=new_positionPairs,
+            color=cylinder_list[0].color,
+            radius=cylinder_list[0].radius
+        ))
+
+    return new_spheres + new_cylinders + remainder
+
+
+@dataclass(frozen=True)
 class Spheres:
     """
     Create a set of spheres. All spheres will have the same color, radius and
@@ -56,9 +108,9 @@ class Spheres:
     positions of the spheres.
     :param color: Sphere color as a hexadecimal string, e.g. #ff0000
     :param radius: The radius of the sphere, defaults to 1.
-    :param phi_start: Start angle in radians if drawing only a section of the
+    :param phiStart: Start angle in radians if drawing only a section of the
     sphere, defaults to 0
-    :param phi_end: End angle in radians if drawing only a section of the
+    :param phiEnd: End angle in radians if drawing only a section of the
     sphere, defaults to 2*pi
     :param ellipsoids: Any distortions to apply to the sphere to display
     ellipsoids. This is a dictionary with two keys, "rotations" and "scales",
@@ -72,12 +124,12 @@ class Spheres:
     color: Optional[str] = None
     radius: Optional[float] = None
     phiStart: Optional[float] = 0
-    phiEnd: Optional[float] = None # np.pi*2
+    phiEnd: Optional[float] = None
     ellipsoids: Optional[Dict[str, List[List[float]]]] = None
     type: str = field(default='spheres', init=False)  # private field
 
 
-@dataclass
+@dataclass(frozen=True)
 class Cylinders:
     """
     Create a set of cylinders. All cylinders will have the same color and
@@ -92,8 +144,11 @@ class Cylinders:
     radius: Optional[float] = None
     type: str = field(default='cylinders', init=False)  # private field
 
+    def __hash__(self):
+        return hash(f"{self.color}_{self.radius}")
 
-@dataclass
+
+@dataclass(frozen=True)
 class Cubes:
     """
     Create a set of cubes. All cubes will have the same color and width.
@@ -107,8 +162,11 @@ class Cubes:
     width: Optional[float] = None
     type: str = field(default='spheres', init=False)  # private field
 
+    def __hash__(self):
+        return hash(f"{self.color}_{self.width}")
 
-@dataclass
+
+@dataclass(frozen=True)
 class Lines:
     """
     Create a set of lines. All lines will have the same color, thickness and
@@ -132,7 +190,7 @@ class Lines:
     type: str = field(default='lines', init=False)  # private field
 
 
-@dataclass
+@dataclass(frozen=True)
 class Surface:
     """
     Define a surface by its vertices. Please also provide normals if known.
@@ -146,7 +204,7 @@ class Surface:
     type: str = field(default='surface', init=False)  # private field
 
 
-@dataclass
+@dataclass(frozen=True)
 class Convex:
     """
     Create a surface from the convex hull formed by list of points. Note that
@@ -161,7 +219,7 @@ class Convex:
     type: str = field(default='convex', init=False)  # private field
 
 
-@dataclass
+@dataclass(frozen=True)
 class Arrows:
     """
     Not implemented yet.
@@ -169,7 +227,7 @@ class Arrows:
     type: str = field(default='arrows', init=False)  # private field
 
 
-@dataclass
+@dataclass(frozen=True)
 class Labels:
     """
     Not implemented yet.
