@@ -153,7 +153,7 @@ export default class Simple3DScene {
 
         traverse_scene(scene_json, root_obj, this);
 
-        window.console.log(root_obj);
+        // window.console.log(root_obj);
 
         this.scene.add(root_obj);
 
@@ -188,7 +188,7 @@ export default class Simple3DScene {
             lights.add(lightObj);
         });
 
-        window.console.log("lights", lights);
+        // window.console.log("lights", lights);
 
         scene.add(lights);
 
@@ -373,7 +373,7 @@ export default class Simple3DScene {
             }
             case "labels": {
                 // Not implemented
-                //THREE.CSS2DObject
+                //THREE.CSS2DObject see https://github.com/mrdoob/three.js/blob/master/examples/css2d_label.html
                 return obj;
             }
             default: {

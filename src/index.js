@@ -1,8 +1,8 @@
 /* eslint-disable import/prefer-default-export */
-import StructureViewerComponent from './components/StructureViewerComponent.react';
 import GraphComponent from './components/GraphComponent.react';
+import Simple3DSceneComponent from './components/Simple3DSceneComponent.react'
 
 export {
-    StructureViewerComponent,
-    GraphComponent
+    GraphComponent,
+    Simple3DSceneComponent
 };

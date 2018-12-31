@@ -34,6 +34,55 @@
       }
     }
   },
+  "src/components/Simple3DSceneComponent.react.js": {
+    "description": "Simple3DSceneComponent is intended to draw simple 3D scenes using the popular\nThree.js scene graph library. In particular, the JSON representing the 3D scene\nis intended to be human-readable, and easily generated via Python. In future, a\nlong-term approach would be to develop a library to generate Three.js JSON directly\ninside Python to make this component redundant.",
+    "displayName": "Simple3DSceneComponent",
+    "methods": [],
+    "props": {
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "data": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Simple3DScene JSON"
+      },
+      "settings": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Options used for generating scene"
+      },
+      "toggleVisibility": {
+        "type": {
+          "name": "object"
+        },
+        "required": false,
+        "description": "Hide/show nodes in scene by name (key), value is 1 to show the node\nand 0 to hide it"
+      },
+      "nScreenshotRequests": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Increment to trigger a screenshot download."
+      },
+      "setProps": {
+        "type": {
+          "name": "func"
+        },
+        "required": false,
+        "description": "Dash-assigned callback that should be called whenever any of the\nproperties change"
+      }
+    }
+  },
   "src/components/StructureViewerComponent.react.js": {
     "description": "StructureViewerComponent is ...\n...",
     "displayName": "StructureViewerComponent",

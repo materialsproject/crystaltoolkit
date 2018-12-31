@@ -4,8 +4,9 @@ dist/
 lib/
 lib/bundle.js*
 node_modules/
-# mp_viewer/metadata.json
-# mp_viewer/bundle.js*
+# mp_dash_components/metadata.json
+# mp_dash_components/bundle.js*
+mp_dash_components/tag_cache.json
 .npm
 vv/
 venv/
@@ -14,3 +15,4 @@ venv/
 *.log
 .DS_Store
 .idea/
+deprecated/
