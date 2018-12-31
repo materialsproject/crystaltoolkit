@@ -253,6 +253,9 @@ export default class Simple3DScene {
                 );
                 const mat = this.makeMaterial(object_json.color);
 
+                const vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
+                const quaternion = new THREE.Quaternion();
+
                 object_json.positionPairs.forEach(function (positionPair) {
 
                     // the following is technically correct but could be optimized?
@@ -270,8 +273,6 @@ export default class Simple3DScene {
                     mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z);
 
                     // rotate cylinder into correct orientation
-                    const vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
-                    const quaternion = new THREE.Quaternion();
                     quaternion.setFromUnitVectors(
                         vec_y,
                         vec_rel.normalize()
