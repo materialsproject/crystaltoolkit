@@ -15,4 +15,7 @@ redis>=2.10.6
 raven>=6.9.0
 Flask-Caching>=1.3.3
 
+fuzzywuzzy
+python-Levenshtein
+
 -e .

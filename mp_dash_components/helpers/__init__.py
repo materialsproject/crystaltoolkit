@@ -29,7 +29,7 @@ def sanitize_input(msonable_object):
 
     return msonable_object
 
-
+# TODO: remove
 def mp_component(msonable_object, app, id=None, *args, **kwargs):
     """
     :param msonable_object: an MSONable object, or the JSON string representation

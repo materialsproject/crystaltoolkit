@@ -31,3 +31,7 @@ for _component in _components:
     setattr(_this_module, _component.__name__, _component)
     setattr(_component, '_js_dist', _js_dist)
     setattr(_component, '_css_dist', _css_dist)
+
+# convenience imports
+from mp_dash_components.components.json import JSONComponent
+from mp_dash_components.components.search import SearchComponent
