@@ -14,7 +14,7 @@ from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
 )
-from pymatgen.core.periodic_table import Specie
+from pymatgen.core.periodic_table import Specie, DummySpecie
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.vis.structure_vtk import EL_COLORS
 from pymatgen.core.structure import Structure, Molecule
@@ -24,11 +24,22 @@ from typing import Dict, Union, Optional, List, Tuple
 
 from collections import defaultdict
 
-from mp_dash_components.helpers.scene import Scene, Spheres, Cylinders, Lines, Surface, Convex
+from itertools import combinations
+
+from mp_dash_components.helpers.scene import (
+    Scene,
+    Spheres,
+    Cylinders,
+    Lines,
+    Surface,
+    Convex,
+    Cubes,
+)
 
 import numpy as np
 
 from scipy.spatial import Delaunay
+
 
 class StructureMoleculeComponent(MPComponent):
 
@@ -36,7 +47,6 @@ class StructureMoleculeComponent(MPComponent):
         subclass.__name__: subclass for subclass in NearNeighbors.__subclasses__()
     }
 
-    # TODO: update
     available_radius_strategies = (
         "atomic",
         "specified_or_average_ionic",
@@ -84,12 +94,12 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy=bonding_strategy,
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
-            scene = self.get_scene(graph, name=id, **options)
+            scene = self.get_scene_and_legend(graph, name=id, **options)
         else:
             # component could be initialized without a structure, in which case
             # an empty scene should be displayed
             graph = None
-            scene = self.get_scene(struct_or_mol, name=id, **options)
+            scene = self.get_scene_and_legend(struct_or_mol, name=id, **options)
 
         self.graph_store = dcc.Store(id=f"{id}_scene", data=graph)
         self.scene_store = dcc.Store(id=f"{id}_scene", data=scene)
@@ -135,6 +145,15 @@ class StructureMoleculeComponent(MPComponent):
         super().__init__(
             id=id, contents=struct_or_mol, origin_component=origin_component, app=app
         )
+
+    def _generate_callbacks(self, app):
+        pass
+
+    def layouts(self):
+        pass
+
+    def all_layouts(self):
+        pass
 
     @staticmethod
     def _preprocess_input_to_graph(
@@ -389,9 +408,21 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _primitives_from_site(
-        site, connected_sites=None, origin=(0, 0, 0), ellipsoid_site_prop=None,
-            explicitly_calculate_polyhedra_hull=False
+        site,
+        connected_sites=None,
+        origin=(0, 0, 0),
+        ellipsoid_site_prop=None,
+        explicitly_calculate_polyhedra_hull=False,
     ):
+        """
+        Sites must have display_radius and display_color site properties.
+        :param site:
+        :param connected_sites:
+        :param origin:
+        :param ellipsoid_site_prop: (beta)
+        :param explicitly_calculate_polyhedra_hull:
+        :return:
+        """
 
         atoms = []
         bonds = []
@@ -411,30 +442,37 @@ class StructureMoleculeComponent(MPComponent):
 
         for idx, (sp, occu) in enumerate(site.species_and_occu):
 
-            color = site.properties["display_color"][idx]
-            radius = site.properties["display_radius"][idx]
+            if isinstance(sp, DummySpecie):
 
-            # in disordered structures, we fractionally color-code spheres,
-            # drawing a sphere segment from phi_end to phi_start
-            # (think a sphere pie chart)
-            phi_frac_end = occu_start + occu
-            phi_frac_start = occu_start
-            occu_start = phi_frac_end
+                cube = Cubes(positions=[position])
+                atoms.append(cube)
 
-            # TODO: add names for labels
-            # name = "{}".format(sp)
-            # if occu != 1.0:
-            #    name += " ({}% occupancy)".format(occu)
+            else:
 
-            sphere = Spheres(
-                positions=[position],
-                color=color,
-                radius=radius,
-                phiStart=phi_frac_start * np.pi * 2,
-                phiEnd=phi_frac_end * np.pi * 2,
-                ellipsoids=ellipsoids,
-            )
-            atoms.append(sphere)
+                color = site.properties["display_color"][idx]
+                radius = site.properties["display_radius"][idx]
+
+                # in disordered structures, we fractionally color-code spheres,
+                # drawing a sphere segment from phi_end to phi_start
+                # (think a sphere pie chart)
+                phi_frac_end = occu_start + occu
+                phi_frac_start = occu_start
+                occu_start = phi_frac_end
+
+                # TODO: add names for labels
+                # name = "{}".format(sp)
+                # if occu != 1.0:
+                #    name += " ({}% occupancy)".format(occu)
+
+                sphere = Spheres(
+                    positions=[position],
+                    color=color,
+                    radius=radius,
+                    phiStart=phi_frac_start * np.pi * 2,
+                    phiEnd=phi_frac_end * np.pi * 2,
+                    ellipsoids=ellipsoids,
+                )
+                atoms.append(sphere)
 
         if connected_sites:
 
@@ -442,9 +480,7 @@ class StructureMoleculeComponent(MPComponent):
             for connected_site in connected_sites:
 
                 connected_position = np.subtract(connected_site.coords, origin)
-                bond_midpoint = (
-                    np.add(position, connected_position) / 2
-                )
+                bond_midpoint = np.add(position, connected_position) / 2
 
                 cylinder = Cylinders(
                     positionPairs=[[position, bond_midpoint]],
@@ -464,13 +500,16 @@ class StructureMoleculeComponent(MPComponent):
                         # .vertex_neighbor_vertices = [1, 2, 3, 2, 3, 0, 1, 3, 0, 1, 2, 0]
 
                         vertices_indices = Delaunay(
-                            all_positions).vertex_neighbor_vertices
+                            all_positions
+                        ).vertex_neighbor_vertices
                         vertices = [all_positions[idx] for idx in vertices_indices]
 
-                        polyhedron = [Surface(
-                            positions=vertices,
-                            color=site.properties["display_color"][0]
-                        )]
+                        polyhedron = [
+                            Surface(
+                                positions=vertices,
+                                color=site.properties["display_color"][0],
+                            )
+                        ]
 
                     except Exception as e:
 
@@ -478,13 +517,14 @@ class StructureMoleculeComponent(MPComponent):
 
                 else:
 
-                    polyhedron = [Convex(
-                        positions=all_positions,
-                        color=site.properties["display_color"][0]
-                    )]
+                    polyhedron = [
+                        Convex(
+                            positions=all_positions,
+                            color=site.properties["display_color"][0],
+                        )
+                    ]
 
-        return atoms + bonds + polyhedron
-
+        return {"atoms": atoms, "bonds": bonds, "polyhedron": polyhedron}
 
     @staticmethod
     def _get_display_radii_for_sites(
@@ -550,3 +590,148 @@ class StructureMoleculeComponent(MPComponent):
             radii.append(site_radii)
 
         return radii
+
+    @staticmethod
+    def _get_sites_to_draw(
+        struct_or_mol: Union[Structure, Molecule],
+        graph: Union[StructureGraph, MoleculeGraph],
+        draw_image_atoms=True,
+        bonded_sites_outside_unit_cell=True,
+    ):
+        """
+        Returns a list of site indices and image vectors.
+        """
+
+        sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(struct_or_mol))]
+
+        # trivial in this case
+        if isinstance(struct_or_mol, Molecule):
+            return sites_to_draw
+
+        if draw_image_atoms:
+
+            for idx, site in enumerate(struct_or_mol):
+
+                zero_elements = [
+                    idx for idx, f in enumerate(site.frac_coords) if np.allclose(f, 0)
+                ]
+
+                coord_permutations = [
+                    x
+                    for l in range(1, len(zero_elements) + 1)
+                    for x in combinations(zero_elements, l)
+                ]
+
+                for perm in coord_permutations:
+                    sites_to_draw.append(
+                        (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
+                    )
+
+        if bonded_sites_outside_unit_cell:
+
+            for (n, jimage) in sites_to_draw:
+                connected_sites = graph.get_connected_sites(n, jimage=jimage)
+                for connected_site in connected_sites:
+                    if connected_site.jimage != (0, 0, 0):
+                        sites_to_draw.append((n, connected_site.jimage))
+
+        return sites_to_draw
+
+    @staticmethod
+    def get_scene_and_legend(
+        struct_or_mol: Union[Structure, StructureGraph, Molecule, MoleculeGraph],
+        name="unknown_structure_or_molecule",
+        bonding_strategy="CrystalNN",
+        bonding_strategy_kwargs=None,
+        color_scheme="Jmol",
+        color_scale=None,
+        radius_strategy="average_ionic",
+        ellipsoid_site_prop=None,
+        draw_image_atoms=True,
+        bonded_sites_outside_unit_cell=True,
+        hide_incomplete_bonds=False,
+        explicitly_calculate_polyhedra_hull=False,
+    ) -> Tuple[Scene, Dict[str, str]]:
+
+        scene = Scene(name=name)
+
+        if struct_or_mol is None:
+            return scene, {}
+
+        graph = StructureMoleculeComponent._preprocess_input_to_graph(
+            struct_or_mol,
+            bonding_strategy=bonding_strategy,
+            bonding_strategy_kwargs=bonding_strategy_kwargs,
+        )
+        struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
+        radii = StructureMoleculeComponent._get_display_radii_for_sites(
+            struct_or_mol, radius_strategy=radius_strategy
+        )
+        site_prop_types = StructureMoleculeComponent._analyze_site_props(struct_or_mol)
+        colors, legend = StructureMoleculeComponent._get_display_colors_and_legend_for_sites(
+            struct_or_mol,
+            site_prop_types,
+            color_scale=color_scale,
+            color_scheme=color_scheme,
+        )
+
+        struct_or_mol.add_site_property("display_radius", radii)
+        struct_or_mol.add_site_property("display_color", colors)
+
+        origin = StructureMoleculeComponent._get_origin(struct_or_mol)
+
+        primitives = defaultdict(list)
+        sites_to_draw = StructureMoleculeComponent._get_sites_to_draw(
+            struct_or_mol,
+            graph,
+            draw_image_atoms=draw_image_atoms,
+            bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
+        )
+
+        for (idx, jimage) in sites_to_draw:
+
+            site = struct_or_mol[idx]
+            if jimage != (0, 0, 0):
+                connected_sites = graph.get_connected_sites(idx, jimage=jimage)
+                site = PeriodicSite(
+                    site.species_and_occu,
+                    np.add(site.frac_coords, jimage),
+                    site.lattice,
+                    properties=site.properties,
+                )
+            else:
+                connected_sites = graph.get_connected_sites(idx)
+
+            if hide_incomplete_bonds:
+                # only draw bonds if the destination site is also being drawn
+                connected_sites = [
+                    cs
+                    for cs in connected_sites
+                    if (cs.index, cs.jimage) in sites_to_draw
+                ]
+
+            site_primitives = StructureMoleculeComponent._primitives_from_site(
+                site,
+                connected_sites=connected_sites,
+                origin=origin,
+                ellipsoid_site_prop=ellipsoid_site_prop,
+                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+            )
+            for k, v in site_primitives:
+                primitives[k] += v
+
+        # group primitives
+
+        # select polyhedra
+
+        if isinstance(struct_or_mol, Structure):
+            primitives["unit_cell"].append(
+                StructureMoleculeComponent._primitives_from_lattice(
+                    struct_or_mol.lattice, origin=origin
+                )
+            )
+
+        sub_scenes = [Scene(name=k, contents=v) for k, v in primitives.items()]
+        scene.contents = sub_scenes
+
+        return scene, legend
