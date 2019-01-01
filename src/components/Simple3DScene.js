@@ -11,7 +11,6 @@ export default class Simple3DScene {
         const defaults = {
             quality: {
                 shadows: true,
-                transparency: true,
                 antialias: true,
                 transparent_background: true,
                 pixelRatio: 1.5,
@@ -21,8 +20,9 @@ export default class Simple3DScene {
             },
             other: {
                 autorotate: true,
-                sphereScale: 1.0,
-                cylinderScale: 1.0
+                objectScale: 1.0,
+                cylinderScale: 1.0,
+                defaultSurfaceOpacity: 0.5
             },
             lights: [
                 {
@@ -199,11 +199,15 @@ export default class Simple3DScene {
         const obj = new THREE.Object3D();
         obj.name = object_json.name;
 
+        if (object_json.visible) {
+            obj.visible = object_json.visible;
+        }
+
         switch (object_json.type) {
             case "spheres": {
 
                 const geom = new THREE.SphereBufferGeometry(
-                    object_json.radius * this.settings.other.sphereScale,
+                    object_json.radius * this.settings.other.objectScale,
                     this.settings.quality.sphereSegments,
                     this.settings.quality.sphereSegments,
                     object_json.phiStart || 0,
@@ -286,9 +290,9 @@ export default class Simple3DScene {
             }
             case "cubes": {
                 const geom = new THREE.BoxBufferGeometry(
-                    object_json.width * this.settings.other.sphereScale,
-                    object_json.width * this.settings.other.sphereScale,
-                    object_json.width * this.settings.other.sphereScale
+                    object_json.width * this.settings.other.objectScale,
+                    object_json.width * this.settings.other.objectScale,
+                    object_json.width * this.settings.other.objectScale
                 );
                 const mat = this.makeMaterial(object_json.color);
 
@@ -313,7 +317,7 @@ export default class Simple3DScene {
                         scale: object_json.scale || 1,
                         dashSize: object_json.dashSize || 3,
                         gapSize: object_json.gapSize || 1
-                    })
+                    });
                 } else {
                     mat = new THREE.LineBasicMaterial({
                         color: object_json.color || '#2c3c54',
@@ -322,6 +326,9 @@ export default class Simple3DScene {
                 }
 
                 const mesh = new THREE.LineSegments(geom, mat);
+                if (object_json.dashSize || object_json.scale || object_json.gapSize) {
+                    mesh.computeLineDistances();
+                }
                 obj.add(mesh);
 
                 return obj;
@@ -332,7 +339,8 @@ export default class Simple3DScene {
                 const geom = new THREE.BufferGeometry();
                 geom.addAttribute('position', verts);
 
-                const mat = this.makeMaterial(object_json.color, object_json.opacity || 1);
+                const opacity = object_json.opacity || this.settings.other.defaultSurfaceOpacity;
+                const mat = this.makeMaterial(object_json.color, opacity);
 
                 if (object_json.normals) {
                     const normals = new THREE.Float32BufferAttribute([].concat.apply([], object_json.normals), 3);
@@ -342,7 +350,7 @@ export default class Simple3DScene {
                     mat.side = THREE.DoubleSide;  // not sure if this is necessary if we compute normals correctly
                 }
 
-                if (object_json.opacity) {
+                if (opacity) {
                     mat.transparent = true;
                     mat.depthWrite = false;
                 }
@@ -357,8 +365,9 @@ export default class Simple3DScene {
                 const points = object_json.positions.map(p => new THREE.Vector3(...p));
                 const geom = new THREE.ConvexBufferGeometry(points);
 
-                const mat = this.makeMaterial(object_json.color, object_json.opacity || 1);
-                if (object_json.opacity) {
+                const opacity = object_json.opacity || this.settings.other.defaultSurfaceOpacity;
+                const mat = this.makeMaterial(object_json.color, opacity);
+                if (opacity) {
                     mat.transparent = true;
                     mat.depthWrite = false;
                 }

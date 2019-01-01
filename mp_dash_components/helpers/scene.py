@@ -18,6 +18,7 @@ class Scene:
     A Scene is defined by its name (a string, does not have to be unique),
     and its contents (a list of geometric primitives or other Scenes).
     """
+
     name: str  # name for the scene, does not have to be unique
     contents: list = field(default_factory=list)
 
@@ -71,30 +72,57 @@ def merge_primitives(primitives):
 
     new_spheres = []
     for key, sphere_list in spheres.items():
-        new_positions = list(chain.from_iterable([sphere.positions for sphere in sphere_list]))
-        new_ellipsoids_rotations = list(chain.from_iterable([sphere.ellipsoids['rotations'] if sphere.ellipsoids else None for sphere in sphere_list]))
-        new_ellipsoids_scales = list(chain.from_iterable([sphere.ellipsoids['scales'] if sphere.ellipsoids else None for sphere in sphere_list]))
+        new_positions = list(
+            chain.from_iterable([sphere.positions for sphere in sphere_list])
+        )
+        new_ellipsoids_rotations = list(
+            chain.from_iterable(
+                [
+                    sphere.ellipsoids["rotations"] if sphere.ellipsoids else None
+                    for sphere in sphere_list
+                ]
+            )
+        )
+        new_ellipsoids_scales = list(
+            chain.from_iterable(
+                [
+                    sphere.ellipsoids["scales"] if sphere.ellipsoids else None
+                    for sphere in sphere_list
+                ]
+            )
+        )
         if any(new_ellipsoids_rotations):
-            new_ellipsoids = {'rotations': new_ellipsoids_rotations, 'scales': new_ellipsoids_scales}
+            new_ellipsoids = {
+                "rotations": new_ellipsoids_rotations,
+                "scales": new_ellipsoids_scales,
+            }
         else:
             new_ellipsoids = None
-        new_spheres.append(Spheres(
-            positions=new_positions,
-            color=sphere_list[0].color,
-            radius=sphere_list[0].radius,
-            phiStart=sphere_list[0].phiStart,
-            phiEnd=sphere_list[0].phiEnd,
-            ellipsoids=new_ellipsoids,
-        ))
+        new_spheres.append(
+            Spheres(
+                positions=new_positions,
+                color=sphere_list[0].color,
+                radius=sphere_list[0].radius,
+                phiStart=sphere_list[0].phiStart,
+                phiEnd=sphere_list[0].phiEnd,
+                ellipsoids=new_ellipsoids,
+                visible=sphere_list[0].visible
+            )
+        )
 
     new_cylinders = []
     for key, cylinder_list in cylinders.items():
-        new_positionPairs = list(chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list]))
-        new_cylinders.append(Cylinders(
-            positionPairs=new_positionPairs,
-            color=cylinder_list[0].color,
-            radius=cylinder_list[0].radius
-        ))
+        new_positionPairs = list(
+            chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
+        )
+        new_cylinders.append(
+            Cylinders(
+                positionPairs=new_positionPairs,
+                color=cylinder_list[0].color,
+                radius=cylinder_list[0].radius,
+                visible=cylinder_list[0].visible
+            )
+        )
 
     return new_spheres + new_cylinders + remainder
 
@@ -119,14 +147,17 @@ class Spheres:
     the ellipsoid by along x, y and z. The dictionary values should be lists of
     lists of the same length as positions, corresponding to a unique
     rotation/scale for each sphere.
+    :param visible: If False, will hide the object by default.
     """
+
     positions: List[List[float]]
     color: Optional[str] = None
     radius: Optional[float] = None
     phiStart: Optional[float] = 0
     phiEnd: Optional[float] = None
     ellipsoids: Optional[Dict[str, List[List[float]]]] = None
-    type: str = field(default='spheres', init=False)  # private field
+    type: str = field(default="spheres", init=False)  # private field
+    visible: bool = True
 
 
 @dataclass(frozen=True)
@@ -138,14 +169,14 @@ class Cylinders:
     start and end position of the cylinder.
     :param color: Cylinder color as a hexadecimal string, e.g. #ff0000
     :param radius: The radius of the cylinder, defaults to 1.
+    :param visible: If False, will hide the object by default.
     """
+
     positionPairs: List[List[List[float]]]
     color: Optional[str] = None
     radius: Optional[float] = None
-    type: str = field(default='cylinders', init=False)  # private field
-
-    def __hash__(self):
-        return hash(f"{self.color}_{self.radius}")
+    type: str = field(default="cylinders", init=False)  # private field
+    visible: bool = True
 
 
 @dataclass(frozen=True)
@@ -156,14 +187,14 @@ class Cubes:
     positions of the cubes.
     :param color: Cube color as a hexadecimal string, e.g. #ff0000
     :param width: The width of the cube, defaults to 1.
+    :param visible: If False, will hide the object by default.
     """
+
     positions: List[List[float]]
     color: Optional[str] = None
     width: Optional[float] = None
-    type: str = field(default='spheres', init=False)  # private field
-
-    def __hash__(self):
-        return hash(f"{self.color}_{self.width}")
+    type: str = field(default="spheres", init=False)  # private field
+    visible: bool = True
 
 
 @dataclass(frozen=True)
@@ -180,14 +211,17 @@ class Lines:
     :param scale: Optional, if provided will set a global scale for line dashes.
     :param dashSize: Optional, if provided will specify length of line dashes.
     :param gapSize: Optional, if provided will specify gap between line dashes.
+    :param visible: If False, will hide the object by default.
     """
+
     positions: List[List[float]]
     color: str = None
     lineWidth: float = None
     scale: float = None
     dashSize: float = None
     gapSize: float = None
-    type: str = field(default='lines', init=False)  # private field
+    type: str = field(default="lines", init=False)  # private field
+    visible: bool = True
 
 
 @dataclass(frozen=True)
@@ -197,11 +231,13 @@ class Surface:
     Opacity can be set to enable transparency, but note that the current
     Three.js renderer doesn't support nested transparent objects very well.
     """
+
     positions: List[List[float]]
     normals: Optional[List[List[float]]] = None
     color: str = None
     opacity: float = None
-    type: str = field(default='surface', init=False)  # private field
+    type: str = field(default="surface", init=False)  # private field
+    visible: bool = True
 
 
 @dataclass(frozen=True)
@@ -213,10 +249,12 @@ class Convex:
     that the current Three.js renderer doesn't support nested transparent
     objects very well.
     """
+
     positions: List[List[float]]
     color: str = None
     opacity: float = None
-    type: str = field(default='convex', init=False)  # private field
+    type: str = field(default="convex", init=False)  # private field
+    visible: bool = True
 
 
 @dataclass(frozen=True)
@@ -224,7 +262,9 @@ class Arrows:
     """
     Not implemented yet.
     """
-    type: str = field(default='arrows', init=False)  # private field
+
+    type: str = field(default="arrows", init=False)  # private field
+    visible: bool = True
 
 
 @dataclass(frozen=True)
@@ -232,4 +272,6 @@ class Labels:
     """
     Not implemented yet.
     """
-    type: str = field(default='labels', init=False)  # private field
+
+    type: str = field(default="labels", init=False)  # private field
+    visible: bool = True
