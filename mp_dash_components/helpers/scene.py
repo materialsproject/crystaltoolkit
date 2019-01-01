@@ -2,6 +2,7 @@ from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict
 from itertools import chain
 from collections import defaultdict
+from warnings import warn
 
 """
 This module gives a Python interface to generate JSON for the
@@ -22,112 +23,135 @@ class Scene:
     name: str  # name for the scene, does not have to be unique
     contents: list = field(default_factory=list)
 
+    def to_json(self):
+        """
+        Convert a Scene into JSON. It will implicitly assume all None values means
+        that that attribute uses its default value, and so will be removed from
+        the JSON to reduce the filesize size of the resulting JSON.
 
-def scene_to_json(scene):
-    """
-    Convert a Scene into JSON. It will implicitly assume all None values means
-    that that attribute uses its default value, and so will be removed from
-    the JSON to reduce the filesize size of the resulting JSON.
+        Note that this function actually returns a Python dict, but in a format
+        that can be converted to a JSON string using the standard library JSON
+        encoder.
 
-    Note that this function actually returns a Python dict, but in a format
-    that can be converted to a JSON string using the standard library JSON
-    encoder.
+        :param scene: A Scene object
+        :return: dict in a format that can be parsed by Simple3DSceneComponent
+        """
 
-    :param scene: A Scene object
-    :return: dict in a format that can be parsed by Simple3DSceneComponent
-    """
-
-    def remove_defaults(scene_dict):
-        trimmed_dict = {}
-        for k, v in scene_dict.items():
-            if isinstance(v, dict):
-                v = remove_defaults(v)
-            if v is not None:
-                trimmed_dict[k] = v
-        return trimmed_dict or None
-
-    return remove_defaults(asdict(scene))
-
-
-def merge_primitives(primitives):
-    """
-    If primitives are of the same type but differ only in position, they
-    are merged together. This is a small optimization, has not been benchmarked.
-    :param primitives: list of primitives (Spheres, Cylinders, etc.)
-    :return: list of primitives
-    """
-    spheres = defaultdict(list)
-    cylinders = defaultdict(list)
-    remainder = []
-
-    for primitive in primitives:
-        if isinstance(primitive, Spheres):
-            key = f"{primitive.color}_{primitive.radius:.2f}_{primitive.phiStart:.2f}_{primitive.phiEnd:.2f}"
-            spheres[key].append(primitive)
-        elif isinstance(primitive, Cylinders):
-            key = f"{primitive.color}_{primitive.radius:.2f}"
-            cylinders[key].append(primitive)
-        else:
-            remainder.append(primitive)
-
-    new_spheres = []
-    for key, sphere_list in spheres.items():
-        new_positions = list(
-            chain.from_iterable([sphere.positions for sphere in sphere_list])
+        merged_scene = Scene(
+            name=self.name, contents=self.merge_primitives(self.contents)
         )
-        new_ellipsoids_rotations = list(
-            chain.from_iterable(
+
+        def remove_defaults(scene_dict):
+            trimmed_dict = {}
+            for k, v in scene_dict.items():
+                if isinstance(v, dict):
+                    v = remove_defaults(v)
+                elif isinstance(v, list):
+                    trimmed_dict[k] = [
+                        remove_defaults(item) if isinstance(item, dict) else item
+                        for item in v
+                    ]
+                elif v is not None:
+                    trimmed_dict[k] = v
+            return trimmed_dict
+
+        return remove_defaults(asdict(merged_scene))
+
+    @staticmethod
+    def merge_primitives(primitives):
+        """
+        If primitives are of the same type but differ only in position, they
+        are merged together. This is a small optimization, has not been benchmarked.
+        :param primitives: list of primitives (Spheres, Cylinders, etc.)
+        :return: list of primitives
+        """
+        spheres = defaultdict(list)
+        cylinders = defaultdict(list)
+        remainder = []
+
+        for primitive in primitives:
+            if isinstance(primitive, Scene):
+                primitive.contents = Scene.merge_primitives(primitive.contents)
+                remainder.append(primitive)
+            elif isinstance(primitive, Spheres):
+                key = f"{primitive.color}_{primitive.radius}_{primitive.phiStart}_{primitive.phiEnd}"
+                spheres[key].append(primitive)
+            elif isinstance(primitive, Cylinders):
+                key = f"{primitive.color}_{primitive.radius}"
+                cylinders[key].append(primitive)
+            else:
+                remainder.append(primitive)
+
+        new_spheres = []
+        for key, sphere_list in spheres.items():
+            new_positions = list(
+                chain.from_iterable([sphere.positions for sphere in sphere_list])
+            )
+            new_ellipsoids = None
+            has_ellipsoids = any(
                 [
                     sphere.ellipsoids["rotations"] if sphere.ellipsoids else None
                     for sphere in sphere_list
                 ]
             )
-        )
-        new_ellipsoids_scales = list(
-            chain.from_iterable(
-                [
-                    sphere.ellipsoids["scales"] if sphere.ellipsoids else None
-                    for sphere in sphere_list
-                ]
+            if has_ellipsoids:
+                warn("Merging of ellipsoids doesn't work yet.")
+                # TODO: should re-think how ellipsoids are stored, dict format is awkward
+            # new_ellipsoids_rotations = list(
+            #    chain.from_iterable(
+            #        [
+            #            sphere.ellipsoids["rotations"] if sphere.ellipsoids else None
+            #            for sphere in sphere_list
+            #        ]
+            #    )
+            # )
+            # new_ellipsoids_scales = list(
+            #    chain.from_iterable(
+            #        [
+            #            sphere.ellipsoids["scales"] if sphere.ellipsoids else None
+            #            for sphere in sphere_list
+            #        ]
+            #    )
+            # )
+            # if any(new_ellipsoids_rotations):
+            #    new_ellipsoids = {
+            #        "rotations": new_ellipsoids_rotations,
+            #        "scales": new_ellipsoids_scales,
+            #    }
+            # else:
+            #    new_ellipsoids = None
+            new_spheres.append(
+                Spheres(
+                    positions=new_positions,
+                    color=sphere_list[0].color,
+                    radius=sphere_list[0].radius,
+                    phiStart=sphere_list[0].phiStart,
+                    phiEnd=sphere_list[0].phiEnd,
+                    ellipsoids=new_ellipsoids,
+                    visible=sphere_list[0].visible,
+                )
             )
-        )
-        if any(new_ellipsoids_rotations):
-            new_ellipsoids = {
-                "rotations": new_ellipsoids_rotations,
-                "scales": new_ellipsoids_scales,
-            }
-        else:
-            new_ellipsoids = None
-        new_spheres.append(
-            Spheres(
-                positions=new_positions,
-                color=sphere_list[0].color,
-                radius=sphere_list[0].radius,
-                phiStart=sphere_list[0].phiStart,
-                phiEnd=sphere_list[0].phiEnd,
-                ellipsoids=new_ellipsoids,
-                visible=sphere_list[0].visible
+
+        new_cylinders = []
+        for key, cylinder_list in cylinders.items():
+            new_positionPairs = list(
+                chain.from_iterable(
+                    [cylinder.positionPairs for cylinder in cylinder_list]
+                )
             )
-        )
-
-    new_cylinders = []
-    for key, cylinder_list in cylinders.items():
-        new_positionPairs = list(
-            chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
-        )
-        new_cylinders.append(
-            Cylinders(
-                positionPairs=new_positionPairs,
-                color=cylinder_list[0].color,
-                radius=cylinder_list[0].radius,
-                visible=cylinder_list[0].visible
+            new_cylinders.append(
+                Cylinders(
+                    positionPairs=new_positionPairs,
+                    color=cylinder_list[0].color,
+                    radius=cylinder_list[0].radius,
+                    visible=cylinder_list[0].visible,
+                )
             )
-        )
 
-    return new_spheres + new_cylinders + remainder
+        return new_spheres + new_cylinders + remainder
 
 
-@dataclass(frozen=True)
+@dataclass
 class Spheres:
     """
     Create a set of spheres. All spheres will have the same color, radius and
@@ -153,14 +177,14 @@ class Spheres:
     positions: List[List[float]]
     color: Optional[str] = None
     radius: Optional[float] = None
-    phiStart: Optional[float] = 0
+    phiStart: Optional[float] = None
     phiEnd: Optional[float] = None
     ellipsoids: Optional[Dict[str, List[List[float]]]] = None
     type: str = field(default="spheres", init=False)  # private field
-    visible: bool = True
+    visible: bool = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Cylinders:
     """
     Create a set of cylinders. All cylinders will have the same color and
@@ -176,10 +200,10 @@ class Cylinders:
     color: Optional[str] = None
     radius: Optional[float] = None
     type: str = field(default="cylinders", init=False)  # private field
-    visible: bool = True
+    visible: bool = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Cubes:
     """
     Create a set of cubes. All cubes will have the same color and width.
@@ -194,10 +218,10 @@ class Cubes:
     color: Optional[str] = None
     width: Optional[float] = None
     type: str = field(default="spheres", init=False)  # private field
-    visible: bool = True
+    visible: bool = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Lines:
     """
     Create a set of lines. All lines will have the same color, thickness and
@@ -221,10 +245,10 @@ class Lines:
     dashSize: float = None
     gapSize: float = None
     type: str = field(default="lines", init=False)  # private field
-    visible: bool = True
+    visible: bool = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Surface:
     """
     Define a surface by its vertices. Please also provide normals if known.
@@ -237,10 +261,10 @@ class Surface:
     color: str = None
     opacity: float = None
     type: str = field(default="surface", init=False)  # private field
-    visible: bool = True
+    visible: bool = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Convex:
     """
     Create a surface from the convex hull formed by list of points. Note that
@@ -254,24 +278,24 @@ class Convex:
     color: str = None
     opacity: float = None
     type: str = field(default="convex", init=False)  # private field
-    visible: bool = True
+    visible: bool = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Arrows:
     """
     Not implemented yet.
     """
 
     type: str = field(default="arrows", init=False)  # private field
-    visible: bool = True
+    visible: bool = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Labels:
     """
     Not implemented yet.
     """
 
     type: str = field(default="labels", init=False)  # private field
-    visible: bool = True
+    visible: bool = None
