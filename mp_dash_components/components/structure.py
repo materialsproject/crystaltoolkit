@@ -4,6 +4,7 @@ import dash_html_components as html
 
 import warnings
 
+from mp_dash_components import Simple3DSceneComponent
 from mp_dash_components.components.core import MPComponent
 
 from matplotlib.cm import get_cmap
@@ -60,18 +61,22 @@ class StructureMoleculeComponent(MPComponent):
 
     def __init__(
         self,
-        id=None,
         struct_or_mol=None,
+        id=None,
         origin_component=None,
         app=None,
-        bonding_strategy="CrystalNN",
+        bonding_strategy="JmolNN",
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
         color_scale=None,
-        radius_strategy="average_ionic",
+        radius_strategy="specified_or_average_ionic",
         draw_image_atoms=True,
-        bonded_sites_outside_display_area=True,
+        bonded_sites_outside_unit_cell=True,
     ):
+
+        super().__init__(
+            id=id, contents=struct_or_mol, origin_component=origin_component, app=app
+        )
 
         options = {
             "bonding_strategy": bonding_strategy,
@@ -80,7 +85,7 @@ class StructureMoleculeComponent(MPComponent):
             "color_scale": color_scale,
             "radius_strategy": radius_strategy,
             "draw_image_atoms": draw_image_atoms,
-            "bonded_sites_outside_display_area": bonded_sites_outside_display_area,
+            "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
         }
 
         self.options_store = dcc.Store(id=f"{id}_options", data=options)
@@ -94,15 +99,17 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy=bonding_strategy,
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
-            scene = self.get_scene_and_legend(graph, name=id, **options)
+            scene, legend = self.get_scene_and_legend(graph, name=self.id, **options)
         else:
             # component could be initialized without a structure, in which case
             # an empty scene should be displayed
             graph = None
-            scene = self.get_scene_and_legend(struct_or_mol, name=id, **options)
+            scene, legend = self.get_scene_and_legend(struct_or_mol, name=self.id, **options)
 
-        self.graph_store = dcc.Store(id=f"{id}_scene", data=graph)
-        self.scene_store = dcc.Store(id=f"{id}_scene", data=scene)
+        self.initial_scene = scene.to_json()
+        print(self.initial_scene)
+        #self.graph_store = dcc.Store(id=f"{id}_scene", data=graph)
+        self.scene_store = dcc.Store(id=f"{id}_scene", data=self.initial_scene)
         self.legend_store = dcc.Store(id=f"{id}_legend")
 
         # scene options are not documented, see Simple3DScene.js for options
@@ -142,18 +149,18 @@ class StructureMoleculeComponent(MPComponent):
             },
         )
 
-        super().__init__(
-            id=id, contents=struct_or_mol, origin_component=origin_component, app=app
-        )
-
     def _generate_callbacks(self, app):
         pass
 
+    @property
     def layouts(self):
-        pass
+        return {
+            'struct': Simple3DSceneComponent(data=self.initial_scene)
+        }
 
+    @property
     def all_layouts(self):
-        pass
+        return html.Div([self.layouts['struct']])
 
     @staticmethod
     def _preprocess_input_to_graph(
@@ -292,6 +299,9 @@ class StructureMoleculeComponent(MPComponent):
             # don't know what the color legend (meaning) is, so return empty legend
             return (struct_or_mol.site_properties["display_color"], legend)
 
+        def get_color_hex(x):
+            return "#{:02x}{:02x}{:02x}".format(*x)
+
         if color_scheme not in ("VESTA", "Jmol", "colorblind_friendly"):
 
             if not struct_or_mol.is_ordered:
@@ -319,13 +329,11 @@ class StructureMoleculeComponent(MPComponent):
                     sp.as_dict()["element"] for sp, _ in site.species_and_occu.items()
                 ]
                 colors.append(
-                    [EL_COLORS[color_scheme][element] for element in elements]
+                    [get_color_hex(EL_COLORS[color_scheme][element]) for element in elements]
                 )
                 # construct legend
                 for element in elements:
-                    color = "#{:02x}{:02x}{:02x}".format(
-                        *EL_COLORS[color_scheme][element]
-                    )
+                    color = get_color_hex(EL_COLORS[color_scheme][element])
                     legend[color] = element
 
         elif color_scheme in site_prop_types.get("scalar", []):
@@ -344,15 +352,15 @@ class StructureMoleculeComponent(MPComponent):
             # normalize in [0, 1] range, as expected by cmap
             props = (props - color_min) / (color_max - color_min)
 
-            def _get_color(x):
+            def get_color_cmap(x):
                 return [int(c * 255) for c in cmap(x)[0:3]]
 
-            colors = [[_get_color(x)] for x in props]
+            colors = [[get_color_hex(get_color_cmap(x))] for x in props]
             # construct legend
-            c = "#{:02x}{:02x}{:02x}".format(*_get_color(color_min))
-            legend[c] = "{}".format(color_min)
+            c = get_color_hex(color_min)
+            legend[c] = "{}".format(get_color_cmap(color_min))
             if color_max != color_min:
-                c = "#{:02x}{:02x}{:02x}".format(*_get_color(color_max))
+                c = get_color_hex(get_color_cmap(color_max))
                 legend[c] = "{}".format(color_max)
 
         elif color_scheme == "colorblind_friendly":
@@ -429,6 +437,7 @@ class StructureMoleculeComponent(MPComponent):
         polyhedron = []
 
         # for disordered structures
+        is_ordered = site.is_ordered
         occu_start = 0.0
 
         # for thermal ellipsoids etc.
@@ -438,9 +447,9 @@ class StructureMoleculeComponent(MPComponent):
         else:
             ellipsoids = None
 
-        position = np.subtract(site.coords, origin)
+        position = np.subtract(site.coords, origin).tolist()
 
-        for idx, (sp, occu) in enumerate(site.species_and_occu):
+        for idx, (sp, occu) in enumerate(site.species_and_occu.items()):
 
             if isinstance(sp, DummySpecie):
 
@@ -452,12 +461,18 @@ class StructureMoleculeComponent(MPComponent):
                 color = site.properties["display_color"][idx]
                 radius = site.properties["display_radius"][idx]
 
+                # TODO: make optional/default to None
                 # in disordered structures, we fractionally color-code spheres,
                 # drawing a sphere segment from phi_end to phi_start
                 # (think a sphere pie chart)
-                phi_frac_end = occu_start + occu
-                phi_frac_start = occu_start
-                occu_start = phi_frac_end
+                if not is_ordered:
+                    phi_frac_end = occu_start + occu
+                    phi_frac_start = occu_start
+                    occu_start = phi_frac_end
+                    phiStart = phi_frac_start * np.pi * 2
+                    phiEnd = phi_frac_end * np.pi * 2
+                else:
+                    phiStart, phiEnd = None, None
 
                 # TODO: add names for labels
                 # name = "{}".format(sp)
@@ -468,22 +483,22 @@ class StructureMoleculeComponent(MPComponent):
                     positions=[position],
                     color=color,
                     radius=radius,
-                    phiStart=phi_frac_start * np.pi * 2,
-                    phiEnd=phi_frac_end * np.pi * 2,
+                    phiStart=phiStart,
+                    phiEnd=phiEnd,
                     ellipsoids=ellipsoids,
                 )
                 atoms.append(sphere)
 
         if connected_sites:
 
-            all_positions = [position.tolist()]
+            all_positions = [position]
             for connected_site in connected_sites:
 
-                connected_position = np.subtract(connected_site.coords, origin)
+                connected_position = np.subtract(connected_site.site.coords, origin)
                 bond_midpoint = np.add(position, connected_position) / 2
 
                 cylinder = Cylinders(
-                    positionPairs=[[position, bond_midpoint]],
+                    positionPairs=[[position, bond_midpoint.tolist()]],
                     color=site.properties["display_color"][0],
                 )
                 bonds.append(cylinder)
@@ -524,11 +539,11 @@ class StructureMoleculeComponent(MPComponent):
                         )
                     ]
 
-        return {"atoms": atoms, "bonds": bonds, "polyhedron": polyhedron}
+        return {"atoms": atoms, "bonds": bonds, "polyhedron": []}#polyhedron}
 
     @staticmethod
     def _get_display_radii_for_sites(
-        struct_or_mol, radius_strategy="average_ionic"
+        struct_or_mol, radius_strategy="specified_or_average_ionic"
     ) -> List[List[float]]:
         """
         Note this returns a list of lists of floats since each
@@ -629,11 +644,13 @@ class StructureMoleculeComponent(MPComponent):
 
         if bonded_sites_outside_unit_cell:
 
+            sites_to_append = []
             for (n, jimage) in sites_to_draw:
                 connected_sites = graph.get_connected_sites(n, jimage=jimage)
                 for connected_site in connected_sites:
                     if connected_site.jimage != (0, 0, 0):
-                        sites_to_draw.append((n, connected_site.jimage))
+                        sites_to_append.append((connected_site.index, connected_site.jimage))
+            sites_to_draw += sites_to_append
 
         return sites_to_draw
 
@@ -645,13 +662,16 @@ class StructureMoleculeComponent(MPComponent):
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
         color_scale=None,
-        radius_strategy="average_ionic",
+        radius_strategy="specified_or_average_ionic",
         ellipsoid_site_prop=None,
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=True,
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
     ) -> Tuple[Scene, Dict[str, str]]:
+
+        if not name:
+            raise ValueError("Please supply a non-empty name.")
 
         scene = Scene(name=name)
 
@@ -674,6 +694,8 @@ class StructureMoleculeComponent(MPComponent):
             color_scale=color_scale,
             color_scheme=color_scheme,
         )
+
+        print(graph)
 
         struct_or_mol.add_site_property("display_radius", radii)
         struct_or_mol.add_site_property("display_color", colors)
@@ -717,7 +739,7 @@ class StructureMoleculeComponent(MPComponent):
                 ellipsoid_site_prop=ellipsoid_site_prop,
                 explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             )
-            for k, v in site_primitives:
+            for k, v in site_primitives.items():
                 primitives[k] += v
 
         # group primitives
@@ -733,5 +755,7 @@ class StructureMoleculeComponent(MPComponent):
 
         sub_scenes = [Scene(name=k, contents=v) for k, v in primitives.items()]
         scene.contents = sub_scenes
+
+        print(scene)
 
         return scene, legend
