@@ -17,6 +17,7 @@ export default class Simple3DScene {
         reflections: false
       },
       other: {
+        staticScene: true,
         autorotate: true,
         objectScale: 1.0,
         cylinderScale: 1.0,
@@ -59,7 +60,9 @@ export default class Simple3DScene {
       alpha: this.settings.quality.transparent_background,
       gammaInput: true,
       gammaOutput: true,
-      gammaFactor: 2.2
+      gammaFactor: 2.2,
+      shadowMapEnabled: this.settings.quality.shadows,
+      shadowMapType: THREE.PCFSoftShadowMap
     });
     this.renderer = renderer;
 
@@ -68,6 +71,7 @@ export default class Simple3DScene {
     );
     renderer.setClearColor(0xffffff, 0);
     renderer.setSize(width, height);
+    dom_elt.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
     this.scene = scene;
@@ -103,8 +107,19 @@ export default class Simple3DScene {
     );
     controls.enableKeys = false;
 
-    dom_elt.appendChild(renderer.domElement);
-    this.start();
+    // initial render
+    function render() {
+      renderer.render(scene, camera);
+    }
+    render();
+
+    if (this.settings.other.staticScene) {
+      // only re-render when scene is rotated
+      controls.addEventListener("change", render);
+    } else {
+      // constantly re-render (for animation)
+      this.start();
+    }
 
     // allow resize
     //function onWindowResize(){
@@ -155,6 +170,20 @@ export default class Simple3DScene {
     // window.console.log(root_obj);
 
     this.scene.add(root_obj);
+
+    // auto-zoom to fit object
+    // TODO: maybe better to move this elsewhere (what if using perspective?)
+    const box = new THREE.Box3();
+    box.setFromObject(root_obj);
+    const width = this.renderer.domElement.clientWidth;
+    const height = this.renderer.domElement.clientHeight;
+    this.camera.zoom =
+      Math.min(
+        width / (box.max.x - box.min.x),
+        height / (box.max.y - box.min.y)
+      ) * 0.5;
+    this.camera.updateProjectionMatrix();
+    this.camera.updateMatrix();
   }
 
   makeLights(scene, light_json) {
