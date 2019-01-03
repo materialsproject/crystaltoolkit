@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field, asdict
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from itertools import chain
 from collections import defaultdict
 from warnings import warn
@@ -22,6 +22,7 @@ class Scene:
 
     name: str  # name for the scene, does not have to be unique
     contents: list = field(default_factory=list)
+    _meta: Any = None
 
     def to_json(self):
         """
@@ -182,6 +183,7 @@ class Spheres:
     ellipsoids: Optional[Dict[str, List[List[float]]]] = None
     type: str = field(default="spheres", init=False)  # private field
     visible: bool = None
+    _meta: Any = None
 
 
 @dataclass
@@ -201,6 +203,7 @@ class Cylinders:
     radius: Optional[float] = None
     type: str = field(default="cylinders", init=False)  # private field
     visible: bool = None
+    _meta: Any = None
 
 
 @dataclass
@@ -219,6 +222,7 @@ class Cubes:
     width: Optional[float] = None
     type: str = field(default="spheres", init=False)  # private field
     visible: bool = None
+    _meta: Any = None
 
 
 @dataclass
@@ -246,6 +250,7 @@ class Lines:
     gapSize: float = None
     type: str = field(default="lines", init=False)  # private field
     visible: bool = None
+    _meta: Any = None
 
 
 @dataclass
@@ -262,6 +267,7 @@ class Surface:
     opacity: float = None
     type: str = field(default="surface", init=False)  # private field
     visible: bool = None
+    _meta: Any = None
 
 
 @dataclass
@@ -279,6 +285,7 @@ class Convex:
     opacity: float = None
     type: str = field(default="convex", init=False)  # private field
     visible: bool = None
+    _meta: Any = None
 
 
 @dataclass
@@ -289,6 +296,7 @@ class Arrows:
 
     type: str = field(default="arrows", init=False)  # private field
     visible: bool = None
+    _meta: Any = None
 
 
 @dataclass
@@ -299,3 +307,4 @@ class Labels:
 
     type: str = field(default="labels", init=False)  # private field
     visible: bool = None
+    _meta: Any = None
