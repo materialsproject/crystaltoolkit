@@ -1,0 +1,16 @@
+@charset "utf-8";
+
+//@import url('https://fonts.googleapis.com/css?family=EB+Garamond:400,600&subset=greek');
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,600');
+
+//$family-primary: "EB Garamond", Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+$family-primary: "IBM Plex Sans", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+"Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+
+$background: hsl(216, 27%, 24%);
+
+body, html, .body {
+  background: #f3f3f3 !important;
+}
+
+@import "../node_modules/bulma/bulma.sass";
