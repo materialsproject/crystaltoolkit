@@ -1,4 +1,5 @@
 import * as THREE from "three-full";
+//import JSZip from "jszip";
 
 export default class Simple3DScene {
   constructor(scene_json, dom_elt, settings) {
@@ -7,38 +8,19 @@ export default class Simple3DScene {
     this.animate = this.animate.bind(this);
 
     const defaults = {
-      quality: {
-        shadows: true,
-        antialias: true,
-        transparent_background: true,
-        pixelRatio: 1.5,
-        sphereSegments: 32,
-        cylinderSegments: 8,
-        reflections: false
-      },
-      other: {
-        staticScene: true,
-        autorotate: true,
-        objectScale: 1.0,
-        cylinderScale: 1.0,
-        defaultSurfaceOpacity: 0.5
-      },
-      lights: [
-        {
-          type: "DirectionalLight",
-          args: ["#ffffff", 0.003],
-          position: [-2, 2, 2]
-        },
-        {
-          type: "AmbientLight",
-          args: ["#222222", 0.015],
-          position: [10, 10, 10]
-        },
-        {
-          type: "HemisphereLight",
-          args: ["#ffffff", "#222222", 0.0025]
-        }
-      ],
+      shadows: true,
+      antialias: true,
+      transparent_background: true,
+      pixelRatio: 1.5,
+      sphereSegments: 32,
+      cylinderSegments: 8,
+      reflections: false,
+      staticScene: true,
+      autorotate: true,
+      objectScale: 1.0,
+      cylinderScale: 1.0,
+      defaultSurfaceOpacity: 0.5,
+      lights: [{ type: "HemisphereLight", args: ["#ffffff", "#202020", 1] }],
       material: {
         type: "MeshStandardMaterial",
         parameters: {
@@ -56,18 +38,19 @@ export default class Simple3DScene {
     const height = dom_elt.clientHeight;
 
     const renderer = new THREE.WebGLRenderer({
-      antialias: this.settings.quality.antialias,
-      alpha: this.settings.quality.transparent_background,
+      antialias: this.settings.antialias,
+      alpha: this.settings.transparent_background,
       gammaInput: true,
       gammaOutput: true,
       gammaFactor: 2.2,
-      shadowMapEnabled: this.settings.quality.shadows,
+      shadowMapEnabled: this.settings.shadows,
       shadowMapType: THREE.PCFSoftShadowMap
     });
     this.renderer = renderer;
 
+    console.log(window.devicePixelRatio);
     renderer.setPixelRatio(
-      window.devicePixelRatio * this.settings.quality.pixelRatio
+      window.devicePixelRatio // * this.settings.pixelRatio
     );
     renderer.setClearColor(0xffffff, 0);
     renderer.setSize(width, height);
@@ -93,13 +76,13 @@ export default class Simple3DScene {
     this.camera = camera;
     scene.add(camera);
 
-    // Lights
-
-    this.makeLights(scene, this.settings.lights);
-
     // Action
 
     this.addToScene(scene_json);
+
+    // Lights
+
+    this.makeLights(scene, this.settings.lights);
 
     const controls = new THREE.OrbitControls(
       this.camera,
@@ -113,7 +96,7 @@ export default class Simple3DScene {
     }
     render();
 
-    if (this.settings.other.staticScene) {
+    if (this.settings.staticScene) {
       // only re-render when scene is rotated
       controls.addEventListener("change", render);
     } else {
@@ -128,6 +111,47 @@ export default class Simple3DScene {
     //window.addEventListener( 'resize', onWindowResize, false );
   }
 
+  download(filename, filetype) {
+    switch (filetype) {
+      case "png":
+        this.downloadScreenshot(filename);
+        break;
+      case "dae":
+        this.downloadCollada(filename);
+        break;
+    }
+  }
+
+  downloadCollada(filename) {
+
+    // Do not use yet. Adapted from ColladaArchiveExporter from @gkjohnson
+
+    const files = new THREE.ColladaExporter().parse(this.scene);
+    const manifest =
+      '<?xml version="1.0" encoding="utf-8"?>' +
+      `<dae_root>./${filename}</dae_root>`;
+
+    const zip = new JSZip();
+    zip.file("manifest.xml", manifest);
+    zip.file(filename, files.data);
+    files.textures.forEach(tex =>
+      zip.file(`${tex.directory}${tex.name}.${tex.ext}`, tex.data)
+    );
+
+    var link = document.createElement("a");
+    //link.style.display = "none";
+    document.body.appendChild(link);
+    zip.generateAsync({ type: "base64" }).then(function(base64) {
+      link.href = "data:application/zip;base64," + base64;
+    });
+    link.download = filename || "scene.dae";
+    //link.click();
+  }
+
+  downloadGLTF(filename) {
+    // Not Implemented Yet
+  }
+
   downloadScreenshot(filename) {
     // using method from Three.js editor
 
@@ -139,7 +163,7 @@ export default class Simple3DScene {
     // force a render (in case buffer has been cleared)
     this.renderScene();
     // and set link href to renderer contents
-    link.href = this.renderer.domElement.toDataURL("image/png"); // URL.createObjectURL( blob );
+    link.href = this.renderer.domElement.toDataURL("image/png");
 
     // click link to download
     link.download = filename || "screenshot.png";
@@ -200,7 +224,7 @@ export default class Simple3DScene {
             let lightHelper = new THREE.DirectionalLightHelper(
               lightObj,
               5,
-              "#ffff00"
+              "#444444"
             );
             lightObj.add(lightHelper);
           }
@@ -234,9 +258,9 @@ export default class Simple3DScene {
     switch (object_json.type) {
       case "spheres": {
         const geom = new THREE.SphereBufferGeometry(
-          object_json.radius * this.settings.other.objectScale,
-          this.settings.quality.sphereSegments,
-          this.settings.quality.sphereSegments,
+          object_json.radius * this.settings.objectScale,
+          this.settings.sphereSegments,
+          this.settings.sphereSegments,
           object_json.phiStart || 0,
           object_json.phiEnd || Math.PI * 2
         );
@@ -273,10 +297,10 @@ export default class Simple3DScene {
         const radius = object_json.radius || 1;
 
         const geom = new THREE.CylinderBufferGeometry(
-          radius * this.settings.other.cylinderScale,
-          radius * this.settings.other.cylinderScale,
+          radius * this.settings.cylinderScale,
+          radius * this.settings.cylinderScale,
           1.0,
-          this.settings.quality.cylinderSegments
+          this.settings.cylinderSegments
         );
         const mat = this.makeMaterial(object_json.color);
 
@@ -309,9 +333,9 @@ export default class Simple3DScene {
       }
       case "cubes": {
         const geom = new THREE.BoxBufferGeometry(
-          object_json.width * this.settings.other.objectScale,
-          object_json.width * this.settings.other.objectScale,
-          object_json.width * this.settings.other.objectScale
+          object_json.width * this.settings.objectScale,
+          object_json.width * this.settings.objectScale,
+          object_json.width * this.settings.objectScale
         );
         const mat = this.makeMaterial(object_json.color);
 
@@ -364,7 +388,7 @@ export default class Simple3DScene {
         geom.addAttribute("position", verts);
 
         const opacity =
-          object_json.opacity || this.settings.other.defaultSurfaceOpacity;
+          object_json.opacity || this.settings.defaultSurfaceOpacity;
         const mat = this.makeMaterial(object_json.color, opacity);
 
         if (object_json.normals) {
@@ -393,7 +417,7 @@ export default class Simple3DScene {
         const geom = new THREE.ConvexBufferGeometry(points);
 
         const opacity =
-          object_json.opacity || this.settings.other.defaultSurfaceOpacity;
+          object_json.opacity || this.settings.defaultSurfaceOpacity;
         const mat = this.makeMaterial(object_json.color, opacity);
         if (opacity) {
           mat.transparent = true;
@@ -453,7 +477,17 @@ export default class Simple3DScene {
   }
 
   toggleVisibility(namesToVisibility) {
-    // for names in nodeNameMap ... if 1, show, if 0 hide
+    // for names in namesToVisibility ... if 1, show, if 0 hide
+    if (typeof namesToVisibility !== "undefined") {
+      for (var objName in namesToVisibility) {
+        if (namesToVisibility.hasOwnProperty(objName)) {
+          const obj = this.scene.getObjectByName(objName);
+          if (typeof obj !== "undefined") {
+            obj.visible = Boolean(namesToVisibility.objName);
+          }
+        }
+      }
+    }
   }
 
   static disposeNodebyName(scene, name) {
