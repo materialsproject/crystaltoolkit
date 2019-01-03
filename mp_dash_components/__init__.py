@@ -35,3 +35,5 @@ for _component in _components:
 # convenience imports
 from mp_dash_components.components.json import JSONComponent
 from mp_dash_components.components.search import SearchComponent
+from mp_dash_components.helpers.layouts import *
+from mp_dash_components.helpers.scene import *
