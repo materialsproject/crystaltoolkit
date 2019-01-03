@@ -50,7 +50,7 @@ class MPComponent(ABC):
             self._contents = contents
             self._store_id = id
             if contents is not None:
-                self._store = dcc.Store(id=id, data=contents.to_json())
+                self._store = dcc.Store(id=id, data=self.to_data(contents))
             else:
                 self._store = dcc.Store(id=id, data="")
         else:
