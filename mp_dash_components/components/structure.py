@@ -2,10 +2,14 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
+
 import warnings
 
 from mp_dash_components import Simple3DSceneComponent
 from mp_dash_components.components.core import MPComponent
+from mp_dash_components.helpers.layouts import *
 
 from matplotlib.cm import get_cmap
 
@@ -41,6 +45,8 @@ import numpy as np
 
 from scipy.spatial import Delaunay
 
+# TODO make dangling bonds "stubs"
+
 
 class StructureMoleculeComponent(MPComponent):
 
@@ -54,6 +60,7 @@ class StructureMoleculeComponent(MPComponent):
         "covalent",
         "van_der_waals",
         "atomic_calculated",
+        "uniform",
     )
 
     # TODO ...
@@ -69,7 +76,7 @@ class StructureMoleculeComponent(MPComponent):
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
         color_scale=None,
-        radius_strategy="specified_or_average_ionic",
+        radius_strategy="uniform",
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=True,
     ):
@@ -88,6 +95,26 @@ class StructureMoleculeComponent(MPComponent):
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
         }
 
+        self.initial_scene_settings = {
+            "lights": [
+                {
+                    "type": "DirectionalLight",
+                    "args": ["#ffffff", 0.15],
+                    "position": [-10, 10, 10],
+                },
+                # {"type":"AmbientLight", "args":["#eeeeee", 0.9]}
+                {"type": "HemisphereLight", "args": ["#eeeeee", "#999999", 1.0]},
+            ],
+            "material": {
+                "type": "MeshStandardMaterial",
+                "parameters": {"roughness": 0.07, "metalness": 0.00},
+            },
+            "objectScale": 1.0,
+            "cylinderScale": 0.1,
+            "defaultSurfaceOpacity": 0.5,
+            "staticScene": True,
+        }
+
         self.options_store = dcc.Store(id=f"{id}_options", data=options)
 
         if struct_or_mol:
@@ -104,63 +131,131 @@ class StructureMoleculeComponent(MPComponent):
             # component could be initialized without a structure, in which case
             # an empty scene should be displayed
             graph = None
-            scene, legend = self.get_scene_and_legend(struct_or_mol, name=self.id, **options)
+            scene, legend = self.get_scene_and_legend(
+                struct_or_mol, name=self.id, **options
+            )
 
-        self.initial_scene = scene.to_json()
-        print(self.initial_scene)
-        #self.graph_store = dcc.Store(id=f"{id}_scene", data=graph)
-        self.scene_store = dcc.Store(id=f"{id}_scene", data=self.initial_scene)
+        self.initial_scene_data = scene.to_json()
+        # self.graph_store = dcc.Store(id=f"{id}_scene", data=graph)
         self.legend_store = dcc.Store(id=f"{id}_legend")
 
-        # scene options are not documented, see Simple3DScene.js for options
-        # they're here to allow quick iteration of different lighting or
-        # material options without having to edit the JavaScript source, and
-        # also to adjust global quality options
-        self.scene_options_store = dcc.Store(
-            id=f"{id}_scene_options",
-            data={
-                "quality": {
-                    "shadows": True,
-                    "transparency": True,
-                    "antialias": True,
-                    "transparent_background": True,
-                    "pixelRatio": 1.5,
-                    "sphereSegments": 8,
-                    "reflections": False,
-                },
-                "other": {"autorotate": True, "objectScale": 1.0, "cylinderScale": 1.0},
-                "lights": [
-                    {
-                        "type": "DirectionalLight",
-                        "args": ["#ffffff", 1],
-                        "position": [-20, 20, 20],
-                        "helper": True,
-                    },
-                    {
-                        "type": "AmbientLight",
-                        "args": ["#222222", 1],
-                        "position": [-10, 10, 10],
-                    },
-                ],
-                "material": {
-                    "type": "MeshStandardMaterial",
-                    "parameters": {"roughness": 0.07, "metalness": 0.00},
-                },
-            },
-        )
-
     def _generate_callbacks(self, app):
-        pass
+        @app.callback(
+            Output(f"{self.id}_scene", "downloadRequest"),
+            [Input(f"{self.id}_screenshot_button", "n_clicks")],
+            [State(f"{self.id}_scene", "downloadRequest"), State(self.id, "data")],
+        )
+        def screenshot_callback(n_clicks, current_requests, struct_or_mol):
+            if n_clicks is None:
+                raise PreventUpdate
+            struct_or_mol = self.from_data(struct_or_mol)
+            # TODO: this will break if store is structure/molecule graph ...
+            formula = struct_or_mol.composition.reduced_formula
+            if hasattr(struct_or_mol, "get_space_group_info"):
+                spgrp = struct_or_mol.get_space_group_info()[0]
+            else:
+                spgrp = ""
+            request_filename = "{}_{}_crystal_toolkit.png".format(formula, spgrp)
+            if not current_requests:
+                n_requests = 1
+            else:
+                n_requests = current_requests["n_requests"] + 1
+            return {
+                "n_requests": n_requests,
+                "filename": request_filename,
+                "filetype": "png",
+            }
+
+        # def download_callback():
+        #    ...
+
+    #
+    # def options_store_callback():
+    #    ...
 
     @property
     def layouts(self):
+
+        struct_layout = html.Div(
+            Simple3DSceneComponent(
+                id=f"{self.id}_scene",
+                data=self.initial_scene_data,
+                settings=self.initial_scene_settings,
+            ),
+            style={"width": "100%", "height": "100%", "overflow": "hidden"},
+        )
+
+        download_button = html.Div(
+            [
+                Button(
+                    [
+                        Icon(html.I(className="fas fa-download")),
+                        html.Span(),
+                        "Download Screenshot",
+                    ],
+                    button_kind="primary",
+                    id=f"{self.id}_screenshot_button",
+                )
+            ],
+            style={"vertical-align": "bottom", "display": "inline-block"},
+        )
+
+        formula_layout = html.H1("Test!")
+
+        download_dropdown = html.Div(
+            [
+                html.Label("Download format: "),
+                dcc.Dropdown(
+                    options=[
+                        {"value": "png", "label": "Screenshot"},
+                        {"value": "cif", "label": "CIF symmetrized"},
+                        {"value": "cif2", "label": "CIF p_1"},
+                        {"value": "poscar", "label": "VASP poscar"},
+                        {"value": "cell", "label": "CASTEP .cell"},
+                    ],
+                    value="png",
+                    clearable=False,
+                ),
+            ],
+            style={
+                "vertical-align": "bottom",
+                "max-width": "250px",
+                "width": "250px",
+                "display": "inline-block",
+            },
+        )
+
+        screenshot_layout = html.Div([download_dropdown, download_button])
+        # options = {
+        #    "bonding_strategy": bonding_strategy,
+        #    "bonding_strategy_kwargs": bonding_strategy_kwargs,
+        #    "color_scheme": color_scheme,
+        #    "color_scale": color_scale,
+        #    "radius_strategy": radius_strategy,
+        #    "draw_image_atoms": draw_image_atoms,
+        #    "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell}
+
+        # bonding_layout = ...
+        # color_scheme_layout = ...
+        # radius_layout = ...
+        #
+        # draw_layout = ... # draw_image_atoms, bonded_sites_outside_, add dangling bonds kwarg too
+        #
+        # hide_show_layout = ...
+        #
+        # download_layout = ...
+
         return {
-            'struct': Simple3DSceneComponent(data=self.initial_scene)
+            "struct": struct_layout,
+            "screenshot": screenshot_layout,
+            "formula": formula_layout,
         }
 
-    @property
-    def all_layouts(self):
-        return html.Div([self.layouts['struct']])
+    # @property
+    # def all_layouts(self):
+    #    return html.Div(
+    #        [self.layouts["struct"]], style={"width": "100%", "height": "100%"}
+    #    )
 
     @staticmethod
     def _preprocess_input_to_graph(
@@ -263,7 +358,7 @@ class StructureMoleculeComponent(MPComponent):
                 (0.5, 0.5, 0.5)
             )
         elif isinstance(struct_or_mol, Molecule):
-            geometric_center = struct_or_mol.center_of_mass
+            geometric_center = np.average(struct_or_mol.cart_coords, axis=0)
 
         return geometric_center
 
@@ -329,7 +424,10 @@ class StructureMoleculeComponent(MPComponent):
                     sp.as_dict()["element"] for sp, _ in site.species_and_occu.items()
                 ]
                 colors.append(
-                    [get_color_hex(EL_COLORS[color_scheme][element]) for element in elements]
+                    [
+                        get_color_hex(EL_COLORS[color_scheme][element])
+                        for element in elements
+                    ]
                 )
                 # construct legend
                 for element in elements:
@@ -420,6 +518,7 @@ class StructureMoleculeComponent(MPComponent):
         connected_sites=None,
         origin=(0, 0, 0),
         ellipsoid_site_prop=None,
+        all_connected_sites_present=True,
         explicitly_calculate_polyhedra_hull=False,
     ):
         """
@@ -428,6 +527,8 @@ class StructureMoleculeComponent(MPComponent):
         :param connected_sites:
         :param origin:
         :param ellipsoid_site_prop: (beta)
+        :param all_connected_sites_present: if False, will not calculate
+        polyhedra since this would be misleading
         :param explicitly_calculate_polyhedra_hull:
         :return:
         """
@@ -448,6 +549,14 @@ class StructureMoleculeComponent(MPComponent):
             ellipsoids = None
 
         position = np.subtract(site.coords, origin).tolist()
+
+        # site_color is used for bonds and polyhedra, if multiple colors are
+        # defined for site (e.g. a disordered site), then we use grey
+        all_colors = set(site.properties["display_color"])
+        if len(all_colors) > 1:
+            site_color = "#555555"
+        else:
+            site_color = list(all_colors)[0]
 
         for idx, (sp, occu) in enumerate(site.species_and_occu.items()):
 
@@ -498,13 +607,12 @@ class StructureMoleculeComponent(MPComponent):
                 bond_midpoint = np.add(position, connected_position) / 2
 
                 cylinder = Cylinders(
-                    positionPairs=[[position, bond_midpoint.tolist()]],
-                    color=site.properties["display_color"][0],
+                    positionPairs=[[position, bond_midpoint.tolist()]], color=site_color
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
 
-            if len(connected_sites) > 3:
+            if len(connected_sites) > 3 and all_connected_sites_present:
                 if explicitly_calculate_polyhedra_hull:
 
                     try:
@@ -532,14 +640,9 @@ class StructureMoleculeComponent(MPComponent):
 
                 else:
 
-                    polyhedron = [
-                        Convex(
-                            positions=all_positions,
-                            color=site.properties["display_color"][0],
-                        )
-                    ]
+                    polyhedron = [Convex(positions=all_positions, color=site_color)]
 
-        return {"atoms": atoms, "bonds": bonds, "polyhedron": []}#polyhedron}
+        return {"atoms": atoms, "bonds": bonds, "polyhedra": polyhedron}
 
     @staticmethod
     def _get_display_radii_for_sites(
@@ -575,6 +678,8 @@ class StructureMoleculeComponent(MPComponent):
 
                 radius = None
 
+                if radius_strategy is "uniform":
+                    radius = 0.5
                 if radius_strategy is "atomic":
                     radius = sp.atomic_radius
                 elif (
@@ -649,7 +754,9 @@ class StructureMoleculeComponent(MPComponent):
                 connected_sites = graph.get_connected_sites(n, jimage=jimage)
                 for connected_site in connected_sites:
                     if connected_site.jimage != (0, 0, 0):
-                        sites_to_append.append((connected_site.index, connected_site.jimage))
+                        sites_to_append.append(
+                            (connected_site.index, connected_site.jimage)
+                        )
             sites_to_draw += sites_to_append
 
         return sites_to_draw
@@ -695,8 +802,6 @@ class StructureMoleculeComponent(MPComponent):
             color_scheme=color_scheme,
         )
 
-        print(graph)
-
         struct_or_mol.add_site_property("display_radius", radii)
         struct_or_mol.add_site_property("display_color", colors)
 
@@ -724,17 +829,22 @@ class StructureMoleculeComponent(MPComponent):
             else:
                 connected_sites = graph.get_connected_sites(idx)
 
+            true_number_of_connected_sites = len(connected_sites)
+            connected_sites_being_drawn = [
+                cs for cs in connected_sites if (cs.index, cs.jimage) in sites_to_draw
+            ]
+            number_of_connected_sites_drawn = len(connected_sites_being_drawn)
+            all_connected_sites_present = (
+                true_number_of_connected_sites == number_of_connected_sites_drawn
+            )
             if hide_incomplete_bonds:
                 # only draw bonds if the destination site is also being drawn
-                connected_sites = [
-                    cs
-                    for cs in connected_sites
-                    if (cs.index, cs.jimage) in sites_to_draw
-                ]
+                connected_sites = connected_sites_being_drawn
 
             site_primitives = StructureMoleculeComponent._primitives_from_site(
                 site,
                 connected_sites=connected_sites,
+                all_connected_sites_present=all_connected_sites_present,
                 origin=origin,
                 ellipsoid_site_prop=ellipsoid_site_prop,
                 explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
@@ -742,9 +852,15 @@ class StructureMoleculeComponent(MPComponent):
             for k, v in site_primitives.items():
                 primitives[k] += v
 
-        # group primitives
-
+        # we are here ...
         # select polyhedra
+        # split by atom type at center
+        # see if any intersect, if yes split further
+        # order sets, with each choice, go to add second set etc if don't intersect
+        # they intersect if centre atom forms vertex of another atom (caveat: centre atom may not actually be inside polyhedra! not checking for this, add todo)
+        # def _set_intersects() ->bool:
+        # def _split_set() ->List: (by type, then..?)
+        # def _order_sets()... pick 1, ask can add 2? etc
 
         if isinstance(struct_or_mol, Structure):
             primitives["unit_cell"].append(
@@ -755,7 +871,5 @@ class StructureMoleculeComponent(MPComponent):
 
         sub_scenes = [Scene(name=k, contents=v) for k, v in primitives.items()]
         scene.contents = sub_scenes
-
-        print(scene)
 
         return scene, legend
