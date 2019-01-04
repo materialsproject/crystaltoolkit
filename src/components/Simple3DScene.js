@@ -104,6 +104,9 @@ export default class Simple3DScene {
       // constantly re-render (for animation)
       this.start();
     }
+
+    // TODO: need to change canvas size on window resize / container resize
+    window.addEventListener( 'resize', render, false );
   }
 
   download(filename, filetype) {
