@@ -71,7 +71,7 @@ class StructureMoleculeComponent(MPComponent):
         struct_or_mol=None,
         id=None,
         origin_component=None,
-        app=None,
+        scene_additions=None, # TODO add (add store also)
         bonding_strategy="JmolNN",
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
@@ -82,7 +82,9 @@ class StructureMoleculeComponent(MPComponent):
     ):
 
         super().__init__(
-            id=id, contents=struct_or_mol, origin_component=origin_component, app=app
+            id=id,
+            contents=struct_or_mol,
+            origin_component=origin_component
         )
 
         options = {
@@ -126,13 +128,13 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy=bonding_strategy,
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
-            scene, legend = self.get_scene_and_legend(graph, name=self.id, **options)
+            scene, legend = self.get_scene_and_legend(graph, name=self.id(), **options)
         else:
             # component could be initialized without a structure, in which case
             # an empty scene should be displayed
             graph = None
             scene, legend = self.get_scene_and_legend(
-                struct_or_mol, name=self.id, **options
+                struct_or_mol, name=self.id(), **options
             )
 
         self.initial_scene_data = scene.to_json()
@@ -140,10 +142,11 @@ class StructureMoleculeComponent(MPComponent):
         self.legend_store = dcc.Store(id=f"{id}_legend")
 
     def _generate_callbacks(self, app):
-        @app.callback(
-            Output(f"{self.id}_scene", "downloadRequest"),
-            [Input(f"{self.id}_screenshot_button", "n_clicks")],
-            [State(f"{self.id}_scene", "downloadRequest"), State(self.id, "data")],
+
+        @MPComponent.app.callback(
+            Output(self.id("scene"), "downloadRequest"),
+            [Input(self.id("screenshot_button"), "n_clicks")],
+            [State(self.id("scene"), "downloadRequest"), State(self.id(), "data")],
         )
         def screenshot_callback(n_clicks, current_requests, struct_or_mol):
             if n_clicks is None:
@@ -174,15 +177,20 @@ class StructureMoleculeComponent(MPComponent):
     #    ...
 
     @property
-    def layouts(self):
+    def all_layouts(self):
 
         struct_layout = html.Div(
             Simple3DSceneComponent(
-                id=f"{self.id}_scene",
+                id=self.id("scene"),
                 data=self.initial_scene_data,
                 settings=self.initial_scene_settings,
             ),
-            style={"width": "100%", "height": "100%", "overflow": "hidden"},
+            style={
+                "width": "100%",
+                "height": "100%",
+                "overflow": "hidden",
+                "margin": "0 auto",
+            },
         )
 
         download_button = html.Div(
@@ -194,13 +202,11 @@ class StructureMoleculeComponent(MPComponent):
                         "Download Screenshot",
                     ],
                     button_kind="primary",
-                    id=f"{self.id}_screenshot_button",
+                    id=self.id("screenshot_button"),
                 )
             ],
             style={"vertical-align": "bottom", "display": "inline-block"},
         )
-
-        formula_layout = html.H1("Test!")
 
         download_dropdown = html.Div(
             [
@@ -208,10 +214,24 @@ class StructureMoleculeComponent(MPComponent):
                 dcc.Dropdown(
                     options=[
                         {"value": "png", "label": "Screenshot"},
-                        {"value": "cif", "label": "CIF symmetrized"},
-                        {"value": "cif2", "label": "CIF p_1"},
-                        {"value": "poscar", "label": "VASP poscar"},
-                        {"value": "cell", "label": "CASTEP .cell"},
+                        {"value": "pymatgen", "label": "pymatgen (.json)"},
+                        {
+                            "value": "cif_symmetrized",
+                            "label": "CIF, symmetrized (.cif)",
+                        },
+                        {"value": "cif_p1", "label": "CIF, P1 setting (.cif)"},
+                        # {"value": "annotation", "label": "Electronic structure formats", "disabled": True},
+                        # {"value": "poscar", "label": "VASP POSCAR"},
+                        # {"value": "cfg", "label": "AtomEye (.cfg)"},
+                        # {"value": "cell", "label": "CASTEP (.cell)"},
+                        # {"value": "cssr", "label": "CSSR"},
+                        # {"value": "xsf", "label": "XCrySDen (.xsf)"},
+                        # {"value": "xyz", "label": "XYZ Cartesian (.xyz)"}, # mol
+                        # {"value": "gaussian", "label": "Gaussian (.inp)"}, # mol
+                        # {"value": "pdb", "label": "Protein Data Bank (.pdb)"}, # mol
+                        # {"value": "mol", "label": "MDL (.mol)"}, # mol
+                        # {"value": "cml", "label": "Chemical Markup Language (.cml)"}, # mol
+                        # {"value": "sybyl", "label": "Sybyl Mol2 (.ml2)"} # mol
                     ],
                     value="png",
                     clearable=False,
@@ -222,10 +242,24 @@ class StructureMoleculeComponent(MPComponent):
                 "max-width": "250px",
                 "width": "250px",
                 "display": "inline-block",
+                "margin-right": "10px",
             },
         )
 
         screenshot_layout = html.Div([download_dropdown, download_button])
+
+        formula_layout = html.H1("Test!")
+
+        ## hide if molecule
+        #html.Div(id=self.id("preprocessing_choice"), children=[dcc.RadioItems(
+        #    options=[
+        #        {'label': 'Input', 'value': 'input'},
+        #        {'label': 'Conventional', 'value': 'conventional'},
+        #        {'label': 'Primitive', 'value': 'primitive'},
+        #    ],
+        #    value='conventional'
+        #)])
+
         # options = {
         #    "bonding_strategy": bonding_strategy,
         #    "bonding_strategy_kwargs": bonding_strategy_kwargs,

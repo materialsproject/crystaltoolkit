@@ -47,7 +47,7 @@ class SearchComponent(MPComponent):
         self.tag_cache = tag_cache
         self.tag_cache_keys = list(tag_cache.keys())
 
-    #@self.caching()
+    @MPComponent.cache.memoize()
     def search_tags(self, search_term):
 
         fuzzy_search_results = process.extract(search_term,
@@ -61,30 +61,30 @@ class SearchComponent(MPComponent):
 
 
     @property
-    def layouts(self):
+    def all_layouts(self):
 
-        search_field = dcc.Input(id=f"{self.id}_input")
-        search_button = html.Button('Search', id=f"{self.id}_button")
+        search_field = dcc.Input(id=self.id("input"))
+        search_button = html.Button('Search', id=self.id("button"))
 
         return {
             'search': html.Div([search_field, search_button]),
-            'error': html.Div(id=f"{self.id}_error"),
-            'store': self._store
+            'error': html.Div(id=self.id("error"))
         }
 
     @property
-    def all_layouts(self):
-        return html.Div([self.layouts['search'], self.layouts['store']])
+    def standard_layout(self):
+        return html.Div([self.all_layouts['search']])
+
 
     def _generate_callbacks(self, app):
 
         self._get_tag_cache()
 
         @app.callback(
-            Output(self.store_id, "data"),
-            [Input(f"{self.id}_input", "n_submit"),
-             Input(f"{self.id}_button", "n_clicks")],
-            [State(f"{self.id}_input", "value")]
+            Output(self.id(), "data"),
+            [Input(self.id("input"), "n_submit"),
+             Input(self.id("button"), "n_clicks")],
+            [State(self.id("input"), "value")]
         )
         def update_store(n_submit, n_clicks, search_term):
 
