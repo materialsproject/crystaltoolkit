@@ -183,9 +183,15 @@ class Reveal(html.Details):
         if id is None:
             id = summary_title
         contents_id = f"{id}_contents" if id else None
+        kwargs["style"] = {"margin-bottom": "1rem"}
         super().__init__(
             [
-                html.Summary(H4(summary_title, style={"display": "inline-block", "vertical-align": "middle"})),
+                html.Summary(
+                    H4(
+                        summary_title,
+                        style={"display": "inline-block", "vertical-align": "middle"},
+                    )
+                ),
                 html.Div(children, id=contents_id),
             ],
             id=id,
