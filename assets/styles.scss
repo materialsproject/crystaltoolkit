@@ -13,4 +13,8 @@ body, html, .body {
   background: #f3f3f3 !important;
 }
 
+._dash-undo-redo {
+  display: none;
+}
+
 @import "../node_modules/bulma/bulma.sass";
