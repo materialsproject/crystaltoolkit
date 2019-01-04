@@ -112,7 +112,7 @@ app.layout = Container(
                     [
                         Column(
                             [
-                                html.Div(
+                                Box(
                                     struct_component.struct_layout,
                                     style={
                                         "width": "65vmin",
@@ -121,8 +121,8 @@ app.layout = Container(
                                         "min-height": "200px",
                                         "overflow": "hidden",
                                         "padding": "0.25rem",
-                                    },
-                                    className="box",
+                                        "margin-bottom": "0.5rem"
+                                    }
                                 ),
                                 html.Div(struct_component.screenshot_layout),
                             ]
@@ -131,11 +131,22 @@ app.layout = Container(
                             [
                                 Reveal(
                                     [search_component.standard_layout],
-                                    summary_title="Load Structure or Molecule",
+                                    summary_title="Load Crystal or Molecule",
                                 ),
                                 Reveal(summary_title="Display Options"),
                             ]
                         ),
+                    ]
+                ),
+                Columns(
+                    [
+                        Column(
+                            [
+                                Reveal(summary_title="Summary"),
+                                Reveal(summary_title="Magnetic Properties"),
+                                Reveal(summary_title="Bonding and Local Environments"),
+                            ]
+                        )
                     ]
                 ),
             ]

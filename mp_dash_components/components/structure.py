@@ -205,7 +205,8 @@ class StructureMoleculeComponent(MPComponent):
                     id=self.id("screenshot_button"),
                 )
             ],
-            style={"vertical-align": "bottom", "display": "inline-block"},
+            # TODO: change to "bottom" when dropdown included
+            style={"vertical-align": "top", "display": "inline-block"},
         )
 
         download_dropdown = html.Div(
@@ -246,7 +247,7 @@ class StructureMoleculeComponent(MPComponent):
             },
         )
 
-        screenshot_layout = html.Div([download_dropdown, download_button])
+        screenshot_layout = html.Div([download_button])
 
         formula_layout = html.H1("Test!")
 

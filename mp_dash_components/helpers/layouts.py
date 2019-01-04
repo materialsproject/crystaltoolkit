@@ -185,7 +185,7 @@ class Reveal(html.Details):
         contents_id = f"{id}_contents" if id else None
         super().__init__(
             [
-                html.Summary(H4(summary_title, style={"display": "inline-block"})),
+                html.Summary(H4(summary_title, style={"display": "inline-block", "vertical-align": "middle"})),
                 html.Div(children, id=contents_id),
             ],
             id=id,
