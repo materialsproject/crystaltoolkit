@@ -31,8 +31,8 @@ inorganic crystal structures. Queries can be one of the following:
 If multiple results are returned, they are presented as a dropdown list to
 choose from.
     """),
-    search_component.all_layouts,
-    search_output.all_layouts,
+    search_component.standard_layout,
+    search_output.standard_layout,
     html.Hr()
 ])
 

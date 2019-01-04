@@ -9,18 +9,17 @@ from mp_dash_components.components.core import MPComponent
 class JSONComponent(MPComponent):
 
     @property
-    def layouts(self):
+    def all_layouts(self):
 
         return {
-            'json': dcc.SyntaxHighlighter(id=f"{self.id}_highlighted"),
-            'store': self._store
+            'json': dcc.SyntaxHighlighter(id=self.id("highlighted"))
         }
 
     def _generate_callbacks(self, app):
 
         @app.callback(
-            Output(f"{self.id}_highlighted", "children"),
-            [Input(self.store_id, "data")]
+            Output(self.id("highlighted"), "children"),
+            [Input(self.id(), "data")]
         )
         def update_highlighter(data):
             return self.to_data(data)

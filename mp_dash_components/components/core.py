@@ -9,13 +9,40 @@ from time import mktime
 from warnings import warn
 from dash import Dash
 from dash.dependencies import Input, Output, State
+from flask_caching import Cache
+
+from typing import List
+
+
+class DummyCache:
+    @staticmethod
+    def memoize(*args, **kwargs):
+        return lambda x: x
 
 
 class MPComponent(ABC):
+    """
+
+    """
 
     _instances = {}
+    _app_stores = []
+    app = None
+    cache = DummyCache
 
-    def __init__(self, id=None, origin_component=None, contents=None, app=None):
+    @staticmethod
+    def register_app(app):
+        MPComponent.app = app
+
+    @staticmethod
+    def register_cache(cache):
+        MPComponent.cache = cache
+
+    @staticmethod
+    def all_app_stores():
+        return html.Div(MPComponent._app_stores)
+
+    def __init__(self, id=None, origin_component=None, contents=None):
         """
         :param id: a unique id for this component, if not specified a random
         one will be chosen
@@ -23,8 +50,6 @@ class MPComponent(ABC):
         Store in the origin MPComponent instead of creating its own Store
         :param contents: an object that can be serialized using the MSON
         protocol, can be set to None initially
-        :param app: Dash app to generate callbacks, if None will look for 'app'
-        in global scope
         """
 
         if id is None:
@@ -38,43 +63,43 @@ class MPComponent(ABC):
 
         self._id = id
         self._instances[id] = self
+        self._stores = {}
 
-        if app:
-            self.app = app
-        elif "app" in globals() and isinstance(globals()["app"], Dash):
-            self.app = globals()["app"]
-        elif app is None:
-            warn("No app defined, callbacks cannot be created.")
+        if MPComponent.app is None:
+            warn(
+                f"No app defined for component {self.id()}, "
+                f"callbacks cannot be created. Please register app using "
+                f"MPComponent.register_app(app)."
+            )
+
+        if MPComponent.cache is DummyCache:
+            warn(
+                f"No cache is defined for component {self.id()}, "
+                f"performance of app may be degraded. Please register cache "
+                f"using MPComponent.register_cache(cache)."
+            )
 
         if origin_component is None:
-            self._contents = contents
-            self._store_id = id
-            if contents is not None:
-                self._store = dcc.Store(id=id, data=self.to_data(contents))
-            else:
-                self._store = dcc.Store(id=id, data="")
+            self._canonical_store_id = self._id
+            self.create_store(name=None, initial_data=contents)
         else:
-            self._contents = origin_component._contents
-            self._store = html.Div() # origin_component._store
-            self._store_id = origin_component._store_id
+            if MPComponent.app is None:
+                raise ValueError("Can only link stores if an app is defined.")
+            self._canonical_store_id = origin_component._store_id
 
-        if self.app:
-            self._generate_callbacks(self.app)
+        if MPComponent.app:
+            self._generate_callbacks(MPComponent.app)
 
-    @property
-    def id(self):
-        """
-        The primary id for this component.
-        """
-        return self._id
+    def id(self, name=None):
+        if name:
+            return f"{self._id}_{name}"
+        else:
+            return self._canonical_store_id
 
-    @property
-    def store_id(self):
-        """
-        The id for the primary Store backing this component, usually corresponds
-        to the primary id unless primary Store references another component.
-        """
-        return self._store_id
+    def create_store(self, name, initial_data=None):
+        store = dcc.Store(id=self.id(name), data=self.to_data(initial_data))
+        self._stores[name] = store
+        MPComponent._app_stores.append(store)
 
     @staticmethod
     def to_data(msonable_obj):
@@ -86,6 +111,8 @@ class MPComponent(ABC):
         :return: A JSON string (a string is preferred over a dict since this can
         be easily memoized)
         """
+        if msonable_obj is None:
+            return ""
         return dumps(msonable_obj, cls=MontyEncoder, indent=4)
 
     @staticmethod
@@ -97,8 +124,9 @@ class MPComponent(ABC):
         """
         return loads(data, cls=MontyDecoder)
 
-    def attach_from(self, origin_component, origin_store_suffix=None,
-                    this_store_suffix=None):
+    def attach_from(
+        self, origin_component, origin_store_suffix=None, this_store_suffix=None
+    ):
         """
         Link two MPComponents together.
 
@@ -112,30 +140,42 @@ class MPComponent(ABC):
         :return:
         """
 
-        if self.app is None:
+        if MPComponent.app is None:
             raise AttributeError("No app defined, callbacks cannot be created.")
 
-        if origin_store_suffix:
-            origin_store_id = f'{self.id}_{origin_store_suffix}'
-        else:
-            origin_store_id = origin_component.store_id
+        origin_store_id = origin_component.id(origin_store_suffix)
+        dest_store_id = self.id(this_store_suffix)
 
-        if this_store_suffix:
-            dest_store_id = f'{self.id}_{this_store_suffix}'
-        else:
-            dest_store_id = self.store_id
-
-        @self.app.callback(
+        @MPComponent.app.callback(
             Output(dest_store_id, "data"),
             [Input(origin_store_id, "modified_timestamp")],
-            [State(origin_store_id, "data")]
+            [State(origin_store_id, "data")],
         )
         def update_store(modified_timestamp, data):
             return data
 
+    #def __getattr__(self, item):
+    #    if item in self.supported_stores:
+    #        return self.id(item)
+    #    elif (
+    #        item.endswith("layout")
+    #        and item.split("_layout")[0] in self.supported_layouts
+    #    ):
+    #        return self.all_layouts[item.split("_layout")[0]]
+    #    else:
+    #        raise AttributeError
+
+    @property
+    def supported_stores(self):
+        return self._stores.keys()
+
+    @property
+    def supported_layouts(self):
+        return self.all_layouts.keys()
+
     @property
     @abstractmethod
-    def layouts(self):
+    def all_layouts(self):
         """
         Layouts associated with this component.
 
@@ -162,21 +202,20 @@ class MPComponent(ABC):
         component author.
         """
         return {
-            "main": html.Div(id=f"{self.id}_main"),
-            "error": html.Div(id=f"{self.id}_error", className="mpc_error"),
-            "warning": html.Div(id=f"{self.id}_warning", className="mpc_warning"),
-            "label": html.Label(id=f"{self.id}_label", className="mpc_label"),
-            "help": dcc.Markdown(id=f"{self.id}_help", className="mpc_help"),
-            "store": self._store
+            "main": html.Div(id=f"{self.id()}_main"),
+            "error": html.Div(id=f"{self.id()}_error", className="mpc_error"),
+            "warning": html.Div(id=f"{self.id()}_warning", className="mpc_warning"),
+            "label": html.Label(id=f"{self.id()}_label", className="mpc_label"),
+            "help": dcc.Markdown(id=f"{self.id()}_help", className="mpc_help"),
         }
 
     @property
-    def all_layouts(self):
+    def standard_layout(self):
         """
         :return: A Dash layout for the full component, for example including
         both the main component and controls for that component. Must
         """
-        return html.Div(list(self.layouts.values()))
+        return html.Div(list(self.all_layouts.values()))
 
     @abstractmethod
     def _generate_callbacks(self, app):
@@ -189,14 +228,14 @@ class MPComponent(ABC):
         raise NotImplementedError
 
 
-#class StoreMixer(MPComponent):
+# class StoreMixer(MPComponent):
 #
 #    def __init__(self, list_of_input_components):
 #
 #        ...
 #
 #
-#class ToolkitPanel(MPComponent):
+# class ToolkitPanel(MPComponent):
 #
 #    @property
 #    def title(self):

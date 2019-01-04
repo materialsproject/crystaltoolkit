@@ -33,8 +33,6 @@ app.scripts.config.serve_locally = True
 app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
 
-MPComponent.register_app(app)
-
 # endregion
 ##########
 
@@ -58,8 +56,6 @@ except Exception as exception:
     )
     cache = Cache(app.server, config={"CACHE_TYPE": "filesystem"})
 
-MPComponent.register_cache(cache)
-
 # endregion
 
 
@@ -67,11 +63,16 @@ MPComponent.register_cache(cache)
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
+MPComponent.register_app(app)
+MPComponent.register_cache(cache)
+
 struct_component = mpc.StructureMoleculeComponent()
 search = mpc.SearchComponent()
 editor = mpc.JSONComponent()
 
+
 # endregion
+
 
 ################################################################################
 # region CREATE OTHER LAYOUT ELEMENTS
@@ -94,6 +95,7 @@ footer = mpc.Footer(
 
 # endregion
 
+
 ################################################################################
 # region  DEFINE MAIN LAYOUT
 ################################################################################
@@ -101,11 +103,12 @@ footer = mpc.Footer(
 app.layout = Container(
     [
         dcc.Location(id="url"),
+        MPComponent.all_app_stores(),
         Section([html.H1("Crystal Toolkit", className="title is-1")]),
         Section(
             [
                 html.Div(
-                    struct_component.layouts["struct"],
+                    struct_component.all_layouts["struct"],
                     style={
                         "width": "65vmin",
                         "height": "65vmin",
@@ -116,29 +119,28 @@ app.layout = Container(
                     },
                     className="box",
                 ),
-                html.Div(struct_component.layouts["screenshot"]),
-                search.all_layouts,
+                html.Div(struct_component.all_layouts["screenshot"]),
+                search.standard_layout,
             ]
         ),
         # Section(html.Details([html.Summary(html.A("Click here", className="button")), html.Div("Test!", className="box")]))
         footer,
-        struct_component._store,
     ]
 )
 
 # endregion
 
+
 ################################################################################
 # region SET UP API ROUTES (to support creating viewer links)
 ################################################################################
-
 
 @server.route("/version", methods=["GET"])
 def get_version():
     return make_response(
         jsonify(
             {
-                "crystal_toolkit_version": 1,
+                "crystal_toolkit_version": mpc.__version__,
                 "crystal_toolkit_api_version": 1,
                 "pymatgen_version": pmg_version,
             }
@@ -185,8 +187,8 @@ def mson_to_token(mson, cache):
 def token_to_mson(token, cache):
     return cache.get(token)
 
-
 # endregion
+
 
 ################################################################################
 # region SET UP CALLBACKS
@@ -195,9 +197,10 @@ def token_to_mson(token, cache):
 
 # endregion
 
+
 ################################################################################
 # Run server :-)
 ################################################################################
 
 if __name__ == "__main__":
-    app.run_server(debug=False, port=8080)
+    app.run_server(debug=True, port=8080)
