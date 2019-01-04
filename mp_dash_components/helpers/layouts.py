@@ -31,7 +31,7 @@ class Columns(html.Div):
 
 
 class Column(html.Div):
-    def __init__(self, *args, size=None, offset=None, narrow: bool = None, **kwargs):
+    def __init__(self, *args, size=None, offset=None, narrow=False, **kwargs):
         kwargs["className"] = "column"
         if size:
             kwargs["className"] += f" -is-{size}"
@@ -188,3 +188,9 @@ class Reveal(html.Details):
             id=id,
             **kwargs,
         )
+
+
+class Label(html.Label):
+    def __init__(self, *args, **kwargs):
+        kwargs["className"] = "label"
+        super().__init__(*args, **kwargs)
