@@ -93,19 +93,6 @@ export default class Simple3DScene {
     // initial render
     function render() {
       // TODO: brush up on JS! why can't we just use this.renderScene for EventListener?
-
-      const dom_elt = renderer.domElement;
-      const width = dom_elt.clientWidth;
-      const height = dom_elt.clientHeight;
-
-      console.log("clientWidth", width);
-      console.log("domelt_width", dom_elt.width);
-      console.log("renderer_width", renderer.width);
-
-      if (dom_elt.width !== width || dom_elt.height !== height) {
-        renderer.setSize(width, height, false);
-        // TODO: may need to re-adjust the camera here
-      }
       renderer.render(scene, camera);
     }
     render();
@@ -248,8 +235,6 @@ export default class Simple3DScene {
       }
       lights.add(lightObj);
     });
-
-    // window.console.log("lights", lights);
 
     scene.add(lights);
   }
@@ -480,19 +465,7 @@ export default class Simple3DScene {
   }
 
   renderScene() {
-    this.resizeCanvasToContainerSize();
     this.renderer.render(this.scene, this.camera);
-  }
-
-  resizeCanvasToContainerSize() {
-    const dom_elt = this.renderer.domElement;
-    const width = dom_elt.clientWidth;
-    const height = dom_elt.clientHeight;
-
-    if (this.renderer.width !== width || this.renderer.height !== height) {
-      this.renderer.setSize(width, height, false);
-      // TODO: may need to re-adjust the camera here
-    }
   }
 
   toggleVisibility(namesToVisibility) {
