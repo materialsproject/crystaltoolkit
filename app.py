@@ -66,9 +66,10 @@ except Exception as exception:
 MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
-struct_component = mpc.StructureMoleculeComponent()
-search = mpc.SearchComponent()
-editor = mpc.JSONComponent()
+struct = MPRester().get_structure_by_material_id("mp-123")
+struct_component = mpc.StructureMoleculeComponent(struct)
+search_component = mpc.SearchComponent()
+editor_component = mpc.JSONComponent()
 
 
 # endregion
@@ -104,27 +105,42 @@ app.layout = Container(
     [
         dcc.Location(id="url"),
         MPComponent.all_app_stores(),
-        Section([html.H1("Crystal Toolkit", className="title is-1")]),
         Section(
             [
-                html.Div(
-                    struct_component.all_layouts["struct"],
-                    style={
-                        "width": "65vmin",
-                        "height": "65vmin",
-                        "min-width": "200px",
-                        "min-height": "200px",
-                        "overflow": "hidden",
-                        "padding": "0.25rem",
-                    },
-                    className="box",
+                Columns([Column(mpc.H1("Crystal Toolkit"))]),
+                Columns(
+                    [
+                        Column(
+                            [
+                                html.Div(
+                                    struct_component.struct_layout,
+                                    style={
+                                        "width": "65vmin",
+                                        "height": "65vmin",
+                                        "min-width": "200px",
+                                        "min-height": "200px",
+                                        "overflow": "hidden",
+                                        "padding": "0.25rem",
+                                    },
+                                    className="box",
+                                ),
+                                html.Div(struct_component.screenshot_layout),
+                            ]
+                        ),
+                        Column(
+                            [
+                                Reveal(
+                                    [search_component.standard_layout],
+                                    summary_title="Load Structure or Molecule",
+                                ),
+                                Reveal(summary_title="Display Options"),
+                            ]
+                        ),
+                    ]
                 ),
-                html.Div(struct_component.all_layouts["screenshot"]),
-                search.standard_layout,
             ]
         ),
-        # Section(html.Details([html.Summary(html.A("Click here", className="button")), html.Div("Test!", className="box")]))
-        footer,
+        Section(footer),
     ]
 )
 
@@ -134,6 +150,7 @@ app.layout = Container(
 ################################################################################
 # region SET UP API ROUTES (to support creating viewer links)
 ################################################################################
+
 
 @server.route("/version", methods=["GET"])
 def get_version():
@@ -186,6 +203,7 @@ def mson_to_token(mson, cache):
 
 def token_to_mson(token, cache):
     return cache.get(token)
+
 
 # endregion
 
