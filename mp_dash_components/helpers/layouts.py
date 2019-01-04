@@ -174,3 +174,17 @@ class Textarea(html.Textarea):
     def __init__(self, *args, **kwargs):
         kwargs["className"] = "textarea"
         super().__init__(*args, **kwargs)
+
+
+class Reveal(html.Details):
+    def __init__(self, summary_title=None, children=None, id=None, **kwargs):
+        if children is None:
+            children = ["Loading..."]
+        super().__init__(
+            [
+                html.Summary(H4(summary_title, style={"display": "inline-block"})),
+                html.Div(children, id=f"{id}_contents"),
+            ],
+            id=id,
+            **kwargs,
+        )
