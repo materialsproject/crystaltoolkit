@@ -154,16 +154,18 @@ class MPComponent(ABC):
         def update_store(modified_timestamp, data):
             return data
 
-    #def __getattr__(self, item):
-    #    if item in self.supported_stores:
-    #        return self.id(item)
-    #    elif (
-    #        item.endswith("layout")
-    #        and item.split("_layout")[0] in self.supported_layouts
-    #    ):
-    #        return self.all_layouts[item.split("_layout")[0]]
-    #    else:
-    #        raise AttributeError
+    def __getattr__(self, item):
+        if item == "supported_stores":
+            raise AttributeError  # prevent infinite recursion
+        if item in self.supported_stores:
+            return self.id(item)
+        elif (
+            item.endswith("layout")
+            and item.split("_layout")[0] in self.supported_layouts
+        ):
+            return self.all_layouts[item.split("_layout")[0]]
+        else:
+            raise AttributeError
 
     @property
     def supported_stores(self):
@@ -226,42 +228,3 @@ class MPComponent(ABC):
         times, but it's important the callbacks are defined on the server.
         """
         raise NotImplementedError
-
-
-# class StoreMixer(MPComponent):
-#
-#    def __init__(self, list_of_input_components):
-#
-#        ...
-#
-#
-# class ToolkitPanel(MPComponent):
-#
-#    @property
-#    def title(self):
-#        ...
-#
-#    @property
-#    def label(self):
-#        ...
-#
-#    @property
-#    def help(self):
-#        ...
-#
-#    @property
-#    def content_component(self):
-#        ...?
-#
-#    def layouts(self):
-#        return {
-#            ...
-#        }
-#
-#    def all_layouts(self):
-#        return html.Div([
-#            html.H2(self.title),
-#            ...,
-#            html.Div(id='contents', children='Loading...')
-#        ])
-#
