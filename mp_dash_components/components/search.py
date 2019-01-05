@@ -20,6 +20,7 @@ import numpy as np
 
 from collections import defaultdict
 from itertools import chain
+from random import choice
 
 
 class SearchComponent(MPComponent):
@@ -95,6 +96,20 @@ class SearchComponent(MPComponent):
         self.tag_cache = tag_cache
         self.tag_cache_keys = list(tag_cache.keys())
 
+    def _get_mpid_cache(self):
+
+        path = os.path.join(os.path.dirname(module_path), "mpid_cache.json")
+
+        if os.path.isfile(path):
+            mpid_cache = loadfn(path)
+        else:
+            with MPRester() as mpr:
+                entries = mpr.query({}, ["task_id"], chunk_size=0, mp_decode=False)
+            mpid_cache = [entry["task_id"] for entry in entries]
+            dumpfn(mpid_cache, path)
+
+        self.mpid_cache = mpid_cache
+
     @MPComponent.cache.memoize(timeout=0)
     def search_tags(self, search_term):
 
@@ -138,12 +153,18 @@ class SearchComponent(MPComponent):
             style={"margin-bottom": "0"},
         )
 
-        random_link = dcc.Link("or load random material", className="is-size-7")
-
-        dropdown = dcc.Dropdown(
-            id=self.id("dropdown"), clearable=False
+        random_link = html.Button(
+            "or load random material",
+            className="is-text is-size-7",
+            id=self.id("random"),
         )
-        dropdown = html.Div([html.Label('Multiple results found, please select one:'), dropdown], id="dropdown-container", style={"display": "none"})
+
+        dropdown = dcc.Dropdown(id=self.id("dropdown"), clearable=False)
+        dropdown = html.Div(
+            [html.Label("Multiple results found, please select one:"), dropdown],
+            id="dropdown-container",
+            style={"display": "none"},
+        )
 
         warning = Message(
             size="small", style={"display": "none"}, id=self.id("warning")
@@ -164,15 +185,31 @@ class SearchComponent(MPComponent):
     def _generate_callbacks(self, app):
 
         self._get_tag_cache()
+        self._get_mpid_cache()
 
         @app.callback(
             Output(self.id("results"), "data"),
-            [Input(self.id("input"), "n_submit"), Input(self.id("button"), "n_clicks")],
+            [
+                Input(self.id("input"), "n_submit_timestamp"),
+                Input(self.id("button"), "n_clicks_timestamp"),
+                Input(self.id("random"), "n_clicks_timestamp"),
+            ],
             [State(self.id("input"), "value")],
         )
-        def update_results(n_submit, n_clicks, search_term):
+        def update_results(n_submit, n_clicks, random_n_clicks, search_term):
 
-            if (n_submit is None) and (n_clicks is None):
+            # figure out who's asking ... may be able to change this with later version of Dash
+            if (
+                random_n_clicks
+                and (not n_submit or random_n_clicks > n_submit)
+                and (not n_clicks or random_n_clicks > n_clicks)
+            ):
+                search_term = choice(self.mpid_cache)
+
+            if (n_submit is None) and (n_clicks is None) and (random_n_clicks is None):
+                raise PreventUpdate
+
+            if search_term is None:
                 raise PreventUpdate
 
             self.logger.info(f"Search: {search_term}")
@@ -257,7 +294,8 @@ class SearchComponent(MPComponent):
             return list(results.keys())[0]
 
         @app.callback(
-            Output(self.id("dropdown-container"), "style"), [Input(self.id("results"), "data")]
+            Output(self.id("dropdown-container"), "style"),
+            [Input(self.id("results"), "data")],
         )
         def hide_show_dropdown(results):
             if len(results) <= 1:
@@ -269,7 +307,7 @@ class SearchComponent(MPComponent):
             Output(self.id("warning"), "style"), [Input(self.id("results"), "data")]
         )
         def hide_show_warning(results):
-            if "error" in results: # TODO: not necessary, just have div container!
+            if "error" in results:  # TODO: not necessary, just have div container!
                 return {}
             else:
                 return {"display": "none"}
@@ -287,7 +325,7 @@ class SearchComponent(MPComponent):
         @app.callback(
             Output(self.id("api_hint"), "children"), [Input(self.id(), "data")]
         )
-        def update_dropdown_value(data):
+        def update_api_hint(data):
             if data is None or "mpid" not in data:
                 raise PreventUpdate
             md = f"""You can retrieve this structure using the Materials Project API:
@@ -304,4 +342,10 @@ To get an API key and find out more visit [materialsproject.org](https://materia
 """
 
             # TODO: figure out message header
-            return html.Div([Icon(kind="code"), H6("Retrieve with code", style={"display": "inline-block"}), dcc.Markdown(md)])
+            return html.Div(
+                [
+                    Icon(kind="code"),
+                    H6("Retrieve with code", style={"display": "inline-block"}),
+                    dcc.Markdown(md),
+                ]
+            )
