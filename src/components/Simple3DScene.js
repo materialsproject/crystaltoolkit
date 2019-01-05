@@ -89,6 +89,8 @@ export default class Simple3DScene {
       this.renderer.domElement
     );
     controls.enableKeys = false;
+    controls.minZoom = 1;
+    controls.maxZoom = 250;
 
     // initial render
     function render() {
