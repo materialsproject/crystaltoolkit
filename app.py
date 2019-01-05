@@ -20,6 +20,7 @@ from pymatgen import __version__ as pmg_version
 
 from json import loads
 from uuid import uuid4
+from urllib import parse
 
 
 ################################################################################
@@ -66,7 +67,9 @@ except Exception as exception:
 MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
-struct = MPRester().get_structure_by_material_id("mp-123")
+struct = MPRester().get_structure_by_material_id("mp-5020")#("mp-123")
+print(struct)
+struct = struct.get_reduced_structure()
 struct_component = mpc.StructureMoleculeComponent(struct)
 search_component = mpc.SearchComponent()
 editor_component = mpc.JSONComponent()
@@ -85,7 +88,7 @@ footer = mpc.Footer(
             f"In beta. Bug reports and feature requests gratefully accepted, "
             f"contact [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
             f"Created by [Crystal Toolkit Development Team]"
-            f"(https://github.com/materialsproject/mash/graphs/contributors), "
+            f"(https://github.com/materialsproject/mash/), "
             f"powered by [The Materials Project](https://materialsproject.org) "
             f"and [pymatgen](http://pymatgen.org) v{pmg_version}."
         ),
@@ -103,48 +106,67 @@ footer = mpc.Footer(
 
 app.layout = Container(
     [
-        dcc.Location(id="url"),
+        dcc.Location(id="url", refresh=False),
         MPComponent.all_app_stores(),
         Section(
             [
-                Columns([Column(mpc.H1("Crystal Toolkit"))]),
+                Columns([Column([
+                    struct_component.title_layout]
+                    #mpc.H1("Crystal Toolkit", id="main_title")]
+                )]),
                 Columns(
                     [
                         Column(
                             [
+                                # TODO: test responsiveness of layout on phone
                                 Box(
-                                    struct_component.struct_layout,
+
+                                        struct_component.struct_layout,
                                     style={
                                         "width": "65vmin",
                                         "height": "65vmin",
-                                        "min-width": "200px",
-                                        "min-height": "200px",
+                                        "min-width": "300px",
+                                        "min-height": "300px",
                                         "overflow": "hidden",
                                         "padding": "0.25rem",
-                                        "margin-bottom": "0.5rem"
-                                    }
+                                        "margin-bottom": "0.5rem",
+                                    },
                                 ),
-                                html.Div(struct_component.screenshot_layout),
-                            ]
+                                html.Div(
+                                    [html.Div(struct_component.legend_layout, style={"float": "left"}),
+                                     html.Div(
+                                        struct_component.screenshot_layout,
+                                        style={"float": "right"}
+                                    )],
+                                    style={"width": "65vmin", "min-width": "300px"},
+                                ),
+                            ],
+                            narrow=True,
                         ),
                         Column(
                             [
+                                # search_component.standard_layout,
                                 Reveal(
                                     [search_component.standard_layout],
                                     summary_title="Load Crystal or Molecule",
+                                    open=True,
+                                    style={"line-height": "1"},
                                 ),
                                 Reveal(summary_title="Display Options"),
-                            ]
+                            ], style={"max-width": "65vmin"},
                         ),
-                    ]
+                    ], desktop_only=True
                 ),
                 Columns(
                     [
                         Column(
                             [
                                 Reveal(summary_title="Summary"),
+                                Reveal(summary_title="Literature Mentions"),
                                 Reveal(summary_title="Magnetic Properties"),
                                 Reveal(summary_title="Bonding and Local Environments"),
+                                Reveal(summary_title="Transform Crystal"),
+                                Reveal(summary_title="JSON Editor"),
                             ]
                         )
                     ]
@@ -178,7 +200,6 @@ def get_version():
 
 @server.route("/generate_token", methods=["POST"])
 def get_token():
-    print(str(request.json))
     token = mson_to_token(request.json, cache)
     if token["error"] is None:
         return make_response(jsonify(token), 200)
@@ -222,6 +243,41 @@ def token_to_mson(token, cache):
 ################################################################################
 # region SET UP CALLBACKS
 ################################################################################
+
+
+@app.callback(
+    Output(search_component.id("input"), "value"),
+    [Input("url", "href")]
+)
+def update_search_term_on_page_load(href):
+    if href is None:
+        raise PreventUpdate
+    pathname = str(parse.urlparse(href).path).split('/')
+    if len(pathname) == 0:
+        raise PreventUpdate
+    else:
+        return pathname[1]
+
+
+@app.callback(
+    Output(search_component.id("input"), "n_submit"),
+    [Input(search_component.id("input"), "value")],
+    [State(search_component.id("input"), "n_submit")]
+)
+def perform_search_on_page_load(search_term, n_submit):
+    if n_submit is None:
+        return 1
+    else:
+        raise PreventUpdate
+
+@app.callback(
+    Output("url", "pathname"),
+    [Input(search_component.id(), "data")]
+)
+def update_url_pathname_from_search_term(data):
+    if data is None or "mpid" not in data:
+        raise PreventUpdate
+    return data["mpid"]
 
 
 # endregion
