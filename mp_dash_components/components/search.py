@@ -167,17 +167,24 @@ class SearchComponent(MPComponent):
             style={"display": "none"},
         )
 
-        warning = html.Div(
-            style={"display": "none"}, id=self.id("warning")
+        warning = html.Div(style={"display": "none"}, id=self.id("warning"))
+
+        api_hint = MessageContainer(
+            [
+                MessageHeader(html.Div([Icon(kind="code"), "Retrieve with code"])),
+                MessageBody(id=self.id("api_hint")),
+            ],
+            id=self.id("api_hint_container"),
+            kind="info",
+            size="small",
+            style={"display": "none"},
         )
-
-        user_api_hint = MessageContainer(MessageBody(id=self.id("api_hint")), kind="info", size="small")
-
+        # TODO: add wrapper around input, just re-gen completely when random_link pressed?
         search = html.Div([search, random_link], style={"margin-bottom": "0.75rem"})
 
-        search = html.Div([search, warning, dropdown, user_api_hint])
+        search = html.Div([search, warning, dropdown])
 
-        return {"search": search}
+        return {"search": search, "api_hint": api_hint}
 
     @property
     def standard_layout(self):
@@ -313,10 +320,18 @@ class SearchComponent(MPComponent):
             else:
                 return html.Div()
 
-
         @app.callback(Output(self.id(), "data"), [Input(self.id("dropdown"), "value")])
         def update_store_from_value(value):
             return {"time_requested": self.get_time(), "mpid": value}
+
+        @app.callback(
+            Output(self.id("api_hint_container"), "style"), [Input(self.id(), "data")]
+        )
+        def hide_show_dropdown(data):
+            if data is None or "mpid" not in data:
+                return {"display": "none"}
+            else:
+                return {}
 
         @app.callback(
             Output(self.id("api_hint"), "children"), [Input(self.id(), "data")]
@@ -337,11 +352,4 @@ with MPRester() as mpr:
 To get an API key and find out more visit [materialsproject.org](https://materialsproject.org/open).
 """
 
-            # TODO: figure out message header
-            return html.Div(
-                [
-                    Icon(kind="code"),
-                    H6("Retrieve with code", style={"display": "inline-block"}),
-                    dcc.Markdown(md),
-                ]
-            )
+            return dcc.Markdown(md)

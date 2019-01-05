@@ -173,6 +173,7 @@ app.layout = Container(
                 ),
             ]
         ),
+        Section(search_component.api_hint_layout),
         Section(footer),
     ]
 )
