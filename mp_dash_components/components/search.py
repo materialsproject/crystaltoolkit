@@ -13,7 +13,7 @@ from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify, latexify_spacegroup
 
 from mp_dash_components.components.core import MPComponent
-from mp_dash_components.helpers.layouts import Button, Icon, Message, H6
+from mp_dash_components.helpers.layouts import *
 from mp_dash_components import __file__ as module_path
 
 import numpy as np
@@ -115,6 +115,7 @@ class SearchComponent(MPComponent):
 
         self.logger.info(f"Tag search: {search_term}")
 
+        # TODO: this is slow, replace with something more sensible
         fuzzy_search_results = process.extract(
             search_term, self.tag_cache_keys, limit=5
         )
@@ -166,11 +167,11 @@ class SearchComponent(MPComponent):
             style={"display": "none"},
         )
 
-        warning = Message(
-            size="small", style={"display": "none"}, id=self.id("warning")
+        warning = html.Div(
+            style={"display": "none"}, id=self.id("warning")
         )
 
-        user_api_hint = Message(kind="info", size="small", id=self.id("api_hint"))
+        user_api_hint = MessageContainer(MessageBody(id=self.id("api_hint")), kind="info", size="small")
 
         search = html.Div([search, random_link], style={"margin-bottom": "0.75rem"})
 
@@ -304,19 +305,14 @@ class SearchComponent(MPComponent):
                 return {}
 
         @app.callback(
-            Output(self.id("warning"), "style"), [Input(self.id("results"), "data")]
-        )
-        def hide_show_warning(results):
-            if "error" in results:  # TODO: not necessary, just have div container!
-                return {}
-            else:
-                return {"display": "none"}
-
-        @app.callback(
             Output(self.id("warning"), "children"), [Input(self.id("results"), "data")]
         )
         def hide_show_warning(results):
-            return results.get("error", "")
+            if "error" in results:
+                return MessageContainer(MessageBody(results["error"]))
+            else:
+                return html.Div()
+
 
         @app.callback(Output(self.id(), "data"), [Input(self.id("dropdown"), "value")])
         def update_store_from_value(value):
