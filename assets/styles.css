@@ -6,6 +6,20 @@ body, html, .body {
 ._dash-undo-redo {
   display: none; }
 
+summary {
+  outline: none;
+  cursor: pointer; }
+
+details[open] summary ~ * {
+  animation: sweep .2s ease-in-out; }
+
+@keyframes sweep {
+  0% {
+    opacity: 0;
+    margin-top: 0; }
+  100% {
+    opacity: 1;
+    margin-top: 0.5rem; } }
 /*! bulma.io v0.7.2 | MIT License | github.com/jgthms/bulma */
 @keyframes spinAround {
   from {
