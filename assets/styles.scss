@@ -8,6 +8,7 @@ $family-primary: "IBM Plex Sans", BlinkMacSystemFont, -apple-system, "Segoe UI",
 "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 
 $background: hsl(216, 27%, 24%);
+//$primary: #52afb9;
 
 body, html, .body {
   background: #f3f3f3 !important;
@@ -29,6 +30,15 @@ details[open] summary ~ * {
 @keyframes sweep {
   0%    {opacity: 0; margin-top: 0;}
   100%  {opacity: 1; margin-top: 0.5rem;}
+}
+
+details .input,
+details .button{
+  padding-bottom: 0;
+  padding-top: 0;
+}
+details .input{
+  max-width: 91%;
 }
 
 @import "../node_modules/bulma/bulma.sass";

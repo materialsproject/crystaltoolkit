@@ -20,6 +20,14 @@ details[open] summary ~ * {
   100% {
     opacity: 1;
     margin-top: 0.5rem; } }
+details .input,
+details .button {
+  padding-bottom: 0;
+  padding-top: 0; }
+
+details .input {
+  max-width: 91%; }
+
 /*! bulma.io v0.7.2 | MIT License | github.com/jgthms/bulma */
 @keyframes spinAround {
   from {
