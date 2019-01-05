@@ -19,6 +19,7 @@ from time import mktime
 class DummyCache:
     @staticmethod
     def memoize(*args, **kwargs):
+        warn("Caching has not been set up, app performance may be degraded.")
         return lambda x: x
 
 
@@ -39,6 +40,7 @@ class MPComponent(ABC):
     @staticmethod
     def register_cache(cache):
         MPComponent.cache = cache
+        # TODO: ensure cache only in generate_callbacks, add arg, test...
 
     @staticmethod
     def all_app_stores():
@@ -90,7 +92,7 @@ class MPComponent(ABC):
             self._canonical_store_id = origin_component._store_id
 
         if MPComponent.app:
-            self._generate_callbacks(MPComponent.app)
+            self._generate_callbacks(MPComponent.app, MPComponent.cache)
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -224,7 +226,7 @@ class MPComponent(ABC):
         return html.Div(list(self.all_layouts.values()))
 
     @abstractmethod
-    def _generate_callbacks(self, app):
+    def _generate_callbacks(self, app, cache):
         """
         Generate all callbacks associated with the layouts in this app. Assume
         that "suppress_callback_exceptions" is True, since it is not always
