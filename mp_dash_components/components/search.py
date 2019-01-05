@@ -131,13 +131,13 @@ class SearchComponent(MPComponent):
 
         return list(chain.from_iterable(entries)), tags
 
-    @property
-    def all_layouts(self):
+    def _make_search_box(self, search_term=None):
 
         search_field = dcc.Input(
             id=self.id("input"),
             className="input",
             type="text",
+            value=search_term,
             placeholder="Enter a formula or mp-id…",
         )
         search_button = Button(
@@ -154,8 +154,16 @@ class SearchComponent(MPComponent):
             style={"margin-bottom": "0"},
         )
 
-        random_link = html.Button(
-            "or load random material",
+        return search
+
+
+    @property
+    def all_layouts(self):
+
+        search = html.Div(self._make_search_box(), id=self.id("search_container"))
+
+        random_link = html.A(
+            "or load random mp-id",
             className="is-text is-size-7",
             id=self.id("random"),
         )
@@ -179,7 +187,7 @@ class SearchComponent(MPComponent):
             size="small",
             style={"display": "none"},
         )
-        # TODO: add wrapper around input, just re-gen completely when random_link pressed?
+
         search = html.Div([search, random_link], style={"margin-bottom": "0.75rem"})
 
         search = html.Div([search, warning, dropdown])
@@ -200,22 +208,23 @@ class SearchComponent(MPComponent):
             [
                 Input(self.id("input"), "n_submit_timestamp"),
                 Input(self.id("button"), "n_clicks_timestamp"),
-                Input(self.id("random"), "n_clicks_timestamp"),
+                #Input(self.id("random"), "n_clicks_timestamp"),
             ],
             [State(self.id("input"), "value")],
         )
-        def update_results(n_submit, n_clicks, random_n_clicks, search_term):
+        def update_results(n_submit, n_clicks, search_term):
 
+            # TODO: we may want to automatically submit form when random button is pressed
             # figure out who's asking ... may be able to change this with later version of Dash
-            if (
-                random_n_clicks
-                and (not n_submit or random_n_clicks > n_submit)
-                and (not n_clicks or random_n_clicks > n_clicks)
-            ):
-                search_term = choice(self.mpid_cache)
+            #if (
+            #    random_n_clicks
+            #    and (not n_submit or random_n_clicks > n_submit)
+            #    and (not n_clicks or random_n_clicks > n_clicks)
+            #):
+            #    return {choice(self.mpid_cache): "Randomly selected mp-id."}
 
-            if (n_submit is None) and (n_clicks is None) and (random_n_clicks is None):
-                raise PreventUpdate
+            #if (n_submit is None) and (n_clicks is None) and (random_n_clicks is None):
+            #    raise PreventUpdate
 
             if search_term is None:
                 raise PreventUpdate
@@ -314,11 +323,20 @@ class SearchComponent(MPComponent):
         @app.callback(
             Output(self.id("warning"), "children"), [Input(self.id("results"), "data")]
         )
-        def hide_show_warning(results):
+        def show_warning(results):
             if "error" in results:
                 return MessageContainer(MessageBody(results["error"]))
             else:
                 return html.Div()
+
+        @app.callback(
+            Output(self.id("search_container"), "children"),
+            [Input(self.id("random"), "n_clicks")]
+        )
+        def update_displayed_mpid(random_n_clicks):
+            # TODO: this is a really awkward solution to a complex callback chain, improve in future?
+            # TODO: THIS IS BROKEN, WILL SELECT DIFFERENT RANDOM CHOICE (!)
+            return self._make_search_box(search_term=choice(self.mpid_cache))
 
         @app.callback(Output(self.id(), "data"), [Input(self.id("dropdown"), "value")])
         def update_store_from_value(value):

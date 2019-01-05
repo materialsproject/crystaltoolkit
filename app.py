@@ -68,7 +68,6 @@ MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
 struct = MPRester().get_structure_by_material_id("mp-5020")#("mp-123")
-print(struct)
 struct = struct.get_reduced_structure()
 struct_component = mpc.StructureMoleculeComponent(struct)
 search_component = mpc.SearchComponent()
