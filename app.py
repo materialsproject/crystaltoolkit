@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table as dt
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -67,7 +68,7 @@ except Exception as exception:
 MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
-struct = MPRester().get_structure_by_material_id("mp-5020")#("mp-123")
+struct = MPRester().get_structure_by_material_id("mp-5020")  # ("mp-123")
 struct = struct.get_reduced_structure()
 struct_component = mpc.StructureMoleculeComponent(struct)
 search_component = mpc.SearchComponent()
@@ -96,6 +97,26 @@ footer = mpc.Footer(
     style={"padding": "1rem 1rem 1rem", "background-color": "inherit"},
 )
 
+
+favorite_button = Button(
+    [Icon(kind="heart", fill="r"), html.Span("Favorite")],
+    style={"margin-left": "0.2rem"},
+    kind="outlined",
+)
+favorited_button = Button(
+    [Icon(kind="heart", fill="s"), html.Span("Favorited")],
+    style={"margin-left": "0.2rem"},
+    kind="danger",
+)
+# TODO: add tooltip
+favorite_button_container = html.Div(
+    [
+        dcc.Store(id="favorite-store"),
+        html.Div([favorite_button], id="favorite-button-containier"),
+    ]
+)
+
+
 # endregion
 
 
@@ -109,18 +130,21 @@ app.layout = Container(
         MPComponent.all_app_stores(),
         Section(
             [
-                Columns([Column([
-                    struct_component.title_layout]
-                    #mpc.H1("Crystal Toolkit", id="main_title")]
-                )]),
+                Columns(
+                    [
+                        Column(
+                            [struct_component.title_layout]
+                            # mpc.H1("Crystal Toolkit", id="main_title")]
+                        )
+                    ]
+                ),
                 Columns(
                     [
                         Column(
                             [
                                 # TODO: test responsiveness of layout on phone
                                 Box(
-
-                                        struct_component.struct_layout,
+                                    struct_component.struct_layout,
                                     style={
                                         "width": "65vmin",
                                         "height": "65vmin",
@@ -132,11 +156,19 @@ app.layout = Container(
                                     },
                                 ),
                                 html.Div(
-                                    [html.Div(struct_component.legend_layout, style={"float": "left"}),
-                                     html.Div(
-                                        struct_component.screenshot_layout,
-                                        style={"float": "right"}
-                                    )],
+                                    [
+                                        html.Div(
+                                            struct_component.legend_layout,
+                                            style={"float": "left"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                struct_component.screenshot_layout,
+                                                favorite_button_container
+                                            ],
+                                            style={"float": "right"},
+                                        ),
+                                    ],
                                     style={"width": "65vmin", "min-width": "300px"},
                                 ),
                             ],
@@ -152,16 +184,30 @@ app.layout = Container(
                                     style={"line-height": "1"},
                                 ),
                                 Reveal(summary_title="Display Options"),
-                            ], style={"max-width": "65vmin"},
+                                Reveal(
+                                    [
+                                        Label("Thermodynamic Stability"),
+                                        html.Div(
+                                            ["1.25 eV/Atom ", html.A("above hull")]
+                                        ),
+                                    ],
+                                    summary_title="Summary",
+                                ),
+                            ],
+                            style={"max-width": "65vmin"},
                         ),
-                    ], desktop_only=True
+                    ],
+                    desktop_only=True,
+                    centered=True,
                 ),
                 Columns(
                     [
                         Column(
                             [
-                                Reveal(summary_title="Summary"),
-                                Reveal(summary_title="Literature Mentions"),
+                                Reveal(
+                                    [dt.DataTable(columns=[{"name": "Test"}])],
+                                    summary_title="Literature Mentions",
+                                ),
                                 Reveal(summary_title="Magnetic Properties"),
                                 Reveal(summary_title="Bonding and Local Environments"),
                                 Reveal(summary_title="Transform Crystal"),
@@ -245,14 +291,11 @@ def token_to_mson(token, cache):
 ################################################################################
 
 
-@app.callback(
-    Output(search_component.id("input"), "value"),
-    [Input("url", "href")]
-)
+@app.callback(Output(search_component.id("input"), "value"), [Input("url", "href")])
 def update_search_term_on_page_load(href):
     if href is None:
         raise PreventUpdate
-    pathname = str(parse.urlparse(href).path).split('/')
+    pathname = str(parse.urlparse(href).path).split("/")
     if len(pathname) == 0:
         raise PreventUpdate
     else:
@@ -262,7 +305,7 @@ def update_search_term_on_page_load(href):
 @app.callback(
     Output(search_component.id("input"), "n_submit"),
     [Input(search_component.id("input"), "value")],
-    [State(search_component.id("input"), "n_submit")]
+    [State(search_component.id("input"), "n_submit")],
 )
 def perform_search_on_page_load(search_term, n_submit):
     if n_submit is None:
@@ -270,10 +313,8 @@ def perform_search_on_page_load(search_term, n_submit):
     else:
         raise PreventUpdate
 
-@app.callback(
-    Output("url", "pathname"),
-    [Input(search_component.id(), "data")]
-)
+
+@app.callback(Output("url", "pathname"), [Input(search_component.id(), "data")])
 def update_url_pathname_from_search_term(data):
     if data is None or "mpid" not in data:
         raise PreventUpdate
