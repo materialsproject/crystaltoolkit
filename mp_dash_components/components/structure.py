@@ -13,6 +13,7 @@ from mp_dash_components.helpers.layouts import *
 
 from matplotlib.cm import get_cmap
 
+from pymatgen.core.composition import Composition
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen.analysis.local_env import NearNeighbors
@@ -71,20 +72,18 @@ class StructureMoleculeComponent(MPComponent):
         struct_or_mol=None,
         id=None,
         origin_component=None,
-        scene_additions=None, # TODO add (add store also)
+        scene_additions=None,  # TODO add (add store also)
         bonding_strategy="JmolNN",
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
         color_scale=None,
         radius_strategy="uniform",
         draw_image_atoms=True,
-        bonded_sites_outside_unit_cell=True,
+        bonded_sites_outside_unit_cell=False,
     ):
 
         super().__init__(
-            id=id,
-            contents=struct_or_mol,
-            origin_component=origin_component
+            id=id, contents=struct_or_mol, origin_component=origin_component
         )
 
         options = {
@@ -137,12 +136,12 @@ class StructureMoleculeComponent(MPComponent):
                 struct_or_mol, name=self.id(), **options
             )
 
+        self.initial_legend = legend
         self.initial_scene_data = scene.to_json()
         # self.graph_store = dcc.Store(id=f"{id}_scene", data=graph)
         self.legend_store = dcc.Store(id=f"{id}_legend")
 
     def _generate_callbacks(self, app):
-
         @MPComponent.app.callback(
             Output(self.id("scene"), "downloadRequest"),
             [Input(self.id("screenshot_button"), "n_clicks")],
@@ -158,7 +157,7 @@ class StructureMoleculeComponent(MPComponent):
                 spgrp = struct_or_mol.get_space_group_info()[0]
             else:
                 spgrp = ""
-            request_filename = "{}_{}_crystal_toolkit.png".format(formula, spgrp)
+            request_filename = "{}-{}-crystal-toolkit.png".format(formula, spgrp)
             if not current_requests:
                 n_requests = 1
             else:
@@ -169,12 +168,44 @@ class StructureMoleculeComponent(MPComponent):
                 "filetype": "png",
             }
 
-        # def download_callback():
-        #    ...
+    def _make_legend(self, legend):
 
-    #
-    # def options_store_callback():
-    #    ...
+        if legend is None or (not legend.get("colors", None)):
+            return html.Div(id=self.id("legend"))
+
+        def get_font_color(hex_code):
+            # ensures contrasting font color for background color
+            c = tuple(int(hex_code[1:][i : i + 2], 16) for i in (0, 2, 4))
+            if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5:
+                font_color = "#000000"
+            else:
+                font_color = "#ffffff"
+            return font_color
+
+        legend_elements = [
+            Button(
+                html.Span(
+                    name, className="icon", style={"color": get_font_color(color)}
+                ),
+                kind="static",
+                style={"background-color": color},
+            )
+            for color, name in legend["colors"].items()
+        ]
+
+        return html.Div(
+            [html.Span(el, style={"margin-right": "0.2rem"}) for el in legend_elements],
+            id=self.id("legend"),
+        )
+
+    def _make_title(self, legend):
+
+        if legend is None or (not legend.get("composition", None)):
+            return html.Div(id=self.id("title"))
+
+        composition = Composition.from_dict(legend["composition"])
+
+        return html.H1(composition.reduced_formula, id=self.id("title"))
 
     @property
     def all_layouts(self):
@@ -193,15 +224,11 @@ class StructureMoleculeComponent(MPComponent):
             },
         )
 
-        download_button = html.Div(
+        screenshot_layout = html.Div(
             [
                 Button(
-                    [
-                        Icon(html.I(className="fas fa-download")),
-                        html.Span(),
-                        "Download Screenshot",
-                    ],
-                    button_kind="primary",
+                    [Icon(), html.Span(), "Download Screenshot"],
+                    kind="primary",
                     id=self.id("screenshot_button"),
                 )
             ],
@@ -209,57 +236,19 @@ class StructureMoleculeComponent(MPComponent):
             style={"vertical-align": "top", "display": "inline-block"},
         )
 
-        download_dropdown = html.Div(
-            [
-                html.Label("Download format: "),
-                dcc.Dropdown(
-                    options=[
-                        {"value": "png", "label": "Screenshot"},
-                        {"value": "pymatgen", "label": "pymatgen (.json)"},
-                        {
-                            "value": "cif_symmetrized",
-                            "label": "CIF, symmetrized (.cif)",
-                        },
-                        {"value": "cif_p1", "label": "CIF, P1 setting (.cif)"},
-                        # {"value": "annotation", "label": "Electronic structure formats", "disabled": True},
-                        # {"value": "poscar", "label": "VASP POSCAR"},
-                        # {"value": "cfg", "label": "AtomEye (.cfg)"},
-                        # {"value": "cell", "label": "CASTEP (.cell)"},
-                        # {"value": "cssr", "label": "CSSR"},
-                        # {"value": "xsf", "label": "XCrySDen (.xsf)"},
-                        # {"value": "xyz", "label": "XYZ Cartesian (.xyz)"}, # mol
-                        # {"value": "gaussian", "label": "Gaussian (.inp)"}, # mol
-                        # {"value": "pdb", "label": "Protein Data Bank (.pdb)"}, # mol
-                        # {"value": "mol", "label": "MDL (.mol)"}, # mol
-                        # {"value": "cml", "label": "Chemical Markup Language (.cml)"}, # mol
-                        # {"value": "sybyl", "label": "Sybyl Mol2 (.ml2)"} # mol
-                    ],
-                    value="png",
-                    clearable=False,
-                ),
-            ],
-            style={
-                "vertical-align": "bottom",
-                "max-width": "250px",
-                "width": "250px",
-                "display": "inline-block",
-                "margin-right": "10px",
-            },
-        )
+        title_layout = self._make_title(self.initial_legend)
 
-        screenshot_layout = html.Div([download_button])
-
-        formula_layout = html.H1("Test!")
+        legend_layout = self._make_legend(self.initial_legend)
 
         ## hide if molecule
-        #html.Div(id=self.id("preprocessing_choice"), children=[dcc.RadioItems(
+        # html.Div(id=self.id("preprocessing_choice"), children=[dcc.RadioItems(
         #    options=[
         #        {'label': 'Input', 'value': 'input'},
         #        {'label': 'Conventional', 'value': 'conventional'},
         #        {'label': 'Primitive', 'value': 'primitive'},
         #    ],
         #    value='conventional'
-        #)])
+        # )])
 
         # options = {
         #    "bonding_strategy": bonding_strategy,
@@ -283,14 +272,13 @@ class StructureMoleculeComponent(MPComponent):
         return {
             "struct": struct_layout,
             "screenshot": screenshot_layout,
-            "formula": formula_layout,
+            "title": title_layout,
+            "legend": legend_layout,
         }
 
-    # @property
-    # def all_layouts(self):
-    #    return html.Div(
-    #        [self.layouts["struct"]], style={"width": "100%", "height": "100%"}
-    #    )
+    @property
+    def standard_layout(self):
+        return self.all_layouts["struct"]
 
     @staticmethod
     def _preprocess_input_to_graph(
@@ -422,7 +410,7 @@ class StructureMoleculeComponent(MPComponent):
 
         # TODO: check to see if there is a bug here due to Composition being unordered(?)
 
-        legend = {}
+        legend = {"composition": struct_or_mol.composition.as_dict(), "colors": {}}
 
         # don't calculate color if one is explicitly supplied
         if "display_color" in struct_or_mol.site_properties:
@@ -467,7 +455,7 @@ class StructureMoleculeComponent(MPComponent):
                 # construct legend
                 for element in elements:
                     color = get_color_hex(EL_COLORS[color_scheme][element])
-                    legend[color] = element
+                    legend["colors"][color] = element
 
         elif color_scheme in site_prop_types.get("scalar", []):
 
@@ -491,10 +479,10 @@ class StructureMoleculeComponent(MPComponent):
             colors = [[get_color_hex(get_color_cmap(x))] for x in props]
             # construct legend
             c = get_color_hex(color_min)
-            legend[c] = "{}".format(get_color_cmap(color_min))
+            legend["colors"][c] = "{}".format(get_color_cmap(color_min))
             if color_max != color_min:
                 c = get_color_hex(get_color_cmap(color_max))
-                legend[c] = "{}".format(color_max)
+                legend["colors"][c] = "{}".format(color_max)
 
         elif color_scheme == "colorblind_friendly":
             raise NotImplementedError
@@ -768,7 +756,9 @@ class StructureMoleculeComponent(MPComponent):
             for idx, site in enumerate(struct_or_mol):
 
                 zero_elements = [
-                    idx for idx, f in enumerate(site.frac_coords) if np.allclose(f, 0)
+                    idx
+                    for idx, f in enumerate(site.frac_coords)
+                    if np.allclose(f, 0, atol=0.05)
                 ]
 
                 coord_permutations = [
@@ -782,8 +772,26 @@ class StructureMoleculeComponent(MPComponent):
                         (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
                     )
 
+                one_elements = [
+                    idx
+                    for idx, f in enumerate(site.frac_coords)
+                    if np.allclose(f, 1, atol=0.05)
+                ]
+
+                coord_permutations = [
+                    x
+                    for l in range(1, len(one_elements) + 1)
+                    for x in combinations(one_elements, l)
+                ]
+
+                for perm in coord_permutations:
+                    sites_to_draw.append(
+                        (idx, (-int(0 in perm), -int(1 in perm), -int(2 in perm)))
+                    )
+
         if bonded_sites_outside_unit_cell:
 
+            # TODO: subtle bug here, see mp-5020, expansion logic not quite right
             sites_to_append = []
             for (n, jimage) in sites_to_draw:
                 connected_sites = graph.get_connected_sites(n, jimage=jimage)
