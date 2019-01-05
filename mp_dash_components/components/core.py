@@ -1,6 +1,8 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
+import logging
+
 from abc import ABC, abstractmethod
 from json import loads, dumps
 from monty.json import MontyEncoder, MontyDecoder
@@ -11,8 +13,8 @@ from dash import Dash
 from dash.dependencies import Input, Output, State
 from flask_caching import Cache
 
-from typing import List
-
+from datetime import datetime
+from time import mktime
 
 class DummyCache:
     @staticmethod
@@ -89,6 +91,8 @@ class MPComponent(ABC):
 
         if MPComponent.app:
             self._generate_callbacks(MPComponent.app)
+
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def id(self, name=None):
         if name:
@@ -228,3 +232,10 @@ class MPComponent(ABC):
         times, but it's important the callbacks are defined on the server.
         """
         raise NotImplementedError
+
+    @staticmethod
+    def get_time() -> float:
+        """
+        :return: Current time as a float. Use with caution!
+        """
+        return mktime(datetime.now().timetuple())
