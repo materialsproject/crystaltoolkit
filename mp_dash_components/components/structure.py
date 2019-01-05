@@ -25,6 +25,7 @@ from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.vis.structure_vtk import EL_COLORS
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.string import unicodeify
 
 from typing import Dict, Union, Optional, List, Tuple
 
@@ -141,8 +142,9 @@ class StructureMoleculeComponent(MPComponent):
         # self.graph_store = dcc.Store(id=f"{id}_scene", data=graph)
         self.legend_store = dcc.Store(id=f"{id}_legend")
 
-    def _generate_callbacks(self, app):
-        @MPComponent.app.callback(
+    def _generate_callbacks(self, app, cache):
+
+        @app.callback(
             Output(self.id("scene"), "downloadRequest"),
             [Input(self.id("screenshot_button"), "n_clicks")],
             [State(self.id("scene"), "downloadRequest"), State(self.id(), "data")],
@@ -205,7 +207,7 @@ class StructureMoleculeComponent(MPComponent):
 
         composition = Composition.from_dict(legend["composition"])
 
-        return html.H1(composition.reduced_formula, id=self.id("title"))
+        return H1(unicodeify(composition.reduced_formula), id=self.id("title"))
 
     @property
     def all_layouts(self):

@@ -15,7 +15,7 @@ class JSONComponent(MPComponent):
             'json': dcc.SyntaxHighlighter(id=self.id("highlighted"))
         }
 
-    def _generate_callbacks(self, app):
+    def _generate_callbacks(self, app, cache):
 
         @app.callback(
             Output(self.id("highlighted"), "children"),
