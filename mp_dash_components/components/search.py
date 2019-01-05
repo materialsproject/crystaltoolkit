@@ -50,7 +50,7 @@ class SearchComponent(MPComponent):
         for number, unicode_number in subscript_unicode_map.items():
             symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
 
-        overline = u"\u0305"  # u"\u0304" (macron) is also an option
+        overline = "\u0305"  # u"\u0304" (macron) is also an option
 
         symbol = symbol.replace("$\\overline{", overline)
         symbol = symbol.replace("$", "")
@@ -102,6 +102,12 @@ class SearchComponent(MPComponent):
             search_term, self.tag_cache_keys, limit=5
         )
 
+        print(fuzzy_search_results)
+        score_cutoff = 80
+        fuzzy_search_results = [
+            result for result in fuzzy_search_results if result[1] >= score_cutoff
+        ]
+
         tags = [item[0] for item in fuzzy_search_results]
 
         entries = [self.tag_cache[tag] for tag in tags]
@@ -133,13 +139,17 @@ class SearchComponent(MPComponent):
 
         random_link = dcc.Link("or load random material", className="is-size-7")
 
-        dropdown = dcc.Dropdown(id=self.id("dropdown"), clearable=False, style={'display': 'none'})
+        dropdown = dcc.Dropdown(
+            id=self.id("dropdown"), clearable=False, style={"display": "none"}
+        )
 
-        error = Warning(style={"display": "none"})
+        warning = Warning(
+            size="small", style={"display": "none"}, id=self.id("warning")
+        )
 
         search = html.Div([search, random_link], style={"margin-bottom": "0.75rem"})
 
-        search = html.Div([search, error, dropdown])
+        search = html.Div([search, warning, dropdown])
 
         return {"search": search}
 
@@ -164,6 +174,12 @@ class SearchComponent(MPComponent):
             if search_term.startswith("mpr-") or search_term.startswith("mvc-"):
                 return search_term
 
+            # common confusables
+            if str(int(search_term)) == search_term:
+                search_term = f"mp-{search_term}"
+            if search_term.startswith("mp") and "-" not in search_term:
+                search_term = f"mp-{search_term.split('mp')[1]}"
+
             with MPRester() as mpr:
                 try:
                     entries = mpr.query(
@@ -179,20 +195,17 @@ class SearchComponent(MPComponent):
                     entries = []
 
             mpids, tags = None, None
-            if len(entries) == 0:
+            if len(entries) == 0 and not (
+                search_term.startswith("mp-") or search_term.startswith("mvc-")
+            ):
                 mpids, tags = self.search_tags(search_term)
                 entries = mpr.query(
                     {"task_id": {"$in": mpids}},
-                        [
-                            "task_id",
-                            "pretty_formula",
-                            "e_above_hull",
-                            "spacegroup.symbol",
-                        ],
-                    )
+                    ["task_id", "pretty_formula", "e_above_hull", "spacegroup.symbol"],
+                )
 
             if len(entries) == 0:
-                raise PreventUpdate
+                return {"error": f"No results found for {search_term}."}
 
             # sort by e_above_hull if a normal query, or by Levenshtein distance
             # if fuzzy matching (order of mpids list if present matches Levenshtein distance)
@@ -223,27 +236,43 @@ class SearchComponent(MPComponent):
         @app.callback(
             Output(self.id("dropdown"), "options"), [Input(self.id("results"), "data")]
         )
-        def update_dropdown_options(data):
-            return [{"value": mpid, "label": label} for mpid, label in data.items()]
+        def update_dropdown_options(results):
+            if "error" in results:
+                raise PreventUpdate
+            return [{"value": mpid, "label": label} for mpid, label in results.items()]
 
         @app.callback(
             Output(self.id("dropdown"), "value"), [Input(self.id("results"), "data")]
         )
-        def update_dropdown_value(data):
-            return list(data.keys())[0]
+        def update_dropdown_value(results):
+            if "error" in results:
+                raise PreventUpdate
+            return list(results.keys())[0]
 
         @app.callback(
             Output(self.id("dropdown"), "style"), [Input(self.id("results"), "data")]
         )
-        def hide_show_dropdown(data):
-            if len(data) <= 1:
+        def hide_show_dropdown(results):
+            if len(results) <= 1:
                 return {"display": "none"}
             else:
                 return {}
 
         @app.callback(
-            Output(self.id(), "data"),
-            [Input(self.id("dropdown"), "value")]
+            Output(self.id("warning"), "style"), [Input(self.id("results"), "data")]
         )
+        def hide_show_warning(results):
+            if "error" in results:
+                return {}
+            else:
+                return {"display": "none"}
+
+        @app.callback(
+            Output(self.id("warning"), "children"), [Input(self.id("results"), "data")]
+        )
+        def hide_show_warning(results):
+            return results.get("error", "")
+
+        @app.callback(Output(self.id(), "data"), [Input(self.id("dropdown"), "value")])
         def update_store_from_value(value):
-            return {'time_requested': self.get_time(), 'mpid': value}
+            return {"time_requested": self.get_time(), "mpid": value}
