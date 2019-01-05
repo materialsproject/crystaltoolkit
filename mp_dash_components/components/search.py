@@ -13,7 +13,7 @@ from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify, latexify_spacegroup
 
 from mp_dash_components.components.core import MPComponent
-from mp_dash_components.helpers.layouts import Button, Icon, Warning
+from mp_dash_components.helpers.layouts import Button, Icon, Message, H6
 from mp_dash_components import __file__ as module_path
 
 import numpy as np
@@ -98,11 +98,12 @@ class SearchComponent(MPComponent):
     @MPComponent.cache.memoize(timeout=0)
     def search_tags(self, search_term):
 
+        self.logger.info(f"Tag search: {search_term}")
+
         fuzzy_search_results = process.extract(
             search_term, self.tag_cache_keys, limit=5
         )
 
-        print(fuzzy_search_results)
         score_cutoff = 80
         fuzzy_search_results = [
             result for result in fuzzy_search_results if result[1] >= score_cutoff
@@ -125,7 +126,7 @@ class SearchComponent(MPComponent):
         )
         search_button = Button(
             [Icon(kind="search"), html.Span(), "Search"],
-            button_kind="primary",
+            kind="primary",
             id=self.id("button"),
         )
         search = html.Div(
@@ -140,16 +141,19 @@ class SearchComponent(MPComponent):
         random_link = dcc.Link("or load random material", className="is-size-7")
 
         dropdown = dcc.Dropdown(
-            id=self.id("dropdown"), clearable=False, style={"display": "none"}
+            id=self.id("dropdown"), clearable=False
         )
+        dropdown = html.Div([html.Label('Multiple results found, please select one:'), dropdown], id="dropdown-container", style={"display": "none"})
 
-        warning = Warning(
+        warning = Message(
             size="small", style={"display": "none"}, id=self.id("warning")
         )
 
+        user_api_hint = Message(kind="info", size="small", id=self.id("api_hint"))
+
         search = html.Div([search, random_link], style={"margin-bottom": "0.75rem"})
 
-        search = html.Div([search, warning, dropdown])
+        search = html.Div([search, warning, dropdown, user_api_hint])
 
         return {"search": search}
 
@@ -171,14 +175,16 @@ class SearchComponent(MPComponent):
             if (n_submit is None) and (n_clicks is None):
                 raise PreventUpdate
 
-            if search_term.startswith("mpr-") or search_term.startswith("mvc-"):
-                return search_term
+            self.logger.info(f"Search: {search_term}")
 
             # common confusables
-            if str(int(search_term)) == search_term:
+            if search_term.isnumeric() and str(int(search_term)) == search_term:
                 search_term = f"mp-{search_term}"
             if search_term.startswith("mp") and "-" not in search_term:
                 search_term = f"mp-{search_term.split('mp')[1]}"
+
+            if search_term.startswith("mp-") or search_term.startswith("mvc-"):
+                return {search_term: search_term}  # no need to actually search
 
             with MPRester() as mpr:
                 try:
@@ -205,6 +211,7 @@ class SearchComponent(MPComponent):
                 )
 
             if len(entries) == 0:
+                self.logger.info(f"Search: no results for {search_term}")
                 return {"error": f"No results found for {search_term}."}
 
             # sort by e_above_hull if a normal query, or by Levenshtein distance
@@ -250,7 +257,7 @@ class SearchComponent(MPComponent):
             return list(results.keys())[0]
 
         @app.callback(
-            Output(self.id("dropdown"), "style"), [Input(self.id("results"), "data")]
+            Output(self.id("dropdown-container"), "style"), [Input(self.id("results"), "data")]
         )
         def hide_show_dropdown(results):
             if len(results) <= 1:
@@ -262,7 +269,7 @@ class SearchComponent(MPComponent):
             Output(self.id("warning"), "style"), [Input(self.id("results"), "data")]
         )
         def hide_show_warning(results):
-            if "error" in results:
+            if "error" in results: # TODO: not necessary, just have div container!
                 return {}
             else:
                 return {"display": "none"}
@@ -276,3 +283,25 @@ class SearchComponent(MPComponent):
         @app.callback(Output(self.id(), "data"), [Input(self.id("dropdown"), "value")])
         def update_store_from_value(value):
             return {"time_requested": self.get_time(), "mpid": value}
+
+        @app.callback(
+            Output(self.id("api_hint"), "children"), [Input(self.id(), "data")]
+        )
+        def update_dropdown_value(data):
+            if data is None or "mpid" not in data:
+                raise PreventUpdate
+            md = f"""You can retrieve this structure using the Materials Project API:
+
+
+```
+from pymatgen import MPRester
+with MPRester() as mpr:
+    struct = mpr.get_structure_by_mpid("{data["mpid"]}")
+```
+
+
+To get an API key and find out more visit [materialsproject.org](https://materialsproject.org/open).
+"""
+
+            # TODO: figure out message header
+            return html.Div([Icon(kind="code"), H6("Retrieve with code", style={"display": "inline-block"}), dcc.Markdown(md)])
