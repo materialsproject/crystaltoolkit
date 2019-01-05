@@ -25,8 +25,10 @@ class Container(html.Div):
 
 
 class Columns(html.Div):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, desktop_only=False, **kwargs):
         kwargs["className"] = "columns"
+        if desktop_only:
+            kwargs["className"] += " is-desktop"
         super().__init__(*args, **kwargs)
 
 
@@ -38,15 +40,15 @@ class Column(html.Div):
         if offset:
             kwargs["className"] += f" -is-offset-{size}"
         if narrow:
-            kwargs["className"] += " -is-narrow"
+            kwargs["className"] += " is-narrow"
         super().__init__(*args, **kwargs)
 
 
 class Button(html.Button):
-    def __init__(self, *args, button_kind=None, **kwargs):
-        kwargs["className"] = "button"
-        if button_kind:
-            kwargs["className"] += f" is-{button_kind}"
+    def __init__(self, *args, kind=None, size="normal", **kwargs):
+        kwargs["className"] = f"button is-{size}"
+        if kind:
+            kwargs["className"] += f" is-{kind}"
         super().__init__(*args, **kwargs)
 
 
@@ -56,16 +58,28 @@ class Error(html.Div):
         super().__init__(*args, **kwargs)
 
 
-class Warning(html.Div):
+class MessageContainer(html.Article):
+    def __init__(self, *args, kind="warning", size="normal", **kwargs):
+        kwargs["className"] = f"message is-{kind} is-{size}"
+        super().__init__(*args, **kwargs)
+
+
+class MessageHeader(html.Div):
     def __init__(self, *args, **kwargs):
-        kwargs["className"] = "notification is-warning"
+        kwargs["className"] = "message-header"
+        super().__init__(*args, **kwargs)
+
+
+class MessageBody(html.Div):
+    def __init__(self, *args, **kwargs):
+        kwargs["className"] = "message-body"
         super().__init__(*args, **kwargs)
 
 
 class Icon(html.Span):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, kind="download", *args, **kwargs):
         kwargs["className"] = "icon"
-        super().__init__(*args, **kwargs)
+        super().__init__(html.I(className=f"fas fa-{kind}"), *args, **kwargs)
 
 
 class Footer(html.Footer):
@@ -77,7 +91,7 @@ class Footer(html.Footer):
 class Spinner(html.Button):
     def __init__(self, *args, **kwargs):
         kwargs["className"] = "button is-primary is-loading"
-        kwargs["style"] = {"width": "35px", "height": "35px", "border-radius": "40px"}
+        kwargs["style"] = {"width": "35px", "height": "35px", "border-radius": "35px"}
         kwargs["aria-label"] = "Loading"
         super().__init__(*args, **kwargs)
 
@@ -192,7 +206,11 @@ class Reveal(html.Details):
                         style={"display": "inline-block", "vertical-align": "middle"},
                     )
                 ),
-                html.Div(children, id=contents_id),
+                html.Div(
+                    children,
+                    id=contents_id,
+                    style={"margin-top": "0.5rem", "margin-left": "1.1rem"},
+                ),
             ],
             id=id,
             **kwargs,
