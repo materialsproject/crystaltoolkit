@@ -37,6 +37,7 @@ for _component in _components:
 from mp_dash_components.components.json import JSONComponent
 from mp_dash_components.components.search import SearchComponent
 from mp_dash_components.components.structure import StructureMoleculeComponent
+from mp_dash_components.components.favorites import FavoritesComponent
 from mp_dash_components.helpers.layouts import *
 from mp_dash_components.helpers.scene import *
 from mp_dash_components.helpers.view import view

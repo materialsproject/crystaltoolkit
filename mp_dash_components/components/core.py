@@ -1,6 +1,8 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
+from dash.exceptions import PreventUpdate
+
 import logging
 
 from abc import ABC, abstractmethod
@@ -15,6 +17,18 @@ from flask_caching import Cache
 
 from datetime import datetime
 from time import mktime
+
+from mp_dash_components.helpers.layouts import (
+    Reveal,
+    Icon,
+    Button,
+    MessageContainer,
+    MessageHeader,
+    MessageBody,
+)
+
+from pymatgen.util.string import latexify_spacegroup
+
 
 class DummyCache:
     @staticmethod
@@ -66,6 +80,7 @@ class MPComponent(ABC):
             )
 
         self._id = id
+        self._all_ids = set()
         self._instances[id] = self
         self._stores = {}
 
@@ -98,9 +113,11 @@ class MPComponent(ABC):
 
     def id(self, name=None):
         if name:
-            return f"{self._id}_{name}"
+            name = f"{self._id}_{name}"
         else:
-            return self._canonical_store_id
+            name = self._canonical_store_id
+        self._all_ids.add(name)
+        return name
 
     def create_store(self, name, initial_data=None):
         store = dcc.Store(id=self.id(name), data=self.to_data(initial_data))
@@ -182,6 +199,16 @@ class MPComponent(ABC):
         return self.all_layouts.keys()
 
     @property
+    def supported_ids(self):
+        return list(self._all_ids)
+
+    def __repr__(self):
+        return f"""{self.id()}<{self.__class__.__name__}>
+IDs: list({self.supported_ids})
+Stores: list({self.supported_stores})
+Layouts: list({self.supported_layouts})"""
+
+    @property
     @abstractmethod
     def all_layouts(self):
         """
@@ -209,13 +236,7 @@ class MPComponent(ABC):
         These layouts are not mandatory but are at the discretion of the
         component author.
         """
-        return {
-            "main": html.Div(id=f"{self.id()}_main"),
-            "error": html.Div(id=f"{self.id()}_error", className="mpc_error"),
-            "warning": html.Div(id=f"{self.id()}_warning", className="mpc_warning"),
-            "label": html.Label(id=f"{self.id()}_label", className="mpc_label"),
-            "help": dcc.Markdown(id=f"{self.id()}_help", className="mpc_help"),
-        }
+        return {}
 
     @property
     def standard_layout(self):
@@ -241,3 +262,97 @@ class MPComponent(ABC):
         :return: Current time as a float. Use with caution!
         """
         return mktime(datetime.now().timetuple())
+
+
+class Panel(MPComponent):
+    def __init__(self, *args, **kwargs):
+
+        if self.description and len(self.description) > 140:
+            raise ValueError(
+                "Description is too long, please keep to 140 " "characters or less."
+            )
+
+        super().__init__(*args, **kwargs)
+
+    @property
+    def title(self):
+        return "Panel Title"
+
+    @property
+    def initial_contents(self):
+        return "Loading..."
+
+    @property
+    def reference(self):
+        return None
+
+    @property
+    def help(self):
+        return None
+
+    @property
+    def description(self):
+        return None
+
+    @property
+    def layouts(self):
+
+        contents = html.Div(self.initial_contents, id=self.id("contents"))
+
+        message = html.Div(id=self.id("message"))
+
+        description = html.Div(self.description, id=self.id("description"))
+
+        return Reveal(title=self.title, children=contents)
+
+    def update_contents(self, new_store_contents):
+        raise PreventUpdate
+
+    def update_message(self, new_store_contents):
+        try:
+            self.update_contents(new_store_contents)
+        except Exception as exception:
+            self.logger.error(
+                f"Callback error.",
+                exc_info=True,
+                extra={"store_contents": new_store_contents},
+            )
+            return MessageContainer(
+                [MessageHeader("Error"), MessageBody(str(exception))], kind="error"
+            )
+        else:
+            return html.Div()
+
+    def _generate_callbacks(self, app, cache):
+        ...
+
+
+def unicodeify_spacegroup(spacegroup_symbol):
+    # TODO: move this to pymatgen
+
+    subscript_unicode_map = {
+        0: "₀",
+        1: "₁",
+        2: "₂",
+        3: "₃",
+        4: "₄",
+        5: "₅",
+        6: "₆",
+        7: "₇",
+        8: "₈",
+        9: "₉",
+    }
+
+    symbol = latexify_spacegroup(spacegroup_symbol)
+
+    for number, unicode_number in subscript_unicode_map.items():
+        symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
+
+    overline = "\u0305"  # u"\u0304" (macron) is also an option
+
+    symbol = symbol.replace("$\\overline{", overline)
+    symbol = symbol.replace("$", "")
+    symbol = symbol.replace("{", "")
+    symbol = symbol.replace("}", "")
+
+    return symbol

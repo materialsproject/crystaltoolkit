@@ -195,10 +195,7 @@ class StructureMoleculeComponent(MPComponent):
             for color, name in legend["colors"].items()
         ]
 
-        return html.Div(
-            [html.Span(el, style={"margin-right": "0.2rem"}) for el in legend_elements],
-            id=self.id("legend"),
-        )
+        return Field([Control(el, style={"margin-right": "0.2rem"}) for el in legend_elements], id=self.id("legend"), grouped=True)
 
     def _make_title(self, legend):
 
@@ -207,7 +204,7 @@ class StructureMoleculeComponent(MPComponent):
 
         composition = Composition.from_dict(legend["composition"])
 
-        return H1(unicodeify(composition.reduced_formula), id=self.id("title"))
+        return H1(unicodeify(composition.reduced_formula), id=self.id("title"), style={"display": "inline-block"})
 
     @property
     def all_layouts(self):

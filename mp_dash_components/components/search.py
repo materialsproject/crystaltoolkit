@@ -10,9 +10,9 @@ from monty.serialization import loadfn, dumpfn
 from fuzzywuzzy import process
 from pymatgen import MPRester
 from pymatgen.core.composition import CompositionError
-from pymatgen.util.string import unicodeify, latexify_spacegroup
+from pymatgen.util.string import unicodeify
 
-from mp_dash_components.components.core import MPComponent
+from mp_dash_components.components.core import MPComponent, unicodeify_spacegroup
 from mp_dash_components.helpers.layouts import *
 from mp_dash_components import __file__ as module_path
 
@@ -27,37 +27,6 @@ class SearchComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("results")
-
-    @staticmethod
-    def _unicodeify_spacegroup(spacegroup_symbol):
-        # TODO: move this to pymatgen
-
-        subscript_unicode_map = {
-            0: "₀",
-            1: "₁",
-            2: "₂",
-            3: "₃",
-            4: "₄",
-            5: "₅",
-            6: "₆",
-            7: "₇",
-            8: "₈",
-            9: "₉",
-        }
-
-        symbol = latexify_spacegroup(spacegroup_symbol)
-
-        for number, unicode_number in subscript_unicode_map.items():
-            symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
-
-        overline = "\u0305"  # u"\u0304" (macron) is also an option
-
-        symbol = symbol.replace("$\\overline{", overline)
-        symbol = symbol.replace("$", "")
-        symbol = symbol.replace("{", "")
-        symbol = symbol.replace("}", "")
-
-        return symbol
 
     def _get_tag_cache(self):
 
@@ -143,13 +112,10 @@ class SearchComponent(MPComponent):
             kind="primary",
             id=self.id("button"),
         )
-        search = html.Div(
-            [
-                html.Div(search_field, className="control"),
-                html.Div(search_button, className="control"),
-            ],
-            className="field has-addons",
-            style={"margin-bottom": "0"},
+        search = Field(
+            [Control(search_field), Control(search_button)],
+            addons=True,
+            style={"margin-bottom": "0"}
         )
 
         return search
@@ -160,13 +126,13 @@ class SearchComponent(MPComponent):
         search = html.Div(self._make_search_box(), id=self.id("search_container"))
 
         random_link = html.A(
-            "or load random mp-id", className="is-text is-size-7", id=self.id("random")
+            "or get random mp-id", className="is-text is-size-7", id=self.id("random")
         )
 
         dropdown = dcc.Dropdown(id=self.id("dropdown"), clearable=False)
-        dropdown = html.Div(
+        dropdown_container = html.Div(
             [html.Label("Multiple results found, please select one:"), dropdown],
-            id="dropdown-container",
+            id=self.id("dropdown-container"),
             style={"display": "none"},
         )
 
@@ -185,7 +151,7 @@ class SearchComponent(MPComponent):
 
         search = html.Div([search, random_link], style={"margin-bottom": "0.75rem"})
 
-        search = html.Div([search, warning, dropdown])
+        search = html.Div([search, warning, dropdown_container])
 
         return {"search": search, "api_hint": api_hint}
 
@@ -257,7 +223,7 @@ class SearchComponent(MPComponent):
 
             human_readable_results = {
                 entry["task_id"]: f"{unicodeify(entry['pretty_formula'])} "
-                f"({self._unicodeify_spacegroup(entry['spacegroup.symbol'])}) "
+                f"({unicodeify_spacegroup(entry['spacegroup.symbol'])}) "
                 f"{entry['e_above_hull_human']}"
                 for entry in entries
             }
@@ -292,7 +258,11 @@ class SearchComponent(MPComponent):
 
             self.logger.info(f"Search: {search_term}")
 
-            return get_human_readable_results_from_search_term(search_term)
+            results = get_human_readable_results_from_search_term(search_term)
+
+            self.logger.debug(f"Search results: {results}")
+
+            return results
 
         @app.callback(
             Output(self.id("dropdown"), "options"), [Input(self.id("results"), "data")]

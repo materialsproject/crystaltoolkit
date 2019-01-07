@@ -73,7 +73,8 @@ struct = struct.get_reduced_structure()
 struct_component = mpc.StructureMoleculeComponent(struct)
 search_component = mpc.SearchComponent()
 editor_component = mpc.JSONComponent()
-
+favorites_component = mpc.FavoritesComponent()
+print(favorites_component)
 
 # endregion
 
@@ -85,7 +86,7 @@ editor_component = mpc.JSONComponent()
 footer = mpc.Footer(
     html.Div(
         dcc.Markdown(
-            f"In beta. Bug reports and feature requests gratefully accepted, "
+            f"Bug reports and feature requests gratefully accepted, "
             f"contact [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
             f"Created by [Crystal Toolkit Development Team]"
             f"(https://github.com/materialsproject/mash/), "
@@ -96,26 +97,6 @@ footer = mpc.Footer(
     ),
     style={"padding": "1rem 1rem 1rem", "background-color": "inherit"},
 )
-
-
-favorite_button = Button(
-    [Icon(kind="heart", fill="r"), html.Span("Favorite")],
-    style={"margin-left": "0.2rem"},
-    kind="outlined",
-)
-favorited_button = Button(
-    [Icon(kind="heart", fill="s"), html.Span("Favorited")],
-    style={"margin-left": "0.2rem"},
-    kind="danger",
-)
-# TODO: add tooltip
-favorite_button_container = html.Div(
-    [
-        dcc.Store(id="favorite-store"),
-        html.Div([favorite_button], id="favorite-button-containier"),
-    ]
-)
-
 
 # endregion
 
@@ -133,7 +114,13 @@ app.layout = Container(
                 Columns(
                     [
                         Column(
-                            [struct_component.title_layout]
+                            [
+                                struct_component.title_layout,
+                                html.Div(
+                                    [favorites_component.button_layout],
+                                    style={"float": "right"},
+                                ),
+                            ]
                             # mpc.H1("Crystal Toolkit", id="main_title")]
                         )
                     ]
@@ -162,10 +149,7 @@ app.layout = Container(
                                             style={"float": "left"},
                                         ),
                                         html.Div(
-                                            [
-                                                struct_component.screenshot_layout,
-                                                favorite_button_container
-                                            ],
+                                            [struct_component.screenshot_layout],
                                             style={"float": "right"},
                                         ),
                                     ],
@@ -178,12 +162,12 @@ app.layout = Container(
                             [
                                 # search_component.standard_layout,
                                 Reveal(
-                                    [search_component.standard_layout],
-                                    summary_title="Load Crystal or Molecule",
+                                    [search_component.standard_layout, favorites_component.favorite_materials_layout],
+                                    title="Load Crystal or Molecule",
                                     open=True,
                                     style={"line-height": "1"},
                                 ),
-                                Reveal(summary_title="Display Options"),
+                                Reveal(title="Display Options"),
                                 Reveal(
                                     [
                                         Label("Thermodynamic Stability"),
@@ -191,14 +175,44 @@ app.layout = Container(
                                             ["1.25 eV/Atom ", html.A("above hull")]
                                         ),
                                     ],
-                                    summary_title="Summary",
+                                    title="Summary",
+                                ),
+                                Reveal(
+                                    [
+                                        Field(
+                                            [
+                                                Control(
+                                                    html.Textarea(
+                                                        id="favorite-notes",
+                                                        className="textarea",
+                                                        style={
+                                                            "min-height": "90%",
+                                                            "width": "100%",
+                                                        },
+                                                        placeholder="Enter your notes on the current material here...",
+                                                    )
+                                                ),
+                                                html.P(
+                                                    [
+                                                        dcc.Markdown(
+                                                            "Notes are saved in your web browser "
+                                                            "and not associated with your Materials Project account or shared between computers. "
+                                                            "If you want a permanent copy, [click here to download all of your notes]()."
+                                                        )
+                                                    ],
+                                                    className="help",
+                                                ),
+                                            ]
+                                        ),
+                                    ],
+                                    title="Notebook",
                                 ),
                             ],
                             style={"max-width": "65vmin"},
                         ),
                     ],
-                    desktop_only=True,
-                    centered=True,
+                    desktop_only=False,
+                    centered=False,
                 ),
                 Columns(
                     [
@@ -206,12 +220,15 @@ app.layout = Container(
                             [
                                 Reveal(
                                     [dt.DataTable(columns=[{"name": "Test"}])],
-                                    summary_title="Literature Mentions",
+                                    title="Literature Mentions",
                                 ),
-                                Reveal(summary_title="Magnetic Properties"),
-                                Reveal(summary_title="Bonding and Local Environments"),
-                                Reveal(summary_title="Transform Crystal"),
-                                Reveal(summary_title="JSON Editor"),
+                                Reveal(title="Magnetic Properties"),
+                                Reveal(title="Bonding and Local Environments"),
+                                Reveal(
+                                    "Coming soon! Matt needs coffee 😪☕️",
+                                    title="Transform Crystal",
+                                ),
+                                Reveal(title="JSON Editor"),
                             ]
                         )
                     ]

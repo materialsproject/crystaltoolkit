@@ -11,6 +11,8 @@ FONT_AWESOME_CSS = {
     "external_url": "https://use.fontawesome.com/releases/v5.6.3/css/all.css"
 }
 
+# TODO: change "kind" kwarg to list / group is- modifiers together
+
 
 class Section(html.Div):
     def __init__(self, *args, **kwargs):
@@ -25,10 +27,12 @@ class Container(html.Div):
 
 
 class Columns(html.Div):
-    def __init__(self, *args, desktop_only=False, **kwargs):
+    def __init__(self, *args, desktop_only=False, centered=False, **kwargs):
         kwargs["className"] = "columns"
         if desktop_only:
             kwargs["className"] += " is-desktop"
+        if centered:
+            kwargs["className"] += " is-centered"
         super().__init__(*args, **kwargs)
 
 
@@ -77,9 +81,13 @@ class MessageBody(html.Div):
 
 
 class Icon(html.Span):
-    def __init__(self, kind="download", *args, **kwargs):
+    def __init__(self, kind="download", fill="s", *args, **kwargs):
+        """
+        Font-awesome icon. Good options for kind are "info-circle",
+        "question-circle", "book", "code".
+        """
         kwargs["className"] = "icon"
-        super().__init__(html.I(className=f"fas fa-{kind}"), *args, **kwargs)
+        super().__init__(html.I(className=f"fa{fill} fa-{kind}"), *args, **kwargs)
 
 
 class Footer(html.Footer):
@@ -191,18 +199,18 @@ class Textarea(html.Textarea):
 
 
 class Reveal(html.Details):
-    def __init__(self, children=None, id=None, summary_title=None, **kwargs):
+    def __init__(self, children=None, id=None, title=None, **kwargs):
         if children is None:
             children = ["Loading..."]
         if id is None:
-            id = summary_title
+            id = title
         contents_id = f"{id}_contents" if id else None
         kwargs["style"] = {"margin-bottom": "1rem"}
         super().__init__(
             [
                 html.Summary(
                     H4(
-                        summary_title,
+                        title,
                         style={"display": "inline-block", "vertical-align": "middle"},
                     )
                 ),
@@ -221,3 +229,51 @@ class Label(html.Label):
     def __init__(self, *args, **kwargs):
         kwargs["className"] = "label"
         super().__init__(*args, **kwargs)
+
+
+class Modal(html.Div):
+    def __init__(self, children=None, id=None, active=False, **kwargs):
+        kwargs["className"] = "modal"
+        if active:
+            kwargs["className"] += " is-active"
+        super().__init__(
+            [
+                html.Div(className="modal-background"),
+                html.Div(
+                    children=children, id=f"{id}_contents", className="modal-contents"
+                ),
+                html.Button(id=f"{id}_close", className="modal-close is-large"),
+            ],
+            **kwargs,
+        )
+
+
+class Field(html.Div):
+    def __init__(
+        self, *args, addons=False, grouped=False, grouped_multiline=False, **kwargs
+    ):
+        kwargs["className"] = "field"
+        if addons:
+            kwargs["className"] += " has-addons"
+        if grouped:
+            kwargs["className"] += " is-grouped"
+        if grouped_multiline:
+            kwargs["className"] += " is-grouped-multiline"
+        super().__init__(*args, **kwargs)
+
+
+class Control(html.Div):
+    def __init__(self, *args, **kwargs):
+        kwargs["className"] = "control"
+        super().__init__(*args, **kwargs)
+
+
+class Tooltip(html.Div):
+    pass
+
+
+#reference_button = Button(
+#    [Icon(kind="book"), html.Span("Cite me")],
+#    size="small",
+#    kind="link"
+#)
