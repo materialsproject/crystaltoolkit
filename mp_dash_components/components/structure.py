@@ -68,12 +68,32 @@ class StructureMoleculeComponent(MPComponent):
     # TODO ...
     available_polyhedra_rules = ("prefer_large_polyhedra", "only_same_species")
 
+    default_scene_settings = {
+        "lights": [
+            {
+                "type": "DirectionalLight",
+                "args": ["#ffffff", 0.15],
+                "position": [-10, 10, 10],
+            },
+            # {"type":"AmbientLight", "args":["#eeeeee", 0.9]}
+            {"type": "HemisphereLight", "args": ["#eeeeee", "#999999", 1.0]},
+        ],
+        "material": {
+            "type": "MeshStandardMaterial",
+            "parameters": {"roughness": 0.07, "metalness": 0.00},
+        },
+        "objectScale": 1.0,
+        "cylinderScale": 0.1,
+        "defaultSurfaceOpacity": 0.5,
+        "staticScene": True,
+    }
+
     def __init__(
         self,
         struct_or_mol=None,
         id=None,
         origin_component=None,
-        scene_additions=None,  # TODO add (add store also)
+        scene_additions=None,
         bonding_strategy="JmolNN",
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
@@ -87,37 +107,26 @@ class StructureMoleculeComponent(MPComponent):
             id=id, contents=struct_or_mol, origin_component=origin_component
         )
 
-        options = {
+        self.initial_scene_settings = StructureMoleculeComponent.default_scene_settings
+        self.create_store("scene_settings", initial_data=self.initial_scene_settings)
+
+        self.initial_graph_generation_options = {
             "bonding_strategy": bonding_strategy,
             "bonding_strategy_kwargs": bonding_strategy_kwargs,
+        }
+        self.create_store(
+            "graph_generation_options",
+            initial_data=self.initial_graph_generation_options,
+        )
+
+        self.initial_display_options = {
             "color_scheme": color_scheme,
             "color_scale": color_scale,
             "radius_strategy": radius_strategy,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
         }
-
-        self.initial_scene_settings = {
-            "lights": [
-                {
-                    "type": "DirectionalLight",
-                    "args": ["#ffffff", 0.15],
-                    "position": [-10, 10, 10],
-                },
-                # {"type":"AmbientLight", "args":["#eeeeee", 0.9]}
-                {"type": "HemisphereLight", "args": ["#eeeeee", "#999999", 1.0]},
-            ],
-            "material": {
-                "type": "MeshStandardMaterial",
-                "parameters": {"roughness": 0.07, "metalness": 0.00},
-            },
-            "objectScale": 1.0,
-            "cylinderScale": 0.1,
-            "defaultSurfaceOpacity": 0.5,
-            "staticScene": True,
-        }
-
-        self.options_store = dcc.Store(id=f"{id}_options", data=options)
+        self.create_store("display_options", initial_data=self.initial_display_options)
 
         if struct_or_mol:
             # graph is cached explicitly, this isn't necessary but is an
@@ -128,22 +137,31 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy=bonding_strategy,
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
-            scene, legend = self.get_scene_and_legend(graph, name=self.id(), **options)
+            scene, legend = self.get_scene_and_legend(
+                graph, name=self.id(), **self.initial_display_options
+            )
         else:
             # component could be initialized without a structure, in which case
             # an empty scene should be displayed
             graph = None
             scene, legend = self.get_scene_and_legend(
-                struct_or_mol, name=self.id(), **options
+                None, name=self.id(), **self.initial_display_options
             )
 
         self.initial_legend = legend
+        self.create_store("legend_data", initial_data=self.initial_legend)
+
         self.initial_scene_data = scene.to_json()
-        # self.graph_store = dcc.Store(id=f"{id}_scene", data=graph)
-        self.legend_store = dcc.Store(id=f"{id}_legend")
+
+        self.initial_graph = graph
+        self.create_store("graph", initial_data=self.to_data(graph))
+
+        if scene_additions:
+            self.initial_scene_additions = scene_additions
+            self.create_store("scene_additions", initial_data=scene_additions.to_json())
+
 
     def _generate_callbacks(self, app, cache):
-
         @app.callback(
             Output(self.id("scene"), "downloadRequest"),
             [Input(self.id("screenshot_button"), "n_clicks")],
@@ -170,6 +188,8 @@ class StructureMoleculeComponent(MPComponent):
                 "filetype": "png",
             }
 
+
+
     def _make_legend(self, legend):
 
         if legend is None or (not legend.get("colors", None)):
@@ -195,7 +215,11 @@ class StructureMoleculeComponent(MPComponent):
             for color, name in legend["colors"].items()
         ]
 
-        return Field([Control(el, style={"margin-right": "0.2rem"}) for el in legend_elements], id=self.id("legend"), grouped=True)
+        return Field(
+            [Control(el, style={"margin-right": "0.2rem"}) for el in legend_elements],
+            id=self.id("legend"),
+            grouped=True,
+        )
 
     def _make_title(self, legend):
 
@@ -204,7 +228,11 @@ class StructureMoleculeComponent(MPComponent):
 
         composition = Composition.from_dict(legend["composition"])
 
-        return H1(unicodeify(composition.reduced_formula), id=self.id("title"), style={"display": "inline-block"})
+        return H1(
+            unicodeify(composition.reduced_formula),
+            id=self.id("title"),
+            style={"display": "inline-block"},
+        )
 
     @property
     def all_layouts(self):
@@ -226,7 +254,7 @@ class StructureMoleculeComponent(MPComponent):
         screenshot_layout = html.Div(
             [
                 Button(
-                    [Icon(), html.Span(), "Download Screenshot"],
+                    [Icon(), html.Span(), "Download Image"],
                     kind="primary",
                     id=self.id("screenshot_button"),
                 )
@@ -805,10 +833,8 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def get_scene_and_legend(
-        struct_or_mol: Union[Structure, StructureGraph, Molecule, MoleculeGraph],
+        graph: Union[StructureGraph, MoleculeGraph],
         name="unknown_structure_or_molecule",
-        bonding_strategy="CrystalNN",
-        bonding_strategy_kwargs=None,
         color_scheme="Jmol",
         color_scale=None,
         radius_strategy="specified_or_average_ionic",
@@ -824,14 +850,9 @@ class StructureMoleculeComponent(MPComponent):
 
         scene = Scene(name=name)
 
-        if struct_or_mol is None:
+        if graph is None:
             return scene, {}
 
-        graph = StructureMoleculeComponent._preprocess_input_to_graph(
-            struct_or_mol,
-            bonding_strategy=bonding_strategy,
-            bonding_strategy_kwargs=bonding_strategy_kwargs,
-        )
         struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
         radii = StructureMoleculeComponent._get_display_radii_for_sites(
             struct_or_mol, radius_strategy=radius_strategy

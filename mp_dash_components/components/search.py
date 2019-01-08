@@ -318,7 +318,7 @@ class SearchComponent(MPComponent):
             if data is None or "mpid" not in data:
                 return {"display": "none"}
             else:
-                return {}
+                return {"display": "inline-block"}
 
         @app.callback(
             Output(self.id("api_hint"), "children"), [Input(self.id(), "data")]

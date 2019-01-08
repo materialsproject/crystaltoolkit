@@ -91,14 +91,16 @@ class FavoritesComponent(MPComponent):
             open=True
         )
 
+        # TODO: add when Dash supports text areas!
         notes_layout = Reveal([Field(
             [
                 Control(
-                    html.Textarea(
+                    dcc.Textarea(
                         id=self.id("favorite-notes"),
                         className="textarea",
-                        style={"min-height": "90%", "width": "100%"},
-                        placeholder="Enter your notes on the current material here",
+                        rows=6,
+                        style={"height": "100%", "width": "100%"},
+                        placeholder="Enter your notes on the current material here"
                     )
                 ),
                 html.P(
@@ -127,6 +129,9 @@ class FavoritesComponent(MPComponent):
             [State(self.id("favorite-button"), "className")],
         )
         def toggle_style(n_clicks, className):
+            """
+            Switches the style of the favorites button when it's clicked.
+            """
             # TODO: there may be a more graceful way of doing this
             # should define custom style for favorite)
             if n_clicks is None:
@@ -136,22 +141,32 @@ class FavoritesComponent(MPComponent):
             else:
                 return self.favorite_button
 
-        #@app.callback(
-        #    Output(self.id("favorite-button"), "n_clicks"),
-        #    [Input(self.id("notes"), "")],
-        #    [State(self.id("favorite-button"), "className")]
-        #)
-        #def auto_favorite(note_contents):
-        #    raise PreventUpdate
-        #    #... click favorite button if not clicked
-#
-#
-        #def update_store(note_contents, favorite_click, current_mpid, data):
-#
-#
-        #    if current_mpid not in data:
-        #        data[current_mpid] = Favorite
-#
-#
-        #def update_links_list():
-        #    # favorites
+        @app.callback(
+            Output(self.id("favorite-button"), "n_clicks"),
+            [Input(self.id("favorite-notes"), "value")],
+            [State(self.id("favorite-button"), "className"),
+             State(self.id("favorite-button"), "n_clicks")]
+        )
+        def auto_favorite(note_contents, className, n_clicks):
+            """
+            Automatically favorites material when notes are added.
+            """
+            # TODO: there may be a more graceful way of doing this
+            # should define custom style for favorite)
+            if note_contents is None:
+                raise PreventUpdate
+            if len(note_contents) and "white" in className:
+                return 1 if n_clicks is None else n_clicks+1
+            else:
+                return n_clicks
+
+
+        def update_store(note_contents, favorite_click, current_mpid, data):
+
+
+            if current_mpid not in data:
+                data[current_mpid] = Favorite
+
+
+        def update_links_list():
+            ...

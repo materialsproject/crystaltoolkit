@@ -60,11 +60,45 @@ details .input {
 .mpc-loading span:nth-child(3) {
   animation-delay: .4s; }
 
-.mpc-markdown blockquote {
-  border-left: 4px;
+.mpc blockquote {
   padding-left: 1rem;
-  margin-top: 2rem;
-  margin-bottom: 2rem; }
+  margin-bottom: 1rem; }
+
+.mpc-blockquote blockquote {
+  padding-left: 1rem;
+  margin-bottom: 1rem; }
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; }
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  top: 150%;
+  left: 50%;
+  margin-left: -60px; }
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent; }
+
+.tooltip:hover .tooltiptext {
+  visibility: visible; }
 
 /*! bulma.io v0.7.2 | MIT License | github.com/jgthms/bulma */
 @keyframes spinAround {
@@ -330,7 +364,7 @@ button,
 input,
 select,
 textarea {
-  font-family: "IBM Plex Sans", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif; }
+  font-family: "IBM Plex Sans", sans-serif; }
 
 code,
 pre {

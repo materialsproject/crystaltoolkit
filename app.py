@@ -58,6 +58,10 @@ except Exception as exception:
     )
     cache = Cache(app.server, config={"CACHE_TYPE": "filesystem"})
 
+# Enable for debug purposes:
+from mp_dash_components.components.core import DummyCache
+cache = DummyCache()
+
 # endregion
 
 
@@ -68,14 +72,14 @@ except Exception as exception:
 MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
-struct = MPRester().get_structure_by_material_id("mp-5020")  # ("mp-123")
+struct = MPRester().get_structure_by_material_id("mp-804")  # ("mp-123")
 
 struct_component = mpc.StructureMoleculeComponent(struct)
 search_component = mpc.SearchComponent()
 editor_component = mpc.JSONComponent()
 favorites_component = mpc.FavoritesComponent()
 
-literature_component = mpc.LiteratureComponent()#(origin_component=struct_component)
+literature_component = mpc.LiteratureComponent(origin_component=struct_component)
 
 # endregion
 
@@ -163,7 +167,8 @@ app.layout = Container(
                             [
                                 # search_component.standard_layout,
                                 Reveal(
-                                    [search_component.standard_layout, favorites_component.favorite_materials_layout],
+                                    [search_component.standard_layout,
+                                     favorites_component.favorite_materials_layout],
                                     title="Load Crystal or Molecule",
                                     open=True,
                                     style={"line-height": "1"},
@@ -178,7 +183,7 @@ app.layout = Container(
                                     ],
                                     title="Summary",
                                 ),
-                                favorites_component.notes_layout,
+                                #favorites_component.notes_layout,
                             ],
                             style={"max-width": "65vmin"},
                         ),
@@ -306,6 +311,20 @@ def update_url_pathname_from_search_term(data):
         raise PreventUpdate
     return data["mpid"]
 
+
+@app.callback(
+    Output(struct_component.id(), "data"),
+    [Input(search_component.id(), "data")]
+)
+def update_structure(search_mpid):
+
+    if search_mpid is None or "mpid" not in search_mpid:
+        raise PreventUpdate
+
+    with MPRester() as mpr:
+        struct = mpr.get_structure_by_material_id(search_mpid["mpid"])
+
+    return MPComponent.to_data(struct)
 
 # endregion
 
