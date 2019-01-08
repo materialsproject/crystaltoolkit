@@ -119,7 +119,7 @@ class MPComponent(ABC):
         self._all_ids.add(name)
         return name
 
-    def create_store(self, name, initial_data=None):
+    def create_store(self, name, initial_data=None, persistence=None, clear=False):
         store = dcc.Store(id=self.id(name), data=self.to_data(initial_data))
         self._stores[name] = store
         MPComponent._app_stores.append(store)
@@ -204,9 +204,9 @@ class MPComponent(ABC):
 
     def __repr__(self):
         return f"""{self.id()}<{self.__class__.__name__}>
-IDs: list({self.supported_ids})
-Stores: list({self.supported_stores})
-Layouts: list({self.supported_layouts})"""
+IDs: {list(self.supported_ids)}
+Stores: {list(self.supported_stores)}
+Layouts: {list(self.supported_layouts)}"""
 
     @property
     @abstractmethod
@@ -264,12 +264,15 @@ Layouts: list({self.supported_layouts})"""
         return mktime(datetime.now().timetuple())
 
 
-class Panel(MPComponent):
-    def __init__(self, *args, **kwargs):
+class PanelComponent(MPComponent):
+    def __init__(self, *args, open_by_default=False, **kwargs):
+
+        self.open_by_default = open_by_default
 
         if self.description and len(self.description) > 140:
             raise ValueError(
-                "Description is too long, please keep to 140 " "characters or less."
+                f"Description is too long, please keep to 140 characters or "
+                f"fewer: {self.description[0:140]}..."
             )
 
         super().__init__(*args, **kwargs)
@@ -280,30 +283,49 @@ class Panel(MPComponent):
 
     @property
     def initial_contents(self):
-        return "Loading..."
+        return html.P(
+            ["Loading", html.Span("."), html.Span("."), html.Span(".")],
+            className="mpc-loading",
+        )
 
     @property
     def reference(self):
+        # TODO: Implement
         return None
 
     @property
     def help(self):
+        # TODO: Implement
         return None
 
     @property
     def description(self):
+        # TODO: Implement
         return None
 
     @property
-    def layouts(self):
+    def all_layouts(self):
 
-        contents = html.Div(self.initial_contents, id=self.id("contents"))
+        initial_contents = html.Div(self.initial_contents, id=self.id("contents"))
 
         message = html.Div(id=self.id("message"))
 
-        description = html.Div(self.description, id=self.id("description"))
+        description = html.Div(
+            self.description,
+            id=self.id("description"),
+            className="mpc-panel-description",
+        )
 
-        return Reveal(title=self.title, children=contents)
+        contents = html.Div([message, description, initial_contents])
+
+        panel = Reveal(
+            title=self.title,
+            children=contents,
+            id=self.id("panel"),
+            open=self.open_by_default,
+        )
+
+        return {"panel": panel}
 
     def update_contents(self, new_store_contents):
         raise PreventUpdate
@@ -317,14 +339,42 @@ class Panel(MPComponent):
                 exc_info=True,
                 extra={"store_contents": new_store_contents},
             )
+            error_header = (
+                "An error was encountered when trying to load this component, "
+                "please report this if it seems like a bug, thank you!"
+            )
             return MessageContainer(
-                [MessageHeader("Error"), MessageBody(str(exception))], kind="error"
+                [
+                    MessageHeader("Error"),
+                    MessageBody(
+                        [html.Div(error_header), dcc.Markdown("> {}".format(exception))]
+                    ),
+                ],
+                kind="danger",
             )
         else:
             return html.Div()
 
     def _generate_callbacks(self, app, cache):
-        ...
+        @app.callback(
+            Output(self.id("contents"), "children"),
+            [Input(self.id("panel") + "_summary", "n_clicks")],
+            [State(self.id(), "data"), State(self.id("panel"), "open")],
+        )
+        def load_contents(panel_n_clicks, store_contents, panel_initially_open):
+            if (panel_n_clicks is None) or (panel_initially_open is None):
+                raise PreventUpdate
+            return self.update_contents(store_contents)
+
+        @app.callback(
+            Output(self.id("message"), "children"),
+            [Input(self.id("panel") + "_summary", "n_clicks")],
+            [State(self.id(), "data"), State(self.id("panel"), "open")],
+        )
+        def update_message(panel_n_clicks, store_contents, panel_initially_open):
+            if (panel_n_clicks is None) or (panel_initially_open is None):
+                raise PreventUpdate
+            return self.update_message(store_contents)
 
 
 def unicodeify_spacegroup(spacegroup_symbol):

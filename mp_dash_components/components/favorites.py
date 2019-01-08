@@ -9,16 +9,18 @@ from mp_dash_components.helpers.layouts import *
 
 from pymatgen.util.string import unicodeify
 
-from typing import List
+from typing import List, Dict
 from collections import namedtuple
 
-Favorite = namedtuple("Favorite", ["mpid", "formula", "spacegroup", "doi", "notes"])
+from toml import dumps
+
+Favorite = namedtuple("Favorite", ["mpid", "formula", "spacegroup", "notes"])
 
 
 sample_favorites = [
-    Favorite(mpid="mp-13", formula="Fe", spacegroup="Im-3m", doi="", notes=""),
-    Favorite(mpid="mp-5020", formula="BaTiO3", spacegroup="R3m", doi="", notes=""),
-    Favorite(mpid="mp-804", formula="GaN", spacegroup="P63mc", doi="", notes=""),
+    Favorite(mpid="mp-13", formula="Fe", spacegroup="Im-3m", notes=""),
+    Favorite(mpid="mp-5020", formula="BaTiO3", spacegroup="R3m", notes=""),
+    Favorite(mpid="mp-804", formula="GaN", spacegroup="P63mc", notes=""),
 ]
 
 
@@ -26,19 +28,34 @@ class FavoritesComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _make_tags(self, favorites: List[Favorite]):
+    def to_toml(self, favorites: List[Favorite]):
+
+        save_format = {
+            f.mpid: {
+                "Formula": f.formula,
+                "Spacegroup": f.spacegroup,
+                "Notes": f.notes,
+            }
+            for f in favorites
+        }
+
+        header = "# Crystal Toolkit Favorites File\n\n"
+
+        return header + dumps(save_format)
+
+    def _make_links(self, favorites: List[Favorite]):
 
         return Field(
             [
                 Control(
                     [
-                        dcc.Link([Tag(
-                            favorite.mpid,
-                            tag_type="link",
-                            tag_addon=f"{unicodeify(favorite.formula)} "
-                            f"({unicodeify_spacegroup(favorite.spacegroup)})",
-                            tag_addon_type="white",
-                        )], href=favorite.mpid)
+                        dcc.Link(
+                            [
+                                f"{unicodeify(favorite.formula)} "
+                                f"({unicodeify_spacegroup(favorite.spacegroup)})"
+                            ],
+                            href=favorite.mpid,
+                        )
                     ],
                     style={"margin-bottom": "0.2rem"},
                 )
@@ -67,13 +84,40 @@ class FavoritesComponent(MPComponent):
             style={"display": "inline-block"},
         )
 
-        favorite_materials = html.Div(
-            self._make_tags(sample_favorites), id=self.id("favorite-materials")
+        favorite_materials = Reveal(
+            [self._make_links(sample_favorites)],
+            title=H6("Favorited Materials", style={"display": "inline-block", "vertical-align": "middle"}),
+            id=self.id("favorite-materials"),
+            open=True
         )
+
+        notes_layout = Reveal([Field(
+            [
+                Control(
+                    html.Textarea(
+                        id=self.id("favorite-notes"),
+                        className="textarea",
+                        style={"min-height": "90%", "width": "100%"},
+                        placeholder="Enter your notes on the current material here",
+                    )
+                ),
+                html.P(
+                    [
+                        dcc.Markdown(
+                            "Favorites and notes are saved in your web browser "
+                            "and not associated with your Materials Project account or stored on our servers. "
+                            "If you want a permanent copy, [click here to download all of your notes]()."
+                        )
+                    ],
+                    className="help",
+                ),
+            ]
+        )], title="Notes")
 
         return {
             "button": favorite_button_container,
             "favorite_materials": favorite_materials,
+            "notes": notes_layout
         }
 
     def _generate_callbacks(self, app, cache):
@@ -91,3 +135,23 @@ class FavoritesComponent(MPComponent):
                 return self.favorited_button
             else:
                 return self.favorite_button
+
+        #@app.callback(
+        #    Output(self.id("favorite-button"), "n_clicks"),
+        #    [Input(self.id("notes"), "")],
+        #    [State(self.id("favorite-button"), "className")]
+        #)
+        #def auto_favorite(note_contents):
+        #    raise PreventUpdate
+        #    #... click favorite button if not clicked
+#
+#
+        #def update_store(note_contents, favorite_click, current_mpid, data):
+#
+#
+        #    if current_mpid not in data:
+        #        data[current_mpid] = Favorite
+#
+#
+        #def update_links_list():
+        #    # favorites
