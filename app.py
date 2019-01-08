@@ -72,14 +72,17 @@ cache = DummyCache()
 MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
-struct = MPRester().get_structure_by_material_id("mp-804")  # ("mp-123")
+struct = MPRester().get_structure_by_material_id("mp-19306") #"mp-5020") # ("mp-804")  # ("mp-123")
 
 struct_component = mpc.StructureMoleculeComponent(struct)
+
 search_component = mpc.SearchComponent()
 editor_component = mpc.JSONComponent()
 favorites_component = mpc.FavoritesComponent()
 
 literature_component = mpc.LiteratureComponent(origin_component=struct_component)
+robocrys_component = mpc.RobocrysComponent(origin_component=struct_component)
+magnetism_component = mpc.MagnetismComponent(origin_component=struct_component)
 
 # endregion
 
@@ -195,8 +198,9 @@ app.layout = Container(
                     [
                         Column(
                             [
+                                magnetism_component.panel_layout,
+                                robocrys_component.panel_layout,
                                 literature_component.panel_layout,
-                                Reveal(title="Magnetic Properties"),
                                 Reveal(title="Bonding and Local Environments"),
                                 Reveal(
                                     "Coming soon! Matt needs coffee 😪☕️",
