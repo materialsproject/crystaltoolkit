@@ -2,8 +2,10 @@
 
 //@import url('https://fonts.googleapis.com/css?family=EB+Garamond:400,600&subset=greek');
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,600');
+@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Serif:300,300i,400,400i,500,500i');
 
-//$family-primary: "EB Garamond", Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+$family-serif: "IBM Plex Serif", "EB Garamond", Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+
 $family-primary: "IBM Plex Sans", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
 "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 
@@ -27,10 +29,25 @@ details[open] summary ~ * {
   animation: sweep .2s ease-in-out;
 }
 
+// for panel reveal animation
 @keyframes sweep {
   0%    {opacity: 0; margin-top: 0;}
   100%  {opacity: 1; margin-top: 0.5rem;}
 }
+
+// for loading text animation
+@keyframes blink {
+    0% {
+      opacity: .2;
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      opacity: .2;
+    }
+}
+
 
 details .input,
 details .button{
@@ -39,6 +56,39 @@ details .button{
 }
 details .input{
   max-width: 91%;
+}
+
+.mpc-panel-description {
+  margin-bottom: 0.5rem;
+  font-style: italic;
+  font-family: $family-serif;
+}
+
+// thanks to https://martinwolf.org/before-2018/blog/2015/01/pure-css-savingloading-dots-animation/
+.mpc-loading span {
+    animation-name: blink;
+    animation-duration: 1.4s;
+    animation-iteration-count: infinite;
+    /**
+     * This makes sure that the starting style (opacity: .2)
+     * of the animation is applied before the animation starts.
+     * Otherwise we would see a short flash or would have
+     * to set the default styling of the dots to the same
+     * as the animation. Same applies for the ending styles.
+     */
+    animation-fill-mode: both;
+}
+.mpc-loading span:nth-child(2) {
+    animation-delay: .2s;
+}
+.mpc-loading span:nth-child(3) {
+    animation-delay: .4s;
+}
+
+.mpc-markdown blockquote {
+  padding-left: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 @import "../node_modules/bulma/bulma.sass";
