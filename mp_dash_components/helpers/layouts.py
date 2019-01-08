@@ -202,18 +202,18 @@ class Reveal(html.Details):
     def __init__(self, children=None, id=None, title=None, **kwargs):
         if children is None:
             children = ["Loading..."]
-        if id is None:
+        if id is None and isinstance(title, str):
             id = title
+        if isinstance(title, str):
+            title = H4(
+                title, style={"display": "inline-block", "vertical-align": "middle"}
+            )
         contents_id = f"{id}_contents" if id else None
+        summary_id = f"{id}_summary" if id else None
         kwargs["style"] = {"margin-bottom": "1rem"}
         super().__init__(
             [
-                html.Summary(
-                    H4(
-                        title,
-                        style={"display": "inline-block", "vertical-align": "middle"},
-                    )
-                ),
+                html.Summary(title, id=summary_id),
                 html.Div(
                     children,
                     id=contents_id,
@@ -272,8 +272,8 @@ class Tooltip(html.Div):
     pass
 
 
-#reference_button = Button(
+# reference_button = Button(
 #    [Icon(kind="book"), html.Span("Cite me")],
 #    size="small",
 #    kind="link"
-#)
+# )

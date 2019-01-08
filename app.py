@@ -69,12 +69,13 @@ MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
 struct = MPRester().get_structure_by_material_id("mp-5020")  # ("mp-123")
-struct = struct.get_reduced_structure()
+
 struct_component = mpc.StructureMoleculeComponent(struct)
 search_component = mpc.SearchComponent()
 editor_component = mpc.JSONComponent()
 favorites_component = mpc.FavoritesComponent()
-print(favorites_component)
+
+literature_component = mpc.LiteratureComponent()#(origin_component=struct_component)
 
 # endregion
 
@@ -177,36 +178,7 @@ app.layout = Container(
                                     ],
                                     title="Summary",
                                 ),
-                                Reveal(
-                                    [
-                                        Field(
-                                            [
-                                                Control(
-                                                    html.Textarea(
-                                                        id="favorite-notes",
-                                                        className="textarea",
-                                                        style={
-                                                            "min-height": "90%",
-                                                            "width": "100%",
-                                                        },
-                                                        placeholder="Enter your notes on the current material here...",
-                                                    )
-                                                ),
-                                                html.P(
-                                                    [
-                                                        dcc.Markdown(
-                                                            "Notes are saved in your web browser "
-                                                            "and not associated with your Materials Project account or shared between computers. "
-                                                            "If you want a permanent copy, [click here to download all of your notes]()."
-                                                        )
-                                                    ],
-                                                    className="help",
-                                                ),
-                                            ]
-                                        ),
-                                    ],
-                                    title="Notebook",
-                                ),
+                                favorites_component.notes_layout,
                             ],
                             style={"max-width": "65vmin"},
                         ),
@@ -218,10 +190,7 @@ app.layout = Container(
                     [
                         Column(
                             [
-                                Reveal(
-                                    [dt.DataTable(columns=[{"name": "Test"}])],
-                                    title="Literature Mentions",
-                                ),
+                                literature_component.panel_layout,
                                 Reveal(title="Magnetic Properties"),
                                 Reveal(title="Bonding and Local Environments"),
                                 Reveal(
