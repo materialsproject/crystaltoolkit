@@ -25,6 +25,7 @@ from mp_dash_components.helpers.layouts import (
     MessageContainer,
     MessageHeader,
     MessageBody,
+    Tag
 )
 
 from pymatgen.util.string import latexify_spacegroup
@@ -75,8 +76,8 @@ class MPComponent(ABC):
 
         if id in MPComponent._instances:
             raise ValueError(
-                "You cannot instantiate more than one instance of "
-                "the class with the same id."
+                f"You cannot instantiate more than one instance of "
+                f"the class with the same id: {id}."
             )
 
         self._id = id
@@ -275,10 +276,12 @@ Layouts: {list(self.supported_layouts)}"""
 
 
 class PanelComponent(MPComponent):
-    def __init__(self, *args, open_by_default=False, prime_cache=False, **kwargs):
+    def __init__(self, *args, open_by_default=False, enable_error_message=True,
+                 prime_cache=False, **kwargs):
 
         self.open_by_default = open_by_default
         self.prime_cache = prime_cache
+        self.enable_error_message = enable_error_message
 
         if self.description and len(self.description) > 140:
             raise ValueError(
@@ -310,6 +313,10 @@ class PanelComponent(MPComponent):
         return None
 
     @property
+    def warning(self):
+        return None
+
+    @property
     def description(self):
         return None
 
@@ -330,7 +337,15 @@ class PanelComponent(MPComponent):
             className="mpc-panel-description",
         )
 
-        contents = html.Div([message, description, initial_contents])
+        if self.warning:
+            warning = Tag(
+                self.warning,
+                tag_type="warning"
+            )
+        else:
+            warning = html.Div()
+
+        contents = html.Div([message, warning, description, initial_contents])
 
         panel = Reveal(
             title=self.title,
@@ -394,15 +409,16 @@ class PanelComponent(MPComponent):
                 raise PreventUpdate
             return update_contents(store_contents)
 
-        @app.callback(
-            Output(self.id("message"), "children"),
-            [Input(self.id("panel") + "_summary", "n_clicks")],
-            [State(self.id(), "data"), State(self.id("panel"), "open")],
-        )
-        def update_message(panel_n_clicks, store_contents, panel_initially_open):
-            if (panel_n_clicks is None) or (panel_initially_open is None):
-                raise PreventUpdate
-            return self.update_message(store_contents)
+        if self.enable_error_message:
+            @app.callback(
+                Output(self.id("message"), "children"),
+                [Input(self.id("panel") + "_summary", "n_clicks")],
+                [State(self.id(), "data"), State(self.id("panel"), "open")],
+            )
+            def update_message(panel_n_clicks, store_contents, panel_initially_open):
+                if (panel_n_clicks is None) or (panel_initially_open is None):
+                    raise PreventUpdate
+                return self.update_message(store_contents)
 
 
 def unicodeify_spacegroup(spacegroup_symbol):

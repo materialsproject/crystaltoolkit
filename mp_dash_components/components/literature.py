@@ -10,6 +10,8 @@ from mp_dash_components.helpers.layouts import Label, Tag
 
 from pymatgen import Structure, MPRester
 
+import re
+
 from pybtex.database.input.bibtex import Parser
 from pybtex.plugin import find_plugin
 from pybtex.style.formatting.unsrt import sentence, field
@@ -20,6 +22,8 @@ from bibtexparser import loads
 from habanero import Crossref
 from habanero.cn import content_negotiation
 
+import codecs
+import latexcodec
 
 class LiteratureComponent(PanelComponent):
     def __init__(self, *args, use_crossref=True, **kwargs):
@@ -42,6 +46,10 @@ class LiteratureComponent(PanelComponent):
     @property
     def loading_text(self):
         return "Looking up journal entries, this can take up to a minute"
+
+    @property
+    def warning(self):
+        return "New feature (not pre-cached)"
 
     @staticmethod
     def _pybtex_entries_to_markdown(entries):
@@ -90,7 +98,9 @@ class LiteratureComponent(PanelComponent):
         entry = loads(entry).entries[0]
         if "author" not in entry:
             return ""
-        authors = entry["author"].split(" and ")
+        authors = codecs.decode(entry["author"], "ulatex")
+        authors = re.sub(r"\s*{.*}\s*", " ", authors).replace("{}", "")
+        authors = authors.split(" and ")
         if len(authors) > et_al_cutoff:
             authors = authors[0:et_al_cutoff]
         if len(authors) > 1:
@@ -135,7 +145,6 @@ class LiteratureComponent(PanelComponent):
         """
 
         struct = self.from_data(new_store_contents)
-        print("Callback hit!")
 
         if not isinstance(struct, Structure):
             raise PreventUpdate(
@@ -197,7 +206,6 @@ class LiteratureComponent(PanelComponent):
                 list(dois_to_item.keys()),
                 key=lambda doi: -dois_to_item[doi]["cited-by"],
             )
-            print("Retrieved dois.")
 
             if self.use_crossref_formatting:
                 # use Crossref to retrieve pre-formatted text
@@ -229,7 +237,6 @@ class LiteratureComponent(PanelComponent):
                     doi: content_negotiation(ids=doi, format="bibtex")
                     for doi in sorted_dois
                 }
-                print("Retrieved entries.")
 
                 formatted_entries = []
                 for doi, entry in entries.items():

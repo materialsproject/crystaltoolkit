@@ -3,6 +3,7 @@ dash-core-components>=0.30.0rc1
 dash-html-components>=0.11.0
 dash-renderer>=0.13.2
 dash-table-experiments>=0.6.0
+dash-dangerously-set-inner-html
 
 pymatgen>=2018.11.6
 
@@ -15,8 +16,19 @@ redis>=2.10.6
 raven>=6.9.0
 Flask-Caching>=1.3.3
 
+# for favorites component
 toml
+
+# for search component
 fuzzywuzzy[speedup]
+
+# for literature component
+bibtexparser
 pybtex
+habanero
+latexcodec
+
+# for robocrystallographer
+robocrys
 
 -e .
