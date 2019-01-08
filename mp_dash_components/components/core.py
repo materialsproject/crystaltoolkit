@@ -104,7 +104,7 @@ class MPComponent(ABC):
         else:
             if MPComponent.app is None:
                 raise ValueError("Can only link stores if an app is defined.")
-            self._canonical_store_id = origin_component._store_id
+            self._canonical_store_id = origin_component._canonical_store_id
 
         if MPComponent.app:
             self._generate_callbacks(MPComponent.app, MPComponent.cache)
@@ -119,8 +119,15 @@ class MPComponent(ABC):
         self._all_ids.add(name)
         return name
 
-    def create_store(self, name, initial_data=None, persistence=None, clear=False):
-        store = dcc.Store(id=self.id(name), data=self.to_data(initial_data))
+    def create_store(
+        self, name, initial_data=None, persistence="memory", debug_clear=False
+    ):
+        store = dcc.Store(
+            id=self.id(name),
+            data=self.to_data(initial_data),
+            storage_type=persistence,
+            clear_data=debug_clear,
+        )
         self._stores[name] = store
         MPComponent._app_stores.append(store)
 
@@ -180,7 +187,10 @@ class MPComponent(ABC):
     def __getattr__(self, item):
         if item == "supported_stores":
             raise AttributeError  # prevent infinite recursion
-        if item in self.supported_stores:
+        if (
+            item.endswith("store")
+            and item.split("_store")[0] in self.supported_stores
+        ):
             return self.id(item)
         elif (
             item.endswith("layout")
@@ -265,9 +275,10 @@ Layouts: {list(self.supported_layouts)}"""
 
 
 class PanelComponent(MPComponent):
-    def __init__(self, *args, open_by_default=False, **kwargs):
+    def __init__(self, *args, open_by_default=False, prime_cache=False, **kwargs):
 
         self.open_by_default = open_by_default
+        self.prime_cache = prime_cache
 
         if self.description and len(self.description) > 140:
             raise ValueError(
@@ -284,7 +295,7 @@ class PanelComponent(MPComponent):
     @property
     def initial_contents(self):
         return html.P(
-            ["Loading", html.Span("."), html.Span("."), html.Span(".")],
+            [self.loading_text, html.Span("."), html.Span("."), html.Span(".")],
             className="mpc-loading",
         )
 
@@ -300,8 +311,11 @@ class PanelComponent(MPComponent):
 
     @property
     def description(self):
-        # TODO: Implement
         return None
+
+    @property
+    def loading_text(self):
+        return "Loading"
 
     @property
     def all_layouts(self):
@@ -356,15 +370,29 @@ class PanelComponent(MPComponent):
             return html.Div()
 
     def _generate_callbacks(self, app, cache):
+
+        @cache.memoize(timeout=86400)
+        def update_contents(*args, **kwargs):
+            return self.update_contents(*args, **kwargs)
+
         @app.callback(
             Output(self.id("contents"), "children"),
             [Input(self.id("panel") + "_summary", "n_clicks")],
             [State(self.id(), "data"), State(self.id("panel"), "open")],
         )
         def load_contents(panel_n_clicks, store_contents, panel_initially_open):
+            """
+            Only update panel contents if panel is open by default, to speed up
+            initial load time.
+            """
             if (panel_n_clicks is None) or (panel_initially_open is None):
+                # TODO: prime cache here? is this wise? more investigation required
+                if self.prime_cache:
+                    from threading import Thread
+                    thread = Thread(target=update_contents, args=(store_contents ,))
+                    thread.start()
                 raise PreventUpdate
-            return self.update_contents(store_contents)
+            return update_contents(store_contents)
 
         @app.callback(
             Output(self.id("message"), "children"),
