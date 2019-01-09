@@ -67,12 +67,12 @@
         "required": false,
         "description": "Hide/show nodes in scene by name (key), value is 1 to show the node\nand 0 to hide it"
       },
-      "nScreenshotRequests": {
+      "downloadRequest": {
         "type": {
-          "name": "number"
+          "name": "object"
         },
         "required": false,
-        "description": "Increment to trigger a screenshot download."
+        "description": "Increment to trigger a screenshot or scene download."
       },
       "setProps": {
         "type": {
@@ -80,88 +80,6 @@
         },
         "required": false,
         "description": "Dash-assigned callback that should be called whenever any of the\nproperties change"
-      }
-    }
-  },
-  "src/components/StructureViewerComponent.react.js": {
-    "description": "StructureViewerComponent is ...\n...",
-    "displayName": "StructureViewerComponent",
-    "methods": [],
-    "props": {
-      "id": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "The ID used to identify this compnent in Dash callbacks"
-      },
-      "data": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "JSON describing the visualization of the crystal structure, generated\nby pymatgen's MaterialsProjectStructureVis class"
-      },
-      "value": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "The pymatgen Structure, stored for convenience (not used internally by viewer)"
-      },
-      "generationOptions": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "Options used for generating visualization, stored for convenience (not used internally by viewer)",
-        "defaultValue": {
-          "value": "{}",
-          "computed": false
-        }
-      },
-      "visibilityOptions": {
-        "type": {
-          "name": "object"
-        },
-        "required": false,
-        "description": "Whether or not to display atoms, bonds, etc.\n(This also includes specific polyhedra tags, might\n separate this into a separate prop later)"
-      },
-      "rotationSpeed": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Amount to rotate about y-axis per frame",
-        "defaultValue": {
-          "value": "0",
-          "computed": false
-        }
-      },
-      "setProps": {
-        "type": {
-          "name": "func"
-        },
-        "required": false,
-        "description": "Dash-assigned callback that should be called whenever any of the\nproperties change"
-      },
-      "n_screenshot_requests": {
-        "type": {
-          "name": "number"
-        },
-        "required": false,
-        "description": "Increment to trigger a screenshot request",
-        "defaultValue": {
-          "value": "0",
-          "computed": false
-        }
-      },
-      "screenshot": {
-        "type": {
-          "name": "string"
-        },
-        "required": false,
-        "description": "Screenshot as PNG data URI."
       }
     }
   }

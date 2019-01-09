@@ -23,11 +23,8 @@ class RobocrysComponent(PanelComponent):
 
     @property
     def loading_text(self):
-        return "Robocrystallographer is analyzing your structure"
-
-    @property
-    def warning(self):
-        return "New feature (not pre-cached)"
+        return "Robocrystallographer is analyzing your structure. " \
+               "This is a new service and not pre-cached so may take up to a minute"
 
     def update_contents(self, new_store_contents):
 
@@ -40,12 +37,14 @@ class RobocrysComponent(PanelComponent):
 
         description = describer.describe(condensed_structure)
 
-        return html.Div(
+        return html.Blockquote(
             [
                 f"{description} – ",
                 html.A(
                     f"🤖 robocrys v{robocrys_version}",
                     href="https://github.com/hackingmaterials/robocrystallographer",
+                    style={"white-space": "nowrap"},
                 ),
-            ]
+            ],
+            className="mpc-blockquote",
         )

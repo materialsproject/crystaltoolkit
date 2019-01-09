@@ -37,6 +37,10 @@ class MagnetismComponent(PanelComponent):
             "ordering of this crystal structure."
         )
 
+    @property
+    def loading_text(self):
+        return "Creating visualization of magnetic structure"
+
     def update_contents(self, new_store_contents):
 
         struct = self.from_data(new_store_contents)

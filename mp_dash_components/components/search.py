@@ -126,7 +126,7 @@ class SearchComponent(MPComponent):
         search = html.Div(self._make_search_box(), id=self.id("search_container"))
 
         random_link = html.A(
-            "or get random mp-id", className="is-text is-size-7", id=self.id("random")
+            "get random mp-id", className="is-text is-size-7", id=self.id("random")
         )
 
         dropdown = dcc.Dropdown(id=self.id("dropdown"), clearable=False)

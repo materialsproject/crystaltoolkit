@@ -5,7 +5,7 @@ from dash_dangerously_set_inner_html import DangerouslySetInnerHTML
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from mp_dash_components.components.core import PanelComponent
+from mp_dash_components.components.core import PanelComponent, MPComponent
 from mp_dash_components.helpers.layouts import Label, Tag
 
 from pymatgen import Structure, MPRester
@@ -31,6 +31,19 @@ class LiteratureComponent(PanelComponent):
         self.use_crossref_formatting = False
         super().__init__(*args, **kwargs)
 
+        @MPComponent.cache.memoize(timout=self.mprester_cache_timeout)
+        def get_materials_id_references(mpid):
+            with MPRester() as mpr:
+                references = mpr.get_materials_id_references(mpid)
+            return references
+        self.get_materials_id_references = get_materials_id_references
+
+        @MPComponent.cache.memoize(timeout=0)
+        def format_bibtex_references(references, use_crossref=True, custom_formatting=True):
+            self._format_bibtex_references(references, use_crossref=use_crossref,
+                                           custom_formatting=custom_formatting)
+        self.format_bibtex_references = format_bibtex_references
+
     @property
     def title(self):
         return "Literature Mentions"
@@ -45,11 +58,7 @@ class LiteratureComponent(PanelComponent):
 
     @property
     def loading_text(self):
-        return "Looking up journal entries, this can take up to a minute"
-
-    @property
-    def warning(self):
-        return "New feature (not pre-cached)"
+        return "Looking up journal entries. This is a new service and not pre-cached so may take up to a minute"
 
     @staticmethod
     def _pybtex_entries_to_markdown(entries):
@@ -135,6 +144,9 @@ class LiteratureComponent(PanelComponent):
             contents.append(html.Span(f" {item['date-parts'][0][0] }."))
 
         return html.Div(contents, style={"display": "inline-block"})
+
+    def _get_references_for_mpid(self, use_crossref=True, custom_formatting=True):
+        return ...
 
     def update_contents(self, new_store_contents):
         """

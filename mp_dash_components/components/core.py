@@ -29,7 +29,7 @@ from mp_dash_components.helpers.layouts import (
 )
 
 from pymatgen.util.string import latexify_spacegroup
-
+from pymatgen import MPRester
 
 class DummyCache:
     @staticmethod
@@ -39,9 +39,6 @@ class DummyCache:
 
 
 class MPComponent(ABC):
-    """
-
-    """
 
     _instances = {}
     _app_stores = []
@@ -61,7 +58,8 @@ class MPComponent(ABC):
     def all_app_stores():
         return html.Div(MPComponent._app_stores)
 
-    def __init__(self, id=None, origin_component=None, contents=None):
+    def __init__(self, contents=None, id=None, origin_component=None,
+                 mprester_cache_timeout=60*60*24):
         """
         :param id: a unique id for this component, if not specified a random
         one will be chosen
@@ -98,6 +96,17 @@ class MPComponent(ABC):
                 f"performance of app may be degraded. Please register cache "
                 f"using MPComponent.register_cache(cache)."
             )
+
+        self.mprester_cache_timeout = mprester_cache_timeout
+
+        # a cached MPRester for convenience
+        @MPComponent.cache.memoize(timeout=mprester_cache_timeout)
+        def mpr_query(criteria, properties):
+            with MPRester() as mpr:
+                entries = mpr.query(criteria=criteria, properties=properties)
+            return entries
+
+        self.mpr_query = mpr_query
 
         if origin_component is None:
             self._canonical_store_id = self._id
@@ -156,16 +165,16 @@ class MPComponent(ABC):
         return loads(data, cls=MontyDecoder)
 
     def attach_from(
-        self, origin_component, origin_store_suffix=None, this_store_suffix=None
+        self, origin_component, origin_store_name=None, this_store_name=None
     ):
         """
         Link two MPComponents together.
 
         :param origin_component: An MPComponent
-        :param origin_store_suffix: The suffix for the Store layout in the
+        :param origin_store_name: The suffix for the Store layout in the
         origin component, e.g. "structure" or "mpid", if None will link to
         the component's default Store
-        :param this_store_suffix: The suffix for the Store layout in this
+        :param this_store_name: The suffix for the Store layout in this
         component to be linked to, this is usually equal to the
         origin_store_suffix
         :return:
@@ -174,8 +183,8 @@ class MPComponent(ABC):
         if MPComponent.app is None:
             raise AttributeError("No app defined, callbacks cannot be created.")
 
-        origin_store_id = origin_component.id(origin_store_suffix)
-        dest_store_id = self.id(this_store_suffix)
+        origin_store_id = origin_component.id(origin_store_name)
+        dest_store_id = self.id(this_store_name)
 
         @MPComponent.app.callback(
             Output(dest_store_id, "data"),
@@ -313,10 +322,6 @@ class PanelComponent(MPComponent):
         return None
 
     @property
-    def warning(self):
-        return None
-
-    @property
     def description(self):
         return None
 
@@ -337,15 +342,7 @@ class PanelComponent(MPComponent):
             className="mpc-panel-description",
         )
 
-        if self.warning:
-            warning = Tag(
-                self.warning,
-                tag_type="warning"
-            )
-        else:
-            warning = html.Div()
-
-        contents = html.Div([message, warning, description, initial_contents])
+        contents = html.Div([message, description, initial_contents])
 
         panel = Reveal(
             title=self.title,
@@ -372,6 +369,7 @@ class PanelComponent(MPComponent):
                 "An error was encountered when trying to load this component, "
                 "please report this if it seems like a bug, thank you!"
             )
+            # TODO: add Issue badge here
             return MessageContainer(
                 [
                     MessageHeader("Error"),
@@ -392,8 +390,9 @@ class PanelComponent(MPComponent):
 
         @app.callback(
             Output(self.id("contents"), "children"),
-            [Input(self.id("panel") + "_summary", "n_clicks")],
-            [State(self.id(), "data"), State(self.id("panel"), "open")],
+            [Input(self.id("panel") + "_summary", "n_clicks"),
+             Input(self.id(), "data")],
+            [State(self.id("panel"), "open")],
         )
         def load_contents(panel_n_clicks, store_contents, panel_initially_open):
             """
