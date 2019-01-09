@@ -1,28 +1,30 @@
-dash>=0.26.4
-dash-core-components>=0.30.0rc1
-dash-html-components>=0.11.0
-dash-renderer>=0.13.2
-dash-table-experiments>=0.6.0
-dash-dangerously-set-inner-html
+# pin Dash versions for deployment
+dash==0.35.1
+dash-core-components==0.42.1
+dash-html-components==0.13.4
+dash-renderer==0.16.1
+dash-table==3.1.11
+dash-dangerously-set-inner-html==0.0.2
 
-pymatgen>=2018.11.6
-
+# server requirements
 gunicorn>=19.7.1
-https://github.com/materialsproject/pymatgen/archive/master.zip
-
-PyYAML>=3.12
-networkx>=2.0
-redis>=2.10.6
-raven>=6.9.0
+redis>=2.10.6  # caching
 Flask-Caching>=1.3.3
+raven>=6.9.0  # logging (optional)
+pymongo>=3.7.2  # database (optional)
+mongomock>=3.14.0  # database fallback
 
-# for favorites component
+# for everything
+pymatgen>=2018.12.12
+networkx>=2.0
+
+# for favorites
 toml
 
-# for search component
+# for search
 fuzzywuzzy[speedup]
 
-# for literature component
+# for literature
 bibtexparser
 pybtex
 habanero
@@ -31,4 +33,5 @@ latexcodec
 # for robocrystallographer
 robocrys
 
--e .
+# for propnet
+https://github.com/materialsintelligence/propnet/archive/master.zip
