@@ -29,9 +29,10 @@ from pymatgen.util.string import unicodeify
 
 from typing import Dict, Union, Optional, List, Tuple
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from itertools import combinations
+import re
 
 from mp_dash_components.helpers.scene import (
     Scene,
@@ -74,6 +75,13 @@ class StructureMoleculeComponent(MPComponent):
                 "type": "DirectionalLight",
                 "args": ["#ffffff", 0.15],
                 "position": [-10, 10, 10],
+                #"helper":True
+            },
+            {
+                "type": "DirectionalLight",
+                "args": ["#ffffff", 0.15],
+                "position": [0, 0, -10],
+                #"helper": True
             },
             # {"type":"AmbientLight", "args":["#eeeeee", 0.9]}
             {"type": "HemisphereLight", "args": ["#eeeeee", "#999999", 1.0]},
@@ -160,7 +168,6 @@ class StructureMoleculeComponent(MPComponent):
             self.initial_scene_additions = scene_additions
             self.create_store("scene_additions", initial_data=scene_additions.to_json())
 
-
     def _generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("scene"), "downloadRequest"),
@@ -188,8 +195,6 @@ class StructureMoleculeComponent(MPComponent):
                 "filetype": "png",
             }
 
-
-
     def _make_legend(self, legend):
 
         if legend is None or (not legend.get("colors", None)):
@@ -204,6 +209,10 @@ class StructureMoleculeComponent(MPComponent):
                 font_color = "#ffffff"
             return font_color
 
+        formula = Composition.from_dict(legend["composition"]).reduced_formula
+        legend_colors = OrderedDict(sorted(list(legend["colors"].items()),
+                                           key=lambda x: formula.find(x[1])))
+
         legend_elements = [
             Button(
                 html.Span(
@@ -212,7 +221,7 @@ class StructureMoleculeComponent(MPComponent):
                 kind="static",
                 style={"background-color": color},
             )
-            for color, name in legend["colors"].items()
+            for color, name in legend_colors.items()
         ]
 
         return Field(
@@ -227,11 +236,16 @@ class StructureMoleculeComponent(MPComponent):
             return html.Div(id=self.id("title"))
 
         composition = Composition.from_dict(legend["composition"])
+        formula = composition.reduced_formula
+        formula_parts = re.findall(r"[^\d_]+|\d+", formula)
+
+        formula_components = [
+            html.Sub(part) if part.isnumeric() else html.Span(part)
+            for part in formula_parts
+        ]
 
         return H1(
-            unicodeify(composition.reduced_formula),
-            id=self.id("title"),
-            style={"display": "inline-block"},
+            formula_components, id=self.id("title"), style={"display": "inline-block"}
         )
 
     @property

@@ -27,8 +27,10 @@
   },
   "dependencies": {
     "builder": "3.2.2",
+    "bulma": "^0.7.2",
     "copyfiles": "^1.2.0",
     "dash-components-archetype": "^0.2.11",
+    "jszip": "^3.1.5",
     "npm": "^6.1.0",
     "orbit-controls-es6": "^1.0.12",
     "prop-types": "^15.5.9",

@@ -123,3 +123,20 @@ details .input{
 }
 
 @import "../node_modules/bulma/bulma.sass";
+
+
+// style dash_core_component Dropdown
+.Select--multi .Select-value {
+	background-color: $primary;
+	//background-color: rgba(0, 126, 255, .08);
+	border-radius: 2px;
+	border: 1px solid #c2e0ff;
+	border: 1px solid rgba(0, 126, 255, .24);
+	color: $white;
+	display: inline-block;
+	font-size: .9em;
+	line-height: 1.4;
+	margin-left: 5px;
+	margin-top: 5px;
+	vertical-align: top
+}

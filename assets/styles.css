@@ -64,10 +64,6 @@ details .input {
   padding-left: 1rem;
   margin-bottom: 1rem; }
 
-.mpc-blockquote blockquote {
-  padding-left: 1rem;
-  margin-bottom: 1rem; }
-
 .tooltip {
   position: relative;
   display: inline-block;
@@ -6767,5 +6763,18 @@ label.panel-block {
 .footer {
   background-color: #fafafa;
   padding: 3rem 1.5rem 6rem; }
+
+.Select--multi .Select-value {
+  background-color: #00d1b2;
+  border-radius: 2px;
+  border: 1px solid #c2e0ff;
+  border: 1px solid rgba(0, 126, 255, 0.24);
+  color: white;
+  display: inline-block;
+  font-size: .9em;
+  line-height: 1.4;
+  margin-left: 5px;
+  margin-top: 5px;
+  vertical-align: top; }
 
 /*# sourceMappingURL=styles.css.map */

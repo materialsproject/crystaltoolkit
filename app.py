@@ -28,10 +28,21 @@ from urllib import parse
 # region SET UP APP
 ################################################################################
 
-app = dash.Dash()
+meta_tags = [
+    {
+        "name": "description",
+        "content": "Crystal Toolkit allows you to import, view, analyze and transform "
+        "crystal structures and molecules using the full power of the Materials "
+        "Project.",
+    }
+]
+
+app = dash.Dash(meta_tags=meta_tags)
 app.config["suppress_callback_exceptions"] = True
 app.title = "Crystal Toolkit"
-app.scripts.config.serve_locally = True
+app.scripts.config.serve_locally = False
+app.scripts.append_script({"external_url": "https://buttons.github.io/buttons.js"})
+
 app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
 
@@ -60,6 +71,7 @@ except Exception as exception:
 
 # Enable for debug purposes:
 from mp_dash_components.components.core import DummyCache
+
 cache = DummyCache()
 
 # endregion
@@ -72,17 +84,30 @@ cache = DummyCache()
 MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
-struct = MPRester().get_structure_by_material_id("mp-19306") #"mp-5020") # ("mp-804")  # ("mp-123")
+struct = MPRester().get_structure_by_material_id(
+    "mp-1078929"#"mp-804"
+)  # 19306 #"mp-5020") # ("mp-804")  # ("mp-123")
+
+
+json_editor_component = mpc.JSONEditor(struct)
 
 struct_component = mpc.StructureMoleculeComponent(struct)
 
 search_component = mpc.SearchComponent()
-editor_component = mpc.JSONComponent()
+
 favorites_component = mpc.FavoritesComponent()
+favorites_component.attach_from(search_component, this_store_name="mpid-to-add")
 
 literature_component = mpc.LiteratureComponent(origin_component=struct_component)
 robocrys_component = mpc.RobocrysComponent(origin_component=struct_component)
 magnetism_component = mpc.MagnetismComponent(origin_component=struct_component)
+
+panels = [
+    literature_component,
+    robocrys_component,
+    magnetism_component,
+    json_editor_component,
+]
 
 # endregion
 
@@ -93,17 +118,34 @@ magnetism_component = mpc.MagnetismComponent(origin_component=struct_component)
 
 footer = mpc.Footer(
     html.Div(
-        dcc.Markdown(
-            f"Bug reports and feature requests gratefully accepted, "
-            f"contact [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
-            f"Created by [Crystal Toolkit Development Team]"
-            f"(https://github.com/materialsproject/mash/), "
-            f"powered by [The Materials Project](https://materialsproject.org) "
-            f"and [pymatgen](http://pymatgen.org) v{pmg_version}."
-        ),
+        [
+            html.Iframe(
+                src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=mash&type=star&count=true",
+                style={
+                    "frameborder": False,
+                    "scrolling": False,
+                    "width": "72px",
+                    "height": "20px",
+                },
+            ),
+            dcc.Markdown(
+                f"Bug reports and feature requests gratefully accepted, "
+                f"contact [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
+                f"Powered by [The Materials Project](https://materialsproject.org), "
+                f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
+                f"[Dash by Plotly](https://plot.ly/products/dash/). "
+                f"Deployed on [Spin](http://www.nersc.gov/users/data-analytics/spin/)."
+            ),
+        ],
         className="content has-text-centered",
     ),
     style={"padding": "1rem 1rem 1rem", "background-color": "inherit"},
+)
+
+panel_choices = dcc.Dropdown(
+    options=[{"label": panel.title, "value": idx} for idx, panel in enumerate(panels)],
+    multi=True,
+    value=0,
 )
 
 # endregion
@@ -168,10 +210,11 @@ app.layout = Container(
                         ),
                         Column(
                             [
-                                # search_component.standard_layout,
                                 Reveal(
-                                    [search_component.standard_layout,
-                                     favorites_component.favorite_materials_layout],
+                                    [
+                                        search_component.standard_layout,
+                                        favorites_component.favorite_materials_layout,
+                                    ],
                                     title="Load Crystal or Molecule",
                                     open=True,
                                     style={"line-height": "1"},
@@ -186,7 +229,7 @@ app.layout = Container(
                                     ],
                                     title="Summary",
                                 ),
-                                #favorites_component.notes_layout,
+                                # favorites_component.notes_layout,
                             ],
                             style={"max-width": "65vmin"},
                         ),
@@ -198,15 +241,23 @@ app.layout = Container(
                     [
                         Column(
                             [
-                                magnetism_component.panel_layout,
-                                robocrys_component.panel_layout,
-                                literature_component.panel_layout,
-                                Reveal(title="Bonding and Local Environments"),
-                                Reveal(
-                                    "Coming soon! Matt needs coffee 😪☕️",
-                                    title="Transform Crystal",
+                                dcc.Markdown(
+                                    [
+                                        "Crystal Toolkit offers various *panels* "
+                                        "which each provide different ways "
+                                        "of analyzing, transforming or retrieving information "
+                                        "about a material using "
+                                        "resources and tools available to "
+                                        "The Materials Project. Some panels retrieve data or run algorithms on demand, "
+                                        "so please allow some time for them to run. Explore these panels below."
+                                    ],
+                                    className="mpc-panel-description",
                                 ),
-                                Reveal(title="JSON Editor"),
+                                # panel_choices,
+                                html.Div(
+                                    [panel.panel_layout for panel in panels],
+                                    id="panels",
+                                ),
                             ]
                         )
                     ]
@@ -222,7 +273,7 @@ app.layout = Container(
 
 
 ################################################################################
-# region SET UP API ROUTES (to support creating viewer links)
+# region SET UP API ROUTES (to support creating viewer links in future)
 ################################################################################
 
 
@@ -317,8 +368,7 @@ def update_url_pathname_from_search_term(data):
 
 
 @app.callback(
-    Output(struct_component.id(), "data"),
-    [Input(search_component.id(), "data")]
+    Output(struct_component.id(), "data"), [Input(search_component.id(), "data")]
 )
 def update_structure(search_mpid):
 
@@ -329,6 +379,7 @@ def update_structure(search_mpid):
         struct = mpr.get_structure_by_material_id(search_mpid["mpid"])
 
     return MPComponent.to_data(struct)
+
 
 # endregion
 

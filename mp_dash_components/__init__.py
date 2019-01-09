@@ -34,10 +34,16 @@ for _component in _components:
 
 
 # convenience imports
-from mp_dash_components.components.json import JSONComponent
+from mp_dash_components.components.json import JSONEditor
 from mp_dash_components.components.search import SearchComponent
 from mp_dash_components.components.structure import StructureMoleculeComponent
 from mp_dash_components.components.favorites import FavoritesComponent
+from mp_dash_components.components.literature import LiteratureComponent
+from mp_dash_components.components.robocrys import RobocrysComponent
+from mp_dash_components.components.magnetism import MagnetismComponent
+#from mp_dash_components.components.bonding_graph import BondingGraphComponent
+from mp_dash_components.components.magnetism import MagnetismComponent
+from mp_dash_components.components.transformations.core import TransformationsComponent
 from mp_dash_components.helpers.layouts import *
 from mp_dash_components.helpers.scene import *
 from mp_dash_components.helpers.view import view

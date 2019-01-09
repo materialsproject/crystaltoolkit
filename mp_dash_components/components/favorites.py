@@ -7,6 +7,7 @@ from dash.exceptions import PreventUpdate
 from mp_dash_components.components.core import MPComponent, unicodeify_spacegroup
 from mp_dash_components.helpers.layouts import *
 
+from pymatgen import MPRester
 from pymatgen.util.string import unicodeify
 
 from typing import List, Dict
@@ -27,6 +28,7 @@ sample_favorites = [
 class FavoritesComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.create_store("mpid-to-add")
 
     def to_toml(self, favorites: List[Favorite]):
 
@@ -44,6 +46,9 @@ class FavoritesComponent(MPComponent):
         return header + dumps(save_format)
 
     def _make_links(self, favorites: List[Favorite]):
+
+        favorites = [Favorite(*favorite) for favorite in favorites]
+        print("><><><>", favorites)
 
         return Field(
             [
@@ -84,12 +89,12 @@ class FavoritesComponent(MPComponent):
             style={"display": "inline-block"},
         )
 
-        favorite_materials = Reveal(
+        favorite_materials = html.Div([Reveal(
             [self._make_links(sample_favorites)],
             title=H6("Favorited Materials", style={"display": "inline-block", "vertical-align": "middle"}),
             id=self.id("favorite-materials"),
             open=True
-        )
+        )], id=self.id("favorite-materials-container"))
 
         # TODO: add when Dash supports text areas!
         notes_layout = Reveal([Field(
@@ -160,13 +165,62 @@ class FavoritesComponent(MPComponent):
             else:
                 return n_clicks
 
+        @app.callback(
+            Output(self.id(), "data"),
+            [Input(self.id("favorite-button"), "className"),
+             Input(self.id("mpid-to-add"), "data")],  # className is a proxy for its state
+            [State(self.id(), "data")]
+        )
+        def update_store(className, current_mpid, favorites):
+            # TODO: add notes to this as well
 
-        def update_store(note_contents, favorite_click, current_mpid, data):
+            print("hi")
+            print("current", current_mpid)
+            print("favs", favorites)
 
+            if current_mpid is None or "mpid" not in current_mpid:
+                raise PreventUpdate
+            if "white" in className:
+                mode = "remove"
+            else:
+                mode = "add"
 
-            if current_mpid not in data:
-                data[current_mpid] = Favorite
+            favorites = favorites or {}
+            favorites = {mpid:Favorite(*favorite) for mpid, favorite in favorites.items()}
 
+            mpid = current_mpid["mpid"]
 
-        def update_links_list():
-            ...
+            if mode == "add":
+
+                with MPRester() as mpr:
+                    meta = mpr.query({"task_id": mpid},
+                                     ['spacegroup.symbol', 'pretty_formula'])[0]
+
+                if mpid not in favorites:
+                    favorites[mpid] = Favorite(mpid=mpid, spacegroup=meta["spacegroup.symbol"], formula=meta["pretty_formula"], notes="")
+
+            elif mode == "remove":
+
+                if mpid in favorites:
+                    del favorites[mpid]
+
+            return favorites
+
+        @app.callback(
+            Output(self.id("favorite-materials_contents"), "children"),
+            [Input(self.id(), "data")]
+        )
+        def update_links_list(favorites):
+            if favorites is None:
+                raise PreventUpdate
+            return self._make_links(favorites.values())
+
+        @app.callback(
+            Output(self.id("favorite-materials-container"), "style"),
+            [Input(self.id(), "data")]
+        )
+        def hide_show_links_list(favorites):
+            if favorites is None or len(favorites) == 0:
+                return {"display": "none"}
+            else:
+                return {}
