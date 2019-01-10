@@ -233,8 +233,8 @@ class SearchComponent(MPComponent):
         @app.callback(
             Output(self.id("results"), "data"),
             [
-                Input(self.id("input"), "n_submit_timestamp"),
-                Input(self.id("button"), "n_clicks_timestamp"),
+                Input(self.id("input"), "n_submit"),
+                Input(self.id("button"), "n_clicks"),
                 # Input(self.id("random"), "n_clicks_timestamp"),
             ],
             [State(self.id("input"), "value")],
@@ -253,7 +253,7 @@ class SearchComponent(MPComponent):
             # if (n_submit is None) and (n_clicks is None) and (random_n_clicks is None):
             #    raise PreventUpdate
 
-            if search_term is None:
+            if not search_term:
                 raise PreventUpdate
 
             self.logger.info(f"Search: {search_term}")

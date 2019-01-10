@@ -64,6 +64,9 @@ details .input {
   padding-left: 1rem;
   margin-bottom: 1rem; }
 
+.mpc-radio {
+  margin-right: 0.5rem; }
+
 .tooltip {
   position: relative;
   display: inline-block;
@@ -194,7 +197,7 @@ details .input {
     min-width: 32px;
     width: 32px; }
 
-.button.is-loading::after, .select.is-loading::after, .control.is-loading::after, .loader {
+.button.is-loading::after, .select.is-loading::after, .control.is-loading::after, .is-loading.mpc-control::after, .loader {
   animation: spinAround 500ms infinite linear;
   border: 2px solid #dbdbdb;
   border-radius: 290486px;
@@ -2708,66 +2711,92 @@ a.box:active {
 .field.has-addons {
   display: flex;
   justify-content: flex-start; }
-  .field.has-addons .control:not(:last-child) {
+  .field.has-addons .control:not(:last-child), .field.has-addons .mpc-control:not(:last-child) {
     margin-right: -1px; }
-  .field.has-addons .control:not(:first-child):not(:last-child) .button,
+  .field.has-addons .control:not(:first-child):not(:last-child) .button, .field.has-addons .mpc-control:not(:first-child):not(:last-child) .button,
   .field.has-addons .control:not(:first-child):not(:last-child) .input,
-  .field.has-addons .control:not(:first-child):not(:last-child) .select select {
+  .field.has-addons .mpc-control:not(:first-child):not(:last-child) .input,
+  .field.has-addons .control:not(:first-child):not(:last-child) .select select,
+  .field.has-addons .mpc-control:not(:first-child):not(:last-child) .select select {
     border-radius: 0; }
-  .field.has-addons .control:first-child .button,
+  .field.has-addons .control:first-child .button, .field.has-addons .mpc-control:first-child .button,
   .field.has-addons .control:first-child .input,
-  .field.has-addons .control:first-child .select select {
+  .field.has-addons .mpc-control:first-child .input,
+  .field.has-addons .control:first-child .select select,
+  .field.has-addons .mpc-control:first-child .select select {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0; }
-  .field.has-addons .control:last-child .button,
+  .field.has-addons .control:last-child .button, .field.has-addons .mpc-control:last-child .button,
   .field.has-addons .control:last-child .input,
-  .field.has-addons .control:last-child .select select {
+  .field.has-addons .mpc-control:last-child .input,
+  .field.has-addons .control:last-child .select select,
+  .field.has-addons .mpc-control:last-child .select select {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0; }
-  .field.has-addons .control .button:not([disabled]):hover, .field.has-addons .control .button:not([disabled]).is-hovered,
+  .field.has-addons .control .button:not([disabled]):hover, .field.has-addons .mpc-control .button:not([disabled]):hover, .field.has-addons .control .button:not([disabled]).is-hovered, .field.has-addons .mpc-control .button:not([disabled]).is-hovered,
   .field.has-addons .control .input:not([disabled]):hover,
+  .field.has-addons .mpc-control .input:not([disabled]):hover,
   .field.has-addons .control .input:not([disabled]).is-hovered,
+  .field.has-addons .mpc-control .input:not([disabled]).is-hovered,
   .field.has-addons .control .select select:not([disabled]):hover,
-  .field.has-addons .control .select select:not([disabled]).is-hovered {
+  .field.has-addons .mpc-control .select select:not([disabled]):hover,
+  .field.has-addons .control .select select:not([disabled]).is-hovered,
+  .field.has-addons .mpc-control .select select:not([disabled]).is-hovered {
     z-index: 2; }
-  .field.has-addons .control .button:not([disabled]):focus, .field.has-addons .control .button:not([disabled]).is-focused, .field.has-addons .control .button:not([disabled]):active, .field.has-addons .control .button:not([disabled]).is-active,
+  .field.has-addons .control .button:not([disabled]):focus, .field.has-addons .mpc-control .button:not([disabled]):focus, .field.has-addons .control .button:not([disabled]).is-focused, .field.has-addons .mpc-control .button:not([disabled]).is-focused, .field.has-addons .control .button:not([disabled]):active, .field.has-addons .mpc-control .button:not([disabled]):active, .field.has-addons .control .button:not([disabled]).is-active, .field.has-addons .mpc-control .button:not([disabled]).is-active,
   .field.has-addons .control .input:not([disabled]):focus,
+  .field.has-addons .mpc-control .input:not([disabled]):focus,
   .field.has-addons .control .input:not([disabled]).is-focused,
+  .field.has-addons .mpc-control .input:not([disabled]).is-focused,
   .field.has-addons .control .input:not([disabled]):active,
+  .field.has-addons .mpc-control .input:not([disabled]):active,
   .field.has-addons .control .input:not([disabled]).is-active,
+  .field.has-addons .mpc-control .input:not([disabled]).is-active,
   .field.has-addons .control .select select:not([disabled]):focus,
+  .field.has-addons .mpc-control .select select:not([disabled]):focus,
   .field.has-addons .control .select select:not([disabled]).is-focused,
+  .field.has-addons .mpc-control .select select:not([disabled]).is-focused,
   .field.has-addons .control .select select:not([disabled]):active,
-  .field.has-addons .control .select select:not([disabled]).is-active {
+  .field.has-addons .mpc-control .select select:not([disabled]):active,
+  .field.has-addons .control .select select:not([disabled]).is-active,
+  .field.has-addons .mpc-control .select select:not([disabled]).is-active {
     z-index: 3; }
-    .field.has-addons .control .button:not([disabled]):focus:hover, .field.has-addons .control .button:not([disabled]).is-focused:hover, .field.has-addons .control .button:not([disabled]):active:hover, .field.has-addons .control .button:not([disabled]).is-active:hover,
+    .field.has-addons .control .button:not([disabled]):focus:hover, .field.has-addons .mpc-control .button:not([disabled]):focus:hover, .field.has-addons .control .button:not([disabled]).is-focused:hover, .field.has-addons .mpc-control .button:not([disabled]).is-focused:hover, .field.has-addons .control .button:not([disabled]):active:hover, .field.has-addons .mpc-control .button:not([disabled]):active:hover, .field.has-addons .control .button:not([disabled]).is-active:hover, .field.has-addons .mpc-control .button:not([disabled]).is-active:hover,
     .field.has-addons .control .input:not([disabled]):focus:hover,
+    .field.has-addons .mpc-control .input:not([disabled]):focus:hover,
     .field.has-addons .control .input:not([disabled]).is-focused:hover,
+    .field.has-addons .mpc-control .input:not([disabled]).is-focused:hover,
     .field.has-addons .control .input:not([disabled]):active:hover,
+    .field.has-addons .mpc-control .input:not([disabled]):active:hover,
     .field.has-addons .control .input:not([disabled]).is-active:hover,
+    .field.has-addons .mpc-control .input:not([disabled]).is-active:hover,
     .field.has-addons .control .select select:not([disabled]):focus:hover,
+    .field.has-addons .mpc-control .select select:not([disabled]):focus:hover,
     .field.has-addons .control .select select:not([disabled]).is-focused:hover,
+    .field.has-addons .mpc-control .select select:not([disabled]).is-focused:hover,
     .field.has-addons .control .select select:not([disabled]):active:hover,
-    .field.has-addons .control .select select:not([disabled]).is-active:hover {
+    .field.has-addons .mpc-control .select select:not([disabled]):active:hover,
+    .field.has-addons .control .select select:not([disabled]).is-active:hover,
+    .field.has-addons .mpc-control .select select:not([disabled]).is-active:hover {
       z-index: 4; }
-  .field.has-addons .control.is-expanded {
+  .field.has-addons .control.is-expanded, .field.has-addons .is-expanded.mpc-control {
     flex-grow: 1; }
   .field.has-addons.has-addons-centered {
     justify-content: center; }
   .field.has-addons.has-addons-right {
     justify-content: flex-end; }
-  .field.has-addons.has-addons-fullwidth .control {
+  .field.has-addons.has-addons-fullwidth .control, .field.has-addons.has-addons-fullwidth .mpc-control {
     flex-grow: 1;
     flex-shrink: 0; }
 .field.is-grouped {
   display: flex;
   justify-content: flex-start; }
-  .field.is-grouped > .control {
+  .field.is-grouped > .control, .field.is-grouped > .mpc-control {
     flex-shrink: 0; }
-    .field.is-grouped > .control:not(:last-child) {
+    .field.is-grouped > .control:not(:last-child), .field.is-grouped > .mpc-control:not(:last-child) {
       margin-bottom: 0;
       margin-right: 0.75rem; }
-    .field.is-grouped > .control.is-expanded {
+    .field.is-grouped > .control.is-expanded, .field.is-grouped > .is-expanded.mpc-control {
       flex-grow: 1;
       flex-shrink: 1; }
   .field.is-grouped.is-grouped-centered {
@@ -2776,7 +2805,7 @@ a.box:active {
     justify-content: flex-end; }
   .field.is-grouped.is-grouped-multiline {
     flex-wrap: wrap; }
-    .field.is-grouped.is-grouped-multiline > .control:last-child, .field.is-grouped.is-grouped-multiline > .control:not(:last-child) {
+    .field.is-grouped.is-grouped-multiline > .control:last-child, .field.is-grouped.is-grouped-multiline > .mpc-control:last-child, .field.is-grouped.is-grouped-multiline > .control:not(:last-child), .field.is-grouped.is-grouped-multiline > .mpc-control:not(:last-child) {
       margin-bottom: 0.75rem; }
     .field.is-grouped.is-grouped-multiline:last-child {
       margin-bottom: -0.75rem; }
@@ -2827,12 +2856,12 @@ a.box:active {
       .field-body > .field:not(:last-child) {
         margin-right: 0.75rem; } }
 
-.control {
+.control, .mpc-control {
   clear: both;
   font-size: 1rem;
   position: relative;
   text-align: left; }
-  .control.has-icon .icon {
+  .control.has-icon .icon, .has-icon.mpc-control .icon {
     color: #dbdbdb;
     height: 2.25em;
     pointer-events: none;
@@ -2840,39 +2869,47 @@ a.box:active {
     top: 0;
     width: 2.25em;
     z-index: 4; }
-  .control.has-icon .input:focus + .icon {
+  .control.has-icon .input:focus + .icon, .has-icon.mpc-control .input:focus + .icon {
     color: #7a7a7a; }
-  .control.has-icon .input.is-small + .icon {
+  .control.has-icon .input.is-small + .icon, .has-icon.mpc-control .input.is-small + .icon {
     font-size: 0.75rem; }
-  .control.has-icon .input.is-medium + .icon {
+  .control.has-icon .input.is-medium + .icon, .has-icon.mpc-control .input.is-medium + .icon {
     font-size: 1.25rem; }
-  .control.has-icon .input.is-large + .icon {
+  .control.has-icon .input.is-large + .icon, .has-icon.mpc-control .input.is-large + .icon {
     font-size: 1.5rem; }
-  .control.has-icon:not(.has-icon-right) .icon {
+  .control.has-icon:not(.has-icon-right) .icon, .has-icon.mpc-control:not(.has-icon-right) .icon {
     left: 0; }
-  .control.has-icon:not(.has-icon-right) .input {
+  .control.has-icon:not(.has-icon-right) .input, .has-icon.mpc-control:not(.has-icon-right) .input {
     padding-left: 2.25em; }
-  .control.has-icon.has-icon-right .icon {
+  .control.has-icon.has-icon-right .icon, .has-icon.has-icon-right.mpc-control .icon {
     right: 0; }
-  .control.has-icon.has-icon-right .input {
+  .control.has-icon.has-icon-right .input, .has-icon.has-icon-right.mpc-control .input {
     padding-right: 2.25em; }
-  .control.has-icons-left .input:focus ~ .icon,
-  .control.has-icons-left .select:focus ~ .icon, .control.has-icons-right .input:focus ~ .icon,
-  .control.has-icons-right .select:focus ~ .icon {
+  .control.has-icons-left .input:focus ~ .icon, .has-icons-left.mpc-control .input:focus ~ .icon,
+  .control.has-icons-left .select:focus ~ .icon,
+  .has-icons-left.mpc-control .select:focus ~ .icon, .control.has-icons-right .input:focus ~ .icon, .has-icons-right.mpc-control .input:focus ~ .icon,
+  .control.has-icons-right .select:focus ~ .icon,
+  .has-icons-right.mpc-control .select:focus ~ .icon {
     color: #7a7a7a; }
-  .control.has-icons-left .input.is-small ~ .icon,
-  .control.has-icons-left .select.is-small ~ .icon, .control.has-icons-right .input.is-small ~ .icon,
-  .control.has-icons-right .select.is-small ~ .icon {
+  .control.has-icons-left .input.is-small ~ .icon, .has-icons-left.mpc-control .input.is-small ~ .icon,
+  .control.has-icons-left .select.is-small ~ .icon,
+  .has-icons-left.mpc-control .select.is-small ~ .icon, .control.has-icons-right .input.is-small ~ .icon, .has-icons-right.mpc-control .input.is-small ~ .icon,
+  .control.has-icons-right .select.is-small ~ .icon,
+  .has-icons-right.mpc-control .select.is-small ~ .icon {
     font-size: 0.75rem; }
-  .control.has-icons-left .input.is-medium ~ .icon,
-  .control.has-icons-left .select.is-medium ~ .icon, .control.has-icons-right .input.is-medium ~ .icon,
-  .control.has-icons-right .select.is-medium ~ .icon {
+  .control.has-icons-left .input.is-medium ~ .icon, .has-icons-left.mpc-control .input.is-medium ~ .icon,
+  .control.has-icons-left .select.is-medium ~ .icon,
+  .has-icons-left.mpc-control .select.is-medium ~ .icon, .control.has-icons-right .input.is-medium ~ .icon, .has-icons-right.mpc-control .input.is-medium ~ .icon,
+  .control.has-icons-right .select.is-medium ~ .icon,
+  .has-icons-right.mpc-control .select.is-medium ~ .icon {
     font-size: 1.25rem; }
-  .control.has-icons-left .input.is-large ~ .icon,
-  .control.has-icons-left .select.is-large ~ .icon, .control.has-icons-right .input.is-large ~ .icon,
-  .control.has-icons-right .select.is-large ~ .icon {
+  .control.has-icons-left .input.is-large ~ .icon, .has-icons-left.mpc-control .input.is-large ~ .icon,
+  .control.has-icons-left .select.is-large ~ .icon,
+  .has-icons-left.mpc-control .select.is-large ~ .icon, .control.has-icons-right .input.is-large ~ .icon, .has-icons-right.mpc-control .input.is-large ~ .icon,
+  .control.has-icons-right .select.is-large ~ .icon,
+  .has-icons-right.mpc-control .select.is-large ~ .icon {
     font-size: 1.5rem; }
-  .control.has-icons-left .icon, .control.has-icons-right .icon {
+  .control.has-icons-left .icon, .has-icons-left.mpc-control .icon, .control.has-icons-right .icon, .has-icons-right.mpc-control .icon {
     color: #dbdbdb;
     height: 2.25em;
     pointer-events: none;
@@ -2880,26 +2917,28 @@ a.box:active {
     top: 0;
     width: 2.25em;
     z-index: 4; }
-  .control.has-icons-left .input,
-  .control.has-icons-left .select select {
+  .control.has-icons-left .input, .has-icons-left.mpc-control .input,
+  .control.has-icons-left .select select,
+  .has-icons-left.mpc-control .select select {
     padding-left: 2.25em; }
-  .control.has-icons-left .icon.is-left {
+  .control.has-icons-left .icon.is-left, .has-icons-left.mpc-control .icon.is-left {
     left: 0; }
-  .control.has-icons-right .input,
-  .control.has-icons-right .select select {
+  .control.has-icons-right .input, .has-icons-right.mpc-control .input,
+  .control.has-icons-right .select select,
+  .has-icons-right.mpc-control .select select {
     padding-right: 2.25em; }
-  .control.has-icons-right .icon.is-right {
+  .control.has-icons-right .icon.is-right, .has-icons-right.mpc-control .icon.is-right {
     right: 0; }
-  .control.is-loading::after {
+  .control.is-loading::after, .is-loading.mpc-control::after {
     position: absolute !important;
     right: 0.625em;
     top: 0.625em;
     z-index: 4; }
-  .control.is-loading.is-small:after {
+  .control.is-loading.is-small:after, .is-loading.is-small.mpc-control:after {
     font-size: 0.75rem; }
-  .control.is-loading.is-medium:after {
+  .control.is-loading.is-medium:after, .is-loading.is-medium.mpc-control:after {
     font-size: 1.25rem; }
-  .control.is-loading.is-large:after {
+  .control.is-loading.is-large:after, .is-loading.is-large.mpc-control:after {
     font-size: 1.5rem; }
 
 .icon {
@@ -3746,7 +3785,8 @@ a.list-item {
     display: flex;
     padding-top: 0.75rem; }
     .media .media .content:not(:last-child),
-    .media .media .control:not(:last-child) {
+    .media .media .control:not(:last-child),
+    .media .media .mpc-control:not(:last-child) {
       margin-bottom: 0.5rem; }
     .media .media .media {
       padding-top: 0.5rem; }
@@ -4952,7 +4992,7 @@ a.navbar-item,
   padding: 0.5em 0.75em; }
   .panel-block input[type="checkbox"] {
     margin-right: 0.75em; }
-  .panel-block > .control {
+  .panel-block > .control, .panel-block > .mpc-control {
     flex-grow: 1;
     flex-shrink: 1;
     width: 100%; }
@@ -6776,5 +6816,12 @@ label.panel-block {
   margin-left: 5px;
   margin-top: 5px;
   vertical-align: top; }
+
+.mpc-label {
+  font-weight: 700;
+  margin-bottom: 0 !important; }
+
+.mpc-control {
+  margin-bottom: 0.5rem; }
 
 /*# sourceMappingURL=styles.css.map */

@@ -75,13 +75,13 @@ class StructureMoleculeComponent(MPComponent):
                 "type": "DirectionalLight",
                 "args": ["#ffffff", 0.15],
                 "position": [-10, 10, 10],
-                #"helper":True
+                # "helper":True
             },
             {
                 "type": "DirectionalLight",
                 "args": ["#ffffff", 0.15],
                 "position": [0, 0, -10],
-                #"helper": True
+                # "helper": True
             },
             # {"type":"AmbientLight", "args":["#eeeeee", 0.9]}
             {"type": "HemisphereLight", "args": ["#eeeeee", "#999999", 1.0]},
@@ -169,6 +169,59 @@ class StructureMoleculeComponent(MPComponent):
             self.create_store("scene_additions", initial_data=scene_additions.to_json())
 
     def _generate_callbacks(self, app, cache):
+        """
+        Canonical store --> (+repeats+unit cell+bonds) graph store -->
+        (+color scheme+color scale+radius+image choice+bonded outside choice+
+        unterminated bond choice)
+        --> (+scene additions)scene store
+        Hide/show options --> hideShowToggle
+        Screenshot button --> downloadRequest
+        """
+
+        #@app.callback(
+        #    Output(self.id("graph"), "data"),
+        #    [Input(self.id("graph_generation_options"), "data"),
+        #     Input(self.id("unit-cell-choice"), "value"),
+        #     Input(self.id("repeats"), "value")],
+        #    [State(self.id(), "data")]
+        #)
+        #def update_graph(graph_generation_options,
+        #                 unit_cell_choice,
+        #                 repeats, struct_or_mol):
+#
+        #    if isinstance(struct_or_mol, Structure):
+        #        if unit_cell_choice != "input":
+        #            if unit_cell_choice == "primitive":
+        #                struct_or_mol = struct_or_mol.get_primitive_structure()
+        #            elif unit_cell_choice == "conventional":
+        #                sga = SpacegroupAnalyzer(struct_or_mol)
+        #                struct_or_mol = sga.get_conventional_standard_structure()
+        #        if repeats != 1:
+        #            struct_or_mol = struct_or_mol * (
+        #            repeats, repeats, repeats)
+#
+        #    graph = self._preprocess_input_to_graph(
+        #        struct_or_mol,
+        #        bonding_strategy=graph_generation_options['bonding_strategy'],
+        #        bonding_strategy_kwargs=graph_generation_options['bonding_strategy_kwargs']
+        #    )
+        #    return self.to_data(graph)
+
+
+        #@app.callback(
+        #    Output(self.id("..."))
+        #)
+        #def update_scene...
+#
+#
+        #@app.callback(
+#
+        #)
+        #def update_legend(
+        #        ...
+        #)
+        #    #TODO: move get_scene_and_legend into separate calls
+#
         @app.callback(
             Output(self.id("scene"), "downloadRequest"),
             [Input(self.id("screenshot_button"), "n_clicks")],
@@ -210,8 +263,9 @@ class StructureMoleculeComponent(MPComponent):
             return font_color
 
         formula = Composition.from_dict(legend["composition"]).reduced_formula
-        legend_colors = OrderedDict(sorted(list(legend["colors"].items()),
-                                           key=lambda x: formula.find(x[1])))
+        legend_colors = OrderedDict(
+            sorted(list(legend["colors"].items()), key=lambda x: formula.find(x[1]))
+        )
 
         legend_elements = [
             Button(
@@ -281,16 +335,6 @@ class StructureMoleculeComponent(MPComponent):
 
         legend_layout = self._make_legend(self.initial_legend)
 
-        ## hide if molecule
-        # html.Div(id=self.id("preprocessing_choice"), children=[dcc.RadioItems(
-        #    options=[
-        #        {'label': 'Input', 'value': 'input'},
-        #        {'label': 'Conventional', 'value': 'conventional'},
-        #        {'label': 'Primitive', 'value': 'primitive'},
-        #    ],
-        #    value='conventional'
-        # )])
-
         # options = {
         #    "bonding_strategy": bonding_strategy,
         #    "bonding_strategy_kwargs": bonding_strategy_kwargs,
@@ -307,12 +351,48 @@ class StructureMoleculeComponent(MPComponent):
         # draw_layout = ... # draw_image_atoms, bonded_sites_outside_, add dangling bonds kwarg too
         #
         # hide_show_layout = ...
-        #
-        # download_layout = ...
+
+        #  hide if molecule
+        preprocessing_options = Field(
+            [
+                html.Label("Change unit cell:", className="mpc-label"),
+                html.Div(
+                    dcc.RadioItems(
+                        options=[
+                            {"label": "Input cell", "value": "input"},
+                            {"label": "Primitive cell", "value": "primitive"},
+                            {"label": "Conventional cell", "value": "conventional"},
+                        ],
+                        value="conventional",
+                        id=self.id("unit-cell-choice"),
+                        labelStyle={"display": "block"},
+                        inputClassName="mpc-radio",
+                    ),
+                    className="mpc-control",
+                ),
+                html.Label("Change number of repeats:", className="mpc-label"),
+                html.Div(
+                    dcc.RadioItems(
+                        options=[
+                            {"label": "1×1×1", "value": "1"},
+                            {"label": "3×3×3", "value": "3"},
+                        ],
+                        value="1",
+                        id=self.id("repeats"),
+                        labelStyle={"display": "block"},
+                        inputClassName="mpc-radio",
+                    ),
+                    className="mpc-control",
+                ),
+            ]
+        )
+
+        options_layout = html.Div([preprocessing_options])
 
         return {
             "struct": struct_layout,
             "screenshot": screenshot_layout,
+            "options": options_layout,
             "title": title_layout,
             "legend": legend_layout,
         }
@@ -423,6 +503,8 @@ class StructureMoleculeComponent(MPComponent):
             )
         elif isinstance(struct_or_mol, Molecule):
             geometric_center = np.average(struct_or_mol.cart_coords, axis=0)
+        else:
+            geometric_center = (0, 0, 0)
 
         return geometric_center
 

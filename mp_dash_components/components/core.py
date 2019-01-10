@@ -186,6 +186,8 @@ class MPComponent(ABC):
         origin_store_id = origin_component.id(origin_store_name)
         dest_store_id = self.id(this_store_name)
 
+        self.logger.debug(f"Linking the output of {origin_store_id} to {dest_store_id}.")
+
         @MPComponent.app.callback(
             Output(dest_store_id, "data"),
             [Input(origin_store_id, "modified_timestamp")],
@@ -369,7 +371,7 @@ class PanelComponent(MPComponent):
                 "An error was encountered when trying to load this component, "
                 "please report this if it seems like a bug, thank you!"
             )
-            # TODO: add Issue badge here
+            # TODO: add GitHub Issue badge to error message box
             return MessageContainer(
                 [
                     MessageHeader("Error"),
@@ -384,7 +386,8 @@ class PanelComponent(MPComponent):
 
     def _generate_callbacks(self, app, cache):
 
-        @cache.memoize(timeout=86400)
+        @cache.memoize(timeout=60*60*24,
+                       make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
         def update_contents(*args, **kwargs):
             return self.update_contents(*args, **kwargs)
 
@@ -423,6 +426,9 @@ class PanelComponent(MPComponent):
 def unicodeify_spacegroup(spacegroup_symbol):
     # TODO: move this to pymatgen
 
+    if not spacegroup_symbol:
+        return ""
+
     subscript_unicode_map = {
         0: "₀",
         1: "₁",
@@ -440,6 +446,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
     for number, unicode_number in subscript_unicode_map.items():
         symbol = symbol.replace("$_{" + str(number) + "}$", unicode_number)
+        symbol = symbol.replace("_" + str(number), unicode_number)
 
     overline = "\u0305"  # u"\u0304" (macron) is also an option
 
