@@ -1,8 +1,6 @@
 # Crystal Toolkit
 
-*Crystal Toolkit is still a very new project. While it has had its first release, 
-bugs and major changes are still to be expected. Please report any issues you may 
-encounter.*
+**Crystal Toolkit is not ready for the public yet! Please wait for a release announcement soon, thank you :-)** 
 
 ## Table of Contents
 
