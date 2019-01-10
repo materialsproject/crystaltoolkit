@@ -5,7 +5,9 @@ from dash.dependencies import Input, Output, State
 
 from mp_dash_components.components.core import PanelComponent
 from mp_dash_components.helpers.layouts import Columns, Column
+#from mp_dash_components import JSONViewComponent
 
+from json import loads
 
 class JSONEditor(PanelComponent):
     @property
@@ -35,13 +37,17 @@ class JSONEditor(PanelComponent):
 
     def update_contents(self, new_store_contents):
 
-        return Columns([Column(self.editor_layout), Column(self.json_layout)])
+        #JSONViewComponent(id=self.id("json-editor"),
+        #                  src=loads(new_store_contents))
+
+        return Columns([#Column(self.editor_layout), Column(self.json_layout),
+                        Column()])
 
     def _generate_callbacks(self, app, cache):
         super()._generate_callbacks(app, cache)
 
         @app.callback(
-            Output(self.id("highlighted"), "children"), [Input(self.id(), "data")]
+            Output(self.id("json-editor"), "src"), [Input(self.id(), "data")]
         )
         def update_highlighter(data):
-            return data
+            return loads(data)

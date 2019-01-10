@@ -12,8 +12,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # rather than CPU-limited, so using NUM_WORKERS >> number of
 # CPU cores is sensible
 ENV NUM_WORKERS=64
+
+# for Crossref API
 ENV MAILTO=YOUR_EMAIL_HERE
+
+# this can be obtained from materialsproject.org
 ENV PMG_MAPI_KEY=YOUR_MP_API_KEY_HERE
+
+# whether to run the server in debug mode or not
+ENV CRYSTAL_TOOLKIT_DEBUG_MODE=False
 
 ADD . /home/project/dash_app
 

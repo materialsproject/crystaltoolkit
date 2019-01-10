@@ -14,6 +14,9 @@ raven>=6.9.0  # logging (optional)
 pymongo>=3.7.2  # database (optional)
 mongomock>=3.14.0  # database fallback
 
+# additional Dash components
+dash-katex>=0.0.1
+
 # for everything
 pymatgen>=2018.12.12
 networkx>=2.0

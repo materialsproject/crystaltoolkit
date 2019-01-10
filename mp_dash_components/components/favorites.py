@@ -28,16 +28,12 @@ sample_favorites = [
 class FavoritesComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.create_store("mpid-to-add")
+        self.create_store("current-mpid")
 
     def to_toml(self, favorites: List[Favorite]):
 
         save_format = {
-            f.mpid: {
-                "Formula": f.formula,
-                "Spacegroup": f.spacegroup,
-                "Notes": f.notes,
-            }
+            f.mpid: {"Formula": f.formula, "Spacegroup": f.spacegroup, "Notes": f.notes}
             for f in favorites
         }
 
@@ -47,8 +43,10 @@ class FavoritesComponent(MPComponent):
 
     def _make_links(self, favorites: List[Favorite]):
 
+        if not favorites:
+            return html.Div()
+
         favorites = [Favorite(*favorite) for favorite in favorites]
-        print("><><><>", favorites)
 
         return Field(
             [
@@ -89,68 +87,87 @@ class FavoritesComponent(MPComponent):
             style={"display": "inline-block"},
         )
 
-        favorite_materials = html.Div([Reveal(
-            [self._make_links(sample_favorites)],
-            title=H6("Favorited Materials", style={"display": "inline-block", "vertical-align": "middle"}),
-            id=self.id("favorite-materials"),
-            open=True
-        )], id=self.id("favorite-materials-container"))
+        favorite_materials = html.Div(
+            [
+                Reveal(
+                    [self._make_links([])],
+                    title=H6(
+                        "Favorited Materials",
+                        style={"display": "inline-block", "vertical-align": "middle"},
+                    ),
+                    id=self.id("favorite-materials"),
+                    open=True,
+                )
+            ],
+            id=self.id("favorite-materials-container"),
+            style={"display": "none"},
+        )
 
         # TODO: add when Dash supports text areas!
-        notes_layout = Reveal([Field(
+        notes_layout = Reveal(
             [
-                Control(
-                    dcc.Textarea(
-                        id=self.id("favorite-notes"),
-                        className="textarea",
-                        rows=6,
-                        style={"height": "100%", "width": "100%"},
-                        placeholder="Enter your notes on the current material here"
-                    )
-                ),
-                html.P(
+                Field(
                     [
-                        dcc.Markdown(
-                            "Favorites and notes are saved in your web browser "
-                            "and not associated with your Materials Project account or stored on our servers. "
-                            "If you want a permanent copy, [click here to download all of your notes]()."
-                        )
-                    ],
-                    className="help",
-                ),
-            ]
-        )], title="Notes")
+                        Control(
+                            dcc.Textarea(
+                                id=self.id("favorite-notes"),
+                                className="textarea",
+                                rows=6,
+                                style={"height": "100%", "width": "100%"},
+                                placeholder="Enter your notes on the current material here",
+                            )
+                        ),
+                        html.P(
+                            [
+                                dcc.Markdown(
+                                    "Favorites and notes are saved in your web browser "
+                                    "and not associated with your Materials Project account or stored on our servers. "
+                                    "If you want a permanent copy, [click here to download all of your notes]()."
+                                )
+                            ],
+                            className="help",
+                        ),
+                    ]
+                )
+            ],
+            title="Notes",
+        )
 
         return {
             "button": favorite_button_container,
             "favorite_materials": favorite_materials,
-            "notes": notes_layout
+            "notes": notes_layout,
         }
 
     def _generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("favorite-button-container"), "children"),
-            [Input(self.id("favorite-button"), "n_clicks")],
-            [State(self.id("favorite-button"), "className")],
+            [Input(self.id("current-mpid"), "data"), Input(self.id(), "data")],
         )
-        def toggle_style(n_clicks, className):
+        def toggle_style(current_mpid, favorites):
             """
             Switches the style of the favorites button when it's clicked.
             """
             # TODO: there may be a more graceful way of doing this
-            # should define custom style for favorite)
-            if n_clicks is None:
-                raise PreventUpdate
-            if "white" in className:
+            # should define custom style for favorite
+            # prime cache for favoriting
+            if not favorites or not current_mpid:
+                return self.favorite_button
+            elif current_mpid["mpid"] in favorites:
                 return self.favorited_button
             else:
+                # prime cache in case of favoriting
+                self.mpr_query({"task_id": current_mpid["mpid"]},
+                               ["spacegroup.symbol", "pretty_formula"])
                 return self.favorite_button
 
         @app.callback(
             Output(self.id("favorite-button"), "n_clicks"),
             [Input(self.id("favorite-notes"), "value")],
-            [State(self.id("favorite-button"), "className"),
-             State(self.id("favorite-button"), "n_clicks")]
+            [
+                State(self.id("favorite-button"), "className"),
+                State(self.id("favorite-button"), "n_clicks"),
+            ],
         )
         def auto_favorite(note_contents, className, n_clicks):
             """
@@ -161,43 +178,50 @@ class FavoritesComponent(MPComponent):
             if note_contents is None:
                 raise PreventUpdate
             if len(note_contents) and "white" in className:
-                return 1 if n_clicks is None else n_clicks+1
+                return 1 if n_clicks is None else n_clicks + 1
             else:
                 return n_clicks
 
         @app.callback(
             Output(self.id(), "data"),
-            [Input(self.id("favorite-button"), "className"),
-             Input(self.id("mpid-to-add"), "data")],  # className is a proxy for its state
-            [State(self.id(), "data")]
+            [
+                Input(self.id("favorite-button"), "n_clicks")
+            ],
+            [State(self.id("current-mpid"), "data"),
+             State(self.id("favorite-button"), "className"),  # className is a proxy for its state
+             State(self.id(), "data")],
         )
-        def update_store(className, current_mpid, favorites):
+        def update_store(n_clicks, current_mpid, className, favorites):
             # TODO: add notes to this as well
-
-            print("hi")
-            print("current", current_mpid)
-            print("favs", favorites)
 
             if current_mpid is None or "mpid" not in current_mpid:
                 raise PreventUpdate
-            if "white" in className:
+            if "danger" in className:
                 mode = "remove"
             else:
                 mode = "add"
 
             favorites = favorites or {}
-            favorites = {mpid:Favorite(*favorite) for mpid, favorite in favorites.items()}
+            favorites = {
+                mpid: Favorite(*favorite) for mpid, favorite in favorites.items()
+            }
 
             mpid = current_mpid["mpid"]
 
             if mode == "add":
 
                 with MPRester() as mpr:
-                    meta = mpr.query({"task_id": mpid},
-                                     ['spacegroup.symbol', 'pretty_formula'])[0]
+                    meta = self.mpr_query(
+                        {"task_id": mpid}, ["spacegroup.symbol", "pretty_formula"]
+                    )[0]
 
                 if mpid not in favorites:
-                    favorites[mpid] = Favorite(mpid=mpid, spacegroup=meta["spacegroup.symbol"], formula=meta["pretty_formula"], notes="")
+                    favorites[mpid] = Favorite(
+                        mpid=mpid,
+                        spacegroup=meta["spacegroup.symbol"],
+                        formula=meta["pretty_formula"],
+                        notes="",
+                    )
 
             elif mode == "remove":
 
@@ -208,7 +232,7 @@ class FavoritesComponent(MPComponent):
 
         @app.callback(
             Output(self.id("favorite-materials_contents"), "children"),
-            [Input(self.id(), "data")]
+            [Input(self.id(), "data")],
         )
         def update_links_list(favorites):
             if favorites is None:
@@ -217,7 +241,7 @@ class FavoritesComponent(MPComponent):
 
         @app.callback(
             Output(self.id("favorite-materials-container"), "style"),
-            [Input(self.id(), "data")]
+            [Input(self.id(), "data")],
         )
         def hide_show_links_list(favorites):
             if favorites is None or len(favorites) == 0:

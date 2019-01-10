@@ -22,7 +22,7 @@ class MagnetismComponent(PanelComponent):
     def all_layouts(self):
         all_layouts = super().all_layouts
 
-        all_layouts["viewer"] = self.viewer_component.standard_layout
+        all_layouts["viewer"] = html.Div()#self.viewer_component.standard_layout
 
         return all_layouts
 
@@ -53,10 +53,14 @@ class MagnetismComponent(PanelComponent):
                 "magnetic information associated with it."
             )
 
+        mag_species_and_magmoms = msa.magnetic_species_and_magmoms
+        for k, v in mag_species_and_magmoms.items():
+            if not isinstance(v, list):
+                mag_species_and_magmoms[k] = [v]
         magnetic_atoms = "\n".join(
             [
                 f"{sp} ({', '.join([f'{magmom} µB' for magmom in magmoms])})"
-                for sp, magmoms in msa.magnetic_species_and_magmoms.items()
+                for sp, magmoms in mag_species_and_magmoms.items()
             ]
         )
 

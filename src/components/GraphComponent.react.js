@@ -38,7 +38,7 @@ export default class GraphComponent extends Component {
 
 GraphComponent.propTypes = {
     /**
-     * The ID used to identify this compnent in Dash callbacks
+     * The ID used to identify this component in Dash callbacks
      */
     id: PropTypes.string,
 

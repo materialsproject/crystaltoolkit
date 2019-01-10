@@ -23,7 +23,6 @@ from json import loads
 from uuid import uuid4
 from urllib import parse
 
-
 ################################################################################
 # region SET UP APP
 ################################################################################
@@ -40,8 +39,7 @@ meta_tags = [
 app = dash.Dash(meta_tags=meta_tags)
 app.config["suppress_callback_exceptions"] = True
 app.title = "Crystal Toolkit"
-app.scripts.config.serve_locally = False
-app.scripts.append_script({"external_url": "https://buttons.github.io/buttons.js"})
+app.scripts.config.serve_locally = True
 
 app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
@@ -70,9 +68,8 @@ except Exception as exception:
     cache = Cache(app.server, config={"CACHE_TYPE": "filesystem"})
 
 # Enable for debug purposes:
-from mp_dash_components.components.core import DummyCache
-
-cache = DummyCache()
+# from mp_dash_components.components.core import DummyCache
+# cache = DummyCache()
 
 # endregion
 
@@ -85,7 +82,7 @@ MPComponent.register_app(app)
 MPComponent.register_cache(cache)
 
 struct = MPRester().get_structure_by_material_id(
-    "mp-1078929"#"mp-804"
+    "mp-1078929"  # "mp-804"
 )  # 19306 #"mp-5020") # ("mp-804")  # ("mp-123")
 
 
@@ -96,7 +93,7 @@ struct_component = mpc.StructureMoleculeComponent(struct)
 search_component = mpc.SearchComponent()
 
 favorites_component = mpc.FavoritesComponent()
-favorites_component.attach_from(search_component, this_store_name="mpid-to-add")
+favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
 literature_component = mpc.LiteratureComponent(origin_component=struct_component)
 robocrys_component = mpc.RobocrysComponent(origin_component=struct_component)
@@ -109,12 +106,29 @@ panels = [
     json_editor_component,
 ]
 
+api_offline = True
+try:
+    with MPRester() as mpr:
+        api_check = mpr._make_request("/api_check")
+    if not api_check.get("api_key_valid", False):
+        api_error = "Materials Project API key not supplied or not valid, " \
+                    "please set PMG_MAPI_KEY in your environment."
+    else:
+        api_offline = False
+except Exception as exception:
+    api_error = str(exception)
+if api_offline:
+    api_banner = MessageContainer(MessageHeader("Error: Cannot connect to Materials Project"), MessageBody(api_error), kind="danger")
+else:
+    api_banner = html.Div(id="api-banner")
+
 # endregion
 
 
 ################################################################################
 # region CREATE OTHER LAYOUT ELEMENTS
 ################################################################################
+
 
 footer = mpc.Footer(
     html.Div(
@@ -129,8 +143,8 @@ footer = mpc.Footer(
                 },
             ),
             dcc.Markdown(
-                f"Bug reports and feature requests gratefully accepted, "
-                f"contact [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
+                f"App created by [@mkhorton](mailto:mkhorton@lbl.gov), "
+                f"bug reports and feature requests gratefully accepted.  \n"
                 f"Powered by [The Materials Project](https://materialsproject.org), "
                 f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
                 f"[Dash by Plotly](https://plot.ly/products/dash/). "
@@ -148,6 +162,19 @@ panel_choices = dcc.Dropdown(
     value=0,
 )
 
+panel_description = dcc.Markdown(
+    [
+        "Crystal Toolkit offers various *panels* which each provide different ways "
+        "of analyzing, transforming or retrieving information about a material using "
+        "resources and tools available to The Materials Project. Some panels "
+        "retrieve data or run algorithms on demand, so please allow some time "
+        "for them to run. Explore these panels below."
+    ],
+    className="mpc-panel-description",
+)
+
+
+
 # endregion
 
 
@@ -159,19 +186,23 @@ app.layout = Container(
     [
         dcc.Location(id="url", refresh=False),
         MPComponent.all_app_stores(),
+        api_banner,
         Section(
             [
                 Columns(
                     [
                         Column(
                             [
-                                struct_component.title_layout,
+                                H1(
+                                    "Crystal Toolkit",
+                                    id="main_title",
+                                    style={"display": "inline-block"},
+                                ),
                                 html.Div(
                                     [favorites_component.button_layout],
                                     style={"float": "right"},
                                 ),
                             ]
-                            # mpc.H1("Crystal Toolkit", id="main_title")]
                         )
                     ]
                 ),
@@ -203,7 +234,11 @@ app.layout = Container(
                                             style={"float": "right"},
                                         ),
                                     ],
-                                    style={"width": "65vmin", "min-width": "300px"},
+                                    style={
+                                        "width": "65vmin",
+                                        "min-width": "300px",
+                                        "margin-bottom": "40px",
+                                    },
                                 ),
                             ],
                             narrow=True,
@@ -218,8 +253,12 @@ app.layout = Container(
                                     title="Load Crystal or Molecule",
                                     open=True,
                                     style={"line-height": "1"},
+                                    id="load",
                                 ),
-                                Reveal(title="Display Options"),
+                                Reveal(
+                                    [struct_component.options_layout],
+                                    title="Display Options",
+                                ),
                                 Reveal(
                                     [
                                         Label("Thermodynamic Stability"),
@@ -241,30 +280,19 @@ app.layout = Container(
                     [
                         Column(
                             [
-                                dcc.Markdown(
-                                    [
-                                        "Crystal Toolkit offers various *panels* "
-                                        "which each provide different ways "
-                                        "of analyzing, transforming or retrieving information "
-                                        "about a material using "
-                                        "resources and tools available to "
-                                        "The Materials Project. Some panels retrieve data or run algorithms on demand, "
-                                        "so please allow some time for them to run. Explore these panels below."
-                                    ],
-                                    className="mpc-panel-description",
-                                ),
+                                # panel_description,
                                 # panel_choices,
                                 html.Div(
                                     [panel.panel_layout for panel in panels],
                                     id="panels",
-                                ),
+                                )
                             ]
                         )
                     ]
                 ),
             ]
         ),
-        Section(search_component.api_hint_layout),
+        # Section(search_component.api_hint_layout),
         Section(footer),
     ]
 )
@@ -288,15 +316,6 @@ def get_version():
             }
         )
     )
-
-
-@server.route("/generate_token", methods=["POST"])
-def get_token():
-    token = mson_to_token(request.json, cache)
-    if token["error"] is None:
-        return make_response(jsonify(token), 200)
-    else:
-        return make_response(jsonify(token), 403)
 
 
 def mson_to_token(mson, cache):
@@ -329,6 +348,17 @@ def token_to_mson(token, cache):
     return cache.get(token)
 
 
+if os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", False):
+
+    @server.route("/generate_token", methods=["POST"])
+    def get_token():
+        token = mson_to_token(request.json, cache)
+        if token["error"] is None:
+            return make_response(jsonify(token), 200)
+        else:
+            return make_response(jsonify(token), 403)
+
+
 # endregion
 
 
@@ -348,12 +378,25 @@ def update_search_term_on_page_load(href):
         return pathname[1]
 
 
+# @app.callback(Output("load", "open"), [Input("url", "href")])
+# def open_load_box_if_no_search_from_url(href):
+#    # only if open=False by default
+#    if href is None:
+#        raise PreventUpdate
+#    if str(parse.urlparse(href).path) == '/':
+#        return True
+#    else:
+#        raise PreventUpdate
+#
+
+
 @app.callback(
     Output(search_component.id("input"), "n_submit"),
     [Input(search_component.id("input"), "value")],
     [State(search_component.id("input"), "n_submit")],
 )
 def perform_search_on_page_load(search_term, n_submit):
+    # TODO: when multiple output callbacks are supported, should also update n_submit_timestamp
     if n_submit is None:
         return 1
     else:
@@ -381,6 +424,16 @@ def update_structure(search_mpid):
     return MPComponent.to_data(struct)
 
 
+@app.callback(
+    Output("main_title", "children"), [Input(struct_component.id("title"), "children")]
+)
+def update_title(title):
+    print("title", title)
+    if not title:
+        raise PreventUpdate
+    return title
+
+
 # endregion
 
 
@@ -388,5 +441,7 @@ def update_structure(search_mpid):
 # Run server :-)
 ################################################################################
 
+DEBUG_MODE = os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False)
+
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8080)
+    app.run_server(debug=DEBUG_MODE, port=8080)

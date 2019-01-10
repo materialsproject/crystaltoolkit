@@ -1,6 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
-from dash_dangerously_set_inner_html import DangerouslySetInnerHTML
+from dash_dangerously_set_inner_html import DangerouslySetInnerHTML  # for titles of papers
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -25,13 +25,14 @@ from habanero.cn import content_negotiation
 import codecs
 import latexcodec
 
+
 class LiteratureComponent(PanelComponent):
     def __init__(self, *args, use_crossref=True, **kwargs):
         self.use_crossref = use_crossref
         self.use_crossref_formatting = False
         super().__init__(*args, **kwargs)
 
-        @MPComponent.cache.memoize(timout=self.mprester_cache_timeout)
+        @MPComponent.cache.memoize(timeout=self.mprester_cache_timeout)
         def get_materials_id_references(mpid):
             with MPRester() as mpr:
                 references = mpr.get_materials_id_references(mpid)

@@ -30,14 +30,12 @@
     "bulma": "^0.7.2",
     "copyfiles": "^1.2.0",
     "dash-components-archetype": "^0.2.11",
-    "jszip": "^3.1.5",
     "npm": "^6.1.0",
-    "orbit-controls-es6": "^1.0.12",
     "prop-types": "^15.5.9",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-graph-vis": "^1.0.2",
-    "three": "^0.92.0",
+    "react-json-view": "^1.19.1",
     "three-full": "^11.3.2"
   },
   "devDependencies": {
