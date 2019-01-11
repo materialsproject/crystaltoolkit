@@ -30,7 +30,7 @@ fuzzywuzzy[speedup]
 # for literature
 bibtexparser
 pybtex
-habanero
+habanero==0.6.2
 latexcodec
 
 # for robocrystallographer
