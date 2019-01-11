@@ -36,7 +36,7 @@ meta_tags = [
     }
 ]
 
-app = dash.Dash(meta_tags=meta_tags)
+app = dash.Dash(__name__, meta_tags=meta_tags)
 app.config["suppress_callback_exceptions"] = True
 app.title = "Crystal Toolkit"
 app.scripts.config.serve_locally = True
@@ -444,4 +444,4 @@ def update_title(title):
 DEBUG_MODE = os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False)
 
 if __name__ == "__main__":
-    app.run_server(debug=DEBUG_MODE, port=8080)
+    app.run_server(debug=DEBUG_MODE, port=8000)
