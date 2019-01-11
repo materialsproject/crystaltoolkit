@@ -31,7 +31,7 @@ fuzzywuzzy[speedup]
 bibtexparser
 pybtex
 habanero
-latexcodec
+latexcodec==1.0.5
 
 # for robocrystallographer
 robocrys
