@@ -22,7 +22,7 @@ pymatgen>=2018.12.12
 networkx>=2.0
 
 # for favorites
-toml
+toml==0.10.0
 
 # for search
 fuzzywuzzy[speedup]
