@@ -4,7 +4,7 @@
 
 chromedriver-binary
 dash>=0.31.0
-dash-core-components
+dash-core-components==0.42.1
 dash-html-components
 dash-renderer
 ipdb
