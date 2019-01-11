@@ -1,5 +1,5 @@
-include mp_dash_components/bundle.js
-include mp_dash_components/bundle.js.map
-include mp_dash_components/metadata.json
+include crystal_toolkit/crystal_toolkit.min.js
+include crystal_toolkit/crystal_toolkit.dev.js
+include crystal_toolkit/metadata.json
+include crystal_toolkit/package.json
 include README.md
-include LICENSE.md
