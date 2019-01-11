@@ -1,0 +1,49 @@
+{
+  "name": "crystal_toolkit",
+  "version": "0.0.1",
+  "description": "Crystal Toolkit is an interactive web app that allows you to import, view, analyze and transform crystal structures and molecules. It is also a suite of ready-made UI components to render Materials Project data using the Dash framework from Plotly.",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "webpack-serve ./webpack.serve.config.js --open",
+    "validate-init": "python _validate_init.py",
+    "prepublish": "npm run validate-init",
+    "build:js-dev": "webpack --mode development",
+    "build:js": "webpack --mode production",
+    "build:py": "dash-generate-components ./src/lib/components crystal_toolkit",
+    "build:py-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:py)",
+    "build:all": "npm run build:js && npm run build:js-dev && npm run build:py",
+    "build:all-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:all)"
+  },
+  "author": "Matthew Horton mkhorton@lbl.gov",
+  "license": "MIT",
+  "dependencies": {
+    "ramda": "^0.25.0",
+    "react-graph-vis": "^1.0.2",
+    "three-full": "^11.3.2"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
+    "babel-loader": "^7.1.4",
+    "copyfiles": "^2.0.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.11",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-react": "^7.9.1",
+    "npm": "^6.1.0",
+    "react-docgen": "^2.20.1",
+    "style-loader": "^0.21.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1",
+    "webpack-serve": "^1.0.2",
+    "react": ">=0.14",
+    "react-dom": ">=0.14"
+  },
+  "engines": {
+    "node": ">=8.11.0",
+    "npm": ">=6.1.0"
+  }
+}

@@ -1,46 +1,50 @@
 {
-  "name": "mp-dash-components",
+  "name": "crystal_toolkit",
   "version": "0.0.1",
-  "description": "Component for viewing crystallographic structures for the Materials Project.",
-  "main": "lib/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mkhorton/mp-dash-components.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mkhorton/mp-dash-components/issues"
-  },
-  "homepage": "https://github.com/mkhorton/mp-dash-components",
+  "description": "Crystal Toolkit is an interactive web app that allows you to import, view, analyze and transform crystal structures and molecules. It is also a suite of ready-made UI components to render Materials Project data using the Dash framework from Plotly.",
+  "main": "build/index.js",
   "scripts": {
-    "copy-lib": "copyfiles -u 1 lib/* mp_dash_components",
-    "demo": "builder run demo",
-    "install-local": "npm run copy-lib && python setup.py install",
-    "prepublish": "npm test && builder run build-dist && npm run copy-lib",
-    "publish-all": "npm publish && python setup.py sdist upload",
-    "publish-pypi": "npm run prepublish && python setup.py sdist upload",
-    "start": "builder run build-dev",
-    "test": "builder run check",
-    "test-watch": "builder run test-frontend-watch",
-    "test-debug": "builder run test-frontend-debug",
-    "uninstall-local": "pip uninstall mp-dash-components -y"
+    "start": "webpack-serve ./webpack.serve.config.js --open",
+    "validate-init": "python _validate_init.py",
+    "prepublish": "npm run validate-init",
+    "build:js-dev": "webpack --mode development",
+    "build:js": "webpack --mode production",
+    "build:py": "dash-generate-components ./src/lib/components crystal_toolkit",
+    "build:py-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:py)",
+    "build:all": "npm run build:js && npm run build:js-dev && npm run build:py",
+    "build:all-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:all)"
   },
+  "author": "Matthew Horton mkhorton@lbl.gov",
+  "license": "MIT",
   "dependencies": {
-    "builder": "3.2.2",
     "bulma": "^0.7.2",
-    "copyfiles": "^1.2.0",
-    "dash-components-archetype": "^0.2.11",
-    "npm": "^6.1.0",
-    "prop-types": "^15.5.9",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
+    "ramda": "^0.25.0",
     "react-graph-vis": "^1.0.2",
-    "react-json-view": "^1.19.1",
     "three-full": "^11.3.2"
   },
   "devDependencies": {
-    "dash-components-archetype-dev": "^0.2.11",
-    "enzyme": "^2.8.2",
-    "react-test-renderer": "^15.5.4"
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
+    "babel-loader": "^7.1.4",
+    "copyfiles": "^2.0.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.11",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-react": "^7.9.1",
+    "npm": "^6.1.0",
+    "react-docgen": "^2.20.1",
+    "style-loader": "^0.21.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1",
+    "webpack-serve": "^1.0.2",
+    "react": ">=0.14",
+    "react-dom": ">=0.14"
+  },
+  "engines": {
+    "node": ">=8.11.0",
+    "npm": ">=6.1.0"
   }
 }

@@ -1,15 +1,20 @@
-from setuptools import setup, find_packages
+import json
+import os
+from setuptools import setup
 
-exec (open('mp_dash_components/version.py').read())
+
+with open(os.path.join('crystal_toolkit', 'package.json')) as f:
+    package = json.load(f)
+
+package_name = package["name"].replace(" ", "_").replace("-", "_")
 
 setup(
-    name='mp_dash_components',
-    version=__version__,
-    author='mkhorton',
-    packages=find_packages(),
+    name=package_name,
+    version=package["version"],
+    author=package['author'],
+    packages=[package_name],
     include_package_data=True,
-    license='MIT',
-    description='Dash components for viewing Materials Project-specific objects '
-                'such as crystallographic structures.',
-    install_requires=["pymatgen>=2018.9.19", "dash>=0.26.4"]
+    license=package['license'],
+    description=package['description'] if 'description' in package else package_name,
+    install_requires=[]
 )

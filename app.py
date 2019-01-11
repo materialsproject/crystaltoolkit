@@ -11,9 +11,9 @@ import os
 from flask import make_response, jsonify, request
 from flask_caching import Cache
 
-from mp_dash_components.components.core import MPComponent
-from mp_dash_components.helpers.layouts import *
-import mp_dash_components as mpc
+from crystal_toolkit.components.core import MPComponent
+from crystal_toolkit.helpers.layouts import *
+import crystal_toolkit as ct
 
 from pymatgen import MPRester, Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
@@ -86,18 +86,18 @@ struct = MPRester().get_structure_by_material_id(
 )  # 19306 #"mp-5020") # ("mp-804")  # ("mp-123")
 
 
-json_editor_component = mpc.JSONEditor(struct)
+json_editor_component = ct.JSONEditor(struct)
 
-struct_component = mpc.StructureMoleculeComponent(struct)
+struct_component = ct.StructureMoleculeComponent(struct)
 
-search_component = mpc.SearchComponent()
+search_component = ct.SearchComponent()
 
-favorites_component = mpc.FavoritesComponent()
+favorites_component = ct.FavoritesComponent()
 favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
-literature_component = mpc.LiteratureComponent(origin_component=struct_component)
-robocrys_component = mpc.RobocrysComponent(origin_component=struct_component)
-magnetism_component = mpc.MagnetismComponent(origin_component=struct_component)
+literature_component = ct.LiteratureComponent(origin_component=struct_component)
+robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
+magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 
 panels = [
     literature_component,
@@ -130,7 +130,7 @@ else:
 ################################################################################
 
 
-footer = mpc.Footer(
+footer = ct.Footer(
     html.Div(
         [
             html.Iframe(
@@ -310,7 +310,7 @@ def get_version():
     return make_response(
         jsonify(
             {
-                "crystal_toolkit_version": mpc.__version__,
+                "crystal_toolkit_version": ct.__version__,
                 "crystal_toolkit_api_version": 1,
                 "pymatgen_version": pmg_version,
             }
