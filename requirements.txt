@@ -29,9 +29,9 @@ fuzzywuzzy[speedup]==0.17.0
 
 # for literature
 bibtexparser==1.0.1
-pybtex
+pybtex==0.22.0
 habanero==0.6.2
-latexcodec
+latexcodec==1.0.5
 
 # for robocrystallographer
 robocrys
