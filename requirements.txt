@@ -34,7 +34,7 @@ habanero
 latexcodec
 
 # for robocrystallographer
-robocrys
+robocrys==0.1.3
 
 # for propnet
 https://github.com/materialsintelligence/propnet/archive/master.zip
