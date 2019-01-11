@@ -28,7 +28,7 @@ toml
 fuzzywuzzy[speedup]
 
 # for literature
-bibtexparser
+bibtexparser==1.0.1
 pybtex
 habanero
 latexcodec
