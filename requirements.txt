@@ -29,7 +29,7 @@ fuzzywuzzy[speedup]
 
 # for literature
 bibtexparser
-pybtex
+pybtex==0.22.0
 habanero
 latexcodec
 
