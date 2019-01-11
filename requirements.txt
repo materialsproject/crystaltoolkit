@@ -25,7 +25,7 @@ networkx>=2.0
 toml==0.10.0
 
 # for search
-fuzzywuzzy[speedup]
+fuzzywuzzy[speedup]==0.17.0
 
 # for literature
 bibtexparser
