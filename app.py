@@ -96,29 +96,42 @@ favorites_component = ct.FavoritesComponent()
 favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
 literature_component = ct.LiteratureComponent(origin_component=struct_component)
-robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
+# robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 
 panels = [
     literature_component,
-    robocrys_component,
+    # robocrys_component,
     magnetism_component,
     json_editor_component,
 ]
 
-api_offline = True
+if "PMG_MAPI_KEY" not in os.environ:
+    raise RuntimeError(
+        "To run the main Crystal Toolkit app, please provide your "
+        "Materials Project API key via the PMG_MAPI_KEY environment "
+        "variable."
+    )
+
+api_offline, api_error = True, "Unknown error connecting to Materials Project API."
 try:
     with MPRester() as mpr:
         api_check = mpr._make_request("/api_check")
     if not api_check.get("api_key_valid", False):
-        api_error = "Materials Project API key not supplied or not valid, " \
-                    "please set PMG_MAPI_KEY in your environment."
+        api_error = (
+            "Materials Project API key not supplied or not valid, "
+            "please set PMG_MAPI_KEY in your environment."
+        )
     else:
         api_offline = False
 except Exception as exception:
     api_error = str(exception)
 if api_offline:
-    api_banner = MessageContainer(MessageHeader("Error: Cannot connect to Materials Project"), MessageBody(api_error), kind="danger")
+    api_banner = MessageContainer(
+        MessageHeader("Error: Cannot connect to Materials Project"),
+        MessageBody(api_error),
+        kind="danger",
+    )
 else:
     api_banner = html.Div(id="api-banner")
 
@@ -172,7 +185,6 @@ panel_description = dcc.Markdown(
     ],
     className="mpc-panel-description",
 )
-
 
 
 # endregion
