@@ -12,9 +12,11 @@ To use Crystal Toolkit, simply visit [https://viewer.materialsproject.org](https
 If you would like to test Crystal Toolkit on your own computer, download and run our [Docker image from DockerHub](...):
 
 ```python
-docker ..
-docker ... -env pmg_mapi_key=YOUR_API_KEY_HERE
+docker pull crystal_toolkit
+docker container run -p 8000:8000 -e PMG_MAPI_KEY=YOUR_API_KEY_HERE crystal_toolkit
 ```
+
+and then visit [http://localhost:8000](http://localhost:8000).
 
 If you would like to use Crystal Toolkit for its library of UI components
 for your own Dash app, you can pip install it:
