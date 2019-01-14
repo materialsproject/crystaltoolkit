@@ -180,7 +180,7 @@ export default class Simple3DScene {
         if (sub_o.hasOwnProperty("type")) {
           parent.add(self.makeObject(sub_o));
         } else {
-          let new_parent = new THREE.Object3D();
+          const new_parent = new THREE.Object3D();
           new_parent.name = sub_o.name;
           parent.add(new_parent);
           traverse_scene(sub_o, new_parent, self);
@@ -190,7 +190,7 @@ export default class Simple3DScene {
 
     traverse_scene(scene_json, root_obj, this);
 
-    // window.console.log(root_obj);
+    //window.console.log("root_obj", root_obj);
 
     this.scene.add(root_obj);
 
@@ -207,6 +207,7 @@ export default class Simple3DScene {
       ) * 0.5;
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrix();
+    this.renderScene();
   }
 
   makeLights(scene, light_json) {
@@ -489,9 +490,10 @@ export default class Simple3DScene {
 
   static disposeNodebyName(scene, name) {
     // name is not necessarily unique, make this recursive ?
-    let object = scene.getObjectByName(name);
+    const object = scene.getObjectByName(name);
     if (typeof object !== "undefined") {
-      Simple3DScene.disposeNode(object);
+      //Simple3DScene.disposeNode(object);
+        scene.remove(object);
     }
   }
 

@@ -14,9 +14,9 @@ class MagnetismComponent(PanelComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.viewer_component = StructureMoleculeComponent(
-            id=self.id("structure"), color_scheme="magmom"
-        )
+        #self.viewer_component = StructureMoleculeComponent(
+        #    id=self.id("structure"), color_scheme="magmom"
+        #)
 
     @property
     def all_layouts(self):
@@ -82,4 +82,7 @@ class MagnetismComponent(PanelComponent):
 
         data_block = html.Div([html.P([html.Span(cell) for cell in row]) for row in rows])
 
-        return Columns([Column(self.viewer_layout), Column(data_block)])
+        return Columns([
+            #Column(self.viewer_layout),
+            Column(data_block)
+        ])

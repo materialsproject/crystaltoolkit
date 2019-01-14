@@ -46,6 +46,10 @@ for _component in __all__:
     setattr(locals()[_component], '_css_dist', _css_dist)
 
 # convenience imports
+from crystal_toolkit.components.core import MPComponent, PanelComponent
+register_app = MPComponent.register_app
+register_cache = MPComponent.register_cache
+
 from crystal_toolkit.components.json import JSONEditor
 from crystal_toolkit.components.search import SearchComponent
 from crystal_toolkit.components.structure import StructureMoleculeComponent

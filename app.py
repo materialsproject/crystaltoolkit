@@ -68,8 +68,8 @@ except Exception as exception:
     cache = Cache(app.server, config={"CACHE_TYPE": "filesystem"})
 
 # Enable for debug purposes:
-# from mp_dash_components.components.core import DummyCache
-# cache = DummyCache()
+from crystal_toolkit.components.core import DummyCache
+cache = DummyCache()
 
 # endregion
 
@@ -78,13 +78,14 @@ except Exception as exception:
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
-MPComponent.register_app(app)
-MPComponent.register_cache(cache)
+ct.register_app(app)
+ct.register_cache(cache)
 
 struct = MPRester().get_structure_by_material_id(
     "mp-1078929"  # "mp-804"
 )  # 19306 #"mp-5020") # ("mp-804")  # ("mp-123")
 
+struct = None
 
 json_editor_component = ct.JSONEditor(struct)
 
@@ -96,7 +97,7 @@ favorites_component = ct.FavoritesComponent()
 favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
 literature_component = ct.LiteratureComponent(origin_component=struct_component)
-# robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
+#robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 
 panels = [
@@ -105,13 +106,6 @@ panels = [
     magnetism_component,
     json_editor_component,
 ]
-
-if "PMG_MAPI_KEY" not in os.environ:
-    raise RuntimeError(
-        "To run the main Crystal Toolkit app, please provide your "
-        "Materials Project API key via the PMG_MAPI_KEY environment "
-        "variable."
-    )
 
 api_offline, api_error = True, "Unknown error connecting to Materials Project API."
 try:
@@ -425,7 +419,7 @@ def update_url_pathname_from_search_term(data):
 @app.callback(
     Output(struct_component.id(), "data"), [Input(search_component.id(), "data")]
 )
-def update_structure(search_mpid):
+def master_update_structure(search_mpid):
 
     if search_mpid is None or "mpid" not in search_mpid:
         raise PreventUpdate
@@ -433,7 +427,7 @@ def update_structure(search_mpid):
     with MPRester() as mpr:
         struct = mpr.get_structure_by_material_id(search_mpid["mpid"])
 
-    return MPComponent.to_data(struct)
+    return MPComponent.to_data(struct.as_dict(verboisty=0))
 
 
 @app.callback(
@@ -456,4 +450,4 @@ def update_title(title):
 DEBUG_MODE = os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False)
 
 if __name__ == "__main__":
-    app.run_server(debug=DEBUG_MODE, port=8000)
+    app.run_server(debug=DEBUG_MODE, port=8050)
