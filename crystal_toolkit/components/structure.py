@@ -102,7 +102,7 @@ class StructureMoleculeComponent(MPComponent):
         id=None,
         origin_component=None,
         scene_additions=None,
-        bonding_strategy="JmolNN",
+        bonding_strategy="BrunnerNN_reciprocal",
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
         color_scale=None,
@@ -178,50 +178,58 @@ class StructureMoleculeComponent(MPComponent):
         Screenshot button --> downloadRequest
         """
 
-        #@app.callback(
-        #    Output(self.id("graph"), "data"),
-        #    [Input(self.id("graph_generation_options"), "data"),
-        #     Input(self.id("unit-cell-choice"), "value"),
-        #     Input(self.id("repeats"), "value")],
-        #    [State(self.id(), "data")]
-        #)
-        #def update_graph(graph_generation_options,
-        #                 unit_cell_choice,
-        #                 repeats, struct_or_mol):
-#
-        #    if isinstance(struct_or_mol, Structure):
-        #        if unit_cell_choice != "input":
-        #            if unit_cell_choice == "primitive":
-        #                struct_or_mol = struct_or_mol.get_primitive_structure()
-        #            elif unit_cell_choice == "conventional":
-        #                sga = SpacegroupAnalyzer(struct_or_mol)
-        #                struct_or_mol = sga.get_conventional_standard_structure()
-        #        if repeats != 1:
-        #            struct_or_mol = struct_or_mol * (
-        #            repeats, repeats, repeats)
-#
-        #    graph = self._preprocess_input_to_graph(
-        #        struct_or_mol,
-        #        bonding_strategy=graph_generation_options['bonding_strategy'],
-        #        bonding_strategy_kwargs=graph_generation_options['bonding_strategy_kwargs']
-        #    )
-        #    return self.to_data(graph)
+        @app.callback(
+            Output(self.id("graph"), "data"),
+            [Input(self.id("graph_generation_options"), "data"),
+             Input(self.id("unit-cell-choice"), "value"),
+             Input(self.id("repeats"), "value"),
+             Input(self.id(), "data")],
+        )
+        def update_graph(graph_generation_options,
+                         unit_cell_choice,
+                         repeats, struct_or_mol):
+
+            struct_or_mol = self.from_data(struct_or_mol)
+            graph_generation_options = self.from_data(graph_generation_options)
+            repeats = int(repeats)
+
+            if isinstance(struct_or_mol, Structure):
+                if unit_cell_choice != "input":
+                    if unit_cell_choice == "primitive":
+                        struct_or_mol = struct_or_mol.get_primitive_structure()
+                    elif unit_cell_choice == "conventional":
+                        sga = SpacegroupAnalyzer(struct_or_mol)
+                        struct_or_mol = sga.get_conventional_standard_structure()
+                if repeats != 1:
+                    struct_or_mol = struct_or_mol * (
+                    repeats, repeats, repeats)
+
+            graph = self._preprocess_input_to_graph(
+                struct_or_mol,
+                bonding_strategy=graph_generation_options['bonding_strategy'],
+                bonding_strategy_kwargs=graph_generation_options['bonding_strategy_kwargs']
+            )
+            return self.to_data(graph)
 
 
+        @app.callback(
+            Output(self.id("scene"), "data"),
+            [Input(self.id("graph"), "data")]
+        )
+        def update_scene(graph):
+
+            graph = self.from_data(graph)
+            scene, legend = self.get_scene_and_legend(graph, **self.initial_display_options)
+
+            return scene.to_json()
+
         #@app.callback(
-        #    Output(self.id("..."))
-        #)
-        #def update_scene...
-#
-#
-        #@app.callback(
-#
         #)
         #def update_legend(
         #        ...
         #)
         #    #TODO: move get_scene_and_legend into separate calls
-#
+
         @app.callback(
             Output(self.id("scene"), "downloadRequest"),
             [Input(self.id("screenshot_button"), "n_clicks")],
@@ -375,7 +383,7 @@ class StructureMoleculeComponent(MPComponent):
                     dcc.RadioItems(
                         options=[
                             {"label": "1×1×1", "value": "1"},
-                            {"label": "3×3×3", "value": "3"},
+                            {"label": "2×2×2", "value": "2"},
                         ],
                         value="1",
                         id=self.id("repeats"),
@@ -930,7 +938,7 @@ class StructureMoleculeComponent(MPComponent):
     @staticmethod
     def get_scene_and_legend(
         graph: Union[StructureGraph, MoleculeGraph],
-        name="unknown_structure_or_molecule",
+        name="StructureMoleculeComponent",
         color_scheme="Jmol",
         color_scale=None,
         radius_strategy="specified_or_average_ionic",
@@ -940,9 +948,6 @@ class StructureMoleculeComponent(MPComponent):
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
     ) -> Tuple[Scene, Dict[str, str]]:
-
-        if not name:
-            raise ValueError("Please supply a non-empty name.")
 
         scene = Scene(name=name)
 
