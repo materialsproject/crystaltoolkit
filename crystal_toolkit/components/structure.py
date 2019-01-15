@@ -115,6 +115,8 @@ class StructureMoleculeComponent(MPComponent):
             id=id, contents=struct_or_mol, origin_component=origin_component
         )
 
+        self.default_title = "Crystal Toolkit"
+
         self.initial_scene_settings = StructureMoleculeComponent.default_scene_settings
         self.create_store("scene_settings", initial_data=self.initial_scene_settings)
 
@@ -180,14 +182,16 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph"), "data"),
-            [Input(self.id("graph_generation_options"), "data"),
-             Input(self.id("unit-cell-choice"), "value"),
-             Input(self.id("repeats"), "value"),
-             Input(self.id(), "data")],
+            [
+                Input(self.id("graph_generation_options"), "data"),
+                Input(self.id("unit-cell-choice"), "value"),
+                Input(self.id("repeats"), "value"),
+                Input(self.id(), "data"),
+            ],
         )
-        def update_graph(graph_generation_options,
-                         unit_cell_choice,
-                         repeats, struct_or_mol):
+        def update_graph(
+            graph_generation_options, unit_cell_choice, repeats, struct_or_mol
+        ):
 
             struct_or_mol = self.from_data(struct_or_mol)
             graph_generation_options = self.from_data(graph_generation_options)
@@ -201,34 +205,72 @@ class StructureMoleculeComponent(MPComponent):
                         sga = SpacegroupAnalyzer(struct_or_mol)
                         struct_or_mol = sga.get_conventional_standard_structure()
                 if repeats != 1:
-                    struct_or_mol = struct_or_mol * (
-                    repeats, repeats, repeats)
+                    struct_or_mol = struct_or_mol * (repeats, repeats, repeats)
 
             graph = self._preprocess_input_to_graph(
                 struct_or_mol,
-                bonding_strategy=graph_generation_options['bonding_strategy'],
-                bonding_strategy_kwargs=graph_generation_options['bonding_strategy_kwargs']
+                bonding_strategy=graph_generation_options["bonding_strategy"],
+                bonding_strategy_kwargs=graph_generation_options[
+                    "bonding_strategy_kwargs"
+                ],
             )
-            return self.to_data(graph)
 
+            return self.to_data(graph)
 
         @app.callback(
             Output(self.id("scene"), "data"),
-            [Input(self.id("graph"), "data")]
+            [
+                Input(self.id("graph"), "data"),
+                Input(self.id("display_options"), "data"),
+            ],
         )
-        def update_scene(graph):
-
+        def update_scene(graph, display_options):
+            display_options = self.from_data(display_options)
             graph = self.from_data(graph)
-            scene, legend = self.get_scene_and_legend(graph, **self.initial_display_options)
-
+            scene, legend = self.get_scene_and_legend(graph, **display_options)
             return scene.to_json()
 
-        #@app.callback(
-        #)
-        #def update_legend(
-        #        ...
-        #)
-        #    #TODO: move get_scene_and_legend into separate calls
+        @app.callback(
+            Output(self.id("legend_data"), "data"),
+            [
+                Input(self.id("graph"), "data"),
+                Input(self.id("display_options"), "data"),
+            ],
+        )
+        def update_legend(graph, display_options):
+            # TODO: split legend from scene generation
+            display_options = self.from_data(display_options)
+            graph = self.from_data(graph)
+            scene, legend = self.get_scene_and_legend(graph, **display_options)
+            return self.to_data(legend)
+
+        @app.callback(
+            Output(self.id("color-scheme"), "options"), [Input(self.id("graph"), "data")]
+        )
+        def update_color_options(graph):
+
+            options = [
+                {"label": "Jmol", "value": "Jmol"},
+                {"label": "VESTA", "value": "VESTA"},
+            ]
+            graph = self.from_data(graph)
+            struct_or_mol = self._get_struct_or_mol(graph)
+            site_props = self._analyze_site_props(struct_or_mol)
+            if "scalar" in site_props:
+                for prop in site_props["scalar"]:
+                    options += [{"label": f"Site property: {prop}", "value": prop}]
+
+            return options
+
+        @app.callback(
+            Output(self.id("display_options"), "data"),
+            [Input(self.id("color-scheme"), "value")],
+            [State(self.id("display_options"), "data")],
+        )
+        def update_display_options(color_scheme, display_options):
+            display_options = self.from_data(display_options)
+            display_options.update({"color_scheme": color_scheme})
+            return self.to_data(display_options)
 
         @app.callback(
             Output(self.id("scene"), "downloadRequest"),
@@ -255,6 +297,32 @@ class StructureMoleculeComponent(MPComponent):
                 "filename": request_filename,
                 "filetype": "png",
             }
+
+        @app.callback(
+            Output(self.id("scene"), "toggleVisibility"),
+            [Input(self.id("hide-show"), "values")],
+            [State(self.id("hide-show"), "options")]
+        )
+        def update_visibility(values, options):
+            visibility = {opt['value']: (opt['value'] in values)
+                          for opt in options}
+            return visibility
+
+        @app.callback(
+            Output(self.id("title_container"), "children"),
+            [Input(self.id("legend_data"), "data")]
+        )
+        def update_title(legend):
+            legend = self.from_data(legend)
+            return self._make_title(legend)
+
+        @app.callback(
+            Output(self.id("legend_container"), "children"),
+            [Input(self.id("legend_data"), "data")]
+        )
+        def update_legend(legend):
+            legend = self.from_data(legend)
+            return self._make_legend(legend)
 
     def _make_legend(self, legend):
 
@@ -294,10 +362,13 @@ class StructureMoleculeComponent(MPComponent):
 
     def _make_title(self, legend):
 
-        if legend is None or (not legend.get("composition", None)):
-            return html.Div(id=self.id("title"))
+        if not legend or (not legend.get("composition", None)):
+            return H1(self.default_title, id=self.id("title"))
 
-        composition = Composition.from_dict(legend["composition"])
+        composition = legend["composition"]
+        if isinstance(composition, dict):
+            composition = Composition.from_dict(composition)
+
         formula = composition.reduced_formula
         formula_parts = re.findall(r"[^\d_]+|\d+", formula)
 
@@ -339,30 +410,19 @@ class StructureMoleculeComponent(MPComponent):
             style={"vertical-align": "top", "display": "inline-block"},
         )
 
-        title_layout = self._make_title(self.initial_legend)
+        title_layout = html.Div(self._make_title(self.initial_legend),
+                                id=self.id("title_container"))
 
-        legend_layout = self._make_legend(self.initial_legend)
+        legend_layout = html.Div(self._make_legend(self.initial_legend),
+                                 id=self.id("legend_container"))
 
         # options = {
         #    "bonding_strategy": bonding_strategy,
         #    "bonding_strategy_kwargs": bonding_strategy_kwargs,
-        #    "color_scheme": color_scheme,
-        #    "color_scale": color_scale,
-        #    "radius_strategy": radius_strategy,
-        #    "draw_image_atoms": draw_image_atoms,
-        #    "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell}
 
-        # bonding_layout = ...
-        # color_scheme_layout = ...
-        # radius_layout = ...
-        #
-        # draw_layout = ... # draw_image_atoms, bonded_sites_outside_, add dangling bonds kwarg too
-        #
-        # hide_show_layout = ...
-
-        #  hide if molecule
-        preprocessing_options = Field(
+        options_layout = Field(
             [
+                #  hide if molecule
                 html.Label("Change unit cell:", className="mpc-label"),
                 html.Div(
                     dcc.RadioItems(
@@ -378,6 +438,7 @@ class StructureMoleculeComponent(MPComponent):
                     ),
                     className="mpc-control",
                 ),
+                #  hide if molecule
                 html.Label("Change number of repeats:", className="mpc-label"),
                 html.Div(
                     dcc.RadioItems(
@@ -392,10 +453,71 @@ class StructureMoleculeComponent(MPComponent):
                     ),
                     className="mpc-control",
                 ),
+                html.Label("Change color scheme:", className="mpc-label"),
+                html.Div(
+                    dcc.Dropdown(
+                        options=[
+                            {"label": "VESTA", "value": "VESTA"},
+                            {"label": "Jmol", "value": "Jmol"},
+                        ],
+                        value="VESTA",
+                        clearable=False,
+                        id=self.id("color-scheme"),
+                    ),
+                    className="mpc-control",
+                ),
+                html.Label("Change atomic radii:", className="mpc-label"),
+                html.Div(
+                    dcc.Dropdown(
+                        options=[
+                            {"label": "Ionic", "value": "specified_or_average_ionic"},
+                            {"label": "Covalent", "value": "covalent"},
+                            {"label": "Van der Waals", "value": "van_der_waals"},
+                            {"label": "Uniform (1Å)", "value": "uniform"}
+                        ],
+                        value="uniform",
+                        clearable=False,
+                        id=self.id("radius_strategy"),
+                    ),
+                    className="mpc-control",
+                ),
+                html.Label("Draw options:", className="mpc-label"),
+                html.Div(
+                    [dcc.Checklist(
+                        options=[
+                            {"label": "Draw repeats of atoms on periodic boundaries",
+                             "value": "draw_image_atoms"},
+                            {"label": "Draw atoms outside unit cell bonded to "
+                                      "atoms within unit cell",
+                             "value": "bonded_sites_outside_unit_cell"},
+                        ],
+                        values=["draw_image_atoms"],
+                        labelStyle={"display": "block"},
+                        inputClassName="mpc-radio",
+                        id=self.id("draw_options"),
+                    )]),
+                html.Label("Hide/show:", className="mpc-label"),
+                html.Div([dcc.Checklist(
+                        options=[
+                            {"label": "Atoms",
+                             "value": "atoms"},
+                            {"label": "Bonds",
+                             "value": "bonds"},
+                            {"label": "Unit cell",
+                             "value": "unit_cell"},
+                            {"label": "Polyhedra",
+                             "value": "polyhedra"},
+                        ],
+                        values=["atoms", "bonds", "unit_cell", "polyhedra"],
+                        labelStyle={"display": "block"},
+                        inputClassName="mpc-radio",
+                        id=self.id("hide-show"),
+                    )],
+                    className="mpc-control",
+                ),
+
             ]
         )
-
-        options_layout = html.Div([preprocessing_options])
 
         return {
             "struct": struct_layout,
@@ -609,11 +731,11 @@ class StructureMoleculeComponent(MPComponent):
 
             colors = [[get_color_hex(get_color_cmap(x))] for x in props]
             # construct legend
-            c = get_color_hex(color_min)
-            legend["colors"][c] = "{}".format(get_color_cmap(color_min))
+            c = get_color_hex(get_color_cmap(color_min))
+            legend["colors"][c] = "{:.1f}".format(color_min)
             if color_max != color_min:
                 c = get_color_hex(get_color_cmap(color_max))
-                legend["colors"][c] = "{}".format(color_max)
+                legend["colors"][c] = "{:.1f}".format(color_max)
 
         elif color_scheme == "colorblind_friendly":
             raise NotImplementedError
@@ -955,10 +1077,11 @@ class StructureMoleculeComponent(MPComponent):
             return scene, {}
 
         struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
+        site_prop_types = StructureMoleculeComponent._analyze_site_props(struct_or_mol)
+
         radii = StructureMoleculeComponent._get_display_radii_for_sites(
             struct_or_mol, radius_strategy=radius_strategy
         )
-        site_prop_types = StructureMoleculeComponent._analyze_site_props(struct_or_mol)
         colors, legend = StructureMoleculeComponent._get_display_colors_and_legend_for_sites(
             struct_or_mol,
             site_prop_types,

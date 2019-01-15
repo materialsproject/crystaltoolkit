@@ -141,7 +141,7 @@ footer = ct.Footer(
     html.Div(
         [
             html.Iframe(
-                src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=mash&type=star&count=true",
+                src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
                 style={
                     "frameborder": False,
                     "scrolling": False,
@@ -192,6 +192,7 @@ app.layout = Container(
     [
         dcc.Location(id="url", refresh=False),
         MPComponent.all_app_stores(),
+        #dcc.Store(storage_type="session", id="session_store"),
         api_banner,
         Section(
             [
@@ -199,13 +200,9 @@ app.layout = Container(
                     [
                         Column(
                             [
-                                H1(
-                                    "Crystal Toolkit",
-                                    id="main_title",
-                                    style={"display": "inline-block"},
-                                ),
+                                struct_component.title_layout,
                                 html.Div(
-                                    [favorites_component.button_layout],
+                                    #[favorites_component.button_layout],
                                     style={"float": "right"},
                                 ),
                             ]
@@ -254,7 +251,7 @@ app.layout = Container(
                                 Reveal(
                                     [
                                         search_component.standard_layout,
-                                        favorites_component.favorite_materials_layout,
+                                        #favorites_component.favorite_materials_layout,
                                     ],
                                     title="Load Crystal or Molecule",
                                     open=True,
@@ -264,6 +261,7 @@ app.layout = Container(
                                 Reveal(
                                     [struct_component.options_layout],
                                     title="Display Options",
+                                    id="display-options"
                                 ),
                                 Reveal(
                                     [
@@ -430,18 +428,46 @@ def master_update_structure(search_mpid):
     return MPComponent.to_data(struct.as_dict(verboisty=0))
 
 
-@app.callback(
-    Output("main_title", "children"), [Input(struct_component.id("title"), "children")]
-)
-def update_title(title):
-    print("title", title)
-    if not title:
-        raise PreventUpdate
-    return title
+# endregion
+
+
+################################################################################
+# region Handle persistent settings
+################################################################################
+
+#to_save_and_restore = [(struct_component.id("hide-show"), "values")]
+##("display-options", "open")]
+#
+#for (component_id, component_property) in to_save_and_restore:
+#
+#    @app.callback(
+#           Output(component_id, component_property),
+#           [Input("session_store", "modified_timestamp")],
+#           [State("session_store", "data")]
+#    )
+#    def load_data(modified_timestamp, saved_data):
+#        key = f"{component_id}_{component_property}"
+#        print("Saving: ", key)
+#        print("Saved session data: ", saved_data)
+#        if not saved_data or key not in saved_data:
+#            raise PreventUpdate
+#        return saved_data[key]
+#
+#    @app.callback(
+#           Output("session_store", "data"),
+#           [Input(component_id, component_property)],
+#           [State("session_store", "data")]
+#    )
+#    def load_data(property, saved_data):
+#        key = f"{component_id}_{component_property}"
+#        print("Saving: ", key)
+#        saved_data = saved_data or {}
+#        saved_data[key] = property
+#        print("Saved session data: ", saved_data)
+#        return saved_data
 
 
 # endregion
-
 
 ################################################################################
 # Run server :-)

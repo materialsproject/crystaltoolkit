@@ -170,7 +170,7 @@ export default class Simple3DScene {
   }
 
   addToScene(scene_json) {
-    Simple3DScene.disposeNodebyName(this.scene, scene_json.name);
+    Simple3DScene.removeObjectByName(this.scene, scene_json.name);
 
     const root_obj = new THREE.Object3D();
     root_obj.name = scene_json.name;
@@ -211,7 +211,7 @@ export default class Simple3DScene {
   }
 
   makeLights(scene, light_json) {
-    Simple3DScene.disposeNodebyName(scene, "lights");
+    Simple3DScene.removeObjectByName(scene, "lights");
 
     const lights = new THREE.Object3D();
     lights.name = "lights";
@@ -475,66 +475,25 @@ export default class Simple3DScene {
   }
 
   toggleVisibility(namesToVisibility) {
-    // for names in namesToVisibility ... if 1, show, if 0 hide
     if (typeof namesToVisibility !== "undefined") {
       for (var objName in namesToVisibility) {
         if (namesToVisibility.hasOwnProperty(objName)) {
           const obj = this.scene.getObjectByName(objName);
           if (typeof obj !== "undefined") {
-            obj.visible = Boolean(namesToVisibility.objName);
+            obj.visible = Boolean(namesToVisibility[objName]);
           }
         }
       }
     }
+    this.renderScene();
   }
 
-  static disposeNodebyName(scene, name) {
+  static removeObjectByName(scene, name) {
     // name is not necessarily unique, make this recursive ?
     const object = scene.getObjectByName(name);
     if (typeof object !== "undefined") {
-      //Simple3DScene.disposeNode(object);
         scene.remove(object);
     }
   }
 
-  static disposeNode(parentObject) {
-    // https://stackoverflow.com/questions/33152132/
-    parentObject.traverse(function(node) {
-      if (node instanceof THREE.Mesh) {
-        if (node.geometry) {
-          node.geometry.dispose();
-        }
-        if (node.material) {
-          var materialArray;
-          if (
-            node.material instanceof THREE.MeshFaceMaterial ||
-            node.material instanceof THREE.MultiMaterial
-          ) {
-            materialArray = node.material.materials;
-          } else if (node.material instanceof Array) {
-            materialArray = node.material;
-          }
-          if (materialArray) {
-            materialArray.forEach(function(mtrl, idx) {
-              if (mtrl.map) mtrl.map.dispose();
-              if (mtrl.lightMap) mtrl.lightMap.dispose();
-              if (mtrl.bumpMap) mtrl.bumpMap.dispose();
-              if (mtrl.normalMap) mtrl.normalMap.dispose();
-              if (mtrl.specularMap) mtrl.specularMap.dispose();
-              if (mtrl.envMap) mtrl.envMap.dispose();
-              mtrl.dispose();
-            });
-          } else {
-            if (node.material.map) node.material.map.dispose();
-            if (node.material.lightMap) node.material.lightMap.dispose();
-            if (node.material.bumpMap) node.material.bumpMap.dispose();
-            if (node.material.normalMap) node.material.normalMap.dispose();
-            if (node.material.specularMap) node.material.specularMap.dispose();
-            if (node.material.envMap) node.material.envMap.dispose();
-            node.material.dispose();
-          }
-        }
-      }
-    });
-  }
 }
