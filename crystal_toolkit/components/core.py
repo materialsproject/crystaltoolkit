@@ -59,7 +59,7 @@ class MPComponent(ABC):
         return html.Div(MPComponent._app_stores)
 
     def __init__(self, contents=None, id=None, origin_component=None,
-                 mprester_cache_timeout=60*60*24):
+                 mprester_cache_timeout=60*60*24, storage_type="memory"):
         """
         :param id: a unique id for this component, if not specified a random
         one will be chosen
@@ -110,7 +110,8 @@ class MPComponent(ABC):
 
         if origin_component is None:
             self._canonical_store_id = self._id
-            self.create_store(name=None, initial_data=contents)
+            self.create_store(name=None, initial_data=contents,
+                              storage_type=storage_type)
         else:
             if MPComponent.app is None:
                 raise ValueError("Can only link stores if an app is defined.")
@@ -130,12 +131,12 @@ class MPComponent(ABC):
         return name
 
     def create_store(
-        self, name, initial_data=None, persistence="memory", debug_clear=False
+        self, name, initial_data=None, storage_type="memory", debug_clear=False
     ):
         store = dcc.Store(
             id=self.id(name),
             data=self.to_data(initial_data),
-            storage_type=persistence,
+            #storage_type=storage_type,
             clear_data=debug_clear,
         )
         self._stores[name] = store

@@ -26,8 +26,8 @@ sample_favorites = [
 
 
 class FavoritesComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, storage_type="memory", **kwargs):
+        super().__init__(*args, storage_type=storage_type, **kwargs)
         self.create_store("current-mpid")
 
     def to_toml(self, favorites: List[Favorite]):
@@ -232,19 +232,22 @@ class FavoritesComponent(MPComponent):
 
         @app.callback(
             Output(self.id("favorite-materials_contents"), "children"),
-            [Input(self.id(), "data")],
+            [Input(self.id(), "modified_timestamp")],
+            [State(self.id(), "data")]
         )
-        def update_links_list(favorites):
-            if favorites is None:
+        def update_links_list(modified_timestamp, favorites):
+            if not favorites:
                 raise PreventUpdate
             return self._make_links(favorites.values())
 
         @app.callback(
             Output(self.id("favorite-materials-container"), "style"),
-            [Input(self.id(), "data")],
+            [Input(self.id(), "modified_timestamp")],
+            [State(self.id(), "data")]
         )
-        def hide_show_links_list(favorites):
-            if favorites is None or len(favorites) == 0:
+        def hide_show_links_list(modified_timestamp, favorites):
+            if not favorites or len(favorites) == 0:
                 return {"display": "none"}
             else:
                 return {}
+
