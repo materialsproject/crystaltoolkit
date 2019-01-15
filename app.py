@@ -7,6 +7,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import os
+import logging
 
 from flask import make_response, jsonify, request
 from flask_caching import Cache
@@ -75,6 +76,15 @@ cache = DummyCache()
 
 
 ################################################################################
+# region SET UP LOGGING
+################################################################################
+
+logger = logging.getLogger(app.title)
+
+# endregion
+
+
+################################################################################
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
@@ -97,12 +107,12 @@ favorites_component = ct.FavoritesComponent()
 favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
 literature_component = ct.LiteratureComponent(origin_component=struct_component)
-#robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
+robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 
 panels = [
     literature_component,
-    # robocrys_component,
+    robocrys_component,
     magnetism_component,
     json_editor_component,
 ]
@@ -432,7 +442,7 @@ def master_update_structure(search_mpid):
 
 
 ################################################################################
-# region Handle persistent settings
+# region HANDLE PERSISTENT SETTINGS
 ################################################################################
 
 #to_save_and_restore = [(struct_component.id("hide-show"), "values")]

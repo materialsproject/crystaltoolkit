@@ -55,7 +55,7 @@ from crystal_toolkit.components.search import SearchComponent
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 from crystal_toolkit.components.favorites import FavoritesComponent
 from crystal_toolkit.components.literature import LiteratureComponent
-#from crystal_toolkit.components.robocrys import RobocrysComponent
+from crystal_toolkit.components.robocrys import RobocrysComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
 #from crystal_toolkit.components.bonding_graph import BondingGraphComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
