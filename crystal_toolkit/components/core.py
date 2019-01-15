@@ -410,6 +410,8 @@ class PanelComponent(MPComponent):
                     thread = Thread(target=update_contents, args=(store_contents ,))
                     thread.start()
                 raise PreventUpdate
+            if not store_contents:
+                raise PreventUpdate
             return update_contents(store_contents)
 
         if self.enable_error_message:
@@ -420,6 +422,8 @@ class PanelComponent(MPComponent):
             )
             def update_message(panel_n_clicks, store_contents, panel_initially_open):
                 if (panel_n_clicks is None) or (panel_initially_open is None):
+                    raise PreventUpdate
+                if not store_contents:
                     raise PreventUpdate
                 return self.update_message(store_contents)
 
