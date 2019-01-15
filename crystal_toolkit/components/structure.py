@@ -245,7 +245,8 @@ class StructureMoleculeComponent(MPComponent):
             return self.to_data(legend)
 
         @app.callback(
-            Output(self.id("color-scheme"), "options"), [Input(self.id("graph"), "data")]
+            Output(self.id("color-scheme"), "options"),
+            [Input(self.id("graph"), "data")],
         )
         def update_color_options(graph):
 
@@ -301,16 +302,15 @@ class StructureMoleculeComponent(MPComponent):
         @app.callback(
             Output(self.id("scene"), "toggleVisibility"),
             [Input(self.id("hide-show"), "values")],
-            [State(self.id("hide-show"), "options")]
+            [State(self.id("hide-show"), "options")],
         )
         def update_visibility(values, options):
-            visibility = {opt['value']: (opt['value'] in values)
-                          for opt in options}
+            visibility = {opt["value"]: (opt["value"] in values) for opt in options}
             return visibility
 
         @app.callback(
             Output(self.id("title_container"), "children"),
-            [Input(self.id("legend_data"), "data")]
+            [Input(self.id("legend_data"), "data")],
         )
         def update_title(legend):
             legend = self.from_data(legend)
@@ -318,7 +318,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("legend_container"), "children"),
-            [Input(self.id("legend_data"), "data")]
+            [Input(self.id("legend_data"), "data")],
         )
         def update_legend(legend):
             legend = self.from_data(legend)
@@ -410,11 +410,13 @@ class StructureMoleculeComponent(MPComponent):
             style={"vertical-align": "top", "display": "inline-block"},
         )
 
-        title_layout = html.Div(self._make_title(self.initial_legend),
-                                id=self.id("title_container"))
+        title_layout = html.Div(
+            self._make_title(self.initial_legend), id=self.id("title_container")
+        )
 
-        legend_layout = html.Div(self._make_legend(self.initial_legend),
-                                 id=self.id("legend_container"))
+        legend_layout = html.Div(
+            self._make_legend(self.initial_legend), id=self.id("legend_container")
+        )
 
         # options = {
         #    "bonding_strategy": bonding_strategy,
@@ -473,7 +475,7 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Ionic", "value": "specified_or_average_ionic"},
                             {"label": "Covalent", "value": "covalent"},
                             {"label": "Van der Waals", "value": "van_der_waals"},
-                            {"label": "Uniform (1Å)", "value": "uniform"}
+                            {"label": "Uniform (1Å)", "value": "uniform"},
                         ],
                         value="uniform",
                         clearable=False,
@@ -483,39 +485,44 @@ class StructureMoleculeComponent(MPComponent):
                 ),
                 html.Label("Draw options:", className="mpc-label"),
                 html.Div(
-                    [dcc.Checklist(
-                        options=[
-                            {"label": "Draw repeats of atoms on periodic boundaries",
-                             "value": "draw_image_atoms"},
-                            {"label": "Draw atoms outside unit cell bonded to "
-                                      "atoms within unit cell",
-                             "value": "bonded_sites_outside_unit_cell"},
-                        ],
-                        values=["draw_image_atoms"],
-                        labelStyle={"display": "block"},
-                        inputClassName="mpc-radio",
-                        id=self.id("draw_options"),
-                    )]),
+                    [
+                        dcc.Checklist(
+                            options=[
+                                {
+                                    "label": "Draw repeats of atoms on periodic boundaries",
+                                    "value": "draw_image_atoms",
+                                },
+                                {
+                                    "label": "Draw atoms outside unit cell bonded to "
+                                    "atoms within unit cell",
+                                    "value": "bonded_sites_outside_unit_cell",
+                                },
+                            ],
+                            values=["draw_image_atoms"],
+                            labelStyle={"display": "block"},
+                            inputClassName="mpc-radio",
+                            id=self.id("draw_options"),
+                        )
+                    ]
+                ),
                 html.Label("Hide/show:", className="mpc-label"),
-                html.Div([dcc.Checklist(
-                        options=[
-                            {"label": "Atoms",
-                             "value": "atoms"},
-                            {"label": "Bonds",
-                             "value": "bonds"},
-                            {"label": "Unit cell",
-                             "value": "unit_cell"},
-                            {"label": "Polyhedra",
-                             "value": "polyhedra"},
-                        ],
-                        values=["atoms", "bonds", "unit_cell", "polyhedra"],
-                        labelStyle={"display": "block"},
-                        inputClassName="mpc-radio",
-                        id=self.id("hide-show"),
-                    )],
+                html.Div(
+                    [
+                        dcc.Checklist(
+                            options=[
+                                {"label": "Atoms", "value": "atoms"},
+                                {"label": "Bonds", "value": "bonds"},
+                                {"label": "Unit cell", "value": "unit_cell"},
+                                {"label": "Polyhedra", "value": "polyhedra"},
+                            ],
+                            values=["atoms", "bonds", "unit_cell", "polyhedra"],
+                            labelStyle={"display": "block"},
+                            inputClassName="mpc-radio",
+                            id=self.id("hide-show"),
+                        )
+                    ],
                     className="mpc-control",
                 ),
-
             ]
         )
 
@@ -724,18 +731,28 @@ class StructureMoleculeComponent(MPComponent):
 
             cmap = get_cmap(color_scale)
             # normalize in [0, 1] range, as expected by cmap
-            props = (props - color_min) / (color_max - color_min)
+            props_normed = (props - color_min) / (color_max - color_min)
 
             def get_color_cmap(x):
                 return [int(c * 255) for c in cmap(x)[0:3]]
 
-            colors = [[get_color_hex(get_color_cmap(x))] for x in props]
+            colors = [[get_color_hex(get_color_cmap(x))] for x in props_normed]
+
             # construct legend
-            c = get_color_hex(get_color_cmap(color_min))
-            legend["colors"][c] = "{:.1f}".format(color_min)
-            if color_max != color_min:
-                c = get_color_hex(get_color_cmap(color_max))
-                legend["colors"][c] = "{:.1f}".format(color_max)
+
+            # max/min only:
+            # c = get_color_hex(get_color_cmap(color_min))
+            # legend["colors"][c] = "{:.1f}".format(color_min)
+            # if color_max != color_min:
+            #    c = get_color_hex(get_color_cmap(color_max))
+            #    legend["colors"][c] = "{:.1f}".format(color_max)
+
+            # all colors:
+            rounded_props = sorted(list(set([np.around(p, decimals=1) for p in props])))
+            for prop in rounded_props:
+                prop_normed = (prop - color_min) / (color_max - color_min)
+                c = get_color_hex(get_color_cmap(prop_normed))
+                legend["colors"][c] = "{:.1f}".format(prop)
 
         elif color_scheme == "colorblind_friendly":
             raise NotImplementedError
