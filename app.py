@@ -70,6 +70,7 @@ except Exception as exception:
 
 # Enable for debug purposes:
 from crystal_toolkit.components.core import DummyCache
+
 cache = DummyCache()
 
 # endregion
@@ -212,8 +213,8 @@ app.layout = Container(
                             [
                                 struct_component.title_layout,
                                 html.Div(
-                                    #[favorites_component.button_layout],
-                                    style={"float": "right"},
+                                    # [favorites_component.button_layout],
+                                    style={"float": "right"}
                                 ),
                             ]
                         )
@@ -261,7 +262,7 @@ app.layout = Container(
                                 Reveal(
                                     [
                                         search_component.standard_layout,
-                                        #favorites_component.favorite_materials_layout,
+                                        # favorites_component.favorite_materials_layout,
                                     ],
                                     title="Load Crystal or Molecule",
                                     open=True,
@@ -271,7 +272,7 @@ app.layout = Container(
                                 Reveal(
                                     [struct_component.options_layout],
                                     title="Display Options",
-                                    id="display-options"
+                                    id="display-options",
                                 ),
                                 Reveal(
                                     [
@@ -445,15 +446,23 @@ def master_update_structure(search_mpid):
 # region HANDLE PERSISTENT SETTINGS
 ################################################################################
 
-#to_save_and_restore = [(struct_component.id("hide-show"), "values")]
-##("display-options", "open")]
+#to_save_and_restore = [
+#    # (struct_component.id("hide-show"), "values"),
+#    (struct_component.id("color-scheme"), "value"),
+#    # (struct_component.id("radius_strategy"), "value"),
+#    # (struct_component.id("draw_options"), "values"),
+#    # (struct_component.id("unit-cell-choice"), "value"),
+#    # (struct_component.id("repeats"), "value"),
+#]
+#
+## ("display-options", "open")]
 #
 #for (component_id, component_property) in to_save_and_restore:
 #
 #    @app.callback(
-#           Output(component_id, component_property),
-#           [Input("session_store", "modified_timestamp")],
-#           [State("session_store", "data")]
+#        Output(component_id, component_property),
+#        [Input("session_store", "modified_timestamp")],
+#        [State("session_store", "data")],
 #    )
 #    def load_data(modified_timestamp, saved_data):
 #        key = f"{component_id}_{component_property}"
@@ -463,18 +472,27 @@ def master_update_structure(search_mpid):
 #            raise PreventUpdate
 #        return saved_data[key]
 #
-#    @app.callback(
-#           Output("session_store", "data"),
-#           [Input(component_id, component_property)],
-#           [State("session_store", "data")]
-#    )
-#    def load_data(property, saved_data):
-#        key = f"{component_id}_{component_property}"
-#        print("Saving: ", key)
-#        saved_data = saved_data or {}
-#        saved_data[key] = property
-#        print("Saved session data: ", saved_data)
-#        return saved_data
+#
+#all_inputs = [
+#    Input(component_id, component_property)
+#    for component_id, component_property in to_save_and_restore
+#]
+#all_keys = [
+#    f"{component_id}_{component_property}"
+#    for component_id, component_property in to_save_and_restore
+#]
+#
+#
+#@app.callback(
+#    Output("session_store", "data"), all_inputs, [State("session_store", "data")]
+#)
+#def load_data(property, saved_data):
+#    key = f"{component_id}_{component_property}"
+#    print("Saving: ", key)
+#    saved_data = saved_data or {}
+#    saved_data[key] = property
+#    print("Saved session data: ", saved_data)
+#    return saved_data
 
 
 # endregion
