@@ -411,7 +411,7 @@ class PanelComponent(MPComponent):
                     thread.start()
                 raise PreventUpdate
             if not store_contents:
-                raise PreventUpdate
+                return html.Div()
             return update_contents(store_contents)
 
         if self.enable_error_message:
