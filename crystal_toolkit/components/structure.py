@@ -171,15 +171,6 @@ class StructureMoleculeComponent(MPComponent):
             self.create_store("scene_additions", initial_data=scene_additions.to_json())
 
     def _generate_callbacks(self, app, cache):
-        """
-        Canonical store --> (+repeats+unit cell+bonds) graph store -->
-        (+color scheme+color scale+radius+image choice+bonded outside choice+
-        unterminated bond choice)
-        --> (+scene additions)scene store
-        Hide/show options --> hideShowToggle
-        Screenshot button --> downloadRequest
-        """
-
         @app.callback(
             Output(self.id("graph"), "data"),
             [
@@ -238,10 +229,17 @@ class StructureMoleculeComponent(MPComponent):
             ],
         )
         def update_legend(graph, display_options):
-            # TODO: split legend from scene generation
+            # TODO: more cleanly split legend from scene generation
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
-            scene, legend = self.get_scene_and_legend(graph, **display_options)
+            struct_or_mol = self._get_struct_or_mol(graph)
+            site_prop_types = self._analyze_site_props(struct_or_mol)
+            colors, legend = self._get_display_colors_and_legend_for_sites(
+                struct_or_mol,
+                site_prop_types,
+                color_scheme=display_options.get("color_scheme", None),
+                color_scale=display_options.get("color_scale", None),
+            )
             return self.to_data(legend)
 
         @app.callback(
@@ -265,12 +263,28 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("display_options"), "data"),
-            [Input(self.id("color-scheme"), "value")],
+            [
+                Input(self.id("color-scheme"), "value"),
+                Input(self.id("radius_strategy"), "value"),
+                Input(self.id("draw_options"), "values"),
+            ],
             [State(self.id("display_options"), "data")],
         )
-        def update_display_options(color_scheme, display_options):
+        def update_display_options(
+            color_scheme, radius_strategy, draw_options, display_options
+        ):
             display_options = self.from_data(display_options)
             display_options.update({"color_scheme": color_scheme})
+            display_options.update({"radius_strategy": radius_strategy})
+            display_options.update(
+                {"draw_image_atoms": "draw_image_atoms" in draw_options}
+            )
+            display_options.update(
+                {
+                    "bonded_sites_outside_unit_cell": "bonded_sites_outside_unit_cell"
+                    in draw_options
+                }
+            )
             return self.to_data(display_options)
 
         @app.callback(
@@ -475,7 +489,7 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Ionic", "value": "specified_or_average_ionic"},
                             {"label": "Covalent", "value": "covalent"},
                             {"label": "Van der Waals", "value": "van_der_waals"},
-                            {"label": "Uniform (1Å)", "value": "uniform"},
+                            {"label": "Uniform (0.5Å)", "value": "uniform"},
                         ],
                         value="uniform",
                         clearable=False,
@@ -971,24 +985,24 @@ class StructureMoleculeComponent(MPComponent):
 
                 radius = None
 
-                if radius_strategy is "uniform":
+                if radius_strategy == "uniform":
                     radius = 0.5
-                if radius_strategy is "atomic":
+                if radius_strategy == "atomic":
                     radius = sp.atomic_radius
                 elif (
-                    radius_strategy is "specified_or_average_ionic"
+                    radius_strategy == "specified_or_average_ionic"
                     and isinstance(sp, Specie)
                     and sp.oxi_state
                 ):
                     radius = sp.ionic_radius
-                elif radius_strategy is "specified_or_average_ionic":
+                elif radius_strategy == "specified_or_average_ionic":
                     radius = sp.average_ionic_radius
-                elif radius_strategy is "covalent":
+                elif radius_strategy == "covalent":
                     el = str(getattr(sp, "element", sp))
                     radius = CovalentRadius.radius[el]
-                elif radius_strategy is "van_der_waals":
+                elif radius_strategy == "van_der_waals":
                     radius = sp.van_der_waals_radius
-                elif radius_strategy is "atomic_calculated":
+                elif radius_strategy == "atomic_calculated":
                     radius = sp.atomic_radius_calculated
 
                 if not radius:
