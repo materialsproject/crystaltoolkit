@@ -6843,13 +6843,13 @@ label.panel-block {
   position: absolute;
   top: 20px;
   left: 20px;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   margin-top: -10px;
   margin-left: -10px;
   border-radius: 50%;
-  border-top: 2px solid #00d1b2;
-  border-right: 2px solid transparent;
+  border-top: 4px solid #00d1b2;
+  border-right: 4px solid transparent;
   animation: spinner .6s linear infinite; }
 
 /*# sourceMappingURL=styles.css.map */

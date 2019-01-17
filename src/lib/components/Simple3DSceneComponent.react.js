@@ -31,7 +31,8 @@ export default class Simple3DSceneComponent extends Component {
 		}
 
 		if (nextProps.data !== this.props.data) {
-		    this.scene.addToScene(nextProps.data)
+		    this.scene.addToScene(nextProps.data);
+			this.scene.toggleVisibility(this.props.toggleVisibility)
 		}
 
 		if (nextProps.toggleVisibility !== this.props.toggleVisibility) {

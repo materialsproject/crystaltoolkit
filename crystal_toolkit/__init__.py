@@ -57,9 +57,10 @@ from crystal_toolkit.components.favorites import FavoritesComponent
 from crystal_toolkit.components.literature import LiteratureComponent
 from crystal_toolkit.components.robocrys import RobocrysComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
-#from crystal_toolkit.components.bonding_graph import BondingGraphComponent
+from crystal_toolkit.components.bonding_graph import BondingGraphComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
 from crystal_toolkit.components.transformations.core import TransformationsComponent
+#from crystal_toolkit.components.summary import SummaryComponent
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.helpers.scene import *
 from crystal_toolkit.helpers.view import view
