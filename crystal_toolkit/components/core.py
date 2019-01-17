@@ -112,10 +112,12 @@ class MPComponent(ABC):
             self._canonical_store_id = self._id
             self.create_store(name=None, initial_data=contents,
                               storage_type=storage_type)
+            self.initial_data = self.to_data(contents)
         else:
             if MPComponent.app is None:
                 raise ValueError("Can only link stores if an app is defined.")
             self._canonical_store_id = origin_component._canonical_store_id
+            self.initial_data = origin_component.initial_data
 
         if MPComponent.app:
             self._generate_callbacks(MPComponent.app, MPComponent.cache)
@@ -292,8 +294,8 @@ class PanelComponent(MPComponent):
                  prime_cache=False, **kwargs):
 
         self.open_by_default = open_by_default
-        self.prime_cache = prime_cache
         self.enable_error_message = enable_error_message
+        self.prime_cache = prime_cache
 
         if self.description and len(self.description) > 140:
             raise ValueError(

@@ -43,8 +43,8 @@ export default class Simple3DScene {
       gammaInput: true,
       gammaOutput: true,
       gammaFactor: 2.2,
-      shadowMapEnabled: this.settings.shadows,
-      shadowMapType: THREE.PCFSoftShadowMap
+      //shadowMapEnabled: this.settings.shadows,
+      //shadowMapType: THREE.PCFSoftShadowMap
     });
     this.renderer = renderer;
 

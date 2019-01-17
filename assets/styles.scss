@@ -184,13 +184,13 @@ details .input{
   position: absolute;
   top: 20px;
   left: 20px;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   margin-top: -10px;
   margin-left: -10px;
   border-radius: 50%;
-  border-top: 2px solid $primary;
-  border-right: 2px solid transparent;
+  border-top: 4px solid $primary;
+  border-right: 4px solid transparent;
   animation: spinner .6s linear infinite; // add fadein?
   //animation-delay: 0.5s;
   //opacity: 0;

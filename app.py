@@ -92,15 +92,9 @@ logger = logging.getLogger(app.title)
 ct.register_app(app)
 ct.register_cache(cache)
 
-struct = MPRester().get_structure_by_material_id(
-    "mp-1078929"  # "mp-804"
-)  # 19306 #"mp-5020") # ("mp-804")  # ("mp-123")
+json_editor_component = ct.JSONEditor()
 
-struct = None
-
-json_editor_component = ct.JSONEditor(struct)
-
-struct_component = ct.StructureMoleculeComponent(struct)
+struct_component = ct.StructureMoleculeComponent(origin_component=json_editor_component)
 
 search_component = ct.SearchComponent()
 
@@ -111,7 +105,12 @@ literature_component = ct.LiteratureComponent(origin_component=struct_component)
 robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 
+bonding_graph_component = ct.BondingGraphComponent()
+bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
+
+
 panels = [
+    bonding_graph_component,
     literature_component,
     robocrys_component,
     magnetism_component,
@@ -199,7 +198,7 @@ panel_description = dcc.Markdown(
 # region  DEFINE MAIN LAYOUT
 ################################################################################
 
-app.layout = Container(
+master_layout = Container(
     [
         dcc.Location(id="url", refresh=False),
         MPComponent.all_app_stores(),
@@ -312,6 +311,9 @@ app.layout = Container(
     ]
 )
 
+app.layout = master_layout
+
+
 # endregion
 
 
@@ -393,18 +395,6 @@ def update_search_term_on_page_load(href):
         return pathname[1]
 
 
-# @app.callback(Output("load", "open"), [Input("url", "href")])
-# def open_load_box_if_no_search_from_url(href):
-#    # only if open=False by default
-#    if href is None:
-#        raise PreventUpdate
-#    if str(parse.urlparse(href).path) == '/':
-#        return True
-#    else:
-#        raise PreventUpdate
-#
-
-
 @app.callback(
     Output(search_component.id("input"), "n_submit"),
     [Input(search_component.id("input"), "value")],
@@ -426,7 +416,7 @@ def update_url_pathname_from_search_term(data):
 
 
 @app.callback(
-    Output(struct_component.id(), "data"), [Input(search_component.id(), "data")]
+    Output(json_editor_component.id(), "data"), [Input(search_component.id(), "data")]
 )
 def master_update_structure(search_mpid):
 

@@ -455,19 +455,24 @@ class StructureMoleculeComponent(MPComponent):
                     className="mpc-control",
                 ),
                 #  hide if molecule
-                html.Label("Change number of repeats:", className="mpc-label"),
                 html.Div(
-                    dcc.RadioItems(
-                        options=[
-                            {"label": "1×1×1", "value": "1"},
-                            {"label": "2×2×2", "value": "2"},
-                        ],
-                        value="1",
-                        id=self.id("repeats"),
-                        labelStyle={"display": "block"},
-                        inputClassName="mpc-radio",
-                    ),
-                    className="mpc-control",
+                    [
+                        html.Label("Change number of repeats:", className="mpc-label"),
+                        html.Div(
+                            dcc.RadioItems(
+                                options=[
+                                    {"label": "1×1×1", "value": "1"},
+                                    {"label": "2×2×2", "value": "2"},
+                                ],
+                                value="1",
+                                id=self.id("repeats"),
+                                labelStyle={"display": "block"},
+                                inputClassName="mpc-radio",
+                            ),
+                            className="mpc-control",
+                        ),
+                    ],
+                    style={"display": "none"},  # hidden for now, bug(!)
                 ),
                 html.Label("Change color scheme:", className="mpc-label"),
                 html.Div(
@@ -694,6 +699,18 @@ class StructureMoleculeComponent(MPComponent):
         def get_color_hex(x):
             return "#{:02x}{:02x}{:02x}".format(*x)
 
+        allowed_schemes = (
+            ["VESTA", "Jmol", "colorblind_friendly"]
+            + site_prop_types.get("scalar", [])
+            + site_prop_types.get("categorical", [])
+        )
+        default_scheme = "Jmol"
+        if color_scheme not in allowed_schemes:
+            warnings.warn(
+                f"Color scheme {color_scheme} not available, falling back to {default_scheme}."
+            )
+            color_scheme = default_scheme
+
         if color_scheme not in ("VESTA", "Jmol", "colorblind_friendly"):
 
             if not struct_or_mol.is_ordered:
@@ -740,12 +757,12 @@ class StructureMoleculeComponent(MPComponent):
             # are red/blue
             color_scale = color_scale or "coolwarm"
             # try to keep color scheme symmetric around 0
-            color_max = max([abs(min(props)), max(props)])
-            color_min = -color_max
+            prop_max = max([abs(min(props)), max(props)])
+            prop_min = -prop_max
 
             cmap = get_cmap(color_scale)
             # normalize in [0, 1] range, as expected by cmap
-            props_normed = (props - color_min) / (color_max - color_min)
+            props_normed = (props - prop_min) / (prop_max - prop_min)
 
             def get_color_cmap(x):
                 return [int(c * 255) for c in cmap(x)[0:3]]
@@ -764,7 +781,7 @@ class StructureMoleculeComponent(MPComponent):
             # all colors:
             rounded_props = sorted(list(set([np.around(p, decimals=1) for p in props])))
             for prop in rounded_props:
-                prop_normed = (prop - color_min) / (color_max - color_min)
+                prop_normed = (prop - prop_min) / (prop_max - prop_min)
                 c = get_color_hex(get_color_cmap(prop_normed))
                 legend["colors"][c] = "{:.1f}".format(prop)
 
