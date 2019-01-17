@@ -64,7 +64,10 @@ class Error(html.Div):
 
 class MessageContainer(html.Article):
     def __init__(self, *args, kind="warning", size="normal", **kwargs):
-        kwargs["className"] = f"message is-{kind} is-{size}"
+        if kind:
+            kwargs["className"] = f"message is-{kind} is-{size}"
+        else:
+            kwargs["className"] = f"message is-{size}"
         super().__init__(*args, **kwargs)
 
 

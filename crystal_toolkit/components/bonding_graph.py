@@ -19,13 +19,13 @@ from typing import Union
 class BondingGraphComponent(PanelComponent):
     @property
     def title(self):
-        return "Bonding and Local Environments"
+        return "Bonding Graph"
 
     @property
     def description(self):
         return (
             "See an abstract 2D representation of the bonding in this "
-            "structure and different local environments."
+            "structure. Hover over edges to see bond lengths."
         )
 
     @staticmethod
@@ -47,12 +47,13 @@ class BondingGraphComponent(PanelComponent):
             color_scale=color_scale,
         )
 
-        for node in graph.graph.nodes():
+        for idx, node in enumerate(graph.graph.nodes()):
 
             nodes.append(
                 {
                     "id": node,
-                    "title": f"{struct_or_mol[node].species_string} site",
+                    "title": f"{struct_or_mol[node].species_string} site "
+                             f"({graph.get_coordination_of_site(idx)} neighbors)",
                     "color": colors[node][0],
                 }
             )
@@ -70,15 +71,17 @@ class BondingGraphComponent(PanelComponent):
                 dist = struct_or_mol.get_distance(u, v)
             edge["length"] = 50 * dist
 
-            label = f"{dist:.2f} Å bond"
-            # if 'weight' in d:
-            #    label += f" {d['weight']}"
+            label = f"{dist:.2f} Å distance to site"
+
             if to_jimage != (0, 0, 0):
                 edge["arrows"] = "to"
-                label += f" to site at image vector {to_jimage}"
+                label += f" at image vector {to_jimage}"
 
             if label:
                 edge["title"] = label
+
+            #if 'weight' in d:
+            #   label += f" {d['weight']}"
 
             edges.append(edge)
 

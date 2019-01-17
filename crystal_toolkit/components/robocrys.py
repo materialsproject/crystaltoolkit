@@ -4,6 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
 from crystal_toolkit.components.core import PanelComponent
+from crystal_toolkit.helpers.layouts import MessageContainer, MessageBody
 
 from robocrys import StructureCondenser, StructureDescriber
 from robocrys import __version__ as robocrys_version
@@ -23,8 +24,8 @@ class RobocrysComponent(PanelComponent):
 
     @property
     def loading_text(self):
-        return "Robocrystallographer is analyzing your structure. " \
-               "This is a new service and not pre-cached so may take up to a minute"
+        return "Robocrystallographer is analyzing your structure, " \
+               "this can take up for a minute"
 
     def update_contents(self, new_store_contents):
 
@@ -37,7 +38,7 @@ class RobocrysComponent(PanelComponent):
 
         description = describer.describe(condensed_structure)
 
-        return html.Blockquote(
+        return MessageContainer(MessageBody(
             [
                 f"{description} – ",
                 html.A(
@@ -45,6 +46,5 @@ class RobocrysComponent(PanelComponent):
                     href="https://github.com/hackingmaterials/robocrystallographer",
                     style={"white-space": "nowrap"},
                 ),
-            ],
-            className="mpc-blockquote",
-        )
+            ]
+        ), kind="dark")

@@ -200,11 +200,12 @@ export default class Simple3DScene {
     box.setFromObject(root_obj);
     const width = this.renderer.domElement.clientWidth;
     const height = this.renderer.domElement.clientHeight;
+    // TODO: improve auto-zoom
     this.camera.zoom =
       Math.min(
         width / (box.max.x - box.min.x),
         height / (box.max.y - box.min.y)
-      ) * 0.5;
+      ) * 0.8;
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrix();
     this.renderScene();
