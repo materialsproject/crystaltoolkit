@@ -49,7 +49,13 @@ class BondingGraphComponent(PanelComponent):
 
         for node in graph.graph.nodes():
 
-            nodes.append({"id": node, "title": f"{struct_or_mol[node].species_string} site", "color": colors[node][0]})
+            nodes.append(
+                {
+                    "id": node,
+                    "title": f"{struct_or_mol[node].species_string} site",
+                    "color": colors[node][0],
+                }
+            )
 
         for u, v, d in graph.graph.edges(data=True):
 
@@ -86,7 +92,19 @@ class BondingGraphComponent(PanelComponent):
         graph = self.from_data(new_store_contents)
         graph_data = self.get_graph_data(graph)
 
-        options = {"interaction": {"hover": True}}
+        options = {
+            "interaction": {"hover": True, "tooltipDelay": 0},
+            "edges": {
+                "smooth": {"type": "dynamic"},
+                "length": 250,
+                "color": {"inherit": "both"},
+            },
+            "physics": {
+                "solver": "forceAtlas2Based",
+                "forceAtlas2Based": {"avoidOverlap": 1.0},
+                "stabilization": {"fit": True}
+            }
+        }
 
         return html.Div(
             [GraphComponent(graph=graph_data, options=options)],
