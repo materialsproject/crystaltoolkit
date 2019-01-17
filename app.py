@@ -161,6 +161,7 @@ footer = ct.Footer(
                     "height": "20px",
                 },
             ),
+            #html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
                 f"App created by [@mkhorton](mailto:mkhorton@lbl.gov), "
                 f"bug reports and feature requests gratefully accepted.  \n"
@@ -178,7 +179,8 @@ footer = ct.Footer(
 panel_choices = dcc.Dropdown(
     options=[{"label": panel.title, "value": idx} for idx, panel in enumerate(panels)],
     multi=True,
-    value=0,
+    value=[idx for idx in range(len(panels))],
+    id="panel-choices"
 )
 
 panel_description = dcc.Markdown(
@@ -297,7 +299,7 @@ master_layout = Container(
                         Column(
                             [
                                 # panel_description,
-                                # panel_choices,
+                                #panel_choices,
                                 html.Div(
                                     [panel.panel_layout for panel in panels],
                                     id="panels",
@@ -486,6 +488,16 @@ def master_update_structure(search_mpid):
 #    print("Saved session data: ", saved_data)
 #    return saved_data
 
+#for idx, panel in enumerate(panels):
+#    @app.callback(
+#        Output(panel.id("panel"), "style"),
+#        [Input("panel-choices", "value")]
+#    )
+#    def hide_show_panel(value):
+#        if idx in value:
+#            return {}
+#        else:
+#            return {"display": "none"}
 
 # endregion
 

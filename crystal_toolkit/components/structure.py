@@ -109,10 +109,11 @@ class StructureMoleculeComponent(MPComponent):
         radius_strategy="uniform",
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
+        **kwargs
     ):
 
         super().__init__(
-            id=id, contents=struct_or_mol, origin_component=origin_component
+            id=id, contents=struct_or_mol, origin_component=origin_component, **kwargs
         )
 
         self.default_title = "Crystal Toolkit"

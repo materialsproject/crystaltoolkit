@@ -11,20 +11,6 @@ from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer
 
 
 class MagnetismComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        #self.viewer_component = StructureMoleculeComponent(
-        #    id=self.id("structure"), color_scheme="magmom"
-        #)
-
-    @property
-    def all_layouts(self):
-        all_layouts = super().all_layouts
-
-        all_layouts["viewer"] = html.Div()#self.viewer_component.standard_layout
-
-        return all_layouts
 
     @property
     def title(self):
@@ -82,7 +68,13 @@ class MagnetismComponent(PanelComponent):
 
         data_block = html.Div([html.P([html.Span(cell) for cell in row]) for row in rows])
 
+        viewer = StructureMoleculeComponent(
+            struct,
+            id=self.id("structure"), color_scheme="magmom",
+            static=True
+        )
+
         return Columns([
-            #Column(self.viewer_layout),
+            Column(html.Div([viewer.struct_layout], style={"height": "60vmin"})),
             Column(data_block)
         ])

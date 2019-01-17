@@ -59,7 +59,8 @@ class MPComponent(ABC):
         return html.Div(MPComponent._app_stores)
 
     def __init__(self, contents=None, id=None, origin_component=None,
-                 mprester_cache_timeout=60*60*24, storage_type="memory"):
+                 mprester_cache_timeout=60*60*24, storage_type="memory",
+                 static=False):
         """
         :param id: a unique id for this component, if not specified a random
         one will be chosen
@@ -72,11 +73,11 @@ class MPComponent(ABC):
         if id is None:
             id = self.__class__.__name__
 
-        if id in MPComponent._instances:
-            raise ValueError(
-                f"You cannot instantiate more than one instance of "
-                f"the class with the same id: {id}."
-            )
+        #if id in MPComponent._instances:
+        #    raise ValueError(
+        #        f"You cannot instantiate more than one instance of "
+        #        f"the class with the same id: {id}."
+        #    )
 
         self._id = id
         self._all_ids = set()
@@ -119,7 +120,7 @@ class MPComponent(ABC):
             self._canonical_store_id = origin_component._canonical_store_id
             self.initial_data = origin_component.initial_data
 
-        if MPComponent.app:
+        if MPComponent.app and not static:
             self._generate_callbacks(MPComponent.app, MPComponent.cache)
 
         self.logger = logging.getLogger(self.__class__.__name__)
