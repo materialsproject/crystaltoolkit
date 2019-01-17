@@ -108,12 +108,14 @@ magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 bonding_graph_component = ct.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
 
+transformation_component = ct.TransformationsComponent()
 
 panels = [
     bonding_graph_component,
     literature_component,
     robocrys_component,
     magnetism_component,
+    transformation_component,
     json_editor_component,
 ]
 

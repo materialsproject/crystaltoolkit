@@ -11,4 +11,4 @@ class TransformationsComponent(PanelComponent):
 
     @property
     def title(self):
-        return "Transform Material"
+        return "Transform Material 🌟"
