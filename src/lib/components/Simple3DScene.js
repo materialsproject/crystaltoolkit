@@ -1,5 +1,4 @@
 import * as THREE from "three-full";
-//import JSZip from "jszip";
 
 export default class Simple3DScene {
   constructor(scene_json, dom_elt, settings) {
@@ -11,13 +10,10 @@ export default class Simple3DScene {
       shadows: true,
       antialias: true,
       transparent_background: true,
-      pixelRatio: 1.5,
       sphereSegments: 32,
       cylinderSegments: 8,
-      reflections: false,
       staticScene: true,
-      autorotate: true,
-      objectScale: 1.0,
+      sphereScale: 1.0,
       cylinderScale: 1.0,
       defaultSurfaceOpacity: 0.5,
       lights: [{ type: "HemisphereLight", args: ["#ffffff", "#202020", 1] }],
@@ -43,14 +39,14 @@ export default class Simple3DScene {
       gammaInput: true,
       gammaOutput: true,
       gammaFactor: 2.2,
-      //shadowMapEnabled: this.settings.shadows,
-      //shadowMapType: THREE.PCFSoftShadowMap
+      shadowMapEnabled: this.settings.shadows,
+      shadowMapType: THREE.PCFSoftShadowMap
     });
     this.renderer = renderer;
 
     console.log(window.devicePixelRatio);
     renderer.setPixelRatio(
-      window.devicePixelRatio // * this.settings.pixelRatio
+      window.devicePixelRatio
     );
     renderer.setClearColor(0xffffff, 0);
     renderer.setSize(width, height);
@@ -257,7 +253,7 @@ export default class Simple3DScene {
     switch (object_json.type) {
       case "spheres": {
         const geom = new THREE.SphereBufferGeometry(
-          object_json.radius * this.settings.objectScale,
+          object_json.radius * this.settings.sphereScale,
           this.settings.sphereSegments,
           this.settings.sphereSegments,
           object_json.phiStart || 0,
@@ -332,9 +328,9 @@ export default class Simple3DScene {
       }
       case "cubes": {
         const geom = new THREE.BoxBufferGeometry(
-          object_json.width * this.settings.objectScale,
-          object_json.width * this.settings.objectScale,
-          object_json.width * this.settings.objectScale
+          object_json.width * this.settings.sphereScale,
+          object_json.width * this.settings.sphereScale,
+          object_json.width * this.settings.sphereScale
         );
         const mat = this.makeMaterial(object_json.color);
 
