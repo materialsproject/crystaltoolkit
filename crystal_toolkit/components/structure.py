@@ -148,6 +148,7 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy=bonding_strategy,
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
+            #struct_or_mol = ...
             scene, legend = self.get_scene_and_legend(
                 graph, name=self.id(), **self.initial_display_options
             )
@@ -167,9 +168,15 @@ class StructureMoleculeComponent(MPComponent):
         self.initial_graph = graph
         self.create_store("graph", initial_data=self.to_data(graph))
 
+
+        #self.create_store("struct_or_mol", initial_data=...)
+
         if scene_additions:
-            self.initial_scene_additions = scene_additions
-            self.create_store("scene_additions", initial_data=scene_additions.to_json())
+            self.initial_scene_additions = Scene(name="scene_additions",
+                                                 contents=scene_additions)
+        else:
+            self.initial_scene_additons = Scene(name="scene_additions")
+        self.create_store("scene_additions", initial_data=self.initial_scene_additons.to_json())
 
     def _generate_callbacks(self, app, cache):
         @app.callback(

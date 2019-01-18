@@ -45,6 +45,8 @@ app.scripts.config.serve_locally = True
 app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
 
+DEBUG_MODE = os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False)
+
 # endregion
 ##########
 
@@ -97,6 +99,7 @@ json_editor_component = ct.JSONEditor()
 struct_component = ct.StructureMoleculeComponent(origin_component=json_editor_component)
 
 search_component = ct.SearchComponent()
+upload_component = ct.StructureMoleculeUploadComponent()
 
 favorites_component = ct.FavoritesComponent()
 favorites_component.attach_from(search_component, this_store_name="current-mpid")
@@ -265,6 +268,7 @@ master_layout = Container(
                                 Reveal(
                                     [
                                         search_component.standard_layout,
+                                        upload_component.standard_layout,
                                         # favorites_component.favorite_materials_layout,
                                     ],
                                     title="Load Crystal or Molecule",
@@ -276,15 +280,6 @@ master_layout = Container(
                                     [struct_component.options_layout],
                                     title="Display Options",
                                     id="display-options",
-                                ),
-                                Reveal(
-                                    [
-                                        Label("Thermodynamic Stability"),
-                                        html.Div(
-                                            ["1.25 eV/Atom ", html.A("above hull")]
-                                        ),
-                                    ],
-                                    title="Summary",
                                 ),
                                 # favorites_component.notes_layout,
                             ],
@@ -505,7 +500,6 @@ def master_update_structure(search_mpid):
 # Run server :-)
 ################################################################################
 
-DEBUG_MODE = os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False)
 
 if __name__ == "__main__":
     app.run_server(debug=DEBUG_MODE, port=8050)
