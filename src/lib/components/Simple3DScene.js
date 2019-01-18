@@ -112,39 +112,7 @@ export default class Simple3DScene {
       case "png":
         this.downloadScreenshot(filename);
         break;
-      case "dae":
-        this.downloadCollada(filename);
-        break;
     }
-  }
-
-  downloadCollada(filename) {
-    // Do not use yet. Adapted from ColladaArchiveExporter from @gkjohnson
-
-    const files = new THREE.ColladaExporter().parse(this.scene);
-    const manifest =
-      '<?xml version="1.0" encoding="utf-8"?>' +
-      `<dae_root>./${filename}</dae_root>`;
-
-    const zip = new JSZip();
-    zip.file("manifest.xml", manifest);
-    zip.file(filename, files.data);
-    files.textures.forEach(tex =>
-      zip.file(`${tex.directory}${tex.name}.${tex.ext}`, tex.data)
-    );
-
-    var link = document.createElement("a");
-    //link.style.display = "none";
-    document.body.appendChild(link);
-    zip.generateAsync({ type: "base64" }).then(function(base64) {
-      link.href = "data:application/zip;base64," + base64;
-    });
-    link.download = filename || "scene.dae";
-    //link.click();
-  }
-
-  downloadGLTF(filename) {
-    // Not Implemented Yet
   }
 
   downloadScreenshot(filename) {
