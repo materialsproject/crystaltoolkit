@@ -32,7 +32,7 @@ fuzzywuzzy[speedup]==0.17.0
 bibtexparser==1.0.1
 pybtex==0.22.0
 habanero==0.6.2
-latexcodec==1.0.5
+latexcodec==1.0.6
 
 # for robocrystallographer
 matminer>=0.5.0
