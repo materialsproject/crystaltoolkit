@@ -25,6 +25,9 @@ from habanero.cn import content_negotiation
 import codecs
 import latexcodec
 
+import os
+
+CROSSREF_MAILTO = os.environ.get("CROSSREF_MAILTO", None)
 
 class LiteratureComponent(PanelComponent):
     def __init__(self, *args, use_crossref=True, **kwargs):
@@ -185,7 +188,7 @@ class LiteratureComponent(PanelComponent):
 
         if self.use_crossref:
 
-            cr = Crossref(mailto="m.k.horton@gmail.com")
+            cr = Crossref(mailto=CROSSREF_MAILTO)
             individual_references = set()
             for references in all_references:
                 individual_references.update(set(references.split("\n\n")))
