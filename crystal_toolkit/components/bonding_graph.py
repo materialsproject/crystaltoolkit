@@ -17,6 +17,14 @@ from typing import Union
 
 
 class BondingGraphComponent(PanelComponent):
+
+    #def __init__(self, *args, **kwargs):
+    #    super().__init__(*args, **kwargs)
+    #    self.create_store("display_options", initial_data={
+    #        "color_scheme": "Jmol",
+    #        "color_scale": None
+    #    })
+
     @property
     def title(self):
         return "Bonding Graph"

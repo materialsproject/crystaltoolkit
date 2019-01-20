@@ -118,7 +118,7 @@ class SearchComponent(MPComponent):
             style={"margin-bottom": "0"}
         )
 
-        return search
+        return html.Div([html.Label("Search Materials Project:", className="mpc-label"), search])
 
     @property
     def all_layouts(self):

@@ -109,6 +109,7 @@ class StructureMoleculeComponent(MPComponent):
         radius_strategy="uniform",
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
+        hide_incomplete_bonds=False,
         **kwargs
     ):
 
@@ -136,6 +137,7 @@ class StructureMoleculeComponent(MPComponent):
             "radius_strategy": radius_strategy,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
+            "hide_incomplete_bonds": hide_incomplete_bonds
         }
         self.create_store("display_options", initial_data=self.initial_display_options)
 
@@ -148,7 +150,6 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy=bonding_strategy,
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
-            #struct_or_mol = ...
             scene, legend = self.get_scene_and_legend(
                 graph, name=self.id(), **self.initial_display_options
             )
@@ -167,9 +168,6 @@ class StructureMoleculeComponent(MPComponent):
 
         self.initial_graph = graph
         self.create_store("graph", initial_data=self.to_data(graph))
-
-
-        #self.create_store("struct_or_mol", initial_data=...)
 
         if scene_additions:
             self.initial_scene_additions = Scene(name="scene_additions",
@@ -292,6 +290,9 @@ class StructureMoleculeComponent(MPComponent):
                     "bonded_sites_outside_unit_cell": "bonded_sites_outside_unit_cell"
                     in draw_options
                 }
+            )
+            display_options.update(
+                {"hide_incomplete_bonds": "hide_incomplete_bonds" in draw_options}
             )
             return self.to_data(display_options)
 
@@ -524,6 +525,10 @@ class StructureMoleculeComponent(MPComponent):
                                     "atoms within unit cell",
                                     "value": "bonded_sites_outside_unit_cell",
                                 },
+                                {
+                                    "label": "Hide bonds where destination atoms are not shown",
+                                    "value": "hide_incomplete_bonds"
+                                }
                             ],
                             values=["draw_image_atoms"],
                             labelStyle={"display": "block"},
@@ -1190,7 +1195,7 @@ class StructureMoleculeComponent(MPComponent):
                 all_connected_sites_present=all_connected_sites_present,
                 origin=origin,
                 ellipsoid_site_prop=ellipsoid_site_prop,
-                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull
             )
             for k, v in site_primitives.items():
                 primitives[k] += v
