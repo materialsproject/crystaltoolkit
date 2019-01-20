@@ -71,9 +71,9 @@ except Exception as exception:
     cache = Cache(app.server, config={"CACHE_TYPE": "filesystem"})
 
 # Enable for debug purposes:
-from crystal_toolkit.components.core import DummyCache
-
-cache = DummyCache()
+if DEBUG_MODE:
+    from crystal_toolkit.components.core import DummyCache
+    cache = DummyCache()
 
 # endregion
 
@@ -116,11 +116,37 @@ transformation_component = ct.TransformationsComponent()
 panels = [
     bonding_graph_component,
     literature_component,
-    robocrys_component,
     magnetism_component,
     transformation_component,
     json_editor_component,
 ]
+
+# panels not ready for production yet (e.g. pending papers, further testing, etc.)
+if DEBUG_MODE:
+    panels.insert(-1, robocrys_component)
+
+
+banner = html.Div(id="banner")
+if DEBUG_MODE:
+    banner = html.Div(
+        [
+            html.Br(),
+            MessageContainer(
+                [
+                    MessageHeader("Warning"),
+                    MessageBody(
+                        dcc.Markdown(
+                            "This is a pre-release version of Crystal Toolkit and "
+                            "may not behave reliably. Please visit "
+                            "[https://viewer.materialsproject.org](https://viewer.materialsproject.org) "
+                            "for a stable version.")
+                    ),
+                ],
+                kind="warning",
+            ),
+        ],
+        id="banner",
+    )
 
 api_offline, api_error = True, "Unknown error connecting to Materials Project API."
 try:
@@ -136,13 +162,20 @@ try:
 except Exception as exception:
     api_error = str(exception)
 if api_offline:
-    api_banner = MessageContainer(
-        MessageHeader("Error: Cannot connect to Materials Project"),
-        MessageBody(api_error),
-        kind="danger",
+    banner = html.Div(
+        [
+            html.Br(),
+            MessageContainer(
+                [
+                    MessageHeader("Error: Cannot connect to Materials Project"),
+                    MessageBody(api_error),
+                ],
+                kind="danger",
+            ),
+        ],
+        id="banner",
     )
-else:
-    api_banner = html.Div(id="api-banner")
+
 
 # endregion
 
@@ -155,16 +188,16 @@ else:
 footer = ct.Footer(
     html.Div(
         [
-            html.Iframe(
-                src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
-                style={
-                    "frameborder": False,
-                    "scrolling": False,
-                    "width": "72px",
-                    "height": "20px",
-                },
-            ),
-            #html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
+            # html.Iframe(
+            #    src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
+            #    style={
+            #        "frameborder": False,
+            #        "scrolling": False,
+            #        "width": "72px",
+            #        "height": "20px",
+            #    },
+            # ),
+            # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
                 f"App created by [@mkhorton](mailto:mkhorton@lbl.gov), "
                 f"bug reports and feature requests gratefully accepted.  \n"
@@ -172,7 +205,7 @@ footer = ct.Footer(
                 f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
                 f"[Dash by Plotly](https://plot.ly/products/dash/). "
                 f"Deployed on [Spin](http://www.nersc.gov/users/data-analytics/spin/)."
-            ),
+            )
         ],
         className="content has-text-centered",
     ),
@@ -183,7 +216,7 @@ panel_choices = dcc.Dropdown(
     options=[{"label": panel.title, "value": idx} for idx, panel in enumerate(panels)],
     multi=True,
     value=[idx for idx in range(len(panels))],
-    id="panel-choices"
+    id="panel-choices",
 )
 
 panel_description = dcc.Markdown(
@@ -209,8 +242,8 @@ master_layout = Container(
     [
         dcc.Location(id="url", refresh=False),
         MPComponent.all_app_stores(),
-        #dcc.Store(storage_type="session", id="session_store"),
-        api_banner,
+        # dcc.Store(storage_type="session", id="session_store"),
+        banner,
         Section(
             [
                 Columns(
@@ -294,7 +327,7 @@ master_layout = Container(
                         Column(
                             [
                                 # panel_description,
-                                #panel_choices,
+                                # panel_choices,
                                 html.Div(
                                     [panel.panel_layout for panel in panels],
                                     id="panels",
@@ -435,18 +468,18 @@ def master_update_structure(search_mpid):
 # region HANDLE PERSISTENT SETTINGS
 ################################################################################
 
-#to_save_and_restore = [
+# to_save_and_restore = [
 #    # (struct_component.id("hide-show"), "values"),
 #    (struct_component.id("color-scheme"), "value"),
 #    # (struct_component.id("radius_strategy"), "value"),
 #    # (struct_component.id("draw_options"), "values"),
 #    # (struct_component.id("unit-cell-choice"), "value"),
 #    # (struct_component.id("repeats"), "value"),
-#]
+# ]
 #
 ## ("display-options", "open")]
 #
-#for (component_id, component_property) in to_save_and_restore:
+# for (component_id, component_property) in to_save_and_restore:
 #
 #    @app.callback(
 #        Output(component_id, component_property),
@@ -462,20 +495,20 @@ def master_update_structure(search_mpid):
 #        return saved_data[key]
 #
 #
-#all_inputs = [
+# all_inputs = [
 #    Input(component_id, component_property)
 #    for component_id, component_property in to_save_and_restore
-#]
-#all_keys = [
+# ]
+# all_keys = [
 #    f"{component_id}_{component_property}"
 #    for component_id, component_property in to_save_and_restore
-#]
+# ]
 #
 #
-#@app.callback(
+# @app.callback(
 #    Output("session_store", "data"), all_inputs, [State("session_store", "data")]
-#)
-#def load_data(property, saved_data):
+# )
+# def load_data(property, saved_data):
 #    key = f"{component_id}_{component_property}"
 #    print("Saving: ", key)
 #    saved_data = saved_data or {}
@@ -483,7 +516,7 @@ def master_update_structure(search_mpid):
 #    print("Saved session data: ", saved_data)
 #    return saved_data
 
-#for idx, panel in enumerate(panels):
+# for idx, panel in enumerate(panels):
 #    @app.callback(
 #        Output(panel.id("panel"), "style"),
 #        [Input("panel-choices", "value")]

@@ -23,37 +23,72 @@ class StructureMoleculeUploadComponent(MPComponent):
     @property
     def all_layouts(self):
 
-        upload_field = dcc.Input(
-            id=self.id("upload_label"),
-            className="input",
-            placeholder="CIF, XYZ, and more...",
-            readOnly=True,
-        )
-        upload_button = Button(
-            [Icon(kind="upload"), html.Span(), "Upload"],
-            kind="primary",
-            id=self.id("upload_button"),
-        )
-        upload = dcc.Upload(
-            Field(
-                [Control(upload_field), Control(upload_button)],
-                addons=True,
-                style={"margin-bottom": "0"},
+        # upload_field = html.Span(
+        #    id=self.id("upload_label"),
+        #    className="file-name",
+        #    ##placeholder="CIF, XYZ, and more...",
+        #    #readOnly=True,
+        # )
+        ##upload_field = html.Input
+        # upload_button = Button(
+        #    [Icon(kind="upload"), html.Span(), "Upload"],
+        #    kind="primary",
+        #    id=self.id("upload_button"),
+        # )
+        # upload = dcc.Upload(
+        #    Field(
+        #        [Control(upload_field), Control(upload_button)],
+        #        addons=True,
+        #        style={"margin-bottom": "0"},
+        #    ),
+        #    id=self.id("upload_data"),
+        #    multiple=False,
+        # )
+
+        # this is a very custom component based on Bulma css stlyes
+        upload_layout = html.Div(
+            html.Label(
+                [
+                    html.Span(
+                        [
+                            Icon(kind="upload"),
+                            html.Span(
+                                "Choose a file to upload or drag and drop",
+                                className="file-label",
+                            ),
+                        ],
+                        className="file-cta",
+                    ),
+                    # TODO: fix style and un-hide file name
+                    html.Span(
+                        id=self.id("upload_label"),
+                        className="file-name",
+                        style={"display": "none"},
+                    ),
+                ],
+                className="file-label",
             ),
-            id=self.id("upload_data"),
-            multiple=False,
+            className="file is-boxed",
+        )
+
+        upload = html.Div(
+            [
+                html.Label("Load from your computer: ", className="mpc-label"),
+                dcc.Upload(upload_layout, id=self.id("upload_data"), multiple=False),
+            ]
         )
 
         return {"upload": upload}
 
     def _generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("upload_label"), "value"),
+            Output(self.id("upload_label"), "children"),
             [Input(self.id("upload_data"), "filename")],
         )
         def show_filename_on_upload(filename):
             if not filename:
                 raise PreventUpdate
+            print(filename)
             return filename
 
         @app.callback(
@@ -64,9 +99,7 @@ class StructureMoleculeUploadComponent(MPComponent):
                 Input(self.id("upload_data"), "last_modified"),
             ],
         )
-        def callback_update_structure(
-            contents, filename, last_modified
-        ):
+        def callback_update_structure(contents, filename, last_modified):
 
             if not contents:
                 raise PreventUpdate

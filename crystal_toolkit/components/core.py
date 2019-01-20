@@ -390,7 +390,7 @@ class PanelComponent(MPComponent):
 
     def _generate_callbacks(self, app, cache):
 
-        @cache.memoize(timeout=60*60*24,
+        @cache.memoize(timeout=10,#60*60*24,
                        make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
         def update_contents(*args, **kwargs):
             return self.update_contents(*args, **kwargs)
