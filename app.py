@@ -111,7 +111,7 @@ magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 bonding_graph_component = ct.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
 
-transformation_component = ct.TransformationsComponent()
+transformation_component = ct.AllTransformationsComponent()
 
 panels = [
     bonding_graph_component,

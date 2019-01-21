@@ -23,28 +23,6 @@ class StructureMoleculeUploadComponent(MPComponent):
     @property
     def all_layouts(self):
 
-        # upload_field = html.Span(
-        #    id=self.id("upload_label"),
-        #    className="file-name",
-        #    ##placeholder="CIF, XYZ, and more...",
-        #    #readOnly=True,
-        # )
-        ##upload_field = html.Input
-        # upload_button = Button(
-        #    [Icon(kind="upload"), html.Span(), "Upload"],
-        #    kind="primary",
-        #    id=self.id("upload_button"),
-        # )
-        # upload = dcc.Upload(
-        #    Field(
-        #        [Control(upload_field), Control(upload_button)],
-        #        addons=True,
-        #        style={"margin-bottom": "0"},
-        #    ),
-        #    id=self.id("upload_data"),
-        #    multiple=False,
-        # )
-
         # this is a very custom component based on Bulma css stlyes
         upload_layout = html.Div(
             html.Label(
@@ -75,6 +53,7 @@ class StructureMoleculeUploadComponent(MPComponent):
             [
                 html.Label("Load from your computer: ", className="mpc-label"),
                 dcc.Upload(upload_layout, id=self.id("upload_data"), multiple=False),
+                html.Div(id=self.id("error_message_container")),
             ]
         )
 
@@ -88,8 +67,23 @@ class StructureMoleculeUploadComponent(MPComponent):
         def show_filename_on_upload(filename):
             if not filename:
                 raise PreventUpdate
-            print(filename)
             return filename
+
+        @app.callback(
+            Output(self.id("error_message_container"), "children"),
+            [Input(self.id(), "data")],
+        )
+        def update_error_message(data):
+            print(data)
+            if not data:
+                raise PreventUpdate
+            if not data["error"]:
+                return html.Div()
+            else:
+                return html.Div([html.Br(), MessageContainer(
+                    [MessageHeader("Error"), MessageBody([data["error"]])],
+                    kind="danger",
+                )])
 
         @app.callback(
             Output(self.id(), "data"),
@@ -108,13 +102,27 @@ class StructureMoleculeUploadComponent(MPComponent):
             content_type, content_string = contents.split(",")
             decoded_contents = b64decode(content_string)
 
+            error = None
+            data = None
+
             # necessary to write to file so pymatgen's filetype detection can work
             with NamedTemporaryFile(suffix=filename) as tmp:
                 tmp.write(decoded_contents)
                 tmp.flush()
                 try:
                     struct_or_mol = Structure.from_file(tmp.name)
+                    data = self.to_data(struct_or_mol)
                 except:
-                    struct_or_mol = Molecule.from_file(tmp.name)
+                    try:
+                        struct_or_mol = Molecule.from_file(tmp.name)
+                        data = self.to_data(struct_or_mol)
+                    except:
+                        error = (
+                            "Could not parse uploaded file. "
+                            "If this seems like a bug, please report it. "
+                            "Crystal Toolkit understands all crystal "
+                            "structure files and molecule files supported "
+                            "by pymatgen."
+                        )
 
-            return self.to_data(struct_or_mol)
+            return {"data": data, "error": error, "time_requested": self.get_time()}
