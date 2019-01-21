@@ -4,6 +4,7 @@ import dash_html_components as html
 from dash.exceptions import PreventUpdate
 
 import logging
+import traceback
 
 from abc import ABC, abstractmethod
 from json import loads, dumps
@@ -380,7 +381,7 @@ class PanelComponent(MPComponent):
                 [
                     MessageHeader("Error"),
                     MessageBody(
-                        [html.Div(error_header), dcc.Markdown("> {}".format(exception))]
+                        [html.Div(error_header), dcc.Markdown("> {}".format(traceback.format_exc()))]
                     ),
                 ],
                 kind="danger",

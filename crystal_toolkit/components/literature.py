@@ -1,6 +1,5 @@
 import dash_core_components as dcc
 import dash_html_components as html
-from dash_dangerously_set_inner_html import DangerouslySetInnerHTML  # for titles of papers
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -30,9 +29,9 @@ import os
 CROSSREF_MAILTO = os.environ.get("CROSSREF_MAILTO", None)
 
 class LiteratureComponent(PanelComponent):
-    def __init__(self, *args, use_crossref=True, **kwargs):
+    def __init__(self, *args, use_crossref=True, use_crossref_formatting=True, **kwargs):
         self.use_crossref = use_crossref
-        self.use_crossref_formatting = False
+        self.use_crossref_formatting = use_crossref_formatting
         super().__init__(*args, **kwargs)
 
         @MPComponent.cache.memoize(timeout=self.mprester_cache_timeout)
@@ -46,6 +45,7 @@ class LiteratureComponent(PanelComponent):
         def format_bibtex_references(references, use_crossref=True, custom_formatting=True):
             self._format_bibtex_references(references, use_crossref=use_crossref,
                                            custom_formatting=custom_formatting)
+        self.format_bibtex_references = format_bibtex_references
         self.format_bibtex_references = format_bibtex_references
 
     @property
@@ -192,6 +192,15 @@ class LiteratureComponent(PanelComponent):
             individual_references = set()
             for references in all_references:
                 individual_references.update(set(references.split("\n\n")))
+
+            # exclude Materials Proect references (these are intended to be
+            # references for the structure specifically)
+            refs_to_remove = set()
+            for ref in individual_references:
+                if "Jain2013" in ref:
+                    refs_to_remove.add(ref)
+            individual_references -= refs_to_remove
+
             works = [cr.works(query=ref, limit=1) for ref in individual_references]
             self.logger.debug(f"Retrieved {len(works)} works from Crossref.")
 
@@ -238,11 +247,11 @@ class LiteratureComponent(PanelComponent):
                 )
                 md = "  \n\n".join(
                     f"> [{refs[doi]}](https://dx.doi.org/{doi}) "
-                    f"Cited by {dois_to_item[doi]['num_cites']}."
+                    f"Cited by {dois_to_item[doi]['cited-by']}."
                     for doi in sorted_dois
                 )
                 formatted_references = dcc.Markdown(
-                    md, className="mpc-markdown", style={"display": "inline-block"}
+                    md, className="mpc-markdown"
                 )
 
             else:
@@ -268,8 +277,9 @@ class LiteratureComponent(PanelComponent):
                                             [
                                                 html.I(
                                                     # necessary since titles can contain HTML for superscripts etc.
-                                                    DangerouslySetInnerHTML(
-                                                        dois_to_item[doi]["title"]
+                                                    dcc.Markdown(
+                                                        dois_to_item[doi]["title"],
+                                                        dangerously_allow_html=True
                                                     )
                                                 )
                                             ]
