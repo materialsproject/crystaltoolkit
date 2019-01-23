@@ -102,6 +102,17 @@ class TransformationComponent(MPComponent):
                 return "message is-success"
 
 
+        @app.callback(
+            Output(self.id("message"), "children"),
+            [Input(self.id(), "data")]
+        )
+        def update_transformation_style(transformation):
+            if not transformation or not transformation["error"]:
+                raise PreventUpdate
+            return f'Error: {transformation["error"]}'
+
+
+
 class AllTransformationsComponent(PanelComponent):
     def __init__(self, transformations: List[TransformationComponent], *args, **kwargs):
         self.transformations = {t.__class__.__name__: t for t in transformations}
