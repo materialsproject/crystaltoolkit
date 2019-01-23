@@ -62,7 +62,7 @@ class LiteratureComponent(PanelComponent):
 
     @property
     def loading_text(self):
-        return "Looking up journal entries. This is a new service and not pre-cached so may take up to a minute"
+        return "Looking up journal entries. This is not currently pre-cached so may take up to a minute"
 
     @staticmethod
     def _pybtex_entries_to_markdown(entries):
