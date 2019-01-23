@@ -41,7 +41,6 @@ class DummyCache:
 
 class MPComponent(ABC):
 
-    _instances = {}
     _app_stores = []
     app = None
     cache = DummyCache
@@ -53,7 +52,6 @@ class MPComponent(ABC):
     @staticmethod
     def register_cache(cache):
         MPComponent.cache = cache
-        # TODO: ensure cache only in generate_callbacks, add arg, test...
 
     @staticmethod
     def all_app_stores():
@@ -74,15 +72,8 @@ class MPComponent(ABC):
         if id is None:
             id = self.__class__.__name__
 
-        #if id in MPComponent._instances:
-        #    raise ValueError(
-        #        f"You cannot instantiate more than one instance of "
-        #        f"the class with the same id: {id}."
-        #    )
-
         self._id = id
         self._all_ids = set()
-        self._instances[id] = self
         self._stores = {}
 
         if MPComponent.app is None:
@@ -157,7 +148,7 @@ class MPComponent(ABC):
         be easily memoized)
         """
         if msonable_obj is None:
-            return ""
+            return None
         return dumps(msonable_obj, cls=MontyEncoder, indent=4)
 
     @staticmethod
@@ -391,7 +382,7 @@ class PanelComponent(MPComponent):
 
     def _generate_callbacks(self, app, cache):
 
-        @cache.memoize(timeout=10,#60*60*24,
+        @cache.memoize(timeout=60*60*24,
                        make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
         def update_contents(*args, **kwargs):
             return self.update_contents(*args, **kwargs)

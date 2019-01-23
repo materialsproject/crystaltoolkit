@@ -80,10 +80,16 @@ class StructureMoleculeUploadComponent(MPComponent):
             if not data["error"]:
                 return html.Div()
             else:
-                return html.Div([html.Br(), MessageContainer(
-                    [MessageHeader("Error"), MessageBody([data["error"]])],
-                    kind="danger",
-                )])
+                return html.Div(
+                    [
+                        html.Br(),
+                        MessageContainer(
+                            [MessageHeader("Error"), MessageBody([data["error"]])],
+                            kind="danger",
+                            size="small",
+                        ),
+                    ]
+                )
 
         @app.callback(
             Output(self.id(), "data"),
@@ -121,8 +127,8 @@ class StructureMoleculeUploadComponent(MPComponent):
                             "Could not parse uploaded file. "
                             "If this seems like a bug, please report it. "
                             "Crystal Toolkit understands all crystal "
-                            "structure files and molecule files supported "
-                            "by pymatgen."
+                            "structure file types and molecule file types "
+                            "supported by pymatgen."
                         )
 
             return {"data": data, "error": error, "time_requested": self.get_time()}

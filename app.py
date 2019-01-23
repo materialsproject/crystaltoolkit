@@ -111,7 +111,9 @@ magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 bonding_graph_component = ct.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
 
-transformation_component = ct.AllTransformationsComponent()
+supercell_transformation_component = ct.SupercellTransformationComponent()
+transformation_component = ct.AllTransformationsComponent(transformations=[supercell_transformation_component],
+                                                          origin_component=struct_component)
 
 panels = [
     bonding_graph_component,
