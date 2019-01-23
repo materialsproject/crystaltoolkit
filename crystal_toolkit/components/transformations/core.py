@@ -22,7 +22,7 @@ class TransformationComponent(MPComponent):
 
         enable = dcc.Checklist(
             options=[{"label": "Enable transformation", "value": "enable"}],
-            values=["enable"],
+            values=[],
             inputClassName="mpc-radio",
             id=self.id("enable_transformation"),
         )
@@ -37,10 +37,10 @@ class TransformationComponent(MPComponent):
             [
                 MessageHeader([self.title, enable]),
                 MessageBody(
-                    Columns([Column([description, html.Br(), message]), Column([options], narrow=True)])
+                    Columns([Column([options], narrow=True), Column([description, html.Br(), message])])
                 ),
             ],
-            kind="success",
+            kind="dark",
             id=self.id("container"),
         )
 
@@ -70,18 +70,35 @@ class TransformationComponent(MPComponent):
 
     def _generate_callbacks(self, app, cache):
 
+
         @app.callback(
             Output(self.id(), "data"),
             [Input(self.id("transformation_args_kwargs"), "data"),
              Input(self.id("enable_transformation"), "values")]
         )
-        @cache.memoize(timeout=60*60*24,
-                       make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
+        #@cache.memoize(timeout=60*60*24,
+        #               make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
         def update_transformation(args_kwargs, enabled):
+            print(self.id(), "wtf")
+            print(self.id(), enabled)
+            print(self.id(), self.transformation)
+
+            # TODO: this is madness
+            if not isinstance(args_kwargs, dict):
+                args_kwargs = self.from_data(args_kwargs)
+            args = args_kwargs['args']
+            kwargs = args_kwargs['kwargs']
+
+            print(self.id(), args)
+            print(self.id(), kwargs)
+
+            print(self.id(), not enabled)
+
             if not enabled:
                 return None
             try:
-                trans = self.transformation(*args_kwargs['args'], **args_kwargs['kwargs'])
+                # its this part that to doesn't work(?)
+                trans = self.transformation(*args, **kwargs)
                 data = self.to_data(trans)
                 error = None
             except Exception as exception:
@@ -109,8 +126,7 @@ class TransformationComponent(MPComponent):
         def update_transformation_style(transformation):
             if not transformation or not transformation["error"]:
                 raise PreventUpdate
-            return f'Error: {transformation["error"]}'
-
+            return html.Strong(f'Error: {transformation["error"]}')
 
 
 class AllTransformationsComponent(PanelComponent):
