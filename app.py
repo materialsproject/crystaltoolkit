@@ -111,10 +111,11 @@ magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 bonding_graph_component = ct.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
 
-supercell_transformation_component = ct.SupercellTransformationComponent()
-grain_boundary_transformation_component = ct.GrainBoundaryTransformationComponent()
-transformation_component = ct.AllTransformationsComponent(transformations=[supercell_transformation_component,
-                                                                           grain_boundary_transformation_component],
+supercell = ct.SupercellTransformationComponent()
+grain_boundary = ct.GrainBoundaryTransformationComponent()
+oxi_state = ct.AutoOxiStateDecorationTransformationComponent()
+
+transformation_component = ct.AllTransformationsComponent(transformations=[supercell, grain_boundary, oxi_state],
                                                           origin_component=struct_component)
 
 panels = [

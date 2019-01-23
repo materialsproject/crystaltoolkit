@@ -59,9 +59,12 @@ from crystal_toolkit.components.robocrys import RobocrysComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
 from crystal_toolkit.components.bonding_graph import BondingGraphComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
+
 from crystal_toolkit.components.transformations.core import AllTransformationsComponent
 from crystal_toolkit.components.transformations.supercell import SupercellTransformationComponent
 from crystal_toolkit.components.transformations.grainboundary import GrainBoundaryTransformationComponent
+from crystal_toolkit.components.transformations.autooxistatedecoration import AutoOxiStateDecorationTransformationComponent
+
 from crystal_toolkit.components.upload import StructureMoleculeUploadComponent
 #from crystal_toolkit.components.summary import SummaryComponent
 from crystal_toolkit.helpers.layouts import *
