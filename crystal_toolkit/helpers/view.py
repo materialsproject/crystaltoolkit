@@ -7,7 +7,7 @@ from json.decoder import JSONDecodeError
 from json import dumps
 
 
-def view(struct_or_mol, host="http://localhost:8082"):
+def view(struct_or_mol, host="http://localhost:8050"):
     """
     Generate a temporary link to view your structure online using Material Project's
     Crystal Toolkit.
