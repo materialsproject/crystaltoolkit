@@ -568,7 +568,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @property
     def standard_layout(self):
-        return self.all_layouts["struct"]
+        return html.Div(self.all_layouts["struct"], style={"width": "100vw", "height": "100vh"})
 
     @staticmethod
     def _preprocess_input_to_graph(

@@ -22,11 +22,8 @@ example_struct = Structure.from_spacegroup(
     [[1 / 3, 2 / 3, 0], [1 / 3, 2 / 3, 3 / 8]],
 )
 struct_component = ct.StructureMoleculeComponent(example_struct)
-struct_layout = html.Div(struct_component.standard_layout,
-                         style={"width": "500px", "height": "500px"})
 
-
-app.layout = html.Div([struct_layout])
+app.layout = html.Div(struct_component.standard_layout)
 
 
 if __name__ == "__main__":
