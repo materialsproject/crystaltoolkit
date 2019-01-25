@@ -14,7 +14,6 @@ To use Crystal Toolkit, simply visit [https://viewer.materialsproject.org](https
 If you would like to test Crystal Toolkit on your own computer, download and run our [Docker image from DockerHub](https://hub.docker.com/r/materialsproject/crystal_toolkit):
 
 ```python
-docker pull crystal_toolkit
 docker container run -p 8000:8000 -e PMG_MAPI_KEY=YOUR_API_KEY_HERE materialsproject/crystal_toolkit
 ```
 
