@@ -73,7 +73,7 @@ except Exception as exception:
 # Enable for debug purposes:
 if DEBUG_MODE:
     from crystal_toolkit.components.core import DummyCache
-    cache = DummyCache()
+    #cache = DummyCache()
 
 # endregion
 
@@ -110,6 +110,8 @@ magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
 
 bonding_graph_component = ct.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
+
+
 
 supercell = ct.SupercellTransformationComponent()
 grain_boundary = ct.GrainBoundaryTransformationComponent()
@@ -453,15 +455,31 @@ def update_url_pathname_from_search_term(data):
 
 
 @app.callback(
-    Output(json_editor_component.id(), "data"), [Input(search_component.id(), "data")]
+    Output(json_editor_component.id(), "data"), [Input(search_component.id(), "data"),
+                                                 Input(upload_component.id(), "data")]
 )
-def master_update_structure(search_mpid):
+def master_update_structure(search_mpid, upload_data):
 
-    if search_mpid is None or "mpid" not in search_mpid:
+    if not search_mpid and not upload_data:
         raise PreventUpdate
 
-    with MPRester() as mpr:
-        struct = mpr.get_structure_by_material_id(search_mpid["mpid"])
+    search_mpid = search_mpid or {}
+    upload_data = upload_data or {}
+
+    time_searched = search_mpid.get('time_requested', -1)
+    time_uploaded = upload_data.get('time_requested', -1)
+
+    if time_searched > time_uploaded:
+
+        if search_mpid is None or "mpid" not in search_mpid:
+            raise PreventUpdate
+
+        with MPRester() as mpr:
+            struct = mpr.get_structure_by_material_id(search_mpid["mpid"])
+
+    else:
+
+        struct = MPComponent.from_data(upload_data['data'])
 
     return MPComponent.to_data(struct.as_dict(verboisty=0))
 
