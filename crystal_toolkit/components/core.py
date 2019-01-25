@@ -78,14 +78,14 @@ class MPComponent(ABC):
 
         if MPComponent.app is None:
             warn(
-                f"No app defined for component {self.id()}, "
+                f"No app defined for component {self._id}, "
                 f"callbacks cannot be created. Please register app using "
                 f"MPComponent.register_app(app)."
             )
 
         if MPComponent.cache is DummyCache:
             warn(
-                f"No cache is defined for component {self.id()}, "
+                f"No cache is defined for component {self._id}, "
                 f"performance of app may be degraded. Please register cache "
                 f"using MPComponent.register_cache(cache)."
             )

@@ -2,22 +2,32 @@ import dash
 import dash_html_components as html
 import crystal_toolkit as ct
 
-from dash.dependencies import Input, Output, State
-
+from pymatgen import Structure, Lattice
 
 app = dash.Dash(__name__)
 
+app.config['suppress_callback_exceptions']=True
 app.scripts.config.serve_locally = True
 app.css.config.serve_locally = True
+app.title = "Crystal Toolkit Example Components"
 
-my_struct = ...
+ct.register_app(app)
 
-my_component = ct.StructureMoleculeComponent(my_struct)
+# StructureMoleculeComponent
 
-app.layout = html.Div([
-    ct.struct_layout
-])
+example_struct = Structure.from_spacegroup(
+    "P6_3mc",
+    Lattice.hexagonal(3.22, 5.24),
+    ["Ga", "N"],
+    [[1 / 3, 2 / 3, 0], [1 / 3, 2 / 3, 3 / 8]],
+)
+struct_component = ct.StructureMoleculeComponent(example_struct)
+struct_layout = html.Div(struct_component.standard_layout,
+                         style={"width": "500px", "height": "500px"})
 
 
-if __name__ == '__main__':
+app.layout = html.Div([struct_layout])
+
+
+if __name__ == "__main__":
     app.run_server(debug=True)
