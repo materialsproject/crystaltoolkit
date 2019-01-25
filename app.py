@@ -73,7 +73,7 @@ except Exception as exception:
 # Enable for debug purposes:
 if DEBUG_MODE:
     from crystal_toolkit.components.core import DummyCache
-    #cache = DummyCache()
+    cache = DummyCache()
 
 # endregion
 
