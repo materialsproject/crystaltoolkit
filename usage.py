@@ -24,16 +24,16 @@ example_struct = Structure.from_spacegroup(
     [[1 / 3, 2 / 3, 0], [1 / 3, 2 / 3, 3 / 8]],
 )
 
-test_scene = [Scene("test", contents=[
-    Spheres(positions=[[0, 0, 0]]),
-    Surface(positions=[[0, 10, 0], [10, 0, 0], [0, 0, 10]])
-])]
-
 struct_component = ct.StructureMoleculeComponent(
-    example_struct, scene_additions=test_scene
+    example_struct
 )
 
-app.layout = html.Div(struct_component.standard_layout)
+# for a custom-sized component, use `struct_component.struct_layout` and put
+# it inside a Div of the required size
+app.layout = html.Div([
+    ct.MPComponent.all_app_stores(), # not required in this minimal example, but usually necessary for interactivity
+    struct_component.standard_layout
+])
 
 
 if __name__ == "__main__":
