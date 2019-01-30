@@ -1,6 +1,6 @@
 import json
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 with open(os.path.join('crystal_toolkit', 'package.json')) as f:
@@ -12,7 +12,7 @@ setup(
     name=package_name,
     version=package["version"],
     author=package['author'],
-    packages=[package_name],
+    packages=find_packages(),
     include_package_data=True,
     license=package['license'],
     description=package['description'] if 'description' in package else package_name,
