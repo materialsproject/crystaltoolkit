@@ -141,6 +141,13 @@ class StructureMoleculeComponent(MPComponent):
         }
         self.create_store("display_options", initial_data=self.initial_display_options)
 
+        if scene_additions:
+            self.initial_scene_additions = Scene(name="scene_additions",
+                                                 contents=scene_additions)
+        else:
+            self.initial_scene_additions = Scene(name="scene_additions")
+        self.create_store("scene_additions", initial_data=self.initial_scene_additions.to_json())
+
         if struct_or_mol:
             # graph is cached explicitly, this isn't necessary but is an
             # optimization so that graph is only re-generated if bonding
@@ -151,14 +158,15 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
             scene, legend = self.get_scene_and_legend(
-                graph, name=self.id(), **self.initial_display_options
+                graph, name=self.id(), scene_additions=self.initial_scene_additions,
+                **self.initial_display_options
             )
         else:
             # component could be initialized without a structure, in which case
             # an empty scene should be displayed
             graph = None
             scene, legend = self.get_scene_and_legend(
-                None, name=self.id(), **self.initial_display_options
+                None, name=self.id(), scene_additions=self.initial_scene_additions, **self.initial_display_options
             )
 
         self.initial_legend = legend
@@ -168,13 +176,6 @@ class StructureMoleculeComponent(MPComponent):
 
         self.initial_graph = graph
         self.create_store("graph", initial_data=self.to_data(graph))
-
-        if scene_additions:
-            self.initial_scene_additions = Scene(name="scene_additions",
-                                                 contents=scene_additions)
-        else:
-            self.initial_scene_additons = Scene(name="scene_additions")
-        self.create_store("scene_additions", initial_data=self.initial_scene_additons.to_json())
 
     def _generate_callbacks(self, app, cache):
         @app.callback(
@@ -1130,6 +1131,7 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=True,
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
+        scene_additions = None
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name=name)
@@ -1219,5 +1221,8 @@ class StructureMoleculeComponent(MPComponent):
 
         sub_scenes = [Scene(name=k, contents=v) for k, v in primitives.items()]
         scene.contents = sub_scenes
+
+        if scene_additions:
+            scene.contents.append(scene_additions)
 
         return scene, legend
