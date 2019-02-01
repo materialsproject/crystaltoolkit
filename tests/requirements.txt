@@ -10,6 +10,6 @@ dash-renderer
 ipdb
 percy
 selenium
-flake8
+flake8==3.7.4
 pylint
 pytest-dash>=1.0.1
