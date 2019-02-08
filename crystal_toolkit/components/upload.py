@@ -5,18 +5,14 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit import GraphComponent
-from crystal_toolkit.components.core import MPComponent, PanelComponent
+from crystal_toolkit.components.core import MPComponent
 from crystal_toolkit.helpers.layouts import *
-from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 from tempfile import NamedTemporaryFile
 from base64 import b64decode
 
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
-
-from typing import Union
+from pymatgen.io.vasp.outputs import Chgcar
 
 
 class StructureMoleculeUploadComponent(MPComponent):
@@ -74,7 +70,6 @@ class StructureMoleculeUploadComponent(MPComponent):
             [Input(self.id(), "data")],
         )
         def update_error_message(data):
-            print(data)
             if not data:
                 raise PreventUpdate
             if not data["error"]:
@@ -123,12 +118,15 @@ class StructureMoleculeUploadComponent(MPComponent):
                         struct_or_mol = Molecule.from_file(tmp.name)
                         data = self.to_data(struct_or_mol)
                     except:
-                        error = (
-                            "Could not parse uploaded file. "
-                            "If this seems like a bug, please report it. "
-                            "Crystal Toolkit understands all crystal "
-                            "structure file types and molecule file types "
-                            "supported by pymatgen."
-                        )
+                        try:
+                            struct_or_mol = Chgcar.from_file(tmp.name)
+                        except:
+                            error = (
+                                "Could not parse uploaded file. "
+                                "If this seems like a bug, please report it. "
+                                "Crystal Toolkit understands all crystal "
+                                "structure file types and molecule file types "
+                                "supported by pymatgen."
+                            )
 
             return {"data": data, "error": error, "time_requested": self.get_time()}
