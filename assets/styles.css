@@ -6840,7 +6840,7 @@ label.panel-block {
 ._dash-loading-callback {
   content: '';
   box-sizing: border-box;
-  position: absolute;
+  position: fixed;
   top: 20px;
   left: 20px;
   width: 30px;
