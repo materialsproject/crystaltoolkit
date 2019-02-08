@@ -107,10 +107,11 @@ favorites_component.attach_from(search_component, this_store_name="current-mpid"
 literature_component = ct.LiteratureComponent(origin_component=struct_component)
 robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
+xrd_component = ct.XRayDiffractionPanelComponent(origin_component=struct_component)
 
 bonding_graph_component = ct.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
-
+bonding_graph_component.attach_from(struct_component, this_store_name="display_options", origin_store_name="display_options")
 
 
 supercell = ct.SupercellTransformationComponent()
@@ -131,6 +132,7 @@ panels = [
 # panels not ready for production yet (e.g. pending papers, further testing, etc.)
 if DEBUG_MODE:
     panels.insert(-1, robocrys_component)
+    panels.insert(-1, xrd_component)
 
 
 banner = html.Div(id="banner")
@@ -206,7 +208,7 @@ footer = ct.Footer(
             # ),
             # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
-                f"App created by [@mkhorton](mailto:mkhorton@lbl.gov), "
+                f"App created by [@mkhorton](mailto:mkhorton@lbl.gov) and [@mattmcdermott](https://github.com/mattmcdermott), "
                 f"bug reports and feature requests gratefully accepted.  \n"
                 f"Powered by [The Materials Project](https://materialsproject.org), "
                 f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
