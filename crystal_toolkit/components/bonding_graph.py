@@ -17,13 +17,12 @@ from typing import Union
 
 
 class BondingGraphComponent(PanelComponent):
-
-    #def __init__(self, *args, **kwargs):
-    #    super().__init__(*args, **kwargs)
-    #    self.create_store("display_options", initial_data={
-    #        "color_scheme": "Jmol",
-    #        "color_scale": None
-    #    })
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.create_store(
+            "display_options",
+            initial_data={"color_scheme": "Jmol", "color_scale": None},
+        )
 
     @property
     def title(self):
@@ -43,6 +42,9 @@ class BondingGraphComponent(PanelComponent):
         color_scale=None,
     ):
 
+        if not color_scheme:
+            color_scheme = "Jmol"
+
         nodes = []
         edges = []
 
@@ -61,7 +63,7 @@ class BondingGraphComponent(PanelComponent):
                 {
                     "id": node,
                     "title": f"{struct_or_mol[node].species_string} site "
-                             f"({graph.get_coordination_of_site(idx)} neighbors)",
+                    f"({graph.get_coordination_of_site(idx)} neighbors)",
                     "color": colors[node][0],
                 }
             )
@@ -88,20 +90,30 @@ class BondingGraphComponent(PanelComponent):
             if label:
                 edge["title"] = label
 
-            #if 'weight' in d:
+            # if 'weight' in d:
             #   label += f" {d['weight']}"
 
             edges.append(edge)
 
         return {"nodes": nodes, "edges": edges}
 
-    def update_contents(self, new_store_contents):
+    @property
+    def update_contents_additional_inputs(self):
+        return [(self.id("display_options"), "data")]
+
+    def update_contents(self, new_store_contents, display_options):
 
         if not new_store_contents:
             raise PreventUpdate
 
         graph = self.from_data(new_store_contents)
-        graph_data = self.get_graph_data(graph)
+        display_options = self.from_data(display_options)
+
+        color_scheme = display_options.get("color_scheme")
+        color_scale = display_options.get("color_scale")
+        graph_data = self.get_graph_data(
+            graph, color_scheme=color_scheme, color_scale=color_scale
+        )
 
         options = {
             "interaction": {"hover": True, "tooltipDelay": 0},
@@ -113,8 +125,8 @@ class BondingGraphComponent(PanelComponent):
             "physics": {
                 "solver": "forceAtlas2Based",
                 "forceAtlas2Based": {"avoidOverlap": 1.0},
-                "stabilization": {"fit": True}
-            }
+                "stabilization": {"fit": True},
+            },
         }
 
         return html.Div(
