@@ -59,6 +59,7 @@ from crystal_toolkit.components.robocrys import RobocrysComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
 from crystal_toolkit.components.bonding_graph import BondingGraphComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
+from crystal_toolkit.components.xrd import XRayDiffractionComponent, XRayDiffractionPanelComponent
 
 from crystal_toolkit.components.transformations.core import AllTransformationsComponent
 from crystal_toolkit.components.transformations.supercell import SupercellTransformationComponent
