@@ -23,6 +23,10 @@ from pymatgen import __version__ as pmg_version
 from json import loads
 from uuid import uuid4
 from urllib import parse
+from random import choice
+
+# choose a default structure on load
+DEFAULT_MPIDS = ['mp-1111410']
 
 ################################################################################
 # region SET UP APP
@@ -96,7 +100,16 @@ ct.register_cache(cache)
 
 json_editor_component = ct.JSONEditor()
 
-struct_component = ct.StructureMoleculeComponent(origin_component=json_editor_component)
+supercell = ct.SupercellTransformationComponent()
+grain_boundary = ct.GrainBoundaryTransformationComponent()
+oxi_state = ct.AutoOxiStateDecorationTransformationComponent()
+slab = ct.SlabTransformationComponent()
+
+transformation_component = ct.AllTransformationsComponent(transformations=[supercell, slab, grain_boundary, oxi_state],
+                                                          origin_component=json_editor_component)
+
+struct_component = ct.StructureMoleculeComponent()
+struct_component.attach_from(transformation_component, origin_store_name='out')
 
 search_component = ct.SearchComponent()
 upload_component = ct.StructureMoleculeUploadComponent()
@@ -113,13 +126,6 @@ bonding_graph_component = ct.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
 bonding_graph_component.attach_from(struct_component, this_store_name="display_options", origin_store_name="display_options")
 
-
-supercell = ct.SupercellTransformationComponent()
-grain_boundary = ct.GrainBoundaryTransformationComponent()
-oxi_state = ct.AutoOxiStateDecorationTransformationComponent()
-
-transformation_component = ct.AllTransformationsComponent(transformations=[supercell, grain_boundary, oxi_state],
-                                                          origin_component=struct_component)
 
 panels = [
     bonding_graph_component,
@@ -430,8 +436,10 @@ def update_search_term_on_page_load(href):
     if href is None:
         raise PreventUpdate
     pathname = str(parse.urlparse(href).path).split("/")
-    if len(pathname) == 0:
+    if len(pathname) <= 1:
         raise PreventUpdate
+    elif not pathname[1]:
+        return choice(DEFAULT_MPIDS)
     else:
         return pathname[1]
 
