@@ -179,6 +179,7 @@ class StructureMoleculeComponent(MPComponent):
         self.create_store("graph", initial_data=self.to_data(graph))
 
     def _generate_callbacks(self, app, cache):
+
         #@app.callback(
         #    Output(self.id("hide-show"), "options"),
         #    [Input(self.id("scene"), "data")]
@@ -186,6 +187,7 @@ class StructureMoleculeComponent(MPComponent):
         #def update_hide_show_options(scene_data):
         #   # TODO: CHGCAR
         #    print(scene_data)
+        #    raise PreventUpdate
 
 
         @app.callback(
@@ -200,6 +202,9 @@ class StructureMoleculeComponent(MPComponent):
         def update_graph(
             graph_generation_options, unit_cell_choice, repeats, struct_or_mol
         ):
+
+            if not struct_or_mol:
+                raise PreventUpdate
 
             struct_or_mol = self.from_data(struct_or_mol)
             graph_generation_options = self.from_data(graph_generation_options)
@@ -382,7 +387,6 @@ class StructureMoleculeComponent(MPComponent):
                     (row["A"], row["B"], float(row["A—B"]))
                     for row in custom_cutoffs_rows
                 ]
-                print(custom_cutoffs_rows)
                 graph_generation_options["bonding_strategy_kwargs"] = {"cut_off_dict": custom_cutoffs}
             return self.to_data(graph_generation_options)
 

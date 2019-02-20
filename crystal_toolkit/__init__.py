@@ -65,6 +65,7 @@ from crystal_toolkit.components.transformations.core import AllTransformationsCo
 from crystal_toolkit.components.transformations.supercell import SupercellTransformationComponent
 from crystal_toolkit.components.transformations.grainboundary import GrainBoundaryTransformationComponent
 from crystal_toolkit.components.transformations.autooxistatedecoration import AutoOxiStateDecorationTransformationComponent
+from crystal_toolkit.components.transformations.slab import SlabTransformationComponent
 
 from crystal_toolkit.components.upload import StructureMoleculeUploadComponent
 #from crystal_toolkit.components.summary import SummaryComponent
