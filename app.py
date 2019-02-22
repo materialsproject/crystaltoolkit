@@ -14,7 +14,7 @@ from flask_caching import Cache
 
 from crystal_toolkit.components.core import MPComponent
 from crystal_toolkit.helpers.layouts import *
-import crystal_toolkit as ct
+import crystal_toolkit.components as ctc
 
 from pymatgen import MPRester, Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
@@ -49,7 +49,7 @@ app.scripts.config.serve_locally = True
 app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
 
-DEBUG_MODE = os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False)
+DEBUG_MODE = bool(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False))
 
 # endregion
 ##########
@@ -95,50 +95,53 @@ logger = logging.getLogger(app.title)
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
-ct.register_app(app)
-ct.register_cache(cache)
+ctc.register_app(app)
+ctc.register_cache(cache)
 
-json_editor_component = ct.JSONEditor()
+supercell = ctc.SupercellTransformationComponent()
+grain_boundary = ctc.GrainBoundaryTransformationComponent()
+oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
+slab = ctc.SlabTransformationComponent()
 
-supercell = ct.SupercellTransformationComponent()
-grain_boundary = ct.GrainBoundaryTransformationComponent()
-oxi_state = ct.AutoOxiStateDecorationTransformationComponent()
-slab = ct.SlabTransformationComponent()
+transformation_component = ctc.AllTransformationsComponent(transformations=[supercell, slab, grain_boundary, oxi_state])
 
-transformation_component = ct.AllTransformationsComponent(transformations=[supercell, slab, grain_boundary, oxi_state],
-                                                          origin_component=json_editor_component)
+json_editor_component = ctc.JSONEditor()
+json_editor_component.attach_from(transformation_component, origin_store_name='out')
 
-struct_component = ct.StructureMoleculeComponent()
-struct_component.attach_from(transformation_component, origin_store_name='out')
+struct_component = ctc.StructureMoleculeComponent()
+struct_component.attach_from(json_editor_component, origin_store_name='out')
 
-search_component = ct.SearchComponent()
-upload_component = ct.StructureMoleculeUploadComponent()
+# TODO: change to link to struct_or_mol ?
+download_component = ctc.DownloadComponent(origin_component=struct_component)
 
-favorites_component = ct.FavoritesComponent()
+search_component = ctc.SearchComponent()
+upload_component = ctc.StructureMoleculeUploadComponent()
+
+favorites_component = ctc.FavoritesComponent()
 favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
-literature_component = ct.LiteratureComponent(origin_component=struct_component)
-robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
-magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
-xrd_component = ct.XRayDiffractionPanelComponent(origin_component=struct_component)
+literature_component = ctc.LiteratureComponent(origin_component=struct_component)
+robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
+magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
+xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
 
-bonding_graph_component = ct.BondingGraphComponent()
+bonding_graph_component = ctc.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
 bonding_graph_component.attach_from(struct_component, this_store_name="display_options", origin_store_name="display_options")
 
 
 panels = [
+    symmetry_component,
     bonding_graph_component,
-    literature_component,
+    xrd_component,
     magnetism_component,
-    transformation_component,
-    json_editor_component,
+    literature_component
 ]
 
 # panels not ready for production yet (e.g. pending papers, further testing, etc.)
 if DEBUG_MODE:
     panels.insert(-1, robocrys_component)
-    panels.insert(-1, xrd_component)
 
 
 banner = html.Div(id="banner")
@@ -200,7 +203,7 @@ if api_offline:
 ################################################################################
 
 
-footer = ct.Footer(
+footer = ctc.Footer(
     html.Div(
         [
             # html.Iframe(
@@ -343,10 +346,20 @@ master_layout = Container(
                             [
                                 # panel_description,
                                 # panel_choices,
+                                H3('Analyze'),
                                 html.Div(
                                     [panel.panel_layout for panel in panels],
                                     id="panels",
-                                )
+                                ),
+                                html.Br(),
+                                H3('Transform'),
+                                html.Div([transformation_component.standard_layout]),
+                                html.Br(),
+                                H3('Export'),
+                                html.Div([
+                                    download_component.panel_layout,
+                                    json_editor_component.panel_layout
+                                ])
                             ]
                         )
                     ]
@@ -465,8 +478,8 @@ def update_url_pathname_from_search_term(data):
 
 
 @app.callback(
-    Output(json_editor_component.id(), "data"), [Input(search_component.id(), "data"),
-                                                 Input(upload_component.id(), "data")]
+    Output(transformation_component.id(), "data"), [Input(search_component.id(), "data"),
+                                                    Input(upload_component.id(), "data")]
 )
 def master_update_structure(search_mpid, upload_data):
 
