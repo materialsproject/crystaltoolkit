@@ -103,7 +103,7 @@ class StructureMoleculeComponent(MPComponent):
         id=None,
         origin_component=None,
         scene_additions=None,
-        bonding_strategy="BrunnerNN_reciprocal",
+        bonding_strategy="CrystalNN",
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
         color_scale=None,
@@ -694,7 +694,11 @@ class StructureMoleculeComponent(MPComponent):
 
             # ensure fractional co-ordinates are normalized to be in [0,1)
             # (this is actually not guaranteed by Structure)
-            input = input.as_dict(verbosity=0)
+            try:
+                input = input.as_dict(verbosity=0)
+            except TypeError:
+                # TODO: remove this, necessary for Slab(?), some structure subclasses don't have verbosity
+                input = input.as_dict()
             for site in input["sites"]:
                 site["abc"] = np.mod(site["abc"], 1)
             input = Structure.from_dict(input)

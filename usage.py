@@ -1,6 +1,6 @@
 import dash
 import dash_html_components as html
-import crystal_toolkit as ct
+import crystal_toolkit.components as ctc
 
 from pymatgen import Structure, Lattice
 
@@ -13,7 +13,7 @@ app.title = "Crystal Toolkit Example Components"
 
 
 # so that Crystal Toolkit can create callbacks
-ct.register_app(app)
+ctc.register_app(app)
 
 # StructureMoleculeComponent
 
@@ -25,14 +25,14 @@ example_struct = Structure.from_spacegroup(
 )
 
 # instantiate a component to view structures
-struct_component = ct.StructureMoleculeComponent(
+struct_component = ctc.StructureMoleculeComponent(
     example_struct  # this is a pymatgen Structure
 )
 
 # for a custom-sized component, use `struct_component.struct_layout` and put
 # it inside a Div of the required size
 app.layout = html.Div([
-    ct.MPComponent.all_app_stores(),  # not required in this minimal example, but usually necessary for interactivity
+    ctc.MPComponent.all_app_stores(),  # not required in this minimal example, but usually necessary for interactivity
     struct_component.standard_layout
 ])
 
