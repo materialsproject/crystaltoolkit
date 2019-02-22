@@ -229,6 +229,11 @@ export default class Simple3DScene {
         );
         const mat = this.makeMaterial(object_json.color);
 
+        // if we allow occupancies not to sum to 100
+        //if (object_json.phiStart || object_json.phiEnd) {
+        //    mat.side = THREE.DoubleSide;
+        //}
+
         const meshes = [];
         object_json.positions.forEach(function(position) {
           const mesh = new THREE.Mesh(geom, mat);

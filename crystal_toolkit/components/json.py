@@ -12,8 +12,7 @@ from json import loads
 class JSONEditor(PanelComponent):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.create_store("out")
+        super().__init__(*args, has_output=True, **kwargs)
 
     @property
     def title(self):
@@ -22,7 +21,7 @@ class JSONEditor(PanelComponent):
     @property
     def description(self):
         return (
-            "Developers may find it useful to be able to edit the underlying "
+            "Advanced users may find it useful to be able to edit the underlying "
             "JSON representation of the material. Changes are updated live."
         )
 

@@ -64,13 +64,13 @@ Currently there are MPComponents for the following classes:
 
 See the current [Issues](???) page for any components that still need implementing.
 
-Before using any MPComponents in your app, you must register your app object and cache
-(if applicable) with Crystal Toolkit.
+Before using any MPComponents in your app, you must register your Dash app object and cache
+(if you are using Flask-Caching) with Crystal Toolkit.
 
 ```python
 import crystal_toolkit as ct
-ct.register_app() # Optional, but required for interactivity
-ct.register_cache() # Optional, but often useful for performance
+ct.register_app(app) # Optional, but required for interactivity
+ct.register_cache(cache) # Optional, but often useful for performance
 ```
 
 To use an MPComponent, the standard initializer takes an `id` like any other Dash component and `contents`
@@ -104,14 +104,12 @@ Some `MPComponents` require functionality not offered by core Dash components,
 for example the crystal viewer itself which requires 3D rendering capabilities.
 
 If you need an additional React component, you will first need to set up 
-your development environment using `npm install  ...`
+your development environment using `npm install`, then simply create `YourComponent.react.js`
+in `~/src/components/`, add an import statement for this component in `~/src/index.js`, and run:
 
-...simply create `YourComponent.react.js`
-in `~/src/components/`, import it in `~/src/index.js`, and run:
+`npm run build:all`
 
-`builder...`
-
-If you have any new dependencies, add them using `npm install -S ...`.
+If you have any new dependencies, add them using `npm install -S [dependency-name]`.
 
 ### Tests
 
@@ -122,11 +120,7 @@ like [pymatgen](http://pymatgen.org), comprehensive testing isn't as
 mission critical. *However, tests are still encouraged wherever possible* 
 and the long-term health of this project will rely on good testing.
 
-New React components should have an example added to usage.py and edit `tests/?`
-
-New subclasses of `MPComponent` and `PanelComponent` can have tests
-written purely in Python, a good test for a `PanelComponent` would be to
-test the output of `update_contents()`.
+Boilerplate for tests can be found in `/tests`.
 
 ## Acknowledgements
 
