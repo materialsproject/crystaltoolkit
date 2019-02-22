@@ -27,12 +27,24 @@ class Container(html.Div):
 
 
 class Columns(html.Div):
-    def __init__(self, *args, desktop_only=False, centered=False, **kwargs):
+    def __init__(
+        self,
+        *args,
+        desktop_only=False,
+        centered=False,
+        gapless=False,
+        multiline=False,
+        **kwargs,
+    ):
         kwargs["className"] = "columns"
         if desktop_only:
             kwargs["className"] += " is-desktop"
         if centered:
             kwargs["className"] += " is-centered"
+        if gapless:
+            kwargs["className"] += " is-gapless"
+        if multiline:
+            kwargs["className"] += " is-multiline"
         super().__init__(*args, **kwargs)
 
 
@@ -271,8 +283,23 @@ class Control(html.Div):
         super().__init__(*args, **kwargs)
 
 
-class Tooltip(html.Div):
-    pass
+def get_tooltip(tooltip, tooltip_text):
+    return html.Div(
+        [tooltip, html.Span(tooltip_text, className="tooltiptext")], className="tooltip"
+    )
+
+
+def get_data_list(data):
+    contents = []
+    for title, value in data.items():
+        contents.append(
+            Columns(
+                [Column(Label(title), size="half"), Column(value, size="half")],
+                gapless=True,
+                multiline=True,
+            )
+        )
+    return html.Div(contents)
 
 
 # reference_button = Button(
