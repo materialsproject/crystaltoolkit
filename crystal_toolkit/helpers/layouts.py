@@ -293,14 +293,22 @@ def get_data_list(data):
     contents = []
     for title, value in data.items():
         contents.append(
-            Columns(
-                [Column(Label(title), size="half"), Column(value, size="half")],
-                gapless=True,
-                multiline=True,
+            html.Tr(
+                [html.Td(Label(title)), html.Td(value)]
             )
         )
-    return html.Div(contents)
+    return html.Table([html.Tbody(contents)], className="table")
 
+
+def get_table(rows):
+    contents = []
+    for row in rows:
+        contents.append(
+            html.Tr(
+                [html.Td(item) for item in row]
+            )
+        )
+    return html.Table([html.Tbody(contents)], className="table")
 
 # reference_button = Button(
 #    [Icon(kind="book"), html.Span("Cite me")],
