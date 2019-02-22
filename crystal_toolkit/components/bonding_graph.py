@@ -81,11 +81,11 @@ class BondingGraphComponent(PanelComponent):
                 dist = struct_or_mol.get_distance(u, v)
             edge["length"] = 50 * dist
 
-            label = f"{dist:.2f} Å distance to site"
-
             if to_jimage != (0, 0, 0):
                 edge["arrows"] = "to"
-                label += f" at image vector {to_jimage}"
+                label = f"{dist:.2f} Å to site at image vector {to_jimage}"
+            else:
+                label = f"{dist:.2f} Å between sites"
 
             if label:
                 edge["title"] = label

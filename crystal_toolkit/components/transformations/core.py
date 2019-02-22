@@ -142,19 +142,12 @@ class TransformationComponent(MPComponent):
             return html.Strong(f'Error: {transformation["error"]}')
 
 
-class AllTransformationsComponent(PanelComponent):
+class AllTransformationsComponent(MPComponent):
+
     def __init__(self, transformations: List[TransformationComponent], *args, **kwargs):
         self.transformations = {t.__class__.__name__: t for t in transformations}
         super().__init__(*args, **kwargs)
         self.create_store("out")
-
-    @property
-    def title(self):
-        return "Transform Material 🌟"
-
-    @property
-    def description(self):
-        return "Transform your crystal structure using the power of pymatgen transformations."
 
     @property
     def all_layouts(self):
@@ -174,6 +167,7 @@ class AllTransformationsComponent(PanelComponent):
             value=[],
             placeholder="Select one or more transformations...",
             id=self.id("choices"),
+            style={'max-width': "65vmin"}
         )
 
         layouts.update({
@@ -183,17 +177,20 @@ class AllTransformationsComponent(PanelComponent):
 
         return layouts
 
-    def update_contents(self, new_store_contents):
+    @property
+    def standard_layout(self):
 
         return html.Div([
+            html.Div(
+                "Transform your crystal structure using the power of pymatgen transformations.",
+                className="mpc-panel-description",
+            ),
             self.choices_layout,
             html.Br(),
             html.Div(id=self.id("transformation_options"))
         ])
 
     def _generate_callbacks(self, app, cache):
-
-        super()._generate_callbacks(app, cache)
 
         @app.callback(
             Output(self.id("transformation_options"), "children"),
@@ -218,12 +215,15 @@ class AllTransformationsComponent(PanelComponent):
 
         @app.callback(
             Output(self.id("out"), "data"),
-            [Input(t.id(), "data") for t in self.transformations.values()],
-            [State(self.id(), "data")]
+            [Input(t.id(), "data") for t in self.transformations.values()] + [Input(self.id(), "data")]
         )
         def run_transformations(*args):
 
+            if not args[-1]:
+                raise PreventUpdate
+
             struct = self.from_data(args[-1])
+
             errors = []
 
             transformations = []

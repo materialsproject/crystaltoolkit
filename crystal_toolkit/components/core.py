@@ -157,7 +157,15 @@ class MPComponent(ABC):
         """
         if msonable_obj is None:
             return None
-        return dumps(msonable_obj, cls=MontyEncoder, indent=4)
+        data_str = dumps(msonable_obj, cls=MontyEncoder, indent=4)
+        if MPComponent.cache != DummyCache:
+            pass
+            #token = str(uuid4())[0:6]
+            ## set to 1 week expiration by default
+            #cache.set(token, data_str, timeout=604_800,
+            #          key_prefix="crystal_toolkit_callback_")
+            #return {'token': token}
+        return data_str
 
     @staticmethod
     def from_data(data):
@@ -292,11 +300,13 @@ Layouts: {list(self.supported_layouts)}"""
 
 class PanelComponent(MPComponent):
     def __init__(
-        self, *args, open_by_default=False, enable_error_message=True, **kwargs
+        self, *args, open_by_default=False, enable_error_message=True,
+            has_output=False, **kwargs
     ):
 
         self.open_by_default = open_by_default
         self.enable_error_message = enable_error_message
+        self.has_output = has_output
 
         if self.description and len(self.description) > 140:
             raise ValueError(
@@ -305,6 +315,9 @@ class PanelComponent(MPComponent):
             )
 
         super().__init__(*args, **kwargs)
+
+        if self.has_output:
+            self.create_store('out')
 
     @property
     def title(self):
@@ -336,6 +349,14 @@ class PanelComponent(MPComponent):
         return "Loading"
 
     @property
+    def header(self):
+        return html.Div()
+
+    @property
+    def footer(self):
+        return html.Div()
+
+    @property
     def all_layouts(self):
 
         initial_contents = html.Div(self.initial_contents, id=self.id("contents"))
@@ -348,7 +369,7 @@ class PanelComponent(MPComponent):
             className="mpc-panel-description",
         )
 
-        contents = html.Div([message, description, initial_contents])
+        contents = html.Div([message, description, self.header, initial_contents, self.footer])
 
         panel = Reveal(
             title=self.title,
@@ -418,7 +439,9 @@ class PanelComponent(MPComponent):
             initial load time.
             """
             panel_initially_open = args[-1]
-            if (panel_n_clicks is None) or (panel_initially_open is None):
+            # if the panel outputs data, we have to make sure callbacks are fired
+            # regardless of if the panel is open or not
+            if (not self.has_output) and ((panel_n_clicks is None) or (panel_initially_open is None)):
                 raise PreventUpdate
             if not store_contents:
                 return html.Div()

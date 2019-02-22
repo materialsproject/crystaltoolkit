@@ -70,6 +70,7 @@ class XRayDiffractionComponent(MPComponent):
 
     @property
     def all_layouts(self):
+
         # Main plot
         graph = html.Div(
             [
@@ -119,7 +120,7 @@ class XRayDiffractionComponent(MPComponent):
             ]  # convert to (h k l) format
 
             annotations = [
-                hkl + "<br>" + "d: " + str(round(d, 3))
+                f"{hkl} <br> d: {round(d, 3)}"
                 for hkl, d in zip(hkls, data["d_hkls"])
             ]  # text boxes
 
