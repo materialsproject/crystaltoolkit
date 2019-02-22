@@ -46,7 +46,7 @@ class SymmetryComponent(PanelComponent):
             "Set to a negative value to disable.",
         )
 
-        return html.Div([html.Br(), symprec, angle_tolerance])
+        return html.Div([symprec, angle_tolerance, html.Br(), html.Br()])
 
     @property
     def update_contents_additional_inputs(self):
@@ -92,10 +92,10 @@ class SymmetryComponent(PanelComponent):
 
         wyckoff_contents = []
 
-        wyckoff_data = list(
-            zip(sym_struct.wyckoff_symbols, sym_struct.equivalent_sites)
+        wyckoff_data = sorted(
+            zip(sym_struct.wyckoff_symbols, sym_struct.equivalent_sites),
+            key=lambda x: ''.join(filter(lambda w: w.isalpha(), x[0])),
         )
-        wyckoff_data.sort(key=lambda x: str(filter(lambda w: w.isalpha(), x)))
 
         for symbol, equiv_sites in wyckoff_data:
             wyckoff_contents.append(
@@ -115,7 +115,7 @@ class SymmetryComponent(PanelComponent):
 
         return Columns(
             [
-                Column([H5("Overview"), datalist], narrow=True),
+                Column([H5("Overview"), datalist]),
                 Column([H5("Wyckoff Positions"), html.Div(wyckoff_contents)]),
             ]
         )
