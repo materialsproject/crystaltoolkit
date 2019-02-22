@@ -13,12 +13,12 @@ from robocrys import __version__ as robocrys_version
 class RobocrysComponent(PanelComponent):
     @property
     def title(self):
-        return "Robocrystallographer"
+        return "Description"
 
     @property
     def description(self):
         return (
-            "Your friendly robocrystallographer tries to analyze a structure much "
+            "Your friendly robocrystallographer tries to describe a structure much "
             "like a human crystallographer would."
         )
 

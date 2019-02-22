@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Dash callbacks are blocking, and also often network-limited
 # rather than CPU-limited, so using NUM_WORKERS >> number of
 # CPU cores is sensible
-ENV CRYSTAL_TOOLKIT_NUM_WORKERS=64
+ENV CRYSTAL_TOOLKIT_NUM_WORKERS=16
 
 # for Crossref API, used for DOI lookups
 ENV CROSSREF_MAILTO=YOUR_EMAIL_HERE

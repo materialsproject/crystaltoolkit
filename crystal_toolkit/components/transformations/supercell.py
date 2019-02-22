@@ -37,7 +37,7 @@ integers.
             return dcc.Input(id=self.id(f"m{element}"), inputmode="numeric",
                              min=0, max=9, step=1, size=1, className="input",
                              maxlength=1,
-                             style={"text-align": "center", "width": "1rem",
+                             style={"text-align": "center", "width": "2rem",
                                     "margin-right": "0.2rem", "margin-bottom": "0.2rem"},
                              value=value)
 
