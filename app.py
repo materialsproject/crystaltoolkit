@@ -49,7 +49,7 @@ app.scripts.config.serve_locally = True
 app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
 
-DEBUG_MODE = bool(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False))
+DEBUG_MODE = bool(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", True))
 
 # endregion
 ##########
@@ -125,6 +125,7 @@ robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
 xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
 symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
 
 bonding_graph_component = ctc.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
@@ -136,7 +137,8 @@ panels = [
     bonding_graph_component,
     xrd_component,
     magnetism_component,
-    literature_component
+    literature_component,
+    pd_component
 ]
 
 # panels not ready for production yet (e.g. pending papers, further testing, etc.)
