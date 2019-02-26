@@ -6,14 +6,14 @@ from dash.dependencies import Input, Output, State
 from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
-from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
+from pymatgen.transformations.standard_transformations import PrimitiveCellTransformation
 
 
-class AutoOxiStateDecorationTransformationComponent(TransformationComponent):
+class PrimitiveCellTransformationComponent(TransformationComponent):
 
     @property
     def title(self):
-        return "Detect likely oxidation states"
+        return "Convert crystal to a primitive setting"
 
     @property
     def description(self):
@@ -25,7 +25,7 @@ structures.
 
     @property
     def transformation(self):
-        return AutoOxiStateDecorationTransformation
+        return PrimitiveCellTransformation
 
     @property
     def options_layout(self):
@@ -34,11 +34,11 @@ structures.
     def _generate_callbacks(self, app, cache):
         super()._generate_callbacks(app, cache)
 
+
         # TODO: this is a bug, due to use of self.to_data and kwargs, this will be removed
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
             [Input(self.id(f"m{e1}{e2}"), "value") for e1 in range(1,4) for e2 in range(1,4)]
         )
         def update_transformation_kwargs(*args):
-            print("fix me!")
             return {'args': [], 'kwargs': {}}

@@ -4,6 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
 from crystal_toolkit.helpers.layouts import Label
+from crystal_toolkit.helpers.inputs import *
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
 from pymatgen.transformations.advanced_transformations import SlabTransformation
@@ -29,17 +30,9 @@ vacuum inserted so that the properties of the crystal surface can be studied.
     @property
     def options_layout(self):
 
-        def _m(element, value=0):
-            return dcc.Input(id=self.id(f"m{element}"), inputmode="numeric",
-                             min=0, max=9, step=1, size=1, className="input",
-                             maxlength=1,
-                             style={"text-align": "center", "width": "2rem",
-                                    "margin-right": "0.2rem", "margin-bottom": "0.2rem"},
-                             value=value)
-
-        miller_index = html.Div([
-            html.Div([_m(1, value=1), _m(2), _m(3)])
-        ])
+        miller_index = get_matrix_input(self.id(), label="Miller index",
+                                        default=((1, 0, 0), ),
+                                        help="The surface plane defined by its Miller index (h, k, l)")
 
         min_slab_size = dcc.Input(id=self.id("min_slab_size"), value=6)
         min_vacuum_size = dcc.Input(id=self.id("min_vacuum_size"), value=10)
@@ -55,7 +48,7 @@ vacuum inserted so that the properties of the crystal surface can be studied.
         # get_inputs(name, type)
         # get_value(type, inputs)
 
-        options = html.Div([Label("Miller index:"), miller_index,
+        options = html.Div([miller_index,
                             Label("Min slab size:"), min_slab_size,
                             Label("Min vacuum size:"), min_vacuum_size,
                             Label("Center slab:"), center_slab])
@@ -68,7 +61,7 @@ vacuum inserted so that the properties of the crystal surface can be studied.
 
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
-            [Input(self.id(f"m{e}"), "value") for e in range(1,4)]
+            [Input(self.id(f"m0{e}"), "value") for e in range(3)]
             + [Input(self.id("min_slab_size"), "value"), Input(self.id("min_vacuum_size"), "value"),
                Input(self.id("center_slab"), "values")]
         )
