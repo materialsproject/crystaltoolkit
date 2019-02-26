@@ -4,6 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
 from crystal_toolkit.helpers.layouts import Label
+from crystal_toolkit.helpers.inputs import *
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
 from pymatgen.transformations.standard_transformations import SupercellTransformation
@@ -33,21 +34,7 @@ integers.
     @property
     def options_layout(self):
 
-        def _m(element, value=0):
-            return dcc.Input(id=self.id(f"m{element}"), inputmode="numeric",
-                             min=0, max=9, step=1, size=1, className="input",
-                             maxlength=1,
-                             style={"text-align": "center", "width": "2rem",
-                                    "margin-right": "0.2rem", "margin-bottom": "0.2rem"},
-                             value=value)
-
-        scaling_matrix = html.Div([
-            html.Div([_m(11, value=1), _m(12), _m(13)]),
-            html.Div([_m(21), _m(22, value=1), _m(23)]),
-            html.Div([_m(31), _m(32), _m(33, value=1)])
-        ])
-
-        options = html.Div([Label("Scaling matrix:"), scaling_matrix])
+        options = get_matrix_input(self.id(), label="Scaling matrix")
 
         return options
 
@@ -57,7 +44,7 @@ integers.
 
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
-            [Input(self.id(f"m{e1}{e2}"), "value") for e1 in range(1,4) for e2 in range(1,4)]
+            [Input(self.id(f"m{e1}{e2}"), "value") for e1 in range(3) for e2 in range(3)]
         )
         def update_transformation_kwargs(*args):
 

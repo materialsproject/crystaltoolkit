@@ -64,6 +64,10 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     @property
+    def default_transformation(self):
+        return self.transformation()
+
+    @property
     def title(self):
         raise NotImplementedError
 
@@ -117,6 +121,9 @@ class TransformationComponent(MPComponent):
             except Exception as exception:
                 data = None
                 error = str(exception)
+
+            print({'data': data, 'error': error})
+
             return {'data': data, 'error': error}
 
         @app.callback(
@@ -182,7 +189,7 @@ class AllTransformationsComponent(MPComponent):
 
         return html.Div([
             html.Div(
-                "Transform your crystal structure using the power of pymatgen transformations.",
+                "Transform your crystal structure using the power of pymatgen.",
                 className="mpc-panel-description",
             ),
             self.choices_layout,
