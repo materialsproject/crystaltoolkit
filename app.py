@@ -51,6 +51,7 @@ app.scripts.config.serve_locally = True
 app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
 
+
 DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
 ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").title())
 
@@ -133,6 +134,7 @@ if DEBUG_MODE:
     robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
     magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
     xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+    pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
     symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
 
     bonding_graph_component = ctc.BondingGraphComponent()
@@ -147,6 +149,7 @@ if DEBUG_MODE:
         symmetry_component,
         bonding_graph_component,
         xrd_component,
+        pd_component,
         magnetism_component,
         literature_component,
         robocrys_component,
@@ -182,6 +185,7 @@ else:
     robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
     magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
     xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+    pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
     symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
 
     bonding_graph_component = ctc.BondingGraphComponent()
@@ -196,6 +200,7 @@ else:
         symmetry_component,
         bonding_graph_component,
         xrd_component,
+        pd_component,
         magnetism_component,
         literature_component,
     ]
