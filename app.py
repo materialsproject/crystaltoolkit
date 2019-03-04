@@ -52,6 +52,7 @@ app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
 
 DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
+ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").title())
 
 # endregion
 ##########
@@ -465,15 +466,15 @@ def mson_to_token(mson, cache):
 
     token = str(uuid4())[0:6]
     # set to 1 week expiration by default
-    cache.set(token, mson, timeout=604_800, key_prefix="crystal_toolkit_user_")
-    return token
+    cache.set(f"crystal_toolkit_user_{token}", mson, timeout=604_800)
+    return {"token": token, "error": None}
 
 
 def token_to_mson(token, cache):
-    return cache.get(token)
+    return cache.get(f"crystal_toolkit_user_{token}")
 
 
-if os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", False):
+if ENABLE_API:
 
     @server.route("/generate_token", methods=["POST"])
     def get_token():
