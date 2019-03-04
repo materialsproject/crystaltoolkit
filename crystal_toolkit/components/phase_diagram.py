@@ -52,10 +52,10 @@ class PhaseDiagramComponent(MPComponent):
                'type': 'linear',
                'zeroline': False},
 
-        autosize=True,
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
         height=550,
+        width=500,
         hovermode='closest',
         showlegend=True,
         legend=dict(orientation='h', traceorder='reversed', x=1.0, y=1.08, xanchor='right', tracegroupgap=5),
@@ -81,6 +81,7 @@ class PhaseDiagramComponent(MPComponent):
 
         autosize=True,
         height=450,
+        width=500,
         hovermode='closest',
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
@@ -98,7 +99,11 @@ class PhaseDiagramComponent(MPComponent):
         showlegend=True,
         legend=dict(orientation='h', traceorder='reversed', x=1.0, y=1.08, xanchor='right', tracegroupgap=5))
 
-    def figure_layout(self,plotter, pd):
+    default_table_params = [
+            "mpid","Formula", "Form. Energy (eV/atom)", "E Above Hull (eV/atom)", "Stable?"
+        ]
+
+    def figure_layout(self, plotter, pd):
 
         dim = pd.dim
 
@@ -250,7 +255,7 @@ class PhaseDiagramComponent(MPComponent):
 
         for entry in plotter.pd_plot_data[1]:
             energy = round(pd.get_form_energy_per_atom(plotter.pd_plot_data[1][entry]), 3)
-            #mpid = plotter.pd_plot_data[1][entry].entry_id
+            mpid = plotter.pd_plot_data[1][entry].entry_id
             formula = plotter.pd_plot_data[1][entry].composition.reduced_formula
             s = []
             for char in formula:
@@ -264,7 +269,7 @@ class PhaseDiagramComponent(MPComponent):
             y_list.append(entry[1])
             if dim == 4:
                 z_list.append(entry[2])
-            text.append(clean_formula + ' (' + ')' + '<br>' + str(energy) + ' eV')
+            text.append(clean_formula + ' (' + mpid + ')' + '<br>' + str(energy) + ' eV')
 
         if dim == 2 or dim == 3:
             markerPlot = go.Scatter(
@@ -294,7 +299,6 @@ class PhaseDiagramComponent(MPComponent):
                 hoverinfo='text',
                 hoverlabel=dict(font=dict(size=14)),
                 hovertext=text)
-        #print(markerPlot)
         return markerPlot
 #
     @property
@@ -304,15 +308,17 @@ class PhaseDiagramComponent(MPComponent):
             dcc.Graph(id=self.id("graph"), config={'displayModeBar':False,
                                                   'displaylogo':False})
         ])
-        # Entries table
-        params = [
-            "Formula", "Form. Energy (eV/atom)", "E Above Hull (eV/atom)", "Stable?"
-            ]
         table = html.Div([
             dash_table.DataTable(id=self.id("entry-table"),
-                                 columns=([{'id': p, 'name': p} for p in params]),
-
-        )])
+                                 columns=([{'id': p, 'name': p} for p in self.default_table_params]),
+                                 style_table={
+                                     'maxHeight': '400',
+                                     'overflowY': 'scroll'
+                                 },
+                                 n_fixed_rows=1,
+                                 sorting=True,
+                                 )
+        ])
 
         return {'graph': graph,'table': table}
 
@@ -388,13 +394,11 @@ class PhaseDiagramComponent(MPComponent):
                 text_list = []
                 unstable_xy_list = list(plotter.pd_plot_data[2].values())
                 unstable_entry_list = list(plotter.pd_plot_data[2].keys())
-                #print(unstable_xy_list)
-                #print(unstable_entry_list)
 
                 for unstable_xy, unstable_entry in zip(unstable_xy_list,unstable_entry_list):
                     x_list.append(unstable_xy[0])
                     y_list.append(unstable_xy[1])
-                    #mpid = unstable_entry.entry_id
+                    mpid = unstable_entry.entry_id
                     formula = list(unstable_entry.composition.reduced_formula)
                     e_above_hull = round(pd.get_e_above_hull(unstable_entry),3)
 
@@ -409,7 +413,7 @@ class PhaseDiagramComponent(MPComponent):
                     clean_formula = clean_formula.join(s)
 
                     energy = round(pd.get_form_energy_per_atom(unstable_entry),3)
-                    text_list.append(clean_formula + ' ('  + ')' + '<br>'
+                    text_list.append(clean_formula + ' ('  + mpid + ')' + '<br>'
                                      + str(energy) + ' eV' + ' (' + str(e_above_hull) + ' eV' + ')')
 
                 data.append(go.Scatter(x=x_list, y=y_list,
@@ -435,7 +439,7 @@ class PhaseDiagramComponent(MPComponent):
                 unstable_entry_list = list(plotter.pd_plot_data[2].keys())
 
                 for unstable_xy, unstable_entry in zip(unstable_xy_list, unstable_entry_list):
-                    #mpid = unstable_entry.entry_id
+                    mpid = unstable_entry.entry_id
                     formula = unstable_entry.composition.reduced_formula
                     energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
                     e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
@@ -453,7 +457,7 @@ class PhaseDiagramComponent(MPComponent):
                         x_list.append(unstable_xy[0])
                         y_list.append(unstable_xy[1])
                         xy_list.append(unstable_xy)
-                        text_list.append(clean_formula + '<br>'
+                        text_list.append(clean_formula + ' ('  + mpid + ')' '<br>'
                                          + str(energy) + ' eV' + ' (' + str(e_above_hull) + ' eV' + ')')
                     else:
                         index = xy_list.index(unstable_xy)
@@ -483,7 +487,7 @@ class PhaseDiagramComponent(MPComponent):
                 unstable_entry_list = list(plotter.pd_plot_data[2].keys())
 
                 for unstable_xyz, unstable_entry in zip(unstable_xyz_list, unstable_entry_list):
-                    #mpid = unstable_entry.entry_id
+                    mpid = unstable_entry.entry_id
                     formula = unstable_entry.composition.reduced_formula
                     energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
                     e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
@@ -502,7 +506,7 @@ class PhaseDiagramComponent(MPComponent):
                         y_list.append(unstable_xyz[1])
                         z_list.append(unstable_xyz[2])
                         xyz_list.append(unstable_xyz)
-                        text_list.append(clean_formula  + '<br>'
+                        text_list.append(clean_formula  + ' ('  + mpid + ')' + '<br>'
                                          + str(energy) + ' eV' + ' (' + str(e_above_hull) + ' eV' + ')')
                     else:
                         index = xyz_list.index(unstable_xyz)
@@ -521,13 +525,21 @@ class PhaseDiagramComponent(MPComponent):
             fig.layout = self.figure_layout(plotter, pd)
             return fig
         @app.callback(
-            Output(self.id("entries-table"),"data"),
+            Output(self.id("entry-table"),"data"),
              [Input(self.id(),"data")]
         )
         def update_table(pd):
             pd = self.from_data(pd)
-            data = pd.all_entries
-
+            entries = pd.all_entries
+            data = []
+            for entry in entries:
+                entry_dict = dict.fromkeys(self.default_table_params)
+                entry_dict["mpid"] = entry.entry_id
+                entry_dict["Formula"] = entry.name
+                entry_dict["Form. Energy (eV/atom)"] = round(pd.get_form_energy_per_atom(entry),3)
+                entry_dict["E Above Hull (eV/atom)"] = round(pd.get_e_above_hull(entry),3)
+                entry_dict["Stable?"] = "Yes" if pd.get_e_above_hull(entry) == 0 else "No"
+                data.append(entry_dict)
             return data
 
 class PhaseDiagramPanelComponent(PanelComponent):
