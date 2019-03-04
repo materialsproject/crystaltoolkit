@@ -1,6 +1,9 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import math
+import numpy as np
+from scipy.special import wofz
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -23,9 +26,8 @@ class XRayDiffractionComponent(MPComponent):
 
     # Default XRD plot style settings
     default_xrd_plot_style = dict(
-        title="Calculated X-Ray Diffraction Pattern",
         xaxis={
-            "title": "2" + u"\u03B8" + " (deg)",
+            "title": "2θ (deg)",
             "anchor": "y",
             "mirror": "ticks",
             "nticks": 8,
@@ -61,12 +63,47 @@ class XRayDiffractionComponent(MPComponent):
         margin=dict(l=60, b=50, t=50, pad=0, r=30),
     )
 
+    WAVELENGTHS = { # Angstroms
+        "CuKa": 1.54184, "CuKa1": 1.54056, "CuKa2": 1.54439,"CuKb1": 1.39222,
+        "MoKa": 0.71073, "MoKa1": 0.70930, "MoKa2": 0.71359, "MoKb1": 0.63229,
+        "CrKa": 2.29100, "CrKa1": 2.28970, "CrKa2": 2.29361, "CrKb1": 2.08487,
+        "FeKa": 1.93735, "FeKa1": 1.93604, "FeKa2": 1.93998, "FeKb1": 1.75661,
+        "CoKa": 1.79026, "CoKa1": 1.78896, "CoKa2": 1.79285, "CoKb1": 1.63079,
+        "AgKa": 0.560885, "AgKa1": 0.559421, "AgKa2": 0.563813, "AgKb1": 0.497082,
+    }
+
     empty_plot_style = {
         "xaxis": {"visible": False},
         "yaxis": {"visible": False},
         "paper_bgcolor": "rgba(0,0,0,0)",
         "plot_bgcolor": "rgba(0,0,0,0)",
     }
+
+    def G(self, x, c, alpha):
+        """ Return c-centered Gaussian line shape at x with HWHM alpha """
+        return np.sqrt(np.log(2) / np.pi) / alpha * np.exp(-((x - c) / alpha) ** 2 * np.log(2))
+
+    def L(self, x, c, gamma):
+        """ Return c-centered Lorentzian line shape at x with HWHM gamma """
+        return gamma / (np.pi * ((x - c) ** 2 + gamma ** 2))
+
+    def V(self, x, c, alphagamma):
+        """ Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
+        alpha = 0.61065*alphagamma
+        gamma = 0.61065*alphagamma
+        sigma = alpha / np.sqrt(2 * np.log(2))
+        return np.real(wofz(((x - c) + 1j * gamma) / (sigma * np.sqrt(2)))) / (sigma * np.sqrt(2 * np.pi))
+
+    def grain_to_hwhm(self, tau, two_theta, K=0.9, wavelength="CuKa"):
+        '''
+        :param tau: grain size in nm
+        :param theta: angle (in 2-theta)
+        :param K: shape factor (default 0.9)
+        :param wavelength: wavelength radiation in nm
+        :return: half-width half-max (alpha or gamma), for line profile
+        '''
+        wavelength = self.WAVELENGTHS[wavelength]
+        return 0.5 * K * 0.1 *wavelength / (tau * abs(np.cos(two_theta/2)))  # Scherrer equation for half-width half max
 
     @property
     def all_layouts(self):
@@ -83,36 +120,96 @@ class XRayDiffractionComponent(MPComponent):
         )
 
         # Radiation source selector
-        rad_source = html.Div(
-            [
-                html.P("Radiation Source (K" + u"\u03B1)" + ":"),
-                dcc.RadioItems(
+        rad_source = html.Div([
+                html.P("Radiation Source"),
+                dcc.Dropdown(
                     id=self.id("rad-source"),
                     options=[
-                        {"label": " Cu ", "value": "CuKa"},
-                        {"label": " Mo ", "value": "MoKa"},
-                        {"label": " Ag ", "value": "AgKa"},
-                        {"label": " Fe ", "value": "FeKa"},
+                        {"label": i, "value": i} for i in self.WAVELENGTHS.keys()
                     ],
                     value="CuKa",
-                ),
+                    placeholder="Select a source...",
+                    clearable=False
+                )
+            ], style={'max-width':'200'}
+        )
+
+        # Shape factor input
+        shape_factor = html.Div(
+            [
+                html.P("Shape Factor, K "),
+                dcc.Input(
+                    id=self.id("shape-factor"),
+                    placeholder='0.94',
+                    type='text',
+                    value='0.94'
+                )
+            ],style={'max-width':'200'}
+        )
+        # Peak profile selector (Gaussian, Lorentzian, Voigt)
+        peak_profile = html.Div([
+                html.P("Peak Profile"),
+                dcc.Dropdown(
+                    id=self.id("peak-profile"),
+                    options=[
+                        {"label":'Gaussian',"value":'G'},
+                        {"label":'Lorentzian',"value":'L'},
+                        {"label":'Voigt',"value":'V'}
+                    ],
+                    value="G",
+                    clearable=False
+                )
+            ], style={'max-width':'200'}
+        )
+
+        # Crystallite size selector (via Scherrer Equation)
+        crystallite_size = html.Div(
+            [
+                html.P("Scherrer Crystallite Size (nm)"),
+                html.Div([
+                    dcc.Slider(
+                        id=self.id("crystallite-slider"),
+                        marks={i: '{}'.format(10 ** i) for i in range(-1,3)},
+                        min=-1,
+                        max=2,
+                        value=0,
+                        step=0.01
+                    ),
+                ], style={'max-width':'500'}),
+                html.Div([
+                ],id=self.id("crystallite-input"),style={"padding-top":"20px"})
             ]
         )
 
-        return {"graph": graph, "rad_source": rad_source}
+        return {"graph": graph,
+                "rad_source": rad_source,
+                "peak_profile": peak_profile,
+                "shape_factor": shape_factor,
+                "crystallite_size": crystallite_size
+                }
 
     @property
     def standard_layout(self):
-        return html.Div([self.all_layouts["graph"], self.all_layouts["rad_source"]])
+        return html.Div([self.all_layouts["graph"],
+                         self.all_layouts["rad_source"],
+                         self.all_layouts["shape_factor"],
+                         self.all_layouts["peak_profile"],
+                         self.all_layouts["crystallite_size"]])
 
     def _generate_callbacks(self, app, cache):
-        @app.callback(Output(self.id("xrd-plot"), "figure"), [Input(self.id(), "data")])
-        def update_graph(data):
-            domain = max(data["x"]) - min(
-                data["x"]
-            )  # find total domain of angles in pattern
-            bar_width = 0.01 * domain  # set width of bars to 1% of the domain
-            length = len(data["x"])
+        @app.callback(Output(self.id("xrd-plot"), "figure"),
+                      [Input(self.id(),"data"),
+                       Input(self.id("crystallite-slider"),"value"),
+                       Input(self.id("rad-source"),"value"),
+                       Input(self.id("peak-profile"), "value"),
+                       Input(self.id("shape-factor"),"n_submit")],
+                      [State(self.id("shape-factor"),"value")])
+        def update_graph(data,logsize,rad_source,peak_profile,n_submit,K):
+
+            x_peak = data["x"]
+            y_peak = data["y"]
+            d_hkls = data["d_hkls"]
+            grain_size = 10 ** logsize
 
             hkl_list = [hkl[0]["hkl"] for hkl in data["hkls"]]
             hkls = [
@@ -120,23 +217,61 @@ class XRayDiffractionComponent(MPComponent):
             ]  # convert to (h k l) format
 
             annotations = [
-                f"{hkl} <br> d: {round(d, 3)}"
-                for hkl, d in zip(hkls, data["d_hkls"])
+
+                f"2Θ: {round(peak_x,3)}<br>Intensity: {round(peak_y,3)}<br>{hkl} <br>d: {round(d, 3)}"
+                for peak_x, peak_y, hkl, d in zip(x_peak,y_peak, hkls, d_hkls)
             ]  # text boxes
 
-            plot_data = [
+            first = x_peak[0]
+            last = x_peak[-1]
+            domain = last - first  # find total domain of angles in pattern
+            bar_width = 0.003 * domain  # set width of bars to 0.5% of the domain
+            length = len(x_peak)
+
+            num_sigma = {"G":5,"L":12,"V":12}[peak_profile]
+
+            # optimal number of points per degree determined through usage experiments
+            if logsize > 1:
+                N_density = 150*(logsize**4)  # scaled to log size to the 4th power
+            else:
+                N_density = 150
+
+            N = int(N_density * domain)  # num total points
+            x = np.linspace(first, last, N).tolist()
+            y = np.zeros(len(x)).tolist()
+
+            for xp, yp in zip(x_peak, y_peak):
+                alpha = self.grain_to_hwhm(grain_size, math.radians(xp / 2), K=float(K),wavelength=rad_source)
+                sigma = (alpha / np.sqrt(2 * np.log(2))).item()
+
+                center_idx = int(round((xp - first) * N_density))
+                half_window = int(round(num_sigma * sigma * N_density))  # i.e. total window of 2 * num_sigma
+
+                lb = max([0, (center_idx - half_window)])
+                ub = min([N, (center_idx + half_window)])
+
+                G0 = getattr(self, peak_profile)(0, 0, alpha)
+                for i, j in zip(range(lb, ub), range(lb, ub)):
+                    y[j] += yp * getattr(self, peak_profile)(x[i], xp, alpha) / G0
+
+            plotdata = [
                 go.Bar(
-                    x=data["x"],
-                    y=data["y"],
+                    x=x_peak,
+                    y=y_peak,
                     width=[bar_width] * length,
+                    hoverinfo = "text",
                     text=annotations,
+                    opacity=0.2
+                ),
+                go.Scatter(
+                    x=x,
+                    y=y,
+                    hoverinfo="none"
                 )
             ]
-            graph = go.Figure(
-                data=plot_data, layout=XRayDiffractionComponent.default_xrd_plot_style
-            )
+            plot = go.Figure(data=plotdata, layout=self.default_xrd_plot_style)
 
-            return graph
+            return plot
 
         @app.callback(
             Output(self.id(), "data"),
@@ -168,11 +303,17 @@ class XRayDiffractionComponent(MPComponent):
                     struct = mpr.get_structure_by_material_id(
                         mpid, conventional_unit_cell=True
                     )
-
             xrdc = XRDCalculator(wavelength=rad_source)
             data = xrdc.get_pattern(struct, two_theta_range=None)
 
             return data.as_dict()
+
+        @app.callback(
+            Output(self.id("crystallite-input"), "children"),
+            [Input(self.id("crystallite-slider"), "value")],
+        )
+        def update_slider_output(value):
+            return html.P("Selected: {} nm".format(round(10**value,3)))
 
 
 class XRayDiffractionPanelComponent(PanelComponent):
