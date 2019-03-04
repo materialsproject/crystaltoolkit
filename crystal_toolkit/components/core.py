@@ -501,3 +501,28 @@ def unicodeify_spacegroup(spacegroup_symbol):
     symbol = symbol.replace("}", "")
 
     return symbol
+
+def unicodeify_species(specie_string):
+
+    if not specie_string:
+        return ""
+
+    superscript_unicode_map = {
+        "0": "⁰",
+        "1": "¹",
+        "2": "²",
+        "3": "³",
+        "4": "⁴",
+        "5": "⁵",
+        "6": "⁶",
+        "7": "⁷",
+        "8": "⁸",
+        "9": "⁹",
+        "+": "⁺",
+        "-": "⁻"
+    }
+
+    for character, unicode_character in superscript_unicode_map.items():
+        specie_string = specie_string.replace(character, unicode_character)
+
+    return specie_string

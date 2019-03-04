@@ -70,7 +70,8 @@ details .input {
 .tooltip {
   position: relative;
   border-bottom: 1px dotted black;
-  margin-bottom: 0.5rem; }
+  margin-bottom: 0.5rem;
+  width: max-content; }
 
 .tooltip .tooltiptext {
   visibility: hidden;
