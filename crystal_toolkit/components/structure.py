@@ -9,7 +9,7 @@ from dash.exceptions import PreventUpdate
 import warnings
 
 from crystal_toolkit import Simple3DSceneComponent
-from crystal_toolkit.components.core import MPComponent
+from crystal_toolkit.components.core import MPComponent, unicodeify_species
 from crystal_toolkit.helpers.layouts import *
 
 from matplotlib.cm import get_cmap
@@ -26,7 +26,6 @@ from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.vis.structure_vtk import EL_COLORS
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.string import unicodeify
 
 from typing import Dict, Union, Optional, List, Tuple
 
@@ -876,7 +875,11 @@ class StructureMoleculeComponent(MPComponent):
                 # construct legend
                 for element in elements:
                     color = get_color_hex(EL_COLORS[color_scheme][element])
-                    legend["colors"][color] = element
+                    label = unicodeify_species(site.species_string)
+                    if color in legend["colors"] and legend["colors"][color] != label:
+                        legend["colors"][color] = f"{element}ˣ"  # TODO: mixed valence, improve this
+                    else:
+                        legend["colors"][color] = label
 
         elif color_scheme in site_prop_types.get("scalar", []):
 

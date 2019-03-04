@@ -4,9 +4,13 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.components.core import PanelComponent, unicodeify_spacegroup
+from crystal_toolkit.components.core import (
+    PanelComponent,
+    unicodeify_spacegroup,
+    unicodeify_species,
+)
 from crystal_toolkit.helpers.inputs import *
-from crystal_toolkit.helpers.utils import pretty_float_format
+from crystal_toolkit.helpers.utils import pretty_frac_format
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -31,7 +35,7 @@ class SymmetryComponent(PanelComponent):
 
         symprec = get_float_input(
             id=self.id("symprec"),
-            default=0.1,
+            default=0.01,
             label="Symmetry-finding tolerance",
             help="Tolerance of distance between atomic positions and between lengths "
             "of lattice vectors to be tolerated in the symmetry finding in Ångstroms. "
@@ -94,20 +98,21 @@ class SymmetryComponent(PanelComponent):
 
         wyckoff_data = sorted(
             zip(sym_struct.wyckoff_symbols, sym_struct.equivalent_sites),
-            key=lambda x: ''.join(filter(lambda w: w.isalpha(), x[0])),
+            key=lambda x: "".join(filter(lambda w: w.isalpha(), x[0])),
         )
 
         for symbol, equiv_sites in wyckoff_data:
             wyckoff_contents.append(
                 html.Label(
-                    f"{symbol}, {equiv_sites[0].species_string}", className="mpc-label"
+                    f"{symbol}, {unicodeify_species(equiv_sites[0].species_string)}",
+                    className="mpc-label",
                 )
             )
             site_data = [
                 (
-                    pretty_float_format(site.frac_coords[0]),
-                    pretty_float_format(site.frac_coords[1]),
-                    pretty_float_format(site.frac_coords[2]),
+                    pretty_frac_format(site.frac_coords[0]),
+                    pretty_frac_format(site.frac_coords[1]),
+                    pretty_frac_format(site.frac_coords[2]),
                 )
                 for site in equiv_sites
             ]
