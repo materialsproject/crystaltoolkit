@@ -220,7 +220,7 @@ class Cubes:
     positions: List[List[float]]
     color: Optional[str] = None
     width: Optional[float] = None
-    type: str = field(default="spheres", init=False)  # private field
+    type: str = field(default="cubes", init=False)  # private field
     visible: bool = None
     _meta: Any = None
 
