@@ -20,17 +20,22 @@ def init_viewer():
     crystal_toolkit_app = dash.Dash(__name__)
 
 
-def view(struct_or_mol):
-
+def view(struct_or_mol, smc_kwargs={}):
+    # populate the StructureMoleculeComponent with some default kwargs
+    smc_kwargs_defaults = {
+        'bonded_sites_outside_unit_cell':True,
+        'color_scheme':'VESTA',
+        'radius_strategy':'uniform',
+    }
+    for key in smc_kwargs_defaults.keys():
+        if key not in smc_kwargs:
+            smc_kwargs[key] = smc_kwargs_defaults[key]
     if 'crystal_toolkit_app' not in globals():
         init_viewer()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        component = StructureMoleculeComponent(struct_or_mol,
-                                               bonded_sites_outside_unit_cell=True,
-                                               color_scheme='VESTA',
-                                               radius_strategy='uniform')
+        component = StructureMoleculeComponent(struct_or_mol, **smc_kwargs)
 
     crystal_toolkit_app.title = struct_or_mol.composition.reduced_formula
     crystal_toolkit_app.layout = html.Div([component.standard_layout])
