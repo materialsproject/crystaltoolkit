@@ -12,9 +12,10 @@ import logging
 from flask import make_response, jsonify, request
 from flask_caching import Cache
 
+from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.components.core import MPComponent
 from crystal_toolkit.helpers.layouts import *
-import crystal_toolkit as ct
+import crystal_toolkit.components as ctc
 
 from pymatgen import MPRester, Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
@@ -23,6 +24,11 @@ from pymatgen import __version__ as pmg_version
 from json import loads
 from uuid import uuid4
 from urllib import parse
+from random import choice
+from ast import literal_eval
+
+# choose a default structure on load
+DEFAULT_MPIDS = ["mp-1111410"]
 
 ################################################################################
 # region SET UP APP
@@ -45,7 +51,9 @@ app.scripts.config.serve_locally = True
 app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
 server = app.server
 
-DEBUG_MODE = os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", False)
+
+DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
+ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").title())
 
 # endregion
 ##########
@@ -73,6 +81,7 @@ except Exception as exception:
 # Enable for debug purposes:
 if DEBUG_MODE:
     from crystal_toolkit.components.core import DummyCache
+
     cache = DummyCache()
 
 # endregion
@@ -91,46 +100,118 @@ logger = logging.getLogger(app.title)
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
-ct.register_app(app)
-ct.register_cache(cache)
+ctc.register_app(app)
+ctc.register_cache(cache)
 
-json_editor_component = ct.JSONEditor()
-
-struct_component = ct.StructureMoleculeComponent(origin_component=json_editor_component)
-
-search_component = ct.SearchComponent()
-upload_component = ct.StructureMoleculeUploadComponent()
-
-favorites_component = ct.FavoritesComponent()
-favorites_component.attach_from(search_component, this_store_name="current-mpid")
-
-literature_component = ct.LiteratureComponent(origin_component=struct_component)
-robocrys_component = ct.RobocrysComponent(origin_component=struct_component)
-magnetism_component = ct.MagnetismComponent(origin_component=struct_component)
-
-bonding_graph_component = ct.BondingGraphComponent()
-bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
-
-
-
-supercell = ct.SupercellTransformationComponent()
-grain_boundary = ct.GrainBoundaryTransformationComponent()
-oxi_state = ct.AutoOxiStateDecorationTransformationComponent()
-
-transformation_component = ct.AllTransformationsComponent(transformations=[supercell, grain_boundary, oxi_state],
-                                                          origin_component=struct_component)
-
-panels = [
-    bonding_graph_component,
-    literature_component,
-    magnetism_component,
-    transformation_component,
-    json_editor_component,
-]
-
-# panels not ready for production yet (e.g. pending papers, further testing, etc.)
+# app not ready for production yet (e.g. pending papers, further testing, etc.)
 if DEBUG_MODE:
-    panels.insert(-1, robocrys_component)
+
+    supercell = ctc.SupercellTransformationComponent()
+    grain_boundary = ctc.GrainBoundaryTransformationComponent()
+    oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
+    slab = ctc.SlabTransformationComponent()
+
+    transformation_component = ctc.AllTransformationsComponent(
+        transformations=[supercell, slab, grain_boundary, oxi_state]
+    )
+
+    json_editor_component = ctc.JSONEditor()
+    json_editor_component.attach_from(transformation_component, origin_store_name="out")
+
+    struct_component = ctc.StructureMoleculeComponent()
+    struct_component.attach_from(json_editor_component, origin_store_name="out")
+
+    # TODO: change to link to struct_or_mol ?
+    download_component = ctc.DownloadComponent(origin_component=struct_component)
+
+    search_component = ctc.SearchComponent()
+    upload_component = ctc.StructureMoleculeUploadComponent()
+
+    favorites_component = ctc.FavoritesComponent()
+    favorites_component.attach_from(search_component, this_store_name="current-mpid")
+
+    literature_component = ctc.LiteratureComponent(origin_component=struct_component)
+    robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
+    magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
+    xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+    pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
+    symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+
+    bonding_graph_component = ctc.BondingGraphComponent()
+    bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
+    bonding_graph_component.attach_from(
+        struct_component,
+        this_store_name="display_options",
+        origin_store_name="display_options",
+    )
+
+    panels = [
+        symmetry_component,
+        bonding_graph_component,
+        xrd_component,
+        pd_component,
+        magnetism_component,
+        literature_component,
+        robocrys_component,
+    ]
+
+    body_layout = [
+        # panel_description,
+        # panel_choices,
+        html.Br(),
+        H3("Transform"),
+        html.Div([transformation_component.standard_layout]),
+        html.Br(),
+        H3("Analyze"),
+        html.Div([panel.panel_layout for panel in panels], id="panels"),
+        html.Br(),
+        H3("Export"),
+        html.Div([download_component.panel_layout, json_editor_component.panel_layout]),
+    ]
+
+    STRUCT_VIEWER_SOURCE = transformation_component.id()
+
+else:
+
+    struct_component = ctc.StructureMoleculeComponent()
+
+    # TODO: change to link to struct_or_mol ?
+    download_component = ctc.DownloadComponent(origin_component=struct_component)
+
+    search_component = ctc.SearchComponent()
+    upload_component = ctc.StructureMoleculeUploadComponent()
+
+    literature_component = ctc.LiteratureComponent(origin_component=struct_component)
+    robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
+    magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
+    xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+    pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
+    symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+
+    bonding_graph_component = ctc.BondingGraphComponent()
+    bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
+    bonding_graph_component.attach_from(
+        struct_component,
+        this_store_name="display_options",
+        origin_store_name="display_options",
+    )
+
+    panels = [
+        symmetry_component,
+        bonding_graph_component,
+        xrd_component,
+        pd_component,
+        magnetism_component,
+        literature_component,
+    ]
+
+    body_layout = [
+        html.Br(),
+        H3("Analyze"),
+        html.Div([panel.panel_layout for panel in panels], id="panels")
+    ]
+
+    STRUCT_VIEWER_SOURCE = struct_component.id()
 
 
 banner = html.Div(id="banner")
@@ -146,7 +227,8 @@ if DEBUG_MODE:
                             "This is a pre-release version of Crystal Toolkit and "
                             "may not behave reliably. Please visit "
                             "[https://viewer.materialsproject.org](https://viewer.materialsproject.org) "
-                            "for a stable version.")
+                            "for a stable version."
+                        )
                     ),
                 ],
                 kind="warning",
@@ -192,7 +274,7 @@ if api_offline:
 ################################################################################
 
 
-footer = ct.Footer(
+footer = ctc.Footer(
     html.Div(
         [
             # html.Iframe(
@@ -206,7 +288,7 @@ footer = ct.Footer(
             # ),
             # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
-                f"App created by [@mkhorton](mailto:mkhorton@lbl.gov), "
+                f"App created by [@mkhorton](mailto:mkhorton@lbl.gov) and [@mattmcdermott](https://github.com/mattmcdermott), "
                 f"bug reports and feature requests gratefully accepted.  \n"
                 f"Powered by [The Materials Project](https://materialsproject.org), "
                 f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
@@ -332,14 +414,7 @@ master_layout = Container(
                 Columns(
                     [
                         Column(
-                            [
-                                # panel_description,
-                                # panel_choices,
-                                html.Div(
-                                    [panel.panel_layout for panel in panels],
-                                    id="panels",
-                                )
-                            ]
+                            body_layout
                         )
                     ]
                 ),
@@ -366,7 +441,7 @@ def get_version():
     return make_response(
         jsonify(
             {
-                "crystal_toolkit_version": ct.__version__,
+                "crystal_toolkit_version": ct_version,
                 "crystal_toolkit_api_version": 1,
                 "pymatgen_version": pmg_version,
             }
@@ -396,15 +471,15 @@ def mson_to_token(mson, cache):
 
     token = str(uuid4())[0:6]
     # set to 1 week expiration by default
-    cache.set(token, mson, timeout=604_800, key_prefix="crystal_toolkit_user_")
-    return token
+    cache.set(f"crystal_toolkit_user_{token}", mson, timeout=604_800)
+    return {"token": token, "error": None}
 
 
 def token_to_mson(token, cache):
-    return cache.get(token)
+    return cache.get(f"crystal_toolkit_user_{token}")
 
 
-if os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", False):
+if ENABLE_API:
 
     @server.route("/generate_token", methods=["POST"])
     def get_token():
@@ -428,8 +503,10 @@ def update_search_term_on_page_load(href):
     if href is None:
         raise PreventUpdate
     pathname = str(parse.urlparse(href).path).split("/")
-    if len(pathname) == 0:
+    if len(pathname) <= 1:
         raise PreventUpdate
+    elif not pathname[1]:
+        return choice(DEFAULT_MPIDS)
     else:
         return pathname[1]
 
@@ -455,8 +532,8 @@ def update_url_pathname_from_search_term(data):
 
 
 @app.callback(
-    Output(json_editor_component.id(), "data"), [Input(search_component.id(), "data"),
-                                                 Input(upload_component.id(), "data")]
+    Output(STRUCT_VIEWER_SOURCE, "data"),
+    [Input(search_component.id(), "data"), Input(upload_component.id(), "data")],
 )
 def master_update_structure(search_mpid, upload_data):
 
@@ -466,8 +543,8 @@ def master_update_structure(search_mpid, upload_data):
     search_mpid = search_mpid or {}
     upload_data = upload_data or {}
 
-    time_searched = search_mpid.get('time_requested', -1)
-    time_uploaded = upload_data.get('time_requested', -1)
+    time_searched = search_mpid.get("time_requested", -1)
+    time_uploaded = upload_data.get("time_requested", -1)
 
     if time_searched > time_uploaded:
 
@@ -479,7 +556,7 @@ def master_update_structure(search_mpid, upload_data):
 
     else:
 
-        struct = MPComponent.from_data(upload_data['data'])
+        struct = MPComponent.from_data(upload_data["data"])
 
     return MPComponent.to_data(struct.as_dict(verboisty=0))
 

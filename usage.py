@@ -3,8 +3,6 @@ import dash_html_components as html
 import crystal_toolkit as ct
 import numpy as np
 
-from crystal_toolkit.helpers.scene import *
-
 from pymatgen import Structure, Lattice
 from pymatgen.io.vasp import Chgcar
 
@@ -18,7 +16,9 @@ app.scripts.config.serve_locally = True
 app.css.config.serve_locally = True
 app.title = "Crystal Toolkit Example Components"
 
-ct.register_app(app)
+
+# so that Crystal Toolkit can create callbacks
+ctc.register_app(app)
 
 # StructureMoleculeComponent
 
@@ -29,7 +29,6 @@ example_struct = Structure.from_spacegroup(
     [[1 / 3, 2 / 3, 0], [1 / 3, 2 / 3, 3 / 8]],
 )
 
-# get the data points to plot
 def get_mesh(chgcar, data_tag='total', isolvl=2.0, step_size = 4):
     vertices, faces, normals, values = measure.marching_cubes_lewiner(chgcar.data[data_tag],
                                                                       level=isolvl,
@@ -51,9 +50,15 @@ test_scene = [Scene("test", contents=[
 
 struct_component = ct.StructureMoleculeComponent(
     cc.structure, scene_additions=test_scene, hide_incomplete_bonds=True
+# get the data points to plot
 )
 
-app.layout = html.Div(struct_component.standard_layout)
+# for a custom-sized component, use `struct_component.struct_layout` and put
+# it inside a Div of the required size
+app.layout = html.Div([
+    ctc.MPComponent.all_app_stores(),  # not required in this minimal example, but usually necessary for interactivity
+    struct_component.standard_layout
+])
 
 
 if __name__ == "__main__":

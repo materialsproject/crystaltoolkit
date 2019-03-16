@@ -26,11 +26,12 @@ from crystal_toolkit.helpers.layouts import (
     MessageContainer,
     MessageHeader,
     MessageBody,
-    Tag
+    Tag,
 )
 
 from pymatgen.util.string import latexify_spacegroup
 from pymatgen import MPRester
+
 
 class DummyCache:
     @staticmethod
@@ -57,9 +58,15 @@ class MPComponent(ABC):
     def all_app_stores():
         return html.Div(MPComponent._app_stores)
 
-    def __init__(self, contents=None, id=None, origin_component=None,
-                 mprester_cache_timeout=60*60*24, storage_type="memory",
-                 static=False):
+    def __init__(
+        self,
+        contents=None,
+        id=None,
+        origin_component=None,
+        mprester_cache_timeout=60 * 60 * 24,
+        storage_type="memory",
+        static=False,
+    ):
         """
         :param id: a unique id for this component, if not specified a random
         one will be chosen
@@ -92,7 +99,7 @@ class MPComponent(ABC):
 
         self.mprester_cache_timeout = mprester_cache_timeout
 
-        # a cached MPRester for convenience
+        #  a cached MPRester for convenience
         @MPComponent.cache.memoize(timeout=mprester_cache_timeout)
         def mpr_query(criteria, properties):
             with MPRester() as mpr:
@@ -103,8 +110,9 @@ class MPComponent(ABC):
 
         if origin_component is None:
             self._canonical_store_id = self._id
-            self.create_store(name=None, initial_data=contents,
-                              storage_type=storage_type)
+            self.create_store(
+                name="default", initial_data=contents, storage_type=storage_type
+            )
             self.initial_data = self.to_data(contents)
         else:
             if MPComponent.app is None:
@@ -117,8 +125,8 @@ class MPComponent(ABC):
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def id(self, name=None):
-        if name:
+    def id(self, name="default"):
+        if name != "default":
             name = f"{self._id}_{name}"
         else:
             name = self._canonical_store_id
@@ -131,7 +139,7 @@ class MPComponent(ABC):
         store = dcc.Store(
             id=self.id(name),
             data=self.to_data(initial_data),
-            #storage_type=storage_type,
+            storage_type=storage_type,
             clear_data=debug_clear,
         )
         self._stores[name] = store
@@ -149,7 +157,15 @@ class MPComponent(ABC):
         """
         if msonable_obj is None:
             return None
-        return dumps(msonable_obj, cls=MontyEncoder, indent=4)
+        data_str = dumps(msonable_obj, cls=MontyEncoder, indent=4)
+        if MPComponent.cache != DummyCache:
+            pass
+            #token = str(uuid4())[0:6]
+            ## set to 1 week expiration by default
+            #cache.set(token, data_str, timeout=604_800,
+            #          key_prefix="crystal_toolkit_callback_")
+            #return {'token': token}
+        return data_str
 
     @staticmethod
     def from_data(data):
@@ -161,7 +177,7 @@ class MPComponent(ABC):
         return loads(data, cls=MontyDecoder)
 
     def attach_from(
-        self, origin_component, origin_store_name=None, this_store_name=None
+        self, origin_component, origin_store_name="default", this_store_name="default"
     ):
         """
         Link two MPComponents together.
@@ -182,7 +198,9 @@ class MPComponent(ABC):
         origin_store_id = origin_component.id(origin_store_name)
         dest_store_id = self.id(this_store_name)
 
-        self.logger.debug(f"Linking the output of {origin_store_id} to {dest_store_id}.")
+        self.logger.debug(
+            f"Linking the output of {origin_store_id} to {dest_store_id}."
+        )
 
         @MPComponent.app.callback(
             Output(dest_store_id, "data"),
@@ -193,12 +211,10 @@ class MPComponent(ABC):
             return data
 
     def __getattr__(self, item):
+        # TODO: remove, this isn't helpful (or add autocomplete)
         if item == "supported_stores":
             raise AttributeError  # prevent infinite recursion
-        if (
-            item.endswith("store")
-            and item.split("_store")[0] in self.supported_stores
-        ):
+        if item.endswith("store") and item.split("_store")[0] in self.supported_stores:
             return self.id(item)
         elif (
             item.endswith("layout")
@@ -283,12 +299,14 @@ Layouts: {list(self.supported_layouts)}"""
 
 
 class PanelComponent(MPComponent):
-    def __init__(self, *args, open_by_default=False, enable_error_message=True,
-                 prime_cache=False, **kwargs):
+    def __init__(
+        self, *args, open_by_default=False, enable_error_message=True,
+            has_output=False, **kwargs
+    ):
 
         self.open_by_default = open_by_default
         self.enable_error_message = enable_error_message
-        self.prime_cache = prime_cache
+        self.has_output = has_output
 
         if self.description and len(self.description) > 140:
             raise ValueError(
@@ -297,6 +315,9 @@ class PanelComponent(MPComponent):
             )
 
         super().__init__(*args, **kwargs)
+
+        if self.has_output:
+            self.create_store('out')
 
     @property
     def title(self):
@@ -328,6 +349,14 @@ class PanelComponent(MPComponent):
         return "Loading"
 
     @property
+    def header(self):
+        return html.Div()
+
+    @property
+    def footer(self):
+        return html.Div()
+
+    @property
     def all_layouts(self):
 
         initial_contents = html.Div(self.initial_contents, id=self.id("contents"))
@@ -340,7 +369,7 @@ class PanelComponent(MPComponent):
             className="mpc-panel-description",
         )
 
-        contents = html.Div([message, description, initial_contents])
+        contents = html.Div([message, description, self.header, initial_contents, self.footer])
 
         panel = Reveal(
             title=self.title,
@@ -351,12 +380,16 @@ class PanelComponent(MPComponent):
 
         return {"panel": panel}
 
-    def update_contents(self, new_store_contents):
+    def update_contents(self, new_store_contents, *args):
         raise PreventUpdate
 
-    def update_message(self, new_store_contents):
+    @property
+    def update_contents_additional_inputs(self):
+        return []
+
+    def update_message(self, new_store_contents, *args):
         try:
-            self.update_contents(new_store_contents)
+            self.update_contents(new_store_contents, *args)
         except Exception as exception:
             self.logger.error(
                 f"Callback error.",
@@ -372,7 +405,10 @@ class PanelComponent(MPComponent):
                 [
                     MessageHeader("Error"),
                     MessageBody(
-                        [html.Div(error_header), dcc.Markdown("> {}".format(traceback.format_exc()))]
+                        [
+                            html.Div(error_header),
+                            dcc.Markdown("> {}".format(traceback.format_exc())),
+                        ]
                     ),
                 ],
                 kind="danger",
@@ -381,46 +417,55 @@ class PanelComponent(MPComponent):
             return html.Div()
 
     def _generate_callbacks(self, app, cache):
-
-        @cache.memoize(timeout=60*60*24,
-                       make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
+        @cache.memoize(
+            timeout=60 * 60 * 24,
+            make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
+        )
         def update_contents(*args, **kwargs):
             return self.update_contents(*args, **kwargs)
 
         @app.callback(
             Output(self.id("contents"), "children"),
-            [Input(self.id("panel") + "_summary", "n_clicks"),
-             Input(self.id(), "data")],
+            [Input(self.id("panel") + "_summary", "n_clicks"), Input(self.id(), "data")]
+            + [
+                Input(component, property)
+                for component, property in self.update_contents_additional_inputs
+            ],
             [State(self.id("panel"), "open")],
         )
-        def load_contents(panel_n_clicks, store_contents, panel_initially_open):
+        def load_contents(panel_n_clicks, store_contents, *args):
             """
             Only update panel contents if panel is open by default, to speed up
             initial load time.
             """
-            if (panel_n_clicks is None) or (panel_initially_open is None):
-                # TODO: prime cache here? is this wise? more investigation required
-                if self.prime_cache:
-                    from threading import Thread
-                    thread = Thread(target=update_contents, args=(store_contents ,))
-                    thread.start()
+            panel_initially_open = args[-1]
+            # if the panel outputs data, we have to make sure callbacks are fired
+            # regardless of if the panel is open or not
+            if (not self.has_output) and ((panel_n_clicks is None) or (panel_initially_open is None)):
                 raise PreventUpdate
             if not store_contents:
                 return html.Div()
-            return update_contents(store_contents)
+            return update_contents(store_contents, *args[:-1])
 
         if self.enable_error_message:
+
             @app.callback(
                 Output(self.id("message"), "children"),
                 [Input(self.id("panel") + "_summary", "n_clicks")],
-                [State(self.id(), "data"), State(self.id("panel"), "open")],
+                [State(self.id(), "data"), State(self.id("panel"), "open")]
+                + [
+                    State(component, property)
+                    for component, property in self.update_contents_additional_inputs
+                ],
             )
-            def update_message(panel_n_clicks, store_contents, panel_initially_open):
+            def update_message(
+                panel_n_clicks, panel_initially_open, store_contents, *args
+            ):
                 if (panel_n_clicks is None) or (panel_initially_open is None):
                     raise PreventUpdate
                 if not store_contents:
                     raise PreventUpdate
-                return self.update_message(store_contents)
+                return self.update_message(store_contents, *args)
 
 
 def unicodeify_spacegroup(spacegroup_symbol):
@@ -456,3 +501,28 @@ def unicodeify_spacegroup(spacegroup_symbol):
     symbol = symbol.replace("}", "")
 
     return symbol
+
+def unicodeify_species(specie_string):
+
+    if not specie_string:
+        return ""
+
+    superscript_unicode_map = {
+        "0": "⁰",
+        "1": "¹",
+        "2": "²",
+        "3": "³",
+        "4": "⁴",
+        "5": "⁵",
+        "6": "⁶",
+        "7": "⁷",
+        "8": "⁸",
+        "9": "⁹",
+        "+": "⁺",
+        "-": "⁻"
+    }
+
+    for character, unicode_character in superscript_unicode_map.items():
+        specie_string = specie_string.replace(character, unicode_character)
+
+    return specie_string
