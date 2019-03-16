@@ -137,7 +137,8 @@ class StructureMoleculeComponent(MPComponent):
             "radius_strategy": radius_strategy,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
-            "hide_incomplete_bonds": hide_incomplete_bonds
+            "hide_incomplete_bonds": hide_incomplete_bonds,
+            "draw_polygons": draw_polygons,
         }
         self.create_store("display_options", initial_data=self.initial_display_options)
 
@@ -680,7 +681,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @property
     def standard_layout(self):
-        return html.Div(self.all_layouts["struct"], style={"width": "100vw", "height": "100vh"})
+        return html.Div(self.all_layouts["struct"], style={"width": "100%", "height": "50vh"})
 
     @staticmethod
     def _preprocess_input_to_graph(
@@ -1080,7 +1081,7 @@ class StructureMoleculeComponent(MPComponent):
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
 
-            if len(connected_sites) > 3 and all_connected_sites_present:
+            if StructureMoleculeComponent.initial_display_options['draw_polygons'] and len(connected_sites) > 3 and all_connected_sites_present:
                 if explicitly_calculate_polyhedra_hull:
 
                     try:
@@ -1261,7 +1262,8 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=True,
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
-        scene_additions = None
+        scene_additions = None,
+        draw_polygons = True,
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name=name)
@@ -1327,7 +1329,7 @@ class StructureMoleculeComponent(MPComponent):
                 all_connected_sites_present=all_connected_sites_present,
                 origin=origin,
                 ellipsoid_site_prop=ellipsoid_site_prop,
-                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull
+                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             )
             for k, v in site_primitives.items():
                 primitives[k] += v
