@@ -95,12 +95,13 @@ details .input{
 // thanks to https://www.w3schools.com/css/css_tooltip.asp
 .tooltip {
   position: relative;
-  display: inline-block;
   border-bottom: 1px dotted black;
+  margin-bottom: 0.5rem;
+  width: max-content;
 }
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 120px;
+  width: 240px;
   background-color: black;
   color: #fff;
   text-align: center;
@@ -110,7 +111,7 @@ details .input{
   z-index: 1;
   top: 150%;
   left: 50%;
-  margin-left: -60px;
+  margin-left: -120px;
 }
 .tooltip .tooltiptext::after {
   content: "";
@@ -181,7 +182,7 @@ details .input{
 ._dash-loading-callback {
   content: '';
   box-sizing: border-box;
-  position: absolute;
+  position: fixed;
   top: 20px;
   left: 20px;
   width: 30px;

@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table as dt
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -8,7 +9,7 @@ from dash.exceptions import PreventUpdate
 import warnings
 
 from crystal_toolkit import Simple3DSceneComponent
-from crystal_toolkit.components.core import MPComponent
+from crystal_toolkit.components.core import MPComponent, unicodeify_species
 from crystal_toolkit.helpers.layouts import *
 
 from matplotlib.cm import get_cmap
@@ -25,13 +26,12 @@ from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.vis.structure_vtk import EL_COLORS
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.string import unicodeify
 
 from typing import Dict, Union, Optional, List, Tuple
 
 from collections import defaultdict, OrderedDict
 
-from itertools import combinations
+from itertools import combinations, combinations_with_replacement, chain
 import re
 
 from crystal_toolkit.helpers.scene import (
@@ -102,7 +102,7 @@ class StructureMoleculeComponent(MPComponent):
         id=None,
         origin_component=None,
         scene_additions=None,
-        bonding_strategy="BrunnerNN_reciprocal",
+        bonding_strategy="CrystalNN",
         bonding_strategy_kwargs=None,
         color_scheme="Jmol",
         color_scale=None,
@@ -178,6 +178,17 @@ class StructureMoleculeComponent(MPComponent):
         self.create_store("graph", initial_data=self.to_data(graph))
 
     def _generate_callbacks(self, app, cache):
+
+        #@app.callback(
+        #    Output(self.id("hide-show"), "options"),
+        #    [Input(self.id("scene"), "data")]
+        #)
+        #def update_hide_show_options(scene_data):
+        #   # TODO: CHGCAR
+        #    print(scene_data)
+        #    raise PreventUpdate
+
+
         @app.callback(
             Output(self.id("graph"), "data"),
             [
@@ -190,6 +201,9 @@ class StructureMoleculeComponent(MPComponent):
         def update_graph(
             graph_generation_options, unit_cell_choice, repeats, struct_or_mol
         ):
+
+            if not struct_or_mol:
+                raise PreventUpdate
 
             struct_or_mol = self.from_data(struct_or_mol)
             graph_generation_options = self.from_data(graph_generation_options)
@@ -219,7 +233,7 @@ class StructureMoleculeComponent(MPComponent):
             Output(self.id("scene"), "data"),
             [
                 Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
+                Input(self.id("display_options"), "data")
             ],
         )
         def update_scene(graph, display_options):
@@ -348,6 +362,71 @@ class StructureMoleculeComponent(MPComponent):
             legend = self.from_data(legend)
             return self._make_legend(legend)
 
+        @app.callback(
+            Output(
+                self.id("graph_generation_options"), "data"
+            ),
+            [
+                Input(self.id("bonding_algorithm"), "value"),
+                Input(
+                    self.id("bonding_algorithm_custom_cutoffs"), "data"
+                ),
+            ],
+        )
+        def update_structure_viewer_data(bonding_algorithm, custom_cutoffs_rows):
+            graph_generation_options = {
+                "bonding_strategy": bonding_algorithm,
+                "bonding_strategy_kwargs": None,
+            }
+            if bonding_algorithm == "CutOffDictNN":
+                # this is not the format CutOffDictNN expects (since that is not JSON
+                # serializable), so we store as a list of tuples instead
+                # TODO: make CutOffDictNN args JSON serializable
+                custom_cutoffs = [
+                    (row["A"], row["B"], float(row["A—B"]))
+                    for row in custom_cutoffs_rows
+                ]
+                graph_generation_options["bonding_strategy_kwargs"] = {"cut_off_dict": custom_cutoffs}
+            return self.to_data(graph_generation_options)
+
+        @app.callback(
+            Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
+            [Input(self.id("bonding_algorithm"), "value")],
+            [State(self.id("graph"), "data")]
+        )
+        def update_custom_bond_options(option, graph):
+            if not graph:
+                raise PreventUpdate
+            graph = self.from_data(graph)
+            struct_or_mol = self._get_struct_or_mol(graph)
+            # can't use type_of_specie because it doesn't work with disordered structures
+            species = set(
+                map(
+                    str,
+                    chain.from_iterable(
+                        [list(c.keys()) for c in struct_or_mol.species_and_occu]
+                    ),
+                )
+            )
+            rows = [
+                {"A": combination[0], "B": combination[1], "A—B": 0}
+                for combination in combinations_with_replacement(species, 2)
+            ]
+            return rows
+
+        @app.callback(
+            Output(
+                self.id("bonding_algorithm_custom_cutoffs_container"),
+                "style",
+            ),
+            [Input(self.id("bonding_algorithm"), "value")],
+        )
+        def show_hide_custom_bond_options(bonding_algorithm):
+            if bonding_algorithm == "CutOffDictNN":
+                return {}
+            else:
+                return {"display": "none"}
+
     def _make_legend(self, legend):
 
         if legend is None or (not legend.get("colors", None)):
@@ -442,13 +521,41 @@ class StructureMoleculeComponent(MPComponent):
             self._make_legend(self.initial_legend), id=self.id("legend_container")
         )
 
-        # options = {
-        #    "bonding_strategy": bonding_strategy,
-        #    "bonding_strategy_kwargs": bonding_strategy_kwargs,
+        nn_mapping = {
+            "CrystalNN": "CrystalNN",
+            "Custom Bonds": "CutOffDictNN",
+            "Jmol Bonding": "JmolNN",
+            "Minimum Distance (10% tolerance)": "MinimumDistanceNN",
+            "O'Keeffe's Algorithm": "MinimumOKeeffeNN",
+            "Hoppe's ECoN Algorithm": "EconNN",
+            "Brunner's Reciprocal Algorithm": "BrunnerNN_reciprocal",
+        }
+
+        bonding_algorithm = dcc.Dropdown(
+            options=[{"label": k, "value": v} for k, v in nn_mapping.items()],
+            value="CrystalNN",
+            id=self.id("bonding_algorithm"),
+        )
+
+        bonding_algorithm_custom_cutoffs = html.Div(
+            [
+                html.Br(),
+                dt.DataTable(
+                    columns=[{"name": "A", "id": "A"},
+                             {"name": "B", "id": "B"},
+                             {"name": "A—B /Å", "id": "A—B"}],
+                    editable=True,
+                    id=self.id("bonding_algorithm_custom_cutoffs"),
+                ),
+                html.Br(),
+            ],
+            id=self.id("bonding_algorithm_custom_cutoffs_container"),
+            style={"display": "none"},
+        )
 
         options_layout = Field(
             [
-                #  hide if molecule
+                #  TODO: hide if molecule
                 html.Label("Change unit cell:", className="mpc-label"),
                 html.Div(
                     dcc.RadioItems(
@@ -464,7 +571,7 @@ class StructureMoleculeComponent(MPComponent):
                     ),
                     className="mpc-control",
                 ),
-                #  hide if molecule
+                #  TODO: hide if molecule
                 html.Div(
                     [
                         html.Label("Change number of repeats:", className="mpc-label"),
@@ -484,6 +591,10 @@ class StructureMoleculeComponent(MPComponent):
                     ],
                     style={"display": "none"},  # hidden for now, bug(!)
                 ),
+                html.Div([
+                html.Label("Change bonding algorithm: ", className="mpc-label"),
+                bonding_algorithm,
+                bonding_algorithm_custom_cutoffs]),
                 html.Label("Change color scheme:", className="mpc-label"),
                 html.Div(
                     dcc.Dropdown(
@@ -582,7 +693,11 @@ class StructureMoleculeComponent(MPComponent):
 
             # ensure fractional co-ordinates are normalized to be in [0,1)
             # (this is actually not guaranteed by Structure)
-            input = input.as_dict(verbosity=0)
+            try:
+                input = input.as_dict(verbosity=0)
+            except TypeError:
+                # TODO: remove this, necessary for Slab(?), some structure subclasses don't have verbosity
+                input = input.as_dict()
             for site in input["sites"]:
                 site["abc"] = np.mod(site["abc"], 1)
             input = Structure.from_dict(input)
@@ -760,7 +875,11 @@ class StructureMoleculeComponent(MPComponent):
                 # construct legend
                 for element in elements:
                     color = get_color_hex(EL_COLORS[color_scheme][element])
-                    legend["colors"][color] = element
+                    label = unicodeify_species(site.species_string)
+                    if color in legend["colors"] and legend["colors"][color] != label:
+                        legend["colors"][color] = f"{element}ˣ"  # TODO: mixed valence, improve this
+                    else:
+                        legend["colors"][color] = label
 
         elif color_scheme in site_prop_types.get("scalar", []):
 
@@ -877,6 +996,7 @@ class StructureMoleculeComponent(MPComponent):
 
         # for disordered structures
         is_ordered = site.is_ordered
+        phiStart, phiEnd = None, None
         occu_start = 0.0
 
         # for thermal ellipsoids etc.
@@ -918,8 +1038,6 @@ class StructureMoleculeComponent(MPComponent):
                     occu_start = phi_frac_end
                     phiStart = phi_frac_start * np.pi * 2
                     phiEnd = phi_frac_end * np.pi * 2
-                else:
-                    phiStart, phiEnd = None, None
 
                 # TODO: add names for labels
                 # name = "{}".format(sp)
@@ -935,6 +1053,18 @@ class StructureMoleculeComponent(MPComponent):
                     ellipsoids=ellipsoids,
                 )
                 atoms.append(sphere)
+
+        if not is_ordered and not np.isclose(phiEnd, np.pi*2):
+            # if site occupancy doesn't sum to 100%, cap sphere
+            sphere = Spheres(
+                positions=[position],
+                color="#ffffff",
+                radius=site.properties["display_radius"][0],
+                phiStart=phiEnd,
+                phiEnd=np.pi*2,
+                ellipsoids=ellipsoids,
+            )
+            atoms.append(sphere)
 
         if connected_sites:
 

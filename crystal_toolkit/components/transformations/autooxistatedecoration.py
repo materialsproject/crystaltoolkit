@@ -34,12 +34,11 @@ structures.
     def _generate_callbacks(self, app, cache):
         super()._generate_callbacks(app, cache)
 
-
         # TODO: this is a bug, due to use of self.to_data and kwargs, this will be removed
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
             [Input(self.id(f"m{e1}{e2}"), "value") for e1 in range(1,4) for e2 in range(1,4)]
         )
         def update_transformation_kwargs(*args):
-            print("wtf", *args)
+            print("fix me!")
             return {'args': [], 'kwargs': {}}

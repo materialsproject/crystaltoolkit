@@ -16,6 +16,9 @@ class TransformationComponent(MPComponent):
         self.create_store(
             "transformation_args_kwargs", initial_data={"args": [], "kwargs": {}}
         )
+        # for when trying to apply transformation to an actual structure,
+        # needs to be connected to a structure to work
+        self.create_store("error")
 
     @property
     def all_layouts(self):
@@ -61,12 +64,34 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     @property
+    def default_transformation(self):
+        return self.transformation()
+
+    @property
     def title(self):
         raise NotImplementedError
 
     @property
     def description(self):
         raise NotImplementedError
+
+    def check_input_structure(self, structure):
+        """
+        Implement this method if you want to check the input structure
+        before attempting to apply the transformation.
+        :param structure:
+        :return:
+        """
+        pass
+
+    def check_output_structure(self, transformed_structure):
+        """
+        Implement this method if you want to check the input structure
+        before attempting to apply the transformation.
+        :param transformed_structure:
+        :return:
+        """
+        pass
 
     def _generate_callbacks(self, app, cache):
 
@@ -79,20 +104,12 @@ class TransformationComponent(MPComponent):
         #@cache.memoize(timeout=60*60*24,
         #               make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
         def update_transformation(args_kwargs, enabled):
-            print(self.id(), "wtf")
-            print(self.id(), enabled)
-            print(self.id(), self.transformation)
 
             # TODO: this is madness
             if not isinstance(args_kwargs, dict):
                 args_kwargs = self.from_data(args_kwargs)
             args = args_kwargs['args']
             kwargs = args_kwargs['kwargs']
-
-            print(self.id(), args)
-            print(self.id(), kwargs)
-
-            print(self.id(), not enabled)
 
             if not enabled:
                 return None
@@ -104,6 +121,9 @@ class TransformationComponent(MPComponent):
             except Exception as exception:
                 data = None
                 error = str(exception)
+
+            print({'data': data, 'error': error})
+
             return {'data': data, 'error': error}
 
         @app.callback(
@@ -129,18 +149,12 @@ class TransformationComponent(MPComponent):
             return html.Strong(f'Error: {transformation["error"]}')
 
 
-class AllTransformationsComponent(PanelComponent):
+class AllTransformationsComponent(MPComponent):
+
     def __init__(self, transformations: List[TransformationComponent], *args, **kwargs):
         self.transformations = {t.__class__.__name__: t for t in transformations}
         super().__init__(*args, **kwargs)
-
-    @property
-    def title(self):
-        return "Transform Material 🌟"
-
-    @property
-    def description(self):
-        return "Transform your crystal structure using the power of pymatgen transformations."
+        self.create_store("out")
 
     @property
     def all_layouts(self):
@@ -160,6 +174,7 @@ class AllTransformationsComponent(PanelComponent):
             value=[],
             placeholder="Select one or more transformations...",
             id=self.id("choices"),
+            style={'max-width': "65vmin"}
         )
 
         layouts.update({
@@ -169,17 +184,20 @@ class AllTransformationsComponent(PanelComponent):
 
         return layouts
 
-    def update_contents(self, new_store_contents):
+    @property
+    def standard_layout(self):
 
         return html.Div([
+            html.Div(
+                "Transform your crystal structure using the power of pymatgen.",
+                className="mpc-panel-description",
+            ),
             self.choices_layout,
             html.Br(),
             html.Div(id=self.id("transformation_options"))
         ])
 
     def _generate_callbacks(self, app, cache):
-
-        super()._generate_callbacks(app, cache)
 
         @app.callback(
             Output(self.id("transformation_options"), "children"),
@@ -201,3 +219,40 @@ class AllTransformationsComponent(PanelComponent):
             ], style={"display": "none"})
 
             return [transformation_options, hidden_transformations]
+
+        @app.callback(
+            Output(self.id("out"), "data"),
+            [Input(t.id(), "data") for t in self.transformations.values()] + [Input(self.id(), "data")]
+        )
+        def run_transformations(*args):
+
+            if not args[-1]:
+                raise PreventUpdate
+
+            struct = self.from_data(args[-1])
+
+            errors = []
+
+            transformations = []
+            for transformation in args[:-1]:
+                if transformation and transformation['data']:
+                    transformations.append(self.from_data(transformation['data']))
+
+            if not transformations:
+                return self.to_data(struct)
+
+            for transformation in transformations:
+                try:
+                    struct = transformation.apply_transformation(struct)
+                except Exception as exc:
+                    errors.append(f"Failed to apply transformation "
+                                  f"{transformation}: {exc}")
+
+            print("transformation errors", errors)
+
+            return self.to_data(struct)
+
+        # callback to take all transformations
+        # and also state of which transformations are user-visible (+ their order)
+        # apply them one by one with kwargs
+        # external error callback(?) for each transformation, have ext error + combine with trans error

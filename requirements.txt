@@ -19,7 +19,7 @@ mongomock>=3.14.0  # database fallback
 dash-katex>=0.0.1
 
 # for everything
-pymatgen>=2018.12.12
+pymatgen>=2019.2.4
 networkx>=2.0
 
 # for favorites
