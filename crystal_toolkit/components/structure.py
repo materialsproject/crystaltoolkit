@@ -110,6 +110,7 @@ class StructureMoleculeComponent(MPComponent):
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
+        show_poly = True,
         **kwargs
     ):
 
@@ -137,7 +138,8 @@ class StructureMoleculeComponent(MPComponent):
             "radius_strategy": radius_strategy,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
-            "hide_incomplete_bonds": hide_incomplete_bonds
+            "hide_incomplete_bonds": hide_incomplete_bonds,
+            "show_poly": show_poly
         }
         self.create_store("display_options", initial_data=self.initial_display_options)
 
@@ -308,6 +310,9 @@ class StructureMoleculeComponent(MPComponent):
             )
             display_options.update(
                 {"hide_incomplete_bonds": "hide_incomplete_bonds" in draw_options}
+            )
+            display_options.update(
+                {"show_poly": "show_poly" in draw_options}
             )
             return self.to_data(display_options)
 
@@ -640,9 +645,13 @@ class StructureMoleculeComponent(MPComponent):
                                 {
                                     "label": "Hide bonds where destination atoms are not shown",
                                     "value": "hide_incomplete_bonds"
+                                },
+                                {
+                                    "label": "Draw all of the polygons in the structure",
+                                    "value": "show_poly"
                                 }
                             ],
-                            values=["draw_image_atoms"],
+                            values=["draw_image_atoms", "show_poly"],
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("draw_options"),
@@ -976,7 +985,8 @@ class StructureMoleculeComponent(MPComponent):
         origin=(0, 0, 0),
         ellipsoid_site_prop=None,
         all_connected_sites_present=True,
-        explicitly_calculate_polyhedra_hull=False,
+        show_poly=True,
+            explicitly_calculate_polyhedra_hull=False,
     ):
         """
         Sites must have display_radius and display_color site properties.
@@ -986,6 +996,7 @@ class StructureMoleculeComponent(MPComponent):
         :param ellipsoid_site_prop: (beta)
         :param all_connected_sites_present: if False, will not calculate
         polyhedra since this would be misleading
+        :param show_poly:
         :param explicitly_calculate_polyhedra_hull:
         :return:
         """
@@ -1080,7 +1091,7 @@ class StructureMoleculeComponent(MPComponent):
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
 
-            if len(connected_sites) > 3 and all_connected_sites_present:
+            if len(connected_sites) > 3 and all_connected_sites_present and show_poly:
                 if explicitly_calculate_polyhedra_hull:
 
                     try:
@@ -1261,7 +1272,8 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=True,
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
-        scene_additions = None
+        scene_additions = None,
+        show_poly = True,
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name=name)
@@ -1327,7 +1339,8 @@ class StructureMoleculeComponent(MPComponent):
                 all_connected_sites_present=all_connected_sites_present,
                 origin=origin,
                 ellipsoid_site_prop=ellipsoid_site_prop,
-                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull
+                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+                show_poly=show_poly,
             )
             for k, v in site_primitives.items():
                 primitives[k] += v
