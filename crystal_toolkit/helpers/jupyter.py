@@ -40,42 +40,6 @@ def view(struct_or_mol, **kwargs):
     crystal_toolkit_viewer.show(crystal_toolkit_app)
 
 
-def compare(s1, s2, smc_kwargs={}):
-    # populate the StructureMoleculeComponent with some default kwargs
-    smc_kwargs_defaults = {
-        'bonded_sites_outside_unit_cell': True,
-        'color_scheme': 'VESTA',
-        'radius_strategy': 'uniform',
-    }
-    for key in smc_kwargs_defaults.keys():
-        if key not in smc_kwargs:
-            smc_kwargs[key] = smc_kwargs_defaults[key]
-    if 'crystal_toolkit_app' not in globals():
-        init_viewer()
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        component = StructureMoleculeComponent(s1, **smc_kwargs)
-        component2 = StructureMoleculeComponent(s2, **smc_kwargs)
-    # layout
-    crystal_toolkit_app.css.append_css(
-        {'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'})
-
-    crystal_toolkit_app.title = s1.composition.reduced_formula
-
-    crystal_toolkit_app.layout = html.Div([
-        html.Div([
-            html.Div([html.H3('Column 1'), component.standard_layout],
-                     className="six columns"),
-            html.Div([html.H3('Column 2'), html.H3('Column 2')],
-                     className="six columns"),
-        ],
-                 className="row")
-    ])
-
-    crystal_toolkit_viewer.show(crystal_toolkit_app)
-
-
 def get_component(obj):
 
     if not isinstance(obj, MSONable):
