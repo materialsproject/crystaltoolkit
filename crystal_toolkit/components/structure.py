@@ -645,13 +645,9 @@ class StructureMoleculeComponent(MPComponent):
                                 {
                                     "label": "Hide bonds where destination atoms are not shown",
                                     "value": "hide_incomplete_bonds"
-                                },
-                                {
-                                    "label": "Draw all of the polygons in the structure",
-                                    "value": "show_poly"
                                 }
                             ],
-                            values=["draw_image_atoms", "show_poly"],
+                            values=["draw_image_atoms"],
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("draw_options"),
@@ -986,7 +982,7 @@ class StructureMoleculeComponent(MPComponent):
         ellipsoid_site_prop=None,
         all_connected_sites_present=True,
         show_poly=True,
-            explicitly_calculate_polyhedra_hull=False,
+        explicitly_calculate_polyhedra_hull=False,
     ):
         """
         Sites must have display_radius and display_color site properties.
