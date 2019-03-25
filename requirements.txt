@@ -1,7 +1,7 @@
 # pin Dash versions for deployment
 dash==0.39.0
 dash-core-components==0.45.0
-dash-html-components==0.13.4
+dash-html-components==0.15.0
 dash-renderer==0.16.1
 dash-table==3.1.11
 dash-dangerously-set-inner-html==0.0.2
