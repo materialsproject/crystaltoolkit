@@ -30,7 +30,7 @@ fuzzywuzzy[speedup]==0.17.0
 
 # for literature
 bibtexparser==1.1.0
-pybtex==0.22.0
+pybtex==0.22.2
 habanero==0.6.2
 latexcodec==1.0.5
 
