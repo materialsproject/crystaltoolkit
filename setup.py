@@ -26,4 +26,5 @@ setup(
     license=package['license'],
     description=package['description'] if 'description' in package else package_name,
     install_requires=requirements('requirements.txt'),
+    python_requires='>=3.7',
 )
