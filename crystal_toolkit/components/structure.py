@@ -404,7 +404,7 @@ class StructureMoleculeComponent(MPComponent):
                 map(
                     str,
                     chain.from_iterable(
-                        [list(c.keys()) for c in struct_or_mol.species_and_occu]
+                        [list(c.keys()) for c in struct_or_mol.species]
                     ),
                 )
             )
@@ -864,7 +864,7 @@ class StructureMoleculeComponent(MPComponent):
             colors = []
             for site in struct_or_mol:
                 elements = [
-                    sp.as_dict()["element"] for sp, _ in site.species_and_occu.items()
+                    sp.as_dict()["element"] for sp, _ in site.species.items()
                 ]
                 colors.append(
                     [
@@ -1016,7 +1016,7 @@ class StructureMoleculeComponent(MPComponent):
         else:
             site_color = list(all_colors)[0]
 
-        for idx, (sp, occu) in enumerate(site.species_and_occu.items()):
+        for idx, (sp, occu) in enumerate(site.species.items()):
 
             if isinstance(sp, DummySpecie):
 
@@ -1142,7 +1142,7 @@ class StructureMoleculeComponent(MPComponent):
 
             site_radii = []
 
-            for comp_idx, (sp, occu) in enumerate(site.species_and_occu.items()):
+            for comp_idx, (sp, occu) in enumerate(site.species.items()):
 
                 radius = None
 
@@ -1301,7 +1301,7 @@ class StructureMoleculeComponent(MPComponent):
             if jimage != (0, 0, 0):
                 connected_sites = graph.get_connected_sites(idx, jimage=jimage)
                 site = PeriodicSite(
-                    site.species_and_occu,
+                    site.species,
                     np.add(site.frac_coords, jimage),
                     site.lattice,
                     properties=site.properties,
