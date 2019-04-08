@@ -21,6 +21,7 @@ class PhaseDiagramComponent(MPComponent):
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("struct")
+        self.create_store("chemsys")
         self.create_store("figure")
 
     # Default plot layouts for Binary (2), Ternary (3), Quaternary (4) phase diagrams
@@ -337,21 +338,23 @@ class PhaseDiagramComponent(MPComponent):
         @app.callback(
             Output(self.id(), "data"),
              [Input(self.id("mpid"),"modified_timestamp"),
-             Input(self.id("struct"),"modified_timestamp")],
+              Input(self.id("struct"),"modified_timestamp"),
+              Input(self.id("chemsys"), "modified_timestamp")],
             [State(self.id("mpid"), "data"),
-             State(self.id("struct"), "data")]
+             State(self.id("struct"), "data"),
+             State(self.id("chemsys"), "data")]
         )
-        def generate_pd(mp_time,struct_time, mpid, struct):
+        def generate_pd(mp_time,struct_time, chemsys_time, mpid, struct, chemsys):
 
-            if (struct_time is None) or (mp_time is None):
+            if (struct_time is None) or (mp_time is None) or (chemsys_time is None):
                 raise PreventUpdate
 
-            if struct_time > mp_time:
+            if struct_time > mp_time and struct_time > chemsys_time:
                 if struct is None:
                     raise PreventUpdate
                 chemsys = [str(elem) for elem in self.from_data(struct).composition.elements]
 
-            elif mp_time >= struct_time:
+            elif mp_time >= struct_time and mp_time >= chemsys_time:
                 if mpid is None:
                     raise PreventUpdate
                 mpid = mpid["mpid"]
