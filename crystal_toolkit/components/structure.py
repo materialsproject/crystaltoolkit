@@ -110,7 +110,6 @@ class StructureMoleculeComponent(MPComponent):
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
-        show_poly = True,
         **kwargs
     ):
 
@@ -138,8 +137,7 @@ class StructureMoleculeComponent(MPComponent):
             "radius_strategy": radius_strategy,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
-            "hide_incomplete_bonds": hide_incomplete_bonds,
-            "show_poly": show_poly
+            "hide_incomplete_bonds": hide_incomplete_bonds
         }
         self.create_store("display_options", initial_data=self.initial_display_options)
 
@@ -310,9 +308,6 @@ class StructureMoleculeComponent(MPComponent):
             )
             display_options.update(
                 {"hide_incomplete_bonds": "hide_incomplete_bonds" in draw_options}
-            )
-            display_options.update(
-                {"show_poly": "show_poly" in draw_options}
             )
             return self.to_data(display_options)
 
@@ -685,7 +680,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @property
     def standard_layout(self):
-        return html.Div(self.all_layouts["struct"], style={"width": "100%", "height": "50vh"})
+        return html.Div(self.all_layouts["struct"], style={"width": "100vw", "height": "100vh"})
 
     @staticmethod
     def _preprocess_input_to_graph(
@@ -981,7 +976,6 @@ class StructureMoleculeComponent(MPComponent):
         origin=(0, 0, 0),
         ellipsoid_site_prop=None,
         all_connected_sites_present=True,
-        show_poly=True,
         explicitly_calculate_polyhedra_hull=False,
     ):
         """
@@ -992,7 +986,6 @@ class StructureMoleculeComponent(MPComponent):
         :param ellipsoid_site_prop: (beta)
         :param all_connected_sites_present: if False, will not calculate
         polyhedra since this would be misleading
-        :param show_poly:
         :param explicitly_calculate_polyhedra_hull:
         :return:
         """
@@ -1087,7 +1080,7 @@ class StructureMoleculeComponent(MPComponent):
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
 
-            if len(connected_sites) > 3 and all_connected_sites_present and show_poly:
+            if len(connected_sites) > 3 and all_connected_sites_present:
                 if explicitly_calculate_polyhedra_hull:
 
                     try:
@@ -1268,8 +1261,7 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=True,
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
-        scene_additions = None,
-        show_poly = True,
+        scene_additions = None
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name=name)
@@ -1335,8 +1327,7 @@ class StructureMoleculeComponent(MPComponent):
                 all_connected_sites_present=all_connected_sites_present,
                 origin=origin,
                 ellipsoid_site_prop=ellipsoid_site_prop,
-                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
-                show_poly=show_poly,
+                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull
             )
             for k, v in site_primitives.items():
                 primitives[k] += v
