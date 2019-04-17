@@ -1,55 +1,125 @@
 """
 Link up the StructureMoleculeComponent objects to pythreejs
 Also includes some helper functions to draw addition ojects using pythreejs
+
+
+my_scene_json = {"name": "...", "contents": [
+{"type": "sphere", ...}
+]}
+
+def traverse_scene(object, parent):
+  for sub_object in object["contents"]:
+    if "type" in sub_object:
+      make_object(sub_object)
+    else:
+      new_parent = Object3D(name=sub_object["name"])
+      parent.append(new_parent)
+      traverse_scene(sub_object, new_parent)
+
+def make_object(object_json):
+
+  obj = Object3D(name=object_json["name"])
+
+  if object_json["type"] == "spheres":
+    ...
+  elif object_json["type"] == "cylinders":
+    ...
+
+
+  return obj
+
 """
 
-from pythreejs import *
-from pymatgen import MPRester
+from pythreejs import MeshLambertMaterial, Mesh, SphereBufferGeometry, CylinderBufferGeometry, Object3D, LineSegments2, LineSegmentsGeometry, LineMaterial, Scene, AmbientLight, PerspectiveCamera, Renderer, OrbitControls
 from crystal_toolkit.components.structure import StructureMoleculeComponent
-from crystal_toolkit.helpers.scene import *
+from IPython.display import display
 from scipy.spatial.transform import Rotation as R
+import numpy as np
 
-struct = MPRester().get_structure_by_material_id('mp-814')
-smc = StructureMoleculeComponent(struct, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+ball = Mesh(
+    geometry=SphereBufferGeometry(radius=1, widthSegments=32, heightSegments=16),
+    material=MeshLambertMaterial(color='red'),
+    position=[0, 1, 0])
 
+def traverse_scene_object(scene_data, parent=None):
+    """
+    Recursivesly populate a scene object with tree of children
+    :param scene_data:
+    :param parent:
+    :return:
+    """
+    for sub_object in scene_data["contents"]:
+        if "type" in sub_object.keys():
+            parent.add(convert_object_to_pythreejs(sub_object))
+        else:
+            new_parent = Object3D(name=sub_object["name"])
+            if parent is None:
+                parent = new_parent
+            else:
+                parent.add(new_parent)
+            traverse_scene_object(sub_object, parent)
+    return parent
 
-def show(smc):
-    atoms = list(
-        filter(lambda x: x['name'] == 'atoms',
-               smc.initial_scene_data['contents']))[0]['contents']
-    bonds = list(
-        filter(lambda x: x['name'] == 'bonds',
-               smc.initial_scene_data['contents']))[0]['contents']
-    ucell = list(
-        filter(lambda x: x['name'] == 'unit_cell',
-               smc.initial_scene_data['contents']))[0]['contents']
-    scene = []
-    for ia in atoms:
-        for ipos in ia['positions']:
-            ball = Mesh(
-                geometry=SphereGeometry(
-                    radius=ia['radius'], widthSegments=32, heightSegments=16),
-                material=MeshLambertMaterial(color=ia["color"]),
+def convert_object_to_pythreejs(object):
+    """
+    Cases for the conversion
+    :return:
+    """
+    obs = []
+    if object['type']=='spheres':
+        for ipos in object['positions']:
+            obj3d = Mesh(
+                geometry=SphereBufferGeometry(
+                    radius=object['radius'], widthSegments=32, heightSegments=16),
+                material=MeshLambertMaterial(color=object["color"]),
                 position=ipos)
-            scene.append(ball)
+            obs.append(obj3d)
+    elif object['type']=='cylinders':
+        for ipos in object['positionPairs']:
+            obj3d = _get_cylinder_from_vec(ipos[0], ipos[1], color=object['color'])
+            obs.append(obj3d)
+    elif object['type']=='lines':
+        for ipos, jpos in zip(object['positions'][::2], object['positions'][1::2]):
+            obj3d = _get_line_from_vec(ipos, jpos)
+            obs.append(obj3d)
+    return obs
 
-    for ib in bonds:
-        for ipos in ib['positionPairs']:
-            bond = get_cylinder_from_vec(ipos[0], ipos[1])
-            scene.append(bond)
-    for ib in bonds:
-        for ipos in ib['positionPairs']:
-            bond = get_cylinder_from_vec(ipos[0], ipos[1], color=ib['color'])
-            scene.append(bond)
-    for ib in ucell:
-        for ipos, jpos in zip(ib['positions'][::2], ib['positions'][1::2]):
-            bond = get_cylinder_from_vec(ipos, jpos, radius = 0.02, color='black')
-            last_pos=ipos
-            scene.append(bond)
-    return scene
+def get_scene(structure):
+    """
+    :param structure:
+    """
+
+    smc = StructureMoleculeComponent(structure, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+    obs = traverse_scene_object(smc.initial_scene_data)
+
+    scene = Scene(children=[
+        obs,
+        AmbientLight(color='#FFFFFF', intensity=0.75)
+    ])
+    c = PerspectiveCamera(position=[10, 10, 10])
+    renderer = Renderer(
+        camera=c,
+        background='black',
+        background_opacity=1,
+        scene=scene,
+        controls=[OrbitControls(controlling=c)],
+        width=400,
+        height=400)
+    display(renderer)
 
 
-def get_cylinder_from_vec(v0, v1, radius=0.15, color="#FFFFFF"):
+def _get_line_from_vec(v0, v1, radius=0.15, color="#FFFFFF"):
+    line = LineSegments2(LineSegmentsGeometry(
+        positions=[
+            [v0, v1],
+        ],
+    ), LineMaterial(linewidth=3, color='black'))
+    return line
+
+def _get_cube_from_pos(v0, **kwargs):
+    pass
+
+def _get_cylinder_from_vec(v0, v1, radius=0.15, color="#FFFFFF"):
     v0 = np.array(v0)
     v1 = np.array(v1)
     vec = v1 - v0
@@ -58,7 +128,6 @@ def get_cylinder_from_vec(v0, v1, radius=0.15, color="#FFFFFF"):
     rot_vec_len = np.linalg.norm(rot_vec)
     rot_vec = rot_vec / rot_vec_len
     rot_arg = np.arccos(np.dot([0, 1, 0], vec) / np.linalg.norm(vec))
-    rot = R.from_rotvec(rot_arg * rot_vec)
     new_bond = Mesh(
         geometry=CylinderBufferGeometry(
             radiusTop=radius,
