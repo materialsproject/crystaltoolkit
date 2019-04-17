@@ -1,33 +1,6 @@
 """
 Link up the StructureMoleculeComponent objects to pythreejs
-Also includes some helper functions to draw addition ojects using pythreejs
-
-
-my_scene_json = {"name": "...", "contents": [
-{"type": "sphere", ...}
-]}
-
-def traverse_scene(object, parent):
-  for sub_object in object["contents"]:
-    if "type" in sub_object:
-      make_object(sub_object)
-    else:
-      new_parent = Object3D(name=sub_object["name"])
-      parent.append(new_parent)
-      traverse_scene(sub_object, new_parent)
-
-def make_object(object_json):
-
-  obj = Object3D(name=object_json["name"])
-
-  if object_json["type"] == "spheres":
-    ...
-  elif object_json["type"] == "cylinders":
-    ...
-
-
-  return obj
-
+Also includes some helper functions for draw addition objects using pythreejs
 """
 
 from pythreejs import MeshLambertMaterial, Mesh, SphereBufferGeometry, CylinderBufferGeometry, Object3D, LineSegments2, LineSegmentsGeometry, LineMaterial, Scene, AmbientLight, PerspectiveCamera, Renderer, OrbitControls
@@ -89,7 +62,7 @@ def get_scene(structure):
     :param structure:
     """
 
-    smc = StructureMoleculeComponent(structure, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+    smc = StructureMoleculeComponent(structure, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=False)
     obs = traverse_scene_object(smc.initial_scene_data)
 
     scene = Scene(children=[
@@ -108,7 +81,7 @@ def get_scene(structure):
     display(renderer)
 
 
-def _get_line_from_vec(v0, v1, radius=0.15, color="#FFFFFF"):
+def _get_line_from_vec(v0, v1):
     line = LineSegments2(LineSegmentsGeometry(
         positions=[
             [v0, v1],
