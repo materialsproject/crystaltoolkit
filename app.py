@@ -26,9 +26,10 @@ from uuid import uuid4
 from urllib import parse
 from random import choice
 from ast import literal_eval
+from monty.serialization import loadfn
 
 # choose a default structure on load
-DEFAULT_MPIDS = ["mp-1111410"]
+DEFAULT_MPIDS = loadfn("task_ids_on_load.json")
 
 ################################################################################
 # region SET UP APP
@@ -43,13 +44,13 @@ meta_tags = [
     }
 ]
 
-app = dash.Dash(__name__, meta_tags=meta_tags)
-app.config["suppress_callback_exceptions"] = True
-app.title = "Crystal Toolkit"
-app.scripts.config.serve_locally = True
+crystal_toolkit_app = dash.Dash(__name__, meta_tags=meta_tags)
+crystal_toolkit_app.config["suppress_callback_exceptions"] = True
+crystal_toolkit_app.title = "Crystal Toolkit"
+crystal_toolkit_app.scripts.config.serve_locally = False
 
-app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
-server = app.server
+crystal_toolkit_app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
+server = crystal_toolkit_app.server
 
 
 DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "True").title())
@@ -65,18 +66,18 @@ ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").
 
 try:
     cache = Cache(
-        app.server,
+        crystal_toolkit_app.server,
         config={
             "CACHE_TYPE": "redis",
             "CACHE_REDIS_URL": os.environ.get("REDIS_URL", ""),
         },
     )
 except Exception as exception:
-    app.logger.error(
+    crystal_toolkit_app.logger.error(
         f"Failed to connect to Redis cache, falling back to "
         f"file system cache: {exception}"
     )
-    cache = Cache(app.server, config={"CACHE_TYPE": "filesystem"})
+    cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "filesystem"})
 
 # Enable for debug purposes:
 if DEBUG_MODE:
@@ -91,7 +92,7 @@ if DEBUG_MODE:
 # region SET UP LOGGING
 ################################################################################
 
-logger = logging.getLogger(app.title)
+logger = logging.getLogger(crystal_toolkit_app.title)
 
 # endregion
 
@@ -100,7 +101,7 @@ logger = logging.getLogger(app.title)
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
-ctc.register_app(app)
+ctc.register_app(crystal_toolkit_app)
 ctc.register_cache(cache)
 
 # app not ready for production yet (e.g. pending papers, further testing, etc.)
@@ -160,6 +161,10 @@ if DEBUG_MODE:
     body_layout = [
         # panel_description,
         # panel_choices,
+        html.Div(
+            # [favorites_component.button_layout],
+            style={"float": "right"}
+        ),
         html.Br(),
         H3("Transform"),
         html.Div([transformation_component.standard_layout]),
@@ -175,7 +180,17 @@ if DEBUG_MODE:
 
 else:
 
+    supercell = ctc.SupercellTransformationComponent()
+    grain_boundary = ctc.GrainBoundaryTransformationComponent()
+    oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
+    slab = ctc.SlabTransformationComponent()
+
+    transformation_component = ctc.AllTransformationsComponent(
+        transformations=[supercell, slab, grain_boundary, oxi_state]
+    )
+
     struct_component = ctc.StructureMoleculeComponent()
+    struct_component.attach_from(transformation_component, origin_store_name="out")
 
     # TODO: change to link to struct_or_mol ?
     download_component = ctc.DownloadComponent(origin_component=struct_component)
@@ -189,6 +204,7 @@ else:
     xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
     pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
     symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+    submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
 
     bonding_graph_component = ctc.BondingGraphComponent()
     bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
@@ -197,6 +213,7 @@ else:
         this_store_name="display_options",
         origin_store_name="display_options",
     )
+
 
     panels = [
         symmetry_component,
@@ -209,11 +226,17 @@ else:
 
     body_layout = [
         html.Br(),
+        H3("Transform"),
+        html.Div([transformation_component.standard_layout]),
+        html.Br(),
         H3("Analyze"),
-        html.Div([panel.panel_layout for panel in panels], id="panels")
+        html.Div([panel.panel_layout for panel in panels], id="panels"),
+        html.Br(),
+        H3("Export"),
+        html.Div([submit_snl_panel.panel_layout]),
     ]
 
-    STRUCT_VIEWER_SOURCE = struct_component.id()
+    STRUCT_VIEWER_SOURCE = transformation_component.id()
 
 
 banner = html.Div(id="banner")
@@ -279,19 +302,19 @@ if api_offline:
 footer = ctc.Footer(
     html.Div(
         [
-            # html.Iframe(
-            #    src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
-            #    style={
-            #        "frameborder": False,
-            #        "scrolling": False,
-            #        "width": "72px",
-            #        "height": "20px",
-            #    },
-            # ),
-            # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
+            html.Iframe(
+               src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
+               style={
+                   "frameborder": False,
+                   "scrolling": False,
+                   "width": "72px",
+                   "height": "20px",
+               },
+            ),
+            #html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
-                f"App created by [@mkhorton](mailto:mkhorton@lbl.gov) and [@mattmcdermott](https://github.com/mattmcdermott), "
-                f"bug reports and feature requests gratefully accepted.  \n"
+                f"App created by [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors).  \n"
+                f"Bug reports and feature requests gratefully accepted, please send them to [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
                 f"Powered by [The Materials Project](https://materialsproject.org), "
                 f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
                 f"[Dash by Plotly](https://plot.ly/products/dash/). "
@@ -343,7 +366,7 @@ master_layout = Container(
                             [
                                 struct_component.title_layout,
                                 html.Div(
-                                    # [favorites_component.button_layout],
+                                    #[favorites_component.button_layout],
                                     style={"float": "right"}
                                 ),
                             ]
@@ -422,12 +445,12 @@ master_layout = Container(
                 ),
             ]
         ),
-        # Section(search_component.api_hint_layout),
+        #Section(search_component.api_hint_layout),
         Section(footer),
     ]
 )
 
-app.layout = master_layout
+crystal_toolkit_app.layout = master_layout
 
 
 # endregion
@@ -500,7 +523,7 @@ if ENABLE_API:
 ################################################################################
 
 
-@app.callback(Output(search_component.id("input"), "value"), [Input("url", "href")])
+@crystal_toolkit_app.callback(Output(search_component.id("input"), "value"), [Input("url", "href")])
 def update_search_term_on_page_load(href):
     if href is None:
         raise PreventUpdate
@@ -513,7 +536,7 @@ def update_search_term_on_page_load(href):
         return pathname[1]
 
 
-@app.callback(
+@crystal_toolkit_app.callback(
     Output(search_component.id("input"), "n_submit"),
     [Input(search_component.id("input"), "value")],
     [State(search_component.id("input"), "n_submit")],
@@ -526,14 +549,14 @@ def perform_search_on_page_load(search_term, n_submit):
         raise PreventUpdate
 
 
-@app.callback(Output("url", "pathname"), [Input(search_component.id(), "data")])
+@crystal_toolkit_app.callback(Output("url", "pathname"), [Input(search_component.id(), "data")])
 def update_url_pathname_from_search_term(data):
     if data is None or "mpid" not in data:
         raise PreventUpdate
     return data["mpid"]
 
 
-@app.callback(
+@crystal_toolkit_app.callback(
     Output(STRUCT_VIEWER_SOURCE, "data"),
     [Input(search_component.id(), "data"), Input(upload_component.id(), "data")],
 )
@@ -560,8 +583,17 @@ def master_update_structure(search_mpid, upload_data):
 
         struct = MPComponent.from_data(upload_data["data"])
 
-    return MPComponent.to_data(struct.as_dict(verboisty=0))
+    return MPComponent.to_data(struct.as_dict())
 
+
+#@crystal_toolkit_app.callback(
+#    Output(struct_component.id(""), ""),
+#    [Input(transformation_component.id(""), "")],
+#    [State(struct_component.id(""), "")]
+#)
+#def change_input_structure(transformation, current_state):
+    # if transformation active and current state != input
+    #
 
 # endregion
 
@@ -637,4 +669,4 @@ def master_update_structure(search_mpid, upload_data):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=DEBUG_MODE, port=8050)
+    crystal_toolkit_app.run_server(debug=DEBUG_MODE, port=8050)
