@@ -19,6 +19,7 @@ from crystal_toolkit.components.download import DownloadComponent
 from crystal_toolkit.components.symmetry import SymmetryComponent
 from crystal_toolkit.components.upload import StructureMoleculeUploadComponent
 from crystal_toolkit.components.phase_diagram import PhaseDiagramComponent, PhaseDiagramPanelComponent
+from crystal_toolkit.components.xas import XASComponent, XASPanelComponent
 
 from crystal_toolkit.components.transformations.core import AllTransformationsComponent
 from crystal_toolkit.components.transformations.supercell import SupercellTransformationComponent

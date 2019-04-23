@@ -101,7 +101,7 @@ class PhaseDiagramComponent(MPComponent):
         legend=dict(orientation='h', traceorder='reversed', x=1.0, y=1.08, xanchor='right', tracegroupgap=5))
 
     default_table_params = [
-            "mpid","Formula", "Form. Energy (eV/atom)", "E Above Hull (eV/atom)", "Stable?"
+            "mpid","Formula" , "Form. Energy (eV/atom)", "E Above Hull (eV/atom)", "Stable?"
         ]
 
     def figure_layout(self, plotter, pd):
