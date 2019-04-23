@@ -165,7 +165,6 @@ For more information, see the Materials Project
 
             # check if structure already exists on MP
 
-
             with MPRester() as mpr:
                 mpids = mpr.find_structure(structure)
 

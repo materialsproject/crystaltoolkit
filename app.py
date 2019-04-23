@@ -365,12 +365,12 @@ master_layout = Container(
                             [
                                 struct_component.title_layout,
                                 html.Div(
-                                    [
-                                        html.A(
-                                            "Documentation",
-                                            href="https://docs.crystaltoolkit.org",
-                                        )
-                                    ],
+                                    #[
+                                    #    html.A(
+                                    #        "Documentation",
+                                    #        href="https://docs.crystaltoolkit.org",
+                                    #    )
+                                    #],
                                     # [favorites_component.button_layout],
                                     style={"float": "right"},
                                 ),
