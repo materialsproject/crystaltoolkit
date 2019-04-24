@@ -15,7 +15,7 @@ from crystal_toolkit.components.magnetism import MagnetismComponent
 from crystal_toolkit.components.bonding_graph import BondingGraphComponent
 from crystal_toolkit.components.magnetism import MagnetismComponent
 from crystal_toolkit.components.xrd import XRayDiffractionComponent, XRayDiffractionPanelComponent
-from crystal_toolkit.components.download import DownloadComponent
+from crystal_toolkit.components.download import DownloadPanelComponent
 from crystal_toolkit.components.submit_snl import SubmitSNLPanel
 from crystal_toolkit.components.symmetry import SymmetryComponent
 from crystal_toolkit.components.upload import StructureMoleculeUploadComponent
