@@ -37,7 +37,7 @@ pos = [vert for triangle in vertices[faces].tolist() for vert in triangle]
 
 add_comp = [ctc.Scene("test", contents=[
     ctc.Surface(positions=pos),
-    ctc.Cylinders(positionPairs=[[[0,0,0], [1,1,1]]]),
+    ctc.Arrows(positionPairs=[[[0,0,0], [1,1,1]]]),
 ])]
 
 struct_component = ctc.StructureMoleculeComponent(
