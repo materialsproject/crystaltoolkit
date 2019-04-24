@@ -69,6 +69,8 @@ class SubmitSNLPanel(PanelComponent):
         super()._generate_callbacks(app, cache)
 
         def parse_token(url):
+            if not url:
+                return None
             if url.startswith("?"):
                 url = url[1:]
             token = dict(parse.parse_qsl(url)).get('token')
