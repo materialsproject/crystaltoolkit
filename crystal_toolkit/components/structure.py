@@ -111,6 +111,7 @@ class StructureMoleculeComponent(MPComponent):
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
+        show_compass = False,
         **kwargs
     ):
 
@@ -138,7 +139,8 @@ class StructureMoleculeComponent(MPComponent):
             "radius_strategy": radius_strategy,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
-            "hide_incomplete_bonds": hide_incomplete_bonds
+            "hide_incomplete_bonds": hide_incomplete_bonds,
+            "show_compass": show_compass,
         }
         self.create_store("display_options", initial_data=self.initial_display_options)
 
