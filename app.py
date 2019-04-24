@@ -113,9 +113,10 @@ if DEBUG_MODE:
     grain_boundary = ctc.GrainBoundaryTransformationComponent()
     oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
     slab = ctc.SlabTransformationComponent()
+    substitution = ctc.SubstitutionTransformationComponent()
 
     transformation_component = ctc.AllTransformationsComponent(
-        transformations=[supercell, slab, grain_boundary, oxi_state]
+        transformations=[supercell, slab, grain_boundary, oxi_state, substitution]
     )
 
     json_editor_component = ctc.JSONEditor()
@@ -125,7 +126,7 @@ if DEBUG_MODE:
     struct_component.attach_from(json_editor_component, origin_store_name="out")
 
     # TODO: change to link to struct_or_mol ?
-    download_component = ctc.DownloadComponent(origin_component=struct_component)
+    download_component = ctc.DownloadPanelComponent(origin_component=struct_component)
 
     search_component = ctc.SearchComponent()
     upload_component = ctc.StructureMoleculeUploadComponent()
@@ -184,16 +185,17 @@ else:
     grain_boundary = ctc.GrainBoundaryTransformationComponent()
     oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
     slab = ctc.SlabTransformationComponent()
+    substitution = ctc.SubstitutionTransformationComponent()
 
     transformation_component = ctc.AllTransformationsComponent(
-        transformations=[supercell, slab, grain_boundary, oxi_state]
+        transformations=[supercell, slab, grain_boundary, oxi_state, substitution]
     )
 
     struct_component = ctc.StructureMoleculeComponent()
     struct_component.attach_from(transformation_component, origin_store_name="out")
 
     # TODO: change to link to struct_or_mol ?
-    download_component = ctc.DownloadComponent(origin_component=struct_component)
+    download_component = ctc.DownloadPanelComponent(origin_component=struct_component)
 
     search_component = ctc.SearchComponent()
     upload_component = ctc.StructureMoleculeUploadComponent()
@@ -221,6 +223,7 @@ else:
         pd_component,
         magnetism_component,
         literature_component,
+        robocrys_component
     ]
 
     body_layout = [
@@ -232,7 +235,8 @@ else:
         html.Div([panel.panel_layout for panel in panels], id="panels"),
         html.Br(),
         H3("Export"),
-        html.Div([submit_snl_panel.panel_layout]),
+        html.Div([submit_snl_panel.panel_layout,
+                  download_component.panel_layout]),
     ]
 
     STRUCT_VIEWER_SOURCE = transformation_component.id()
@@ -301,15 +305,15 @@ if api_offline:
 footer = ctc.Footer(
     html.Div(
         [
-            html.Iframe(
-                src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
-                style={
-                    "frameborder": False,
-                    "scrolling": False,
-                    "width": "72px",
-                    "height": "20px",
-                },
-            ),
+            #html.Iframe(
+            #    src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
+            #    style={
+            #        "frameborder": False,
+            #        "scrolling": False,#
+            #        "width": "72px",
+            #        "height": "20px",
+            #    },
+            #),
             # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
                 f"App created by [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors).  \n"
