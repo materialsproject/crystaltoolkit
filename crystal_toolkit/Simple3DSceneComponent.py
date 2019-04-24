@@ -17,16 +17,13 @@ Keyword arguments:
 - settings (dict; optional): Options used for generating scene
 - toggleVisibility (dict; optional): Hide/show nodes in scene by name (key), value is 1 to show the node
 and 0 to hide it
-- downloadRequest (dict; optional): Increment to trigger a screenshot or scene download.
-
-Available events: """
+- downloadRequest (dict; optional): Increment to trigger a screenshot or scene download."""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, data=Component.UNDEFINED, settings=Component.UNDEFINED, toggleVisibility=Component.UNDEFINED, downloadRequest=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'data', 'settings', 'toggleVisibility', 'downloadRequest']
         self._type = 'Simple3DSceneComponent'
         self._namespace = 'crystal_toolkit'
         self._valid_wildcard_attributes =            []
-        self.available_events = []
         self.available_properties = ['id', 'data', 'settings', 'toggleVisibility', 'downloadRequest']
         self.available_wildcard_properties =            []
 
@@ -40,26 +37,3 @@ Available events: """
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
         super(Simple3DSceneComponent, self).__init__(**args)
-
-    def __repr__(self):
-        if(any(getattr(self, c, None) is not None
-               for c in self._prop_names
-               if c is not self._prop_names[0])
-           or any(getattr(self, c, None) is not None
-                  for c in self.__dict__.keys()
-                  if any(c.startswith(wc_attr)
-                  for wc_attr in self._valid_wildcard_attributes))):
-            props_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self._prop_names
-                                      if getattr(self, c, None) is not None])
-            wilds_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self.__dict__.keys()
-                                      if any([c.startswith(wc_attr)
-                                      for wc_attr in
-                                      self._valid_wildcard_attributes])])
-            return ('Simple3DSceneComponent(' + props_string +
-                   (', ' + wilds_string if wilds_string != '' else '') + ')')
-        else:
-            return (
-                'Simple3DSceneComponent(' +
-                repr(getattr(self, self._prop_names[0], None)) + ')')

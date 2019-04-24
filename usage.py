@@ -13,7 +13,7 @@ app.title = "Crystal Toolkit Example Components"
 
 
 # so that Crystal Toolkit can create callbacks
-ctc.register_app(app)
+# ctc.register_app(app)
 
 # StructureMoleculeComponent
 
