@@ -377,7 +377,7 @@ export default class Simple3DScene {
 
         const mesh = new THREE.Mesh(geom, mat);
         obj.add(mesh);
-
+        //TODO smooth the surfaces?
         return obj;
       }
       case "convex": {
@@ -399,6 +399,39 @@ export default class Simple3DScene {
       }
       case "arrows": {
         // take inspiration from ArrowHelper, user cones and cylinders
+        const radius = object_json.radius || 1;
+        const radius = object_json.cone_height || 2;
+        const radius = object_json.cone_width || 1;
+
+        const geom = new THREE.CylinderBufferGeometry(
+          radius * this.settings.cylinderScale,
+          radius * this.settings.cylinderScale,
+          1.0,
+          this.settings.cylinderSegments
+        );
+        const mat = this.makeMaterial(object_json.color);
+
+        const vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
+        const quaternion = new THREE.Quaternion();
+
+        object_json.positionPairs.forEach(function(positionPair) {
+          // the following is technically correct but could be optimized?
+
+          const mesh = new THREE.Mesh(geom, mat);
+          const vec_a = new THREE.Vector3(...positionPair[0]);
+          const vec_b = new THREE.Vector3(...positionPair[1]);
+          const vec_rel = vec_b.sub(vec_a);
+
+          // scale cylinder to correct length
+          mesh.scale.y = vec_rel.length();
+
+          // set origin at midpoint of cylinder
+          const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5));
+          mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z);
+
+          // rotate cylinder into correct orientation
+          quaternion.setFromUnitVectors(vec_y, vec_rel.normalize());
+          mesh.setRotationFromQuaternion(quaternion);
         return obj;
       }
       case "labels": {
