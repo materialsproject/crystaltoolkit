@@ -291,8 +291,8 @@ class Convex:
 @dataclass
 class Arrows:
     """
-    Create a set of cylinders. All cylinders will have the same color and
-    radius.
+    Create a set of arrows. All arrows will have the same color radius and
+    head shape.
     :param positionPairs: This is a list of pairs of lists corresponding to the
     start and end position of the cylinder.
     :param color: Cylinder color as a hexadecimal string, e.g. #ff0000

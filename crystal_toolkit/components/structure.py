@@ -42,6 +42,7 @@ from crystal_toolkit.helpers.scene import (
     Surface,
     Convex,
     Cubes,
+    Arrows,
 )
 
 import numpy as np
@@ -964,6 +965,38 @@ class StructureMoleculeComponent(MPComponent):
         return Lines(line_pairs, **kwargs)
 
     @staticmethod
+    def _compass_from_lattice(lattice, origin=(0, 0, 0), scale=0.7, offset=0.15, **kwargs):
+        """
+        Get the display components of the compass
+        :param lattice: the pymatgen Lattice object that contains the primitive lattice vectors
+        :param origin: the reference position to place the compass
+        :param scale: scale all the geometric objects that makes up the compass the lattice vectors are normalized before the scaling so everything should be the same size
+        :param offset: shift the compass from the origin by a ratio of the diagonal of the cell relative the size 
+        :return: list of cystal_toolkit.helper.scene objects that makes up the compass
+        """
+        o = -np.array(origin)
+        o = o - offset * ( lattice.matrix[0]+ lattice.matrix[1]+ lattice.matrix[2] )
+        a = lattice.matrix[0]/np.linalg.norm(lattice.matrix[0]) * scale
+        b = lattice.matrix[1]/np.linalg.norm(lattice.matrix[1]) * scale
+        c = lattice.matrix[2]/np.linalg.norm(lattice.matrix[2]) * scale
+        a_arrow = [[o, o+a]]
+        b_arrow = [[o, o+b]]
+        c_arrow = [[o, o+c]]
+
+        o_sphere = Spheres(
+            positions=[o],
+            color="black",
+            radius=0.1 * scale,
+        )
+
+        return [
+            Arrows(a_arrow, color='red', radius = 0.7*scale, headLength=2.3*scale, headWidth=1.4*scale,**kwargs),
+            Arrows(b_arrow, color='blue', radius = 0.7*scale, headLength=2.3*scale, headWidth=1.4*scale,**kwargs),
+            Arrows(c_arrow, color='green', radius = 0.7*scale, headLength=2.3*scale, headWidth=1.4*scale,**kwargs),
+                o_sphere,
+        ]
+
+    @staticmethod
     def _get_ellipsoids_from_matrix(matrix):
         raise NotImplementedError
         # matrix = np.array(matrix)
@@ -1261,7 +1294,8 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=True,
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
-        scene_additions = None
+        scene_additions = None,
+        show_compass = True,
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name=name)
@@ -1348,6 +1382,12 @@ class StructureMoleculeComponent(MPComponent):
                     struct_or_mol.lattice, origin=origin
                 )
             )
+            if show_compass:
+                primitives["compass"].extend(
+                StructureMoleculeComponent._compass_from_lattice(
+                    struct_or_mol.lattice, origin=origin
+                    )
+                )
 
         sub_scenes = [Scene(name=k, contents=v) for k, v in primitives.items()]
         scene.contents = sub_scenes
