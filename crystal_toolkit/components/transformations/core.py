@@ -10,8 +10,7 @@ from dash.exceptions import PreventUpdate
 from crystal_toolkit.components import (
     PanelComponent,
     MPComponent,
-    StructureMoleculeComponent,
-    DownloadComponent,
+    StructureMoleculeComponent
 )
 from crystal_toolkit.helpers.layouts import *
 
