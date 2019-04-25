@@ -49,7 +49,9 @@ crystal_toolkit_app.config["suppress_callback_exceptions"] = True
 crystal_toolkit_app.title = "Crystal Toolkit"
 crystal_toolkit_app.scripts.config.serve_locally = False
 
-crystal_toolkit_app.server.secret_key = str(uuid4())  # TODO: will need to change this one day
+crystal_toolkit_app.server.secret_key = str(
+    uuid4()
+)  # TODO: will need to change this one day
 server = crystal_toolkit_app.server
 
 
@@ -214,7 +216,6 @@ else:
         origin_store_name="display_options",
     )
 
-
     panels = [
         symmetry_component,
         bonding_graph_component,
@@ -303,15 +304,15 @@ footer = ctc.Footer(
     html.Div(
         [
             html.Iframe(
-               src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
-               style={
-                   "frameborder": False,
-                   "scrolling": False,
-                   "width": "72px",
-                   "height": "20px",
-               },
+                src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
+                style={
+                    "frameborder": False,
+                    "scrolling": False,
+                    "width": "72px",
+                    "height": "20px",
+                },
             ),
-            #html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
+            # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
                 f"App created by [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors).  \n"
                 f"Bug reports and feature requests gratefully accepted, please send them to [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
@@ -319,7 +320,7 @@ footer = ctc.Footer(
                 f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
                 f"[Dash by Plotly](https://plot.ly/products/dash/). "
                 f"Deployed on [Spin](http://www.nersc.gov/users/data-analytics/spin/)."
-            )
+            ),
         ],
         className="content has-text-centered",
     ),
@@ -366,8 +367,14 @@ master_layout = Container(
                             [
                                 struct_component.title_layout,
                                 html.Div(
-                                    #[favorites_component.button_layout],
-                                    style={"float": "right"}
+                                    #[
+                                    #    html.A(
+                                    #        "Documentation",
+                                    #        href="https://docs.crystaltoolkit.org",
+                                    #    )
+                                    #],
+                                    # [favorites_component.button_layout],
+                                    style={"float": "right"},
                                 ),
                             ]
                         )
@@ -436,16 +443,10 @@ master_layout = Container(
                     desktop_only=False,
                     centered=False,
                 ),
-                Columns(
-                    [
-                        Column(
-                            body_layout
-                        )
-                    ]
-                ),
+                Columns([Column(body_layout)]),
             ]
         ),
-        #Section(search_component.api_hint_layout),
+        # Section(search_component.api_hint_layout),
         Section(footer),
     ]
 )
@@ -523,7 +524,9 @@ if ENABLE_API:
 ################################################################################
 
 
-@crystal_toolkit_app.callback(Output(search_component.id("input"), "value"), [Input("url", "href")])
+@crystal_toolkit_app.callback(
+    Output(search_component.id("input"), "value"), [Input("url", "href")]
+)
 def update_search_term_on_page_load(href):
     if href is None:
         raise PreventUpdate
@@ -549,7 +552,9 @@ def perform_search_on_page_load(search_term, n_submit):
         raise PreventUpdate
 
 
-@crystal_toolkit_app.callback(Output("url", "pathname"), [Input(search_component.id(), "data")])
+@crystal_toolkit_app.callback(
+    Output("url", "pathname"), [Input(search_component.id(), "data")]
+)
 def update_url_pathname_from_search_term(data):
     if data is None or "mpid" not in data:
         raise PreventUpdate
@@ -586,14 +591,14 @@ def master_update_structure(search_mpid, upload_data):
     return MPComponent.to_data(struct.as_dict())
 
 
-#@crystal_toolkit_app.callback(
+# @crystal_toolkit_app.callback(
 #    Output(struct_component.id(""), ""),
 #    [Input(transformation_component.id(""), "")],
 #    [State(struct_component.id(""), "")]
-#)
-#def change_input_structure(transformation, current_state):
-    # if transformation active and current state != input
-    #
+# )
+# def change_input_structure(transformation, current_state):
+# if transformation active and current state != input
+#
 
 # endregion
 
