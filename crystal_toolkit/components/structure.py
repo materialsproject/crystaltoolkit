@@ -48,7 +48,14 @@ import numpy as np
 
 from scipy.spatial import Delaunay
 
-# TODO make dangling bonds "stubs"
+# TODO: make dangling bonds "stubs"? (fixed length)
+
+EL_COLORS["VESTA"]["bcp"] = [0, 0, 255]
+EL_COLORS["VESTA"]["rcp"] = [255, 0, 0]
+EL_COLORS["VESTA"]["ccp"] = [255, 255, 0]
+EL_COLORS["Jmol"]["bcp"] = [0, 0, 255]
+EL_COLORS["Jmol"]["rcp"] = [255, 0, 0]
+EL_COLORS["Jmol"]["ccp"] = [255, 255, 0]
 
 
 class StructureMoleculeComponent(MPComponent):
@@ -110,7 +117,7 @@ class StructureMoleculeComponent(MPComponent):
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
-        **kwargs
+        **kwargs,
     ):
 
         super().__init__(
@@ -137,16 +144,19 @@ class StructureMoleculeComponent(MPComponent):
             "radius_strategy": radius_strategy,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
-            "hide_incomplete_bonds": hide_incomplete_bonds
+            "hide_incomplete_bonds": hide_incomplete_bonds,
         }
         self.create_store("display_options", initial_data=self.initial_display_options)
 
         if scene_additions:
-            self.initial_scene_additions = Scene(name="scene_additions",
-                                                 contents=scene_additions)
+            self.initial_scene_additions = Scene(
+                name="scene_additions", contents=scene_additions
+            )
         else:
             self.initial_scene_additions = Scene(name="scene_additions")
-        self.create_store("scene_additions", initial_data=self.initial_scene_additions.to_json())
+        self.create_store(
+            "scene_additions", initial_data=self.initial_scene_additions.to_json()
+        )
 
         if struct_or_mol:
             # graph is cached explicitly, this isn't necessary but is an
@@ -158,15 +168,20 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
             scene, legend = self.get_scene_and_legend(
-                graph, name=self.id(), scene_additions=self.initial_scene_additions,
-                **self.initial_display_options
+                graph,
+                name=self.id(),
+                scene_additions=self.initial_scene_additions,
+                **self.initial_display_options,
             )
         else:
             # component could be initialized without a structure, in which case
             # an empty scene should be displayed
             graph = None
             scene, legend = self.get_scene_and_legend(
-                None, name=self.id(), scene_additions=self.initial_scene_additions, **self.initial_display_options
+                None,
+                name=self.id(),
+                scene_additions=self.initial_scene_additions,
+                **self.initial_display_options,
             )
 
         self.initial_legend = legend
@@ -179,15 +194,14 @@ class StructureMoleculeComponent(MPComponent):
 
     def _generate_callbacks(self, app, cache):
 
-        #@app.callback(
+        # @app.callback(
         #    Output(self.id("hide-show"), "options"),
         #    [Input(self.id("scene"), "data")]
-        #)
-        #def update_hide_show_options(scene_data):
+        # )
+        # def update_hide_show_options(scene_data):
         #   # TODO: CHGCAR
         #    print(scene_data)
         #    raise PreventUpdate
-
 
         @app.callback(
             Output(self.id("graph"), "data"),
@@ -216,6 +230,8 @@ class StructureMoleculeComponent(MPComponent):
                     elif unit_cell_choice == "conventional":
                         sga = SpacegroupAnalyzer(struct_or_mol)
                         struct_or_mol = sga.get_conventional_standard_structure()
+                    elif unit_cell_choice == "reduced":
+                        struct_or_mol = struct_or_mol.get_reduced_structure()
                 if repeats != 1:
                     struct_or_mol = struct_or_mol * (repeats, repeats, repeats)
 
@@ -233,7 +249,7 @@ class StructureMoleculeComponent(MPComponent):
             Output(self.id("scene"), "data"),
             [
                 Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data")
+                Input(self.id("display_options"), "data"),
             ],
         )
         def update_scene(graph, display_options):
@@ -363,14 +379,10 @@ class StructureMoleculeComponent(MPComponent):
             return self._make_legend(legend)
 
         @app.callback(
-            Output(
-                self.id("graph_generation_options"), "data"
-            ),
+            Output(self.id("graph_generation_options"), "data"),
             [
                 Input(self.id("bonding_algorithm"), "value"),
-                Input(
-                    self.id("bonding_algorithm_custom_cutoffs"), "data"
-                ),
+                Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
             ],
         )
         def update_structure_viewer_data(bonding_algorithm, custom_cutoffs_rows):
@@ -386,13 +398,15 @@ class StructureMoleculeComponent(MPComponent):
                     (row["A"], row["B"], float(row["A—B"]))
                     for row in custom_cutoffs_rows
                 ]
-                graph_generation_options["bonding_strategy_kwargs"] = {"cut_off_dict": custom_cutoffs}
+                graph_generation_options["bonding_strategy_kwargs"] = {
+                    "cut_off_dict": custom_cutoffs
+                }
             return self.to_data(graph_generation_options)
 
         @app.callback(
             Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
             [Input(self.id("bonding_algorithm"), "value")],
-            [State(self.id("graph"), "data")]
+            [State(self.id("graph"), "data")],
         )
         def update_custom_bond_options(option, graph):
             if not graph:
@@ -415,10 +429,7 @@ class StructureMoleculeComponent(MPComponent):
             return rows
 
         @app.callback(
-            Output(
-                self.id("bonding_algorithm_custom_cutoffs_container"),
-                "style",
-            ),
+            Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
             [Input(self.id("bonding_algorithm"), "value")],
         )
         def show_hide_custom_bond_options(bonding_algorithm):
@@ -441,7 +452,12 @@ class StructureMoleculeComponent(MPComponent):
                 font_color = "#ffffff"
             return font_color
 
-        formula = Composition.from_dict(legend["composition"]).reduced_formula
+        try:
+            formula = Composition.from_dict(legend["composition"]).reduced_formula
+        except:
+            # TODO: fix for Dummy Specie compositions
+            formula = "Unknown"
+
         legend_colors = OrderedDict(
             sorted(list(legend["colors"].items()), key=lambda x: formula.find(x[1]))
         )
@@ -470,15 +486,18 @@ class StructureMoleculeComponent(MPComponent):
 
         composition = legend["composition"]
         if isinstance(composition, dict):
-            composition = Composition.from_dict(composition)
 
-        formula = composition.reduced_formula
-        formula_parts = re.findall(r"[^\d_]+|\d+", formula)
-
-        formula_components = [
-            html.Sub(part) if part.isnumeric() else html.Span(part)
-            for part in formula_parts
-        ]
+            # TODO: make Composition handle DummySpecie
+            try:
+                composition = Composition.from_dict(composition)
+                formula = composition.reduced_formula
+                formula_parts = re.findall(r"[^\d_]+|\d+", formula)
+                formula_components = [
+                    html.Sub(part) if part.isnumeric() else html.Span(part)
+                    for part in formula_parts
+                ]
+            except:
+                formula_components = list(composition.keys())
 
         return H1(
             formula_components, id=self.id("title"), style={"display": "inline-block"}
@@ -541,9 +560,11 @@ class StructureMoleculeComponent(MPComponent):
             [
                 html.Br(),
                 dt.DataTable(
-                    columns=[{"name": "A", "id": "A"},
-                             {"name": "B", "id": "B"},
-                             {"name": "A—B /Å", "id": "A—B"}],
+                    columns=[
+                        {"name": "A", "id": "A"},
+                        {"name": "B", "id": "B"},
+                        {"name": "A—B /Å", "id": "A—B"},
+                    ],
                     editable=True,
                     id=self.id("bonding_algorithm_custom_cutoffs"),
                 ),
@@ -563,8 +584,10 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Input cell", "value": "input"},
                             {"label": "Primitive cell", "value": "primitive"},
                             {"label": "Conventional cell", "value": "conventional"},
+                            {"label": "Reduced cell",
+                             "value": "reduced"},
                         ],
-                        value="conventional",
+                        value="input",
                         id=self.id("unit-cell-choice"),
                         labelStyle={"display": "block"},
                         inputClassName="mpc-radio",
@@ -591,10 +614,13 @@ class StructureMoleculeComponent(MPComponent):
                     ],
                     style={"display": "none"},  # hidden for now, bug(!)
                 ),
-                html.Div([
-                html.Label("Change bonding algorithm: ", className="mpc-label"),
-                bonding_algorithm,
-                bonding_algorithm_custom_cutoffs]),
+                html.Div(
+                    [
+                        html.Label("Change bonding algorithm: ", className="mpc-label"),
+                        bonding_algorithm,
+                        bonding_algorithm_custom_cutoffs,
+                    ]
+                ),
                 html.Label("Change color scheme:", className="mpc-label"),
                 html.Div(
                     dcc.Dropdown(
@@ -639,8 +665,8 @@ class StructureMoleculeComponent(MPComponent):
                                 },
                                 {
                                     "label": "Hide bonds where destination atoms are not shown",
-                                    "value": "hide_incomplete_bonds"
-                                }
+                                    "value": "hide_incomplete_bonds",
+                                },
                             ],
                             values=["draw_image_atoms"],
                             labelStyle={"display": "block"},
@@ -680,7 +706,9 @@ class StructureMoleculeComponent(MPComponent):
 
     @property
     def standard_layout(self):
-        return html.Div(self.all_layouts["struct"], style={"width": "100vw", "height": "100vh"})
+        return html.Div(
+            self.all_layouts["struct"], style={"width": "100vw", "height": "100vh"}
+        )
 
     @staticmethod
     def _preprocess_input_to_graph(
@@ -861,25 +889,46 @@ class StructureMoleculeComponent(MPComponent):
 
         if color_scheme in ("VESTA", "Jmol"):
 
+            #  TODO: define fallback color as global variable
+            # TODO: maybe fallback categorical based on letter, for DummySpecie?
+
             colors = []
             for site in struct_or_mol:
-                elements = [
-                    sp.as_dict()["element"] for sp, _ in site.species.items()
-                ]
+                elements = [sp.as_dict()["element"] for sp, _ in site.species.items()]
                 colors.append(
                     [
-                        get_color_hex(EL_COLORS[color_scheme][element])
+                        get_color_hex(EL_COLORS[color_scheme].get(element, [0, 0, 0]))
                         for element in elements
                     ]
                 )
                 # construct legend
                 for element in elements:
-                    color = get_color_hex(EL_COLORS[color_scheme][element])
+                    color = get_color_hex(
+                        EL_COLORS[color_scheme].get(element, [0, 0, 0])
+                    )
                     label = unicodeify_species(site.species_string)
                     if color in legend["colors"] and legend["colors"][color] != label:
-                        legend["colors"][color] = f"{element}ˣ"  # TODO: mixed valence, improve this
+                        legend["colors"][
+                            color
+                        ] = f"{element}ˣ"  # TODO: mixed valence, improve this
                     else:
                         legend["colors"][color] = label
+
+        # elif color_scheme == "colorblind_friendly":
+
+        # colors = [......]
+        # present_specie = sorted(struct_or_mol.types_of_specie)
+        # if len(struct_or_mol.types_of_specie) > len(colors):
+        #    logger.warn("Too many distinct types of site to use a color-blind friendly color scheme.")
+        #    colors.append([DEFAULT_COLOR]*(len(struct_or_mol.types_of_specie)-len(colors))
+        # # test for disordered structures too!
+        # # try to prefer certain colors of certain elements for historical consistency
+        # preferred_colors = {"O": 1}  # idx of colors
+        # for el, idx in preferred_colors.items():
+        #   if el in present_specie:
+        #       want (idx of el in present_specie) to match idx
+        #       colors.swap(idx to present_specie_idx)
+        # color_scheme = {el:colors[idx] for idx, el in enumerate(sorted(struct_or_mol.types_of_specie))}
 
         elif color_scheme in site_prop_types.get("scalar", []):
 
@@ -1020,7 +1069,11 @@ class StructureMoleculeComponent(MPComponent):
 
             if isinstance(sp, DummySpecie):
 
-                cube = Cubes(positions=[position])
+                cube = Cubes(
+                    positions=[position],
+                    color=site.properties["display_color"][idx],
+                    width=0.4,
+                )
                 atoms.append(cube)
 
             else:
@@ -1054,14 +1107,14 @@ class StructureMoleculeComponent(MPComponent):
                 )
                 atoms.append(sphere)
 
-        if not is_ordered and not np.isclose(phiEnd, np.pi*2):
+        if not is_ordered and not np.isclose(phiEnd, np.pi * 2):
             # if site occupancy doesn't sum to 100%, cap sphere
             sphere = Spheres(
                 positions=[position],
                 color="#ffffff",
                 radius=site.properties["display_radius"][0],
                 phiStart=phiEnd,
-                phiEnd=np.pi*2,
+                phiEnd=np.pi * 2,
                 ellipsoids=ellipsoids,
             )
             atoms.append(sphere)
@@ -1247,7 +1300,11 @@ class StructureMoleculeComponent(MPComponent):
                         )
             sites_to_draw += sites_to_append
 
-        return sites_to_draw
+        # remove any duplicate sites
+        # (can happen when enabling bonded_sites_outside_unit_cell,
+        #  since this works by following bonds, and a single site outside the
+        #  unit cell can be bonded to multiple atoms within it)
+        return set(sites_to_draw)
 
     @staticmethod
     def get_scene_and_legend(
@@ -1261,7 +1318,7 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=True,
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
-        scene_additions = None
+        scene_additions=None,
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name=name)
@@ -1327,7 +1384,7 @@ class StructureMoleculeComponent(MPComponent):
                 all_connected_sites_present=all_connected_sites_present,
                 origin=origin,
                 ellipsoid_site_prop=ellipsoid_site_prop,
-                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull
+                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             )
             for k, v in site_primitives.items():
                 primitives[k] += v
