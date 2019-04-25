@@ -24,16 +24,13 @@ Keyword arguments:
 - displayDataTypes (boolean; optional)
 - defaultValue (dict; optional)
 - sortKeys (boolean; optional)
-- validationMessage (string; optional)
-
-Available events: """
+- validationMessage (string; optional)"""
     @_explicitize_args
     def __init__(self, id=Component.UNDEFINED, src=Component.UNDEFINED, name=Component.UNDEFINED, theme=Component.UNDEFINED, style=Component.UNDEFINED, iconStyle=Component.UNDEFINED, identWidth=Component.UNDEFINED, collapsed=Component.UNDEFINED, collapseStringsAfterLength=Component.UNDEFINED, groupArraysAfterLength=Component.UNDEFINED, enableClipboard=Component.UNDEFINED, displayObjectSize=Component.UNDEFINED, displayDataTypes=Component.UNDEFINED, defaultValue=Component.UNDEFINED, sortKeys=Component.UNDEFINED, validationMessage=Component.UNDEFINED, **kwargs):
         self._prop_names = ['id', 'src', 'name', 'theme', 'style', 'iconStyle', 'identWidth', 'collapsed', 'collapseStringsAfterLength', 'groupArraysAfterLength', 'enableClipboard', 'displayObjectSize', 'displayDataTypes', 'defaultValue', 'sortKeys', 'validationMessage']
         self._type = 'JSONViewComponent'
         self._namespace = 'crystal_toolkit'
         self._valid_wildcard_attributes =            []
-        self.available_events = []
         self.available_properties = ['id', 'src', 'name', 'theme', 'style', 'iconStyle', 'identWidth', 'collapsed', 'collapseStringsAfterLength', 'groupArraysAfterLength', 'enableClipboard', 'displayObjectSize', 'displayDataTypes', 'defaultValue', 'sortKeys', 'validationMessage']
         self.available_wildcard_properties =            []
 
@@ -47,26 +44,3 @@ Available events: """
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
         super(JSONViewComponent, self).__init__(**args)
-
-    def __repr__(self):
-        if(any(getattr(self, c, None) is not None
-               for c in self._prop_names
-               if c is not self._prop_names[0])
-           or any(getattr(self, c, None) is not None
-                  for c in self.__dict__.keys()
-                  if any(c.startswith(wc_attr)
-                  for wc_attr in self._valid_wildcard_attributes))):
-            props_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self._prop_names
-                                      if getattr(self, c, None) is not None])
-            wilds_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self.__dict__.keys()
-                                      if any([c.startswith(wc_attr)
-                                      for wc_attr in
-                                      self._valid_wildcard_attributes])])
-            return ('JSONViewComponent(' + props_string +
-                   (', ' + wilds_string if wilds_string != '' else '') + ')')
-        else:
-            return (
-                'JSONViewComponent(' +
-                repr(getattr(self, self._prop_names[0], None)) + ')')

@@ -5,6 +5,8 @@ export default class Simple3DScene {
     this.start = this.start.bind(this);
     this.stop = this.stop.bind(this);
     this.animate = this.animate.bind(this);
+    // var modifier = new THREE.SubdivisionModifier( 2 );
+
 
     const defaults = {
       shadows: true,
@@ -377,7 +379,7 @@ export default class Simple3DScene {
 
         const mesh = new THREE.Mesh(geom, mat);
         obj.add(mesh);
-
+        //TODO smooth the surfaces?
         return obj;
       }
       case "convex": {
@@ -399,6 +401,60 @@ export default class Simple3DScene {
       }
       case "arrows": {
         // take inspiration from ArrowHelper, user cones and cylinders
+        const radius = object_json.radius || 1;
+        const headLength = object_json.headLength || 2;
+        const headWidth = object_json.headWidth || 2;
+
+        // body
+        const geom_cyl = new THREE.CylinderBufferGeometry(
+          radius * this.settings.cylinderScale,
+          radius * this.settings.cylinderScale,
+          1.0,
+          this.settings.cylinderSegments
+        );
+        // head
+        const geom_head = new THREE.ConeBufferGeometry(
+            headWidth* this.settings.cylinderScale,
+            headLength* this.settings.cylinderScale,
+            this.settings.cylinderSegments);
+
+        const mat = this.makeMaterial(object_json.color);
+
+        const vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
+        const vec_z = new THREE.Vector3(0, 0, 1); // initial axis of cylinder
+        const quaternion = new THREE.Quaternion();
+        const quaternion_head = new THREE.Quaternion();
+
+        object_json.positionPairs.forEach(function(positionPair) {
+          // the following is technically correct but could be optimized?
+
+          const mesh = new THREE.Mesh(geom_cyl, mat);
+          const vec_a = new THREE.Vector3(...positionPair[0]);
+          const vec_b = new THREE.Vector3(...positionPair[1]);
+          const vec_head = new THREE.Vector3(...positionPair[1]);
+          const vec_rel = vec_b.sub(vec_a);
+
+          // scale cylinder to correct length
+          mesh.scale.y = vec_rel.length();
+
+          // set origin at midpoint of cylinder
+          const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5));
+          mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z);
+
+          // rotate cylinder into correct orientation
+          quaternion.setFromUnitVectors(vec_y, vec_rel.normalize());
+          mesh.setRotationFromQuaternion(quaternion);
+
+          obj.add(mesh);
+
+          // add arrowhead
+          const mesh_head = new THREE.Mesh(geom_head, mat);
+          mesh_head.position.set(vec_head.x, vec_head.y, vec_head.z);
+          // rotate cylinder into correct orientation
+          quaternion_head.setFromUnitVectors(vec_y, vec_rel.normalize());
+          mesh_head.setRotationFromQuaternion(quaternion_head);
+          obj.add(mesh_head);
+        });
         return obj;
       }
       case "labels": {

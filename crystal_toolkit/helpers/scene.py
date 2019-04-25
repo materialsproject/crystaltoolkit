@@ -291,9 +291,20 @@ class Convex:
 @dataclass
 class Arrows:
     """
-    Not implemented yet.
+    Create a set of arrows. All arrows will have the same color radius and
+    head shape.
+    :param positionPairs: This is a list of pairs of lists corresponding to the
+    start and end position of the cylinder.
+    :param color: Cylinder color as a hexadecimal string, e.g. #ff0000
+    :param radius: The radius of the cylinder, defaults to 1.
+    :param visible: If False, will hide the object by default.
     """
 
+    positionPairs: List[List[List[float]]]
+    color: Optional[str] = None
+    radius: Optional[float] = None
+    headLength: Optional[float] = None
+    headWidth: Optional[float] = None
     type: str = field(default="arrows", init=False)  # private field
     visible: bool = None
     _meta: Any = None
