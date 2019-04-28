@@ -324,7 +324,7 @@ class XRayDiffractionPanelComponent(PanelComponent):
 
     @property
     def title(self):
-        return "X-ray Diffraction Pattern"
+        return "X-Ray Diffraction Pattern"
 
     @property
     def description(self):

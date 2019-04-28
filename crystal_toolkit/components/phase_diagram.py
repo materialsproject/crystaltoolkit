@@ -6,11 +6,9 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from pprint import pprint
-
 from pymatgen import MPRester
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
+from pymatgen.core.composition import Composition
+from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter, PDEntry
 
 from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
 from crystal_toolkit.components.core import MPComponent, PanelComponent
@@ -23,6 +21,7 @@ class PhaseDiagramComponent(MPComponent):
         self.create_store("struct")
         self.create_store("chemsys")
         self.create_store("figure")
+        self.create_store("entries")
 
     # Default plot layouts for Binary (2), Ternary (3), Quaternary (4) phase diagrams
     default_binary_plot_style = dict(
@@ -135,12 +134,19 @@ class PhaseDiagramComponent(MPComponent):
     )
 
     default_table_params = [
-        "Material ID",
-        "Formula",
-        "Formation Energy (eV/atom)",
-        "Energy Above Hull (eV/atom)",
-        "Stable?",
+        {"col": "Material ID", "edit": False},
+        {"col": "Formula", "edit": True},
+        {"col":"Formation Energy (eV/atom)", "edit": True},
+        {"col":"Energy Above Hull (eV/atom)", "edit": False},
+        {"col": "Predicted Stable?", "edit": False}
     ]
+
+    empty_row = {"Material ID": None,
+                 "Formula": "INSERT",
+                 "Formation Energy (eV/atom)": "INSERT",
+                 "Energy Above Hull (eV/atom)": None,
+                 "Predicted Stable": None
+                 }
 
     def figure_layout(self, plotter, pd):
 
@@ -311,7 +317,7 @@ class PhaseDiagramComponent(MPComponent):
             energy = round(
                 pd.get_form_energy_per_atom(plotter.pd_plot_data[1][entry]), 3
             )
-            mpid = plotter.pd_plot_data[1][entry].entry_id
+            mpid = "" #plotter.pd_plot_data[1][entry].attribute
             formula = plotter.pd_plot_data[1][entry].composition.reduced_formula
             s = []
             for char in formula:
@@ -357,19 +363,33 @@ class PhaseDiagramComponent(MPComponent):
 
     @staticmethod
     def create_table_content(pd):
-        data = [{
-            "Material ID": entry.entry_id,
-            "Formula": entry.name,
-            "Formation Energy (eV/atom)": round(
-                pd.get_form_energy_per_atom(entry), 3
-            ),
-            "Energy Above Hull (eV/atom)": round(
-                pd.get_e_above_hull(entry), 3
-            ),
-            "Predicted Stable?": (
-                "Yes" if pd.get_e_above_hull(entry) == 0 else "No"
-            )
-        } for entry in pd.all_entries]
+
+        data = []
+
+        for entry in pd.all_entries:
+            try:
+                mpid = entry.entry_id
+            except:
+                mpid = entry.attribute
+
+            try:
+                data.append({
+                    "Material ID": mpid,
+                    "Formula": entry.name,
+                    "Formation Energy (eV/atom)": round(
+                        pd.get_form_energy_per_atom(entry), 3
+                    ),
+                    "Energy Above Hull (eV/atom)": round(
+                        pd.get_e_above_hull(entry), 3
+                    ),
+                    "Predicted Stable?": (
+                        "Yes" if pd.get_e_above_hull(entry) == 0 else "No"
+                    )
+                })
+
+            except:
+                data.append({})
+
         return data
 
     @property
@@ -386,14 +406,41 @@ class PhaseDiagramComponent(MPComponent):
         )
         table = html.Div(
             [
-                dash_table.DataTable(
-                    id=self.id("entry-table"),
-                    columns=([{'id': p, 'name': p} for p in self.default_table_params]),
-                    data=[],
-                    style_table={"maxHeight": "400", "overflowY": "scroll"},
-                    n_fixed_rows=1,
-                    sorting=True,
-                )
+                html.Div(
+                    dash_table.DataTable(
+                        id=self.id("entry-table"),
+                        columns=([{'id': p["col"], 'name': p["col"], 'editable': p["edit"]} for p in self.default_table_params]),
+                        style_table={"maxHeight": "450px",
+                                     "overflowY": "scroll",
+                                     'border': 'thin lightgrey solid'},
+                        n_fixed_rows=1,
+                        sorting=True,
+                        editable=True,
+                        row_deletable=True,
+                        style_header={
+                            'backgroundColor': 'rgb(230, 249, 255)',
+                            'fontWeight': 'bold',
+                        },
+                        style_cell={"fontFamily": "IBM Plex Sans",
+                                    "size": 10,
+                                    'textAlign': 'centered',
+                                    "whiteSpace": "normal",
+                                    "minWidth": "0px", "maxWidth": "400px"},
+                        css=[{
+                            'selector': '.dash-cell div.dash-cell-value',
+                            'rule': 'display: inline; white-space: inherit; overflow: inherit; text-overflow: inherit;'
+                        }],
+                        style_cell_conditional=[
+                            {'if': {'column_id': 'Material ID'},
+                              'width': '20%'},
+                            {'if': {'column_id': 'Formula'},
+                              'width': '20%'}
+                        ]
+                    )
+                ),
+                Button('Add Custom Entry', id=self.id('editing-rows-button'), kind="primary", n_clicks=0),
+                html.P("Enter composition and formation energy per atom.")
+
             ]
         )
 
@@ -403,8 +450,7 @@ class PhaseDiagramComponent(MPComponent):
     def standard_layout(self):
         return html.Div(
             [
-                Columns([Column(self.all_layouts["graph"])], centered=True),
-                Columns([Column(self.all_layouts["table"])]),
+                Columns([Column(self.all_layouts["graph"]), Column(self.all_layouts["table"])], centered=True),
             ]
         )
 
@@ -413,49 +459,14 @@ class PhaseDiagramComponent(MPComponent):
             Output(self.id("graph"), "figure"), [Input(self.id("figure"), "data")]
         )
         def update_graph(figure):
-            return figure
-
-        @app.callback(
-            Output(self.id(), "data"),
-             [Input(self.id("mpid"),"modified_timestamp"),
-              Input(self.id("struct"),"modified_timestamp"),
-              Input(self.id("chemsys"), "modified_timestamp")],
-            [State(self.id("mpid"), "data"),
-             State(self.id("struct"), "data"),
-             State(self.id("chemsys"), "data")]
-        )
-        def generate_pd(mp_time,struct_time, chemsys_time, mpid, struct, chemsys):
-
-            if (struct_time is None) or (mp_time is None) or (chemsys_time is None):
+            if figure is None:
                 raise PreventUpdate
-
-            if struct_time > mp_time and struct_time > chemsys_time:
-                if struct is None:
-                    raise PreventUpdate
-                chemsys = [
-                    str(elem) for elem in self.from_data(struct).composition.elements
-                ]
-
-            elif mp_time >= struct_time and mp_time >= chemsys_time:
-                if mpid is None:
-                    raise PreventUpdate
-                mpid = mpid["mpid"]
-
-                with MPRester() as mpr:
-                    entry = mpr.get_entry_by_material_id(mpid)
-
-                chemsys = [str(elem) for elem in entry.composition.elements]
-
-            with MPRester() as mpr:
-                entries = mpr.get_entries_in_chemsys(
-                    chemsys
-                )  # use MPRester to acquire all entries in chem system
-
-            pd = PhaseDiagram(entries)
-            return self.to_data(pd)
+            return figure
 
         @app.callback(Output(self.id("figure"), "data"), [Input(self.id(), "data")])
         def make_figure(pd):
+            if pd is None:
+                raise PreventUpdate
             pd = self.from_data(pd)
             dim = pd.dim
 
@@ -497,7 +508,7 @@ class PhaseDiagramComponent(MPComponent):
                 ):
                     x_list.append(unstable_xy[0])
                     y_list.append(unstable_xy[1])
-                    mpid = unstable_entry.entry_id
+                    mpid = unstable_entry.attribute
                     formula = list(unstable_entry.composition.reduced_formula)
                     e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
 
@@ -556,7 +567,7 @@ class PhaseDiagramComponent(MPComponent):
                 for unstable_xy, unstable_entry in zip(
                     unstable_xy_list, unstable_entry_list
                 ):
-                    mpid = unstable_entry.entry_id
+                    mpid = ""
                     formula = unstable_entry.composition.reduced_formula
                     energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
                     e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
@@ -638,7 +649,7 @@ class PhaseDiagramComponent(MPComponent):
                 for unstable_xyz, unstable_entry in zip(
                     unstable_xyz_list, unstable_entry_list
                 ):
-                    mpid = unstable_entry.entry_id
+                    mpid = ""#unstable_entry.attribute
                     formula = unstable_entry.composition.reduced_formula
                     energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
                     e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
@@ -703,13 +714,109 @@ class PhaseDiagramComponent(MPComponent):
             return fig
 
         @app.callback(
-            Output(self.id("entry-table"), "data"), [Input(self.id(), "data")]
+            Output(self.id(), "data"),
+            [Input(self.id("entries"), "data")]
         )
-        def update_table(pd):
-            pd = self.from_data(pd)
+        def create_pd_object(entries):
+            if entries is None or not entries:
+                raise PreventUpdate
+
+            entries = self.from_data(entries)
+
+            return self.to_data(PhaseDiagram(entries))
+
+        @app.callback(
+            Output(self.id("entries"), "data"),
+            [Input(self.id("entry-table"), "derived_virtual_data")]
+        )
+        def update_entries_store(rows):
+            if rows is None:
+                raise PreventUpdate
+            entries = []
+            for row in rows:
+                try:
+                    comp = Composition(row["Formula"])
+                    energy = row["Formation Energy (eV/atom)"]
+                    if row["Material ID"] is None:
+                        attribute = "Custom Entry"
+                    else:
+                        attribute = row["Material ID"]
+                    entry = PDEntry(comp, float(energy)*comp.num_atoms, attribute=attribute)
+                    entries.append(entry)
+                except:
+                    pass
+
+            if not entries:
+                raise PreventUpdate
+
+            return self.to_data(entries)
+
+        @app.callback(
+            Output(self.id("entry-table"), "data"),
+            [Input(self.id("chemsys"), "data"),
+             Input(self.id(), "modified_timestamp"),
+             Input(self.id('editing-rows-button'), 'n_clicks')],
+            [State(self.id(), "data"), State(self.id('entry-table'), 'data')]
+        )
+        def create_table(chemsys, pd_time, n_clicks, pd, rows):
+
+            ctx = dash.callback_context
+
+            if ctx is None or not ctx.triggered:
+                raise PreventUpdate
+
+            trigger = ctx.triggered[0]
+
+            # PD update trigger
+            if trigger["prop_id"] == self.id() + ".modified_timestamp":
+                table_content = self.create_table_content(self.from_data(pd))
+                return table_content
+
+            if trigger["prop_id"] == self.id("editing-rows-button") + ".n_clicks":
+                if n_clicks > 0 and rows:
+
+                    rows.append(self.empty_row)
+                    return rows
+
+            if chemsys is None:
+                raise PreventUpdate
+            with MPRester() as mpr:
+                entries = mpr.get_entries_in_chemsys(chemsys)  # use MPRester to acquire a
+
+            pd = PhaseDiagram(entries)
             table_content = self.create_table_content(pd)
+
             return table_content
 
+
+        @app.callback(
+            Output(self.id("chemsys"),"data"),
+            [Input(self.id("mpid"), "data"),
+            Input(self.id("struct"), "data")],
+        )
+        def get_chemsys_from_struct_mpid(mpid, struct):
+            ctx = dash.callback_context
+
+            if ctx is None or not ctx.triggered:
+                raise PreventUpdate
+
+            trigger = ctx.triggered[0]
+
+            if trigger["value"] is None:
+                raise PreventUpdate
+
+            # mpid trigger
+            if trigger["prop_id"] == self.id("mpid") + ".data":
+                with MPRester() as mpr:
+                    entry = mpr.get_entry_by_material_id(mpid)
+
+                chemsys = [str(elem) for elem in entry.composition.elements]
+
+            # struct trigger
+            if trigger["prop_id"] == self.id("struct") + ".data":
+                chemsys = [str(elem) for elem in self.from_data(struct).composition.elements]
+
+            return chemsys
 
 class PhaseDiagramPanelComponent(PanelComponent):
     def __init__(self, *args, **kwargs):

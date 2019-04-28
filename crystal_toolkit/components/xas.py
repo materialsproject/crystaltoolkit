@@ -21,6 +21,7 @@ class XASComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
+        self.create_store("elements")
 
     # X-ray Absoprtion Spectrum - default layout
     default_xas_layout = dict(
@@ -61,7 +62,8 @@ class XASComponent(MPComponent):
         margin=dict(l=60, b=50, t=50, pad=0, r=30)
     )
 
-    line_colors = ['rgb(22, 96, 167)', 'rgb(54, 34, 156)', 'rgb(23, 45, 23)', 'rgb(150,100,1)']
+    line_colors = ['rgb(128, 0, 0)', 'rgb(0, 0, 128)', 'rgb(60, 180, 75)',
+                   'rgb(145,30,180)', 'rgb(230,25,75)','rgb(240,50,230)']
 
     empty_plot_style = {
         "xaxis": {"visible": False},
@@ -87,9 +89,11 @@ class XASComponent(MPComponent):
             [
                 html.P('Select an Element:'),
                 dcc.RadioItems(
-                    options =[],
                     id=self.id("element-selector"),
-                    labelStyle={'display': 'inline-block', 'margin':'4px'}
+                    inputClassName="mpc-radio",
+                    labelClassName="mpc-radio",
+                    value = "",
+                    options = []
                 )
             ]
         )
@@ -100,8 +104,8 @@ class XASComponent(MPComponent):
 
     @property
     def standard_layout(self):
-        return html.Div([self.all_layouts["element_selector"],
-                         self.all_layouts["graph"],
+        return html.Div([self.all_layouts["graph"],
+                         self.all_layouts["element_selector"],
                          ])
 
     def _generate_callbacks(self, app, cache):
@@ -109,60 +113,78 @@ class XASComponent(MPComponent):
         @app.callback(Output(self.id("xas-div"), "children"),
                       [Input(self.id(), "data")])
         def update_graph(plotdata):
-            if plotdata == []:
-                return html.P("XANES pattern not found for this structure.")
+            if not plotdata:
+                raise PreventUpdate
+            if plotdata == "error":
+                search_error = MessageContainer(
+                    [
+                        MessageBody(
+                            dcc.Markdown(
+                                "XANES pattern not available for this selection."
+                            )
+                        ),
+                    ],
+                    kind="warning",
+                ),
+                return search_error
             else:
                 return [dcc.Graph(figure=go.Figure(data=plotdata,
-                                                   layout=self.default_xas_layout))]
+                                                   layout=self.default_xas_layout),
+                                  config={"displayModeBar": False})]
 
         @app.callback(
             Output(self.id(), "data"),
             [
-                Input(self.id("mpid"), "modified_timestamp"),
                 Input(self.id("element-selector"), "value"),
             ],
-            [State(self.id("mpid"), "data"), State(self.id("element-selector"), "options")]
+            [State(self.id("mpid"), "data"), State(self.id("elements"), "data")]
         )
-        def pattern_from_mpid(mpid_time, element, mpid, elem_options):
-            if mpid is None or element is None or elem_options is None:
+        def pattern_from_mpid(element, mpid, elements):
+            if not element or not elements:
                 raise PreventUpdate
-            elems = [val["value"] for val in elem_options]
 
             url_path = '/materials/' + mpid["mpid"] + '/xas/' + element
             with MPRester() as mpr:
                 data = mpr._make_request(url_path)
 
             if len(data) == 0:
-                plotdata = []
+                plotdata = "error"
             else:
                 x = data[0]['spectrum'].x
                 y = data[0]['spectrum'].y
                 plotdata = [go.Scatter(x=x,
                                        y=y,
-                                       line=dict(color=self.line_colors[elems.index(element)]))]
+                                       line=dict(color=self.line_colors[elements.index(element)])
+                                       )]
 
             return plotdata
 
         @app.callback(
-            Output(self.id("element-selector"), "options"),
-            [Input(self.id("mpid"), "modified_timestamp")],
-            [State(self.id("mpid"), "data")],
+            Output(self.id("elements"), "data"),
+            [Input(self.id("mpid"), "data")],
         )
-        def generate_element_options(mpid_time, mpid):
-            if mpid is None:
+        def get_elements_from_mpid(mpid):
+            if not mpid or "mpid" not in mpid:
                 raise PreventUpdate
-            print(mpid_time, mpid)
             with MPRester() as mpr:
                 entry = mpr.get_entry_by_material_id(mpid["mpid"])
             comp = entry.composition
             elem_options = [str(comp.elements[i]) for i in range(0, len(comp))]
-            return [{'label': i, 'value': i} for i in elem_options]
+            return elem_options
+
+        @app.callback(
+            Output(self.id("element-selector"), "options"),
+            [Input(self.id("elements"), "data")],
+        )
+        def generate_element_options(elements):
+            return [{'label': i, 'value': i} for i in elements]
 
         @app.callback(
             Output(self.id("element-selector"), "value"),
             [Input(self.id("element-selector"), 'options')])
         def set_xas_value(options):
-            print(options)
+            if not options or not options[0]:
+                raise PreventUpdate
             return options[0]['value']
 
 
@@ -178,14 +200,18 @@ class XASPanelComponent(PanelComponent):
 
     @property
     def description(self):
-        return "Display the K-edge X-Ray Absorption Near Edge Structure (XANES) for this structure, if it has been caclulated."
+        return "Display the K-edge X-Ray Absorption Near Edge Structure (XANES) for this structure, " \
+               "if it has been calculated by the Materials Project."
+
+    @property
+    def loading_text(self):
+        return "Searching for calculated XANES pattern on Materials Project..."
 
     @property
     def initial_contents(self):
         return html.Div(
             [
                 super().initial_contents,
-                # necessary to include for the callbacks from XRayDiffractionComponent to work
                 html.Div([self.xas.standard_layout], style={"display": "none"}),
             ]
         )
