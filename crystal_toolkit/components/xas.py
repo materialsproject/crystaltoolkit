@@ -92,8 +92,8 @@ class XASComponent(MPComponent):
                     id=self.id("element-selector"),
                     inputClassName="mpc-radio",
                     labelClassName="mpc-radio",
-                    value = "",
-                    options = []
+                    options = [{"label":"","value":""}],
+                    value= ""
                 )
             ]
         )

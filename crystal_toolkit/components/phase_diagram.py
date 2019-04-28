@@ -19,7 +19,8 @@ class PhaseDiagramComponent(MPComponent):
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("struct")
-        self.create_store("chemsys")
+        self.create_store("chemsys-internal")
+        self.create_store("chemsys-external")
         self.create_store("figure")
         self.create_store("entries")
 
@@ -753,7 +754,7 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("entry-table"), "data"),
-            [Input(self.id("chemsys"), "data"),
+            [Input(self.id("chemsys-internal"), "data"),
              Input(self.id(), "modified_timestamp"),
              Input(self.id('editing-rows-button'), 'n_clicks')],
             [State(self.id(), "data"), State(self.id('entry-table'), 'data')]
@@ -790,11 +791,12 @@ class PhaseDiagramComponent(MPComponent):
 
 
         @app.callback(
-            Output(self.id("chemsys"),"data"),
+            Output(self.id("chemsys-internal"),"data"),
             [Input(self.id("mpid"), "data"),
-            Input(self.id("struct"), "data")],
+             Input(self.id("struct"), "data"),
+             Input(self.id("chemsys-external"), "data")],
         )
-        def get_chemsys_from_struct_mpid(mpid, struct):
+        def get_chemsys_from_struct_mpid(mpid, struct, chemsys_x):
             ctx = dash.callback_context
 
             if ctx is None or not ctx.triggered:
@@ -815,6 +817,10 @@ class PhaseDiagramComponent(MPComponent):
             # struct trigger
             if trigger["prop_id"] == self.id("struct") + ".data":
                 chemsys = [str(elem) for elem in self.from_data(struct).composition.elements]
+
+            # external chemsys trigger
+            if trigger["prop_id"] == self.id("chemsysext") + ".data":
+                chemsys = chemsys_x
 
             return chemsys
 
