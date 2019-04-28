@@ -819,7 +819,7 @@ class PhaseDiagramComponent(MPComponent):
                 chemsys = [str(elem) for elem in self.from_data(struct).composition.elements]
 
             # external chemsys trigger
-            if trigger["prop_id"] == self.id("chemsysext") + ".data":
+            if trigger["prop_id"] == self.id("chemsys-external") + ".data":
                 chemsys = chemsys_x
 
             return chemsys
