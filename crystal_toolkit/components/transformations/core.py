@@ -1,10 +1,17 @@
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
+
+import traceback
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.components.core import PanelComponent, MPComponent
+from crystal_toolkit.components import (
+    PanelComponent,
+    MPComponent,
+    StructureMoleculeComponent
+)
 from crystal_toolkit.helpers.layouts import *
 
 from typing import List
@@ -40,7 +47,12 @@ class TransformationComponent(MPComponent):
             [
                 MessageHeader([self.title, enable]),
                 MessageBody(
-                    Columns([Column([options], narrow=True), Column([description, html.Br(), message])])
+                    Columns(
+                        [
+                            Column([options], narrow=True),
+                            Column([description, html.Br(), message]),
+                        ]
+                    )
                 ),
             ],
             kind="dark",
@@ -94,22 +106,22 @@ class TransformationComponent(MPComponent):
         pass
 
     def _generate_callbacks(self, app, cache):
-
-
         @app.callback(
             Output(self.id(), "data"),
-            [Input(self.id("transformation_args_kwargs"), "data"),
-             Input(self.id("enable_transformation"), "values")]
+            [
+                Input(self.id("transformation_args_kwargs"), "data"),
+                Input(self.id("enable_transformation"), "values"),
+            ],
         )
-        #@cache.memoize(timeout=60*60*24,
+        # @cache.memoize(timeout=60*60*24,
         #               make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
         def update_transformation(args_kwargs, enabled):
 
             # TODO: this is madness
             if not isinstance(args_kwargs, dict):
                 args_kwargs = self.from_data(args_kwargs)
-            args = args_kwargs['args']
-            kwargs = args_kwargs['kwargs']
+            args = args_kwargs["args"]
+            kwargs = args_kwargs["kwargs"]
 
             if not enabled:
                 return None
@@ -122,35 +134,33 @@ class TransformationComponent(MPComponent):
                 data = None
                 error = str(exception)
 
-            print({'data': data, 'error': error})
-
-            return {'data': data, 'error': error}
+            return {"data": data, "error": error}
 
         @app.callback(
-            Output(self.id("container"), "className"),
-            [Input(self.id(), "data")]
+            [
+                Output(self.id("container"), "className"),
+                Output(self.id("message"), "children"),
+            ],
+            [Input(self.id(), "data")],
         )
         def update_transformation_style(transformation):
+
             if not transformation:
-                return "message is-dark"
+                message_style = "message is-dark"
             elif transformation["error"]:
-                return "message is-warning"
+                message_style = "message is-warning"
             else:
-                return "message is-success"
+                message_style = "message is-success"
 
-
-        @app.callback(
-            Output(self.id("message"), "children"),
-            [Input(self.id(), "data")]
-        )
-        def update_transformation_style(transformation):
             if not transformation or not transformation["error"]:
-                raise PreventUpdate
-            return html.Strong(f'Error: {transformation["error"]}')
+                error_message = html.Div()
+            else:
+                error_message = html.Strong(f'Error: {transformation["error"]}')
+
+            return message_style, error_message
 
 
 class AllTransformationsComponent(MPComponent):
-
     def __init__(self, transformations: List[TransformationComponent], *args, **kwargs):
         self.transformations = {t.__class__.__name__: t for t in transformations}
         super().__init__(*args, **kwargs)
@@ -168,64 +178,84 @@ class AllTransformationsComponent(MPComponent):
         )
 
         choices = dcc.Dropdown(
-            options=[{"label": transformation.title, "value": name} for name, transformation in
-                     self.transformations.items()],
+            options=[
+                {"label": transformation.title, "value": name}
+                for name, transformation in self.transformations.items()
+            ],
             multi=True,
             value=[],
             placeholder="Select one or more transformations...",
             id=self.id("choices"),
-            style={'max-width': "65vmin"}
+            style={"max-width": "65vmin"},
         )
 
-        layouts.update({
-            "all_transformations": all_transformations,
-            "choices": choices
-        })
+        # error = ...
+        # preview = StructureMoleculeComponent(id=self.id("preview")).standard_layout
+        # download = DownloadComponent(id=self.id("download")).standard_layout
+
+        layouts.update(
+            {
+                "all_transformations": all_transformations,
+                "choices": choices,
+                # "preview": preview,
+                # "download": download
+            }
+        )
 
         return layouts
 
     @property
     def standard_layout(self):
 
-        return html.Div([
-            html.Div(
-                "Transform your crystal structure using the power of pymatgen.",
-                className="mpc-panel-description",
-            ),
-            self.choices_layout,
-            html.Br(),
-            html.Div(id=self.id("transformation_options"))
-        ])
+        return html.Div(
+            [
+                html.Div(
+                    "Transform your crystal structure using the power of pymatgen.",
+                    className="mpc-panel-description",
+                ),
+                self.choices_layout,
+                html.Br(),
+                html.Div(id=self.id("error")),
+                html.Div(id=self.id("transformation_options")),
+            ]
+        )
 
     def _generate_callbacks(self, app, cache):
+        @cache.memoize()
+        def apply_transformation(transformation_data, structure_data):
+            return structure_data
 
         @app.callback(
             Output(self.id("transformation_options"), "children"),
-            [Input(self.id("choices"), "value")]
+            [Input(self.id("choices"), "value")],
         )
         def show_transformation_options(values):
 
             values = values or []
 
-            transformation_options = html.Div([
-                self.transformations[name].container_layout for
-                name in values
-            ])
+            transformation_options = html.Div(
+                [self.transformations[name].container_layout for name in values]
+            )
 
-            hidden_transformations = html.Div([
-                transformation.container_layout
-                for name, transformation in self.transformations.items()
-                if name not in values
-            ], style={"display": "none"})
+            hidden_transformations = html.Div(
+                [
+                    transformation.container_layout
+                    for name, transformation in self.transformations.items()
+                    if name not in values
+                ],
+                style={"display": "none"},
+            )
 
             return [transformation_options, hidden_transformations]
 
         @app.callback(
-            Output(self.id("out"), "data"),
-            [Input(t.id(), "data") for t in self.transformations.values()] + [Input(self.id(), "data")]
+            [Output(self.id("out"), "data"), Output(self.id("error"), "children")],
+            [Input(t.id(), "data") for t in self.transformations.values()]
+            + [Input(self.id(), "data")],
         )
         def run_transformations(*args):
 
+            # do not update if we don't have a Structure to transform
             if not args[-1]:
                 raise PreventUpdate
 
@@ -235,22 +265,56 @@ class AllTransformationsComponent(MPComponent):
 
             transformations = []
             for transformation in args[:-1]:
-                if transformation and transformation['data']:
-                    transformations.append(self.from_data(transformation['data']))
+                if transformation and transformation["data"]:
+                    transformations.append(self.from_data(transformation["data"]))
 
             if not transformations:
-                return self.to_data(struct)
+                return self.to_data(struct), html.Div()
 
             for transformation in transformations:
                 try:
                     struct = transformation.apply_transformation(struct)
                 except Exception as exc:
-                    errors.append(f"Failed to apply transformation "
-                                  f"{transformation}: {exc}")
+                    error_title = (
+                        f'Failed to apply "{transformation.__class__.__name__}" '
+                        f"transformation: {exc}"
+                    )
+                    traceback_info = Reveal(
+                        title=html.B("Traceback"),
+                        children=[dcc.Markdown(traceback.format_exc())],
+                    )
+                    errors += [error_title, traceback_info]
 
-            print("transformation errors", errors)
+            if not errors:
+                error_msg = html.Div()
+            else:
+                errors = [
+                    dcc.Markdown(
+                        "Crystal Toolkit encountered an error when trying to "
+                        "applying your chosen transformations. This is usually "
+                        "because either the input crystal structure is not "
+                        "suitable for the transformation, or the choice of "
+                        "transformation settings is not appropriate. Consult "
+                        "the pymatgen documentation for more information.  \n"
+                        ""
+                        "If you think this is a bug please report it.  \n"
+                        ""
+                    )
+                ] + errors
+                error_msg = html.Div(
+                    [
+                        MessageContainer(
+                            [
+                                MessageHeader("Error applying transformations"),
+                                MessageBody(errors),
+                            ],
+                            kind="danger",
+                        ),
+                        html.Br(),
+                    ]
+                )
 
-            return self.to_data(struct)
+            return self.to_data(struct), error_msg
 
         # callback to take all transformations
         # and also state of which transformations are user-visible (+ their order)

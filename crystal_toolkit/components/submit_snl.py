@@ -69,6 +69,8 @@ class SubmitSNLPanel(PanelComponent):
         super()._generate_callbacks(app, cache)
 
         def parse_token(url):
+            if not url:
+                return None
             if url.startswith("?"):
                 url = url[1:]
             token = dict(parse.parse_qsl(url)).get('token')
@@ -164,7 +166,6 @@ For more information, see the Materials Project
                 return MessageContainer(message, kind="warning")
 
             # check if structure already exists on MP
-
 
             with MPRester() as mpr:
                 mpids = mpr.find_structure(structure)

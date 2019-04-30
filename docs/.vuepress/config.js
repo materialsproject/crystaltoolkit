@@ -11,9 +11,9 @@ module.exports = {
 		nav: [
 			{ text: 'Home', link: '/' },
 			{ text: 'Documentation', link: '/docs.md' },
-			{ text: 'Open Web App', link: 'https://viewer.materialsproject.org/' },
+			{ text: 'Open Web App', link: 'https://crystaltoolkit.org/' },
 		],
-		sidebar: ['/', '/docs', '/docs-dev', '/changelog'],
+		sidebar: ['/'],
 		sidebarDepth: 2,
 		lastUpdated: 'Last Updated',
 		repo: 'materialsproject/crystaltoolkit',
