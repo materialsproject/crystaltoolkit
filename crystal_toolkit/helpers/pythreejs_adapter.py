@@ -61,10 +61,16 @@ def display_struct(structure):
     :param structure: input structure
     """
     smc = StructureMoleculeComponent(structure, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+    display_StructureMoleculeComponent(smc)
+
+def display_StructureMoleculeComponent(smc):
+    """
+    :param smc: input structure structure molecule component
+    """
     obs = traverse_scene_object(smc.initial_scene_data)
     obs_children = list(obs.children)
     obs_children.extend([AmbientLight(color='#cccccc', intensity=0.75),DirectionalLight(color='#ccaabb', position=[0,20,10], intensity=0.5)])
-    diag = np.linalg.norm(np.sum(structure.lattice.matrix, axis=0))
+    diag = np.linalg.norm(np.sum(smc._lattice.matrix, axis=0))
     scene = Scene(children=obs_children)
     c = OrthographicCamera(-diag, diag, diag, -diag, -4000, 4000, position=(0,0,0.001))
     renderer = Renderer(camera=c, background='black', background_opacity=1, scene=scene,
