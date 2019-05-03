@@ -56,11 +56,10 @@ def convert_object_to_pythreejs(object):
             obs.append(obj3d)
     return obs
 
-def get_scene(structure):
+def display_struct(structure):
     """
-    :param structure:
+    :param structure: input structure
     """
-
     smc = StructureMoleculeComponent(structure, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
     obs = traverse_scene_object(smc.initial_scene_data)
     obs_children = list(obs.children)
