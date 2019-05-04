@@ -47,3 +47,4 @@ for _component in __all__:
 
 # convenience imports
 from crystal_toolkit.helpers.view import view
+from crystal_toolkit.helpers.pythreejs_adapter import display_struct
