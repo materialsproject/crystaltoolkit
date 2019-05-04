@@ -1,5 +1,5 @@
 from pymatgen import Structure, Lattice
-from crystal_toolkit.helpers.asymptote_export import write_asy_file
+from crystal_toolkit.helpers.asymptote import write_asy_file
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 import os
 
