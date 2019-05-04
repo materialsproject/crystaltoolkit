@@ -18,14 +18,14 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen.analysis.local_env import NearNeighbors
-from pymatgen.transformations.standard_transformations import (
-    AutoOxiStateDecorationTransformation,
-)
 from pymatgen.core.periodic_table import Specie, DummySpecie
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.vis.structure_vtk import EL_COLORS
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+from sklearn.preprocessing import LabelEncoder
+from palettable.colorbrewer.qualitative import Set1_9, Set2_8
 
 from typing import Dict, Union, Optional, List, Tuple
 
@@ -118,8 +118,8 @@ class StructureMoleculeComponent(MPComponent):
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
-        show_compass = False,
-        **kwargs
+        show_compass=False,
+        **kwargs,
     ):
 
         super().__init__(
@@ -291,13 +291,15 @@ class StructureMoleculeComponent(MPComponent):
             options = [
                 {"label": "Jmol", "value": "Jmol"},
                 {"label": "VESTA", "value": "VESTA"},
+                {"label": "Colorblind-friendly", "value": "colorblind_friendly"},
             ]
             graph = self.from_data(graph)
             struct_or_mol = self._get_struct_or_mol(graph)
             site_props = self._analyze_site_props(struct_or_mol)
-            if "scalar" in site_props:
-                for prop in site_props["scalar"]:
-                    options += [{"label": f"Site property: {prop}", "value": prop}]
+            for site_prop_type in ("scalar", "categorical"):
+                if site_prop_type in site_props:
+                    for prop in site_props[site_prop_type]:
+                        options += [{"label": f"Site property: {prop}", "value": prop}]
 
             return options
 
@@ -587,8 +589,7 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Input cell", "value": "input"},
                             {"label": "Primitive cell", "value": "primitive"},
                             {"label": "Conventional cell", "value": "conventional"},
-                            {"label": "Reduced cell",
-                             "value": "reduced"},
+                            {"label": "Reduced cell", "value": "reduced"},
                         ],
                         value="input",
                         id=self.id("unit-cell-choice"),
@@ -917,12 +918,49 @@ class StructureMoleculeComponent(MPComponent):
                     else:
                         legend["colors"][color] = label
 
-        # elif color_scheme == "colorblind_friendly":
+        elif color_scheme == "colorblind_friendly":
+
+            labels = [site.species_string for site in struct_or_mol]
+
+            # thanks to https://doi.org/10.1038/nmeth.1618
+            palette = [
+                [0, 0, 0],  # 0, black
+                [230, 159, 0],  # 1, orange
+                [86, 180, 233],  # 2, sky blue
+                [0, 158, 115],  # 3, bluish green
+                [240, 228, 66],  # 4, yellow
+                [0, 114, 178],  # 5, blue
+                [213, 94, 0],  # 6, vermillion
+                [204, 121, 167],  # 7, reddish purple
+                [255, 255, 255]  # 8, white
+            ]
+
+            # similar to CPK
+            preferred_colors = {
+                "O": 6,
+                "N": 2,
+                "C": 0,
+                "H": 8,
+                "F": 3,
+                "Cl": 3,
+                "Fe": 1,
+                "Br": 7,
+                "I": 7,
+                "P": 1,
+                "S": 4
+            }
+
+            if len(set(labels)) > len(palette):
+                warnings.warn(
+                    "Too many distinct types of site to use a color-blind friendly color scheme.")
+
+
+
 
         # colors = [......]
         # present_specie = sorted(struct_or_mol.types_of_specie)
         # if len(struct_or_mol.types_of_specie) > len(colors):
-        #    logger.warn("Too many distinct types of site to use a color-blind friendly color scheme.")
+        #
         #    colors.append([DEFAULT_COLOR]*(len(struct_or_mol.types_of_specie)-len(colors))
         # # test for disordered structures too!
         # # try to prefer certain colors of certain elements for historical consistency
@@ -955,28 +993,35 @@ class StructureMoleculeComponent(MPComponent):
             colors = [[get_color_hex(get_color_cmap(x))] for x in props_normed]
 
             # construct legend
-
-            # max/min only:
-            # c = get_color_hex(get_color_cmap(color_min))
-            # legend["colors"][c] = "{:.1f}".format(color_min)
-            # if color_max != color_min:
-            #    c = get_color_hex(get_color_cmap(color_max))
-            #    legend["colors"][c] = "{:.1f}".format(color_max)
-
-            # all colors:
             rounded_props = sorted(list(set([np.around(p, decimals=1) for p in props])))
             for prop in rounded_props:
                 prop_normed = (prop - prop_min) / (prop_max - prop_min)
                 c = get_color_hex(get_color_cmap(prop_normed))
                 legend["colors"][c] = "{:.1f}".format(prop)
 
-        elif color_scheme == "colorblind_friendly":
-            raise NotImplementedError
-
         elif color_scheme in site_prop_types.get("categorical", []):
-            # iter() a palettable  palettable.colorbrewer.qualitative
-            # cmap.colors, check len, Set1_9 ?
-            raise NotImplementedError
+
+            props = np.array(struct_or_mol.site_properties[color_scheme])
+
+            palette = [get_color_hex(c) for c in Set1_9.colors]
+
+            le = LabelEncoder()
+            le.fit(props)
+            transformed_props = le.transform(props)
+
+            # if we have more categories than availiable colors,
+            # arbitrarily group some categories together
+            warnings.warn(
+                "Too many categories for a complete categorical " "color scheme."
+            )
+            transformed_props = [
+                p if p < len(palette) else -1 for p in transformed_props
+            ]
+
+            colors = [[palette[p]] for p in transformed_props]
+
+            for category, p in zip(props, transformed_props):
+                legend["colors"][palette[p]] = category
 
         return colors, legend
 
@@ -1016,7 +1061,11 @@ class StructureMoleculeComponent(MPComponent):
         return Lines(line_pairs, **kwargs)
 
     @staticmethod
-    def _compass_from_lattice(lattice, origin=(0, 0, 0), scale=0.7, offset=0.15, **kwargs):
+    def _compass_from_lattice(
+        lattice, origin=(0, 0, 0), scale=0.7, offset=0.15,
+            compass_style="corner", **kwargs
+    ):
+        # TODO: add along lattice
         """
         Get the display components of the compass
         :param lattice: the pymatgen Lattice object that contains the primitive lattice vectors
@@ -1026,25 +1075,42 @@ class StructureMoleculeComponent(MPComponent):
         :return: list of cystal_toolkit.helper.scene objects that makes up the compass
         """
         o = -np.array(origin)
-        o = o - offset * ( lattice.matrix[0]+ lattice.matrix[1]+ lattice.matrix[2] )
-        a = lattice.matrix[0]/np.linalg.norm(lattice.matrix[0]) * scale
-        b = lattice.matrix[1]/np.linalg.norm(lattice.matrix[1]) * scale
-        c = lattice.matrix[2]/np.linalg.norm(lattice.matrix[2]) * scale
-        a_arrow = [[o, o+a]]
-        b_arrow = [[o, o+b]]
-        c_arrow = [[o, o+c]]
+        o = o - offset * (lattice.matrix[0] + lattice.matrix[1] + lattice.matrix[2])
+        a = lattice.matrix[0] / np.linalg.norm(lattice.matrix[0]) * scale
+        b = lattice.matrix[1] / np.linalg.norm(lattice.matrix[1]) * scale
+        c = lattice.matrix[2] / np.linalg.norm(lattice.matrix[2]) * scale
+        a_arrow = [[o, o + a]]
+        b_arrow = [[o, o + b]]
+        c_arrow = [[o, o + c]]
 
-        o_sphere = Spheres(
-            positions=[o],
-            color="black",
-            radius=0.1 * scale,
-        )
+        o_sphere = Spheres(positions=[o], color="black", radius=0.1 * scale)
 
         return [
-            Arrows(a_arrow, color='red', radius = 0.7*scale, headLength=2.3*scale, headWidth=1.4*scale,**kwargs),
-            Arrows(b_arrow, color='blue', radius = 0.7*scale, headLength=2.3*scale, headWidth=1.4*scale,**kwargs),
-            Arrows(c_arrow, color='green', radius = 0.7*scale, headLength=2.3*scale, headWidth=1.4*scale,**kwargs),
-                o_sphere,
+            Arrows(
+                a_arrow,
+                color="red",
+                radius=0.7 * scale,
+                headLength=2.3 * scale,
+                headWidth=1.4 * scale,
+                **kwargs,
+            ),
+            Arrows(
+                b_arrow,
+                color="blue",
+                radius=0.7 * scale,
+                headLength=2.3 * scale,
+                headWidth=1.4 * scale,
+                **kwargs,
+            ),
+            Arrows(
+                c_arrow,
+                color="green",
+                radius=0.7 * scale,
+                headLength=2.3 * scale,
+                headWidth=1.4 * scale,
+                **kwargs,
+            ),
+            o_sphere,
         ]
 
     @staticmethod
@@ -1353,8 +1419,8 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=True,
         hide_incomplete_bonds=False,
         explicitly_calculate_polyhedra_hull=False,
-        scene_additions = None,
-        show_compass = True,
+        scene_additions=None,
+        show_compass=True,
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name=name)
@@ -1443,8 +1509,8 @@ class StructureMoleculeComponent(MPComponent):
             )
             if show_compass:
                 primitives["compass"].extend(
-                StructureMoleculeComponent._compass_from_lattice(
-                    struct_or_mol.lattice, origin=origin
+                    StructureMoleculeComponent._compass_from_lattice(
+                        struct_or_mol.lattice, origin=origin
                     )
                 )
 
