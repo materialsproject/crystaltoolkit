@@ -176,6 +176,8 @@ class StructureMoleculeComponent(MPComponent):
                 scene_additions=self.initial_scene_additions,
                 **self.initial_display_options,
             )
+            if hasattr(struct_or_mol, 'lattice'):
+                self._lattice = struct_or_mol.lattice
         else:
             # component could be initialized without a structure, in which case
             # an empty scene should be displayed

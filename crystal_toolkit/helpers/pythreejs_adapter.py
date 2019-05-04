@@ -3,12 +3,11 @@ Link up the StructureMoleculeComponent objects to pythreejs
 Also includes some helper functions for draw addition objects using pythreejs
 """
 
-from pythreejs import MeshLambertMaterial, Mesh, SphereBufferGeometry, CylinderBufferGeometry, Object3D, LineSegments2, LineSegmentsGeometry, LineMaterial, Scene, AmbientLight, PerspectiveCamera, Renderer, OrbitControls
+from pythreejs import MeshLambertMaterial, Mesh, SphereBufferGeometry, CylinderBufferGeometry, Object3D, LineSegments2, LineSegmentsGeometry, LineMaterial, Scene, AmbientLight, Renderer, OrbitControls, OrthographicCamera, DirectionalLight
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 from IPython.display import display
 from scipy.spatial.transform import Rotation as R
 import numpy as np
-
 ball = Mesh(
     geometry=SphereBufferGeometry(radius=1, widthSegments=32, heightSegments=16),
     material=MeshLambertMaterial(color='red'),
@@ -57,27 +56,26 @@ def convert_object_to_pythreejs(object):
             obs.append(obj3d)
     return obs
 
-def get_scene(structure):
+def display_struct(structure):
     """
-    :param structure:
+    :param structure: input structure
     """
+    smc = StructureMoleculeComponent(structure, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+    display_StructureMoleculeComponent(smc)
 
-    smc = StructureMoleculeComponent(structure, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=False)
+def display_StructureMoleculeComponent(smc):
+    """
+    :param smc: input structure structure molecule component
+    """
     obs = traverse_scene_object(smc.initial_scene_data)
-
-    scene = Scene(children=[
-        obs,
-        AmbientLight(color='#FFFFFF', intensity=0.75)
-    ])
-    c = PerspectiveCamera(position=[10, 10, 10])
-    renderer = Renderer(
-        camera=c,
-        background='black',
-        background_opacity=1,
-        scene=scene,
-        controls=[OrbitControls(controlling=c)],
-        width=400,
-        height=400)
+    obs_children = list(obs.children)
+    obs_children.extend([AmbientLight(color='#cccccc', intensity=0.75),DirectionalLight(color='#ccaabb', position=[0,20,10], intensity=0.5)])
+    diag = np.linalg.norm(np.sum(smc._lattice.matrix, axis=0))
+    scene = Scene(children=obs_children)
+    c = OrthographicCamera(-diag, diag, diag, -diag, -4000, 4000, position=(0,0,0.001))
+    renderer = Renderer(camera=c, background='black', background_opacity=1, scene=scene,
+                        controls=[OrbitControls(controlling=c)],
+                        width=500, height=500)
     display(renderer)
 
 
