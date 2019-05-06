@@ -48,7 +48,8 @@ def convert_object_to_pythreejs(object):
             obs.append(obj3d)
     elif object['type']=='cylinders':
         for ipos in object['positionPairs']:
-            obj3d = _get_cylinder_from_vec(ipos[0], ipos[1], color=object['color'])
+            rad = object['radius'] if 'radius' in object else None
+            obj3d = _get_cylinder_from_vec(ipos[0], ipos[1], color=object['color'], radius=rad)
             obs.append(obj3d)
     elif object['type']=='lines':
         for ipos, jpos in zip(object['positions'][::2], object['positions'][1::2]):
