@@ -91,7 +91,8 @@ def _get_line_from_vec(v0, v1):
 def _get_cube_from_pos(v0, **kwargs):
     pass
 
-def _get_cylinder_from_vec(v0, v1, radius=0.15, color="#FFFFFF"):
+def _get_cylinder_from_vec(v0, v1, radius=None, color="#FFFFFF"):
+    radius = radius if radius else =0.15
     v0 = np.array(v0)
     v1 = np.array(v1)
     vec = v1 - v0
