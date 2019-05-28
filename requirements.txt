@@ -17,6 +17,7 @@ dash-katex>=0.0.1
 # for everything
 pymatgen>=2019.2.4
 networkx>=2.0
+pythreejs>=2.0.2
 
 # for favorites
 toml==0.10.0
