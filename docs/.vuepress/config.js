@@ -2,7 +2,7 @@ module.exports = {
 	locales: {
 		'/': {
 			lang: 'en-US',
-			title: 'Crystal Toolkit',
+			title: 'Crystal Toolkit Documentation',
 			description: 'Crystal Toolkit is an interactive web app that allows you to import, view, analyze and transform crystal structures and molecules.'
 		}
 	},
