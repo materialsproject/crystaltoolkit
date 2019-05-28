@@ -46,5 +46,5 @@ for _component in __all__:
     setattr(locals()[_component], '_css_dist', _css_dist)
 
 # convenience imports
+# TODO: rename view to dash_view, add pythreejs_view etc.
 from crystal_toolkit.helpers.view import view
-from crystal_toolkit.helpers.pythreejs_adapter import display_struct
