@@ -34,7 +34,7 @@ def view(struct_or_mol, host="http://localhost:8050"):
     if req.status_code != 200:
         raise ConnectionError(
             "Could not get correct response from Crystal Toolkit, it may be "
-            "offline or down for maintenance, or you may need to upgrade pymatgen."
+            "offline or down for maintenance, or you may need to upgrade crystal-toolkit."
         )
 
     try:
@@ -51,19 +51,34 @@ def view(struct_or_mol, host="http://localhost:8050"):
             "pymatgen for view function to work correctly."
         )
 
-    # note molecules and graphs don't have a verbosity option
-    payload = dumps(struct_or_mol.as_dict(verbosity=0)).encode("ascii")
-    payload = zlib.compress(payload)
-    payload = base64.urlsafe_b64encode(payload).decode("ascii")
-    payload = "?structure={}".format(payload)
+    try:
+        payload = dumps(struct_or_mol.as_dict(verbosity=0))
+    except TypeError:
+        # TODO: remove this, necessary for Slab(?), some structure subclasses don't have verbosity
+        payload = dumps(struct_or_mol.as_dict())
 
-    if len(payload) > 2048:
-        raise ValueError(
-            "The structure or molecule is currently too large to be sent to the "
-            "remote server, please try again with a later version."
+    req = requests.post(urllib.parse.urljoin(host, "/generate_token"), json=payload)
+
+    if req.status_code != 200:
+        raise ConnectionError(
+            "Could not get correct response from Crystal Toolkit, it may be "
+            "offline or down for maintenance, or you may need to upgrade crystal-toolkit."
         )
 
-    url = urllib.parse.urljoin(host, payload)
+    try:
+        json = req.json()
+    except JSONDecodeError:
+        raise Exception(
+            "Could not get correct reponse from Crystal Toolkit, the version "
+            "deployed online may need to be upgraded or this may be a bug."
+        )
+
+    if json.get("error", None):
+        raise Exception(json["error"])
+    else:
+        token = json["token"]
+
+    url = urllib.parse.urljoin(host, f"/?token={token}")
 
     try:
         if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
