@@ -356,19 +356,20 @@ class PhaseDiagramComponent(MPComponent):
 
     @staticmethod
     def create_table_content(pd):
-        data = [{
-            "Material ID": entry.entry_id,
-            "Formula": entry.name,
-            "Formation Energy (eV/atom)": round(
-                pd.get_form_energy_per_atom(entry), 3
-            ),
-            "Energy Above Hull (eV/atom)": round(
-                pd.get_e_above_hull(entry), 3
-            ),
-            "Predicted Stable?": (
-                "Yes" if pd.get_e_above_hull(entry) == 0 else "No"
-            )
-        } for entry in pd.all_entries]
+        data = [
+            {
+                "Material ID": entry.entry_id,
+                "Formula": entry.name,
+                "Formation Energy (eV/atom)": round(
+                    pd.get_form_energy_per_atom(entry), 3
+                ),
+                "Energy Above Hull (eV/atom)": round(pd.get_e_above_hull(entry), 3),
+                "Predicted Stable?": (
+                    "Yes" if pd.get_e_above_hull(entry) == 0 else "No"
+                ),
+            }
+            for entry in pd.all_entries
+        ]
         return data
 
     @property
@@ -377,7 +378,7 @@ class PhaseDiagramComponent(MPComponent):
         graph = html.Div(
             [
                 dcc.Graph(
-                    figure=PhaseDiagramComponent.empty_plot_style,
+                    figure=go.Figure(layout=PhaseDiagramComponent.empty_plot_style),
                     id=self.id("graph"),
                     config={"displayModeBar": False, "displaylogo": False},
                 )
@@ -387,7 +388,7 @@ class PhaseDiagramComponent(MPComponent):
             [
                 dash_table.DataTable(
                     id=self.id("entry-table"),
-                    columns=([{'id': p, 'name': p} for p in self.default_table_params]),
+                    columns=([{"id": p, "name": p} for p in self.default_table_params]),
                     data=[],
                     style_table={"maxHeight": "400", "overflowY": "scroll"},
                     n_fixed_rows=1,
