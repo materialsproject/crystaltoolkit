@@ -12,15 +12,15 @@ from pymatgen.transformations.standard_transformations import SubstitutionTransf
 
 from ast import literal_eval
 
-class SubstitutionTransformationComponent(TransformationComponent):
 
+class SubstitutionTransformationComponent(TransformationComponent):
     @property
     def title(self):
         return "Substitute one species for another"
 
     @property
     def description(self):
-        return """Replace one species in your structure (\"Previous Species\"),
+        return """Replace one species in your structure (\"Previous Species\")
 with another species (\"New Species\"). The new species can be specified as an
 element (for example, O), as an element with an oxidation state (for example, O2-)
 or as a composition (for example, {"Au":0.5, "Cu":0.5} for a 50/50 mixture of gold
@@ -34,15 +34,19 @@ and copper). Please consult the pymatgen documentation for more information.
     @property
     def options_layout(self):
 
-        options = html.Div([
-            dt.DataTable(
-                id=self.id("species_mapping"),
-                columns=[{"id": "prev", "name": "Previous Species"},
-                         {"id": "new", "name": "New Species"}],
-                data=[{"prev": None, "new": None} for i in range(4)],
-                editable=True
-            )
-        ])
+        options = html.Div(
+            [
+                dt.DataTable(
+                    id=self.id("species_mapping"),
+                    columns=[
+                        {"id": "prev", "name": "Previous Species"},
+                        {"id": "new", "name": "New Species"},
+                    ],
+                    data=[{"prev": None, "new": None} for i in range(4)],
+                    editable=True,
+                )
+            ]
+        )
 
         return options
 
@@ -51,10 +55,9 @@ and copper). Please consult the pymatgen documentation for more information.
 
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
-            [Input(self.id("species_mapping"), "data")]
+            [Input(self.id("species_mapping"), "data")],
         )
         def update_transformation_kwargs(rows):
-
             def get_el_occu(string):
                 try:
                     el_occu = literal_eval(string)
@@ -62,9 +65,12 @@ and copper). Please consult the pymatgen documentation for more information.
                     el_occu = string
                 return el_occu
 
-            species_map = {get_el_occu(row["prev"]): get_el_occu(row["new"])
-                           for row in rows if (row["prev"] and row["new"])}
+            species_map = {
+                get_el_occu(row["prev"]): get_el_occu(row["new"])
+                for row in rows
+                if (row["prev"] and row["new"])
+            }
 
             print(species_map)
 
-            return {'args': [species_map], 'kwargs': {}}
+            return {"args": [species_map], "kwargs": {}}
