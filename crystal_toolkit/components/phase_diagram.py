@@ -364,7 +364,6 @@ class PhaseDiagramComponent(MPComponent):
 
     @staticmethod
     def create_table_content(pd):
-
         data = []
 
         for entry in pd.all_entries:
@@ -390,7 +389,6 @@ class PhaseDiagramComponent(MPComponent):
 
             except:
                 data.append({})
-
         return data
 
     @property
@@ -399,7 +397,7 @@ class PhaseDiagramComponent(MPComponent):
         graph = html.Div(
             [
                 dcc.Graph(
-                    figure=PhaseDiagramComponent.empty_plot_style,
+                    figure=go.Figure(layout=PhaseDiagramComponent.empty_plot_style),
                     id=self.id("graph"),
                     config={"displayModeBar": False, "displaylogo": False},
                 )
@@ -441,7 +439,6 @@ class PhaseDiagramComponent(MPComponent):
                 ),
                 Button('Add Custom Entry', id=self.id('editing-rows-button'), kind="primary", n_clicks=0),
                 html.P("Enter composition and formation energy per atom.")
-
             ]
         )
 

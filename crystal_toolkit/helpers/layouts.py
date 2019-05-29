@@ -52,7 +52,7 @@ class Column(html.Div):
     def __init__(self, *args, size=None, offset=None, narrow=False, **kwargs):
         kwargs["className"] = "column"
         if size:
-            kwargs["className"] += f" -is-{size}"
+            kwargs["className"] += f" is-{size}"
         if offset:
             kwargs["className"] += f" -is-offset-{size}"
         if narrow:

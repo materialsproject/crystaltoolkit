@@ -7,8 +7,8 @@ from crystal_toolkit.helpers.layouts import *
 
 from collections import namedtuple
 
-#from abc import ABC, abstractmethod
-#class MPInput(ABC):
+# from abc import ABC, abstractmethod
+# class MPInput(ABC):
 #
 #    def __init__(self, id):
 #        self.id = id
@@ -24,7 +24,6 @@ from collections import namedtuple
 #    @abstractmethod
 #    def func(self):
 #        raise NotImplementedError
-
 
 
 def _add_label_help(input, label, help):
@@ -45,9 +44,9 @@ def get_float_input(id, label=None, default=None, help=None):
 
     input = dcc.Input(
         id=id,
-        inputmode="numeric",
+        inputMode="numeric",
         className="input",
-        maxlength=1,
+        maxLength=1,
         style={
             "text-align": "center",
             "width": "2rem",
@@ -69,13 +68,12 @@ def get_matrix_input(
     def matrix_element(element, value=0):
         return dcc.Input(
             id=f"{id}_m{element}",
-            inputmode="numeric",
+            inputMode="numeric",
             min=0,
             max=9,
             step=1,
-            size=1,
             className="input",
-            maxlength=1,
+            maxLength=1,
             style={
                 "text-align": "center",
                 "width": "2rem",
@@ -99,7 +97,8 @@ def get_matrix_input(
 
 
 def get_bool_input(id):
-    ...
+    raise NotImplementedError
+
 
 def get_choice_input(choices):
-    ...
+    raise NotImplementedError

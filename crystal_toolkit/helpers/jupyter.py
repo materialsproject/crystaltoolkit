@@ -16,7 +16,7 @@ def init_viewer():
     global crystal_toolkit_viewer
     global crystal_toolkit_app
 
-    crystal_toolkit_viewer = jupyterlab_dash.AppViewer(port=8090)
+    crystal_toolkit_viewer = jupyterlab_dash.AppViewer(port=8095)
     crystal_toolkit_app = dash.Dash(__name__)
 
 
@@ -28,7 +28,7 @@ def view(struct_or_mol, **kwargs):
     :return:
     """
 
-    if 'crystal_toolkit_app' not in globals():
+    if "crystal_toolkit_app" not in globals():
         init_viewer()
 
     with warnings.catch_warnings():
@@ -36,7 +36,9 @@ def view(struct_or_mol, **kwargs):
         component = StructureMoleculeComponent(struct_or_mol, **kwargs)
 
     crystal_toolkit_app.title = struct_or_mol.composition.reduced_formula
-    crystal_toolkit_app.layout = html.Div([component.standard_layout])
+    crystal_toolkit_app.layout = html.Div(
+        [component.standard_layout, component.screenshot_layout]
+    )
     crystal_toolkit_viewer.show(crystal_toolkit_app)
 
 

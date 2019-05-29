@@ -115,10 +115,12 @@ class SearchComponent(MPComponent):
         search = Field(
             [Control(search_field), Control(search_button)],
             addons=True,
-            style={"margin-bottom": "0"}
+            style={"margin-bottom": "0"},
         )
 
-        return html.Div([html.Label("Search Materials Project:", className="mpc-label"), search])
+        return html.Div(
+            [html.Label("Search Materials Project:", className="mpc-label"), search]
+        )
 
     @property
     def all_layouts(self):
@@ -174,7 +176,8 @@ class SearchComponent(MPComponent):
                 search_term = f"mp-{search_term.split('mp')[1]}"
 
             if search_term.startswith("mp-") or search_term.startswith("mvc-"):
-                return {search_term: search_term}  # no need to actually search
+                # no need to actually search, support multiple mp-ids (space separated)
+                return {mpid: mpid for mpid in search_term.split(" ")}
 
             with MPRester() as mpr:
                 try:
