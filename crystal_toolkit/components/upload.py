@@ -14,6 +14,8 @@ from base64 import b64decode
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.vasp.outputs import Chgcar
 
+from monty.serialization import loadfn
+
 
 class StructureMoleculeUploadComponent(MPComponent):
     @property
@@ -44,7 +46,7 @@ class StructureMoleculeUploadComponent(MPComponent):
             ),
             className="file is-boxed",
             # TODO: set sensible max-width, don't hard-code
-            style={"max-width": "312px"}
+            style={"max-width": "312px"},
         )
 
         upload = html.Div(
@@ -123,12 +125,17 @@ class StructureMoleculeUploadComponent(MPComponent):
                         try:
                             struct_or_mol = Chgcar.from_file(tmp.name)
                         except:
-                            error = (
-                                "Could not parse uploaded file. "
-                                "If this seems like a bug, please report it. "
-                                "Crystal Toolkit understands all crystal "
-                                "structure file types and molecule file types "
-                                "supported by pymatgen."
-                            )
+                            # TODO: fix these horrible try/excepts, loadfn may be dangerous
+                            try:
+                                struct_or_mol = loadfn(tmp.name)
+                                data = self.to_data(struct_or_mol)
+                            except:
+                                error = (
+                                    "Could not parse uploaded file. "
+                                    "If this seems like a bug, please report it. "
+                                    "Crystal Toolkit understands all crystal "
+                                    "structure file types and molecule file types "
+                                    "supported by pymatgen."
+                                )
 
             return {"data": data, "error": error, "time_requested": self.get_time()}
