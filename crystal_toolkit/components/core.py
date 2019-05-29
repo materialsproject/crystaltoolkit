@@ -160,11 +160,11 @@ class MPComponent(ABC):
         data_str = dumps(msonable_obj, cls=MontyEncoder, indent=4)
         if MPComponent.cache != DummyCache:
             pass
-            #token = str(uuid4())[0:6]
+            # token = str(uuid4())[0:6]
             ## set to 1 week expiration by default
-            #cache.set(token, data_str, timeout=604_800,
+            # cache.set(token, data_str, timeout=604_800,
             #          key_prefix="crystal_toolkit_callback_")
-            #return {'token': token}
+            # return {'token': token}
         return data_str
 
     @staticmethod
@@ -300,8 +300,12 @@ Layouts: {list(self.supported_layouts)}"""
 
 class PanelComponent(MPComponent):
     def __init__(
-        self, *args, open_by_default=False, enable_error_message=True,
-            has_output=False, **kwargs
+        self,
+        *args,
+        open_by_default=False,
+        enable_error_message=True,
+        has_output=False,
+        **kwargs,
     ):
 
         self.open_by_default = open_by_default
@@ -317,7 +321,7 @@ class PanelComponent(MPComponent):
         super().__init__(*args, **kwargs)
 
         if self.has_output:
-            self.create_store('out')
+            self.create_store("out")
 
     @property
     def title(self):
@@ -369,7 +373,9 @@ class PanelComponent(MPComponent):
             className="mpc-panel-description",
         )
 
-        contents = html.Div([message, description, self.header, initial_contents, self.footer])
+        contents = html.Div(
+            [message, description, self.header, initial_contents, self.footer]
+        )
 
         panel = Reveal(
             title=self.title,
@@ -387,35 +393,6 @@ class PanelComponent(MPComponent):
     def update_contents_additional_inputs(self):
         return []
 
-    def update_message(self, new_store_contents, *args):
-        try:
-            self.update_contents(new_store_contents, *args)
-        except Exception as exception:
-            self.logger.error(
-                f"Callback error.",
-                exc_info=True,
-                extra={"store_contents": new_store_contents},
-            )
-            error_header = (
-                "An error was encountered when trying to load this component, "
-                "please report this if it seems like a bug, thank you!"
-            )
-            # TODO: add GitHub Issue badge to error message box
-            return MessageContainer(
-                [
-                    MessageHeader("Error"),
-                    MessageBody(
-                        [
-                            html.Div(error_header),
-                            dcc.Markdown("> {}".format(traceback.format_exc())),
-                        ]
-                    ),
-                ],
-                kind="danger",
-            )
-        else:
-            return html.Div()
-
     def _generate_callbacks(self, app, cache):
         @cache.memoize(
             timeout=60 * 60 * 24,
@@ -425,7 +402,10 @@ class PanelComponent(MPComponent):
             return self.update_contents(*args, **kwargs)
 
         @app.callback(
-            Output(self.id("contents"), "children"),
+            [
+                Output(self.id("contents"), "children"),
+                Output(self.id("message"), "children"),
+            ],
             [Input(self.id("panel") + "_summary", "n_clicks"), Input(self.id(), "data")]
             + [
                 Input(component, property)
@@ -441,31 +421,41 @@ class PanelComponent(MPComponent):
             panel_initially_open = args[-1]
             # if the panel outputs data, we have to make sure callbacks are fired
             # regardless of if the panel is open or not
-            if (not self.has_output) and ((panel_n_clicks is None) or (panel_initially_open is None)):
+            if (not self.has_output) and (
+                (panel_n_clicks is None) or (panel_initially_open is None)
+            ):
                 raise PreventUpdate
             if not store_contents:
-                return html.Div()
-            return update_contents(store_contents, *args[:-1])
+                return html.Div(), html.Div()
 
-        if self.enable_error_message:
-
-            @app.callback(
-                Output(self.id("message"), "children"),
-                [Input(self.id("panel") + "_summary", "n_clicks")],
-                [State(self.id(), "data"), State(self.id("panel"), "open")]
-                + [
-                    State(component, property)
-                    for component, property in self.update_contents_additional_inputs
-                ],
-            )
-            def update_message(
-                panel_n_clicks, panel_initially_open, store_contents, *args
-            ):
-                if (panel_n_clicks is None) or (panel_initially_open is None):
-                    raise PreventUpdate
-                if not store_contents:
-                    raise PreventUpdate
-                return self.update_message(store_contents, *args)
+            try:
+                return self.update_contents(store_contents, *args[:-1]), html.Div()
+            except Exception as exception:
+                self.logger.error(
+                    f"Callback error.",
+                    exc_info=True,
+                    extra={"store_contents": store_contents},
+                )
+                error_header = (
+                    "An error was encountered when trying to load this component, "
+                    "please report this if it seems like a bug, thank you!"
+                )
+                # TODO: add GitHub Issue badge to error message box
+                return (
+                    html.Div(),
+                    MessageContainer(
+                        [
+                            MessageHeader("Error"),
+                            MessageBody(
+                                [
+                                    html.Div(error_header),
+                                    dcc.Markdown(f"> {traceback.format_exc()}"),
+                                ]
+                            ),
+                        ],
+                        kind="danger",
+                    ),
+                )
 
 
 def unicodeify_spacegroup(spacegroup_symbol):
@@ -502,6 +492,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
     return symbol
 
+
 def unicodeify_species(specie_string):
 
     if not specie_string:
@@ -519,7 +510,7 @@ def unicodeify_species(specie_string):
         "8": "⁸",
         "9": "⁹",
         "+": "⁺",
-        "-": "⁻"
+        "-": "⁻",
     }
 
     for character, unicode_character in superscript_unicode_map.items():
