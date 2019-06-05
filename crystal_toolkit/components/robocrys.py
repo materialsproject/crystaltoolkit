@@ -25,7 +25,7 @@ class RobocrysComponent(PanelComponent):
     @property
     def loading_text(self):
         return "Robocrystallographer is analyzing your structure, " \
-               "this can take up for a minute"
+               "this can take up to a minute"
 
     def update_contents(self, new_store_contents):
 
