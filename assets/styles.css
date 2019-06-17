@@ -372,7 +372,7 @@ button,
 input,
 select,
 textarea {
-  font-family: "IBM Plex Sans", sans-serif; }
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; }
 
 code,
 pre {
@@ -1157,8 +1157,6 @@ a.box:active {
   padding-top: calc(0.375em - 1px);
   text-align: center;
   white-space: nowrap;
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  /* -webkit-writing-mode: horizontal-tb !important; */
   font-weight: 700; }
   .button strong {
     color: inherit; }
