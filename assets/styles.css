@@ -234,7 +234,7 @@ details .input {
   -moz-appearance: none;
   -webkit-appearance: none;
   align-items: center;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   border-radius: 4px;
   box-shadow: none;
   display: inline-flex;
@@ -1156,7 +1156,10 @@ a.box:active {
   padding-right: 0.75em;
   padding-top: calc(0.375em - 1px);
   text-align: center;
-  white-space: nowrap; }
+  white-space: nowrap;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  /* -webkit-writing-mode: horizontal-tb !important; */
+  font-weight: 700; }
   .button strong {
     color: inherit; }
   .button .icon, .button .icon.is-small, .button .icon.is-medium, .button .icon.is-large {
@@ -1179,6 +1182,8 @@ a.box:active {
     color: #363636; }
     .button:focus:not(:active), .button.is-focused:not(:active) {
       box-shadow: 0 0 0 0.125em rgba(50, 115, 220, 0.25); }
+    .button:focus:active, .button.is-focused:active {
+      box-shadow: inset 0 2px 4px rgba(0,0,0,.15); }
   .button:active, .button.is-active {
     border-color: #4a4a4a;
     color: #363636; }
@@ -1438,11 +1443,17 @@ a.box:active {
         box-shadow: none;
         color: whitesmoke; }
   .button.is-primary {
-    background-color: #00d1b2;
+    -webkit-box-shadow: 0 2px 1px #39969c;
+    -moz-box-shadow: 0 2px 1px #39969c;
+    box-shadow: 0 2px 1px #39969c;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    background-color: #4bbdb4;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
     border-color: transparent;
     color: #fff; }
+
     .button.is-primary:hover, .button.is-primary.is-hovered {
-      background-color: #00c4a7;
+      background-color: #4bb7bd;
       border-color: transparent;
       color: #fff; }
     .button.is-primary:focus, .button.is-primary.is-focused {
@@ -1451,7 +1462,7 @@ a.box:active {
       .button.is-primary:focus:not(:active), .button.is-primary.is-focused:not(:active) {
         box-shadow: 0 0 0 0.125em rgba(0, 209, 178, 0.25); }
     .button.is-primary:active, .button.is-primary.is-active {
-      background-color: #00b89c;
+      background-color: #4bb7bd;
       border-color: transparent;
       color: #fff; }
     .button.is-primary[disabled] {
