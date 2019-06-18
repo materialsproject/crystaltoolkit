@@ -56,7 +56,11 @@ server = crystal_toolkit_app.server
 
 
 DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
+MP_EMBED_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_MP_EMBED_MODE", "False").title())
 ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").title())
+
+if not MP_EMBED_MODE:
+    crystal_toolkit_app.assets_ignore = r".*\.mpembed\..*"
 
 # endregion
 ##########
