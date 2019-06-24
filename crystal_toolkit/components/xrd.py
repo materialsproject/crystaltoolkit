@@ -9,14 +9,15 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from pymatgen import MPRester
-from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from pymatgen.analysis.diffraction.xrd import XRDCalculator, DiffractionPattern
+from pymatgen.analysis.diffraction.xrd import XRDCalculator, WAVELENGTHS
 
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.components.core import MPComponent, PanelComponent
 
+# Author: Matthew McDermott
+# Contact: mcdermott@lbl.gov
 
 class XRayDiffractionComponent(MPComponent):
     def __init__(self, *args, **kwargs):
@@ -63,14 +64,14 @@ class XRayDiffractionComponent(MPComponent):
         margin=dict(l=60, b=50, t=50, pad=0, r=30),
     )
 
-    WAVELENGTHS = { # Angstroms
-        "CuKa": 1.54184, "CuKa1": 1.54056, "CuKa2": 1.54439,"CuKb1": 1.39222,
-        "MoKa": 0.71073, "MoKa1": 0.70930, "MoKa2": 0.71359, "MoKb1": 0.63229,
-        "CrKa": 2.29100, "CrKa1": 2.28970, "CrKa2": 2.29361, "CrKb1": 2.08487,
-        "FeKa": 1.93735, "FeKa1": 1.93604, "FeKa2": 1.93998, "FeKb1": 1.75661,
-        "CoKa": 1.79026, "CoKa1": 1.78896, "CoKa2": 1.79285, "CoKb1": 1.63079,
-        "AgKa": 0.560885, "AgKa1": 0.559421, "AgKa2": 0.563813, "AgKb1": 0.497082,
-    }
+    # WAVELENGTHS = { # Angstroms
+    #     "CuKa": 1.54184, "CuKa1": 1.54056, "CuKa2": 1.54439,"CuKb1": 1.39222,
+    #     "MoKa": 0.71073, "MoKa1": 0.70930, "MoKa2": 0.71359, "MoKb1": 0.63229,
+    #     "CrKa": 2.29100, "CrKa1": 2.28970, "CrKa2": 2.29361, "CrKb1": 2.08487,
+    #     "FeKa": 1.93735, "FeKa1": 1.93604, "FeKa2": 1.93998, "FeKb1": 1.75661,
+    #     "CoKa": 1.79026, "CoKa1": 1.78896, "CoKa2": 1.79285, "CoKb1": 1.63079,
+    #     "AgKa": 0.560885, "AgKa1": 0.559421, "AgKa2": 0.563813, "AgKb1": 0.497082,
+    # }
 
     empty_plot_style = {
         "xaxis": {"visible": False},
@@ -79,15 +80,18 @@ class XRayDiffractionComponent(MPComponent):
         "plot_bgcolor": "rgba(0,0,0,0)",
     }
 
-    def G(self, x, c, alpha):
+    @staticmethod
+    def G(x, c, alpha):
         """ Return c-centered Gaussian line shape at x with HWHM alpha """
         return np.sqrt(np.log(2) / np.pi) / alpha * np.exp(-((x - c) / alpha) ** 2 * np.log(2))
 
-    def L(self, x, c, gamma):
+    @staticmethod
+    def L(x, c, gamma):
         """ Return c-centered Lorentzian line shape at x with HWHM gamma """
         return gamma / (np.pi * ((x - c) ** 2 + gamma ** 2))
 
-    def V(self, x, c, alphagamma):
+    @staticmethod
+    def V(x, c, alphagamma):
         """ Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
         alpha = 0.61065*alphagamma
         gamma = 0.61065*alphagamma
@@ -102,7 +106,7 @@ class XRayDiffractionComponent(MPComponent):
         :param wavelength: wavelength radiation in nm
         :return: half-width half-max (alpha or gamma), for line profile
         '''
-        wavelength = self.WAVELENGTHS[wavelength]
+        wavelength = WAVELENGTHS[wavelength]
         return 0.5 * K * 0.1 *wavelength / (tau * abs(np.cos(two_theta/2)))  # Scherrer equation for half-width half max
 
     @property
@@ -125,7 +129,7 @@ class XRayDiffractionComponent(MPComponent):
                 dcc.Dropdown(
                     id=self.id("rad-source"),
                     options=[
-                        {"label": i, "value": i} for i in self.WAVELENGTHS.keys()
+                        {"label": i, "value": i} for i in WAVELENGTHS.keys()
                     ],
                     value="CuKa",
                     placeholder="Select a source...",
@@ -190,11 +194,20 @@ class XRayDiffractionComponent(MPComponent):
 
     @property
     def standard_layout(self):
-        return html.Div([self.all_layouts["graph"],
-                         self.all_layouts["rad_source"],
-                         self.all_layouts["shape_factor"],
-                         self.all_layouts["peak_profile"],
-                         self.all_layouts["crystallite_size"]])
+        return html.Div([
+            Columns([
+                Column([
+                    self.all_layouts["graph"]
+                ],size=8),
+
+                Column([
+                    self.all_layouts["rad_source"],
+                    self.all_layouts["shape_factor"],
+                    self.all_layouts["peak_profile"],
+                    self.all_layouts["crystallite_size"]],
+                    size=4)
+            ])
+        ])
 
     def _generate_callbacks(self, app, cache):
         @app.callback(Output(self.id("xrd-plot"), "figure"),
