@@ -6,22 +6,25 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from pprint import pprint
-
 from pymatgen import MPRester
-from pymatgen.core.structure import Structure
-from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
+from pymatgen.core.composition import Composition
+from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter, PDEntry
 
 from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
 from crystal_toolkit.components.core import MPComponent, PanelComponent
 
+# Author: Matthew McDermott
+# Contact: mcdermott@lbl.gov
 
 class PhaseDiagramComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("struct")
+        self.create_store("chemsys-internal")
+        self.create_store("chemsys-external")
         self.create_store("figure")
+        self.create_store("entries")
 
     # Default plot layouts for Binary (2), Ternary (3), Quaternary (4) phase diagrams
     default_binary_plot_style = dict(
@@ -71,13 +74,6 @@ class PhaseDiagramComponent(MPComponent):
         margin=dict(l=80, b=70, t=10, r=20),
     )
 
-    empty_plot_style = {
-        "xaxis": {"visible": False},
-        "yaxis": {"visible": False},
-        "paper_bgcolor": "rgba(0,0,0,0)",
-        "plot_bgcolor": "rgba(0,0,0,0)",
-    }
-
     default_ternary_plot_style = dict(
         xaxis=dict(
             title=None,
@@ -115,6 +111,19 @@ class PhaseDiagramComponent(MPComponent):
         ),
     )
 
+    default_3d_axis = dict(
+                title=None,
+                visible=False,
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks="",
+                showaxeslabels=False,
+                showticklabels=False,
+                showspikes=False
+    )
+
     default_quaternary_plot_style = dict(
         autosize=True,
         height=450,
@@ -131,201 +140,127 @@ class PhaseDiagramComponent(MPComponent):
             xanchor="right",
             tracegroupgap=5,
         ),
+        scene = dict(
+            xaxis= default_3d_axis,
+            yaxis=default_3d_axis,
+            zaxis=default_3d_axis
+        )
     )
 
+    empty_plot_style = {
+        "xaxis": {"visible": False},
+        "yaxis": {"visible": False},
+        "paper_bgcolor": "rgba(0,0,0,0)",
+        "plot_bgcolor": "rgba(0,0,0,0)",
+    }
+
+    colorscale = [[0.0, '#008d00'], [0.1111111111111111, '#4b9f3f'], [0.2222222222222222, '#73b255'],
+        [0.3333333333333333, '#97c65b'], [0.4444444444444444, '#b9db53'], [0.5555555555555556, '#ffdcdf'],
+        [0.6666666666666666, '#ffb8bf'],[0.7777777777777778, '#fd92a0'], [0.8888888888888888, '#f46b86'],
+        [1.0, '#e24377']]
+
     default_table_params = [
-        "Material ID",
-        "Formula",
-        "Formation Energy (eV/atom)",
-        "Energy Above Hull (eV/atom)",
-        "Stable?",
+        {"col": "Material ID", "edit": False},
+        {"col": "Formula", "edit": True},
+        {"col": "Formation Energy (eV/atom)", "edit": True},
+        {"col": "Energy Above Hull (eV/atom)", "edit": False},
+        {"col": "Predicted Stable?", "edit": False},
     ]
 
-    def figure_layout(self, plotter, pd):
+    empty_row = {
+        "Material ID": None,
+        "Formula": "INSERT",
+        "Formation Energy (eV/atom)": "INSERT",
+        "Energy Above Hull (eV/atom)": None,
+        "Predicted Stable": None,
+    }
 
+    def figure_layout(self, plotter, pd):
         dim = pd.dim
 
-        if dim == 2:
-            annotations_list = []
+        if dim not in [2, 3, 4]:
+            raise ValueError("Phase diagram must be for 2, 3, or 4 components!")
 
-            for entry in plotter.pd_plot_data[1]:
-                x, y = entry[0], entry[1]
+        annotations_list = []
 
-                formula = list(
-                    plotter.pd_plot_data[1][entry].composition.reduced_formula
-                )
-                text = []
-                for char in formula:
-                    if char.isdigit():
-                        text.append("<sub>" + char + "</sub>")
-                    else:
-                        text.append(char)
-                clean_formula = ""
-                clean_formula = clean_formula.join(text)
+        for coords, entry in plotter.pd_plot_data[1].items():
+            x, y = coords[0], coords[1]
 
-                new_annotation = {
-                    "align": "center",
-                    "font": {"color": "#000000", "size": 20.0},
-                    "opacity": 1,
-                    "showarrow": False,
-                    "text": clean_formula + "  ",
-                    "x": x,
-                    "xanchor": "right",
-                    "yanchor": "auto",
-                    "xref": "x",
-                    "y": y,
-                    "yref": "y",
-                }
+            if dim == 4:
+                if not entry.composition.is_element:
+                    continue
+                else:
+                    z = coords[2]
 
-                annotations_list.append(new_annotation)
+            formula = list(entry.composition.reduced_formula)
 
+            clean_formula = self.clean_formula(formula)
+
+            annotation = {
+                "align": "center",
+                "font": {"color": "#000000", "size": 20.0},
+                "opacity": 1,
+                "showarrow": False,
+                "text": clean_formula,
+                "x": x,
+                "xanchor": "right",
+                "yanchor": "auto",
+                "xshift":-10,
+                "yshift":-10,
+                "xref": "x",
+                "y": y,
+                "yref": "y",
+            }
+
+            if dim == 3:
+                annotation.update({"font": {"color": "#000000", "size": 18.0}})
+            elif dim == 4:
+                annotation.update({"z":z})
+                for d in ["xref", "yref"]:
+                    annotation.pop(d) # Scatter3d cannot contain xref, yref
+
+            annotations_list.append(annotation)
+
+            if dim == 2:
                 layout = self.default_binary_plot_style
                 layout["annotations"] = annotations_list
-            return layout
-
-        elif dim == 3:
-            annotations_list = []
-
-            for entry in plotter.pd_plot_data[1]:
-                x, y = entry[0], entry[1]
-
-                formula = list(
-                    plotter.pd_plot_data[1][entry].composition.reduced_formula
-                )
-                text = []
-                for char in formula:
-                    if char.isdigit():
-                        text.append("<sub>" + char + "</sub>")
-                    else:
-                        text.append(char)
-                clean_formula = ""
-                clean_formula = clean_formula.join(text)
-
-                new_annotation = {
-                    "align": "center",
-                    "font": {"color": "#000000", "size": 18.0},
-                    "opacity": 1,
-                    "showarrow": False,
-                    "text": clean_formula + "  ",
-                    "x": x,
-                    "xanchor": "right",
-                    "yanchor": "top",
-                    "xref": "x",
-                    "y": y,
-                    "yref": "y",
-                }
-
-                annotations_list.append(new_annotation)
-
+            elif dim == 3:
                 layout = self.default_ternary_plot_style
                 layout["annotations"] = annotations_list
-            return layout
-
-        elif dim == 4:
-            annotations_list = []
-
-            for entry in plotter.pd_plot_data[1]:
-                x, y, z = entry[0], entry[1], entry[2]
-
-                formula = list(
-                    plotter.pd_plot_data[1][entry].composition.reduced_formula
-                )
-                text = []
-                for char in formula:
-                    if char.isdigit():
-                        text.append("<sub>" + char + "</sub>")
-                    else:
-                        text.append(char)
-                clean_formula = ""
-                clean_formula = clean_formula.join(text)
-
-                new_annotation = {
-                    "align": "center",
-                    "font": {"color": "#000000", "size": 18.0},
-                    "opacity": 1,
-                    "showarrow": False,
-                    "text": clean_formula,
-                    "x": x,
-                    "y": y,
-                    "z": z,
-                    "xshift": 25,
-                    "yshift": 10,
-                }
-
-                annotations_list.append(new_annotation)
-
+            elif dim == 4:
                 layout = self.default_quaternary_plot_style
-                layout["scene"] = dict(
-                    annotations=annotations_list,
-                    xaxis=dict(
-                        title=None,
-                        visible=False,
-                        autorange=True,
-                        showgrid=False,
-                        zeroline=False,
-                        showline=False,
-                        ticks="",
-                        showaxeslabels=False,
-                        showticklabels=False,
-                        showspikes=False,
-                    ),
-                    yaxis=dict(
-                        title=None,
-                        visible=False,
-                        autorange=True,
-                        showgrid=False,
-                        zeroline=False,
-                        showline=False,
-                        showaxeslabels=False,
-                        ticks="",
-                        showticklabels=False,
-                        showspikes=False,
-                    ),
-                    zaxis=dict(
-                        title=None,
-                        visible=False,
-                        autorange=True,
-                        showgrid=False,
-                        zeroline=False,
-                        showline=False,
-                        showaxeslabels=False,
-                        ticks="",
-                        showticklabels=False,
-                        showspikes=False,
-                    ),
-                )
-            return layout
-
-        else:
-            raise ValueError("Dimension of phase diagram must be 2, 3, or 4")
+                layout["scene"].update({"annotations": annotations_list,
+                                        "camera":dict(up=dict(x=0, y=0, z=1),
+                                                      center=dict(x=-0.15, y=-0.2, z=0),
+                                                      eye=dict(x=1.25, y=1.25, z=1.25))})
+        return layout
 
     def create_markers(self, plotter, pd):
         x_list = []
         y_list = []
         z_list = []
         text = []
+        energy_list = []
+
         dim = pd.dim
 
-        for entry in plotter.pd_plot_data[1]:
+        for coord, entry in plotter.pd_plot_data[1].items():
             energy = round(
-                pd.get_form_energy_per_atom(plotter.pd_plot_data[1][entry]), 3
+                pd.get_form_energy_per_atom(entry), 3
             )
-            mpid = plotter.pd_plot_data[1][entry].entry_id
-            formula = plotter.pd_plot_data[1][entry].composition.reduced_formula
-            s = []
-            for char in formula:
-                if char.isdigit():
-                    s.append("<sub>" + char + "</sub>")
-                else:
-                    s.append(char)
-            clean_formula = "".join(s)
+            energy_list.append(energy)
+            mpid = entry.attribute
+            formula = entry.composition.reduced_formula
 
-            x_list.append(entry[0])
-            y_list.append(entry[1])
+            clean_formula = self.clean_formula(formula)
+
+            x_list.append(coord[0])
+            y_list.append(coord[1])
+
             if dim == 4:
-                z_list.append(entry[2])
+                z_list.append(coord[2])
             text.append(
-                clean_formula + " (" + mpid + ")" + "<br>" + str(energy) + " eV"
+                f"{clean_formula} ({mpid})<br> {str(energy)} eV"
             )
 
         if dim == 2 or dim == 3:
@@ -334,7 +269,10 @@ class PhaseDiagramComponent(MPComponent):
                 y=y_list,
                 mode="markers",
                 name="Stable",
-                marker=dict(color="#0562AB", size=11),
+                marker=dict(color=energy_list,
+                            size=11,
+                            colorscale=self.colorscale,
+                            line=dict(width=2, color="#000000")),
                 hoverinfo="text",
                 hoverlabel=dict(font=dict(size=14)),
                 showlegend=True,
@@ -347,34 +285,117 @@ class PhaseDiagramComponent(MPComponent):
                 z=z_list,
                 mode="markers",
                 name="Stable",
-                marker=dict(color="#0562AB", size=8),
+                marker=dict(color=energy_list,
+                            size=8,
+                            colorscale=self.colorscale,
+                            line=dict(width=2, color="#000000")),
                 hoverinfo="text",
                 hoverlabel=dict(font=dict(size=14)),
                 hovertext=text,
+                showlegend=True,
             )
         return marker_plot
 
+    def create_unstable_markers(self, plotter, pd):
+        x_list = []
+        y_list = []
+        z_list = []
+        text_list = []
+
+        dim = pd.dim
+
+        for (unstable_entry, unstable_coord) in plotter.pd_plot_data[2].items():
+            x_list.append(unstable_coord[0])
+            y_list.append(unstable_coord[1])
+            if dim == 4:
+                z_list.append(unstable_coord[2])
+
+            mpid = unstable_entry.attribute
+            formula = list(unstable_entry.composition.reduced_formula)
+            e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
+
+            clean_formula = self.clean_formula(formula)
+
+            energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
+            text_list.append(
+                f"{clean_formula} ({mpid})<br>"
+                f"{energy} eV (+{e_above_hull} eV)"
+            )
+
+        if dim == 2 or dim == 3:
+            unstable_marker_plot = go.Scatter(
+                    x=x_list,
+                    y=y_list,
+                    mode="markers",
+                    hoverinfo="text",
+                    hovertext=text_list,
+                    visible="legendonly",
+                    name="Unstable",
+                    marker=dict(color="#ff0000", size=12, symbol="x"),
+                )
+
+        elif dim == 4:
+            unstable_marker_plot = go.Scatter3d(
+                x=x_list,
+                y=y_list,
+                z=z_list,
+                mode="markers",
+                hoverinfo="text",
+                hovertext=text_list,
+                visible="legendonly",
+                name="Unstable",
+                marker=dict(color="#ff0000", size=4, symbol="x"),
+            )
+
+        return unstable_marker_plot
+
     @staticmethod
     def create_table_content(pd):
-        data = [
-            {
-                "Material ID": entry.entry_id,
-                "Formula": entry.name,
-                "Formation Energy (eV/atom)": round(
-                    pd.get_form_energy_per_atom(entry), 3
-                ),
-                "Energy Above Hull (eV/atom)": round(pd.get_e_above_hull(entry), 3),
-                "Predicted Stable?": (
-                    "Yes" if pd.get_e_above_hull(entry) == 0 else "No"
-                ),
-            }
-            for entry in pd.all_entries
-        ]
+        data = []
+
+        for entry in pd.all_entries:
+            try:
+                mpid = entry.entry_id
+            except:
+                mpid = entry.attribute # accounting for custom entry
+
+            try:
+                data.append(
+                    {
+                        "Material ID": mpid,
+                        "Formula": entry.name,
+                        "Formation Energy (eV/atom)": round(
+                            pd.get_form_energy_per_atom(entry), 3
+                        ),
+                        "Energy Above Hull (eV/atom)": round(
+                            pd.get_e_above_hull(entry), 3
+                        ),
+                        "Predicted Stable?": (
+                            "Yes" if pd.get_e_above_hull(entry) == 0 else "No"
+                        ),
+                    }
+                )
+
+            except:
+                data.append({})
         return data
+
+    @staticmethod
+    def clean_formula(formula):
+        s = []
+        for char in formula:
+            if char.isdigit():
+                s.append(f"<sub>{char}</sub>")
+            else:
+                s.append(char)
+
+        clean_formula = "".join(s)
+
+        return clean_formula
 
     @property
     def all_layouts(self):
-        # Main plot
+
         graph = html.Div(
             [
                 dcc.Graph(
@@ -382,18 +403,60 @@ class PhaseDiagramComponent(MPComponent):
                     id=self.id("graph"),
                     config={"displayModeBar": False, "displaylogo": False},
                 )
-            ]
+            ], id=self.id("pd-div")
         )
         table = html.Div(
             [
-                dash_table.DataTable(
-                    id=self.id("entry-table"),
-                    columns=([{"id": p, "name": p} for p in self.default_table_params]),
-                    data=[],
-                    style_table={"maxHeight": "400", "overflowY": "scroll"},
-                    n_fixed_rows=1,
-                    sorting=True,
-                )
+                html.Div(
+                    dash_table.DataTable(
+                        id=self.id("entry-table"),
+                        columns=(
+                            [
+                                {
+                                    "id": p["col"],
+                                    "name": p["col"],
+                                    "editable": p["edit"],
+                                }
+                                for p in self.default_table_params
+                            ]
+                        ),
+                        style_table={
+                            "maxHeight": "450px",
+                            "overflowY": "auto",
+                            "border": "thin lightgrey solid",
+                        },
+                        #n_fixed_rows=1,
+                        sorting=True,
+                        editable=True,
+                        row_deletable=True,
+                        style_header={
+                            "backgroundColor": "rgb(230, 249, 255)",
+                            "fontWeight": "bold",
+                        },
+                        style_cell={
+                            "fontFamily": "IBM Plex Sans",
+                            "textAlign": "centered",
+                            "whiteSpace": "normal",
+                        },
+                        css=[
+                            {
+                                "selector": ".dash-cell div.dash-cell-value",
+                                "rule": "display: inline; white-space: inherit; overflow: inherit; text-overflow: inherit;",
+                            }
+                        ],
+                        style_cell_conditional=[
+                            {"if": {"column_id": "Material ID"}, "width": "20%"},
+                            {"if": {"column_id": "Formula"}, "width": "20%"},
+                        ],
+                    )
+                ),
+                Button(
+                    "Add Custom Entry",
+                    id=self.id("editing-rows-button"),
+                    kind="primary",
+                    n_clicks=0,
+                ),
+                html.P("Enter composition and formation energy per atom."),
             ]
         )
 
@@ -403,311 +466,209 @@ class PhaseDiagramComponent(MPComponent):
     def standard_layout(self):
         return html.Div(
             [
-                Columns([Column(self.all_layouts["graph"])], centered=True),
-                Columns([Column(self.all_layouts["table"])]),
+                Columns(
+                    [
+                        Column(self.all_layouts["graph"]),
+                        Column(self.all_layouts["table"]),
+                    ],
+                    centered=True,
+                )
             ]
         )
 
     def _generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("graph"), "figure"), [Input(self.id("figure"), "data")]
+            Output(self.id("pd-div"), "children"), [Input(self.id("figure"), "data")]
         )
         def update_graph(figure):
-            return figure
+            if figure is None:
+                raise PreventUpdate
+            elif figure == "error":
+                search_error = MessageContainer(
+                    [
+                        MessageBody(
+                            dcc.Markdown(
+                                "Plotting is only available for phase diagrams containing 2-4 components."
+                            )
+                        ),
+                    ],
+                    kind="warning",
+                ),
+                return search_error
 
-        @app.callback(
-            Output(self.id(), "data"),
-            [
-                Input(self.id("mpid"), "modified_timestamp"),
-                Input(self.id("struct"), "modified_timestamp"),
-            ],
-            [State(self.id("mpid"), "data"), State(self.id("struct"), "data")],
-        )
-        def generate_pd(mp_time, struct_time, mpid, struct):
+            else:
+                plot = [dcc.Graph(
+                    figure=figure,
+                    config={"displayModeBar": False, "displaylogo": False},
+                )]
+                return plot
 
-            if (struct_time is None) or (mp_time is None):
+        @app.callback(Output(self.id("figure"), "data"), [Input(self.id(), "data")])
+        def make_figure(pd):
+            if pd is None:
                 raise PreventUpdate
 
-            if struct_time > mp_time:
-                if struct is None:
-                    raise PreventUpdate
-                chemsys = [
-                    str(elem) for elem in self.from_data(struct).composition.elements
-                ]
+            pd = self.from_data(pd)
+            dim = pd.dim
 
-            elif mp_time >= struct_time:
-                if mpid is None:
-                    raise PreventUpdate
-                mpid = mpid["mpid"]
+            if dim not in [2, 3, 4]:
+                return "error"
 
+            plotter = PDPlotter(pd)
+
+            data = []
+            for line in plotter.pd_plot_data[0]:
+                if dim == 2 or dim == 3:
+                    data.append(
+                        go.Scatter(
+                            x=list(line[0]),
+                            y=list(line[1]),  # create all phase diagram lines
+                            mode="lines",
+                            hoverinfo="none",
+                            line={
+                                "color": "rgba (0, 0, 0, 1)",
+                                "dash": "solid",
+                                "width": 3.0,
+                            },
+                            showlegend=False,
+                        )
+                    )
+
+                elif dim == 4:
+                    data.append(
+                        go.Scatter3d(
+                            x=list(line[0]),
+                            y=list(line[1]),
+                            z=list(line[2]),
+                            mode="lines",
+                            hoverinfo="none",
+                            line={
+                                "color": "rgba (0, 0, 0, 1)",
+                                "dash": "solid",
+                                "width": 3.0,
+                            },
+                            showlegend=False,
+                        )
+                    )
+
+            data.append(self.create_unstable_markers(plotter, pd))
+            data.append(self.create_markers(plotter, pd))
+
+            fig = go.Figure(data=data)
+            fig.layout = self.figure_layout(plotter, pd)
+
+            return fig
+
+        @app.callback(Output(self.id(), "data"), [Input(self.id("entries"), "data")])
+        def create_pd_object(entries):
+            if entries is None or not entries:
+                raise PreventUpdate
+
+            entries = self.from_data(entries)
+
+            return self.to_data(PhaseDiagram(entries))
+
+        @app.callback(
+            Output(self.id("entries"), "data"),
+            [Input(self.id("entry-table"), "derived_virtual_data")],
+        )
+        def update_entries_store(rows):
+            if rows is None:
+                raise PreventUpdate
+            entries = []
+            for row in rows:
+                try:
+                    comp = Composition(row["Formula"])
+                    energy = row["Formation Energy (eV/atom)"]
+                    if row["Material ID"] is None:
+                        attribute = "Custom Entry"
+                    else:
+                        attribute = row["Material ID"]
+                    # create new entry object containing mpid as attribute (to combine with custom entries)
+                    entry = PDEntry(
+                        comp, float(energy) * comp.num_atoms, attribute=attribute
+                    )
+                    entries.append(entry)
+                except:
+                    continue
+
+            if not entries:
+                raise PreventUpdate
+
+            return self.to_data(entries)
+
+        @app.callback(
+            Output(self.id("entry-table"), "data"),
+            [
+                Input(self.id("chemsys-internal"), "data"),
+                Input(self.id(), "modified_timestamp"),
+                Input(self.id("editing-rows-button"), "n_clicks"),
+            ],
+            [State(self.id(), "data"), State(self.id("entry-table"), "data")],
+        )
+        def create_table(chemsys, pd_time, n_clicks, pd, rows):
+
+            ctx = dash.callback_context
+
+            if ctx is None or not ctx.triggered or chemsys is None:
+                raise PreventUpdate
+
+            trigger = ctx.triggered[0]
+
+            # PD update trigger
+            if trigger["prop_id"] == self.id() + ".modified_timestamp":
+                table_content = self.create_table_content(self.from_data(pd))
+                return table_content
+            elif trigger["prop_id"] == self.id("editing-rows-button") + ".n_clicks":
+                if n_clicks > 0 and rows:
+                    rows.append(self.empty_row)
+                    return rows
+
+            with MPRester() as mpr:
+                entries = mpr.get_entries_in_chemsys(chemsys)
+
+            pd = PhaseDiagram(entries)
+            table_content = self.create_table_content(pd)
+
+            return table_content
+
+        @app.callback(
+            Output(self.id("chemsys-internal"), "data"),
+            [
+                Input(self.id("mpid"), "data"),
+                Input(self.id("struct"), "data"),
+                Input(self.id("chemsys-external"), "data"),
+            ],
+        )
+        def get_chemsys_from_struct_mpid(mpid, struct, chemsys_x):
+            ctx = dash.callback_context
+
+            if ctx is None or not ctx.triggered:
+                raise PreventUpdate
+
+            trigger = ctx.triggered[0]
+
+            if trigger["value"] is None:
+                raise PreventUpdate
+
+            # mpid trigger
+            if trigger["prop_id"] == self.id("mpid") + ".data":
                 with MPRester() as mpr:
                     entry = mpr.get_entry_by_material_id(mpid)
 
                 chemsys = [str(elem) for elem in entry.composition.elements]
 
-            with MPRester() as mpr:
-                entries = mpr.get_entries_in_chemsys(
-                    chemsys
-                )  # use MPRester to acquire all entries in chem system
+            # struct trigger
+            if trigger["prop_id"] == self.id("struct") + ".data":
+                chemsys = [
+                    str(elem) for elem in self.from_data(struct).composition.elements
+                ]
 
-            pd = PhaseDiagram(entries)
-            return self.to_data(pd)
+            # external chemsys trigger (e.g. searching by chemsys in the Synthesis App)
+            if trigger["prop_id"] == self.id("chemsys-external") + ".data":
+                chemsys = chemsys_x
 
-        @app.callback(Output(self.id("figure"), "data"), [Input(self.id(), "data")])
-        def make_figure(pd):
-            pd = self.from_data(pd)
-            dim = pd.dim
-
-            plotter = PDPlotter(pd)  # create plotter object using pymatgen
-            # print(pd.stable_entries)
-
-            if dim not in [2, 3, 4]:
-                raise ValueError(
-                    "Structure contains {} components."
-                    " Phase diagrams can only be created with 2, 3, or 4 components".format(
-                        str(dim)
-                    )
-                )
-            data = []  # initialize plot data list
-            if dim == 2:
-                for line in plotter.pd_plot_data[0]:
-                    data.append(
-                        go.Scatter(
-                            x=list(line[0]),
-                            y=list(line[1]),  # create all phase diagram lines
-                            mode="lines",
-                            hoverinfo="none",
-                            line={
-                                "color": "rgba (0, 0, 0, 1)",
-                                "dash": "solid",
-                                "width": 3.0,
-                            },
-                            showlegend=False,
-                        )
-                    )
-                x_list = []
-                y_list = []
-                text_list = []
-                unstable_xy_list = list(plotter.pd_plot_data[2].values())
-                unstable_entry_list = list(plotter.pd_plot_data[2].keys())
-
-                for unstable_xy, unstable_entry in zip(
-                    unstable_xy_list, unstable_entry_list
-                ):
-                    x_list.append(unstable_xy[0])
-                    y_list.append(unstable_xy[1])
-                    mpid = unstable_entry.entry_id
-                    formula = list(unstable_entry.composition.reduced_formula)
-                    e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
-
-                    # add formula subscripts
-                    s = []
-                    for char in formula:
-                        if char.isdigit():
-                            s.append("<sub>" + char + "</sub>")
-                        else:
-                            s.append(char)
-                    clean_formula = ""
-                    clean_formula = clean_formula.join(s)
-
-                    energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
-                    text_list.append(
-                        f"{clean_formula} ({mpid})<br>"
-                        f"{energy} eV ({e_above_hull} eV)"
-                    )
-
-                data.append(
-                    go.Scatter(
-                        x=x_list,
-                        y=y_list,
-                        mode="markers",
-                        hoverinfo="text",
-                        hovertext=text_list,
-                        visible="legendonly",
-                        name="Unstable",
-                        marker=dict(color="#ff0000", size=12, symbol="x"),
-                    )
-                )
-
-            elif dim == 3:
-                for line in plotter.pd_plot_data[0]:
-                    data.append(
-                        go.Scatter(
-                            x=list(line[0]),
-                            y=list(line[1]),  # create all phase diagram lines
-                            mode="lines",
-                            hoverinfo="none",
-                            line={
-                                "color": "rgba (0, 0, 0, 1)",
-                                "dash": "solid",
-                                "width": 3.0,
-                            },
-                            showlegend=False,
-                        )
-                    )
-                x_list = []
-                y_list = []
-                xy_list = []
-                text_list = []
-                unstable_xy_list = list(plotter.pd_plot_data[2].values())
-                unstable_entry_list = list(plotter.pd_plot_data[2].keys())
-
-                for unstable_xy, unstable_entry in zip(
-                    unstable_xy_list, unstable_entry_list
-                ):
-                    mpid = unstable_entry.entry_id
-                    formula = unstable_entry.composition.reduced_formula
-                    energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
-                    e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
-
-                    s = []
-                    for char in formula:
-                        if char.isdigit():
-                            s.append("<sub>" + char + "</sub>")
-                        else:
-                            s.append(char)
-                    clean_formula = ""
-                    clean_formula = clean_formula.join(s)
-
-                    if unstable_xy not in xy_list:
-                        x_list.append(unstable_xy[0])
-                        y_list.append(unstable_xy[1])
-                        xy_list.append(unstable_xy)
-                        text_list.append(
-                            clean_formula + " (" + mpid + ")"
-                            "<br>"
-                            + str(energy)
-                            + " eV"
-                            + " ("
-                            + str(e_above_hull)
-                            + " eV"
-                            + ")"
-                        )
-                    else:
-                        index = xy_list.index(unstable_xy)
-                        text_list[index] += (
-                            "<br>"
-                            + clean_formula
-                            + "<br>"
-                            + str(energy)
-                            + " eV"
-                            + " ("
-                            + str(e_above_hull)
-                            + " eV"
-                            + ")"
-                        )
-
-                data.append(
-                    go.Scatter(
-                        x=x_list,
-                        y=y_list,
-                        mode="markers",
-                        hoverinfo="text",
-                        hovertext=text_list,
-                        visible="legendonly",
-                        name="Unstable",
-                        marker=dict(color="#ff0000", size=12, symbol="x"),
-                    )
-                )
-            elif dim == 4:
-                for line in plotter.pd_plot_data[0]:
-                    data.append(
-                        go.Scatter3d(
-                            x=list(line[0]),
-                            y=list(line[1]),
-                            z=list(line[2]),  # create all phase diagram lines
-                            mode="lines",
-                            hoverinfo="none",
-                            line={
-                                "color": "rgba (0, 0, 0, 1)",
-                                "dash": "solid",
-                                "width": 3.0,
-                            },
-                            showlegend=False,
-                        )
-                    )
-                x_list = []
-                y_list = []
-                z_list = []
-                xyz_list = []
-                text_list = []
-                unstable_xyz_list = list(plotter.pd_plot_data[2].values())
-                unstable_entry_list = list(plotter.pd_plot_data[2].keys())
-
-                for unstable_xyz, unstable_entry in zip(
-                    unstable_xyz_list, unstable_entry_list
-                ):
-                    mpid = unstable_entry.entry_id
-                    formula = unstable_entry.composition.reduced_formula
-                    energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
-                    e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
-
-                    s = []
-                    for char in formula:
-                        if char.isdigit():
-                            s.append("<sub>" + char + "</sub>")
-                        else:
-                            s.append(char)
-                    clean_formula = ""
-                    clean_formula = clean_formula.join(s)
-
-                    if unstable_xyz not in xyz_list:
-                        x_list.append(unstable_xyz[0])
-                        y_list.append(unstable_xyz[1])
-                        z_list.append(unstable_xyz[2])
-                        xyz_list.append(unstable_xyz)
-                        text_list.append(
-                            clean_formula
-                            + " ("
-                            + mpid
-                            + ")"
-                            + "<br>"
-                            + str(energy)
-                            + " eV"
-                            + " ("
-                            + str(e_above_hull)
-                            + " eV"
-                            + ")"
-                        )
-                    else:
-                        index = xyz_list.index(unstable_xyz)
-                        text_list[index] += (
-                            "<br>"
-                            + clean_formula
-                            + "<br>"
-                            + str(energy)
-                            + " eV"
-                            + " ("
-                            + str(e_above_hull)
-                            + " eV"
-                            + ")"
-                        )
-
-                data.append(
-                    go.Scatter3d(
-                        x=x_list,
-                        y=y_list,
-                        z=z_list,
-                        mode="markers",
-                        hoverinfo="text",
-                        hovertext=text_list,
-                        visible="legendonly",
-                        name="Unstable",
-                        marker=dict(color="#ff0000", size=4, symbol="x"),
-                    )
-                )
-            data.append(self.create_markers(plotter, pd))
-            fig = go.Figure(data=data)
-            fig.layout = self.figure_layout(plotter, pd)
-            return fig
-
-        @app.callback(
-            Output(self.id("entry-table"), "data"), [Input(self.id(), "data")]
-        )
-        def update_table(pd):
-            pd = self.from_data(pd)
-            table_content = self.create_table_content(pd)
-            return table_content
+            return chemsys
 
 
 class PhaseDiagramPanelComponent(PanelComponent):
@@ -729,11 +690,9 @@ class PhaseDiagramPanelComponent(PanelComponent):
 
     @property
     def initial_contents(self):
-
         return html.Div(
             [
                 super().initial_contents,
-                # necessary to include for the callbacks from PhaseDiagramComponent to work
                 html.Div([self.pd_component.standard_layout]),
             ]
         )

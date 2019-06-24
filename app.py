@@ -138,6 +138,7 @@ if DEBUG_MODE:
     robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
     magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
     xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+    xas_component = ctc.XASPanelComponent(origin_component=search_component)
     pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
     symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
 
@@ -153,6 +154,7 @@ if DEBUG_MODE:
         symmetry_component,
         bonding_graph_component,
         xrd_component,
+        xas_component,
         pd_component,
         magnetism_component,
         literature_component,
@@ -204,6 +206,7 @@ else:
     robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
     magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
     xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+    xas_component = ctc.XASPanelComponent(origin_component=search_component)
     pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
     symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
     submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
@@ -220,6 +223,7 @@ else:
         symmetry_component,
         bonding_graph_component,
         xrd_component,
+        xas_component,
         pd_component,
         magnetism_component,
         literature_component,
