@@ -46,7 +46,6 @@ export default class Simple3DScene {
     });
     this.renderer = renderer;
 
-    console.log(window.devicePixelRatio);
     renderer.setPixelRatio(
       window.devicePixelRatio
     );
@@ -105,8 +104,17 @@ export default class Simple3DScene {
       this.start();
     }
 
-    // TODO: need to change canvas size on window resize / container resize
-    window.addEventListener( 'resize', render, false );
+    function resizeRendererToDisplaySize() {
+      const canvas = renderer.domElement;
+      const width  = canvas.parentElement.clientWidth | 0;
+      const height = canvas.parentElement.clientHeight | 0;
+      if (canvas.width !== width || canvas.height !== height) {
+        renderer.setSize(width, height, true);
+      }
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener( 'resize', resizeRendererToDisplaySize, false );
   }
 
   download(filename, filetype) {
