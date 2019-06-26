@@ -1,7 +1,8 @@
 body, html, .body {
   background: #e4e6e8 !important;
   overflow-y: scroll;
-  scrollbar-width: none; }
+  scrollbar-width: none;
+}
 
 .button, .input,
 .textarea, .select select, .file-cta,
@@ -9,20 +10,24 @@ body, html, .body {
 .pagination-next,
 .pagination-link,
 .pagination-ellipsis {
-  border: 2px solid transparent; }
+  border: 2px solid transparent;
+}
 
 body,
 button,
 input,
 select,
 textarea {
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; }
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
 
 .button {
-  font-weight: 700; }
+  font-weight: 700;
+}
 
 .button:focus:active, .button.is-focused:active {
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15); }
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
 
 .button.is-primary {
   box-shadow: 0 2px 1px #39969c;
@@ -30,9 +35,11 @@ textarea {
   background-color: #4bbdb4;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   border-color: transparent;
-  color: #fff; }
+  color: #fff;
+}
 
 .button.is-primary:hover, .button.is-primary.is-hovered {
-  background-color: #4bb7bd; }
+  background-color: #4bb7bd;
+}
 
 /*# sourceMappingURL=styles.mpembed.css.map */
