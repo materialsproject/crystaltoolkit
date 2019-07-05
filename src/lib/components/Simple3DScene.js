@@ -79,7 +79,8 @@ export default class Simple3DScene {
 
     // Lights
 
-    this.makeLights(scene, this.settings.lights);
+    const lights = this.makeLights(this.settings.lights);
+    camera.add(lights);
 
     const controls = new THREE.OrbitControls(
       this.camera,
@@ -88,6 +89,8 @@ export default class Simple3DScene {
     controls.enableKeys = false;
     controls.minZoom = 1;
     controls.maxZoom = 250;
+    controls.maxPolarAngle = Infinity;
+    controls.minPolarAngle = -Infinity;
 
     // initial render
     function render() {
@@ -185,8 +188,7 @@ export default class Simple3DScene {
     this.renderScene();
   }
 
-  makeLights(scene, light_json) {
-    Simple3DScene.removeObjectByName(scene, "lights");
+  makeLights(light_json) {
 
     const lights = new THREE.Object3D();
     lights.name = "lights";
@@ -217,7 +219,7 @@ export default class Simple3DScene {
       lights.add(lightObj);
     });
 
-    scene.add(lights);
+    return lights;
   }
 
   makeObject(object_json) {
