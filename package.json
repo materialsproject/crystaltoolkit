@@ -21,7 +21,7 @@
     "bulma": "^0.7.2",
     "ramda": "^0.25.0",
     "react-graph-vis": "^1.0.2",
-    "three-full": "^11.3.2"
+    "three-full": "^17.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
