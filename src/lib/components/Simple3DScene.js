@@ -87,10 +87,9 @@ export default class Simple3DScene {
       this.renderer.domElement
     );
     controls.enableKeys = false;
-    controls.minZoom = 1;
-    controls.maxZoom = 250;
-    controls.maxPolarAngle = Infinity;
-    controls.minPolarAngle = -Infinity;
+    controls.minDistance = 1;
+    controls.maxDistance = 250;
+    controls.noPan = true;
 
     // initial render
     function render() {
@@ -406,6 +405,10 @@ export default class Simple3DScene {
 
         const mesh = new THREE.Mesh(geom, mat);
         obj.add(mesh);
+
+        const edges = new THREE.EdgesGeometry(geom);
+        const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: object_json.color } ) );
+        obj.add(line);
 
         return obj;
       }
