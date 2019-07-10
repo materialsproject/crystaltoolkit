@@ -137,8 +137,8 @@ define(["exports", "three-full"], function (exports, _threeFull) {
 
       var controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
       controls.enableKeys = false;
-      controls.minDistance = 1;
-      controls.maxDistance = 250;
+      controls.minZoom = 2;
+      controls.maxZoom = 100;
       controls.noPan = true;
 
       // initial render
@@ -176,6 +176,8 @@ define(["exports", "three-full"], function (exports, _threeFull) {
           case "png":
             this.downloadScreenshot(filename);
             break;
+          default:
+            throw new Error("Unknown filetype.");
         }
       }
     }, {
@@ -258,6 +260,8 @@ define(["exports", "three-full"], function (exports, _threeFull) {
             case "HemisphereLight":
               var lightObj = new (Function.prototype.bind.apply(THREE.HemisphereLight, [null].concat(_toConsumableArray(light.args))))();
               break;
+            default:
+              throw new Error("Unknown light.");
           }
           if (light.hasOwnProperty("position")) {
             var _lightObj$position;
@@ -526,6 +530,8 @@ define(["exports", "three-full"], function (exports, _threeFull) {
             {
               return new THREE.MeshStandardMaterial(parameters);
             }
+          default:
+            throw new Error("Unknown material.");
         }
       }
     }, {
