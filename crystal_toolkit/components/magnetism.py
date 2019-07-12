@@ -7,7 +7,7 @@ from dash.exceptions import PreventUpdate
 import plotly.graph_objs as go
 
 from crystal_toolkit.helpers.layouts import Columns, Column
-from crystal_toolkit.components.core import PanelComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 from pymatgen.analysis.magnetism import CollinearMagneticStructureAnalyzer, Ordering
@@ -232,9 +232,9 @@ class MagnetismComponent(PanelComponent):
 
         return mag_tasks
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
 
-        super()._generate_callbacks(app, cache)
+        super().generate_callbacks(app, cache)
 
         @app.callback(
             Output(self.id("structure-container"), "children"),

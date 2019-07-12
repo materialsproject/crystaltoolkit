@@ -6,7 +6,8 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from crystal_toolkit import GraphComponent
-from crystal_toolkit.components.core import MPComponent, PanelComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
