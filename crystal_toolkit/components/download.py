@@ -3,7 +3,8 @@ import dash_html_components as html
 
 from dash.dependencies import Input, Output, State
 
-from crystal_toolkit.components.core import MPComponent, PanelComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import Button
 
 from base64 import b64encode
@@ -12,7 +13,12 @@ from base64 import b64encode
 class DownloadPanelComponent(PanelComponent):
 
     # human-readable label to file extension
-    struct_options = {"CIF": "cif", "POSCAR": "poscar", "JSON": "json"}
+    struct_options = {
+        "CIF": "cif",
+        "POSCAR": "poscar",
+        "JSON": "json",
+        "Prismatic": "prismatic",
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,7 +34,7 @@ class DownloadPanelComponent(PanelComponent):
     def update_contents(self, new_store_contents):
 
         options = dcc.Dropdown(
-            id=self.id("file_extension"),
+            id=self.id("fmt"),
             value="cif",
             options=[{"label": k, "value": v} for k, v in self.struct_options.items()],
         )
@@ -37,17 +43,22 @@ class DownloadPanelComponent(PanelComponent):
 
         return html.Div([options, download_button])
 
-    def _generate_callbacks(self, app, cache):
-        super()._generate_callbacks(app, cache)
+    def generate_callbacks(self, app, cache):
+        super().generate_callbacks(app, cache)
 
         @app.callback(
             Output(self.id("download"), "children"),
-            [Input(self.id(), "data"), Input(self.id("file_extension"), "value")],
+            [Input(self.id(), "data"), Input(self.id("fmt"), "value")],
         )
-        def update_href(data, file_extension):
+        def update_href(data, fmt):
 
             structure = self.from_data(data)
-            contents = structure.to(fmt=file_extension)
+
+            try:
+                contents = structure.to(fmt=fmt)
+            except Exception as exc:
+                # don't fail silently, tell user what went wrong
+                contents = exc
 
             base64 = b64encode(contents.encode("utf-8")).decode("ascii")
 
