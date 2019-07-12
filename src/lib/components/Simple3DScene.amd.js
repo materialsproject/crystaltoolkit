@@ -139,7 +139,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
       controls.enableKeys = false;
       controls.minZoom = 2;
       controls.maxZoom = 100;
-      controls.noPan = true;
+      controls.enablePan = false;
 
       // initial render
       function render() {

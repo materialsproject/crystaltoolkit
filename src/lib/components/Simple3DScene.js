@@ -89,7 +89,7 @@ export default class Simple3DScene {
     controls.enableKeys = false;
     controls.minZoom = 2;
     controls.maxZoom = 100;
-    controls.noPan = true;
+    controls.enablePan = false;
 
     // initial render
     function render() {
