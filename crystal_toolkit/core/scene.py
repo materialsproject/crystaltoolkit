@@ -1,8 +1,10 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
 from itertools import chain
 from collections import defaultdict
 from warnings import warn
+
 
 """
 This module gives a Python interface to generate JSON for the
@@ -22,6 +24,7 @@ class Scene:
 
     name: str  # name for the scene, does not have to be unique
     contents: list = field(default_factory=list)
+    origin: List[float] = field(default=(0, 0, 0))
     _meta: Any = None
 
     def to_json(self):
@@ -39,10 +42,16 @@ class Scene:
         """
 
         merged_scene = Scene(
-            name=self.name, contents=self.merge_primitives(self.contents)
+            name=self.name,
+            contents=self.merge_primitives(self.contents),
+            origin=self.origin,
         )
 
         def remove_defaults(scene_dict):
+            """
+            Reduce file size of JSON by removing any key which
+            is just its default value.
+            """
             trimmed_dict = {}
             for k, v in scene_dict.items():
                 if isinstance(v, dict):
@@ -310,6 +319,13 @@ class Arrows:
     _meta: Any = None
 
 
+# class VolumetricData:
+#
+#    basis: List  # basis vectors of grid
+#    size: # size of each cell in Cartesian space
+#    values: # scalar values of the grid itself
+
+
 @dataclass
 class Labels:
     """
@@ -319,3 +335,47 @@ class Labels:
     type: str = field(default="labels", init=False)  # private field
     visible: bool = None
     _meta: Any = None
+
+
+class Plottable3D(ABC):
+    """
+    A Mixin class that shows that an object can output a 3D scene.
+    """
+
+    @abstractmethod
+    def get_scene(self, **kwargs) -> Scene:
+        """
+        This method provides a Scene object, which is a
+        lightweight way of describing a 3D scene.
+
+        This can be rendered by an appropriate renderer,
+        current options include the Material Project's
+        Simple3DScene (an ES6/AMD JavaScript library
+        using Three.js), Asymptote (an option for TeX),
+        and Plotly (for quick, basic viewing) and
+        pythreejs (a standalone option for Jupyter).
+        """
+        raise NotImplementedError
+
+    def get_scene_plotly(self, **kwargs):
+        """
+        This method synthesizes a Plotly plot using
+        the get_scene() method on this class. Any keyword
+        args will be passed along to get_scene().
+
+        This is useful for quick and easy plotting of
+        a 3D scene, but for higher-quality publication
+        quality plots we recommend other options.
+        """
+        scene = self.get_scene(**kwargs)
+
+    def get_scene_asymptote(self, **kwargs):
+        """
+        This method synthesizes the input for Asymptote
+        using the get_scene() method on this class. Any
+        keyword args will be passed along to get_scene().
+
+        Asymptote is an option for rendering a scene
+        inside TeX for creating publication-quality plots.
+        """
+        scene = self.get_scene(**kwargs)

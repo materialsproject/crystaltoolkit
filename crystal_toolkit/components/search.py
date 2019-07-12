@@ -161,7 +161,7 @@ class SearchComponent(MPComponent):
     def standard_layout(self):
         return html.Div([self.all_layouts["search"]])
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
 
         self._get_tag_cache()
         self._get_mpid_cache()

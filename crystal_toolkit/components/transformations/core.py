@@ -7,11 +7,9 @@ import traceback
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.components import (
-    PanelComponent,
-    MPComponent,
-    StructureMoleculeComponent
-)
+from crystal_toolkit.components import StructureMoleculeComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
 
 from typing import List
@@ -32,7 +30,7 @@ class TransformationComponent(MPComponent):
 
         enable = dcc.Checklist(
             options=[{"label": "Enable transformation", "value": "enable"}],
-            values=[],
+            value=[],
             inputClassName="mpc-radio",
             id=self.id("enable_transformation"),
         )
@@ -105,12 +103,12 @@ class TransformationComponent(MPComponent):
         """
         pass
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id(), "data"),
             [
                 Input(self.id("transformation_args_kwargs"), "data"),
-                Input(self.id("enable_transformation"), "values"),
+                Input(self.id("enable_transformation"), "value"),
             ],
         )
         # @cache.memoize(timeout=60*60*24,
@@ -220,7 +218,7 @@ class AllTransformationsComponent(MPComponent):
             ]
         )
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
         @cache.memoize()
         def apply_transformation(transformation_data, structure_data):
             return structure_data

@@ -3,6 +3,8 @@ import dash_html_components as html
 
 from dash.dependencies import Input, Output, State
 
+from ast import literal_eval
+
 from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
@@ -113,9 +115,9 @@ class GrainBoundaryTransformationComponent(TransformationComponent):
 
         return options
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
 
-        super()._generate_callbacks(app, cache)
+        super().generate_callbacks(app, cache)
 
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
@@ -123,7 +125,7 @@ class GrainBoundaryTransformationComponent(TransformationComponent):
                 Input(self.id("gb_rotation_axis"), "value"),
                 Input(self.id("gb_rotation_options"), "value"),
                 Input(self.id("gb_vacuum_thickness"), "value"),
-                Input(self.id("gb_expand_times"), "value")
+                Input(self.id("gb_expand_times"), "value"),
             ],
         )
         def update_transformation_kwargs(
@@ -131,11 +133,16 @@ class GrainBoundaryTransformationComponent(TransformationComponent):
         ):
 
             rotation_angle = float(rotation_angle)
+            rotation_axis = literal_eval(rotation_axis)
+            vacuum_thickness = float(vacuum_thickness)
+            expand_times = float(expand_times)
 
             return {
                 "args": [rotation_axis, rotation_angle],
-                "kwargs": {"vacuum_thickness": vacuum_thickness,
-                           "expand_times": expand_times},
+                "kwargs": {
+                    "vacuum_thickness": vacuum_thickness,
+                    "expand_times": expand_times,
+                },
             }
 
         @app.callback(

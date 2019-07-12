@@ -40,7 +40,6 @@ class MPComponent(ABC):
         contents=None,
         id=None,
         origin_component=None,
-        mprester_cache_timeout=60 * 60 * 24,
         storage_type="memory",
         static=False,
     ):
@@ -74,17 +73,6 @@ class MPComponent(ABC):
                 f"using MPComponent.register_cache(cache)."
             )
 
-        self.mprester_cache_timeout = mprester_cache_timeout
-
-        #  a cached MPRester for convenience
-        @MPComponent.cache.memoize(timeout=mprester_cache_timeout)
-        def mpr_query(criteria, properties):
-            with MPRester() as mpr:
-                entries = mpr.query(criteria=criteria, properties=properties)
-            return entries
-
-        self.mpr_query = mpr_query
-
         if origin_component is None:
             self._canonical_store_id = self._id
             self.create_store(
@@ -98,7 +86,7 @@ class MPComponent(ABC):
             self.initial_data = origin_component.initial_data
 
         if MPComponent.app and not static:
-            self._generate_callbacks(MPComponent.app, MPComponent.cache)
+            self.generate_callbacks(MPComponent.app, MPComponent.cache)
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -258,7 +246,7 @@ Layouts: {list(self.supported_layouts)}"""
         return html.Div(list(self.all_layouts.values()))
 
     @abstractmethod
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
         """
         Generate all callbacks associated with the layouts in this app. Assume
         that "suppress_callback_exceptions" is True, since it is not always

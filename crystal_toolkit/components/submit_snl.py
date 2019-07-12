@@ -10,7 +10,8 @@ from dash.exceptions import PreventUpdate
 from urllib import parse
 
 from crystal_toolkit import __version__ as ct_version
-from crystal_toolkit.components.core import MPComponent, PanelComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
 
 from pymatgen.util.provenance import StructureNL
@@ -64,9 +65,9 @@ class SubmitSNLPanel(PanelComponent):
     def update_contents(self, new_store_contents, *args):
         return self.initial_contents
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
 
-        super()._generate_callbacks(app, cache)
+        super().generate_callbacks(app, cache)
 
         def parse_token(url):
             if not url:

@@ -50,8 +50,8 @@ and copper). Please consult the pymatgen documentation for more information.
 
         return options
 
-    def _generate_callbacks(self, app, cache):
-        super()._generate_callbacks(app, cache)
+    def generate_callbacks(self, app, cache):
+        super().generate_callbacks(app, cache)
 
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
