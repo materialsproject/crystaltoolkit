@@ -165,13 +165,6 @@ class Spheres:
     sphere, defaults to 0
     :param phiEnd: End angle in radians if drawing only a section of the
     sphere, defaults to 2*pi
-    :param ellipsoids: Any distortions to apply to the sphere to display
-    ellipsoids. This is a dictionary with two keys, "rotations" and "scales",
-    where rotations refers to the vector relative to (1, 0, 0) to rotate the
-    ellipsoid major axis to align with, and scales refers to the vector to scale
-    the ellipsoid by along x, y and z. The dictionary values should be lists of
-    lists of the same length as positions, corresponding to a unique
-    rotation/scale for each sphere.
     :param visible: If False, will hide the object by default.
     """
 
@@ -189,9 +182,9 @@ class Ellipsoids:
     """
     Create a set of ellipsoids. All ellipsoids will have the same color, radius and
     segment size (if only drawing a section of a ellipsoid).
+    :param scale: This is the scale to apply to the x,y and z axis of the ellipsoid prior to rotation to the target axes
     :param positions: This is a list of lists corresponding to the vector
     positions of the ellipsoids.
-    :param scale: This is the scale to apply to the x,y, and z axis of the ellipsoid prior to rotation to the target axes
     :param rotate_to: This is a list of vectors that specify the direction the major axis of the ellipsoid should point towards. The major axis is the z-axis: (0,0,1)
     :param color: Ellipsoid color as a hexadecimal string, e.g. #ff0000
     :param phiStart: Start angle in radians if drawing only a section of the
@@ -200,15 +193,13 @@ class Ellipsoids:
     ellipsoid, defaults to 2*pi
     :param visible: If False, will hide the object by default.
     """
-
-    positions: List[List[float]]
     scale: List[float]
+    positions: List[List[float]]
     rotate_to: List[List[float]]
     color: Optional[str] = None
-    radius: Optional[float] = None
     phiStart: Optional[float] = None
     phiEnd: Optional[float] = None
-    type: str = field(default="spheres", init=False)  # private field
+    type: str = field(default="ellipsoids", init=False)  # private field
     visible: bool = None
     _meta: Any = None
 
