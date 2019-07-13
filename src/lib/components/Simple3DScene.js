@@ -256,8 +256,45 @@ export default class Simple3DScene {
           meshes.push(mesh);
         });
 
+        meshes.forEach(function(mesh) {
+          obj.add(mesh);
+        });
+
+        return obj;
+      }
+      case "ellipsoids": {
+        const geom = new THREE.SphereBufferGeometry(
+          this.settings.sphereScale,
+          this.settings.sphereSegments,
+          this.settings.sphereSegments,
+          object_json.phiStart || 0,
+          object_json.phiEnd || Math.PI * 2
+        );
+        const mat = this.makeMaterial(object_json.color);
+
+        // if we allow occupancies not to sum to 100
+        //if (object_json.phiStart || object_json.phiEnd) {
+        //    mat.side = THREE.DoubleSide;
+        //}
+
+        const meshes = [];
+        object_json.positions.forEach(function(position) {
+          const mesh = new THREE.Mesh(geom, mat);
+          mesh.position.set(...position);
+          mesh.scale.set(...object_json.scale)  // TODO: Is this valid JS?
+          meshes.push(mesh);
+        });
+
         // TODO: test axes are correct!
 
+        const vec_z = new THREE.Vector3(0, 0, 1);
+        const quaternion = new THREE.Quaternion();
+        object_json.rotate_to.forEach(function(rotation, index) {
+          const rotation_vec = new THREE.Vector3(...rotation);
+          quaternion.setFromUnitVectors(vec_z, rotation_vec.normalize());
+          meshes[index].setRotationFromQuaternion(quaternion);
+        });
+        
         meshes.forEach(function(mesh) {
           obj.add(mesh);
         });
