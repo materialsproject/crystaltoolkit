@@ -15,6 +15,22 @@ the Scene to the JSON format to pass to Simple3DSceneComponent's data attribute.
 """
 
 
+class Primitive:
+    """
+    A Mixin class for standard plottable primitive behavior
+    For now, this just enforces some basic mergeability
+    """
+
+    @abstractmethod
+    def key(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    @classmethod
+    def merge(cls, items):
+        raise NotImplementedError
+
+
 @dataclass
 class Scene:
     """
