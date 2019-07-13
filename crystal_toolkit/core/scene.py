@@ -109,7 +109,7 @@ class Scene:
 
 
 @dataclass
-class Spheres:
+class Spheres(Primitive):
     """
     Create a set of spheres. All spheres will have the same color, radius and
     segment size (if only drawing a section of a sphere).
@@ -133,8 +133,26 @@ class Spheres:
     visible: bool = None
     _meta: Any = None
 
+    def key(self):
+        return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}"
+
+    @classmethod
+    def merge(cls, sphere_list):
+        new_positions = list(
+            chain.from_iterable([sphere.positions for sphere in sphere_list])
+        )
+        return cls(
+            positions=new_positions,
+            color=sphere_list[0].color,
+            radius=sphere_list[0].radius,
+            phiStart=sphere_list[0].phiStart,
+            phiEnd=sphere_list[0].phiEnd,
+            visible=sphere_list[0].visible,
+        )
+
+
 @dataclass
-class Ellipsoids:
+class Ellipsoids(Primitive):
     """
     Create a set of ellipsoids. All ellipsoids will have the same color, radius and
     segment size (if only drawing a section of a ellipsoid).
@@ -149,6 +167,7 @@ class Ellipsoids:
     ellipsoid, defaults to 2*pi
     :param visible: If False, will hide the object by default.
     """
+
     scale: List[float]
     positions: List[List[float]]
     rotate_to: List[List[float]]
@@ -159,8 +178,31 @@ class Ellipsoids:
     visible: bool = None
     _meta: Any = None
 
+    def key(self):
+        return f"ellipsoid_{self.color}_{self.scale}_{self.phiStart}_{self.phiEnd}"
+
+    @classmethod
+    def merge(cls, ellipsoid_list):
+        new_positions = list(
+            chain.from_iterable([ellipsoid.positions for ellipsoid in ellipsoid_list])
+        )
+        rotate_to = list(
+            chain.from_iterable([ellipsoid.rotate_to for ellipsoid in ellipsoid_list])
+        )
+
+        return cls(
+            positions=new_positions,
+            rotate_to=rotate_to,
+            scale=ellipsoid_list[0].scale,
+            color=ellipsoid_list[0].color,
+            phiStart=ellipsoid_list[0].phiStart,
+            phiEnd=ellipsoid_list[0].phiEnd,
+            visible=ellipsoid_list[0].visible,
+        )
+
+
 @dataclass
-class Cylinders:
+class Cylinders(Primitive):
     """
     Create a set of cylinders. All cylinders will have the same color and
     radius.
@@ -178,9 +220,25 @@ class Cylinders:
     visible: bool = None
     _meta: Any = None
 
+    def key(self):
+        return f"cyclinder_{self.color}_{self.radius}"
+
+    @classmethod
+    def merge(cls, cylinder_list):
+
+        new_positionPairs = list(
+            chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
+        )
+        return cls(
+            positionPairs=new_positionPairs,
+            color=cylinder_list[0].color,
+            radius=cylinder_list[0].radius,
+            visible=cylinder_list[0].visible,
+        )
+
 
 @dataclass
-class Cubes:
+class Cubes(Primitive):
     """
     Create a set of cubes. All cubes will have the same color and width.
     :param positions: This is a list of lists corresponding to the vector
@@ -197,9 +255,24 @@ class Cubes:
     visible: bool = None
     _meta: Any = None
 
+    def key(self):
+        return f"cube_{self.color}_{self.width}"
+
+    @classmethod
+    def merge(cls, cube_list):
+        new_positions = list(
+            chain.from_iterable([cube.positions for cube in cube_list])
+        )
+        return cls(
+            positions=new_positions,
+            color=cube_list[0].color,
+            width=cube_list[0].width,
+            visible=cube_list[0].visible,
+        )
+
 
 @dataclass
-class Lines:
+class Lines(Primitive):
     """
     Create a set of lines. All lines will have the same color, thickness and
     (optional) dashes.
@@ -224,6 +297,24 @@ class Lines:
     type: str = field(default="lines", init=False)  # private field
     visible: bool = None
     _meta: Any = None
+
+    def key(self):
+        raise f"line_{self.color}_{self.lineWidth}_{self.dashSize}_{self.gapSize}"
+
+    @classmethod
+    def merge(cls, line_list):
+        new_positions = list(
+            chain.from_iterable([line.positions for line in line_list])
+        )
+        return cls(
+            positions=new_positions,
+            color=line_list[0].color,
+            lineWidth=line_list[0].lineWidth,
+            scale=line_list[0].scale,
+            dashSize=line_list[0].dashSize,
+            gapSize=line_list[0].gapSize,
+            visible=line_list[0].visible,
+        )
 
 
 @dataclass
@@ -262,7 +353,7 @@ class Convex:
 
 
 @dataclass
-class Arrows:
+class Arrows(Primitive):
     """
     Create a set of arrows. All arrows will have the same color radius and
     head shape.
@@ -281,6 +372,23 @@ class Arrows:
     type: str = field(default="arrows", init=False)  # private field
     visible: bool = None
     _meta: Any = None
+
+    def key(self):
+        raise f"arrow_{self.color}_{self.radius}_{self.headLength}_{self.headWidth}"
+
+    @classmethod
+    def merge(cls, arrow_list):
+        new_positionPairs = list(
+            chain.from_iterable([arrow.positionPairs for arrow in arrow_list])
+        )
+        return cls(
+            positionPairs=new_positionPairs,
+            color=arrow_list[0].color,
+            radius=arrow_list[0].radius,
+            headLength=arrow_list[0].headLength,
+            headWidth=arrow_list[0].headWidth,
+            visible=arrow_list[0].visible,
+        )
 
 
 # class VolumetricData:
