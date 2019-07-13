@@ -91,81 +91,21 @@ class Scene:
         :param primitives: list of primitives (Spheres, Cylinders, etc.)
         :return: list of primitives
         """
-        spheres = defaultdict(list)
-        ellipsoids = defaultdict(list)
-        cylinders = defaultdict(list)
+        mergable = defaultdict(list)
         remainder = []
 
         for primitive in primitives:
             if isinstance(primitive, Scene):
                 primitive.contents = Scene.merge_primitives(primitive.contents)
                 remainder.append(primitive)
-            elif isinstance(primitive, Spheres):
-                key = f"{primitive.color}_{primitive.radius}_{primitive.phiStart}_{primitive.phiEnd}"
-                spheres[key].append(primitive)
-            elif isinstance(primitive,Ellipsoids):
-                key = f"{primitive.color}_{primitive.scale}_{primitive.phiStart}_{primitive.phiEnd}"
-                ellipsoids[key].append(primitive)
-            elif isinstance(primitive, Cylinders):
-                key = f"{primitive.color}_{primitive.radius}"
-                cylinders[key].append(primitive)
+            elif issubclass(primitive, Primitive):
+                mergable[primitive.key].append(primitive)
             else:
                 remainder.append(primitive)
 
-        new_spheres = []
-        for key, sphere_list in spheres.items():
-            new_positions = list(
-                chain.from_iterable([sphere.positions for sphere in sphere_list])
-            )
-            new_spheres.append(
-                Spheres(
-                    positions=new_positions,
-                    color=sphere_list[0].color,
-                    radius=sphere_list[0].radius,
-                    phiStart=sphere_list[0].phiStart,
-                    phiEnd=sphere_list[0].phiEnd,
-                    visible=sphere_list[0].visible,
-                )
-            )
+        merged = [v[0].merge(v) for v in mergable.values()]
 
-        new_ellipsoids = []
-        for key, ellipsoid_list in ellipsoids.items():
-            new_positions = list(
-                chain.from_iterable([ellipsoid.positions for ellipsoid in ellipsoid_list])
-            )
-            rotate_to = list(
-                chain.from_iterable([ellipsoid.rotate_to for ellipsoid in ellipsoid_list])
-            )
-            new_ellipsoids.append(
-                Spheres(
-                    positions=new_positions,
-                    rotate_to = rotate_to,
-                    color=ellipsoid_list[0].color,
-                    radius=ellipsoid_list[0].radius,
-                    phiStart=ellipsoid_list[0].phiStart,
-                    phiEnd=ellipsoid_list[0].phiEnd,
-                    ellipsoids=ellipsoid_list,
-                    visible=ellipsoid_list[0].visible,
-                )
-            )
-
-        new_cylinders = []
-        for key, cylinder_list in cylinders.items():
-            new_positionPairs = list(
-                chain.from_iterable(
-                    [cylinder.positionPairs for cylinder in cylinder_list]
-                )
-            )
-            new_cylinders.append(
-                Cylinders(
-                    positionPairs=new_positionPairs,
-                    color=cylinder_list[0].color,
-                    radius=cylinder_list[0].radius,
-                    visible=cylinder_list[0].visible,
-                )
-            )
-
-        return new_spheres + new_cylinders + remainder
+        return merged + remainder
 
 
 @dataclass
