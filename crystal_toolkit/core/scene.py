@@ -76,6 +76,7 @@ class Scene:
         :return: list of primitives
         """
         spheres = defaultdict(list)
+        ellipsoids = defaultdict(list)
         cylinders = defaultdict(list)
         remainder = []
 
@@ -86,6 +87,9 @@ class Scene:
             elif isinstance(primitive, Spheres):
                 key = f"{primitive.color}_{primitive.radius}_{primitive.phiStart}_{primitive.phiEnd}"
                 spheres[key].append(primitive)
+            elif isinstance(primitive,Ellipsoids):
+                key = f"{primitive.color}_{primitive.scale}_{primitive.phiStart}_{primitive.phiEnd}"
+                ellipsoids[key].append(primitive)
             elif isinstance(primitive, Cylinders):
                 key = f"{primitive.color}_{primitive.radius}"
                 cylinders[key].append(primitive)
@@ -97,39 +101,6 @@ class Scene:
             new_positions = list(
                 chain.from_iterable([sphere.positions for sphere in sphere_list])
             )
-            new_ellipsoids = None
-            has_ellipsoids = any(
-                [
-                    sphere.ellipsoids["rotations"] if sphere.ellipsoids else None
-                    for sphere in sphere_list
-                ]
-            )
-            if has_ellipsoids:
-                warn("Merging of ellipsoids doesn't work yet.")
-                # TODO: should re-think how ellipsoids are stored, dict format is awkward
-            # new_ellipsoids_rotations = list(
-            #    chain.from_iterable(
-            #        [
-            #            sphere.ellipsoids["rotations"] if sphere.ellipsoids else None
-            #            for sphere in sphere_list
-            #        ]
-            #    )
-            # )
-            # new_ellipsoids_scales = list(
-            #    chain.from_iterable(
-            #        [
-            #            sphere.ellipsoids["scales"] if sphere.ellipsoids else None
-            #            for sphere in sphere_list
-            #        ]
-            #    )
-            # )
-            # if any(new_ellipsoids_rotations):
-            #    new_ellipsoids = {
-            #        "rotations": new_ellipsoids_rotations,
-            #        "scales": new_ellipsoids_scales,
-            #    }
-            # else:
-            #    new_ellipsoids = None
             new_spheres.append(
                 Spheres(
                     positions=new_positions,
@@ -137,8 +108,28 @@ class Scene:
                     radius=sphere_list[0].radius,
                     phiStart=sphere_list[0].phiStart,
                     phiEnd=sphere_list[0].phiEnd,
-                    ellipsoids=new_ellipsoids,
                     visible=sphere_list[0].visible,
+                )
+            )
+
+        new_ellipsoids = []
+        for key, ellipsoid_list in ellipsoids.items():
+            new_positions = list(
+                chain.from_iterable([ellipsoid.positions for ellipsoid in ellipsoid_list])
+            )
+            rotate_to = list(
+                chain.from_iterable([ellipsoid.rotate_to for ellipsoid in ellipsoid_list])
+            )
+            new_ellipsoids.append(
+                Spheres(
+                    positions=new_positions,
+                    rotate_to = rotate_to,
+                    color=ellipsoid_list[0].color,
+                    radius=ellipsoid_list[0].radius,
+                    phiStart=ellipsoid_list[0].phiStart,
+                    phiEnd=ellipsoid_list[0].phiEnd,
+                    ellipsoids=ellipsoid_list,
+                    visible=ellipsoid_list[0].visible,
                 )
             )
 
