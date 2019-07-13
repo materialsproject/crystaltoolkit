@@ -257,18 +257,6 @@ export default class Simple3DScene {
         });
 
         // TODO: test axes are correct!
-        if (object_json.ellipsoids) {
-          const vec_z = new THREE.Vector3(0, 0, 1);
-          const quaternion = new THREE.Quaternion();
-          object_json.ellipsoids.rotations.forEach(function(rotation, index) {
-            const rotation_vec = new THREE.Vector3(...rotation);
-            quaternion.setFromUnitVectors(vec_z, rotation_vec.normalize());
-            meshes[index].setRotationFromQuaternion(quaternion);
-          });
-          object_json.ellipsoids.scales.forEach(function(scale, index) {
-            meshes[index].scale.set(...scale);
-          });
-        }
 
         meshes.forEach(function(mesh) {
           obj.add(mesh);
