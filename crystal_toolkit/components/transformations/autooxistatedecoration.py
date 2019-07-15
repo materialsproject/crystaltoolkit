@@ -2,6 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
 from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.components.transformations.core import TransformationComponent
@@ -35,15 +36,10 @@ structures.
     def generate_callbacks(self, app, cache):
         super().generate_callbacks(app, cache)
 
-        # TODO: this is a bug, due to use of self.to_data and kwargs, this will be removed
+        # TODO: this is a bug, should be removed
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
-            [
-                Input(self.id(f"m{e1}{e2}"), "value")
-                for e1 in range(1, 4)
-                for e2 in range(1, 4)
-            ],
+            [Input(self.id("doesntexist"), "value")],
         )
         def update_transformation_kwargs(*args):
-            print("fix me!")
             return {"args": [], "kwargs": {}}
