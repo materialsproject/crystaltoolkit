@@ -14,6 +14,8 @@ from crystal_toolkit.helpers.layouts import *
 
 from typing import List
 
+import flask
+
 
 class TransformationComponent(MPComponent):
     def __init__(self, *args, **kwargs):
@@ -21,9 +23,6 @@ class TransformationComponent(MPComponent):
         self.create_store(
             "transformation_args_kwargs", initial_data={"args": [], "kwargs": {}}
         )
-        # for when trying to apply transformation to an actual structure,
-        # needs to be connected to a structure to work
-        self.create_store("error")
 
     @property
     def all_layouts(self):
@@ -74,34 +73,12 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     @property
-    def default_transformation(self):
-        return self.transformation()
-
-    @property
     def title(self):
         raise NotImplementedError
 
     @property
     def description(self):
         raise NotImplementedError
-
-    def check_input_structure(self, structure):
-        """
-        Implement this method if you want to check the input structure
-        before attempting to apply the transformation.
-        :param structure:
-        :return:
-        """
-        pass
-
-    def check_output_structure(self, transformed_structure):
-        """
-        Implement this method if you want to check the input structure
-        before attempting to apply the transformation.
-        :param transformed_structure:
-        :return:
-        """
-        pass
 
     def generate_callbacks(self, app, cache):
         @app.callback(
@@ -111,8 +88,10 @@ class TransformationComponent(MPComponent):
                 Input(self.id("enable_transformation"), "value"),
             ],
         )
-        # @cache.memoize(timeout=60*60*24,
-        #               make_name=lambda x: f"{self.__class__.__name__}_{x}_cached")
+        @cache.memoize(
+            timeout=60 * 60 * 24,
+            make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
+        )
         def update_transformation(args_kwargs, enabled):
 
             # TODO: this is madness
@@ -121,10 +100,7 @@ class TransformationComponent(MPComponent):
             args = args_kwargs["args"]
             kwargs = args_kwargs["kwargs"]
 
-            if not enabled:
-                return None
             try:
-                # its this part that to doesn't work(?)
                 trans = self.transformation(*args, **kwargs)
                 data = self.to_data(trans)
                 error = None
@@ -187,18 +163,7 @@ class AllTransformationsComponent(MPComponent):
             style={"max-width": "65vmin"},
         )
 
-        # error = ...
-        # preview = StructureMoleculeComponent(id=self.id("preview")).standard_layout
-        # download = DownloadComponent(id=self.id("download")).standard_layout
-
-        layouts.update(
-            {
-                "all_transformations": all_transformations,
-                "choices": choices,
-                # "preview": preview,
-                # "download": download
-            }
-        )
+        layouts.update({"all_transformations": all_transformations, "choices": choices})
 
         return layouts
 
@@ -221,7 +186,25 @@ class AllTransformationsComponent(MPComponent):
     def generate_callbacks(self, app, cache):
         @cache.memoize()
         def apply_transformation(transformation_data, structure_data):
-            return structure_data
+
+            transformation = self.from_data(transformation_data)
+            struct = self.from_data(structure_data)
+            error = None
+
+            try:
+                struct = transformation.apply_transformation(struct)
+            except Exception as exc:
+                error_title = (
+                    f'Failed to apply "{transformation.__class__.__name__}" '
+                    f"transformation: {exc}"
+                )
+                traceback_info = Reveal(
+                    title=html.B("Traceback"),
+                    children=[dcc.Markdown(traceback.format_exc())],
+                )
+                error = [error_title, traceback_info]
+
+            return struct, error
 
         @app.callback(
             Output(self.id("transformation_options"), "children"),
@@ -235,16 +218,7 @@ class AllTransformationsComponent(MPComponent):
                 [self.transformations[name].container_layout for name in values]
             )
 
-            hidden_transformations = html.Div(
-                [
-                    transformation.container_layout
-                    for name, transformation in self.transformations.items()
-                    if name not in values
-                ],
-                style={"display": "none"},
-            )
-
-            return [transformation_options, hidden_transformations]
+            return [transformation_options]
 
         @app.callback(
             [Output(self.id("out"), "data"), Output(self.id("error"), "children")],
@@ -264,24 +238,19 @@ class AllTransformationsComponent(MPComponent):
             transformations = []
             for transformation in args[:-1]:
                 if transformation and transformation["data"]:
-                    transformations.append(self.from_data(transformation["data"]))
+                    transformations.append(transformation["data"])
 
             if not transformations:
                 return self.to_data(struct), html.Div()
 
-            for transformation in transformations:
-                try:
-                    struct = transformation.apply_transformation(struct)
-                except Exception as exc:
-                    error_title = (
-                        f'Failed to apply "{transformation.__class__.__name__}" '
-                        f"transformation: {exc}"
-                    )
-                    traceback_info = Reveal(
-                        title=html.B("Traceback"),
-                        children=[dcc.Markdown(traceback.format_exc())],
-                    )
-                    errors += [error_title, traceback_info]
+            for transformation_data in transformations:
+
+                struct, error = apply_transformation(
+                    transformation_data, self.to_data(struct)
+                )
+
+                if error:
+                    errors += error
 
             if not errors:
                 error_msg = html.Div()
