@@ -292,26 +292,29 @@ def get_tooltip(tooltip, tooltip_text):
 def get_data_list(data):
     contents = []
     for title, value in data.items():
-        contents.append(
-            html.Tr(
-                [html.Td(Label(title)), html.Td(value)]
-            )
-        )
+        contents.append(html.Tr([html.Td(Label(title)), html.Td(value)]))
     return html.Table([html.Tbody(contents)], className="table")
 
 
 def get_table(rows):
     contents = []
     for row in rows:
-        contents.append(
-            html.Tr(
-                [html.Td(item) for item in row]
-            )
-        )
+        contents.append(html.Tr([html.Td(item) for item in row]))
     return html.Table([html.Tbody(contents)], className="table")
 
-# reference_button = Button(
-#    [Icon(kind="book"), html.Span("Cite me")],
-#    size="small",
-#    kind="link"
-# )
+
+def cite_me(doi, cite_text="Cite me"):
+
+    tooltip_text = (
+        f"If this analysis is useful, please cite the "
+        f"relevant publication at https://dx.doi.org/{doi}"
+    )
+
+    reference_button = html.A(
+        [Button([Icon(kind="book"), html.Span(cite_text)], size="small", kind="link")],
+        href=f"https://dx.doi.org/{doi}",
+    )
+
+    with_tooltip = get_tooltip(reference_button, tooltip_text)
+
+    return with_tooltip
