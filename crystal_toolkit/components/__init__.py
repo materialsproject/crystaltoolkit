@@ -30,6 +30,7 @@ from crystal_toolkit.components.download import DownloadPanelComponent
 from crystal_toolkit.components.submit_snl import SubmitSNLPanel
 from crystal_toolkit.components.symmetry import SymmetryComponent
 from crystal_toolkit.components.upload import StructureMoleculeUploadComponent
+from crystal_toolkit.components.bs import BandstructureAndDosComponent, BandstructureAndDosPanelComponent
 from crystal_toolkit.components.phase_diagram import (
     PhaseDiagramComponent,
     PhaseDiagramPanelComponent,
