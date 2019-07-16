@@ -66,7 +66,7 @@ ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").
 # region SET UP CACHE
 ################################################################################
 
-try:
+if os.environ.get("REDIS_URL", ""):
     cache = Cache(
         crystal_toolkit_app.server,
         config={
@@ -74,10 +74,9 @@ try:
             "CACHE_REDIS_URL": os.environ.get("REDIS_URL", ""),
         },
     )
-except Exception as exception:
+else:
     crystal_toolkit_app.logger.error(
-        f"Failed to connect to Redis cache, falling back to "
-        f"file system cache: {exception}"
+        f"Failed to connect to Redis cache, falling back to " f"file system cache."
     )
     cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "filesystem"})
 
