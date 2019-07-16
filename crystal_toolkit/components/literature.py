@@ -38,7 +38,7 @@ class LiteratureComponent(PanelComponent):
         self.use_crossref_formatting = use_crossref_formatting
         super().__init__(*args, **kwargs)
 
-        @MPComponent.cache.memoize(timeout=self.mprester_cache_timeout)
+        @MPComponent.cache.memoize()
         def get_materials_id_references(mpid):
             with MPRester() as mpr:
                 references = mpr.get_materials_id_references(mpid)
