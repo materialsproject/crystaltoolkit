@@ -83,7 +83,6 @@ class StructureMoleculeComponent(MPComponent):
             "type": "MeshStandardMaterial",
             "parameters": {"roughness": 0.07, "metalness": 0.00},
         },
-        "objectScale": 1.0,
         "cylinderScale": 0.1,
         "defaultSurfaceOpacity": 0.5,
         "staticScene": True,
@@ -104,6 +103,7 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
         show_compass=False,
+        scene_settings=None,
         **kwargs,
     ):
 
@@ -113,7 +113,12 @@ class StructureMoleculeComponent(MPComponent):
 
         self.default_title = "Crystal Toolkit"
 
-        self.initial_scene_settings = StructureMoleculeComponent.default_scene_settings
+        self.initial_scene_settings = (
+            StructureMoleculeComponent.default_scene_settings.copy()
+        )
+        if scene_settings:
+            self.initial_scene_settings.update(scene_settings)
+
         self.create_store("scene_settings", initial_data=self.initial_scene_settings)
 
         self.initial_graph_generation_options = {
