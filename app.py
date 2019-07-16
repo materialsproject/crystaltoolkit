@@ -104,7 +104,6 @@ logger = logging.getLogger(crystal_toolkit_app.title)
 ctc.register_app(crystal_toolkit_app)
 ctc.register_cache(cache)
 
-
 supercell = ctc.SupercellTransformationComponent()
 grain_boundary = ctc.GrainBoundaryTransformationComponent()
 oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
