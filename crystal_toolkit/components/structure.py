@@ -115,6 +115,7 @@ class StructureMoleculeComponent(MPComponent):
         color_scheme="Jmol",
         color_scale=None,
         radius_strategy="uniform",
+        radius_scale=1.0,
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
@@ -144,6 +145,7 @@ class StructureMoleculeComponent(MPComponent):
             "color_scheme": color_scheme,
             "color_scale": color_scale,
             "radius_strategy": radius_strategy,
+            "radius_scale": radius_scale,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
             "hide_incomplete_bonds": hide_incomplete_bonds,
@@ -1270,7 +1272,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _get_display_radii_for_sites(
-        struct_or_mol, radius_strategy="specified_or_average_ionic"
+        struct_or_mol, radius_strategy="specified_or_average_ionic", radius_scale=1.0
     ) -> List[List[float]]:
         """
         Note this returns a list of lists of floats since each
@@ -1329,6 +1331,7 @@ class StructureMoleculeComponent(MPComponent):
                     )
                     radius = 1.0
 
+                radius = radius * radius_scale
                 site_radii.append(radius)
 
             radii.append(site_radii)
@@ -1416,6 +1419,7 @@ class StructureMoleculeComponent(MPComponent):
         color_scheme="Jmol",
         color_scale=None,
         radius_strategy="specified_or_average_ionic",
+        radius_scale=1.0,
         ellipsoid_site_prop=None,
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=True,
@@ -1434,7 +1438,7 @@ class StructureMoleculeComponent(MPComponent):
         site_prop_types = StructureMoleculeComponent._analyze_site_props(struct_or_mol)
 
         radii = StructureMoleculeComponent._get_display_radii_for_sites(
-            struct_or_mol, radius_strategy=radius_strategy
+            struct_or_mol, radius_strategy=radius_strategy, radius_scale=radius_scale
         )
         colors, legend = StructureMoleculeComponent._get_display_colors_and_legend_for_sites(
             struct_or_mol,
