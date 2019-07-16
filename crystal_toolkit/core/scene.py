@@ -25,7 +25,6 @@ class Primitive:
     def key(self):
         raise NotImplementedError
 
-    @abstractmethod
     @classmethod
     def merge(cls, items):
         raise NotImplementedError
@@ -122,6 +121,9 @@ class Spheres(Primitive):
     :param phiEnd: End angle in radians if drawing only a section of the
     sphere, defaults to 2*pi
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positions: List[List[float]]
@@ -131,6 +133,8 @@ class Spheres(Primitive):
     phiEnd: Optional[float] = None
     type: str = field(default="spheres", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
     def key(self):
@@ -166,6 +170,9 @@ class Ellipsoids(Primitive):
     :param phiEnd: End angle in radians if drawing only a section of the
     ellipsoid, defaults to 2*pi
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     scale: List[float]
@@ -176,6 +183,8 @@ class Ellipsoids(Primitive):
     phiEnd: Optional[float] = None
     type: str = field(default="ellipsoids", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
     def key(self):
@@ -211,6 +220,9 @@ class Cylinders(Primitive):
     :param color: Cylinder color as a hexadecimal string, e.g. #ff0000
     :param radius: The radius of the cylinder, defaults to 1.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positionPairs: List[List[List[float]]]
@@ -218,6 +230,8 @@ class Cylinders(Primitive):
     radius: Optional[float] = None
     type: str = field(default="cylinders", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
     def key(self):
@@ -246,6 +260,9 @@ class Cubes(Primitive):
     :param color: Cube color as a hexadecimal string, e.g. #ff0000
     :param width: The width of the cube, defaults to 1.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positions: List[List[float]]
@@ -253,6 +270,8 @@ class Cubes(Primitive):
     width: Optional[float] = None
     type: str = field(default="cubes", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
     def key(self):
@@ -286,6 +305,9 @@ class Lines(Primitive):
     :param dashSize: Optional, if provided will specify length of line dashes.
     :param gapSize: Optional, if provided will specify gap between line dashes.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positions: List[List[float]]
@@ -296,6 +318,8 @@ class Lines(Primitive):
     gapSize: float = None
     type: str = field(default="lines", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
     def key(self):
@@ -331,6 +355,8 @@ class Surface:
     opacity: float = None
     type: str = field(default="surface", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
 
@@ -349,6 +375,8 @@ class Convex:
     opacity: float = None
     type: str = field(default="convex", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
 
@@ -362,6 +390,9 @@ class Arrows(Primitive):
     :param color: Cylinder color as a hexadecimal string, e.g. #ff0000
     :param radius: The radius of the cylinder, defaults to 1.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positionPairs: List[List[List[float]]]
@@ -371,6 +402,8 @@ class Arrows(Primitive):
     headWidth: Optional[float] = None
     type: str = field(default="arrows", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
     def key(self):
@@ -406,6 +439,8 @@ class Labels:
 
     type: str = field(default="labels", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
 
