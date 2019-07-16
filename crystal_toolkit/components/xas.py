@@ -10,7 +10,7 @@ from dash.exceptions import PreventUpdate
 from pymatgen import MPRester
 
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 from crystal_toolkit.helpers.layouts import *
 
 # Author: Matthew McDermott
@@ -95,6 +95,7 @@ class XASComponent(MPComponent):
                 html.P("Select an Element:"),
                 dcc.RadioItems(
                     id=self.id("element-selector"),
+                    options=[],
                     inputClassName="mpc-radio",
                     labelClassName="mpc-radio",
                 ),
@@ -226,3 +227,15 @@ class XASPanelComponent(PanelComponent):
 
     def update_contents(self, new_store_contents, *args):
         return self.xas.standard_layout
+
+    # def generate_callbacks(self, app, cache):
+    #
+    #     super().generate_callbacks(app, cache)
+    #
+    #     @app.callback(
+    #         Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
+    #     )
+    #     def add_xas(mpid):
+    #         if not mpid:
+    #             raise PreventUpdate
+    #         return self.xas.standard_layout

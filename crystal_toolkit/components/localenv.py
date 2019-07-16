@@ -14,6 +14,8 @@ from crystal_toolkit.helpers.layouts import (
     get_data_list,
     Columns,
     Column,
+    get_tooltip,
+    cite_me,
 )
 
 from crystal_toolkit.components.structure import StructureMoleculeComponent
@@ -99,24 +101,37 @@ class LocalEnvironmentPanel(PanelComponent2):
             if algorithm == "chemenv":
 
                 description = (
-                    "The ChemEnv algorithm is developed by ... et al ... "
-                    "This interactive version uses sensible defaults, but for "
-                    "more powerful options please consult the code."
+                    "The ChemEnv algorithm is developed by David Waroquiers et al. to analyze "
+                    'local chemical environments. In this interactive app, the "SimplestChemenvStrategy" '
+                    'and "LightStructureEnvironments" are used. For more powerful analysis, please use '
+                    "the *pymatgen* code."
                 )
 
-                description = ""
-
                 return html.Div(
-                    [html.Div(description), html.Br(), get_chemenv_analysis(struct)]
+                    [
+                        dcc.Markdown(description),
+                        cite_me("", cite_text="Cite ChemEnv Analysis"),
+                        html.Br(),
+                        get_chemenv_analysis(struct),
+                    ]
                 )
 
         def get_chemenv_analysis(struct, distance_cutoff=1.41, angle_cutoff=0.3):
+
+            # decide which indices to present to user
+            sga = SpacegroupAnalyzer(struct)
+            symm_struct = sga.get_symmetrized_structure()
+            inequivalent_indices = [
+                indices[0] for indices in symm_struct.equivalent_indices
+            ]
+            wyckoffs = symm_struct.wyckoff_symbols
 
             lgf = LocalGeometryFinder()
             lgf.setup_structure(structure=struct)
 
             se = lgf.compute_structure_environments(
-                maximum_distance_factor=distance_cutoff
+                maximum_distance_factor=distance_cutoff,
+                only_indices=inequivalent_indices,
             )
             strategy = SimplestChemenvStrategy(
                 distance_cutoff=distance_cutoff, angle_cutoff=angle_cutoff
@@ -126,30 +141,23 @@ class LocalEnvironmentPanel(PanelComponent2):
             )
             all_ce = AllCoordinationGeometries()
 
-            # decide which indices to present to user
-            sga = SpacegroupAnalyzer(struct)
-            symm_struct = sga.get_symmetrized_structure()
-            equivalent_indices = symm_struct.equivalent_indices
-            wyckoffs = symm_struct.wyckoff_symbols
-
             envs = []
             unknown_sites = []
 
-            for indices, wyckoff in zip(equivalent_indices, wyckoffs):
+            for index, wyckoff in zip(inequivalent_indices, wyckoffs):
 
-                idx = indices[0]
                 datalist = {
-                    "Site": struct[idx].species_string,
+                    "Site": struct[index].species_string,
                     "Wyckoff Label": wyckoff,
                 }
 
-                if not lse.neighbors_sets[idx]:
-                    unknown_sites.append(f"{struct[idx].species_string} ({wyckoff})")
+                if not lse.neighbors_sets[index]:
+                    unknown_sites.append(f"{struct[index].species_string} ({wyckoff})")
                     continue
 
                 # represent the local environment as a molecule
                 mol = Molecule.from_sites(
-                    [struct[idx]] + lse.neighbors_sets[idx][0].neighb_sites
+                    [struct[index]] + lse.neighbors_sets[index][0].neighb_sites
                 )
                 mol = mol.get_centered_molecule()
                 mg = MoleculeGraph.with_empty_graph(molecule=mol)
@@ -161,14 +169,14 @@ class LocalEnvironmentPanel(PanelComponent2):
                         StructureMoleculeComponent(
                             struct_or_mol=mg,
                             static=True,
-                            id=f"site_{idx}",
+                            id=f"site_{index}",
                             scene_settings={"enableZoom": False, "defaultZoom": 0.6},
                         ).all_layouts["struct"]
                     ],
                     style={"width": "300px", "height": "300px"},
                 )
 
-                env = lse.coordination_environments[idx]
+                env = lse.coordination_environments[index]
                 co = all_ce.get_geometry_from_mp_symbol(env[0]["ce_symbol"])
                 name = co.name
                 if co.alternative_names:
@@ -178,7 +186,12 @@ class LocalEnvironmentPanel(PanelComponent2):
                     {
                         "Environment": name,
                         "IUPAC Symbol": co.IUPAC_symbol_str,
-                        "CSM": f"{env[0]['csm']:.2f}%",
+                        get_tooltip(
+                            "CSM",
+                            '"Continuous Symmetry Measure," a measure of how symmetrical a '
+                            "local environment is from most symmetrical at 0% to least "
+                            "symmetrical at 100%",
+                        ): f"{env[0]['csm']:.2f}%",
                         "Interactive View": view,
                     }
                 )
@@ -189,10 +202,15 @@ class LocalEnvironmentPanel(PanelComponent2):
             envs_grouped = [envs[i : i + 2] for i in range(0, len(envs), 2)]
             analysis_contents = []
             for env_group in envs_grouped:
-                analysis_contents.append(Columns([Column(e) for e in env_group]))
+                analysis_contents.append(
+                    Columns([Column(e, size=6) for e in env_group])
+                )
 
-            unknown_sites = html.Div(
-                f"The following sites were not identified: {', '.join(unknown_sites)}"
-            )
+            if unknown_sites:
+                unknown_sites = html.Div(
+                    f"The following sites were not identified: {', '.join(unknown_sites)}"
+                )
+            else:
+                unknown_sites = html.Span()
 
-            return html.Div([analysis_contents, html.Br(), unknown_sites])
+            return html.Div([html.Div(analysis_contents), html.Br(), unknown_sites])

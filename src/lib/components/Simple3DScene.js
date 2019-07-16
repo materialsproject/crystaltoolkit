@@ -184,8 +184,9 @@ export default class Simple3DScene {
     // TODO: improve auto-zoom
     this.camera.zoom =
       Math.min(
-        width / (box.max.x - box.min.x),
-        height / (box.max.y - box.min.y)
+        Math.max(width, height) / (box.max.x - box.min.x),
+        Math.max(width, height) / (box.max.y - box.min.y),
+          Math.max(width, height) / (box.max.z - box.min.z)
       ) * this.settings.defaultZoom;
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrix();

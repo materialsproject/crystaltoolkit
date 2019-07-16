@@ -15,7 +15,7 @@ from pymatgen.analysis.diffraction.xrd import XRDCalculator, WAVELENGTHS
 
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 
 
 # Author: Matthew McDermott
@@ -26,6 +26,15 @@ class XRayDiffractionComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("struct")
+
+        self.initial_xrdcalculator_kwargs = {
+            "wavelength": "CuKa",
+            "symprec": 0,
+            "debye_waller_factors": None,
+        }
+        self.create_store(
+            "xrdcalculator_kwargs", initial_data=self.initial_xrdcalculator_kwargs
+        )
 
     # Default XRD plot style settings
     default_xrd_plot_style = dict(
@@ -131,7 +140,7 @@ class XRayDiffractionComponent(MPComponent):
                 dcc.Dropdown(
                     id=self.id("rad-source"),
                     options=[{"label": i, "value": i} for i in WAVELENGTHS.keys()],
-                    value="CuKa",
+                    value=self.initial_xrdcalculator_kwargs["wavelength"],
                     placeholder="Select a source...",
                     clearable=False,
                 ),
@@ -230,11 +239,10 @@ class XRayDiffractionComponent(MPComponent):
                 Input(self.id("crystallite-slider"), "value"),
                 Input(self.id("rad-source"), "value"),
                 Input(self.id("peak-profile"), "value"),
-                Input(self.id("shape-factor"), "n_submit"),
+                Input(self.id("shape-factor"), "value"),
             ],
-            [State(self.id("shape-factor"), "value")],
         )
-        def update_graph(data, logsize, rad_source, peak_profile, n_submit, K):
+        def update_graph(data, logsize, rad_source, peak_profile, K):
 
             if not data:
                 raise PreventUpdate
@@ -307,24 +315,41 @@ class XRayDiffractionComponent(MPComponent):
 
         @app.callback(
             Output(self.id(), "data"),
-            [Input(self.id("rad-source"), "value"), Input(self.id("struct"), "data")],
+            [
+                Input(self.id("struct"), "data"),
+                Input(self.id("xrdcalculator_kwargs"), "data"),
+            ],
         )
-        def pattern_from_mpid_or_struct(rad_source, struct):
+        def pattern_from_struct(struct, xrdcalculator_kwargs):
 
             if struct is None:
                 raise PreventUpdate
 
             struct = self.from_data(struct)
+            xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
 
             sga = SpacegroupAnalyzer(struct)
             struct = (
                 sga.get_conventional_standard_structure()
             )  # always get conventional structure
 
-            xrdc = XRDCalculator(wavelength=rad_source)
+            xrdc = XRDCalculator(**xrdcalculator_kwargs)
             data = xrdc.get_pattern(struct, two_theta_range=None)
 
             return data.as_dict()
+
+        @app.callback(
+            Output(self.id("xrdcalculator_kwargs"), "data"),
+            [Input(self.id("rad-source"), "value")],
+            [State(self.id("xrdcalculator_kwargs"), "data")],
+        )
+        def update_kwargs(rad_source, xrdcalculator_kwargs):
+            if rad_source == self.initial_xrdcalculator_kwargs["wavelength"]:
+                raise PreventUpdate
+            else:
+                xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
+                xrdcalculator_kwargs["wavelength"] = rad_source
+            return self.to_data(xrdcalculator_kwargs)
 
         @app.callback(
             Output(self.id("crystallite-input"), "children"),
@@ -350,3 +375,14 @@ class XRayDiffractionPanelComponent(PanelComponent):
 
     def update_contents(self, new_store_contents, *args):
         return self.xrd.standard_layout
+
+    # def generate_callbacks(self, app, cache):
+    #
+    #     super().generate_callbacks(app, cache)
+    #
+    #     @app.callback(
+    #         Output(self.id("inner_contents"), "children"),
+    #         [Input(self.id(), "data")]
+    #     )
+    #     def create_xrd_layout(new_store_contents):
+    #         return self.xrd.standard_layout

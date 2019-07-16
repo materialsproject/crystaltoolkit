@@ -236,7 +236,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
         var width = this.renderer.domElement.clientWidth;
         var height = this.renderer.domElement.clientHeight;
         // TODO: improve auto-zoom
-        this.camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * this.settings.defaultZoom;
+        this.camera.zoom = Math.min(Math.max(width, height) / (box.max.x - box.min.x), Math.max(width, height) / (box.max.y - box.min.y), Math.max(width, height) / (box.max.z - box.min.z)) * this.settings.defaultZoom;
         this.camera.updateProjectionMatrix();
         this.camera.updateMatrix();
         this.renderScene();
