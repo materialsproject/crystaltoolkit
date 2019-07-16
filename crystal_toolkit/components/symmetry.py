@@ -4,18 +4,29 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.components.core import (
-    PanelComponent,
-    unicodeify_spacegroup,
-    unicodeify_species,
-)
+from crystal_toolkit.components.core import unicodeify_spacegroup, unicodeify_species
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.inputs import *
-from crystal_toolkit.helpers.utils import pretty_frac_format
 
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from ast import literal_eval
+
+from fractions import Fraction
+
+
+def pretty_frac_format(x):
+    x = x % 1
+    fraction = Fraction(x).limit_denominator(8)
+    if np.allclose(x, 1):
+        x_str = "0"
+    elif not np.allclose(x, float(fraction)):
+        x = np.around(x, decimals=3)
+        x_str = f"{x:.3g}"
+    else:
+        x_str = str(fraction)
+    return x_str
 
 
 class SymmetryComponent(PanelComponent):

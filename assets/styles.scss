@@ -1,6 +1,5 @@
 @charset "utf-8";
 
-//@import url('https://fonts.googleapis.com/css?family=EB+Garamond:400,600&subset=greek');
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,600');
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Serif:300,300i,400,400i,500,500i');
 
@@ -9,6 +8,7 @@ $family-serif: "IBM Plex Serif", "EB Garamond", Palatino, "Palatino Linotype", "
 $family-primary: "IBM Plex Sans", sans-serif;
 
 $background: hsl(216, 27%, 24%);
+
 //$primary: #52afb9;
 
 body, html, .body {

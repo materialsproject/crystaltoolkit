@@ -9,16 +9,18 @@ from dash.exceptions import PreventUpdate
 import warnings
 
 from crystal_toolkit import Simple3DSceneComponent
-from crystal_toolkit.components.core import MPComponent, unicodeify_species
+from crystal_toolkit.components.core import unicodeify_species
+from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 
 from matplotlib.cm import get_cmap
 
 from pymatgen.core.composition import Composition
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen.analysis.local_env import NearNeighbors
-from pymatgen.core.periodic_table import Specie, DummySpecie
+from pymatgen.core.periodic_table import Specie
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.vis.structure_vtk import EL_COLORS
 from pymatgen.core.structure import Structure, Molecule
@@ -34,7 +36,7 @@ from collections import defaultdict, OrderedDict
 from itertools import combinations, combinations_with_replacement, chain
 import re
 
-from crystal_toolkit.helpers.scene import (
+from crystal_toolkit.core.scene import (
     Scene,
     Spheres,
     Cylinders,
@@ -46,8 +48,6 @@ from crystal_toolkit.helpers.scene import (
 )
 
 import numpy as np
-
-from scipy.spatial import Delaunay
 
 # TODO: make dangling bonds "stubs"? (fixed length)
 
@@ -115,6 +115,7 @@ class StructureMoleculeComponent(MPComponent):
         color_scheme="Jmol",
         color_scale=None,
         radius_strategy="uniform",
+        radius_scale=1.0,
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
@@ -144,6 +145,7 @@ class StructureMoleculeComponent(MPComponent):
             "color_scheme": color_scheme,
             "color_scale": color_scale,
             "radius_strategy": radius_strategy,
+            "radius_scale": radius_scale,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
             "hide_incomplete_bonds": hide_incomplete_bonds,
@@ -176,7 +178,7 @@ class StructureMoleculeComponent(MPComponent):
                 scene_additions=self.initial_scene_additions,
                 **self.initial_display_options,
             )
-            if hasattr(struct_or_mol, 'lattice'):
+            if hasattr(struct_or_mol, "lattice"):
                 self._lattice = struct_or_mol.lattice
         else:
             # component could be initialized without a structure, in which case
@@ -197,17 +199,7 @@ class StructureMoleculeComponent(MPComponent):
         self.initial_graph = graph
         self.create_store("graph", initial_data=self.to_data(graph))
 
-    def _generate_callbacks(self, app, cache):
-
-        # @app.callback(
-        #    Output(self.id("hide-show"), "options"),
-        #    [Input(self.id("scene"), "data")]
-        # )
-        # def update_hide_show_options(scene_data):
-        #   # TODO: CHGCAR
-        #    print(scene_data)
-        #    raise PreventUpdate
-
+    def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("graph"), "data"),
             [
@@ -310,7 +302,7 @@ class StructureMoleculeComponent(MPComponent):
             [
                 Input(self.id("color-scheme"), "value"),
                 Input(self.id("radius_strategy"), "value"),
-                Input(self.id("draw_options"), "values"),
+                Input(self.id("draw_options"), "value"),
             ],
             [State(self.id("display_options"), "data")],
         )
@@ -362,7 +354,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("scene"), "toggleVisibility"),
-            [Input(self.id("hide-show"), "values")],
+            [Input(self.id("hide-show"), "value")],
             [State(self.id("hide-show"), "options")],
         )
         def update_visibility(values, options):
@@ -411,13 +403,23 @@ class StructureMoleculeComponent(MPComponent):
             return self.to_data(graph_generation_options)
 
         @app.callback(
-            Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
+            [
+                Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
+                Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
+            ],
             [Input(self.id("bonding_algorithm"), "value")],
             [State(self.id("graph"), "data")],
         )
-        def update_custom_bond_options(option, graph):
+        def update_custom_bond_options(bonding_algorithm, graph):
+
             if not graph:
                 raise PreventUpdate
+
+            if bonding_algorithm == "CutOffDictNN":
+                style = {}
+            else:
+                style = {"display": "none"}
+
             graph = self.from_data(graph)
             struct_or_mol = self._get_struct_or_mol(graph)
             # can't use type_of_specie because it doesn't work with disordered structures
@@ -425,7 +427,7 @@ class StructureMoleculeComponent(MPComponent):
                 map(
                     str,
                     chain.from_iterable(
-                        [list(c.keys()) for c in struct_or_mol.species]
+                        [list(c.keys()) for c in struct_or_mol.species_and_occu]
                     ),
                 )
             )
@@ -433,17 +435,7 @@ class StructureMoleculeComponent(MPComponent):
                 {"A": combination[0], "B": combination[1], "A—B": 0}
                 for combination in combinations_with_replacement(species, 2)
             ]
-            return rows
-
-        @app.callback(
-            Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
-            [Input(self.id("bonding_algorithm"), "value")],
-        )
-        def show_hide_custom_bond_options(bonding_algorithm):
-            if bonding_algorithm == "CutOffDictNN":
-                return {}
-            else:
-                return {"display": "none"}
+            return rows, style
 
     def _make_legend(self, legend):
 
@@ -674,7 +666,7 @@ class StructureMoleculeComponent(MPComponent):
                                     "value": "hide_incomplete_bonds",
                                 },
                             ],
-                            values=["draw_image_atoms"],
+                            value=["draw_image_atoms"],
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("draw_options"),
@@ -691,7 +683,7 @@ class StructureMoleculeComponent(MPComponent):
                                 {"label": "Unit cell", "value": "unit_cell"},
                                 {"label": "Polyhedra", "value": "polyhedra"},
                             ],
-                            values=["atoms", "bonds", "unit_cell", "polyhedra"],
+                            value=["atoms", "bonds", "unit_cell", "polyhedra"],
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("hide-show"),
@@ -837,6 +829,63 @@ class StructureMoleculeComponent(MPComponent):
             raise ValueError
 
     @staticmethod
+    def _compass_from_lattice(
+        lattice,
+        origin=(0, 0, 0),
+        scale=0.7,
+        offset=0.15,
+        compass_style="corner",
+        **kwargs,
+    ):
+        # TODO: add along lattice
+        """
+        Get the display components of the compass
+        :param lattice: the pymatgen Lattice object that contains the primitive lattice vectors
+        :param origin: the reference position to place the compass
+        :param scale: scale all the geometric objects that makes up the compass the lattice vectors are normalized before the scaling so everything should be the same size
+        :param offset: shift the compass from the origin by a ratio of the diagonal of the cell relative the size 
+        :return: list of cystal_toolkit.helper.scene objects that makes up the compass
+        """
+        o = -np.array(origin)
+        o = o - offset * (lattice.matrix[0] + lattice.matrix[1] + lattice.matrix[2])
+        a = lattice.matrix[0] / np.linalg.norm(lattice.matrix[0]) * scale
+        b = lattice.matrix[1] / np.linalg.norm(lattice.matrix[1]) * scale
+        c = lattice.matrix[2] / np.linalg.norm(lattice.matrix[2]) * scale
+        a_arrow = [[o, o + a]]
+        b_arrow = [[o, o + b]]
+        c_arrow = [[o, o + c]]
+
+        o_sphere = Spheres(positions=[o], color="black", radius=0.1 * scale)
+
+        return [
+            Arrows(
+                a_arrow,
+                color="red",
+                radius=0.7 * scale,
+                headLength=2.3 * scale,
+                headWidth=1.4 * scale,
+                **kwargs,
+            ),
+            Arrows(
+                b_arrow,
+                color="blue",
+                radius=0.7 * scale,
+                headLength=2.3 * scale,
+                headWidth=1.4 * scale,
+                **kwargs,
+            ),
+            Arrows(
+                c_arrow,
+                color="green",
+                radius=0.7 * scale,
+                headLength=2.3 * scale,
+                headWidth=1.4 * scale,
+                **kwargs,
+            ),
+            o_sphere,
+        ]
+
+    @staticmethod
     def _get_display_colors_and_legend_for_sites(
         struct_or_mol, site_prop_types, color_scheme="Jmol", color_scale=None
     ) -> Tuple[List[List[str]], Dict]:
@@ -929,12 +978,12 @@ class StructureMoleculeComponent(MPComponent):
                 [0, 0, 0],  # 0, black
                 [230, 159, 0],  # 1, orange
                 [86, 180, 233],  # 2, sky blue
-                [0, 158, 115],  # 3, bluish green
+                [0, 158, 115],  #  3, bluish green
                 [240, 228, 66],  # 4, yellow
                 [0, 114, 178],  # 5, blue
                 [213, 94, 0],  # 6, vermillion
                 [204, 121, 167],  # 7, reddish purple
-                [255, 255, 255]  # 8, white
+                [255, 255, 255],  #  8, white
             ]
 
             # similar to CPK
@@ -949,15 +998,13 @@ class StructureMoleculeComponent(MPComponent):
                 "Br": 7,
                 "I": 7,
                 "P": 1,
-                "S": 4
+                "S": 4,
             }
 
             if len(set(labels)) > len(palette):
                 warnings.warn(
-                    "Too many distinct types of site to use a color-blind friendly color scheme.")
-
-
-
+                    "Too many distinct types of site to use a color-blind friendly color scheme."
+                )
 
         # colors = [......]
         # present_specie = sorted(struct_or_mol.types_of_specie)
@@ -1028,249 +1075,8 @@ class StructureMoleculeComponent(MPComponent):
         return colors, legend
 
     @staticmethod
-    def _primitives_from_lattice(lattice, origin=(0, 0, 0), **kwargs):
-
-        o = -np.array(origin)
-        a, b, c = lattice.matrix[0], lattice.matrix[1], lattice.matrix[2]
-        line_pairs = [
-            o,
-            o + a,
-            o,
-            o + b,
-            o,
-            o + c,
-            o + a,
-            o + a + b,
-            o + a,
-            o + a + c,
-            o + b,
-            o + b + a,
-            o + b,
-            o + b + c,
-            o + c,
-            o + c + a,
-            o + c,
-            o + c + b,
-            o + a + b,
-            o + a + b + c,
-            o + a + c,
-            o + a + b + c,
-            o + b + c,
-            o + a + b + c,
-        ]
-        line_pairs = [line.tolist() for line in line_pairs]
-
-        return Lines(line_pairs, **kwargs)
-
-    @staticmethod
-    def _compass_from_lattice(
-        lattice, origin=(0, 0, 0), scale=0.7, offset=0.15,
-            compass_style="corner", **kwargs
-    ):
-        # TODO: add along lattice
-        """
-        Get the display components of the compass
-        :param lattice: the pymatgen Lattice object that contains the primitive lattice vectors
-        :param origin: the reference position to place the compass
-        :param scale: scale all the geometric objects that makes up the compass the lattice vectors are normalized before the scaling so everything should be the same size
-        :param offset: shift the compass from the origin by a ratio of the diagonal of the cell relative the size 
-        :return: list of cystal_toolkit.helper.scene objects that makes up the compass
-        """
-        o = -np.array(origin)
-        o = o - offset * (lattice.matrix[0] + lattice.matrix[1] + lattice.matrix[2])
-        a = lattice.matrix[0] / np.linalg.norm(lattice.matrix[0]) * scale
-        b = lattice.matrix[1] / np.linalg.norm(lattice.matrix[1]) * scale
-        c = lattice.matrix[2] / np.linalg.norm(lattice.matrix[2]) * scale
-        a_arrow = [[o, o + a]]
-        b_arrow = [[o, o + b]]
-        c_arrow = [[o, o + c]]
-
-        o_sphere = Spheres(positions=[o], color="black", radius=0.1 * scale)
-
-        return [
-            Arrows(
-                a_arrow,
-                color="red",
-                radius=0.7 * scale,
-                headLength=2.3 * scale,
-                headWidth=1.4 * scale,
-                **kwargs,
-            ),
-            Arrows(
-                b_arrow,
-                color="blue",
-                radius=0.7 * scale,
-                headLength=2.3 * scale,
-                headWidth=1.4 * scale,
-                **kwargs,
-            ),
-            Arrows(
-                c_arrow,
-                color="green",
-                radius=0.7 * scale,
-                headLength=2.3 * scale,
-                headWidth=1.4 * scale,
-                **kwargs,
-            ),
-            o_sphere,
-        ]
-
-    @staticmethod
-    def _get_ellipsoids_from_matrix(matrix):
-        raise NotImplementedError
-        # matrix = np.array(matrix)
-        # eigenvalues, eigenvectors = np.linalg.eig(matrix)
-
-    @staticmethod
-    def _primitives_from_site(
-        site,
-        connected_sites=None,
-        origin=(0, 0, 0),
-        ellipsoid_site_prop=None,
-        all_connected_sites_present=True,
-        explicitly_calculate_polyhedra_hull=False,
-    ):
-        """
-        Sites must have display_radius and display_color site properties.
-        :param site:
-        :param connected_sites:
-        :param origin:
-        :param ellipsoid_site_prop: (beta)
-        :param all_connected_sites_present: if False, will not calculate
-        polyhedra since this would be misleading
-        :param explicitly_calculate_polyhedra_hull:
-        :return:
-        """
-
-        atoms = []
-        bonds = []
-        polyhedron = []
-
-        # for disordered structures
-        is_ordered = site.is_ordered
-        phiStart, phiEnd = None, None
-        occu_start = 0.0
-
-        # for thermal ellipsoids etc.
-        if ellipsoid_site_prop:
-            matrix = site.properties[ellipsoid_site_prop]
-            ellipsoids = StructureMoleculeComponent._get_ellipsoids_from_matrix(matrix)
-        else:
-            ellipsoids = None
-
-        position = np.subtract(site.coords, origin).tolist()
-
-        # site_color is used for bonds and polyhedra, if multiple colors are
-        # defined for site (e.g. a disordered site), then we use grey
-        all_colors = set(site.properties["display_color"])
-        if len(all_colors) > 1:
-            site_color = "#555555"
-        else:
-            site_color = list(all_colors)[0]
-
-        for idx, (sp, occu) in enumerate(site.species.items()):
-
-            if isinstance(sp, DummySpecie):
-
-                cube = Cubes(
-                    positions=[position],
-                    color=site.properties["display_color"][idx],
-                    width=0.4,
-                )
-                atoms.append(cube)
-
-            else:
-
-                color = site.properties["display_color"][idx]
-                radius = site.properties["display_radius"][idx]
-
-                # TODO: make optional/default to None
-                # in disordered structures, we fractionally color-code spheres,
-                # drawing a sphere segment from phi_end to phi_start
-                # (think a sphere pie chart)
-                if not is_ordered:
-                    phi_frac_end = occu_start + occu
-                    phi_frac_start = occu_start
-                    occu_start = phi_frac_end
-                    phiStart = phi_frac_start * np.pi * 2
-                    phiEnd = phi_frac_end * np.pi * 2
-
-                # TODO: add names for labels
-                # name = "{}".format(sp)
-                # if occu != 1.0:
-                #    name += " ({}% occupancy)".format(occu)
-
-                sphere = Spheres(
-                    positions=[position],
-                    color=color,
-                    radius=radius,
-                    phiStart=phiStart,
-                    phiEnd=phiEnd,
-                    ellipsoids=ellipsoids,
-                )
-                atoms.append(sphere)
-
-        if not is_ordered and not np.isclose(phiEnd, np.pi * 2):
-            # if site occupancy doesn't sum to 100%, cap sphere
-            sphere = Spheres(
-                positions=[position],
-                color="#ffffff",
-                radius=site.properties["display_radius"][0],
-                phiStart=phiEnd,
-                phiEnd=np.pi * 2,
-                ellipsoids=ellipsoids,
-            )
-            atoms.append(sphere)
-
-        if connected_sites:
-
-            all_positions = [position]
-            for connected_site in connected_sites:
-
-                connected_position = np.subtract(connected_site.site.coords, origin)
-                bond_midpoint = np.add(position, connected_position) / 2
-
-                cylinder = Cylinders(
-                    positionPairs=[[position, bond_midpoint.tolist()]], color=site_color
-                )
-                bonds.append(cylinder)
-                all_positions.append(connected_position.tolist())
-
-            if len(connected_sites) > 3 and all_connected_sites_present:
-                if explicitly_calculate_polyhedra_hull:
-
-                    try:
-
-                        # all_positions = [[0, 0, 0], [0, 0, 10], [0, 10, 0], [10, 0, 0]]
-                        # gives...
-                        # .convex_hull = [[2, 3, 0], [1, 3, 0], [1, 2, 0], [1, 2, 3]]
-                        # .vertex_neighbor_vertices = [1, 2, 3, 2, 3, 0, 1, 3, 0, 1, 2, 0]
-
-                        vertices_indices = Delaunay(
-                            all_positions
-                        ).vertex_neighbor_vertices
-                        vertices = [all_positions[idx] for idx in vertices_indices]
-
-                        polyhedron = [
-                            Surface(
-                                positions=vertices,
-                                color=site.properties["display_color"][0],
-                            )
-                        ]
-
-                    except Exception as e:
-
-                        polyhedron = []
-
-                else:
-
-                    polyhedron = [Convex(positions=all_positions, color=site_color)]
-
-        return {"atoms": atoms, "bonds": bonds, "polyhedra": polyhedron}
-
-    @staticmethod
     def _get_display_radii_for_sites(
-        struct_or_mol, radius_strategy="specified_or_average_ionic"
+        struct_or_mol, radius_strategy="specified_or_average_ionic", radius_scale=1.0
     ) -> List[List[float]]:
         """
         Note this returns a list of lists of floats since each
@@ -1329,85 +1135,12 @@ class StructureMoleculeComponent(MPComponent):
                     )
                     radius = 1.0
 
+                radius = radius * radius_scale
                 site_radii.append(radius)
 
             radii.append(site_radii)
 
         return radii
-
-    @staticmethod
-    def _get_sites_to_draw(
-        struct_or_mol: Union[Structure, Molecule],
-        graph: Union[StructureGraph, MoleculeGraph],
-        draw_image_atoms=True,
-        bonded_sites_outside_unit_cell=True,
-    ):
-        """
-        Returns a list of site indices and image vectors.
-        """
-
-        sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(struct_or_mol))]
-
-        # trivial in this case
-        if isinstance(struct_or_mol, Molecule):
-            return sites_to_draw
-
-        if draw_image_atoms:
-
-            for idx, site in enumerate(struct_or_mol):
-
-                zero_elements = [
-                    idx
-                    for idx, f in enumerate(site.frac_coords)
-                    if np.allclose(f, 0, atol=0.05)
-                ]
-
-                coord_permutations = [
-                    x
-                    for l in range(1, len(zero_elements) + 1)
-                    for x in combinations(zero_elements, l)
-                ]
-
-                for perm in coord_permutations:
-                    sites_to_draw.append(
-                        (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
-                    )
-
-                one_elements = [
-                    idx
-                    for idx, f in enumerate(site.frac_coords)
-                    if np.allclose(f, 1, atol=0.05)
-                ]
-
-                coord_permutations = [
-                    x
-                    for l in range(1, len(one_elements) + 1)
-                    for x in combinations(one_elements, l)
-                ]
-
-                for perm in coord_permutations:
-                    sites_to_draw.append(
-                        (idx, (-int(0 in perm), -int(1 in perm), -int(2 in perm)))
-                    )
-
-        if bonded_sites_outside_unit_cell:
-
-            # TODO: subtle bug here, see mp-5020, expansion logic not quite right
-            sites_to_append = []
-            for (n, jimage) in sites_to_draw:
-                connected_sites = graph.get_connected_sites(n, jimage=jimage)
-                for connected_site in connected_sites:
-                    if connected_site.jimage != (0, 0, 0):
-                        sites_to_append.append(
-                            (connected_site.index, connected_site.jimage)
-                        )
-            sites_to_draw += sites_to_append
-
-        # remove any duplicate sites
-        # (can happen when enabling bonded_sites_outside_unit_cell,
-        #  since this works by following bonds, and a single site outside the
-        #  unit cell can be bonded to multiple atoms within it)
-        return set(sites_to_draw)
 
     @staticmethod
     def get_scene_and_legend(
@@ -1416,6 +1149,7 @@ class StructureMoleculeComponent(MPComponent):
         color_scheme="Jmol",
         color_scale=None,
         radius_strategy="specified_or_average_ionic",
+        radius_scale=1.0,
         ellipsoid_site_prop=None,
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=True,
@@ -1434,7 +1168,7 @@ class StructureMoleculeComponent(MPComponent):
         site_prop_types = StructureMoleculeComponent._analyze_site_props(struct_or_mol)
 
         radii = StructureMoleculeComponent._get_display_radii_for_sites(
-            struct_or_mol, radius_strategy=radius_strategy
+            struct_or_mol, radius_strategy=radius_strategy, radius_scale=radius_scale
         )
         colors, legend = StructureMoleculeComponent._get_display_colors_and_legend_for_sites(
             struct_or_mol,
@@ -1443,81 +1177,33 @@ class StructureMoleculeComponent(MPComponent):
             color_scheme=color_scheme,
         )
 
+        # TODO: add set_display_color option, set_display_radius, set_ellipsoid
+        # call it "set_display_options" ?
+        # sets legend too! display_legend
+
         struct_or_mol.add_site_property("display_radius", radii)
         struct_or_mol.add_site_property("display_color", colors)
 
         origin = StructureMoleculeComponent._get_origin(struct_or_mol)
 
-        primitives = defaultdict(list)
-        sites_to_draw = StructureMoleculeComponent._get_sites_to_draw(
-            struct_or_mol,
-            graph,
+        scene = graph.get_scene(
             draw_image_atoms=draw_image_atoms,
             bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
+            hide_incomplete_bonds=hide_incomplete_bonds,
+            explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+            origin=origin,
         )
 
-        for (idx, jimage) in sites_to_draw:
+        scene.name = name
+        # TODO: ...
+        scene.origin = StructureMoleculeComponent._get_origin(struct_or_mol)
 
-            site = struct_or_mol[idx]
-            if jimage != (0, 0, 0):
-                connected_sites = graph.get_connected_sites(idx, jimage=jimage)
-                site = PeriodicSite(
-                    site.species,
-                    np.add(site.frac_coords, jimage),
-                    site.lattice,
-                    properties=site.properties,
-                )
-            else:
-                connected_sites = graph.get_connected_sites(idx)
-
-            true_number_of_connected_sites = len(connected_sites)
-            connected_sites_being_drawn = [
-                cs for cs in connected_sites if (cs.index, cs.jimage) in sites_to_draw
-            ]
-            number_of_connected_sites_drawn = len(connected_sites_being_drawn)
-            all_connected_sites_present = (
-                true_number_of_connected_sites == number_of_connected_sites_drawn
-            )
-            if hide_incomplete_bonds:
-                # only draw bonds if the destination site is also being drawn
-                connected_sites = connected_sites_being_drawn
-
-            site_primitives = StructureMoleculeComponent._primitives_from_site(
-                site,
-                connected_sites=connected_sites,
-                all_connected_sites_present=all_connected_sites_present,
-                origin=origin,
-                ellipsoid_site_prop=ellipsoid_site_prop,
-                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
-            )
-            for k, v in site_primitives.items():
-                primitives[k] += v
-
-        # we are here ...
-        # select polyhedra
-        # split by atom type at center
-        # see if any intersect, if yes split further
-        # order sets, with each choice, go to add second set etc if don't intersect
-        # they intersect if centre atom forms vertex of another atom (caveat: centre atom may not actually be inside polyhedra! not checking for this, add todo)
-        # def _set_intersects() ->bool:
-        # def _split_set() ->List: (by type, then..?)
-        # def _order_sets()... pick 1, ask can add 2? etc
-
-        if isinstance(struct_or_mol, Structure):
-            primitives["unit_cell"].append(
-                StructureMoleculeComponent._primitives_from_lattice(
+        if show_compass:
+            scene.contents.append(
+                StructureMoleculeComponent._compass_from_lattice(
                     struct_or_mol.lattice, origin=origin
                 )
             )
-            if show_compass:
-                primitives["compass"].extend(
-                    StructureMoleculeComponent._compass_from_lattice(
-                        struct_or_mol.lattice, origin=origin
-                    )
-                )
-
-        sub_scenes = [Scene(name=k, contents=v) for k, v in primitives.items()]
-        scene.contents = sub_scenes
 
         if scene_additions:
             scene.contents.append(scene_additions)
