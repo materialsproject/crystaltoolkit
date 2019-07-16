@@ -12,7 +12,9 @@ from pymatgen import MPRester
 from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify
 
-from crystal_toolkit.components.core import MPComponent, unicodeify_spacegroup
+
+from crystal_toolkit.components.core import unicodeify_spacegroup
+from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit import __file__ as module_path
 
@@ -72,8 +74,17 @@ class SearchComponent(MPComponent):
             mpid_cache = loadfn(path)
         else:
             with MPRester() as mpr:
-                entries = mpr.query({}, ["task_id"], chunk_size=0, mp_decode=False)
-            mpid_cache = [entry["task_id"] for entry in entries]
+                # restrict random mpids to those likely experimentally known
+                # and not too large
+                entries = mpr.query(
+                    {"nsites": {"$lte": 16}},
+                    ["task_id", "icsd_ids"],
+                    chunk_size=0,
+                    mp_decode=False,
+                )
+            mpid_cache = [
+                entry["task_id"] for entry in entries if len(entry["icsd_ids"]) > 2
+            ]
             dumpfn(mpid_cache, path)
 
         self.mpid_cache = mpid_cache
@@ -140,28 +151,17 @@ class SearchComponent(MPComponent):
 
         warning = html.Div(style={"display": "none"}, id=self.id("warning"))
 
-        api_hint = MessageContainer(
-            [
-                MessageHeader(html.Div([Icon(kind="code"), "Retrieve with code"])),
-                MessageBody(id=self.id("api_hint")),
-            ],
-            id=self.id("api_hint_container"),
-            kind="info",
-            size="small",
-            style={"display": "none"},
-        )
-
         search = html.Div([search, random_link], style={"margin-bottom": "0.75rem"})
 
         search = html.Div([search, warning, dropdown_container])
 
-        return {"search": search, "api_hint": api_hint}
+        return {"search": search}
 
     @property
     def standard_layout(self):
         return html.Div([self.all_layouts["search"]])
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
 
         self._get_tag_cache()
         self._get_mpid_cache()
@@ -235,26 +235,10 @@ class SearchComponent(MPComponent):
 
         @app.callback(
             Output(self.id("results"), "data"),
-            [
-                Input(self.id("input"), "n_submit"),
-                Input(self.id("button"), "n_clicks"),
-                # Input(self.id("random"), "n_clicks_timestamp"),
-            ],
+            [Input(self.id("input"), "n_submit"), Input(self.id("button"), "n_clicks")],
             [State(self.id("input"), "value")],
         )
         def update_results(n_submit, n_clicks, search_term):
-
-            # TODO: we may want to automatically submit form when random button is pressed
-            # figure out who's asking ... may be able to change this with later version of Dash
-            # if (
-            #    random_n_clicks
-            #    and (not n_submit or random_n_clicks > n_submit)
-            #    and (not n_clicks or random_n_clicks > n_clicks)
-            # ):
-            #    return {choice(self.mpid_cache): "Randomly selected mp-id."}
-
-            # if (n_submit is None) and (n_clicks is None) and (random_n_clicks is None):
-            #    raise PreventUpdate
 
             if not search_term:
                 raise PreventUpdate
@@ -313,33 +297,3 @@ class SearchComponent(MPComponent):
         @app.callback(Output(self.id(), "data"), [Input(self.id("dropdown"), "value")])
         def update_store_from_value(value):
             return {"time_requested": self.get_time(), "mpid": value}
-
-        @app.callback(
-            Output(self.id("api_hint_container"), "style"), [Input(self.id(), "data")]
-        )
-        def hide_show_dropdown(data):
-            if data is None or "mpid" not in data:
-                return {"display": "none"}
-            else:
-                return {"display": "inline-block"}
-
-        @app.callback(
-            Output(self.id("api_hint"), "children"), [Input(self.id(), "data")]
-        )
-        def update_api_hint(data):
-            if data is None or "mpid" not in data:
-                raise PreventUpdate
-            md = f"""You can retrieve this structure using the Materials Project API:
-
-
-```
-from pymatgen import MPRester
-with MPRester() as mpr:
-    struct = mpr.get_structure_by_mpid("{data["mpid"]}")
-```
-
-
-To get an API key and find out more visit [materialsproject.org](https://materialsproject.org/open).
-"""
-
-            return dcc.Markdown(md)

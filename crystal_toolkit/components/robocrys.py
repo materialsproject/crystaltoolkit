@@ -3,14 +3,15 @@ import dash_html_components as html
 
 from dash.dependencies import Input, Output, State
 
-from crystal_toolkit.components.core import PanelComponent
+
+from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 from crystal_toolkit.helpers.layouts import MessageContainer, MessageBody
 
 from robocrys import StructureCondenser, StructureDescriber
 from robocrys import __version__ as robocrys_version
 
 
-class RobocrysComponent(PanelComponent):
+class RobocrysComponent(PanelComponent2):
     @property
     def title(self):
         return "Description"
@@ -24,27 +25,47 @@ class RobocrysComponent(PanelComponent):
 
     @property
     def loading_text(self):
-        return "Robocrystallographer is analyzing your structure, " \
-               "this can take up to a minute"
+        return (
+            "Robocrystallographer is analyzing your structure, "
+            "this can take up to a minute"
+        )
 
-    def update_contents(self, new_store_contents):
+    def generate_callbacks(self, app, cache):
 
-        struct = self.from_data(new_store_contents)
+        super().generate_callbacks(app, cache)
 
-        condenser = StructureCondenser()
-        describer = StructureDescriber()
+        @app.callback(
+            Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
+        )
+        def run_robocrys_analysis(new_store_contents):
 
-        condensed_structure = condenser.condense_structure(struct)
+            print("Robocrys callback fired")
 
-        description = describer.describe(condensed_structure)
+            struct = self.from_data(new_store_contents)
 
-        return MessageContainer(MessageBody(
-            [
-                f"{description} – ",
-                html.A(
-                    f"🤖 robocrys v{robocrys_version}",
-                    href="https://github.com/hackingmaterials/robocrystallographer",
-                    style={"white-space": "nowrap"},
+            try:
+
+                condenser = StructureCondenser()
+                describer = StructureDescriber()
+
+                condensed_structure = condenser.condense_structure(struct)
+
+                description = describer.describe(condensed_structure)
+
+            except Exception as exc:
+
+                description = str(exc)
+
+            return MessageContainer(
+                MessageBody(
+                    [
+                        f"{description} – ",
+                        html.A(
+                            f"🤖 robocrys v{robocrys_version}",
+                            href="https://github.com/hackingmaterials/robocrystallographer",
+                            style={"white-space": "nowrap"},
+                        ),
+                    ]
                 ),
-            ]
-        ), kind="dark")
+                kind="dark",
+            )

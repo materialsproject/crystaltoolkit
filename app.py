@@ -145,6 +145,7 @@ if DEBUG_MODE:
     xas_component = ctc.XASPanelComponent(origin_component=search_component)
     pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
     symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+    bsdos_component = ctc.BandstructureAndDosPanelComponent(origin_component=search_component)
 
     bonding_graph_component = ctc.BondingGraphComponent()
     bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
@@ -155,6 +156,7 @@ if DEBUG_MODE:
     )
 
     panels = [
+        bsdos_component,
         symmetry_component,
         bonding_graph_component,
         xrd_component,
@@ -164,6 +166,7 @@ if DEBUG_MODE:
         literature_component,
         robocrys_component,
     ]
+
 
     body_layout = [
         # panel_description,
@@ -213,6 +216,7 @@ else:
     xas_component = ctc.XASPanelComponent(origin_component=search_component)
     pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
     symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+    bsdos_component = ctc.BandstructureAndDosPanelComponent(origin_component=search_component)
     submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
 
     bonding_graph_component = ctc.BondingGraphComponent()
@@ -224,6 +228,7 @@ else:
     )
 
     panels = [
+        bsdos_component,
         symmetry_component,
         bonding_graph_component,
         xrd_component,

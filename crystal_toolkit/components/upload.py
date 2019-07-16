@@ -5,7 +5,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.components.core import MPComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 
 from tempfile import NamedTemporaryFile
@@ -59,7 +59,7 @@ class StructureMoleculeUploadComponent(MPComponent):
 
         return {"upload": upload}
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("upload_label"), "children"),
             [Input(self.id("upload_data"), "filename")],

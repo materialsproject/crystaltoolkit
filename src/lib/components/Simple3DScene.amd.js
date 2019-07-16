@@ -132,12 +132,14 @@ define(["exports", "three-full"], function (exports, _threeFull) {
 
       // Lights
 
-      this.makeLights(scene, this.settings.lights);
+      var lights = this.makeLights(this.settings.lights);
+      camera.add(lights);
 
       var controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
       controls.enableKeys = false;
-      controls.minZoom = 1;
-      controls.maxZoom = 250;
+      controls.minZoom = 2;
+      controls.maxZoom = 100;
+      controls.enablePan = false;
 
       // initial render
       function render() {
@@ -174,6 +176,8 @@ define(["exports", "three-full"], function (exports, _threeFull) {
           case "png":
             this.downloadScreenshot(filename);
             break;
+          default:
+            throw new Error("Unknown filetype.");
         }
       }
     }, {
@@ -236,8 +240,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
       }
     }, {
       key: "makeLights",
-      value: function makeLights(scene, light_json) {
-        Simple3DScene.removeObjectByName(scene, "lights");
+      value: function makeLights(light_json) {
 
         var lights = new THREE.Object3D();
         lights.name = "lights";
@@ -257,6 +260,8 @@ define(["exports", "three-full"], function (exports, _threeFull) {
             case "HemisphereLight":
               var lightObj = new (Function.prototype.bind.apply(THREE.HemisphereLight, [null].concat(_toConsumableArray(light.args))))();
               break;
+            default:
+              throw new Error("Unknown light.");
           }
           if (light.hasOwnProperty("position")) {
             var _lightObj$position;
@@ -266,7 +271,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
           lights.add(lightObj);
         });
 
-        scene.add(lights);
+        return lights;
       }
     }, {
       key: "makeObject",
@@ -443,6 +448,10 @@ define(["exports", "three-full"], function (exports, _threeFull) {
               var _mesh2 = new THREE.Mesh(_geom5, _mat5);
               obj.add(_mesh2);
 
+              var edges = new THREE.EdgesGeometry(_geom5);
+              var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: object_json.color }));
+              obj.add(line);
+
               return obj;
             }
           case "arrows":
@@ -521,6 +530,8 @@ define(["exports", "three-full"], function (exports, _threeFull) {
             {
               return new THREE.MeshStandardMaterial(parameters);
             }
+          default:
+            throw new Error("Unknown material.");
         }
       }
     }, {
