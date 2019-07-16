@@ -11,7 +11,6 @@ from pymatgen.transformations.standard_transformations import SupercellTransform
 
 
 class SupercellTransformationComponent(TransformationComponent):
-
     @property
     def title(self):
         return "Make a supercell"
@@ -38,16 +37,20 @@ integers.
 
         return options
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
 
-        super()._generate_callbacks(app, cache)
+        super().generate_callbacks(app, cache)
 
         @app.callback(
             Output(self.id("transformation_args_kwargs"), "data"),
-            [Input(self.id(f"m{e1}{e2}"), "value") for e1 in range(3) for e2 in range(3)]
+            [
+                Input(self.id(f"m{e1}{e2}"), "value")
+                for e1 in range(3)
+                for e2 in range(3)
+            ],
         )
         def update_transformation_kwargs(*args):
 
             scaling_matrix = [args[0:3], args[3:6], args[6:9]]
 
-            return {'args': [], 'kwargs': {'scaling_matrix': scaling_matrix}}
+            return {"args": [], "kwargs": {"scaling_matrix": scaling_matrix}}

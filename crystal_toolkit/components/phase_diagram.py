@@ -11,10 +11,13 @@ from pymatgen.core.composition import Composition
 from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter, PDEntry
 
 from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
-from crystal_toolkit.components.core import MPComponent, PanelComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
+
 
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov
+
 
 class PhaseDiagramComponent(MPComponent):
     def __init__(self, *args, **kwargs):
@@ -38,7 +41,6 @@ class PhaseDiagramComponent(MPComponent):
             "side": "bottom",
             "tickfont": {"size": 16.0},
             "ticks": "inside",
-            "title": "Fraction",
             "titlefont": {"color": "#000000", "size": 24.0},
             "type": "linear",
             "zeroline": False,
@@ -112,16 +114,16 @@ class PhaseDiagramComponent(MPComponent):
     )
 
     default_3d_axis = dict(
-                title=None,
-                visible=False,
-                autorange=True,
-                showgrid=False,
-                zeroline=False,
-                showline=False,
-                ticks="",
-                showaxeslabels=False,
-                showticklabels=False,
-                showspikes=False
+        title=None,
+        visible=False,
+        autorange=True,
+        showgrid=False,
+        zeroline=False,
+        showline=False,
+        ticks="",
+        showaxeslabels=False,
+        showticklabels=False,
+        showspikes=False,
     )
 
     default_quaternary_plot_style = dict(
@@ -140,11 +142,7 @@ class PhaseDiagramComponent(MPComponent):
             xanchor="right",
             tracegroupgap=5,
         ),
-        scene = dict(
-            xaxis= default_3d_axis,
-            yaxis=default_3d_axis,
-            zaxis=default_3d_axis
-        )
+        scene=dict(xaxis=default_3d_axis, yaxis=default_3d_axis, zaxis=default_3d_axis),
     )
 
     empty_plot_style = {
@@ -154,10 +152,18 @@ class PhaseDiagramComponent(MPComponent):
         "plot_bgcolor": "rgba(0,0,0,0)",
     }
 
-    colorscale = [[0.0, '#008d00'], [0.1111111111111111, '#4b9f3f'], [0.2222222222222222, '#73b255'],
-        [0.3333333333333333, '#97c65b'], [0.4444444444444444, '#b9db53'], [0.5555555555555556, '#ffdcdf'],
-        [0.6666666666666666, '#ffb8bf'],[0.7777777777777778, '#fd92a0'], [0.8888888888888888, '#f46b86'],
-        [1.0, '#e24377']]
+    colorscale = [
+        [0.0, "#008d00"],
+        [0.1111111111111111, "#4b9f3f"],
+        [0.2222222222222222, "#73b255"],
+        [0.3333333333333333, "#97c65b"],
+        [0.4444444444444444, "#b9db53"],
+        [0.5555555555555556, "#ffdcdf"],
+        [0.6666666666666666, "#ffb8bf"],
+        [0.7777777777777778, "#fd92a0"],
+        [0.8888888888888888, "#f46b86"],
+        [1.0, "#e24377"],
+    ]
 
     default_table_params = [
         {"col": "Material ID", "edit": False},
@@ -205,8 +211,8 @@ class PhaseDiagramComponent(MPComponent):
                 "x": x,
                 "xanchor": "right",
                 "yanchor": "auto",
-                "xshift":-10,
-                "yshift":-10,
+                "xshift": -10,
+                "yshift": -10,
                 "xref": "x",
                 "y": y,
                 "yref": "y",
@@ -215,9 +221,9 @@ class PhaseDiagramComponent(MPComponent):
             if dim == 3:
                 annotation.update({"font": {"color": "#000000", "size": 18.0}})
             elif dim == 4:
-                annotation.update({"z":z})
+                annotation.update({"z": z})
                 for d in ["xref", "yref"]:
-                    annotation.pop(d) # Scatter3d cannot contain xref, yref
+                    annotation.pop(d)  # Scatter3d cannot contain xref, yref
 
             annotations_list.append(annotation)
 
@@ -229,10 +235,16 @@ class PhaseDiagramComponent(MPComponent):
                 layout["annotations"] = annotations_list
             elif dim == 4:
                 layout = self.default_quaternary_plot_style
-                layout["scene"].update({"annotations": annotations_list,
-                                        "camera":dict(up=dict(x=0, y=0, z=1),
-                                                      center=dict(x=-0.15, y=-0.2, z=0),
-                                                      eye=dict(x=1.25, y=1.25, z=1.25))})
+                layout["scene"].update(
+                    {
+                        "annotations": annotations_list,
+                        "camera": dict(
+                            up=dict(x=0, y=0, z=1),
+                            center=dict(x=-0.15, y=-0.2, z=0),
+                            eye=dict(x=1.25, y=1.25, z=1.25),
+                        ),
+                    }
+                )
         return layout
 
     def create_markers(self, plotter, pd):
@@ -245,9 +257,7 @@ class PhaseDiagramComponent(MPComponent):
         dim = pd.dim
 
         for coord, entry in plotter.pd_plot_data[1].items():
-            energy = round(
-                pd.get_form_energy_per_atom(entry), 3
-            )
+            energy = round(pd.get_form_energy_per_atom(entry), 3)
             energy_list.append(energy)
             mpid = entry.attribute
             formula = entry.composition.reduced_formula
@@ -259,9 +269,7 @@ class PhaseDiagramComponent(MPComponent):
 
             if dim == 4:
                 z_list.append(coord[2])
-            text.append(
-                f"{clean_formula} ({mpid})<br> {str(energy)} eV"
-            )
+            text.append(f"{clean_formula} ({mpid})<br> {str(energy)} eV")
 
         if dim == 2 or dim == 3:
             marker_plot = go.Scatter(
@@ -269,10 +277,12 @@ class PhaseDiagramComponent(MPComponent):
                 y=y_list,
                 mode="markers",
                 name="Stable",
-                marker=dict(color=energy_list,
-                            size=11,
-                            colorscale=self.colorscale,
-                            line=dict(width=2, color="#000000")),
+                marker=dict(
+                    color=energy_list,
+                    size=11,
+                    colorscale=self.colorscale,
+                    line=dict(width=2, color="#000000"),
+                ),
                 hoverinfo="text",
                 hoverlabel=dict(font=dict(size=14)),
                 showlegend=True,
@@ -285,10 +295,12 @@ class PhaseDiagramComponent(MPComponent):
                 z=z_list,
                 mode="markers",
                 name="Stable",
-                marker=dict(color=energy_list,
-                            size=8,
-                            colorscale=self.colorscale,
-                            line=dict(width=2, color="#000000")),
+                marker=dict(
+                    color=energy_list,
+                    size=8,
+                    colorscale=self.colorscale,
+                    line=dict(width=2, color="#000000"),
+                ),
                 hoverinfo="text",
                 hoverlabel=dict(font=dict(size=14)),
                 hovertext=text,
@@ -318,21 +330,20 @@ class PhaseDiagramComponent(MPComponent):
 
             energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
             text_list.append(
-                f"{clean_formula} ({mpid})<br>"
-                f"{energy} eV (+{e_above_hull} eV)"
+                f"{clean_formula} ({mpid})<br>" f"{energy} eV (+{e_above_hull} eV)"
             )
 
         if dim == 2 or dim == 3:
             unstable_marker_plot = go.Scatter(
-                    x=x_list,
-                    y=y_list,
-                    mode="markers",
-                    hoverinfo="text",
-                    hovertext=text_list,
-                    visible="legendonly",
-                    name="Unstable",
-                    marker=dict(color="#ff0000", size=12, symbol="x"),
-                )
+                x=x_list,
+                y=y_list,
+                mode="markers",
+                hoverinfo="text",
+                hovertext=text_list,
+                visible="legendonly",
+                name="Unstable",
+                marker=dict(color="#ff0000", size=12, symbol="x"),
+            )
 
         elif dim == 4:
             unstable_marker_plot = go.Scatter3d(
@@ -357,7 +368,7 @@ class PhaseDiagramComponent(MPComponent):
             try:
                 mpid = entry.entry_id
             except:
-                mpid = entry.attribute # accounting for custom entry
+                mpid = entry.attribute  # accounting for custom entry
 
             try:
                 data.append(
@@ -403,7 +414,8 @@ class PhaseDiagramComponent(MPComponent):
                     id=self.id("graph"),
                     config={"displayModeBar": False, "displaylogo": False},
                 )
-            ], id=self.id("pd-div")
+            ],
+            id=self.id("pd-div"),
         )
         table = html.Div(
             [
@@ -425,8 +437,8 @@ class PhaseDiagramComponent(MPComponent):
                             "overflowY": "auto",
                             "border": "thin lightgrey solid",
                         },
-                        #n_fixed_rows=1,
-                        sorting=True,
+                        # n_fixed_rows=1,
+                        sort_action=True,
                         editable=True,
                         row_deletable=True,
                         style_header={
@@ -476,7 +488,7 @@ class PhaseDiagramComponent(MPComponent):
             ]
         )
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("pd-div"), "children"), [Input(self.id("figure"), "data")]
         )
@@ -484,23 +496,27 @@ class PhaseDiagramComponent(MPComponent):
             if figure is None:
                 raise PreventUpdate
             elif figure == "error":
-                search_error = MessageContainer(
-                    [
-                        MessageBody(
-                            dcc.Markdown(
-                                "Plotting is only available for phase diagrams containing 2-4 components."
+                search_error = (
+                    MessageContainer(
+                        [
+                            MessageBody(
+                                dcc.Markdown(
+                                    "Plotting is only available for phase diagrams containing 2-4 components."
+                                )
                             )
-                        ),
-                    ],
-                    kind="warning",
-                ),
+                        ],
+                        kind="warning",
+                    ),
+                )
                 return search_error
 
             else:
-                plot = [dcc.Graph(
-                    figure=figure,
-                    config={"displayModeBar": False, "displaylogo": False},
-                )]
+                plot = [
+                    dcc.Graph(
+                        figure=figure,
+                        config={"displayModeBar": False, "displaylogo": False},
+                    )
+                ]
                 return plot
 
         @app.callback(Output(self.id("figure"), "data"), [Input(self.id(), "data")])
@@ -691,10 +707,7 @@ class PhaseDiagramPanelComponent(PanelComponent):
     @property
     def initial_contents(self):
         return html.Div(
-            [
-                super().initial_contents,
-                html.Div([self.pd_component.standard_layout]),
-            ]
+            [super().initial_contents, html.Div([self.pd_component.standard_layout])]
         )
 
     def update_contents(self, new_store_contents, *args):

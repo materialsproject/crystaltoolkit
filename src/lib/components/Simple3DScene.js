@@ -87,10 +87,9 @@ export default class Simple3DScene {
       this.renderer.domElement
     );
     controls.enableKeys = false;
-    controls.minZoom = 1;
-    controls.maxZoom = 250;
-    controls.maxPolarAngle = Infinity;
-    controls.minPolarAngle = -Infinity;
+    controls.minZoom = 2;
+    controls.maxZoom = 100;
+    controls.enablePan = false;
 
     // initial render
     function render() {
@@ -125,6 +124,8 @@ export default class Simple3DScene {
       case "png":
         this.downloadScreenshot(filename);
         break;
+      default:
+        throw new Error("Unknown filetype.");
     }
   }
 
@@ -198,7 +199,7 @@ export default class Simple3DScene {
         case "DirectionalLight":
           var lightObj = new THREE.DirectionalLight(...light.args);
           if (light.helper) {
-            let lightHelper = new THREE.DirectionalLightHelper(
+            const lightHelper = new THREE.DirectionalLightHelper(
               lightObj,
               5,
               "#444444"
@@ -212,6 +213,8 @@ export default class Simple3DScene {
         case "HemisphereLight":
           var lightObj = new THREE.HemisphereLight(...light.args);
           break;
+        default:
+          throw new Error("Unknown light.");
       }
       if (light.hasOwnProperty("position")) {
         lightObj.position.set(...light.position);
@@ -407,6 +410,10 @@ export default class Simple3DScene {
         const mesh = new THREE.Mesh(geom, mat);
         obj.add(mesh);
 
+        const edges = new THREE.EdgesGeometry(geom);
+        const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: object_json.color } ) );
+        obj.add(line);
+
         return obj;
       }
       case "arrows": {
@@ -488,6 +495,8 @@ export default class Simple3DScene {
       case "MeshStandardMaterial": {
         return new THREE.MeshStandardMaterial(parameters);
       }
+      default:
+        throw new Error("Unknown material.");
     }
   }
 
