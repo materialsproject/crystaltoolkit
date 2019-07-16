@@ -3,14 +3,14 @@ import dash_html_components as html
 
 from dash.dependencies import Input, Output, State
 
-from crystal_toolkit.components.core import MPComponent, PanelComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import Columns, Column, Box
 
 from json import loads
 
 
 class JSONEditor(PanelComponent):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, has_output=True, **kwargs)
 
@@ -34,13 +34,14 @@ class JSONEditor(PanelComponent):
             id=self.id("editor"),
             rows=16,
             className="textarea",
-            style={"max-width": "88%", "max-height": "800px",
-                   "height": "100%"},
+            style={"max-width": "88%", "max-height": "800px", "height": "100%"},
         )
-        json = Box(dcc.SyntaxHighlighter(
-            id=self.id("highlighted"), customStyle={"height": "100%",
-                                                    "max-height": "800px"}
-        ))
+        json = Box(
+            dcc.SyntaxHighlighter(
+                id=self.id("highlighted"),
+                customStyle={"height": "100%", "max-height": "800px"},
+            )
+        )
 
         return Columns([Column(editor), Column(json)])
 
@@ -50,30 +51,33 @@ class JSONEditor(PanelComponent):
             id=self.id("editor"),
             rows=16,
             className="textarea",
-            style={"max-width": "88%", "max-height": "800px",
-                   "height": "100%"},
+            style={"max-width": "88%", "max-height": "800px", "height": "100%"},
             value=new_store_contents,
         )
-        json = Box(dcc.SyntaxHighlighter(
-            id=self.id("highlighted"), customStyle={"height": "100%",
-                                                    "max-height": "800px"},
-            children=new_store_contents
-        ))
+        json = Box(
+            dcc.SyntaxHighlighter(
+                id=self.id("highlighted"),
+                customStyle={"height": "100%", "max-height": "800px"},
+                children=new_store_contents,
+            )
+        )
 
         return Columns([Column(editor), Column(json)])
 
-    def _generate_callbacks(self, app, cache):
-        super()._generate_callbacks(app, cache)
+    def generate_callbacks(self, app, cache):
+        super().generate_callbacks(app, cache)
 
         @app.callback(
-            Output(self.id("highlighted"), "children"), [Input(self.id("editor"), "value")]
+            Output(self.id("highlighted"), "children"),
+            [Input(self.id("editor"), "value")],
         )
         def update_highlighter(data):
             return data
 
         @app.callback(
-            Output(self.id("out"), "data"), [Input(self.id("editor"), "value")],
-            [State(self.id(), "data")]
+            Output(self.id("out"), "data"),
+            [Input(self.id("editor"), "value")],
+            [State(self.id(), "data")],
         )
         def update_editor(new_data, current_data):
             if not new_data:

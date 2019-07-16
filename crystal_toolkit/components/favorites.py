@@ -4,7 +4,8 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.components.core import MPComponent, unicodeify_spacegroup
+from crystal_toolkit.components.core import unicodeify_spacegroup
+from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 
 from pymatgen import MPRester
@@ -139,7 +140,7 @@ class FavoritesComponent(MPComponent):
             "notes": notes_layout,
         }
 
-    def _generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("favorite-button-container"), "children"),
             [Input(self.id("current-mpid"), "data"), Input(self.id(), "data")],
@@ -157,8 +158,10 @@ class FavoritesComponent(MPComponent):
                 return self.favorited_button
             else:
                 # prime cache in case of favoriting
-                self.mpr_query({"task_id": current_mpid["mpid"]},
-                               ["spacegroup.symbol", "pretty_formula"])
+                self.mpr_query(
+                    {"task_id": current_mpid["mpid"]},
+                    ["spacegroup.symbol", "pretty_formula"],
+                )
                 return self.favorite_button
 
         @app.callback(
@@ -184,12 +187,14 @@ class FavoritesComponent(MPComponent):
 
         @app.callback(
             Output(self.id(), "data"),
+            [Input(self.id("favorite-button"), "n_clicks")],
             [
-                Input(self.id("favorite-button"), "n_clicks")
+                State(self.id("current-mpid"), "data"),
+                State(
+                    self.id("favorite-button"), "className"
+                ),  #  className is a proxy for its state
+                State(self.id(), "data"),
             ],
-            [State(self.id("current-mpid"), "data"),
-             State(self.id("favorite-button"), "className"),  # className is a proxy for its state
-             State(self.id(), "data")],
         )
         def update_store(n_clicks, current_mpid, className, favorites):
             # TODO: add notes to this as well
@@ -233,7 +238,7 @@ class FavoritesComponent(MPComponent):
         @app.callback(
             Output(self.id("favorite-materials_contents"), "children"),
             [Input(self.id(), "modified_timestamp")],
-            [State(self.id(), "data")]
+            [State(self.id(), "data")],
         )
         def update_links_list(modified_timestamp, favorites):
             if not favorites:
@@ -243,11 +248,10 @@ class FavoritesComponent(MPComponent):
         @app.callback(
             Output(self.id("favorite-materials-container"), "style"),
             [Input(self.id(), "modified_timestamp")],
-            [State(self.id(), "data")]
+            [State(self.id(), "data")],
         )
         def hide_show_links_list(modified_timestamp, favorites):
             if not favorites or len(favorites) == 0:
                 return {"display": "none"}
             else:
                 return {}
-

@@ -4,7 +4,8 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.components.core import PanelComponent, MPComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import Label, Tag
 
 from pymatgen import Structure, MPRester
@@ -28,8 +29,11 @@ import os
 
 CROSSREF_MAILTO = os.environ.get("CROSSREF_MAILTO", None)
 
+
 class LiteratureComponent(PanelComponent):
-    def __init__(self, *args, use_crossref=True, use_crossref_formatting=True, **kwargs):
+    def __init__(
+        self, *args, use_crossref=True, use_crossref_formatting=True, **kwargs
+    ):
         self.use_crossref = use_crossref
         self.use_crossref_formatting = use_crossref_formatting
         super().__init__(*args, **kwargs)
@@ -39,12 +43,19 @@ class LiteratureComponent(PanelComponent):
             with MPRester() as mpr:
                 references = mpr.get_materials_id_references(mpid)
             return references
+
         self.get_materials_id_references = get_materials_id_references
 
         @MPComponent.cache.memoize(timeout=0)
-        def format_bibtex_references(references, use_crossref=True, custom_formatting=True):
-            self._format_bibtex_references(references, use_crossref=use_crossref,
-                                           custom_formatting=custom_formatting)
+        def format_bibtex_references(
+            references, use_crossref=True, custom_formatting=True
+        ):
+            self._format_bibtex_references(
+                references,
+                use_crossref=use_crossref,
+                custom_formatting=custom_formatting,
+            )
+
         self.format_bibtex_references = format_bibtex_references
         self.format_bibtex_references = format_bibtex_references
 
@@ -128,13 +139,13 @@ class LiteratureComponent(PanelComponent):
         contents = []
 
         if item["journal"]:
-            contents.append(html.I(item['journal']))
+            contents.append(html.I(item["journal"]))
         else:
             return html.Div()
 
         if item["volume"]:
             contents.append(html.Span(", "))
-            contents.append(html.B(item['volume']))
+            contents.append(html.B(item["volume"]))
 
         if item["issue"]:
             contents.append(html.Span(f" ({item['issue']})"))
@@ -250,9 +261,7 @@ class LiteratureComponent(PanelComponent):
                     f"Cited by {dois_to_item[doi]['cited-by']}."
                     for doi in sorted_dois
                 )
-                formatted_references = dcc.Markdown(
-                    md, className="mpc-markdown"
-                )
+                formatted_references = dcc.Markdown(md, className="mpc-markdown")
 
             else:
                 # else retrieve BibTeX entries to extract a nice author list
@@ -279,7 +288,7 @@ class LiteratureComponent(PanelComponent):
                                                     # necessary since titles can contain HTML for superscripts etc.
                                                     dcc.Markdown(
                                                         dois_to_item[doi]["title"],
-                                                        dangerously_allow_html=True
+                                                        dangerously_allow_html=True,
                                                     )
                                                 )
                                             ]
@@ -298,7 +307,7 @@ class LiteratureComponent(PanelComponent):
                                 )
                             ],
                             className="mpc",
-                            style={"padding-left": "1rem", "margin-bottom": "1rem"}
+                            style={"padding-left": "1rem", "margin-bottom": "1rem"},
                         )
                     )
 
