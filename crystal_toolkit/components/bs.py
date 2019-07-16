@@ -14,6 +14,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine as BSML
+from pymatgen.electronic_structure.dos import CompleteDos
 
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.components.core import MPComponent, PanelComponent
@@ -27,6 +29,9 @@ class BandstructureAndDosComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
+        self.create_store("traces")
+        self.create_store("bandStructureSymmLine")
+        self.create_store("densityOfStates")
 
     empty_plot_style = {
         "xaxis": {"visible": False},
@@ -62,11 +67,11 @@ class BandstructureAndDosComponent(MPComponent):
     def _generate_callbacks(self, app, cache):
         @app.callback(Output(self.id("bsdos-div"), "children"),
                       [
-                      Input(self.id(), "data"),
+                      Input(self.id("traces"), "data")
                       ])
-        def update_graph(data):
+        def update_graph(traces):
 
-            if not data:
+            if not traces:
                 search_error = MessageContainer(
                     [
                         MessageBody(
@@ -79,9 +84,10 @@ class BandstructureAndDosComponent(MPComponent):
                 ),
                 return search_error
 
-            figure = tls.make_subplots(rows=1, cols=2, shared_yaxes=True, print_grid=False)
+            figure = tls.make_subplots(
+                rows=1, cols=2, shared_yaxes=True, print_grid=False)
 
-            bstraces, dostraces, bs_data = data
+            bstraces, dostraces, bs_data = traces
 
             # -- Add trace data to plots
             for bstrace in bstraces:
@@ -159,26 +165,18 @@ class BandstructureAndDosComponent(MPComponent):
             return [dcc.Graph(figure=figure, config={"displayModeBar": False})]
 
         @app.callback(
-            Output(self.id(), "data"),
-            [Input(self.id("mpid"), "data")])
-        def bs_dos_data(mpid):
+            Output(self.id("traces"), "data"),
+            [Input(self.id("bandStructureSymmLine"), "data"),
+             Input(self.id("densityOfStates"), "data")])
+        def bs_dos_traces(bandStructureSymmLine, densityOfStates):
 
-            # -- Bandstructure Data
+            if not bandStructureSymmLine or not densityOfStates:
+                raise PreventUpdate
+
+            # - BS Data
             bstraces = []
 
-            if not mpid or "mpid" not in mpid:
-                raise PreventUpdate
-
-            mpid = mpid["mpid"]
-
-            with MPRester() as m:
-                bs = m.get_bandstructure_by_material_id(mpid)
-                dos = m.get_dos_by_material_id(mpid)
-
-            if not bs or not dos:
-                raise PreventUpdate
-
-            bs_reg_plot = BSPlotter(bs)
+            bs_reg_plot = BSPlotter(BSML.from_dict(bandStructureSymmLine))
 
             bs_data = bs_reg_plot.bs_plot_data()
 
@@ -226,6 +224,8 @@ class BandstructureAndDosComponent(MPComponent):
             # -- DOS Data
             dostraces = []
 
+            dos = CompleteDos.from_dict(densityOfStates)
+
             if bs_reg_plot._bs.is_spin_polarized:
                 # Add second spin data if available
                 trace_tdos = go.Scatter(
@@ -258,7 +258,7 @@ class BandstructureAndDosComponent(MPComponent):
 
             p_ele_dos = dos.get_element_dos()
 
-            # Projected data
+            # Projected DOS
             count = 0
             colors = [
                 '#1f77b4',  # muted blue
@@ -301,9 +301,30 @@ class BandstructureAndDosComponent(MPComponent):
 
                 count += 1
 
-            data = [bstraces, dostraces, bs_data]
+            traces = [bstraces, dostraces, bs_data]
 
-            return data
+            return traces
+
+        @app.callback(
+            [Output(self.id("bandStructureSymmLine"), "data"),
+             Output(self.id("densityOfStates"), "data")],
+            [Input(self.id("mpid"), "data")])
+        def bs_dos_data(mpid):
+
+            if not mpid or "mpid" not in mpid:
+                raise PreventUpdate
+
+            mpid = mpid["mpid"]
+
+            with MPRester() as m:
+                bandStructureSymmLine = m.get_bandstructure_by_material_id(
+                    mpid)
+                densityOfStates = m.get_dos_by_material_id(mpid)
+
+            if not bandStructureSymmLine or not densityOfStates:
+                raise PreventUpdate
+
+            return bandStructureSymmLine.as_dict(), densityOfStates.as_dict()
 
 
 class BandstructureAndDosPanelComponent(PanelComponent):
