@@ -44,6 +44,11 @@ export default class Simple3DSceneComponent extends Component {
 	componentWillUnmount() {
 	    this.scene.stop();
 		this.mount.removeChild(this.scene.renderer.domElement);
+		this.scene.renderer.forceContextLoss();
+		this.scene.renderer.context = null;
+		this.scene.renderer.domElement = null;
+		this.scene.renderer = null;
+
 	}
 
 	render() {
