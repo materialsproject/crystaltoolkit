@@ -33,19 +33,10 @@ from typing import Dict, Union, Optional, List, Tuple
 
 from collections import defaultdict, OrderedDict
 
-from itertools import combinations, combinations_with_replacement, chain
+from itertools import combinations_with_replacement, chain
 import re
 
-from crystal_toolkit.core.scene import (
-    Scene,
-    Spheres,
-    Cylinders,
-    Lines,
-    Surface,
-    Convex,
-    Cubes,
-    Arrows,
-)
+from crystal_toolkit.core.scene import Scene, Spheres, Arrows
 
 import numpy as np
 
@@ -74,31 +65,24 @@ class StructureMoleculeComponent(MPComponent):
         "uniform",
     )
 
-    # TODO ...
-    available_polyhedra_rules = ("prefer_large_polyhedra", "only_same_species")
-
     default_scene_settings = {
         "lights": [
             {
                 "type": "DirectionalLight",
                 "args": ["#ffffff", 0.15],
                 "position": [-10, 10, 10],
-                # "helper":True
             },
             {
                 "type": "DirectionalLight",
                 "args": ["#ffffff", 0.15],
                 "position": [0, 0, -10],
-                # "helper": True
             },
-            # {"type":"AmbientLight", "args":["#eeeeee", 0.9]}
             {"type": "HemisphereLight", "args": ["#eeeeee", "#999999", 1.0]},
         ],
         "material": {
             "type": "MeshStandardMaterial",
             "parameters": {"roughness": 0.07, "metalness": 0.00},
         },
-        "objectScale": 1.0,
         "cylinderScale": 0.1,
         "defaultSurfaceOpacity": 0.5,
         "staticScene": True,
@@ -112,7 +96,7 @@ class StructureMoleculeComponent(MPComponent):
         scene_additions=None,
         bonding_strategy="CrystalNN",
         bonding_strategy_kwargs=None,
-        color_scheme="Jmol",
+        color_scheme="VESTA",
         color_scale=None,
         radius_strategy="uniform",
         radius_scale=1.0,
@@ -120,6 +104,7 @@ class StructureMoleculeComponent(MPComponent):
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
         show_compass=False,
+        scene_settings=None,
         **kwargs,
     ):
 
@@ -129,7 +114,12 @@ class StructureMoleculeComponent(MPComponent):
 
         self.default_title = "Crystal Toolkit"
 
-        self.initial_scene_settings = StructureMoleculeComponent.default_scene_settings
+        self.initial_scene_settings = (
+            StructureMoleculeComponent.default_scene_settings.copy()
+        )
+        if scene_settings:
+            self.initial_scene_settings.update(scene_settings)
+
         self.create_store("scene_settings", initial_data=self.initial_scene_settings)
 
         self.initial_graph_generation_options = {
@@ -205,20 +195,16 @@ class StructureMoleculeComponent(MPComponent):
             [
                 Input(self.id("graph_generation_options"), "data"),
                 Input(self.id("unit-cell-choice"), "value"),
-                Input(self.id("repeats"), "value"),
                 Input(self.id(), "data"),
             ],
         )
-        def update_graph(
-            graph_generation_options, unit_cell_choice, repeats, struct_or_mol
-        ):
+        def update_graph(graph_generation_options, unit_cell_choice, struct_or_mol):
 
             if not struct_or_mol:
                 raise PreventUpdate
 
             struct_or_mol = self.from_data(struct_or_mol)
             graph_generation_options = self.from_data(graph_generation_options)
-            repeats = int(repeats)
 
             if isinstance(struct_or_mol, Structure):
                 if unit_cell_choice != "input":
@@ -229,8 +215,6 @@ class StructureMoleculeComponent(MPComponent):
                         struct_or_mol = sga.get_conventional_standard_structure()
                     elif unit_cell_choice == "reduced":
                         struct_or_mol = struct_or_mol.get_reduced_structure()
-                if repeats != 1:
-                    struct_or_mol = struct_or_mol * (repeats, repeats, repeats)
 
             graph = self._preprocess_input_to_graph(
                 struct_or_mol,
@@ -239,6 +223,8 @@ class StructureMoleculeComponent(MPComponent):
                     "bonding_strategy_kwargs"
                 ],
             )
+
+            self.logger.debug("Constructed graph")
 
             return self.to_data(graph)
 
@@ -324,6 +310,12 @@ class StructureMoleculeComponent(MPComponent):
             display_options.update(
                 {"hide_incomplete_bonds": "hide_incomplete_bonds" in draw_options}
             )
+
+            if display_options == self.initial_display_options:
+                raise PreventUpdate
+
+            self.logger.debug("Display options updated")
+
             return self.to_data(display_options)
 
         @app.callback(
@@ -362,20 +354,20 @@ class StructureMoleculeComponent(MPComponent):
             return visibility
 
         @app.callback(
-            Output(self.id("title_container"), "children"),
-            [Input(self.id("legend_data"), "data")],
-        )
-        def update_title(legend):
-            legend = self.from_data(legend)
-            return self._make_title(legend)
-
-        @app.callback(
-            Output(self.id("legend_container"), "children"),
+            [
+                Output(self.id("legend_container"), "children"),
+                Output(self.id("title_container"), "children"),
+            ],
             [Input(self.id("legend_data"), "data")],
         )
         def update_legend(legend):
+
             legend = self.from_data(legend)
-            return self._make_legend(legend)
+
+            if legend == self.initial_legend:
+                raise PreventUpdate
+
+            return self._make_legend(legend), self._make_title(legend)
 
         @app.callback(
             Output(self.id("graph_generation_options"), "data"),
@@ -385,10 +377,15 @@ class StructureMoleculeComponent(MPComponent):
             ],
         )
         def update_structure_viewer_data(bonding_algorithm, custom_cutoffs_rows):
+
             graph_generation_options = {
                 "bonding_strategy": bonding_algorithm,
                 "bonding_strategy_kwargs": None,
             }
+
+            if graph_generation_options == self.initial_graph_generation_options:
+                raise PreventUpdate
+
             if bonding_algorithm == "CutOffDictNN":
                 # this is not the format CutOffDictNN expects (since that is not JSON
                 # serializable), so we store as a list of tuples instead
@@ -592,26 +589,6 @@ class StructureMoleculeComponent(MPComponent):
                     ),
                     className="mpc-control",
                 ),
-                #  TODO: hide if molecule
-                html.Div(
-                    [
-                        html.Label("Change number of repeats:", className="mpc-label"),
-                        html.Div(
-                            dcc.RadioItems(
-                                options=[
-                                    {"label": "1×1×1", "value": "1"},
-                                    {"label": "2×2×2", "value": "2"},
-                                ],
-                                value="1",
-                                id=self.id("repeats"),
-                                labelStyle={"display": "block"},
-                                inputClassName="mpc-radio",
-                            ),
-                            className="mpc-control",
-                        ),
-                    ],
-                    style={"display": "none"},  # hidden for now, bug(!)
-                ),
                 html.Div(
                     [
                         html.Label("Change bonding algorithm: ", className="mpc-label"),
@@ -626,7 +603,7 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "VESTA", "value": "VESTA"},
                             {"label": "Jmol", "value": "Jmol"},
                         ],
-                        value="VESTA",
+                        value=self.initial_display_options["color_scheme"],
                         clearable=False,
                         id=self.id("color-scheme"),
                     ),
@@ -641,7 +618,7 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Van der Waals", "value": "van_der_waals"},
                             {"label": "Uniform (0.5Å)", "value": "uniform"},
                         ],
-                        value="uniform",
+                        value=self.initial_display_options["radius_strategy"],
                         clearable=False,
                         id=self.id("radius_strategy"),
                     ),
@@ -666,7 +643,15 @@ class StructureMoleculeComponent(MPComponent):
                                     "value": "hide_incomplete_bonds",
                                 },
                             ],
-                            value=["draw_image_atoms"],
+                            value=[
+                                opt
+                                for opt in (
+                                    "draw_image_atoms",
+                                    "bonded_sites_outside_unit_cell",
+                                    "hide_incomplete_bonds",
+                                )
+                                if self.initial_display_options[opt]
+                            ],
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("draw_options"),

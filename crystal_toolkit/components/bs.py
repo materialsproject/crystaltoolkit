@@ -18,14 +18,14 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine as
 from pymatgen.electronic_structure.dos import CompleteDos
 
 from crystal_toolkit.helpers.layouts import *
-from crystal_toolkit.components.core import MPComponent, PanelComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov
 
 
 class BandstructureAndDosComponent(MPComponent):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
@@ -48,44 +48,44 @@ class BandstructureAndDosComponent(MPComponent):
             [
                 dcc.Graph(
                     figure=go.Figure(
-                        layout=BandstructureAndDosComponent.empty_plot_style),
+                        layout=BandstructureAndDosComponent.empty_plot_style
+                    ),
                     config={"displayModeBar": False},
                 )
-            ], id=self.id("bsdos-div")
+            ],
+            id=self.id("bsdos-div"),
         )
 
         return {"graph": graph}
 
     @property
     def standard_layout(self):
-        return html.Div([
-            Column([
-                self.all_layouts["graph"]
-            ], size=8),
-        ])
+        return html.Div([Column([self.all_layouts["graph"]], size=8)])
 
     def _generate_callbacks(self, app, cache):
-        @app.callback(Output(self.id("bsdos-div"), "children"),
-                      [
-                      Input(self.id("traces"), "data")
-                      ])
+        @app.callback(
+            Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
+        )
         def update_graph(traces):
 
             if not traces:
-                search_error = MessageContainer(
-                    [
-                        MessageBody(
-                            dcc.Markdown(
-                                "Band structure and density of states not available for this selection."
+                search_error = (
+                    MessageContainer(
+                        [
+                            MessageBody(
+                                dcc.Markdown(
+                                    "Band structure and density of states not available for this selection."
+                                )
                             )
-                        ),
-                    ],
-                    kind="warning",
-                ),
+                        ],
+                        kind="warning",
+                    ),
+                )
                 return search_error
 
             figure = tls.make_subplots(
-                rows=1, cols=2, shared_yaxes=True, print_grid=False)
+                rows=1, cols=2, shared_yaxes=True, print_grid=False
+            )
 
             bstraces, dostraces, bs_data = traces
 
@@ -97,22 +97,21 @@ class BandstructureAndDosComponent(MPComponent):
                 figure.append_trace(dostrace, 1, 2)
 
             xaxis_style = go.layout.XAxis(
-                title=dict(text='Wave Vector',
-                           font=dict(size=16)),
-                tickmode='array',
-                tickvals=bs_data['ticks']['distance'],
-                ticktext=bs_data['ticks']['label'],
+                title=dict(text="Wave Vector", font=dict(size=16)),
+                tickmode="array",
+                tickvals=bs_data["ticks"]["distance"],
+                ticktext=bs_data["ticks"]["label"],
                 tickfont=dict(size=16),
                 ticks="inside",
                 tickwidth=2,
                 showgrid=True,
                 showline=True,
                 linewidth=2,
-                mirror=True)
+                mirror=True,
+            )
 
             yaxis_style = go.layout.YAxis(
-                title=dict(text='E-Efermi (eV)',
-                           font=dict(size=16)),
+                title=dict(text="E-Efermi (eV)", font=dict(size=16)),
                 tickfont=dict(size=16),
                 showgrid=True,
                 showline=True,
@@ -122,18 +121,19 @@ class BandstructureAndDosComponent(MPComponent):
                 linewidth=2,
                 tickwidth=2,
                 zerolinewidth=2,
-                range=[-5, 5])
+                range=[-5, 5],
+            )
 
             xaxis_style_dos = go.layout.XAxis(
-                title=dict(text='Density of States',
-                           font=dict(size=16)),
+                title=dict(text="Density of States", font=dict(size=16)),
                 tickfont=dict(size=16),
                 showgrid=True,
                 showline=True,
                 mirror=True,
                 ticks="inside",
                 linewidth=2,
-                tickwidth=2)
+                tickwidth=2,
+            )
 
             layout = go.Layout(
                 title="",
@@ -143,31 +143,38 @@ class BandstructureAndDosComponent(MPComponent):
                 showlegend=True,
                 height=500,
                 width=1500,
-                hovermode='x',
+                hovermode="x",
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=60, b=50, t=50, pad=0, r=30)
+                margin=dict(l=60, b=50, t=50, pad=0, r=30),
             )
 
             figure["layout"].update(layout)
 
             legend = go.layout.Legend(
-                x=1.0, y=.98,
-                xanchor="left", yanchor="top",
-                bordercolor='#333', borderwidth=1,
-                traceorder='normal')
+                x=1.0,
+                y=0.98,
+                xanchor="left",
+                yanchor="top",
+                bordercolor="#333",
+                borderwidth=1,
+                traceorder="normal",
+            )
 
             figure["layout"]["legend"] = legend
 
-            figure["layout"]["xaxis1"]["domain"] = [0., 0.6]
+            figure["layout"]["xaxis1"]["domain"] = [0.0, 0.6]
             figure["layout"]["xaxis2"]["domain"] = [0.65, 1.0]
 
             return [dcc.Graph(figure=figure, config={"displayModeBar": False})]
 
         @app.callback(
             Output(self.id("traces"), "data"),
-            [Input(self.id("bandStructureSymmLine"), "data"),
-             Input(self.id("densityOfStates"), "data")])
+            [
+                Input(self.id("bandStructureSymmLine"), "data"),
+                Input(self.id("densityOfStates"), "data"),
+            ],
+        )
         def bs_dos_traces(bandStructureSymmLine, densityOfStates):
 
             if not bandStructureSymmLine or not densityOfStates:
@@ -181,44 +188,49 @@ class BandstructureAndDosComponent(MPComponent):
             bs_data = bs_reg_plot.bs_plot_data()
 
             # -- Strip latex math wrapping
-            for entry_num in range(len(bs_data['ticks']['label'])):
+            for entry_num in range(len(bs_data["ticks"]["label"])):
 
-                bs_data['ticks']['label'][entry_num] = \
-                    bs_data['ticks']['label'][entry_num].replace('$', '')
+                bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
+                    entry_num
+                ].replace("$", "")
 
-                bs_data['ticks']['label'][entry_num] = \
-                    bs_data['ticks']['label'][
-                        entry_num].replace(r'\mid', '|')
+                bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
+                    entry_num
+                ].replace(r"\mid", "|")
 
-                bs_data['ticks']['label'][entry_num] = \
-                    bs_data['ticks']['label'][
-                        entry_num].replace(r'\Gamma', 'Γ')
+                bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
+                    entry_num
+                ].replace(r"\Gamma", "Γ")
 
-            for d in range(len(bs_data['distances'])):
+            for d in range(len(bs_data["distances"])):
                 for i in range(bs_reg_plot._nb_bands):
-                    bstraces.append(go.Scatter(
-                        x=bs_data['distances'][d],
-                        y=[bs_data['energy'][d][str(Spin.up)][i][j]
-                           for j in range(len(bs_data['distances'][d]))],
-                        mode='lines',
-                        line=dict(color=("#666666"),
-                                  width=2),
-                        hoverinfo='skip',
-                        showlegend=False),
+                    bstraces.append(
+                        go.Scatter(
+                            x=bs_data["distances"][d],
+                            y=[
+                                bs_data["energy"][d][str(Spin.up)][i][j]
+                                for j in range(len(bs_data["distances"][d]))
+                            ],
+                            mode="lines",
+                            line=dict(color=("#666666"), width=2),
+                            hoverinfo="skip",
+                            showlegend=False,
+                        )
                     )
 
                     if bs_reg_plot._bs.is_spin_polarized:
                         bstraces.append(
                             go.Scatter(
-                                x=bs_data['distances'][d],
-                                y=[bs_data['energy'][d][str(Spin.down)][i][j]
-                                    for j in range(len(bs_data['distances'][d]))],
-                                mode='lines',
-                                line=dict(color=("#666666"),
-                                          width=2,
-                                          dash='dash'),
-                                hoverinfo='skip',
-                                showlegend=False),
+                                x=bs_data["distances"][d],
+                                y=[
+                                    bs_data["energy"][d][str(Spin.down)][i][j]
+                                    for j in range(len(bs_data["distances"][d]))
+                                ],
+                                mode="lines",
+                                line=dict(color=("#666666"), width=2, dash="dash"),
+                                hoverinfo="skip",
+                                showlegend=False,
+                            )
                         )
 
             # -- DOS Data
@@ -233,7 +245,7 @@ class BandstructureAndDosComponent(MPComponent):
                     y=dos.energies - dos.efermi,
                     mode="lines",
                     name="Total DOS (spin ↓)",
-                    line=go.scatter.Line(color="#444444", dash='dash'),
+                    line=go.scatter.Line(color="#444444", dash="dash"),
                     fill="tozeroy",
                 )
 
@@ -251,7 +263,7 @@ class BandstructureAndDosComponent(MPComponent):
                 name=tdos_label,
                 line=go.scatter.Line(color="#444444"),
                 fill="tozeroy",
-                legendgroup='spinup'
+                legendgroup="spinup",
             )
 
             dostraces.append(trace_tdos)
@@ -261,15 +273,15 @@ class BandstructureAndDosComponent(MPComponent):
             # Projected DOS
             count = 0
             colors = [
-                '#1f77b4',  # muted blue
-                '#ff7f0e',  # safety orange
-                '#2ca02c',  # cooked asparagus green
-                '#d62728',  # brick red
-                '#9467bd',  # muted purple
-                '#8c564b',  # chestnut brown
-                '#e377c2',  # raspberry yogurt pink
-                '#bcbd22',  # curry yellow-green
-                '#17becf'   # blue-teal
+                "#1f77b4",  # muted blue
+                "#ff7f0e",  # safety orange
+                "#2ca02c",  # cooked asparagus green
+                "#d62728",  # brick red
+                "#9467bd",  # muted purple
+                "#8c564b",  # chestnut brown
+                "#e377c2",  # raspberry yogurt pink
+                "#bcbd22",  # curry yellow-green
+                "#17becf",  # blue-teal
             ]
 
             for ele in p_ele_dos.keys():
@@ -279,12 +291,12 @@ class BandstructureAndDosComponent(MPComponent):
                         x=p_ele_dos[ele].densities[Spin.down],
                         y=dos.energies - dos.efermi,
                         mode="lines",
-                        name=ele.symbol + ' (spin ↓)',
-                        line=dict(width=3, color=colors[count], dash='dash'),
+                        name=ele.symbol + " (spin ↓)",
+                        line=dict(width=3, color=colors[count], dash="dash"),
                     )
 
                     dostraces.append(trace)
-                    spin_up_label = ele.symbol + ' (spin ↑)'
+                    spin_up_label = ele.symbol + " (spin ↑)"
 
                 else:
                     spin_up_label = ele.symbol
@@ -306,9 +318,12 @@ class BandstructureAndDosComponent(MPComponent):
             return traces
 
         @app.callback(
-            [Output(self.id("bandStructureSymmLine"), "data"),
-             Output(self.id("densityOfStates"), "data")],
-            [Input(self.id("mpid"), "data")])
+            [
+                Output(self.id("bandStructureSymmLine"), "data"),
+                Output(self.id("densityOfStates"), "data"),
+            ],
+            [Input(self.id("mpid"), "data")],
+        )
         def bs_dos_data(mpid):
 
             if not mpid or "mpid" not in mpid:
@@ -317,8 +332,7 @@ class BandstructureAndDosComponent(MPComponent):
             mpid = mpid["mpid"]
 
             with MPRester() as m:
-                bandStructureSymmLine = m.get_bandstructure_by_material_id(
-                    mpid)
+                bandStructureSymmLine = m.get_bandstructure_by_material_id(mpid)
                 densityOfStates = m.get_dos_by_material_id(mpid)
 
             if not bandStructureSymmLine or not densityOfStates:
@@ -328,7 +342,6 @@ class BandstructureAndDosComponent(MPComponent):
 
 
 class BandstructureAndDosPanelComponent(PanelComponent):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bs = BandstructureAndDosComponent()
