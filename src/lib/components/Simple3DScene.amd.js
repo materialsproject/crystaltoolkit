@@ -87,7 +87,9 @@ define(["exports", "three-full"], function (exports, _threeFull) {
             roughness: 0.2,
             metalness: 0.0
           }
-        }
+        },
+        enableZoom: true,
+        defaultZoom: 0.8
       };
 
       this.settings = Object.assign(defaults, settings);
@@ -140,6 +142,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
       controls.minZoom = 2;
       controls.maxZoom = 100;
       controls.enablePan = false;
+      controls.enableZoom = this.settings.enableZoom;
 
       // initial render
       function render() {
@@ -233,7 +236,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
         var width = this.renderer.domElement.clientWidth;
         var height = this.renderer.domElement.clientHeight;
         // TODO: improve auto-zoom
-        this.camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * 0.8;
+        this.camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * this.settings.defaultZoom;
         this.camera.updateProjectionMatrix();
         this.camera.updateMatrix();
         this.renderScene();
