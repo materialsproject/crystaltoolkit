@@ -138,7 +138,7 @@ class Spheres(Primitive):
     _meta: Any = None
 
     def key(self):
-        return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}"
+        return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}_{self.reference}"
 
     @classmethod
     def merge(cls, sphere_list):
@@ -188,7 +188,7 @@ class Ellipsoids(Primitive):
     _meta: Any = None
 
     def key(self):
-        return f"ellipsoid_{self.color}_{self.scale}_{self.phiStart}_{self.phiEnd}"
+        return f"ellipsoid_{self.color}_{self.scale}_{self.phiStart}_{self.phiEnd}_{self.reference}"
 
     @classmethod
     def merge(cls, ellipsoid_list):
@@ -235,7 +235,7 @@ class Cylinders(Primitive):
     _meta: Any = None
 
     def key(self):
-        return f"cyclinder_{self.color}_{self.radius}"
+        return f"cyclinder_{self.color}_{self.radius}_{self.reference}"
 
     @classmethod
     def merge(cls, cylinder_list):
@@ -275,7 +275,7 @@ class Cubes(Primitive):
     _meta: Any = None
 
     def key(self):
-        return f"cube_{self.color}_{self.width}"
+        return f"cube_{self.color}_{self.width}_{self.reference}"
 
     @classmethod
     def merge(cls, cube_list):
@@ -323,7 +323,7 @@ class Lines(Primitive):
     _meta: Any = None
 
     def key(self):
-        raise f"line_{self.color}_{self.lineWidth}_{self.dashSize}_{self.gapSize}"
+        raise f"line_{self.color}_{self.lineWidth}_{self.dashSize}_{self.gapSize}_{self.reference}"
 
     @classmethod
     def merge(cls, line_list):
@@ -407,7 +407,7 @@ class Arrows(Primitive):
     _meta: Any = None
 
     def key(self):
-        raise f"arrow_{self.color}_{self.radius}_{self.headLength}_{self.headWidth}"
+        raise f"arrow_{self.color}_{self.radius}_{self.headLength}_{self.headWidth}_{self.reference}"
 
     @classmethod
     def merge(cls, arrow_list):
