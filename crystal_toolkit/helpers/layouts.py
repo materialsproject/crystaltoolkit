@@ -11,6 +11,8 @@ FONT_AWESOME_CSS = {
     "external_url": "https://use.fontawesome.com/releases/v5.6.3/css/all.css"
 }
 
+PRIMARY_COLOR = "hsl(171, 100%, 41%)"
+
 # TODO: change "kind" kwarg to list / group is- modifiers together
 
 
@@ -303,16 +305,23 @@ def get_table(rows):
     return html.Table([html.Tbody(contents)], className="table")
 
 
-def cite_me(doi, cite_text="Cite me"):
+def cite_me(doi=None, cite_text="Cite me"):
 
-    tooltip_text = (
-        f"If this analysis is useful, please cite the "
-        f"relevant publication at https://dx.doi.org/{doi}"
-    )
+    if doi:
+        tooltip_text = (
+            f"If this analysis is useful, please cite the "
+            f"relevant publication at https://dx.doi.org/{doi}"
+        )
+    else:
+        tooltip_text = (
+            f"If this analysis is useful, please cite the "
+            f"relevant publication (publication pending)."
+        )
 
     reference_button = html.A(
         [Button([Icon(kind="book"), html.Span(cite_text)], size="small", kind="link")],
         href=f"https://dx.doi.org/{doi}",
+        target="_blank",
     )
 
     with_tooltip = get_tooltip(reference_button, tooltip_text)
