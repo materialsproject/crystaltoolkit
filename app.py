@@ -74,15 +74,14 @@ if os.environ.get("REDIS_URL", ""):
             "CACHE_REDIS_URL": os.environ.get("REDIS_URL", ""),
         },
     )
+elif DEBUG_MODE:
+    # disable cache in debug
+    cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "null"})
 else:
     crystal_toolkit_app.logger.error(
         f"Failed to connect to Redis cache, falling back to " f"file system cache."
     )
-    cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "filesystem"})
-
-if DEBUG_MODE:
-    # disable cache in debug
-    cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "null"})
+    cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "simple"})
 
 # endregion
 
