@@ -117,6 +117,9 @@ export default class Simple3DScene {
     }
 
     window.addEventListener( 'resize', resizeRendererToDisplaySize, false );
+
+    // clickable object reference
+    this.clickable_objects = []
   }
 
   download(filename, filetype) {
@@ -149,6 +152,7 @@ export default class Simple3DScene {
 
   addToScene(scene_json) {
     Simple3DScene.removeObjectByName(this.scene, scene_json.name);
+    this.clickable_objects = []
 
     const root_obj = new THREE.Object3D();
     root_obj.name = scene_json.name;
@@ -232,6 +236,11 @@ export default class Simple3DScene {
     if (object_json.visible) {
       obj.visible = object_json.visible;
     }
+
+    if (object_json.clickable) {
+      obj.reference = object_json.reference
+      this.clickable_objects.push(obj);
+    };
 
     switch (object_json.type) {
       case "spheres": {
