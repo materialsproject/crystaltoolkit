@@ -130,6 +130,7 @@ pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
 symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
 submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
 localenv_component = ctc.LocalEnvironmentPanel(origin_component=struct_component)
+bsdos_component = ctc.BandstructureAndDosPanelComponent(origin_component=search_component)
 # grain_boundary_panel = ctc.GrainBoundaryPanel(origin_component=search_component)
 
 xas_component = ctc.XASPanelComponent(origin_component=search_component)
@@ -147,6 +148,7 @@ panels = [
     symmetry_component,
     bonding_graph_component,
     localenv_component,
+    bsdos_component,
     xrd_component,
     robocrys_component,
 ]
