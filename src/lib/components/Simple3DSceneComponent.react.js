@@ -131,5 +131,14 @@ Simple3DSceneComponent.propTypes = {
 	 * properties change
 	 */
 	setProps: PropTypes.func,
+    /**
+     * Reference to selected objects when clicked
+     */
+    selectedObjectReference: PropTypes.string,
+
+    /**
+     * Click count for selected object
+     */
+    selectedObjectCount: PropTypes.number,
 
 };
