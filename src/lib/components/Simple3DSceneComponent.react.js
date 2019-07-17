@@ -66,6 +66,36 @@ export default class Simple3DSceneComponent extends Component {
 			</div>
 		);
 	}
+			onClick = (event) => {
+				event.preventDefault();
+			    
+			    var mouse = new THREE.Vector2();
+			    var renderer = this.scene.renderer
+			    var raycaster = new THREE.Raycaster();
+
+        		mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+        		mouse.y =  - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+ 
+        		raycaster.setFromCamera(mouse, camera);
+ 
+        		meshObjects = Object.this.scene.clickable_objects; // three.js objects with click handlers we are interested in
+         
+        		var intersects = raycaster.intersectObjects(meshObjects);
+ 
+        		if (intersects.length &amp;amp;gt; 0) {
+            		clicked_reference = intersects[0].object.reference;
+            		if (selectedObject.reference == clicked_reference) {
+						this.setState((state) => {
+							return {selectedObjectCount: state.selectedObjectCount + 1};
+						});
+            		} else {
+						this.setState({
+							selectedObjectReference: clicked_reference
+							selectedObjectCount: 1;
+						});
+            		}
+        		}
+			 } 
 }
 
 
