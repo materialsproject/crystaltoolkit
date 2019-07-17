@@ -132,7 +132,7 @@ sphere {<{{val}}>, 0.02 texture {bbox} no_shadow}
 {% endfor %}
 """
 
-def asy_write_data(input_scene_comp, fstream):
+def pov_write_data(input_scene_comp, fstream):
     """
     parse a primitive display object in crystaltoolkit and print it to POV-Ray
     input_scene_comp
@@ -191,7 +191,7 @@ def filter_data(scene_data, fstream):
     Recursively traverse the scene_data dictionary to find objects to draw
     """
     if "type" in scene_data.keys():
-        asy_write_data(scene_data, fstream)
+        pov_write_data(scene_data, fstream)
     else:
         for itr in scene_data["contents"]:
             filter_data(itr, fstream)
@@ -208,3 +208,39 @@ def write_pov_file(smc, file_name):
     filter_data(smc.initial_scene_data, fstream)
     fstream.close()
 
+    fstream = open('render.ini', 'w')
+    render_settings = get_render_settings()
+    fstream.write( render_settings )
+    fstream.close()
+
+def get_render_settings(file_name):
+    """
+    Creates a POV-Ray render.ini file
+    """
+
+    image_name = file_name[:-4] + ".png"
+
+    settings = """
+Input_File_Name = {:s}
+Output_File_Name = {:s}
+Display = 1
+# -- Option to switch on the density
+Declare=render_density=0     # 0 = off, 1 = on
+Quality = 9
+Height = 1200
+Width = 1600
+# -- Uncomment below for higher quality rendering
+Antialias = On
+Antialias_Threshold = 0.01
+Antialias_Depth = 4
+Jitter_Amount = 1.0
+# -- Set the camera position
+Declare=i=8
+Declare=j=5
+Declare=k=4
+# -- Set the look_at position
+Declare=ii=0
+Declare=jj=0
+Declare=kk=0
+""".format( file_name, image_name )
+    return settings
