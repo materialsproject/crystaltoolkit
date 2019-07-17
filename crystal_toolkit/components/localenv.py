@@ -4,7 +4,6 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-
 from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 from crystal_toolkit.helpers.layouts import (
     MessageContainer,
@@ -16,7 +15,9 @@ from crystal_toolkit.helpers.layouts import (
     Column,
     get_tooltip,
     cite_me,
+    PRIMARY_COLOR,
 )
+from crystal_toolkit.helpers.inputs import get_float_input
 
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
@@ -67,8 +68,9 @@ class LocalEnvironmentPanel(PanelComponent2):
                     dcc.RadioItems(
                         id=self.id("algorithm"),
                         options=[
-                            {"label": "ChemEnv", "value": "chemenv"},
-                            {"label": "LocalEnv", "value": "localenv"},
+                            {"label": "ChemEnv Analysis", "value": "chemenv"},
+                            {"label": "LocalEnv Analysis", "value": "localenv"},
+                            {"label": "Bonding Graph", "value": "bondinggraph"},
                         ],
                         inputClassName="mpc-radio",
                         labelClassName="mpc-radio",
@@ -107,16 +109,54 @@ class LocalEnvironmentPanel(PanelComponent2):
                     "the *pymatgen* code."
                 )
 
+                distance_cutoff = get_float_input(
+                    id=self.id("distance_cutoff"),
+                    default=1.4,
+                    label="Distance cut-off",
+                    help="Defines search radius by considering any atom within a radius "
+                    "of the minimum nearest neighbor distance multiplied by the distance "
+                    "cut-off.",
+                )
+                angle_cutoff = get_float_input(
+                    id=self.id("angle_cutoff"),
+                    default=0.3,
+                    label="Angle cut-off",
+                    help="Defines a tolerance whereby a neighbor atom is excluded if the solid angle "
+                    "circumscribed by its Voronoi face is smaller than the angle tolerance "
+                    "multiplied by the largest solid angle present in the crystal.",
+                )
+
                 return html.Div(
                     [
                         dcc.Markdown(description),
-                        cite_me("", cite_text="Cite ChemEnv Analysis"),
                         html.Br(),
-                        get_chemenv_analysis(struct),
+                        cite_me(None, cite_text="Cite ChemEnv Analysis"),
+                        html.Br(),
+                        distance_cutoff,
+                        angle_cutoff,
+                        html.Br(),
+                        dcc.Loading(
+                            id=self.id("chemenv_analysis"), color=PRIMARY_COLOR
+                        ),
                     ]
                 )
 
-        def get_chemenv_analysis(struct, distance_cutoff=1.41, angle_cutoff=0.3):
+        @app.callback(
+            Output(self.id("chemenv_analysis"), "children"),
+            [
+                Input(self.id(), "data"),
+                Input(self.id("distance_cutoff"), "value"),
+                Input(self.id("angle_cutoff"), "value"),
+            ],
+        )
+        def get_chemenv_analysis(struct, distance_cutoff, angle_cutoff):
+
+            if not struct:
+                raise PreventUpdate
+
+            struct = self.from_data(struct)
+            distance_cutoff = float(distance_cutoff)
+            angle_cutoff = float(angle_cutoff)
 
             # decide which indices to present to user
             sga = SpacegroupAnalyzer(struct)
@@ -130,7 +170,7 @@ class LocalEnvironmentPanel(PanelComponent2):
             lgf.setup_structure(structure=struct)
 
             se = lgf.compute_structure_environments(
-                maximum_distance_factor=distance_cutoff,
+                maximum_distance_factor=distance_cutoff + 0.01,
                 only_indices=inequivalent_indices,
             )
             strategy = SimplestChemenvStrategy(
@@ -169,7 +209,7 @@ class LocalEnvironmentPanel(PanelComponent2):
                         StructureMoleculeComponent(
                             struct_or_mol=mg,
                             static=True,
-                            id=f"site_{index}",
+                            id=f"{struct.composition.reduced_formula}_site_{index}",
                             scene_settings={"enableZoom": False, "defaultZoom": 0.6},
                         ).all_layouts["struct"]
                     ],
@@ -207,8 +247,9 @@ class LocalEnvironmentPanel(PanelComponent2):
                 )
 
             if unknown_sites:
-                unknown_sites = html.Div(
-                    f"The following sites were not identified: {', '.join(unknown_sites)}"
+                unknown_sites = html.Strong(
+                    f"The following sites were not identified: {', '.join(unknown_sites)}. "
+                    f"Please try changing the distance or angle cut-offs to identify these sites."
                 )
             else:
                 unknown_sites = html.Span()
