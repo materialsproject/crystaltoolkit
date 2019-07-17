@@ -62,10 +62,7 @@ export default class Simple3DSceneComponent extends Component {
 				(mount) => {
 					this.mount = mount
 				}
-			} >
-			</div>
-		);
-	}
+			} 
 			onClick = (event) => {
 				event.preventDefault();
 			    
@@ -82,7 +79,7 @@ export default class Simple3DSceneComponent extends Component {
          
         		var intersects = raycaster.intersectObjects(meshObjects);
  
-        		if (intersects.length &amp;amp;gt; 0) {
+        		if (intersects.length > 0) {
             		clicked_reference = intersects[0].object.reference;
             		if (selectedObject.reference == clicked_reference) {
 						this.setState((state) => {
@@ -91,12 +88,16 @@ export default class Simple3DSceneComponent extends Component {
             		} else {
 						this.setState({
 							selectedObjectReference: clicked_reference
-							selectedObjectCount: 1;
+							selectedObjectCount: 1
 						});
             		}
         		}
-			 } 
+        	} >
+        	</div>
+        );
+	}
 }
+
 
 
 Simple3DSceneComponent.propTypes = {
