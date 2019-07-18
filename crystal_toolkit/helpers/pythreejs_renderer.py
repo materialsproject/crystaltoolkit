@@ -18,17 +18,16 @@ from pythreejs import (
     OrbitControls,
     OrthographicCamera,
     DirectionalLight,
+    Box3,
 )
-from crystal_toolkit.components.structure import StructureMoleculeComponent
+
 from IPython.display import display
 from scipy.spatial.transform import Rotation as R
-import numpy as np
 
-ball = Mesh(
-    geometry=SphereBufferGeometry(radius=1, widthSegments=32, heightSegments=16),
-    material=MeshLambertMaterial(color="red"),
-    position=[0, 1, 0],
-)
+import numpy as np
+import warnings
+from crystal_toolkit.renderables import *
+from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
 
 
 def traverse_scene_object(scene_data, parent=None):
@@ -75,44 +74,57 @@ def convert_object_to_pythreejs(object):
         for ipos, jpos in zip(object["positions"][::2], object["positions"][1::2]):
             obj3d = _get_line_from_vec(ipos, jpos)
             obs.append(obj3d)
+    else:
+        warnings.warn(
+            f"Primitive type {object['type']} has not been implemented for this renderer."
+        )
     return obs
 
 
-def display_struct(structure):
+def view(obj_or_scene, **kwargs):
     """
-    :param structure: input structure
+    :param obj: input structure
     """
-    smc = StructureMoleculeComponent(
-        structure, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True
-    )
-    display_StructureMoleculeComponent(smc)
+    if isinstance(obj_or_scene, CrystalToolkitScene):
+        scene = obj_or_scene
+    elif hasattr(obj_or_scene, "get_scene"):
+        scene = obj_or_scene.get_scene(**kwargs)
+    else:
+        raise ValueError(
+            "Only Scene objects or objects with get_scene() methods "
+            "can be displayed."
+        )
+    display_scene(scene)
 
 
-def display_StructureMoleculeComponent(smc):
+def display_scene(scene):
     """
     :param smc: input structure structure molecule component
     """
-    obs = traverse_scene_object(smc.initial_scene_data)
-    obs_children = list(obs.children)
-    obs_children.extend(
+    obs = traverse_scene_object(scene)
+    scene = Scene(children=list(obs.children))
+    box = Box3.exec_three_obj_method("setFromObject", scene)
+    extent = (
+        max(box.max.z - box.min.z, box.max.y - box.min.y, box.max.x - box.min.x) * 1.2
+    )
+    camera = OrthographicCamera(
+        -extent, extent, extent, -extent, -2000, 2000, position=(0, 0, 2)
+    )
+    camera.children.extend(
         [
             AmbientLight(color="#cccccc", intensity=0.75),
             DirectionalLight(color="#ccaabb", position=[0, 20, 10], intensity=0.5),
         ]
     )
-    diag = np.linalg.norm(np.sum(smc._lattice.matrix, axis=0))
-    scene = Scene(children=obs_children)
-    c = OrthographicCamera(
-        -diag, diag, diag, -diag, -4000, 4000, position=(0, 0, 0.001)
-    )
     renderer = Renderer(
-        camera=c,
-        background="black",
+        camera=camera,
+        background="white",
         background_opacity=1,
         scene=scene,
-        controls=[OrbitControls(controlling=c)],
+        controls=[OrbitControls(controlling=camera)],
         width=500,
         height=500,
+        antialias=True,
     )
     display(renderer)
 
