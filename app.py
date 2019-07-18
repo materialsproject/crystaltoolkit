@@ -118,6 +118,8 @@ transformation_component = ctc.AllTransformationsComponent(
     transformations=[supercell, slab, grain_boundary, oxi_state, substitution]
 )
 
+if MP_EMBED_MODE:
+    ctc.StructureMoleculeComponent.default_scene_settings["defaultZoom"] = 0.5
 struct_component = ctc.StructureMoleculeComponent()
 struct_component.attach_from(transformation_component, origin_store_name="out")
 
