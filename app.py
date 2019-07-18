@@ -327,10 +327,12 @@ master_layout = Container(
                                 Box(
                                     struct_component.struct_layout,
                                     style={
-                                        "width": "65vmin",
-                                        "height": "65vmin",
+                                        "width": "50vmin",
+                                        "height": "50vmin",
                                         "min-width": "300px",
                                         "min-height": "300px",
+                                        "max-width": "600px",
+                                        "max-height": "600px",
                                         "overflow": "hidden",
                                         "padding": "0.25rem",
                                         "margin-bottom": "0.5rem",
@@ -348,7 +350,7 @@ master_layout = Container(
                                         ),
                                     ],
                                     style={
-                                        "width": "65vmin",
+                                        "width": "50vmin",
                                         "min-width": "300px",
                                         "margin-bottom": "40px",
                                     },
@@ -382,7 +384,10 @@ master_layout = Container(
                                 ),
                                 # favorites_component.notes_layout,
                             ],
-                            style={"max-width": "65vmin"},
+                            style={
+                                "width": "50vmin",
+                                "max-width": "50vmin",
+                            },
                         ),
                     ],
                     desktop_only=False,
@@ -481,7 +486,7 @@ def update_search_term_on_page_load(href):
     elif not pathname[1]:
         return choice(DEFAULT_MPIDS)
     else:
-        return pathname[1]
+        return pathname[1].replace("+", " ")
 
 
 @crystal_toolkit_app.callback(
