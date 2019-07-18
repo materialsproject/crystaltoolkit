@@ -42,3 +42,19 @@ textarea {
 .button.is-primary:hover, .button.is-primary.is-hovered {
   background-color: #4bb7bd;
 }
+
+#SubmitSNLPanel_panel {
+  margin-bottom: 1rem;
+  > .div > input, div, button {
+    margin-bottom: 0.1rem;
+  }
+}
+
+.column.is-narrow > .box {
+  cursor: pointer;
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12);
+  border-radius: 4px;
+  background-color: hsl(210, 8%, 92%);
+}
+
+
