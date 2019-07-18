@@ -86,7 +86,6 @@ class StructureMoleculeComponent(MPComponent):
         "cylinderScale": 0.1,
         "defaultSurfaceOpacity": 0.5,
         "staticScene": True,
-        "defaultZoom": 0.5,
     }
 
     def __init__(
