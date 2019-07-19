@@ -23,11 +23,13 @@ from pythreejs import (
 
 from IPython.display import display
 from scipy.spatial.transform import Rotation as R
+from pymatgen import Structure
 
 import numpy as np
 import warnings
 from crystal_toolkit.renderables import *
 from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
+from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 
 def traverse_scene_object(scene_data, parent=None):
@@ -85,10 +87,13 @@ def view(obj_or_scene, **kwargs):
     """
     :param obj: input structure
     """
+    print(isinstance(obj_or_scene, Structure))
     if isinstance(obj_or_scene, CrystalToolkitScene):
         scene = obj_or_scene
     elif hasattr(obj_or_scene, "get_scene"):
         scene = obj_or_scene.get_scene(**kwargs)
+    elif isinstance(obj_or_scene, Structure):
+        scene = StructureMoleculeComponent._preprocess_input_to_graph(obj_or_scene).get_scene(**kwargs)
     else:
         raise ValueError(
             "Only Scene objects or objects with get_scene() methods "
