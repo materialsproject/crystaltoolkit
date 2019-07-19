@@ -56,7 +56,11 @@ server = crystal_toolkit_app.server
 
 
 DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
+MP_EMBED_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_MP_EMBED_MODE", "False").title())
 ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").title())
+
+if not MP_EMBED_MODE:
+    crystal_toolkit_app.assets_ignore = r".*\.mpembed\..*"
 
 # endregion
 ##########
@@ -112,6 +116,8 @@ transformation_component = ctc.AllTransformationsComponent(
     transformations=[supercell, slab, grain_boundary, oxi_state, substitution]
 )
 
+if MP_EMBED_MODE:
+    ctc.StructureMoleculeComponent.default_scene_settings["defaultZoom"] = 0.5
 struct_component = ctc.StructureMoleculeComponent()
 struct_component.attach_from(transformation_component, origin_store_name="out")
 
@@ -323,10 +329,12 @@ master_layout = Container(
                                 Box(
                                     struct_component.struct_layout,
                                     style={
-                                        "width": "65vmin",
-                                        "height": "65vmin",
+                                        "width": "50vmin",
+                                        "height": "50vmin",
                                         "min-width": "300px",
                                         "min-height": "300px",
+                                        "max-width": "600px",
+                                        "max-height": "600px",
                                         "overflow": "hidden",
                                         "padding": "0.25rem",
                                         "margin-bottom": "0.5rem",
@@ -344,7 +352,7 @@ master_layout = Container(
                                         ),
                                     ],
                                     style={
-                                        "width": "65vmin",
+                                        "width": "50vmin",
                                         "min-width": "300px",
                                         "margin-bottom": "40px",
                                     },
@@ -378,7 +386,10 @@ master_layout = Container(
                                 ),
                                 # favorites_component.notes_layout,
                             ],
-                            style={"max-width": "65vmin"},
+                            style={
+                                "width": "50vmin",
+                                "max-width": "50vmin",
+                            },
                         ),
                     ],
                     desktop_only=False,
@@ -477,7 +488,7 @@ def update_search_term_on_page_load(href):
     elif not pathname[1]:
         return choice(DEFAULT_MPIDS)
     else:
-        return pathname[1]
+        return pathname[1].replace("+", " ")
 
 
 @crystal_toolkit_app.callback(
