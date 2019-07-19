@@ -34,16 +34,33 @@ from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 def traverse_scene_object(scene_data, parent=None):
     """
-    Recursivesly populate a scene object with tree of children
+    Recursivesly populate a scene object with tree of children 
     :param scene_data:
     :param parent:
     :return:
     """
-    for sub_object in scene_data["contents"]:
-        if "type" in sub_object.keys():
+
+    # Doing a few checks for objects that do not have the contents property
+    if type(scene_data) == list:
+        for iobj in scene_data:
+            traverse_scene_object(iobj, parent)
+        return parent
+    if hasattr(scene_data, "type"):
+        print(scene_data.type)
+        parent.add(convert_object_to_pythreejs(scene_data))
+        return parent
+
+
+    for sub_object in scene_data.contents:
+        if type(sub_object) == list:
+            for iobj in sub_object:
+                traverse_scene_object(iobj, parent)
+            continue
+        elif hasattr(sub_object, "type"):
+            print(sub_object.type)
             parent.add(convert_object_to_pythreejs(sub_object))
         else:
-            new_parent = Object3D(name=sub_object["name"])
+            new_parent = Object3D(name=sub_object.name)
             if parent is None:
                 parent = new_parent
             else:
@@ -52,33 +69,33 @@ def traverse_scene_object(scene_data, parent=None):
     return parent
 
 
-def convert_object_to_pythreejs(object):
+def convert_object_to_pythreejs(scene_obj):
     """
     Cases for the conversion
     :return:
     """
     obs = []
-    if object["type"] == "spheres":
-        for ipos in object["positions"]:
+    if scene_obj.type == "spheres":
+        for ipos in scene_obj.positions:
             obj3d = Mesh(
                 geometry=SphereBufferGeometry(
-                    radius=object["radius"], widthSegments=32, heightSegments=16
+                    radius=scene_obj.radius, dthSegments=32, heightSegments=16
                 ),
-                material=MeshLambertMaterial(color=object["color"]),
-                position=ipos,
+                material=MeshLambertMaterial(color=scene_obj.color),
+                position=tuple(ipos),
             )
             obs.append(obj3d)
-    elif object["type"] == "cylinders":
-        for ipos in object["positionPairs"]:
-            obj3d = _get_cylinder_from_vec(ipos[0], ipos[1], color=object["color"])
+    elif scene_obj.type == "cylinders":
+        for ipos in scene_obj.positionPairs:
+            obj3d = _get_cylinder_from_vec(tuple(ipos[0]), tuple(ipos[1]), color=scene_obj.color)
             obs.append(obj3d)
-    elif object["type"] == "lines":
-        for ipos, jpos in zip(object["positions"][::2], object["positions"][1::2]):
-            obj3d = _get_line_from_vec(ipos, jpos)
+    elif scene_obj.type == "lines":
+        for ipos, jpos in zip(scene_obj.positions[::2], scene_obj.positions[1::2]):
+            obj3d = _get_line_from_vec(tuple(ipos), tuple(jpos))
             obs.append(obj3d)
     else:
         warnings.warn(
-            f"Primitive type {object['type']} has not been implemented for this renderer."
+            f"Primitive type {scene_obj.type} has not been implemented for this renderer."
         )
     return obs
 
@@ -108,6 +125,7 @@ def display_scene(scene):
     """
     obs = traverse_scene_object(scene)
     scene = Scene(children=list(obs.children))
+    return scene
     box = Box3.exec_three_obj_method("setFromObject", scene)
     extent = (
         max(box.max.z - box.min.z, box.max.y - box.min.y, box.max.x - box.min.x) * 1.2
