@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from crystal_toolkit.components.core import unicodeify_spacegroup, unicodeify_species
-from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 from crystal_toolkit.helpers.inputs import *
 
 from pymatgen.core.structure import Structure
@@ -16,23 +16,11 @@ from ast import literal_eval
 from fractions import Fraction
 
 
-def pretty_frac_format(x):
-    x = x % 1
-    fraction = Fraction(x).limit_denominator(8)
-    if np.allclose(x, 1):
-        x_str = "0"
-    elif not np.allclose(x, float(fraction)):
-        x = np.around(x, decimals=3)
-        x_str = f"{x:.3g}"
-    else:
-        x_str = str(fraction)
-    return x_str
+class SymmetryPanel(PanelComponent2):
+    ...
 
 
 class SymmetryComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     @property
     def title(self):
         return "Symmetry"
@@ -40,6 +28,19 @@ class SymmetryComponent(PanelComponent):
     @property
     def description(self):
         return "Analyze the symmetry of your crystal structure or molecule."
+
+    @staticmethod
+    def pretty_frac_format(x):
+        x = x % 1
+        fraction = Fraction(x).limit_denominator(8)
+        if np.allclose(x, 1):
+            x_str = "0"
+        elif not np.allclose(x, float(fraction)):
+            x = np.around(x, decimals=3)
+            x_str = f"{x:.3g}"
+        else:
+            x_str = str(fraction)
+        return x_str
 
     @property
     def header(self):
@@ -121,9 +122,9 @@ class SymmetryComponent(PanelComponent):
             )
             site_data = [
                 (
-                    pretty_frac_format(site.frac_coords[0]),
-                    pretty_frac_format(site.frac_coords[1]),
-                    pretty_frac_format(site.frac_coords[2]),
+                    self.pretty_frac_format(site.frac_coords[0]),
+                    self.pretty_frac_format(site.frac_coords[1]),
+                    self.pretty_frac_format(site.frac_coords[2]),
                 )
                 for site in equiv_sites
             ]

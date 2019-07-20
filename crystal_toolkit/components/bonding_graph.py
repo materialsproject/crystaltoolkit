@@ -7,7 +7,7 @@ from dash.exceptions import PreventUpdate
 
 from crystal_toolkit import GraphComponent
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
@@ -17,7 +17,7 @@ from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from typing import Union
 
 
-class BondingGraphComponent(PanelComponent):
+class BondingGraphComponent(PanelComponent2):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store(
@@ -102,35 +102,48 @@ class BondingGraphComponent(PanelComponent):
     def update_contents_additional_inputs(self):
         return [(self.id("display_options"), "data")]
 
-    def update_contents(self, new_store_contents, display_options):
+    def generate_callbacks(self, app, cache):
 
-        if not new_store_contents:
-            raise PreventUpdate
+        super().generate_callbacks(app, cache)
 
-        graph = self.from_data(new_store_contents)
-        display_options = self.from_data(display_options)
-
-        color_scheme = display_options.get("color_scheme")
-        color_scale = display_options.get("color_scale")
-        graph_data = self.get_graph_data(
-            graph, color_scheme=color_scheme, color_scale=color_scale
+        @app.callback(
+            Output(self.id("inner_contents"), "children"),
+            [Input(self.id(), "data"), Input(self.id("display_options"), "data")],
         )
+        def update_contents(data, display_options):
 
-        options = {
-            "interaction": {"hover": True, "tooltipDelay": 0},
-            "edges": {
-                "smooth": {"type": "dynamic"},
-                "length": 250,
-                "color": {"inherit": "both"},
-            },
-            "physics": {
-                "solver": "forceAtlas2Based",
-                "forceAtlas2Based": {"avoidOverlap": 1.0},
-                "stabilization": {"fit": True},
-            },
-        }
+            if not data:
+                raise PreventUpdate
 
-        return html.Div(
-            [GraphComponent(graph=graph_data, options=options)],
-            style={"width": "65vmin", "height": "65vmin"},
-        )
+            graph = self.from_data(data)
+            display_options = self.from_data(display_options)
+
+            color_scheme = display_options.get("color_scheme")
+            color_scale = display_options.get("color_scale")
+            graph_data = self.get_graph_data(
+                graph, color_scheme=color_scheme, color_scale=color_scale
+            )
+
+            options = {
+                "interaction": {
+                    "hover": True,
+                    "tooltipDelay": 0,
+                    "zoomView": False,
+                    "dragView": False,
+                },
+                "edges": {
+                    "smooth": {"type": "dynamic"},
+                    "length": 250,
+                    "color": {"inherit": "both"},
+                },
+                "physics": {
+                    "solver": "forceAtlas2Based",
+                    "forceAtlas2Based": {"avoidOverlap": 1.0},
+                    "stabilization": {"fit": True},
+                },
+            }
+
+            return html.Div(
+                [GraphComponent(graph=graph_data, options=options)],
+                style={"width": "65vmin", "height": "65vmin"},
+            )

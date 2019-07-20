@@ -25,7 +25,9 @@ export default class Simple3DScene {
           roughness: 0.2,
           metalness: 0.0
         }
-      }
+      },
+      enableZoom: true,
+      defaultZoom: 0.8
     };
 
     this.settings = Object.assign(defaults, settings);
@@ -90,6 +92,7 @@ export default class Simple3DScene {
     controls.minZoom = 2;
     controls.maxZoom = 100;
     controls.enablePan = false;
+    controls.enableZoom = this.settings.enableZoom;
 
     // initial render
     function render() {
@@ -185,9 +188,10 @@ export default class Simple3DScene {
     // TODO: improve auto-zoom
     this.camera.zoom =
       Math.min(
-        width / (box.max.x - box.min.x),
-        height / (box.max.y - box.min.y)
-      ) * 0.8;
+        Math.max(width, height) / (box.max.x - box.min.x),
+        Math.max(width, height) / (box.max.y - box.min.y),
+          Math.max(width, height) / (box.max.z - box.min.z)
+      ) * this.settings.defaultZoom;
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrix();
     this.renderScene();

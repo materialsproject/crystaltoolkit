@@ -13,7 +13,7 @@ from flask import make_response, jsonify, request
 from flask_caching import Cache
 
 from crystal_toolkit import __version__ as ct_version
-from crystal_toolkit.components.core import MPComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 import crystal_toolkit.components as ctc
 
@@ -47,7 +47,7 @@ meta_tags = [
 crystal_toolkit_app = dash.Dash(__name__, meta_tags=meta_tags)
 crystal_toolkit_app.config["suppress_callback_exceptions"] = True
 crystal_toolkit_app.title = "Crystal Toolkit"
-crystal_toolkit_app.scripts.config.serve_locally = False
+crystal_toolkit_app.scripts.config.serve_locally = True
 
 crystal_toolkit_app.server.secret_key = str(
     uuid4()
@@ -56,7 +56,11 @@ server = crystal_toolkit_app.server
 
 
 DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
+MP_EMBED_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_MP_EMBED_MODE", "False").title())
 ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").title())
+
+if not MP_EMBED_MODE:
+    crystal_toolkit_app.assets_ignore = r".*\.mpembed\..*"
 
 # endregion
 ##########
@@ -66,7 +70,7 @@ ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").
 # region SET UP CACHE
 ################################################################################
 
-try:
+if os.environ.get("REDIS_URL", ""):
     cache = Cache(
         crystal_toolkit_app.server,
         config={
@@ -74,18 +78,14 @@ try:
             "CACHE_REDIS_URL": os.environ.get("REDIS_URL", ""),
         },
     )
-except Exception as exception:
+elif DEBUG_MODE:
+    # disable cache in debug
+    cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "null"})
+else:
     crystal_toolkit_app.logger.error(
-        f"Failed to connect to Redis cache, falling back to "
-        f"file system cache: {exception}"
+        f"Failed to connect to Redis cache, falling back to " f"file system cache."
     )
-    cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "filesystem"})
-
-# Enable for debug purposes:
-if DEBUG_MODE:
-    from crystal_toolkit.components.core import DummyCache
-
-    cache = DummyCache()
+    cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "simple"})
 
 # endregion
 
@@ -106,144 +106,79 @@ logger = logging.getLogger(crystal_toolkit_app.title)
 ctc.register_app(crystal_toolkit_app)
 ctc.register_cache(cache)
 
-# app not ready for production yet (e.g. pending papers, further testing, etc.)
-if DEBUG_MODE:
+supercell = ctc.SupercellTransformationComponent()
+grain_boundary = ctc.GrainBoundaryTransformationComponent()
+oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
+slab = ctc.SlabTransformationComponent()
+substitution = ctc.SubstitutionTransformationComponent()
 
-    supercell = ctc.SupercellTransformationComponent()
-    grain_boundary = ctc.GrainBoundaryTransformationComponent()
-    oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
-    slab = ctc.SlabTransformationComponent()
-    substitution = ctc.SubstitutionTransformationComponent()
+transformation_component = ctc.AllTransformationsComponent(
+    transformations=[supercell, slab, grain_boundary, oxi_state, substitution]
+)
 
-    transformation_component = ctc.AllTransformationsComponent(
-        transformations=[supercell, slab, grain_boundary, oxi_state, substitution]
-    )
+if MP_EMBED_MODE:
+    ctc.StructureMoleculeComponent.default_scene_settings["defaultZoom"] = 0.5
+struct_component = ctc.StructureMoleculeComponent()
+struct_component.attach_from(transformation_component, origin_store_name="out")
 
-    json_editor_component = ctc.JSONEditor()
-    json_editor_component.attach_from(transformation_component, origin_store_name="out")
+# TODO: change to link to struct_or_mol ?
+download_component = ctc.DownloadPanelComponent(origin_component=struct_component)
 
-    struct_component = ctc.StructureMoleculeComponent()
-    struct_component.attach_from(json_editor_component, origin_store_name="out")
+search_component = ctc.SearchComponent()
+upload_component = ctc.StructureMoleculeUploadComponent()
 
-    # TODO: change to link to struct_or_mol ?
-    download_component = ctc.DownloadPanelComponent(origin_component=struct_component)
+literature_component = ctc.LiteratureComponent(origin_component=struct_component)
+robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
+magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
+xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
+symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
+localenv_component = ctc.LocalEnvironmentPanel(origin_component=struct_component)
+bsdos_component = ctc.BandstructureAndDosPanelComponent(origin_component=search_component)
+# grain_boundary_panel = ctc.GrainBoundaryPanel(origin_component=search_component)
 
-    search_component = ctc.SearchComponent()
-    upload_component = ctc.StructureMoleculeUploadComponent()
+xas_component = ctc.XASPanelComponent(origin_component=search_component)
 
-    favorites_component = ctc.FavoritesComponent()
-    favorites_component.attach_from(search_component, this_store_name="current-mpid")
+bonding_graph_component = ctc.BondingGraphComponent()
+bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
+# link bonding graph color scheme to parent color scheme
+bonding_graph_component.attach_from(
+    struct_component,
+    this_store_name="display_options",
+    origin_store_name="display_options",
+)
 
-    literature_component = ctc.LiteratureComponent(origin_component=struct_component)
-    robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
-    magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
-    xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
-    xas_component = ctc.XASPanelComponent(origin_component=search_component)
-    pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
-    symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+panels = [
+    symmetry_component,
+    bonding_graph_component,
+    localenv_component,
+    bsdos_component,
+    xrd_component,
+    robocrys_component,
+]
 
-    bonding_graph_component = ctc.BondingGraphComponent()
-    bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
-    bonding_graph_component.attach_from(
-        struct_component,
-        this_store_name="display_options",
-        origin_store_name="display_options",
-    )
+mp_panels = [
+    pd_component,
+    magnetism_component,
+    xas_component,
+    # grain_boundary_panel,
+    literature_component,
+]
 
-    panels = [
-        symmetry_component,
-        bonding_graph_component,
-        xrd_component,
-        xas_component,
-        pd_component,
-        magnetism_component,
-        literature_component,
-        robocrys_component,
-    ]
+body_layout = [
+    html.Br(),
+    H3("Transform"),
+    html.Div([transformation_component.standard_layout]),
+    html.Br(),
+    H3("Analyze"),
+    html.Div([panel.panel_layout for panel in panels], id="panels"),
+    html.Br(),
+    H3("Materials Project"),
+    html.Div([panel.panel_layout for panel in mp_panels], id="mp_panels"),
+]
 
-    body_layout = [
-        # panel_description,
-        # panel_choices,
-        html.Div(
-            # [favorites_component.button_layout],
-            style={"float": "right"}
-        ),
-        html.Br(),
-        H3("Transform"),
-        html.Div([transformation_component.standard_layout]),
-        html.Br(),
-        H3("Analyze"),
-        html.Div([panel.panel_layout for panel in panels], id="panels"),
-        html.Br(),
-        H3("Export"),
-        html.Div([download_component.panel_layout, json_editor_component.panel_layout]),
-    ]
-
-    STRUCT_VIEWER_SOURCE = transformation_component.id()
-
-else:
-
-    supercell = ctc.SupercellTransformationComponent()
-    grain_boundary = ctc.GrainBoundaryTransformationComponent()
-    oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
-    slab = ctc.SlabTransformationComponent()
-    substitution = ctc.SubstitutionTransformationComponent()
-
-    transformation_component = ctc.AllTransformationsComponent(
-        transformations=[supercell, slab, grain_boundary, oxi_state, substitution]
-    )
-
-    struct_component = ctc.StructureMoleculeComponent()
-    struct_component.attach_from(transformation_component, origin_store_name="out")
-
-    # TODO: change to link to struct_or_mol ?
-    download_component = ctc.DownloadPanelComponent(origin_component=struct_component)
-
-    search_component = ctc.SearchComponent()
-    upload_component = ctc.StructureMoleculeUploadComponent()
-
-    literature_component = ctc.LiteratureComponent(origin_component=struct_component)
-    robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
-    magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
-    xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
-    xas_component = ctc.XASPanelComponent(origin_component=search_component)
-    pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
-    symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
-    submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
-
-    bonding_graph_component = ctc.BondingGraphComponent()
-    bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
-    bonding_graph_component.attach_from(
-        struct_component,
-        this_store_name="display_options",
-        origin_store_name="display_options",
-    )
-
-    panels = [
-        symmetry_component,
-        bonding_graph_component,
-        xrd_component,
-        xas_component,
-        pd_component,
-        magnetism_component,
-        literature_component,
-        robocrys_component
-    ]
-
-    body_layout = [
-        html.Br(),
-        H3("Transform"),
-        html.Div([transformation_component.standard_layout]),
-        html.Br(),
-        H3("Analyze"),
-        html.Div([panel.panel_layout for panel in panels], id="panels"),
-        html.Br(),
-        H3("Export"),
-        html.Div([submit_snl_panel.panel_layout,
-                  download_component.panel_layout]),
-    ]
-
-    STRUCT_VIEWER_SOURCE = transformation_component.id()
+STRUCT_VIEWER_SOURCE = transformation_component.id()
 
 
 banner = html.Div(id="banner")
@@ -309,7 +244,7 @@ if api_offline:
 footer = ctc.Footer(
     html.Div(
         [
-            #html.Iframe(
+            # html.Iframe(
             #    src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
             #    style={
             #        "frameborder": False,
@@ -317,7 +252,7 @@ footer = ctc.Footer(
             #        "width": "72px",
             #        "height": "20px",
             #    },
-            #),
+            # ),
             # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
                 f"App created by [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors).  \n"
@@ -326,7 +261,7 @@ footer = ctc.Footer(
                 f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
                 f"[Dash by Plotly](https://plot.ly/products/dash/). "
                 f"Deployed on [Spin](http://www.nersc.gov/users/data-analytics/spin/)."
-            ),
+            )
         ],
         className="content has-text-centered",
     ),
@@ -373,14 +308,14 @@ master_layout = Container(
                             [
                                 struct_component.title_layout,
                                 html.Div(
-                                    #[
+                                    # [
                                     #    html.A(
                                     #        "Documentation",
                                     #        href="https://docs.crystaltoolkit.org",
                                     #    )
-                                    #],
+                                    # ],
                                     # [favorites_component.button_layout],
-                                    style={"float": "right"},
+                                    style={"float": "right"}
                                 ),
                             ]
                         )
@@ -394,10 +329,12 @@ master_layout = Container(
                                 Box(
                                     struct_component.struct_layout,
                                     style={
-                                        "width": "65vmin",
-                                        "height": "65vmin",
+                                        "width": "50vmin",
+                                        "height": "50vmin",
                                         "min-width": "300px",
                                         "min-height": "300px",
+                                        "max-width": "600px",
+                                        "max-height": "600px",
                                         "overflow": "hidden",
                                         "padding": "0.25rem",
                                         "margin-bottom": "0.5rem",
@@ -415,7 +352,7 @@ master_layout = Container(
                                         ),
                                     ],
                                     style={
-                                        "width": "65vmin",
+                                        "width": "50vmin",
                                         "min-width": "300px",
                                         "margin-bottom": "40px",
                                     },
@@ -441,9 +378,18 @@ master_layout = Container(
                                     title="Display Options",
                                     id="display-options",
                                 ),
+                                html.Div(
+                                    [
+                                        submit_snl_panel.panel_layout,
+                                        download_component.panel_layout,
+                                    ]
+                                ),
                                 # favorites_component.notes_layout,
                             ],
-                            style={"max-width": "65vmin"},
+                            style={
+                                "width": "50vmin",
+                                "max-width": "50vmin",
+                            },
                         ),
                     ],
                     desktop_only=False,
@@ -542,7 +488,7 @@ def update_search_term_on_page_load(href):
     elif not pathname[1]:
         return choice(DEFAULT_MPIDS)
     else:
-        return pathname[1]
+        return pathname[1].replace("+", " ")
 
 
 @crystal_toolkit_app.callback(
@@ -588,8 +534,14 @@ def master_update_structure(search_mpid, upload_data):
             raise PreventUpdate
 
         with MPRester() as mpr:
-            struct = mpr.get_structure_by_material_id(search_mpid["mpid"])
-
+            try:
+                struct = mpr.get_task_data(search_mpid["mpid"], "structure")[0][
+                    "structure"
+                ]
+                print("Struct from task.")
+            except:
+                struct = mpr.get_structure_by_material_id(search_mpid["mpid"])
+                print("Struct from material.")
     else:
 
         struct = MPComponent.from_data(upload_data["data"])

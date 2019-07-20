@@ -15,7 +15,7 @@ from pymatgen.analysis.diffraction.xrd import XRDCalculator, WAVELENGTHS
 
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 
 
 # Author: Matthew McDermott
@@ -25,8 +25,16 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 class XRayDiffractionComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.create_store("mpid")
         self.create_store("struct")
+
+        self.initial_xrdcalculator_kwargs = {
+            "wavelength": "CuKa",
+            "symprec": 0,
+            "debye_waller_factors": None,
+        }
+        self.create_store(
+            "xrdcalculator_kwargs", initial_data=self.initial_xrdcalculator_kwargs
+        )
 
     # Default XRD plot style settings
     default_xrd_plot_style = dict(
@@ -66,15 +74,6 @@ class XRayDiffractionComponent(MPComponent):
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=60, b=50, t=50, pad=0, r=30),
     )
-
-    # WAVELENGTHS = { # Angstroms
-    #     "CuKa": 1.54184, "CuKa1": 1.54056, "CuKa2": 1.54439,"CuKb1": 1.39222,
-    #     "MoKa": 0.71073, "MoKa1": 0.70930, "MoKa2": 0.71359, "MoKb1": 0.63229,
-    #     "CrKa": 2.29100, "CrKa1": 2.28970, "CrKa2": 2.29361, "CrKb1": 2.08487,
-    #     "FeKa": 1.93735, "FeKa1": 1.93604, "FeKa2": 1.93998, "FeKb1": 1.75661,
-    #     "CoKa": 1.79026, "CoKa1": 1.78896, "CoKa2": 1.79285, "CoKb1": 1.63079,
-    #     "AgKa": 0.560885, "AgKa1": 0.559421, "AgKa2": 0.563813, "AgKb1": 0.497082,
-    # }
 
     empty_plot_style = {
         "xaxis": {"visible": False},
@@ -141,7 +140,7 @@ class XRayDiffractionComponent(MPComponent):
                 dcc.Dropdown(
                     id=self.id("rad-source"),
                     options=[{"label": i, "value": i} for i in WAVELENGTHS.keys()],
-                    value="CuKa",
+                    value=self.initial_xrdcalculator_kwargs["wavelength"],
                     placeholder="Select a source...",
                     clearable=False,
                 ),
@@ -240,11 +239,13 @@ class XRayDiffractionComponent(MPComponent):
                 Input(self.id("crystallite-slider"), "value"),
                 Input(self.id("rad-source"), "value"),
                 Input(self.id("peak-profile"), "value"),
-                Input(self.id("shape-factor"), "n_submit"),
+                Input(self.id("shape-factor"), "value"),
             ],
-            [State(self.id("shape-factor"), "value")],
         )
-        def update_graph(data, logsize, rad_source, peak_profile, n_submit, K):
+        def update_graph(data, logsize, rad_source, peak_profile, K):
+
+            if not data:
+                raise PreventUpdate
 
             x_peak = data["x"]
             y_peak = data["y"]
@@ -315,37 +316,40 @@ class XRayDiffractionComponent(MPComponent):
         @app.callback(
             Output(self.id(), "data"),
             [
-                Input(self.id("rad-source"), "value"),
-                Input(self.id("mpid"), "modified_timestamp"),
-                Input(self.id("struct"), "modified_timestamp"),
+                Input(self.id("struct"), "data"),
+                Input(self.id("xrdcalculator_kwargs"), "data"),
             ],
-            [State(self.id("mpid"), "data"), State(self.id("struct"), "data")],
         )
-        def pattern_from_mpid_or_struct(rad_source, mp_time, struct_time, mpid, struct):
+        def pattern_from_struct(struct, xrdcalculator_kwargs):
 
-            if (struct_time is None) or (mp_time is None):
+            if struct is None:
                 raise PreventUpdate
 
-            if struct_time > mp_time:
-                if struct is None:
-                    raise PreventUpdate
-                sga = SpacegroupAnalyzer(self.from_data(struct))
-                struct = (
-                    sga.get_conventional_standard_structure()
-                )  # always get conventional structure
-            elif mp_time >= struct_time:
-                if mpid is None:
-                    raise PreventUpdate
-                mpid = mpid["mpid"]
+            struct = self.from_data(struct)
+            xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
 
-                with MPRester() as mpr:
-                    struct = mpr.get_structure_by_material_id(
-                        mpid, conventional_unit_cell=True
-                    )
-            xrdc = XRDCalculator(wavelength=rad_source)
+            sga = SpacegroupAnalyzer(struct)
+            struct = (
+                sga.get_conventional_standard_structure()
+            )  # always get conventional structure
+
+            xrdc = XRDCalculator(**xrdcalculator_kwargs)
             data = xrdc.get_pattern(struct, two_theta_range=None)
 
             return data.as_dict()
+
+        @app.callback(
+            Output(self.id("xrdcalculator_kwargs"), "data"),
+            [Input(self.id("rad-source"), "value")],
+            [State(self.id("xrdcalculator_kwargs"), "data")],
+        )
+        def update_kwargs(rad_source, xrdcalculator_kwargs):
+            if rad_source == self.initial_xrdcalculator_kwargs["wavelength"]:
+                raise PreventUpdate
+            else:
+                xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
+                xrdcalculator_kwargs["wavelength"] = rad_source
+            return self.to_data(xrdcalculator_kwargs)
 
         @app.callback(
             Output(self.id("crystallite-input"), "children"),
@@ -369,15 +373,16 @@ class XRayDiffractionPanelComponent(PanelComponent):
     def description(self):
         return "Display the powder X-ray diffraction pattern for this structure."
 
-    @property
-    def initial_contents(self):
-        return html.Div(
-            [
-                super().initial_contents,
-                # necessary to include for the callbacks from XRayDiffractionComponent to work
-                html.Div([self.xrd.standard_layout], style={"display": "none"}),
-            ]
-        )
-
     def update_contents(self, new_store_contents, *args):
         return self.xrd.standard_layout
+
+    # def generate_callbacks(self, app, cache):
+    #
+    #     super().generate_callbacks(app, cache)
+    #
+    #     @app.callback(
+    #         Output(self.id("inner_contents"), "children"),
+    #         [Input(self.id(), "data")]
+    #     )
+    #     def create_xrd_layout(new_store_contents):
+    #         return self.xrd.standard_layout
