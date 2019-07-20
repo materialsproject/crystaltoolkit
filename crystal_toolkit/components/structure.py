@@ -842,7 +842,7 @@ class StructureMoleculeComponent(MPComponent):
 
         o_sphere = Spheres(positions=[o], color="black", radius=0.1 * scale)
 
-        return [
+        return Scene(name='compass', contents=[
             Arrows(
                 a_arrow,
                 color="red",
@@ -868,7 +868,7 @@ class StructureMoleculeComponent(MPComponent):
                 **kwargs,
             ),
             o_sphere,
-        ]
+        ])
 
     @staticmethod
     def _get_display_colors_and_legend_for_sites(

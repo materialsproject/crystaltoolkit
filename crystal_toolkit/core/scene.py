@@ -32,7 +32,7 @@ class Primitive:
     @property
     def bounding_box(self) -> List[List[float]]:
         x, y, z = zip(*self.positions)
-        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
+        return [[min(x), min(y), min(z)], [max(x), max(y), max(z)]]
 
 
 @dataclass
@@ -93,16 +93,11 @@ class Scene:
         Returns the boundinx box coordinates 
         """
         
-        x_extents, y_extents, z_extents = zip(*[p.bounding_box for p in self.contents])
+        min_list, max_list = zip(*[p.bounding_box for p in self.contents])
+        min_x, min_y, min_z = map(min, list(zip(*min_list)))
+        max_x, max_y, max_z = map(max, list(zip(*max_list)))
         
-        min_x = min([x[0] for x in x_extents])
-        max_x = max([x[1] for x in x_extents])
-        min_y = min([y[0] for y in y_extents])
-        max_y = max([y[1] for y in y_extents])
-        min_z = min([z[0] for z in z_extents])
-        max_z = max([z[1] for z in z_extents])
-
-        return [[min_x, max_x], [min_y, max_y], [min_z, max_z]]
+        return [[min_x, min_y, min_z], [max_x, max_y, max_z]]
 
     @staticmethod
     def merge_primitives(primitives):
@@ -278,7 +273,7 @@ class Cylinders(Primitive):
     @property
     def bounding_box(self) -> List[List[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
-        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
+        return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
 
 
 @dataclass
@@ -390,6 +385,10 @@ class Surface:
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        # Not used in the calculation of the bounding box
+        return [[0,0,0], [0,0,0]]
 
 
 @dataclass
@@ -410,6 +409,10 @@ class Convex:
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        # Not used in the calculation of the bounding box
+        return [[0,0,0], [0,0,0]]
 
 
 @dataclass
@@ -459,7 +462,7 @@ class Arrows(Primitive):
     @property
     def bounding_box(self) -> List[List[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
-        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
+        return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
 
 
 # class VolumetricData:
