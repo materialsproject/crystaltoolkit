@@ -1,12 +1,11 @@
-import * as THREE from "three-full";
+import * as THREE from 'three-full'
 
 export default class Simple3DScene {
-  constructor(scene_json, dom_elt, settings) {
-    this.start = this.start.bind(this);
-    this.stop = this.stop.bind(this);
-    this.animate = this.animate.bind(this);
+  constructor (scene_json, dom_elt, settings) {
+    this.start = this.start.bind(this)
+    this.stop = this.stop.bind(this)
+    this.animate = this.animate.bind(this)
     // var modifier = new THREE.SubdivisionModifier( 2 );
-
 
     const defaults = {
       shadows: true,
@@ -18,9 +17,9 @@ export default class Simple3DScene {
       sphereScale: 1.0,
       cylinderScale: 1.0,
       defaultSurfaceOpacity: 0.5,
-      lights: [{ type: "HemisphereLight", args: ["#ffffff", "#202020", 1] }],
+      lights: [{ type: 'HemisphereLight', args: ['#ffffff', '#202020', 1] }],
       material: {
-        type: "MeshStandardMaterial",
+        type: 'MeshStandardMaterial',
         parameters: {
           roughness: 0.2,
           metalness: 0.0
@@ -28,14 +27,14 @@ export default class Simple3DScene {
       },
       enableZoom: true,
       defaultZoom: 0.8
-    };
+    }
 
-    this.settings = Object.assign(defaults, settings);
+    this.settings = Object.assign(defaults, settings)
 
     // Stage
 
-    const width = dom_elt.clientWidth;
-    const height = dom_elt.clientHeight;
+    const width = dom_elt.clientWidth
+    const height = dom_elt.clientHeight
 
     const renderer = new THREE.WebGLRenderer({
       antialias: this.settings.antialias,
@@ -45,18 +44,18 @@ export default class Simple3DScene {
       gammaFactor: 2.2,
       shadowMapEnabled: this.settings.shadows,
       shadowMapType: THREE.PCFSoftShadowMap
-    });
-    this.renderer = renderer;
+    })
+    this.renderer = renderer
 
     renderer.setPixelRatio(
       window.devicePixelRatio
-    );
-    renderer.setClearColor(0xffffff, 0);
-    renderer.setSize(width, height);
-    dom_elt.appendChild(renderer.domElement);
+    )
+    renderer.setClearColor(0xffffff, 0)
+    renderer.setSize(width, height)
+    dom_elt.appendChild(renderer.domElement)
 
-    const scene = new THREE.Scene();
-    this.scene = scene;
+    const scene = new THREE.Scene()
+    this.scene = scene
 
     // Camera
 
@@ -68,363 +67,396 @@ export default class Simple3DScene {
       height / -2,
       -2000,
       2000
-    );
+    )
     // need to offset for OrbitControls
-    camera.position.z = 2;
+    camera.position.z = 2
 
-    this.camera = camera;
-    scene.add(camera);
+    this.camera = camera
+    scene.add(camera)
 
     // Action
 
-    this.addToScene(scene_json);
+    this.addToScene(scene_json)
 
     // Lights
 
-    const lights = this.makeLights(this.settings.lights);
-    camera.add(lights);
+    const lights = this.makeLights(this.settings.lights)
+    camera.add(lights)
 
     const controls = new THREE.OrbitControls(
       this.camera,
       this.renderer.domElement
-    );
-    controls.enableKeys = false;
-    controls.minZoom = 2;
-    controls.maxZoom = 100;
-    controls.enablePan = false;
-    controls.enableZoom = this.settings.enableZoom;
+    )
+    controls.enableKeys = false
+    controls.minZoom = 2
+    controls.maxZoom = 100
+    controls.enablePan = false
+    controls.enableZoom = this.settings.enableZoom
 
     // initial render
-    function render() {
+    function render () {
       // TODO: brush up on JS! why can't we just use this.renderScene for EventListener?
-      renderer.render(scene, camera);
+      renderer.render(scene, camera)
     }
-    render();
+    render()
 
     if (this.settings.staticScene) {
       // only re-render when scene is rotated
-      controls.addEventListener("change", render);
+      controls.addEventListener('change', render)
     } else {
       // constantly re-render (for animation)
-      this.start();
+      this.start()
     }
 
-    function resizeRendererToDisplaySize() {
-      const canvas = renderer.domElement;
-      const width  = canvas.parentElement.clientWidth | 0;
-      const height = canvas.parentElement.clientHeight | 0;
+    function resizeRendererToDisplaySize () {
+      const canvas = renderer.domElement
+      const width = canvas.parentElement.clientWidth | 0
+      const height = canvas.parentElement.clientHeight | 0
       if (canvas.width !== width || canvas.height !== height) {
-        renderer.setSize(width, height, true);
+        renderer.setSize(width, height, true)
       }
-      renderer.render(scene, camera);
+      renderer.render(scene, camera)
     }
 
-    window.addEventListener( 'resize', resizeRendererToDisplaySize, false );
+    window.addEventListener('resize', resizeRendererToDisplaySize, false)
+
+    // clickable object reference
+    this.clickable_objects = []
   }
 
-  download(filename, filetype) {
+  download (filename, filetype) {
     switch (filetype) {
-      case "png":
-        this.downloadScreenshot(filename);
-        break;
+      case 'png':
+        this.downloadScreenshot(filename)
+        break
       default:
-        throw new Error("Unknown filetype.");
+        throw new Error('Unknown filetype.')
     }
   }
 
-  downloadScreenshot(filename) {
+  downloadScreenshot (filename) {
     // using method from Three.js editor
 
     // create a link and hide it from end-user
-    var link = document.createElement("a");
-    link.style.display = "none";
-    document.body.appendChild(link);
+    var link = document.createElement('a')
+    link.style.display = 'none'
+    document.body.appendChild(link)
 
     // force a render (in case buffer has been cleared)
-    this.renderScene();
+    this.renderScene()
     // and set link href to renderer contents
-    link.href = this.renderer.domElement.toDataURL("image/png");
+    link.href = this.renderer.domElement.toDataURL('image/png')
 
     // click link to download
-    link.download = filename || "screenshot.png";
-    link.click();
+    link.download = filename || 'screenshot.png'
+    link.click()
   }
 
-  addToScene(scene_json) {
-    Simple3DScene.removeObjectByName(this.scene, scene_json.name);
+  addToScene (scene_json) {
+    Simple3DScene.removeObjectByName(this.scene, scene_json.name)
+    this.clickable_objects = []
 
-    const root_obj = new THREE.Object3D();
-    root_obj.name = scene_json.name;
+    const root_obj = new THREE.Object3D()
+    root_obj.name = scene_json.name
 
-    function traverse_scene(o, parent, self) {
-      o.contents.forEach(function(sub_o) {
-        if (sub_o.hasOwnProperty("type")) {
-          parent.add(self.makeObject(sub_o));
+    function traverse_scene (o, parent, self) {
+      o.contents.forEach(function (sub_o) {
+        if (sub_o.hasOwnProperty('type')) {
+          parent.add(self.makeObject(sub_o))
         } else {
-          const new_parent = new THREE.Object3D();
-          new_parent.name = sub_o.name;
-          parent.add(new_parent);
-          traverse_scene(sub_o, new_parent, self);
+          const new_parent = new THREE.Object3D()
+          new_parent.name = sub_o.name
+          parent.add(new_parent)
+          traverse_scene(sub_o, new_parent, self)
         }
-      });
+      })
     }
 
-    traverse_scene(scene_json, root_obj, this);
+    traverse_scene(scene_json, root_obj, this)
 
-    //window.console.log("root_obj", root_obj);
+    // window.console.log("root_obj", root_obj);
 
-    this.scene.add(root_obj);
+    this.scene.add(root_obj)
 
     // auto-zoom to fit object
     // TODO: maybe better to move this elsewhere (what if using perspective?)
-    const box = new THREE.Box3();
-    box.setFromObject(root_obj);
-    const width = this.renderer.domElement.clientWidth;
-    const height = this.renderer.domElement.clientHeight;
+    const box = new THREE.Box3()
+    box.setFromObject(root_obj)
+    const width = this.renderer.domElement.clientWidth
+    const height = this.renderer.domElement.clientHeight
     // TODO: improve auto-zoom
     this.camera.zoom =
       Math.min(
         Math.max(width, height) / (box.max.x - box.min.x),
         Math.max(width, height) / (box.max.y - box.min.y),
-          Math.max(width, height) / (box.max.z - box.min.z)
-      ) * this.settings.defaultZoom;
-    this.camera.updateProjectionMatrix();
-    this.camera.updateMatrix();
-    this.renderScene();
+        Math.max(width, height) / (box.max.z - box.min.z)
+      ) * this.settings.defaultZoom
+    this.camera.updateProjectionMatrix()
+    this.camera.updateMatrix()
+    this.renderScene()
   }
 
-  makeLights(light_json) {
+  makeLights (light_json) {
+    const lights = new THREE.Object3D()
+    lights.name = 'lights'
 
-    const lights = new THREE.Object3D();
-    lights.name = "lights";
-
-    light_json.forEach(function(light) {
+    light_json.forEach(function (light) {
       switch (light.type) {
-        case "DirectionalLight":
-          var lightObj = new THREE.DirectionalLight(...light.args);
+        case 'DirectionalLight':
+          var lightObj = new THREE.DirectionalLight(...light.args)
           if (light.helper) {
             const lightHelper = new THREE.DirectionalLightHelper(
               lightObj,
               5,
-              "#444444"
-            );
-            lightObj.add(lightHelper);
+              '#444444'
+            )
+            lightObj.add(lightHelper)
           }
-          break;
-        case "AmbientLight":
-          var lightObj = new THREE.AmbientLight(...light.args);
-          break;
-        case "HemisphereLight":
-          var lightObj = new THREE.HemisphereLight(...light.args);
-          break;
+          break
+        case 'AmbientLight':
+          var lightObj = new THREE.AmbientLight(...light.args)
+          break
+        case 'HemisphereLight':
+          var lightObj = new THREE.HemisphereLight(...light.args)
+          break
         default:
-          throw new Error("Unknown light.");
+          throw new Error('Unknown light.')
       }
-      if (light.hasOwnProperty("position")) {
-        lightObj.position.set(...light.position);
+      if (light.hasOwnProperty('position')) {
+        lightObj.position.set(...light.position)
       }
-      lights.add(lightObj);
-    });
+      lights.add(lightObj)
+    })
 
-    return lights;
+    return lights
   }
 
-  makeObject(object_json) {
-    const obj = new THREE.Object3D();
-    obj.name = object_json.name;
+  makeObject (object_json) {
+    const obj = new THREE.Object3D()
+    obj.name = object_json.name
 
     if (object_json.visible) {
-      obj.visible = object_json.visible;
+      obj.visible = object_json.visible
     }
 
+    if (object_json.clickable) {
+      obj.reference = object_json.reference
+      this.clickable_objects.push(obj)
+    };
+
     switch (object_json.type) {
-      case "spheres": {
+      case 'spheres': {
         const geom = new THREE.SphereBufferGeometry(
           object_json.radius * this.settings.sphereScale,
           this.settings.sphereSegments,
           this.settings.sphereSegments,
           object_json.phiStart || 0,
           object_json.phiEnd || Math.PI * 2
-        );
-        const mat = this.makeMaterial(object_json.color);
+        )
+        const mat = this.makeMaterial(object_json.color)
 
         // if we allow occupancies not to sum to 100
-        //if (object_json.phiStart || object_json.phiEnd) {
+        // if (object_json.phiStart || object_json.phiEnd) {
         //    mat.side = THREE.DoubleSide;
-        //}
+        // }
 
-        const meshes = [];
-        object_json.positions.forEach(function(position) {
-          const mesh = new THREE.Mesh(geom, mat);
-          mesh.position.set(...position);
-          meshes.push(mesh);
-        });
+        const meshes = []
+        object_json.positions.forEach(function (position) {
+          const mesh = new THREE.Mesh(geom, mat)
+          mesh.position.set(...position)
+          meshes.push(mesh)
+        })
+
+        meshes.forEach(function (mesh) {
+          obj.add(mesh)
+        })
+
+        return obj
+      }
+      case 'ellipsoids': {
+        const geom = new THREE.SphereBufferGeometry(
+          this.settings.sphereScale,
+          this.settings.sphereSegments,
+          this.settings.sphereSegments,
+          object_json.phiStart || 0,
+          object_json.phiEnd || Math.PI * 2
+        )
+        const mat = this.makeMaterial(object_json.color)
+
+        // if we allow occupancies not to sum to 100
+        // if (object_json.phiStart || object_json.phiEnd) {
+        //    mat.side = THREE.DoubleSide;
+        // }
+
+        const meshes = []
+        object_json.positions.forEach(function (position) {
+          const mesh = new THREE.Mesh(geom, mat)
+          mesh.position.set(...position)
+          mesh.scale.set(...object_json.scale) // TODO: Is this valid JS?
+          meshes.push(mesh)
+        })
 
         // TODO: test axes are correct!
-        if (object_json.ellipsoids) {
-          const vec_z = new THREE.Vector3(0, 0, 1);
-          const quaternion = new THREE.Quaternion();
-          object_json.ellipsoids.rotations.forEach(function(rotation, index) {
-            const rotation_vec = new THREE.Vector3(...rotation);
-            quaternion.setFromUnitVectors(vec_z, rotation_vec.normalize());
-            meshes[index].setRotationFromQuaternion(quaternion);
-          });
-          object_json.ellipsoids.scales.forEach(function(scale, index) {
-            meshes[index].scale.set(...scale);
-          });
-        }
 
-        meshes.forEach(function(mesh) {
-          obj.add(mesh);
-        });
+        const vec_z = new THREE.Vector3(0, 0, 1)
+        const quaternion = new THREE.Quaternion()
+        object_json.rotate_to.forEach(function (rotation, index) {
+          const rotation_vec = new THREE.Vector3(...rotation)
+          quaternion.setFromUnitVectors(vec_z, rotation_vec.normalize())
+          meshes[index].setRotationFromQuaternion(quaternion)
+        })
 
-        return obj;
+        meshes.forEach(function (mesh) {
+          obj.add(mesh)
+        })
+
+        return obj
       }
-      case "cylinders": {
-        const radius = object_json.radius || 1;
+      case 'cylinders': {
+        const radius = object_json.radius || 1
 
         const geom = new THREE.CylinderBufferGeometry(
           radius * this.settings.cylinderScale,
           radius * this.settings.cylinderScale,
           1.0,
           this.settings.cylinderSegments
-        );
-        const mat = this.makeMaterial(object_json.color);
+        )
+        const mat = this.makeMaterial(object_json.color)
 
-        const vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
-        const quaternion = new THREE.Quaternion();
+        const vec_y = new THREE.Vector3(0, 1, 0) // initial axis of cylinder
+        const quaternion = new THREE.Quaternion()
 
-        object_json.positionPairs.forEach(function(positionPair) {
+        object_json.positionPairs.forEach(function (positionPair) {
           // the following is technically correct but could be optimized?
 
-          const mesh = new THREE.Mesh(geom, mat);
-          const vec_a = new THREE.Vector3(...positionPair[0]);
-          const vec_b = new THREE.Vector3(...positionPair[1]);
-          const vec_rel = vec_b.sub(vec_a);
+          const mesh = new THREE.Mesh(geom, mat)
+          const vec_a = new THREE.Vector3(...positionPair[0])
+          const vec_b = new THREE.Vector3(...positionPair[1])
+          const vec_rel = vec_b.sub(vec_a)
 
           // scale cylinder to correct length
-          mesh.scale.y = vec_rel.length();
+          mesh.scale.y = vec_rel.length()
 
           // set origin at midpoint of cylinder
-          const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5));
-          mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z);
+          const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5))
+          mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z)
 
           // rotate cylinder into correct orientation
-          quaternion.setFromUnitVectors(vec_y, vec_rel.normalize());
-          mesh.setRotationFromQuaternion(quaternion);
+          quaternion.setFromUnitVectors(vec_y, vec_rel.normalize())
+          mesh.setRotationFromQuaternion(quaternion)
 
-          obj.add(mesh);
-        });
+          obj.add(mesh)
+        })
 
-        return obj;
+        return obj
       }
-      case "cubes": {
+      case 'cubes': {
         const geom = new THREE.BoxBufferGeometry(
           object_json.width * this.settings.sphereScale,
           object_json.width * this.settings.sphereScale,
           object_json.width * this.settings.sphereScale
-        );
-        const mat = this.makeMaterial(object_json.color);
+        )
+        const mat = this.makeMaterial(object_json.color)
 
-        object_json.positions.forEach(function(position) {
-          const mesh = new THREE.Mesh(geom, mat);
-          mesh.position.set(...position);
-          obj.add(mesh);
-        });
+        object_json.positions.forEach(function (position) {
+          const mesh = new THREE.Mesh(geom, mat)
+          mesh.position.set(...position)
+          obj.add(mesh)
+        })
 
-        return obj;
+        return obj
       }
-      case "lines": {
+      case 'lines': {
         const verts = new THREE.Float32BufferAttribute(
           [].concat.apply([], object_json.positions),
           3
-        );
-        const geom = new THREE.BufferGeometry();
-        geom.addAttribute("position", verts);
+        )
+        const geom = new THREE.BufferGeometry()
+        geom.addAttribute('position', verts)
 
-        let mat;
+        let mat
         if (object_json.dashSize || object_json.scale || object_json.gapSize) {
           mat = new THREE.LineDashedMaterial({
-            color: object_json.color || "#000000",
+            color: object_json.color || '#000000',
             linewidth: object_json.line_width || 1,
             scale: object_json.scale || 1,
             dashSize: object_json.dashSize || 3,
             gapSize: object_json.gapSize || 1
-          });
+          })
         } else {
           mat = new THREE.LineBasicMaterial({
-            color: object_json.color || "#2c3c54",
+            color: object_json.color || '#2c3c54',
             linewidth: object_json.line_width || 1
-          });
+          })
         }
 
-        const mesh = new THREE.LineSegments(geom, mat);
+        const mesh = new THREE.LineSegments(geom, mat)
         if (object_json.dashSize || object_json.scale || object_json.gapSize) {
-          mesh.computeLineDistances();
+          mesh.computeLineDistances()
         }
-        obj.add(mesh);
+        obj.add(mesh)
 
-        return obj;
+        return obj
       }
-      case "surface": {
+      case 'surface': {
         const verts = new THREE.Float32BufferAttribute(
           [].concat.apply([], object_json.positions),
           3
-        );
-        const geom = new THREE.BufferGeometry();
-        geom.addAttribute("position", verts);
+        )
+        const geom = new THREE.BufferGeometry()
+        geom.addAttribute('position', verts)
 
         const opacity =
-          object_json.opacity || this.settings.defaultSurfaceOpacity;
-        const mat = this.makeMaterial(object_json.color, opacity);
+          object_json.opacity || this.settings.defaultSurfaceOpacity
+        const mat = this.makeMaterial(object_json.color, opacity)
 
         if (object_json.normals) {
           const normals = new THREE.Float32BufferAttribute(
             [].concat.apply([], object_json.normals),
             3
-          );
-          geom.addAttribute("normal", normals);
+          )
+          geom.addAttribute('normal', normals)
         } else {
-          geom.computeFaceNormals();
-          mat.side = THREE.DoubleSide; // not sure if this is necessary if we compute normals correctly
+          geom.computeFaceNormals()
+          mat.side = THREE.DoubleSide // not sure if this is necessary if we compute normals correctly
         }
 
         if (opacity) {
-          mat.transparent = true;
-          mat.depthWrite = false;
+          mat.transparent = true
+          mat.depthWrite = false
         }
 
-        const mesh = new THREE.Mesh(geom, mat);
-        obj.add(mesh);
-        //TODO smooth the surfaces?
-        return obj;
+        const mesh = new THREE.Mesh(geom, mat)
+        obj.add(mesh)
+        // TODO smooth the surfaces?
+        return obj
       }
-      case "convex": {
-        const points = object_json.positions.map(p => new THREE.Vector3(...p));
-        const geom = new THREE.ConvexBufferGeometry(points);
+      case 'convex': {
+        const points = object_json.positions.map(p => new THREE.Vector3(...p))
+        const geom = new THREE.ConvexBufferGeometry(points)
 
         const opacity =
-          object_json.opacity || this.settings.defaultSurfaceOpacity;
-        const mat = this.makeMaterial(object_json.color, opacity);
+          object_json.opacity || this.settings.defaultSurfaceOpacity
+        const mat = this.makeMaterial(object_json.color, opacity)
         if (opacity) {
-          mat.transparent = true;
-          mat.depthWrite = false;
+          mat.transparent = true
+          mat.depthWrite = false
         }
 
-        const mesh = new THREE.Mesh(geom, mat);
-        obj.add(mesh);
+        const mesh = new THREE.Mesh(geom, mat)
+        obj.add(mesh)
 
-        const edges = new THREE.EdgesGeometry(geom);
-        const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: object_json.color } ) );
-        obj.add(line);
+        const edges = new THREE.EdgesGeometry(geom)
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: object_json.color }))
+        obj.add(line)
 
-        return obj;
+        return obj
       }
-      case "arrows": {
+      case 'arrows': {
         // take inspiration from ArrowHelper, user cones and cylinders
-        const radius = object_json.radius || 1;
-        const headLength = object_json.headLength || 2;
-        const headWidth = object_json.headWidth || 2;
+        const radius = object_json.radius || 1
+        const headLength = object_json.headLength || 2
+        const headWidth = object_json.headWidth || 2
 
         // body
         const geom_cyl = new THREE.CylinderBufferGeometry(
@@ -432,117 +464,138 @@ export default class Simple3DScene {
           radius * this.settings.cylinderScale,
           1.0,
           this.settings.cylinderSegments
-        );
+        )
         // head
         const geom_head = new THREE.ConeBufferGeometry(
-            headWidth* this.settings.cylinderScale,
-            headLength* this.settings.cylinderScale,
-            this.settings.cylinderSegments);
+          headWidth * this.settings.cylinderScale,
+          headLength * this.settings.cylinderScale,
+          this.settings.cylinderSegments)
 
-        const mat = this.makeMaterial(object_json.color);
+        const mat = this.makeMaterial(object_json.color)
 
-        const vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
-        const vec_z = new THREE.Vector3(0, 0, 1); // initial axis of cylinder
-        const quaternion = new THREE.Quaternion();
-        const quaternion_head = new THREE.Quaternion();
+        const vec_y = new THREE.Vector3(0, 1, 0) // initial axis of cylinder
+        const vec_z = new THREE.Vector3(0, 0, 1) // initial axis of cylinder
+        const quaternion = new THREE.Quaternion()
+        const quaternion_head = new THREE.Quaternion()
 
-        object_json.positionPairs.forEach(function(positionPair) {
+        object_json.positionPairs.forEach(function (positionPair) {
           // the following is technically correct but could be optimized?
 
-          const mesh = new THREE.Mesh(geom_cyl, mat);
-          const vec_a = new THREE.Vector3(...positionPair[0]);
-          const vec_b = new THREE.Vector3(...positionPair[1]);
-          const vec_head = new THREE.Vector3(...positionPair[1]);
-          const vec_rel = vec_b.sub(vec_a);
+          const mesh = new THREE.Mesh(geom_cyl, mat)
+          const vec_a = new THREE.Vector3(...positionPair[0])
+          const vec_b = new THREE.Vector3(...positionPair[1])
+          const vec_head = new THREE.Vector3(...positionPair[1])
+          const vec_rel = vec_b.sub(vec_a)
 
           // scale cylinder to correct length
-          mesh.scale.y = vec_rel.length();
+          mesh.scale.y = vec_rel.length()
 
           // set origin at midpoint of cylinder
-          const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5));
-          mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z);
+          const vec_midpoint = vec_a.add(vec_rel.clone().multiplyScalar(0.5))
+          mesh.position.set(vec_midpoint.x, vec_midpoint.y, vec_midpoint.z)
 
           // rotate cylinder into correct orientation
-          quaternion.setFromUnitVectors(vec_y, vec_rel.normalize());
-          mesh.setRotationFromQuaternion(quaternion);
+          quaternion.setFromUnitVectors(vec_y, vec_rel.normalize())
+          mesh.setRotationFromQuaternion(quaternion)
 
-          obj.add(mesh);
+          obj.add(mesh)
 
           // add arrowhead
-          const mesh_head = new THREE.Mesh(geom_head, mat);
-          mesh_head.position.set(vec_head.x, vec_head.y, vec_head.z);
+          const mesh_head = new THREE.Mesh(geom_head, mat)
+          mesh_head.position.set(vec_head.x, vec_head.y, vec_head.z)
           // rotate cylinder into correct orientation
-          quaternion_head.setFromUnitVectors(vec_y, vec_rel.normalize());
-          mesh_head.setRotationFromQuaternion(quaternion_head);
-          obj.add(mesh_head);
-        });
-        return obj;
+          quaternion_head.setFromUnitVectors(vec_y, vec_rel.normalize())
+          mesh_head.setRotationFromQuaternion(quaternion_head)
+          obj.add(mesh_head)
+        })
+        return obj
       }
-      case "labels": {
+      case 'labels': {
         // Not implemented
-        //THREE.CSS2DObject see https://github.com/mrdoob/three.js/blob/master/examples/css2d_label.html
-        return obj;
+        // THREE.CSS2DObject see https://github.com/mrdoob/three.js/blob/master/examples/css2d_label.html
+        return obj
       }
       default: {
-        return obj;
+        return obj
       }
     }
   }
 
-  makeMaterial(color, opacity) {
+  makeMaterial (color, opacity) {
     const parameters = Object.assign(this.settings.material.parameters, {
-      color: color || "#52afb0",
+      color: color || '#52afb0',
       opacity: opacity || 1.0
-    });
+    })
 
     switch (this.settings.material.type) {
-      case "MeshStandardMaterial": {
-        return new THREE.MeshStandardMaterial(parameters);
+      case 'MeshStandardMaterial': {
+        return new THREE.MeshStandardMaterial(parameters)
       }
       default:
-        throw new Error("Unknown material.");
+        throw new Error('Unknown material.')
     }
   }
 
-  start() {
+  start () {
     if (!this.frameId) {
-      this.frameId = requestAnimationFrame(this.animate);
+      this.frameId = requestAnimationFrame(this.animate)
     }
   }
 
-  stop() {
-    cancelAnimationFrame(this.frameId);
+  stop () {
+    cancelAnimationFrame(this.frameId)
   }
 
-  animate() {
-    this.renderScene();
-    this.frameId = window.requestAnimationFrame(this.animate);
+  animate () {
+    this.renderScene()
+    this.frameId = window.requestAnimationFrame(this.animate)
   }
 
-  renderScene() {
-    this.renderer.render(this.scene, this.camera);
+  renderScene () {
+    this.renderer.render(this.scene, this.camera)
   }
 
-  toggleVisibility(namesToVisibility) {
-    if (typeof namesToVisibility !== "undefined") {
+  toggleVisibility (namesToVisibility) {
+    if (typeof namesToVisibility !== 'undefined') {
       for (var objName in namesToVisibility) {
         if (namesToVisibility.hasOwnProperty(objName)) {
-          const obj = this.scene.getObjectByName(objName);
-          if (typeof obj !== "undefined") {
-            obj.visible = Boolean(namesToVisibility[objName]);
+          const obj = this.scene.getObjectByName(objName)
+          if (typeof obj !== 'undefined') {
+            obj.visible = Boolean(namesToVisibility[objName])
           }
         }
       }
     }
-    this.renderScene();
+    this.renderScene()
   }
 
-  static removeObjectByName(scene, name) {
-    // name is not necessarily unique, make this recursive ?
-    const object = scene.getObjectByName(name);
-    if (typeof object !== "undefined") {
-        scene.remove(object);
+  getClickedReference (clientX, clientY) {
+    var camera = this.camera
+    var renderer = this.renderer
+    var raycaster = new THREE.Raycaster()
+    var mouse = new THREE.Vector2()
+
+    mouse.x = (clientX / renderer.domElement.clientWidth) * 2 - 1
+    mouse.y = -(clientY / renderer.domElement.clientHeight) * 2 + 1
+
+    raycaster.setFromCamera(mouse, camera)
+
+    meshObjects = this.clickable_objects // three.js objects with click handlers we are interested in
+
+    var intersects = raycaster.intersectObjects(meshObjects)
+
+    if (intersects.length > 0) {
+      return intersects[0].object.reference
+    } else {
+      return null
     }
   }
 
+  static removeObjectByName (scene, name) {
+    // name is not necessarily unique, make this recursive ?
+    const object = scene.getObjectByName(name)
+    if (typeof object !== 'undefined') {
+      scene.remove(object)
+    }
+  }
 }
