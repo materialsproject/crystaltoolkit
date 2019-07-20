@@ -31,6 +31,9 @@ from crystal_toolkit.renderables import *
 from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
+import logging
+
+logger = logging.getLogger('crystaltoolkit.pythreejs_renderer')
 
 def traverse_scene_object(scene_data, parent=None):
     """
@@ -39,17 +42,27 @@ def traverse_scene_object(scene_data, parent=None):
     :param parent:
     :return:
     """
+    
+    if type(scene_data) != list:
+        logger.debug(scene_data.name)
 
     # Doing a few checks for objects that do not have the contents property
-    if type(scene_data) == list:
-        for iobj in scene_data:
-            traverse_scene_object(iobj, parent)
-        return parent
-    if hasattr(scene_data, "type"):
-        print(scene_data.type)
-        parent.add(convert_object_to_pythreejs(scene_data))
-        return parent
+    # if type(scene_data) == list:
+    #     for iobj in scene_data:
+    #         traverse_scene_object(iobj, parent)
+    #     return parent
+    # if hasattr(scene_data, "type"):
+    #     parent.add(convert_object_to_pythreejs(scene_data))
+    #     return parent
 
+    if not hasattr(scene_data, "name"):
+        # we reached the end of a tree that has not information
+        print(scene_data.name)
+    
+    if parent is None:
+        # We are at the tree root
+        new_parent = Object3D(name=scene_data.name)
+        parent = new_parent
 
     for sub_object in scene_data.contents:
         if type(sub_object) == list:
@@ -57,14 +70,10 @@ def traverse_scene_object(scene_data, parent=None):
                 traverse_scene_object(iobj, parent)
             continue
         elif hasattr(sub_object, "type"):
-            print(sub_object.type)
             parent.add(convert_object_to_pythreejs(sub_object))
         else:
             new_parent = Object3D(name=sub_object.name)
-            if parent is None:
-                parent = new_parent
-            else:
-                parent.add(new_parent)
+            parent.add(new_parent)
             traverse_scene_object(sub_object, parent)
     return parent
 
@@ -104,7 +113,6 @@ def view(obj_or_scene, **kwargs):
     """
     :param obj: input structure
     """
-    print(isinstance(obj_or_scene, Structure))
     if isinstance(obj_or_scene, CrystalToolkitScene):
         scene = obj_or_scene
     elif hasattr(obj_or_scene, "get_scene"):
@@ -116,6 +124,7 @@ def view(obj_or_scene, **kwargs):
             "Only Scene objects or objects with get_scene() methods "
             "can be displayed."
         )
+    return scene 
     display_scene(scene)
 
 
@@ -124,20 +133,27 @@ def display_scene(scene):
     :param smc: input structure structure molecule component
     """
     obs = traverse_scene_object(scene)
-    scene = Scene(children=list(obs.children))
-    return scene
-    box = Box3.exec_three_obj_method("setFromObject", scene)
-    extent = (
-        max(box.max.z - box.min.z, box.max.y - box.min.y, box.max.x - box.min.x) * 1.2
-    )
+    logger.debug(type(obs))
+    scene2render = Scene(children=list(obs.children))
+    logger.debug(len(scene2render.children))
+    box3 = Box3()
+    box3.exec_three_obj_method('setFromObject', obs)
+    logger.debug(f"IS PYTHREEJS SCENE: {type(scene2render) == Scene}")
+    logger.debug(f"{box3}")
+    logger.debug(f"{box3.max}")
+    logger.debug(f"{box3.min}")
+    logger.debug(f"{box3.max[2] - box3.min[2]}")
+    return obs, scene2render
+    extent = max(box3.max[2] - box3.min[2], box3.max[1] -
+                 box3.min[1], box3.max[0] - box3.min[0]) * 1.2
+    
+    logger.debug(f"extent : {extent}")
     camera = OrthographicCamera(
         -extent, extent, extent, -extent, -2000, 2000, position=(0, 0, 2)
     )
-    camera.children.extend(
-        [
-            AmbientLight(color="#cccccc", intensity=0.75),
-            DirectionalLight(color="#ccaabb", position=[0, 20, 10], intensity=0.5),
-        ]
+    scene.children = scene.children + (
+        AmbientLight(color="#cccccc", intensity=0.75),
+        DirectionalLight(color="#ccaabb", position=[0, 20, 10], intensity=0.5),
     )
     renderer = Renderer(
         camera=camera,
@@ -149,6 +165,7 @@ def display_scene(scene):
         height=500,
         antialias=True,
     )
+    logger.debug("Start drawing to the notebook")
     display(renderer)
 
 
