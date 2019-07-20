@@ -9,6 +9,7 @@ from crystal_toolkit.core.scene import *
 
 from crystal_toolkit.renderables.site import Site
 from crystal_toolkit.renderables.structuregraph import StructureGraph
+from crystal_toolkit.renderables.moleculegraph import MoleculeGraph
 from crystal_toolkit.renderables.lattice import Lattice
 
 from crystal_toolkit.components.json import JSONEditor
@@ -29,10 +30,13 @@ from crystal_toolkit.components.download import DownloadPanelComponent
 from crystal_toolkit.components.submit_snl import SubmitSNLPanel
 from crystal_toolkit.components.symmetry import SymmetryComponent
 from crystal_toolkit.components.upload import StructureMoleculeUploadComponent
+from crystal_toolkit.components.bs import BandstructureAndDosComponent, BandstructureAndDosPanelComponent
 from crystal_toolkit.components.phase_diagram import (
     PhaseDiagramComponent,
     PhaseDiagramPanelComponent,
 )
+from crystal_toolkit.components.localenv import LocalEnvironmentPanel
+from crystal_toolkit.components.grainboundary import GrainBoundaryPanel
 
 from crystal_toolkit.components.transformations.core import AllTransformationsComponent
 from crystal_toolkit.components.transformations.supercell import (

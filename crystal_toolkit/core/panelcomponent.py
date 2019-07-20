@@ -39,6 +39,10 @@ class PanelComponent2(MPComponent):
         return None
 
     @property
+    def loading_text(self):
+        return "Loading"
+
+    @property
     def all_layouts(self):
 
         message = html.Div(id=self.id("message"))
@@ -77,6 +81,13 @@ class PanelComponent2(MPComponent):
             )
 
         return {"panel": panel}
+
+    @property
+    def update_panel_contents_inputs(self):
+        return [Input(self.id(), "data")]
+
+    def update_panel_contents(self, *args):
+        raise NotImplementedError
 
     def generate_callbacks(self, app, cache):
         @app.callback(
@@ -226,6 +237,8 @@ class PanelComponent(MPComponent):
                 raise PreventUpdate
             if not store_contents:
                 return html.Div(), html.Div()
+
+            self.logger.debug(f"{self.__class__.__name__} panel callback fired.")
 
             try:
                 return self.update_contents(store_contents, *args[:-1]), html.Div()

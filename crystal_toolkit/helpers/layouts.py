@@ -11,6 +11,8 @@ FONT_AWESOME_CSS = {
     "external_url": "https://use.fontawesome.com/releases/v5.6.3/css/all.css"
 }
 
+PRIMARY_COLOR = "hsl(171, 100%, 41%)"
+
 # TODO: change "kind" kwarg to list / group is- modifiers together
 
 
@@ -292,26 +294,36 @@ def get_tooltip(tooltip, tooltip_text):
 def get_data_list(data):
     contents = []
     for title, value in data.items():
-        contents.append(
-            html.Tr(
-                [html.Td(Label(title)), html.Td(value)]
-            )
-        )
+        contents.append(html.Tr([html.Td(Label(title)), html.Td(value)]))
     return html.Table([html.Tbody(contents)], className="table")
 
 
 def get_table(rows):
     contents = []
     for row in rows:
-        contents.append(
-            html.Tr(
-                [html.Td(item) for item in row]
-            )
-        )
+        contents.append(html.Tr([html.Td(item) for item in row]))
     return html.Table([html.Tbody(contents)], className="table")
 
-# reference_button = Button(
-#    [Icon(kind="book"), html.Span("Cite me")],
-#    size="small",
-#    kind="link"
-# )
+
+def cite_me(doi=None, cite_text="Cite me"):
+
+    if doi:
+        tooltip_text = (
+            f"If this analysis is useful, please cite the "
+            f"relevant publication at https://dx.doi.org/{doi}"
+        )
+    else:
+        tooltip_text = (
+            f"If this analysis is useful, please cite the "
+            f"relevant publication (publication pending)."
+        )
+
+    reference_button = html.A(
+        [Button([Icon(kind="book"), html.Span(cite_text)], size="small", kind="link")],
+        href=f"https://dx.doi.org/{doi}",
+        target="_blank",
+    )
+
+    with_tooltip = get_tooltip(reference_button, tooltip_text)
+
+    return with_tooltip

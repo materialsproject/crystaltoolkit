@@ -1,4 +1,5 @@
 import logging
+import sys
 from abc import ABC, abstractmethod
 from datetime import datetime
 from json import dumps, loads
@@ -99,11 +100,16 @@ class MPComponent(ABC):
         return name
 
     def create_store(
-        self, name, initial_data=None, storage_type="memory", debug_clear=False
+        self,
+        name,
+        initial_data=None,
+        storage_type="memory",
+        debug_clear=False,
+        to_data=True,
     ):
         store = dcc.Store(
             id=self.id(name),
-            data=self.to_data(initial_data),
+            data=self.to_data(initial_data) if to_data else initial_data,
             storage_type=storage_type,
             clear_data=debug_clear,
         )
@@ -114,7 +120,7 @@ class MPComponent(ABC):
     def to_data(msonable_obj):
         """
         Converts any MSONable object into a format suitable for storing in
-        a dcc.Store
+        a dcc.Store data prop
 
         :param msonable_obj: Any MSONable object
         :return: A JSON string (a string is preferred over a dict since this can
@@ -123,13 +129,6 @@ class MPComponent(ABC):
         if msonable_obj is None:
             return None
         data_str = dumps(msonable_obj, cls=MontyEncoder, indent=4)
-        if MPComponent.cache != null_cache:
-            pass
-            # token = str(uuid4())[0:6]
-            ## set to 1 week expiration by default
-            # cache.set(token, data_str, timeout=604_800,
-            #          key_prefix="crystal_toolkit_callback_")
-            # return {'token': token}
         return data_str
 
     @staticmethod

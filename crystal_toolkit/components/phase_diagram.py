@@ -704,11 +704,5 @@ class PhaseDiagramPanelComponent(PanelComponent):
             " chemical system containing this structure (between 2–4 species)."
         )
 
-    @property
-    def initial_contents(self):
-        return html.Div(
-            [super().initial_contents, html.Div([self.pd_component.standard_layout])]
-        )
-
     def update_contents(self, new_store_contents, *args):
         return self.pd_component.standard_layout
