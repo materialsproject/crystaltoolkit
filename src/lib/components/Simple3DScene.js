@@ -570,25 +570,24 @@ export default class Simple3DScene {
   }
 
   getClickedReference (clientX, clientY) {
-    var camera = this.camera
-    var renderer = this.renderer
-    var raycaster = new THREE.Raycaster()
-    var mouse = new THREE.Vector2()
 
-    mouse.x = (clientX / renderer.domElement.clientWidth) * 2 - 1
-    mouse.y = -(clientY / renderer.domElement.clientHeight) * 2 + 1
+    const raycaster = new THREE.Raycaster()
+    const mouse = new THREE.Vector2()
 
-    raycaster.setFromCamera(mouse, camera)
+    mouse.x = (clientX / this.renderer.domElement.clientWidth) * 2 - 1
+    mouse.y = -(clientY / this.renderer.domElement.clientHeight) * 2 + 1
 
-    meshObjects = this.clickable_objects // three.js objects with click handlers we are interested in
+    raycaster.setFromCamera(mouse, this.camera)
 
-    var intersects = raycaster.intersectObjects(meshObjects)
+    // Three.js objects with click handlers we are interested in
+    var intersects = raycaster.intersectObjects(this.clickable_objects)
 
     if (intersects.length > 0) {
       return intersects[0].object.reference
-    } else {
-      return null
     }
+
+    return null
+
   }
 
   static removeObjectByName (scene, name) {
