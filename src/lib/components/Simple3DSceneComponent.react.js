@@ -49,9 +49,9 @@ export default class Simple3DSceneComponent extends Component {
   handleClick (event) {
     event.preventDefault()
 
-    clickedReference = this.scene.getClickedReference(event.clientX, event.clientY)
+    var clickedReference = this.scene.getClickedReference(event.clientX, event.clientY)
 
-    if (this.props.selectedObjectReference == clickedReference) {
+    if (this.props.selectedObjectReference === clickedReference) {
       this.setState((state) => {
         return { selectedObjectCount: state.selectedObjectCount + 1 }
       })
