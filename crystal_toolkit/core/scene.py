@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
 from itertools import chain
@@ -21,7 +21,7 @@ class Primitive:
     For now, this just enforces some basic mergeability
     """
 
-    @abstractmethod
+    @abstractproperty
     def key(self):
         raise NotImplementedError
 
@@ -119,7 +119,7 @@ class Scene:
             if isinstance(primitive, Scene):
                 primitive.contents = Scene.merge_primitives(primitive.contents)
                 remainder.append(primitive)
-            elif issubclass(primitive, Primitive):
+            elif isinstance(primitive, Primitive):
                 mergable[primitive.key].append(primitive)
             else:
                 remainder.append(primitive)
@@ -159,6 +159,7 @@ class Spheres(Primitive):
     reference: Optional[str] = None
     _meta: Any = None
 
+    @property
     def key(self):
         return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}_{self.reference}"
 
@@ -209,6 +210,7 @@ class Ellipsoids(Primitive):
     reference: Optional[str] = None
     _meta: Any = None
 
+    @property
     def key(self):
         return f"ellipsoid_{self.color}_{self.scale}_{self.phiStart}_{self.phiEnd}_{self.reference}"
 
@@ -256,6 +258,7 @@ class Cylinders(Primitive):
     reference: Optional[str] = None
     _meta: Any = None
 
+    @property
     def key(self):
         return f"cyclinder_{self.color}_{self.radius}_{self.reference}"
 
@@ -301,6 +304,7 @@ class Cubes(Primitive):
     reference: Optional[str] = None
     _meta: Any = None
 
+    @property
     def key(self):
         return f"cube_{self.color}_{self.width}_{self.reference}"
 
@@ -349,8 +353,9 @@ class Lines(Primitive):
     reference: Optional[str] = None
     _meta: Any = None
 
+    @property
     def key(self):
-        raise f"line_{self.color}_{self.lineWidth}_{self.dashSize}_{self.gapSize}_{self.reference}"
+        return f"line_{self.color}_{self.lineWidth}_{self.dashSize}_{self.gapSize}_{self.reference}"
 
     @classmethod
     def merge(cls, line_list):
@@ -433,8 +438,9 @@ class Arrows(Primitive):
     reference: Optional[str] = None
     _meta: Any = None
 
+    @property
     def key(self):
-        raise f"arrow_{self.color}_{self.radius}_{self.headLength}_{self.headWidth}_{self.reference}"
+        return f"arrow_{self.color}_{self.radius}_{self.headLength}_{self.headWidth}_{self.reference}"
 
     @classmethod
     def merge(cls, arrow_list):
