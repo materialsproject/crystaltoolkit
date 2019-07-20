@@ -29,6 +29,11 @@ class Primitive:
     def merge(cls, items):
         raise NotImplementedError
 
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        x, y, z = zip(*self.positions)
+        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
+
 
 @dataclass
 class Scene:
@@ -81,6 +86,23 @@ class Scene:
             return trimmed_dict
 
         return remove_defaults(asdict(merged_scene))
+
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        """
+        Returns the boundinx box coordinates 
+        """
+        
+        x_extents, y_extents, z_extents = zip(*[p.bounding_box for p in self.contents])
+        
+        min_x = min([x[0] for x in x_extents])
+        max_x = max([x[1] for x in x_extents])
+        min_y = min([y[0] for y in y_extents])
+        max_y = max([y[1] for y in y_extents])
+        min_z = min([z[0] for z in z_extents])
+        max_z = max([z[1] for z in z_extents])
+
+        return [[min_x, max_x], [min_y, max_y], [min_z, max_z]]
 
     @staticmethod
     def merge_primitives(primitives):
@@ -249,6 +271,11 @@ class Cylinders(Primitive):
             radius=cylinder_list[0].radius,
             visible=cylinder_list[0].visible,
         )
+
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        x, y, z = zip(*chain.from_iterable(self.positionPairs))
+        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
 
 
 @dataclass
@@ -422,6 +449,11 @@ class Arrows(Primitive):
             headWidth=arrow_list[0].headWidth,
             visible=arrow_list[0].visible,
         )
+
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        x, y, z = zip(*chain.from_iterable(self.positionPairs))
+        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
 
 
 # class VolumetricData:
