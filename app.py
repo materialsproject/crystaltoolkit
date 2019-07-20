@@ -132,7 +132,7 @@ robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
 xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
 pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
-pbx_component = ctc.PourbaixDiagramComponent(origin_component=struct_component)
+pbx_component = ctc.PourbaixDiagramPanelComponent(origin_component=struct_component)
 symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
 submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
 localenv_component = ctc.LocalEnvironmentPanel(origin_component=struct_component)
@@ -161,6 +161,7 @@ panels = [
 
 mp_panels = [
     pd_component,
+    pbx_component,
     magnetism_component,
     xas_component,
     # grain_boundary_panel,
