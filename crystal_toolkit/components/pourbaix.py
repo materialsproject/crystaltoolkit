@@ -3,14 +3,17 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import plotly.graph_objs as go
+import numpy as np
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from pymatgen import MPRester
 from pymatgen.core.composition import Composition
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixPlotter, PourbaixEntry, MultiEntry
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixPlotter, \
+    PourbaixEntry, MultiEntry
 
-from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
+from crystal_toolkit.helpers.layouts import Columns, Column, MessageContainer, \
+    MessageBody # layout helpers like `Columns` etc. (most subclass html.Div)
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 
@@ -24,10 +27,8 @@ class PourbaixDiagramComponent(MPComponent):
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("struct")
-        self.create_store("chemsys-internal")
-        self.create_store("chemsys-external")
         self.create_store("figure")
-        self.create_store("entries")
+        self.create_store("pourbaix_entries")
 
     # Default plot layouts for Binary (2), Ternary (3), Quaternary (4) phase diagrams
     default_plot_style = dict(
@@ -113,28 +114,27 @@ class PourbaixDiagramComponent(MPComponent):
     }
 
     # TODO: why both plotter and pd
-    def figure_layout(self, plotter, pbx):
+    def figure_layout(self, pourbaix_diagram):
         """
 
         Args:
-            plotter (PourbaixPlotter): plotter for pourbaix diagram object
-            pbx (PourbaixDiagram): pourbaix diagram to plot
+            pourbaix_diagram (PourbaixDiagram): pourbaix diagram to plot
 
         Returns:
             (dict) figure layout
 
         """
-        dim = len(pbx.pourbaix_elements)
+        dim = len(pourbaix_diagram.pourbaix_elements)
 
         shapes = []
+        annotations = []
 
-        for entry, vertices in pbx._stable_domain_vertices.items():
-            formula = list(entry.composition.reduced_formula)
+        for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
+            formula = list(entry.name)
 
             clean_formula = self.clean_formula(formula)
 
-            # Paths are complicated, the link below was helpful
-            # https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+            # Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
             # Move to first point
             path = "M {},{}".format(*vertices[0])
             # Draw lines to each other point
@@ -148,198 +148,30 @@ class PourbaixDiagramComponent(MPComponent):
                 linecolor="Black"
             )
             shapes.append(shape)
+
+            # Generate annotation
+            x, y = np.average(vertices, axis=0)
+            annotation = {
+                "align": "center",
+                "font": {"color": "#000000", "size": 20.0},
+                "opacity": 1,
+                "showarrow": False,
+                "text": clean_formula,
+                "x": x,
+                "xanchor": "right",
+                "yanchor": "auto",
+                "xshift": -10,
+                "yshift": -10,
+                "xref": "x",
+                "y": y,
+                "yref": "y",
+            }
+
+            annotations.append(annotation)
         layout = self.default_plot_style
-        layout.update({"shapes": shapes})
-
-            # TODO: don't think we need annotations
-            # annotation = {
-            #     "align": "center",
-            #     "font": {"color": "#000000", "size": 20.0},
-            #     "opacity": 1,
-            #     "showarrow": False,
-            #     "text": clean_formula,
-            #     "x": x,
-            #     "xanchor": "right",
-            #     "yanchor": "auto",
-            #     "xshift": -10,
-            #     "yshift": -10,
-            #     "xref": "x",
-            #     "y": y,
-            #     "yref": "y",
-            # }
-
-            # if dim == 3:
-            #     annotation.update({"font": {"color": "#000000", "size": 18.0}})
-            # elif dim == 4:
-            #     annotation.update({"z": z})
-            #     for d in ["xref", "yref"]:
-            #         annotation.pop(d)  # Scatter3d cannot contain xref, yref
-
-            # annotations_list.append(annotation)
-
-            # if dim == 2:
-            #     layout = self.default_binary_plot_style
-            #     layout["annotations"] = annotations_list
-            # elif dim == 3:
-            #     layout = self.default_ternary_plot_style
-            #     layout["annotations"] = annotations_list
-            # elif dim == 4:
-            #     layout = self.default_quaternary_plot_style
-            #     layout["scene"].update(
-            #         {
-            #             "annotations": annotations_list,
-            #             "camera": dict(
-            #                 up=dict(x=0, y=0, z=1),
-            #                 center=dict(x=-0.15, y=-0.2, z=0),
-            #                 eye=dict(x=1.25, y=1.25, z=1.25),
-            #             ),
-            #         }
-            #     )
+        layout.update({"shapes": shapes,
+                       "annotations": annotations})
         return layout
-
-    def create_markers(self, plotter, pd):
-        x_list = []
-        y_list = []
-        z_list = []
-        text = []
-        energy_list = []
-
-        dim = pd.dim
-
-        for coord, entry in plotter.pd_plot_data[1].items():
-            energy = round(pd.get_form_energy_per_atom(entry), 3)
-            energy_list.append(energy)
-            mpid = entry.attribute
-            formula = entry.composition.reduced_formula
-
-            clean_formula = self.clean_formula(formula)
-
-            x_list.append(coord[0])
-            y_list.append(coord[1])
-
-            if dim == 4:
-                z_list.append(coord[2])
-            text.append(f"{clean_formula} ({mpid})<br> {str(energy)} eV")
-
-        if dim == 2 or dim == 3:
-            marker_plot = go.Scatter(
-                x=x_list,
-                y=y_list,
-                mode="markers",
-                name="Stable",
-                marker=dict(
-                    color=energy_list,
-                    size=11,
-                    colorscale=self.colorscale,
-                    line=dict(width=2, color="#000000"),
-                ),
-                hoverinfo="text",
-                hoverlabel=dict(font=dict(size=14)),
-                showlegend=True,
-                hovertext=text,
-            )
-        if dim == 4:
-            marker_plot = go.Scatter3d(
-                x=x_list,
-                y=y_list,
-                z=z_list,
-                mode="markers",
-                name="Stable",
-                marker=dict(
-                    color=energy_list,
-                    size=8,
-                    colorscale=self.colorscale,
-                    line=dict(width=2, color="#000000"),
-                ),
-                hoverinfo="text",
-                hoverlabel=dict(font=dict(size=14)),
-                hovertext=text,
-                showlegend=True,
-            )
-        return marker_plot
-
-    def create_unstable_markers(self, plotter, pd):
-        x_list = []
-        y_list = []
-        z_list = []
-        text_list = []
-
-        dim = pd.dim
-
-        for (unstable_entry, unstable_coord) in plotter.pd_plot_data[2].items():
-            x_list.append(unstable_coord[0])
-            y_list.append(unstable_coord[1])
-            if dim == 4:
-                z_list.append(unstable_coord[2])
-
-            mpid = unstable_entry.attribute
-            formula = list(unstable_entry.composition.reduced_formula)
-            e_above_hull = round(pd.get_e_above_hull(unstable_entry), 3)
-
-            clean_formula = self.clean_formula(formula)
-
-            energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
-            text_list.append(
-                f"{clean_formula} ({mpid})<br>" f"{energy} eV (+{e_above_hull} eV)"
-            )
-
-        if dim == 2 or dim == 3:
-            unstable_marker_plot = go.Scatter(
-                x=x_list,
-                y=y_list,
-                mode="markers",
-                hoverinfo="text",
-                hovertext=text_list,
-                visible="legendonly",
-                name="Unstable",
-                marker=dict(color="#ff0000", size=12, symbol="x"),
-            )
-
-        elif dim == 4:
-            unstable_marker_plot = go.Scatter3d(
-                x=x_list,
-                y=y_list,
-                z=z_list,
-                mode="markers",
-                hoverinfo="text",
-                hovertext=text_list,
-                visible="legendonly",
-                name="Unstable",
-                marker=dict(color="#ff0000", size=4, symbol="x"),
-            )
-
-        return unstable_marker_plot
-
-    @staticmethod
-    def create_table_content(pd):
-        data = []
-
-        for entry in pd.all_entries:
-            try:
-                mpid = entry.entry_id
-            except:
-                mpid = entry.attribute  # accounting for custom entry
-
-            try:
-                data.append(
-                    {
-                        "Material ID": mpid,
-                        "Formula": entry.name,
-                        "Formation Energy (eV/atom)": round(
-                            pd.get_form_energy_per_atom(entry), 3
-                        ),
-                        "Energy Above Hull (eV/atom)": round(
-                            pd.get_e_above_hull(entry), 3
-                        ),
-                        "Predicted Stable?": (
-                            "Yes" if pd.get_e_above_hull(entry) == 0 else "No"
-                        ),
-                    }
-                )
-
-            except:
-                data.append({})
-        return data
 
     @staticmethod
     def clean_formula(formula):
@@ -360,69 +192,15 @@ class PourbaixDiagramComponent(MPComponent):
         graph = html.Div(
             [
                 dcc.Graph(
-                    figure=go.Figure(layout=PhaseDiagramComponent.empty_plot_style),
+                    figure=go.Figure(layout=PourbaixDiagramComponent.empty_plot_style),
                     id=self.id("graph"),
                     config={"displayModeBar": False, "displaylogo": False},
                 )
             ],
-            id=self.id("pd-div"),
-        )
-        table = html.Div(
-            [
-                html.Div(
-                    dash_table.DataTable(
-                        id=self.id("entry-table"),
-                        columns=(
-                            [
-                                {
-                                    "id": p["col"],
-                                    "name": p["col"],
-                                    "editable": p["edit"],
-                                }
-                                for p in self.default_table_params
-                            ]
-                        ),
-                        style_table={
-                            "maxHeight": "450px",
-                            "overflowY": "auto",
-                            "border": "thin lightgrey solid",
-                        },
-                        # n_fixed_rows=1,
-                        sort_action=True,
-                        editable=True,
-                        row_deletable=True,
-                        style_header={
-                            "backgroundColor": "rgb(230, 249, 255)",
-                            "fontWeight": "bold",
-                        },
-                        style_cell={
-                            "fontFamily": "IBM Plex Sans",
-                            "textAlign": "centered",
-                            "whiteSpace": "normal",
-                        },
-                        css=[
-                            {
-                                "selector": ".dash-cell div.dash-cell-value",
-                                "rule": "display: inline; white-space: inherit; overflow: inherit; text-overflow: inherit;",
-                            }
-                        ],
-                        style_cell_conditional=[
-                            {"if": {"column_id": "Material ID"}, "width": "20%"},
-                            {"if": {"column_id": "Formula"}, "width": "20%"},
-                        ],
-                    )
-                ),
-                Button(
-                    "Add Custom Entry",
-                    id=self.id("editing-rows-button"),
-                    kind="primary",
-                    n_clicks=0,
-                ),
-                html.P("Enter composition and formation energy per atom."),
-            ]
+            id=self.id("pourbaix-div"),
         )
 
-        return {"graph": graph, "table": table}
+        return {"graph": graph}
 
     @property
     def standard_layout(self):
@@ -431,7 +209,7 @@ class PourbaixDiagramComponent(MPComponent):
                 Columns(
                     [
                         Column(self.all_layouts["graph"]),
-                        Column(self.all_layouts["table"]),
+                        # Column(self.all_layouts["table"]),
                     ],
                     centered=True,
                 )
@@ -440,7 +218,7 @@ class PourbaixDiagramComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("pd-div"), "children"), [Input(self.id("figure"), "data")]
+            Output(self.id("pourbaix-div"), "children"), [Input(self.id("figure"), "data")]
         )
         def update_graph(figure):
             if figure is None:
@@ -469,190 +247,44 @@ class PourbaixDiagramComponent(MPComponent):
                 ]
                 return plot
 
-        @app.callback(Output(self.id("figure"), "data"), [Input(self.id(), "data")])
-        def make_figure(pd):
-            if pd is None:
+        @app.callback(Output(self.id("figure"), "data"), [Input(self.id(), "pourbaix_data")])
+        def make_figure(pourbaix_diagram):
+            if pourbaix_diagram is None:
                 raise PreventUpdate
 
-            pd = self.from_data(pd)
-            dim = pd.dim
+            pourbaix_diagram = self.from_data(pourbaix_diagram)
 
-            if dim not in [2, 3, 4]:
-                return "error"
-
-            plotter = PDPlotter(pd)
-
-            data = []
-            for line in plotter.pd_plot_data[0]:
-                if dim == 2 or dim == 3:
-                    data.append(
-                        go.Scatter(
-                            x=list(line[0]),
-                            y=list(line[1]),  # create all phase diagram lines
-                            mode="lines",
-                            hoverinfo="none",
-                            line={
-                                "color": "rgba (0, 0, 0, 1)",
-                                "dash": "solid",
-                                "width": 3.0,
-                            },
-                            showlegend=False,
-                        )
-                    )
-
-                elif dim == 4:
-                    data.append(
-                        go.Scatter3d(
-                            x=list(line[0]),
-                            y=list(line[1]),
-                            z=list(line[2]),
-                            mode="lines",
-                            hoverinfo="none",
-                            line={
-                                "color": "rgba (0, 0, 0, 1)",
-                                "dash": "solid",
-                                "width": 3.0,
-                            },
-                            showlegend=False,
-                        )
-                    )
-
-            data.append(self.create_unstable_markers(plotter, pd))
-            data.append(self.create_markers(plotter, pd))
-
-            fig = go.Figure(data=data)
-            fig.layout = self.figure_layout(plotter, pd)
+            fig = go.Figure()
+            fig.layout = self.figure_layout(pourbaix_diagram)
 
             return fig
 
-        @app.callback(Output(self.id(), "data"), [Input(self.id("entries"), "data")])
-        def create_pd_object(entries):
-            if entries is None or not entries:
+        @app.callback(Output(self.id(), "pourbaix_data"), [Input(self.id("pourbaix_entries"), "data")])
+        def create_pbx_object(pourbaix_entries):
+            if pourbaix_entries is None or not pourbaix_entries:
                 raise PreventUpdate
 
-            entries = self.from_data(entries)
+            pourbaix_entries = self.from_data(pourbaix_entries)
 
-            return self.to_data(PhaseDiagram(entries))
-
-        @app.callback(
-            Output(self.id("entries"), "data"),
-            [Input(self.id("entry-table"), "derived_virtual_data")],
-        )
-        def update_entries_store(rows):
-            if rows is None:
-                raise PreventUpdate
-            entries = []
-            for row in rows:
-                try:
-                    comp = Composition(row["Formula"])
-                    energy = row["Formation Energy (eV/atom)"]
-                    if row["Material ID"] is None:
-                        attribute = "Custom Entry"
-                    else:
-                        attribute = row["Material ID"]
-                    # create new entry object containing mpid as attribute (to combine with custom entries)
-                    entry = PDEntry(
-                        comp, float(energy) * comp.num_atoms, attribute=attribute
-                    )
-                    entries.append(entry)
-                except:
-                    continue
-
-            if not entries:
-                raise PreventUpdate
-
-            return self.to_data(entries)
-
-        @app.callback(
-            Output(self.id("entry-table"), "data"),
-            [
-                Input(self.id("chemsys-internal"), "data"),
-                Input(self.id(), "modified_timestamp"),
-                Input(self.id("editing-rows-button"), "n_clicks"),
-            ],
-            [State(self.id(), "data"), State(self.id("entry-table"), "data")],
-        )
-        def create_table(chemsys, pd_time, n_clicks, pd, rows):
-
-            ctx = dash.callback_context
-
-            if ctx is None or not ctx.triggered or chemsys is None:
-                raise PreventUpdate
-
-            trigger = ctx.triggered[0]
-
-            # PD update trigger
-            if trigger["prop_id"] == self.id() + ".modified_timestamp":
-                table_content = self.create_table_content(self.from_data(pd))
-                return table_content
-            elif trigger["prop_id"] == self.id("editing-rows-button") + ".n_clicks":
-                if n_clicks > 0 and rows:
-                    rows.append(self.empty_row)
-                    return rows
-
-            with MPRester() as mpr:
-                entries = mpr.get_pourbaix_entries(chemsys)
-
-            pd = PourbaixDiagram(entries)
-            table_content = self.create_table_content(pd)
-
-            return table_content
-
-        @app.callback(
-            Output(self.id("chemsys-internal"), "data"),
-            [
-                Input(self.id("mpid"), "data"),
-                Input(self.id("struct"), "data"),
-                Input(self.id("chemsys-external"), "data"),
-            ],
-        )
-        def get_chemsys_from_struct_mpid(mpid, struct, chemsys_x):
-            ctx = dash.callback_context
-
-            if ctx is None or not ctx.triggered:
-                raise PreventUpdate
-
-            trigger = ctx.triggered[0]
-
-            if trigger["value"] is None:
-                raise PreventUpdate
-
-            # mpid trigger
-            if trigger["prop_id"] == self.id("mpid") + ".data":
-                with MPRester() as mpr:
-                    entry = mpr.get_entry_by_material_id(mpid)
-
-                chemsys = [str(elem) for elem in entry.composition.elements]
-
-            # struct trigger
-            if trigger["prop_id"] == self.id("struct") + ".data":
-                chemsys = [
-                    str(elem) for elem in self.from_data(struct).composition.elements
-                ]
-
-            # external chemsys trigger (e.g. searching by chemsys in the Synthesis App)
-            if trigger["prop_id"] == self.id("chemsys-external") + ".data":
-                chemsys = chemsys_x
-
-            return chemsys
+            return self.to_data(PourbaixDiagram(pourbaix_entries))
 
 
-class PhaseDiagramPanelComponent(PanelComponent):
+class PourbaixDiagramPanelComponent(PanelComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pd_component = PhaseDiagramComponent()
-        self.pd_component.attach_from(self, this_store_name="struct")
+        self.pourbaix_component = PourbaixDiagramComponent()
+        self.pourbaix_component.attach_from(self, this_store_name="struct")
 
     @property
     def title(self):
-        return "Phase Diagram"
+        return "Pourbaix Diagram"
 
     @property
     def description(self):
         return (
-            "Display the compositional phase diagram for the"
+            "Display the pourbaix diagram for the"
             " chemical system containing this structure (between 2–4 species)."
         )
 
     def update_contents(self, new_store_contents, *args):
-        return self.pd_component.standard_layout
+        return self.pourbaix_component.standard_layout
