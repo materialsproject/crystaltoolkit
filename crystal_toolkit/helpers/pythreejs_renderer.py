@@ -173,7 +173,7 @@ def _get_line_from_vec(v0, v1, d_args):
     logger.debug(args)
     line = LineSegments2(
         LineSegmentsGeometry(positions=[[v0, v1]]),
-        LineMaterial(**args),  ## Get defaullt colors and dash working
+        LineDashedMaterial(**args),  ## Get defaullt colors and dash working
     )
     return line
 
