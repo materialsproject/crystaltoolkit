@@ -222,8 +222,10 @@ class PourbaixDiagramComponent(MPComponent):
     @property
     def standard_layout(self):
         return html.Div(
-            # self.all_layouts["options"],
-            self.all_layouts["graph"]
+            children=[
+                self.all_layouts["options"],
+                self.all_layouts["graph"]
+            ]
             # [
             #     Columns(
             #         [
@@ -292,10 +294,10 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(Output(self.id("pourbaix_data"), "data"),
                       [Input(self.id("pourbaix_entries"), "data"),
-                       # Input(self.id("pourbaix_options"), "value")
+                       Input(self.id("pourbaix_options"), "value")
                        ])
         def create_pbx_object(pourbaix_entries,
-                              # pourbaix_options
+                              pourbaix_options
                               ):
             self.logger.debug("Updating entries")
             if pourbaix_entries is None or not pourbaix_entries:
@@ -304,12 +306,12 @@ class PourbaixDiagramComponent(MPComponent):
 
             pourbaix_entries = self.from_data(pourbaix_entries)
 
-            filter_solids = True
-            # if pourbaix_options is not None:
-            #     filter_solids = "filter_solids" in pourbaix_options
-            # else:
-            #     filter_solids = True
-            # print(pourbaix_options)
+            # filter_solids = True
+            if pourbaix_options is not None:
+                filter_solids = "filter_solids" in pourbaix_options
+            else:
+                filter_solids = True
+            print(pourbaix_options)
 
             pourbaix_diagram = PourbaixDiagram(pourbaix_entries,
                                                filter_solids=filter_solids)
