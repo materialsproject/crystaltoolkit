@@ -118,7 +118,7 @@ class PourbaixDiagramComponent(MPComponent):
     }
 
     # TODO: why both plotter and pd
-    def figure_layout(self, pourbaix_diagram, pourbaix_options, show_labels=True, heatmap_entry=None):
+    def figure_layout(self, pourbaix_diagram, pourbaix_options, heatmap_id=None):
         """
 
         Args:
@@ -133,6 +133,8 @@ class PourbaixDiagramComponent(MPComponent):
         shapes = []
         annotations = []
 
+        show_heatmap = "show_heatmap" in pourbaix_options or [] and heatmap_id
+
         for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
             formula = entry.name
             clean_formula = self.clean_formula(formula)
@@ -146,7 +148,10 @@ class PourbaixDiagramComponent(MPComponent):
             path += "Z"
 
             # Fill with turquoise if solution
-            fillcolor = "White" if "Ion" in entry.phase_type else "PaleTurquoise"
+            if not show_heatmap:
+                fillcolor = "White" if "Ion" in entry.phase_type else "PaleTurquoise"
+            else:
+                fillcolor = None
 
             shape = go.layout.Shape(
                 type="path",
@@ -157,27 +162,43 @@ class PourbaixDiagramComponent(MPComponent):
             shapes.append(shape)
 
             # Generate annotation
-            x, y = np.average(vertices, axis=0)
-            annotation = {
-                "align": "center",
-                "font": {"color": "#000000", "size": 20.0},
-                "opacity": 1,
-                "showarrow": False,
-                "text": clean_formula,
-                "x": x,
-                "xanchor": "center",
-                "yanchor": "auto",
-                "xshift": -10,
-                "yshift": -10,
-                "xref": "x",
-                "y": y,
-                "yref": "y",
-            }
+            print(pourbaix_options)
+            if "show_labels" in (pourbaix_options or []):
+                x, y = np.average(vertices, axis=0)
+                annotation = {
+                    "align": "center",
+                    "font": {"color": "#000000", "size": 20.0},
+                    "opacity": 1,
+                    "showarrow": False,
+                    "text": clean_formula,
+                    "x": x,
+                    "xanchor": "center",
+                    "yanchor": "auto",
+                    "xshift": -10,
+                    "yshift": -10,
+                    "xref": "x",
+                    "y": y,
+                    "yref": "y",
+                }
 
-            annotations.append(annotation)
+                annotations.append(annotation)
         layout = self.default_plot_style
         layout.update({"shapes": shapes,
-                       "annotations": annotations})
+                       "annotations": annotations,
+                       })
+
+        # if show_heatmap:
+        #     # Find entry
+        #     print("Finding {}".format(heatmap_id))
+        #     entry = [entry for entry in pourbaix_diagram._unprocessed_entries
+        #              if heatmap_id in entry.entry_id][0]
+        #     ph = np.arange(-2, 16, 0.1)
+        #     v = np.arange(-2, 4, 0.1)
+        #     ph, v = np.meshgrid(ph, v)
+        #     decomposition_e = pourbaix_diagram.get_decomposition_energy(entry, ph, v)
+        #     hmap = go.Heatmap(x=ph, y=v, z=decomposition_e)
+        #     layout.update({"data": hmap})
+
         return layout
 
     # TODO: format formula
@@ -200,7 +221,7 @@ class PourbaixDiagramComponent(MPComponent):
                              {"label": "Show labels", "value": "show_labels"},
                              {"label": "Filter solids", "value": "filter_solids"}
                              ],
-                    value = ["filter_solids"],
+                    value = ["filter_solids", "show_labels"],
                     id=self.id("pourbaix_options")
                 )
             ]
@@ -273,22 +294,45 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(Output(self.id("figure"), "data"),
                       [Input(self.id("pourbaix_data"), "data"),
-                       # Input(self.id("pourbaix_options"), "value")
+                       Input(self.id("pourbaix_options"), "value"),
+                       Input(self.id("struct"), "data")
                        ])
         def make_figure(pourbaix_diagram,
-                        # pourbaix_options
+                        pourbaix_options,
+                        struct
                         ):
             if pourbaix_diagram is None:
                 raise PreventUpdate
-            print("Making figure")
+            print("Making figure for {}".format(struct))
 
             pourbaix_diagram = self.from_data(pourbaix_diagram)
 
-            fig = go.Figure()
+
+
+            # TODO: fix mpid problem.  Can't attach from mpid without it being a structure.
+            if "show_heatmap" in (pourbaix_options or []):
+                struct = self.from_data(struct)
+                with MPRester() as mpr:
+                    # Should probably enable fetching pourbaix entry
+                    # by mpid in MPRester
+                    heatmap_id = mpr.find_structure(struct)[0]
+
+                # Find entry
+                print("Finding {}".format(heatmap_id))
+                entry = [entry for entry in pourbaix_diagram._unprocessed_entries
+                         if heatmap_id in entry.entry_id][0]
+                ph = np.arange(-2, 16, 0.1)
+                v = np.arange(-2, 4, 0.1)
+                ph, v = np.meshgrid(ph, v)
+                decomposition_e = pourbaix_diagram.get_decomposition_energy(entry, ph, v)
+                hmap = go.Heatmap(x=ph, y=v, z=decomposition_e)
+            else:
+                hmap = None
+
+            fig = go.Figure(data=hmap)
             fig.layout = self.figure_layout(pourbaix_diagram,
-                                            None,
-                                            # pourbaix_options
-                                            )
+                                            pourbaix_options)
+
             print("Figure complete")
             return fig
 
@@ -327,6 +371,7 @@ class PourbaixDiagramComponent(MPComponent):
             ],
         )
         def get_chemsys_from_struct_mpid(mpid, struct):
+            print("getting chemsys")
             ctx = dash.callback_context
 
             if ctx is None or not ctx.triggered:
@@ -340,12 +385,16 @@ class PourbaixDiagramComponent(MPComponent):
             # mpid trigger
             if trigger["prop_id"] == self.id("mpid") + ".data":
                 with MPRester() as mpr:
+                    print("Fetching {}".format(mpid))
+                    print("Fetching {}".format(struct))
                     entry = mpr.get_entry_by_material_id(mpid)
 
                 chemsys = [str(elem) for elem in entry.composition.elements]
 
             # struct trigger
             if trigger["prop_id"] == self.id("struct") + ".data":
+                print("Fetching {}".format(mpid))
+                print("Fetching {}".format(struct))
                 chemsys = [
                     str(elem) for elem in self.from_data(struct).composition.elements
                 ]
