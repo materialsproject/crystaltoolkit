@@ -126,7 +126,6 @@ def view(obj_or_scene, **kwargs):
             "Only Scene objects or objects with get_scene() methods "
             "can be displayed."
         )
-    return scene 
     display_scene(scene)
 
 
