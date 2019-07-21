@@ -3,14 +3,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import plotly.graph_objs as go
-import numpy as np
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
+import numpy as np
+import re
 from pymatgen import MPRester
 from pymatgen.core.composition import Composition
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixPlotter, \
-    PourbaixEntry, MultiEntry
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, generate_entry_label
 
 from crystal_toolkit.helpers.layouts import Columns, Column, MessageContainer, \
     MessageBody # layout helpers like `Columns` etc. (most subclass html.Div)
@@ -23,20 +23,22 @@ __email__ = "joseph.montoya@tri.global"
 
 
 class PourbaixDiagramComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, pourbaix_diagram=None, **kwargs):
+        super().__init__(**kwargs)
         self.create_store("mpid")
         self.create_store("struct")
         self.create_store("figure")
         self.create_store("pourbaix_entries")
+        self.create_store("pourbaix_options")
+        self.create_store("pourbaix_data", initial_data=self.to_data(pourbaix_diagram))
 
-    # Default plot layouts for Binary (2), Ternary (3), Quaternary (4) phase diagrams
+
     default_plot_style = dict(
         xaxis={
             "title": "pH",
             "anchor": "y",
             "mirror": "ticks",
-            "nticks": 8,
+            # "nticks": 8,
             "showgrid": False,
             "showline": True,
             "side": "bottom",
@@ -45,12 +47,14 @@ class PourbaixDiagramComponent(MPComponent):
             "titlefont": {"color": "#000000", "size": 24.0},
             "type": "linear",
             "zeroline": False,
+            "range": [-2, 16]
         },
         yaxis={
             "title": "Applied Potential (V vs. SHE)",
             "anchor": "x",
             "mirror": "ticks",
-            "nticks": 7,
+            "range": [-2, 4],
+            # "nticks": 7,
             "showgrid": False,
             "showline": True,
             "side": "left",
@@ -114,24 +118,23 @@ class PourbaixDiagramComponent(MPComponent):
     }
 
     # TODO: why both plotter and pd
-    def figure_layout(self, pourbaix_diagram):
+    def figure_layout(self, pourbaix_diagram, pourbaix_options, show_labels=True, heatmap_entry=None):
         """
 
         Args:
             pourbaix_diagram (PourbaixDiagram): pourbaix diagram to plot
+            pourbaix_options (PourbaixDiagram): pourbaix diagram to plot
 
         Returns:
             (dict) figure layout
 
         """
-        dim = len(pourbaix_diagram.pourbaix_elements)
 
         shapes = []
         annotations = []
 
         for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
-            formula = list(entry.name)
-
+            formula = entry.name
             clean_formula = self.clean_formula(formula)
 
             # Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
@@ -141,11 +144,15 @@ class PourbaixDiagramComponent(MPComponent):
             path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
             # Close path
             path += "Z"
+
+            # Fill with turquoise if solution
+            fillcolor = "White" if "Ion" in entry.phase_type else "PaleTurquoise"
+
             shape = go.layout.Shape(
                 type="path",
                 path=path,
-                fillcolor="Gray",
-                linecolor="Black"
+                fillcolor=fillcolor,
+                line_color="Black"
             )
             shapes.append(shape)
 
@@ -158,7 +165,7 @@ class PourbaixDiagramComponent(MPComponent):
                 "showarrow": False,
                 "text": clean_formula,
                 "x": x,
-                "xanchor": "right",
+                "xanchor": "center",
                 "yanchor": "auto",
                 "xshift": -10,
                 "yshift": -10,
@@ -173,21 +180,31 @@ class PourbaixDiagramComponent(MPComponent):
                        "annotations": annotations})
         return layout
 
+    # TODO: format formula
     @staticmethod
     def clean_formula(formula):
-        s = []
-        for char in formula:
-            if char.isdigit():
-                s.append(f"<sub>{char}</sub>")
-            else:
-                s.append(char)
+        # Superscript charges
+        clean_formula = re.sub(r"\[([0-9+-]+)\]", r"<sup>\1</sup>", formula)
 
-        clean_formula = "".join(s)
-
+        # Subscript coefficients
+        clean_formula = re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", clean_formula)
         return clean_formula
 
     @property
     def all_layouts(self):
+
+        options = html.Div(
+            [
+                dcc.Checklist(
+                    options=[{"label": "Show heatmap", "value": "show_heatmap"},
+                             {"label": "Show labels", "value": "show_labels"},
+                             {"label": "Filter solids", "value": "filter_solids"}
+                             ],
+                    value = ["filter_solids"],
+                    id=self.id("pourbaix_options")
+                )
+            ]
+        )
 
         graph = html.Div(
             [
@@ -200,20 +217,22 @@ class PourbaixDiagramComponent(MPComponent):
             id=self.id("pourbaix-div"),
         )
 
-        return {"graph": graph}
+        return {"graph": graph, "options": options}
 
     @property
     def standard_layout(self):
         return html.Div(
-            [
-                Columns(
-                    [
-                        Column(self.all_layouts["graph"]),
-                        # Column(self.all_layouts["table"]),
-                    ],
-                    centered=True,
-                )
-            ]
+            # self.all_layouts["options"],
+            self.all_layouts["graph"]
+            # [
+            #     Columns(
+            #         [
+            #             Column(self.all_layouts["graph"]),
+            #             # Column(self.all_layouts["table"]),
+            #         ],
+            #         centered=True,
+            #     )
+            # ]
         )
 
     def generate_callbacks(self, app, cache):
@@ -221,7 +240,9 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("pourbaix-div"), "children"), [Input(self.id("figure"), "data")]
         )
         def update_graph(figure):
+            print("Updating graph")
             if figure is None:
+                print("Prevent")
                 raise PreventUpdate
             elif figure == "error":
                 search_error = (
@@ -239,6 +260,7 @@ class PourbaixDiagramComponent(MPComponent):
                 return search_error
 
             else:
+                print("Plot")
                 plot = [
                     dcc.Graph(
                         figure=figure,
@@ -247,26 +269,89 @@ class PourbaixDiagramComponent(MPComponent):
                 ]
                 return plot
 
-        @app.callback(Output(self.id("figure"), "data"), [Input(self.id(), "pourbaix_data")])
-        def make_figure(pourbaix_diagram):
+        @app.callback(Output(self.id("figure"), "data"),
+                      [Input(self.id(), "pourbaix_data"),
+                       # Input(self.id("pourbaix_options"), "value")
+                       ])
+        def make_figure(pourbaix_diagram,
+                        # pourbaix_options
+                        ):
             if pourbaix_diagram is None:
                 raise PreventUpdate
+            print("Making figure")
 
             pourbaix_diagram = self.from_data(pourbaix_diagram)
 
             fig = go.Figure()
-            fig.layout = self.figure_layout(pourbaix_diagram)
-
+            fig.layout = self.figure_layout(pourbaix_diagram,
+                                            None,
+                                            # pourbaix_options
+                                            )
+            print("Figure complete")
             return fig
 
-        @app.callback(Output(self.id(), "pourbaix_data"), [Input(self.id("pourbaix_entries"), "data")])
-        def create_pbx_object(pourbaix_entries):
+        @app.callback(Output(self.id(), "pourbaix_data"),
+                      [Input(self.id("pourbaix_entries"), "data"),
+                       # Input(self.id("pourbaix_options"), "value")
+                       ])
+        def create_pbx_object(pourbaix_entries,
+                              # pourbaix_options
+                              ):
+            self.logger.debug("Updating entries")
             if pourbaix_entries is None or not pourbaix_entries:
+                self.logger.debug("Preventing updating entries")
                 raise PreventUpdate
 
             pourbaix_entries = self.from_data(pourbaix_entries)
 
-            return self.to_data(PourbaixDiagram(pourbaix_entries))
+            filter_solids = True
+            # if pourbaix_options is not None:
+            #     filter_solids = "filter_solids" in pourbaix_options
+            # else:
+            #     filter_solids = True
+            # print(pourbaix_options)
+
+            pourbaix_diagram = PourbaixDiagram(pourbaix_entries,
+                                               filter_solids=filter_solids)
+            self.logger.debug("Generated pourbaix diagram")
+            return self.to_data(pourbaix_diagram)
+
+        # Add arbitrary chemsys?
+        @app.callback(
+            Output(self.id("pourbaix_entries"), "data"),
+            [
+                Input(self.id("mpid"), "data"),
+                Input(self.id("struct"), "data"),
+            ],
+        )
+        def get_chemsys_from_struct_mpid(mpid, struct):
+            ctx = dash.callback_context
+
+            if ctx is None or not ctx.triggered:
+                raise PreventUpdate
+
+            trigger = ctx.triggered[0]
+
+            if trigger["value"] is None:
+                raise PreventUpdate
+
+            # mpid trigger
+            if trigger["prop_id"] == self.id("mpid") + ".data":
+                with MPRester() as mpr:
+                    entry = mpr.get_entry_by_material_id(mpid)
+
+                chemsys = [str(elem) for elem in entry.composition.elements]
+
+            # struct trigger
+            if trigger["prop_id"] == self.id("struct") + ".data":
+                chemsys = [
+                    str(elem) for elem in self.from_data(struct).composition.elements
+                ]
+
+            with MPRester() as mpr:
+                pourbaix_entries = mpr.get_pourbaix_entries(chemsys)
+
+            return self.to_data(pourbaix_entries)
 
 
 class PourbaixDiagramPanelComponent(PanelComponent):
