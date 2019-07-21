@@ -12,6 +12,7 @@ from pythreejs import (
     LineSegments2,
     LineSegmentsGeometry,
     LineMaterial,
+    LineDashedMaterial,
     Scene,
     AmbientLight,
     Renderer,
@@ -100,7 +101,8 @@ def convert_object_to_pythreejs(scene_obj):
             obs.append(obj3d)
     elif scene_obj.type == "lines":
         for ipos, jpos in zip(scene_obj.positions[::2], scene_obj.positions[1::2]):
-            obj3d = _get_line_from_vec(tuple(ipos), tuple(jpos))
+            logger.debug(scene_obj.__dict__)
+            obj3d = _get_line_from_vec(tuple(ipos), tuple(jpos), scene_obj.__dict__)
             obs.append(obj3d)
     else:
         warnings.warn(
@@ -166,10 +168,13 @@ def display_scene(scene):
     display(renderer)
 
 
-def _get_line_from_vec(v0, v1):
+def _get_line_from_vec(v0, v1, d_args):
+    allowed_args = ['linewidth', 'color']
+    args = {k:v for k, v in d_args.items() if k in allowed_args}
+    logger.debug(args)
     line = LineSegments2(
         LineSegmentsGeometry(positions=[[v0, v1]]),
-        LineMaterial(linewidth=3, color="black"),
+        LineMaterial(**args),  ## Get defaullt colors and dash working
     )
     return line
 

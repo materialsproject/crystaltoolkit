@@ -360,7 +360,7 @@ class Lines(Primitive):
         return cls(
             positions=new_positions,
             color=line_list[0].color,
-            lineWidth=line_list[0].lineWidth,
+            linewidth=line_list[0].lineWidth,
             scale=line_list[0].scale,
             dashSize=line_list[0].dashSize,
             gapSize=line_list[0].gapSize,
