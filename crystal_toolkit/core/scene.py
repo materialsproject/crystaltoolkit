@@ -326,7 +326,7 @@ class Lines(Primitive):
     position of a line segment (line segments do not have to be joined
     together).
     :param color: Line color as a hexadecimal string, e.g. #ff0000
-    :param lineWidth: The width of the line, defaults to 1
+    :param linewidth: The width of the line, defaults to 1
     :param scale: Optional, if provided will set a global scale for line dashes.
     :param dashSize: Optional, if provided will specify length of line dashes.
     :param gapSize: Optional, if provided will specify gap between line dashes.
@@ -338,7 +338,7 @@ class Lines(Primitive):
 
     positions: List[List[float]]
     color: str = None
-    lineWidth: float = None
+    linewidth: float = None
     scale: float = None
     dashSize: float = None
     gapSize: float = None
