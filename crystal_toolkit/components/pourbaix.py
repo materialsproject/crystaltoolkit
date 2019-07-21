@@ -270,7 +270,7 @@ class PourbaixDiagramComponent(MPComponent):
                 return plot
 
         @app.callback(Output(self.id("figure"), "data"),
-                      [Input(self.id(), "pourbaix_data"),
+                      [Input(self.id("pourbaix_data"), "data"),
                        # Input(self.id("pourbaix_options"), "value")
                        ])
         def make_figure(pourbaix_diagram,
@@ -290,7 +290,7 @@ class PourbaixDiagramComponent(MPComponent):
             print("Figure complete")
             return fig
 
-        @app.callback(Output(self.id(), "pourbaix_data"),
+        @app.callback(Output(self.id("pourbaix_data"), "data"),
                       [Input(self.id("pourbaix_entries"), "data"),
                        # Input(self.id("pourbaix_options"), "value")
                        ])
