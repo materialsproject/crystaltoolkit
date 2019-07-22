@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
 from itertools import chain
@@ -13,6 +13,26 @@ a list of any of the geometric primitives defined below (e.g. Spheres,
 Cylinders, etc.) or can be another Scene. Then use scene_to_json() to convert
 the Scene to the JSON format to pass to Simple3DSceneComponent's data attribute.
 """
+
+
+class Primitive:
+    """
+    A Mixin class for standard plottable primitive behavior
+    For now, this just enforces some basic mergeability
+    """
+
+    @abstractproperty
+    def key(self):
+        raise NotImplementedError
+
+    @classmethod
+    def merge(cls, items):
+        raise NotImplementedError
+
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        x, y, z = zip(*self.positions)
+        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
 
 
 @dataclass
@@ -67,6 +87,23 @@ class Scene:
 
         return remove_defaults(asdict(merged_scene))
 
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        """
+        Returns the boundinx box coordinates 
+        """
+        
+        x_extents, y_extents, z_extents = zip(*[p.bounding_box for p in self.contents])
+        
+        min_x = min([x[0] for x in x_extents])
+        max_x = max([x[1] for x in x_extents])
+        min_y = min([y[0] for y in y_extents])
+        max_y = max([y[1] for y in y_extents])
+        min_z = min([z[0] for z in z_extents])
+        max_z = max([z[1] for z in z_extents])
+
+        return [[min_x, max_x], [min_y, max_y], [min_z, max_z]]
+
     @staticmethod
     def merge_primitives(primitives):
         """
@@ -75,94 +112,25 @@ class Scene:
         :param primitives: list of primitives (Spheres, Cylinders, etc.)
         :return: list of primitives
         """
-        spheres = defaultdict(list)
-        cylinders = defaultdict(list)
+        mergable = defaultdict(list)
         remainder = []
 
         for primitive in primitives:
             if isinstance(primitive, Scene):
                 primitive.contents = Scene.merge_primitives(primitive.contents)
                 remainder.append(primitive)
-            elif isinstance(primitive, Spheres):
-                key = f"{primitive.color}_{primitive.radius}_{primitive.phiStart}_{primitive.phiEnd}"
-                spheres[key].append(primitive)
-            elif isinstance(primitive, Cylinders):
-                key = f"{primitive.color}_{primitive.radius}"
-                cylinders[key].append(primitive)
+            elif isinstance(primitive, Primitive):
+                mergable[primitive.key].append(primitive)
             else:
                 remainder.append(primitive)
 
-        new_spheres = []
-        for key, sphere_list in spheres.items():
-            new_positions = list(
-                chain.from_iterable([sphere.positions for sphere in sphere_list])
-            )
-            new_ellipsoids = None
-            has_ellipsoids = any(
-                [
-                    sphere.ellipsoids["rotations"] if sphere.ellipsoids else None
-                    for sphere in sphere_list
-                ]
-            )
-            if has_ellipsoids:
-                warn("Merging of ellipsoids doesn't work yet.")
-                # TODO: should re-think how ellipsoids are stored, dict format is awkward
-            # new_ellipsoids_rotations = list(
-            #    chain.from_iterable(
-            #        [
-            #            sphere.ellipsoids["rotations"] if sphere.ellipsoids else None
-            #            for sphere in sphere_list
-            #        ]
-            #    )
-            # )
-            # new_ellipsoids_scales = list(
-            #    chain.from_iterable(
-            #        [
-            #            sphere.ellipsoids["scales"] if sphere.ellipsoids else None
-            #            for sphere in sphere_list
-            #        ]
-            #    )
-            # )
-            # if any(new_ellipsoids_rotations):
-            #    new_ellipsoids = {
-            #        "rotations": new_ellipsoids_rotations,
-            #        "scales": new_ellipsoids_scales,
-            #    }
-            # else:
-            #    new_ellipsoids = None
-            new_spheres.append(
-                Spheres(
-                    positions=new_positions,
-                    color=sphere_list[0].color,
-                    radius=sphere_list[0].radius,
-                    phiStart=sphere_list[0].phiStart,
-                    phiEnd=sphere_list[0].phiEnd,
-                    ellipsoids=new_ellipsoids,
-                    visible=sphere_list[0].visible,
-                )
-            )
+        merged = [v[0].merge(v) for v in mergable.values()]
 
-        new_cylinders = []
-        for key, cylinder_list in cylinders.items():
-            new_positionPairs = list(
-                chain.from_iterable(
-                    [cylinder.positionPairs for cylinder in cylinder_list]
-                )
-            )
-            new_cylinders.append(
-                Cylinders(
-                    positionPairs=new_positionPairs,
-                    color=cylinder_list[0].color,
-                    radius=cylinder_list[0].radius,
-                    visible=cylinder_list[0].visible,
-                )
-            )
-
-        return new_spheres + new_cylinders + remainder
+        return merged + remainder
 
 
 @dataclass
-class Spheres:
+class Spheres(Primitive):
     """
     Create a set of spheres. All spheres will have the same color, radius and
     segment size (if only drawing a section of a sphere).
@@ -174,14 +142,10 @@ class Spheres:
     sphere, defaults to 0
     :param phiEnd: End angle in radians if drawing only a section of the
     sphere, defaults to 2*pi
-    :param ellipsoids: Any distortions to apply to the sphere to display
-    ellipsoids. This is a dictionary with two keys, "rotations" and "scales",
-    where rotations refers to the vector relative to (1, 0, 0) to rotate the
-    ellipsoid major axis to align with, and scales refers to the vector to scale
-    the ellipsoid by along x, y and z. The dictionary values should be lists of
-    lists of the same length as positions, corresponding to a unique
-    rotation/scale for each sphere.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positions: List[List[float]]
@@ -189,14 +153,89 @@ class Spheres:
     radius: Optional[float] = None
     phiStart: Optional[float] = None
     phiEnd: Optional[float] = None
-    ellipsoids: Optional[Dict[str, List[List[float]]]] = None
     type: str = field(default="spheres", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
+
+    @property
+    def key(self):
+        return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}_{self.reference}"
+
+    @classmethod
+    def merge(cls, sphere_list):
+        new_positions = list(
+            chain.from_iterable([sphere.positions for sphere in sphere_list])
+        )
+        return cls(
+            positions=new_positions,
+            color=sphere_list[0].color,
+            radius=sphere_list[0].radius,
+            phiStart=sphere_list[0].phiStart,
+            phiEnd=sphere_list[0].phiEnd,
+            visible=sphere_list[0].visible,
+        )
 
 
 @dataclass
-class Cylinders:
+class Ellipsoids(Primitive):
+    """
+    Create a set of ellipsoids. All ellipsoids will have the same color, radius and
+    segment size (if only drawing a section of a ellipsoid).
+    :param scale: This is the scale to apply to the x,y and z axis of the ellipsoid prior to rotation to the target axes
+    :param positions: This is a list of lists corresponding to the vector
+    positions of the ellipsoids.
+    :param rotate_to: This is a list of vectors that specify the direction the major axis of the ellipsoid should point towards. The major axis is the z-axis: (0,0,1)
+    :param color: Ellipsoid color as a hexadecimal string, e.g. #ff0000
+    :param phiStart: Start angle in radians if drawing only a section of the
+    ellipsoid, defaults to 0
+    :param phiEnd: End angle in radians if drawing only a section of the
+    ellipsoid, defaults to 2*pi
+    :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
+    """
+
+    scale: List[float]
+    positions: List[List[float]]
+    rotate_to: List[List[float]]
+    color: Optional[str] = None
+    phiStart: Optional[float] = None
+    phiEnd: Optional[float] = None
+    type: str = field(default="ellipsoids", init=False)  # private field
+    visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
+    _meta: Any = None
+
+    @property
+    def key(self):
+        return f"ellipsoid_{self.color}_{self.scale}_{self.phiStart}_{self.phiEnd}_{self.reference}"
+
+    @classmethod
+    def merge(cls, ellipsoid_list):
+        new_positions = list(
+            chain.from_iterable([ellipsoid.positions for ellipsoid in ellipsoid_list])
+        )
+        rotate_to = list(
+            chain.from_iterable([ellipsoid.rotate_to for ellipsoid in ellipsoid_list])
+        )
+
+        return cls(
+            positions=new_positions,
+            rotate_to=rotate_to,
+            scale=ellipsoid_list[0].scale,
+            color=ellipsoid_list[0].color,
+            phiStart=ellipsoid_list[0].phiStart,
+            phiEnd=ellipsoid_list[0].phiEnd,
+            visible=ellipsoid_list[0].visible,
+        )
+
+
+@dataclass
+class Cylinders(Primitive):
     """
     Create a set of cylinders. All cylinders will have the same color and
     radius.
@@ -205,6 +244,9 @@ class Cylinders:
     :param color: Cylinder color as a hexadecimal string, e.g. #ff0000
     :param radius: The radius of the cylinder, defaults to 1.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positionPairs: List[List[List[float]]]
@@ -212,11 +254,35 @@ class Cylinders:
     radius: Optional[float] = None
     type: str = field(default="cylinders", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
+
+    @property
+    def key(self):
+        return f"cyclinder_{self.color}_{self.radius}_{self.reference}"
+
+    @classmethod
+    def merge(cls, cylinder_list):
+
+        new_positionPairs = list(
+            chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
+        )
+        return cls(
+            positionPairs=new_positionPairs,
+            color=cylinder_list[0].color,
+            radius=cylinder_list[0].radius,
+            visible=cylinder_list[0].visible,
+        )
+
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        x, y, z = zip(*chain.from_iterable(self.positionPairs))
+        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
 
 
 @dataclass
-class Cubes:
+class Cubes(Primitive):
     """
     Create a set of cubes. All cubes will have the same color and width.
     :param positions: This is a list of lists corresponding to the vector
@@ -224,6 +290,9 @@ class Cubes:
     :param color: Cube color as a hexadecimal string, e.g. #ff0000
     :param width: The width of the cube, defaults to 1.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positions: List[List[float]]
@@ -231,11 +300,29 @@ class Cubes:
     width: Optional[float] = None
     type: str = field(default="cubes", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
+
+    @property
+    def key(self):
+        return f"cube_{self.color}_{self.width}_{self.reference}"
+
+    @classmethod
+    def merge(cls, cube_list):
+        new_positions = list(
+            chain.from_iterable([cube.positions for cube in cube_list])
+        )
+        return cls(
+            positions=new_positions,
+            color=cube_list[0].color,
+            width=cube_list[0].width,
+            visible=cube_list[0].visible,
+        )
 
 
 @dataclass
-class Lines:
+class Lines(Primitive):
     """
     Create a set of lines. All lines will have the same color, thickness and
     (optional) dashes.
@@ -249,6 +336,9 @@ class Lines:
     :param dashSize: Optional, if provided will specify length of line dashes.
     :param gapSize: Optional, if provided will specify gap between line dashes.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positions: List[List[float]]
@@ -259,7 +349,28 @@ class Lines:
     gapSize: float = None
     type: str = field(default="lines", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
+
+    @property
+    def key(self):
+        return f"line_{self.color}_{self.lineWidth}_{self.dashSize}_{self.gapSize}_{self.reference}"
+
+    @classmethod
+    def merge(cls, line_list):
+        new_positions = list(
+            chain.from_iterable([line.positions for line in line_list])
+        )
+        return cls(
+            positions=new_positions,
+            color=line_list[0].color,
+            lineWidth=line_list[0].lineWidth,
+            scale=line_list[0].scale,
+            dashSize=line_list[0].dashSize,
+            gapSize=line_list[0].gapSize,
+            visible=line_list[0].visible,
+        )
 
 
 @dataclass
@@ -276,6 +387,8 @@ class Surface:
     opacity: float = None
     type: str = field(default="surface", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
 
@@ -294,11 +407,13 @@ class Convex:
     opacity: float = None
     type: str = field(default="convex", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
 
 @dataclass
-class Arrows:
+class Arrows(Primitive):
     """
     Create a set of arrows. All arrows will have the same color radius and
     head shape.
@@ -307,6 +422,9 @@ class Arrows:
     :param color: Cylinder color as a hexadecimal string, e.g. #ff0000
     :param radius: The radius of the cylinder, defaults to 1.
     :param visible: If False, will hide the object by default.
+    :param reference: name to reference the primitive for callback
+    :param clickable: if true, allows this primitive to be clicked
+    and trigger and event
     """
 
     positionPairs: List[List[List[float]]]
@@ -316,7 +434,32 @@ class Arrows:
     headWidth: Optional[float] = None
     type: str = field(default="arrows", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
+
+    @property
+    def key(self):
+        return f"arrow_{self.color}_{self.radius}_{self.headLength}_{self.headWidth}_{self.reference}"
+
+    @classmethod
+    def merge(cls, arrow_list):
+        new_positionPairs = list(
+            chain.from_iterable([arrow.positionPairs for arrow in arrow_list])
+        )
+        return cls(
+            positionPairs=new_positionPairs,
+            color=arrow_list[0].color,
+            radius=arrow_list[0].radius,
+            headLength=arrow_list[0].headLength,
+            headWidth=arrow_list[0].headWidth,
+            visible=arrow_list[0].visible,
+        )
+
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        x, y, z = zip(*chain.from_iterable(self.positionPairs))
+        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
 
 
 # class VolumetricData:
@@ -334,6 +477,8 @@ class Labels:
 
     type: str = field(default="labels", init=False)  # private field
     visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
     _meta: Any = None
 
 
