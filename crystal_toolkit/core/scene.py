@@ -4,6 +4,8 @@ from typing import List, Optional, Dict, Any
 from itertools import chain
 from collections import defaultdict
 from warnings import warn
+import json
+import os
 
 
 """
@@ -14,6 +16,12 @@ Cylinders, etc.) or can be another Scene. Then use scene_to_json() to convert
 the Scene to the JSON format to pass to Simple3DSceneComponent's data attribute.
 """
 
+# Populate the default values from the JSON file
+default_js = os.path.join(os.path.join(os.path.dirname(
+    os.path.abspath(__file__))), "./", "defaults.js")
+print(default_js)
+with open(default_js) as handle:
+    _DEFAULTS = json.loads(handle.read())
 
 class Primitive:
     """
@@ -92,12 +100,14 @@ class Scene:
         """
         Returns the boundinx box coordinates 
         """
+        if len(self.contents) > 0:
+            min_list, max_list = zip(*[p.bounding_box for p in self.contents])
+            min_x, min_y, min_z = map(min, list(zip(*min_list)))
+            max_x, max_y, max_z = map(max, list(zip(*max_list)))
         
-        min_list, max_list = zip(*[p.bounding_box for p in self.contents])
-        min_x, min_y, min_z = map(min, list(zip(*min_list)))
-        max_x, max_y, max_z = map(max, list(zip(*max_list)))
-        
-        return [[min_x, min_y, min_z], [max_x, max_y, max_z]]
+            return [[min_x, min_y, min_z], [max_x, max_y, max_z]]
+        else:
+            return [[0,0,0], [0,0,0]]
 
     @staticmethod
     def merge_primitives(primitives):
@@ -337,8 +347,8 @@ class Lines(Primitive):
     """
 
     positions: List[List[float]]
-    color: str = None
-    linewidth: float = None
+    color: str = _DEFAULTS['Lines']['color']
+    linewidth: float = _DEFAULTS['Lines']['linewidth']
     scale: float = None
     dashSize: float = None
     gapSize: float = None
@@ -350,7 +360,7 @@ class Lines(Primitive):
 
     @property
     def key(self):
-        return f"line_{self.color}_{self.lineWidth}_{self.dashSize}_{self.gapSize}_{self.reference}"
+        return f"line_{self.color}_{self.linewidth}_{self.dashSize}_{self.gapSize}_{self.reference}"
 
     @classmethod
     def merge(cls, line_list):
@@ -360,7 +370,7 @@ class Lines(Primitive):
         return cls(
             positions=new_positions,
             color=line_list[0].color,
-            linewidth=line_list[0].lineWidth,
+            linewidth=line_list[0].linewidth,
             scale=line_list[0].scale,
             dashSize=line_list[0].dashSize,
             gapSize=line_list[0].gapSize,
