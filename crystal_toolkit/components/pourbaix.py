@@ -10,7 +10,7 @@ import numpy as np
 import re
 from pymatgen import MPRester
 from pymatgen.core.composition import Composition
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, generate_entry_label
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, ELEMENTS_HO
 
 from crystal_toolkit.helpers.layouts import Columns, Column, MessageContainer, \
     MessageBody # layout helpers like `Columns` etc. (most subclass html.Div)
@@ -123,7 +123,7 @@ class PourbaixDiagramComponent(MPComponent):
 
         Args:
             pourbaix_diagram (PourbaixDiagram): pourbaix diagram to plot
-            pourbaix_options (PourbaixDiagram): pourbaix diagram to plot
+            pourbaix_options (list): list of pourbaix options
 
         Returns:
             (dict) figure layout
@@ -290,8 +290,10 @@ class PourbaixDiagramComponent(MPComponent):
                     # Should probably enable fetching pourbaix entry
                     # by mpid in MPRester
                     heatmap_id = mpr.find_structure(struct)[0]
+                    print("Found {}".format(heatmap_id))
 
                 # Find entry
+                print([e.entry_id for e in pourbaix_diagram._unprocessed_entries])
                 entry = [entry for entry in pourbaix_diagram._unprocessed_entries
                          if heatmap_id in entry.entry_id][0]
                 ph = np.arange(-2, 16.001, 0.1)
@@ -313,10 +315,12 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(Output(self.id("pourbaix_data"), "data"),
                       [Input(self.id("pourbaix_entries"), "data"),
-                       Input(self.id("pourbaix_options"), "value")
+                       Input(self.id("pourbaix_options"), "value"),
+                       Input(self.id("struct"), "data")
                        ])
         def create_pbx_object(pourbaix_entries,
-                              pourbaix_options
+                              pourbaix_options,
+                              struct
                               ):
             self.logger.debug("Updating entries")
             if pourbaix_entries is None or not pourbaix_entries:
@@ -331,7 +335,12 @@ class PourbaixDiagramComponent(MPComponent):
             else:
                 filter_solids = True
 
-            pourbaix_diagram = PourbaixDiagram(pourbaix_entries,
+            # Get composition from structure
+            struct = self.from_data(struct)
+            comp_dict = {str(elt): coeff for elt, coeff in struct.composition.items()
+                         if elt not in ELEMENTS_HO}
+
+            pourbaix_diagram = PourbaixDiagram(pourbaix_entries, comp_dict=comp_dict,
                                                filter_solids=filter_solids)
             self.logger.debug("Generated pourbaix diagram")
             return self.to_data(pourbaix_diagram)
