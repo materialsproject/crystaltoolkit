@@ -321,13 +321,19 @@ class PourbaixDiagramComponent(MPComponent):
                 print("Finding {}".format(heatmap_id))
                 entry = [entry for entry in pourbaix_diagram._unprocessed_entries
                          if heatmap_id in entry.entry_id][0]
-                ph = np.arange(-2, 16, 0.1)
-                v = np.arange(-2, 4, 0.1)
-                ph, v = np.meshgrid(ph, v)
-                decomposition_e = pourbaix_diagram.get_decomposition_energy(entry, ph, v)
+                ph = np.arange(-2, 16.001, 0.1)
+                v = np.arange(-2, 4.001, 0.1)
+                # ph, v = np.meshgrid(ph, v)
+                decomposition_e = pourbaix_diagram.get_decomposition_energy(entry, *np.meshgrid(ph, v))
+                # Enforce decomposition limit energy
+                decomposition_e = np.min([decomposition_e, np.ones(decomposition_e.shape)], axis=0)
                 hmap = go.Heatmap(x=ph, y=v, z=decomposition_e)
+                # fig = go.Figure(data=hmap)
             else:
                 hmap = None
+                # fig = go.Figure()
+                # fig.layout = self.figure_layout(pourbaix_diagram,
+                #                                 pourbaix_options)
 
             fig = go.Figure(data=hmap)
             fig.layout = self.figure_layout(pourbaix_diagram,
