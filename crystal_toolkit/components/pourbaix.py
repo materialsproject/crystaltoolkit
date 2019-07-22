@@ -234,15 +234,6 @@ class PourbaixDiagramComponent(MPComponent):
                 self.all_layouts["options"],
                 self.all_layouts["graph"]
             ]
-            # [
-            #     Columns(
-            #         [
-            #             Column(self.all_layouts["graph"]),
-            #             # Column(self.all_layouts["table"]),
-            #         ],
-            #         centered=True,
-            #     )
-            # ]
         )
 
     def generate_callbacks(self, app, cache):
@@ -310,12 +301,9 @@ class PourbaixDiagramComponent(MPComponent):
                 # Enforce decomposition limit energy
                 decomposition_e = np.min([decomposition_e, np.ones(decomposition_e.shape)], axis=0)
                 hmap = go.Heatmap(x=ph, y=v, z=decomposition_e)
-                # fig = go.Figure(data=hmap)
+
             else:
                 hmap = None
-                # fig = go.Figure()
-                # fig.layout = self.figure_layout(pourbaix_diagram,
-                #                                 pourbaix_options)
 
             fig = go.Figure(data=hmap)
             fig.layout = self.figure_layout(pourbaix_diagram,
