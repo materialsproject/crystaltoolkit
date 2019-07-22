@@ -65,28 +65,7 @@ class StructureMoleculeComponent(MPComponent):
         "uniform",
     )
 
-    default_scene_settings = {
-        "lights": [
-            {
-                "type": "DirectionalLight",
-                "args": ["#ffffff", 0.15],
-                "position": [-10, 10, 10],
-            },
-            {
-                "type": "DirectionalLight",
-                "args": ["#ffffff", 0.15],
-                "position": [0, 0, -10],
-            },
-            {"type": "HemisphereLight", "args": ["#eeeeee", "#999999", 1.0]},
-        ],
-        "material": {
-            "type": "MeshStandardMaterial",
-            "parameters": {"roughness": 0.07, "metalness": 0.00},
-        },
-        "cylinderScale": 0.1,
-        "defaultSurfaceOpacity": 0.5,
-        "staticScene": True,
-    }
+    default_scene_settings = {"cylinderScale": 0.1}
 
     def __init__(
         self,

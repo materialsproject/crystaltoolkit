@@ -1,5 +1,5 @@
-define(["exports", "three-full"], function (exports, _threeFull) {
-  "use strict";
+define(['exports', 'three-full'], function (exports, _threeFull) {
+  'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -69,7 +69,6 @@ define(["exports", "three-full"], function (exports, _threeFull) {
       this.animate = this.animate.bind(this);
       // var modifier = new THREE.SubdivisionModifier( 2 );
 
-
       var defaults = {
         shadows: true,
         antialias: true,
@@ -80,11 +79,22 @@ define(["exports", "three-full"], function (exports, _threeFull) {
         sphereScale: 1.0,
         cylinderScale: 1.0,
         defaultSurfaceOpacity: 0.5,
-        lights: [{ type: "HemisphereLight", args: ["#ffffff", "#202020", 1] }],
+        lights: [{
+          type: 'HemisphereLight',
+          args: ['#eeeeee', '#999999', 1.0]
+        }, {
+          type: 'DirectionalLight',
+          args: ['#ffffff', 0.15],
+          position: [0, 0, -10]
+        }, {
+          type: 'DirectionalLight',
+          args: ['#ffffff', 0.15],
+          position: [-10, 10, 10]
+        }],
         material: {
-          type: "MeshStandardMaterial",
+          type: 'MeshStandardMaterial',
           parameters: {
-            roughness: 0.2,
+            roughness: 0.07,
             metalness: 0.0
           }
         },
@@ -153,7 +163,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
 
       if (this.settings.staticScene) {
         // only re-render when scene is rotated
-        controls.addEventListener("change", render);
+        controls.addEventListener('change', render);
       } else {
         // constantly re-render (for animation)
         this.start();
@@ -170,49 +180,53 @@ define(["exports", "three-full"], function (exports, _threeFull) {
       }
 
       window.addEventListener('resize', resizeRendererToDisplaySize, false);
+
+      // clickable object reference
+      this.clickable_objects = [];
     }
 
     _createClass(Simple3DScene, [{
-      key: "download",
+      key: 'download',
       value: function download(filename, filetype) {
         switch (filetype) {
-          case "png":
+          case 'png':
             this.downloadScreenshot(filename);
             break;
           default:
-            throw new Error("Unknown filetype.");
+            throw new Error('Unknown filetype.');
         }
       }
     }, {
-      key: "downloadScreenshot",
+      key: 'downloadScreenshot',
       value: function downloadScreenshot(filename) {
         // using method from Three.js editor
 
         // create a link and hide it from end-user
-        var link = document.createElement("a");
-        link.style.display = "none";
+        var link = document.createElement('a');
+        link.style.display = 'none';
         document.body.appendChild(link);
 
         // force a render (in case buffer has been cleared)
         this.renderScene();
         // and set link href to renderer contents
-        link.href = this.renderer.domElement.toDataURL("image/png");
+        link.href = this.renderer.domElement.toDataURL('image/png');
 
         // click link to download
-        link.download = filename || "screenshot.png";
+        link.download = filename || 'screenshot.png';
         link.click();
       }
     }, {
-      key: "addToScene",
+      key: 'addToScene',
       value: function addToScene(scene_json) {
         Simple3DScene.removeObjectByName(this.scene, scene_json.name);
+        this.clickable_objects = [];
 
         var root_obj = new THREE.Object3D();
         root_obj.name = scene_json.name;
 
         function traverse_scene(o, parent, self) {
           o.contents.forEach(function (sub_o) {
-            if (sub_o.hasOwnProperty("type")) {
+            if (sub_o.hasOwnProperty('type')) {
               parent.add(self.makeObject(sub_o));
             } else {
               var new_parent = new THREE.Object3D();
@@ -225,7 +239,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
 
         traverse_scene(scene_json, root_obj, this);
 
-        //window.console.log("root_obj", root_obj);
+        // window.console.log("root_obj", root_obj);
 
         this.scene.add(root_obj);
 
@@ -242,31 +256,30 @@ define(["exports", "three-full"], function (exports, _threeFull) {
         this.renderScene();
       }
     }, {
-      key: "makeLights",
+      key: 'makeLights',
       value: function makeLights(light_json) {
-
         var lights = new THREE.Object3D();
-        lights.name = "lights";
+        lights.name = 'lights';
 
         light_json.forEach(function (light) {
           switch (light.type) {
-            case "DirectionalLight":
+            case 'DirectionalLight':
               var lightObj = new (Function.prototype.bind.apply(THREE.DirectionalLight, [null].concat(_toConsumableArray(light.args))))();
               if (light.helper) {
-                var lightHelper = new THREE.DirectionalLightHelper(lightObj, 5, "#444444");
+                var lightHelper = new THREE.DirectionalLightHelper(lightObj, 5, '#444444');
                 lightObj.add(lightHelper);
               }
               break;
-            case "AmbientLight":
+            case 'AmbientLight':
               var lightObj = new (Function.prototype.bind.apply(THREE.AmbientLight, [null].concat(_toConsumableArray(light.args))))();
               break;
-            case "HemisphereLight":
+            case 'HemisphereLight':
               var lightObj = new (Function.prototype.bind.apply(THREE.HemisphereLight, [null].concat(_toConsumableArray(light.args))))();
               break;
             default:
-              throw new Error("Unknown light.");
+              throw new Error('Unknown light.');
           }
-          if (light.hasOwnProperty("position")) {
+          if (light.hasOwnProperty('position')) {
             var _lightObj$position;
 
             (_lightObj$position = lightObj.position).set.apply(_lightObj$position, _toConsumableArray(light.position));
@@ -277,7 +290,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
         return lights;
       }
     }, {
-      key: "makeObject",
+      key: 'makeObject',
       value: function makeObject(object_json) {
         var obj = new THREE.Object3D();
         obj.name = object_json.name;
@@ -286,16 +299,21 @@ define(["exports", "three-full"], function (exports, _threeFull) {
           obj.visible = object_json.visible;
         }
 
+        if (object_json.clickable) {
+          obj.reference = object_json.reference;
+          this.clickable_objects.push(obj);
+        };
+
         switch (object_json.type) {
-          case "spheres":
+          case 'spheres':
             {
               var geom = new THREE.SphereBufferGeometry(object_json.radius * this.settings.sphereScale, this.settings.sphereSegments, this.settings.sphereSegments, object_json.phiStart || 0, object_json.phiEnd || Math.PI * 2);
               var mat = this.makeMaterial(object_json.color);
 
               // if we allow occupancies not to sum to 100
-              //if (object_json.phiStart || object_json.phiEnd) {
+              // if (object_json.phiStart || object_json.phiEnd) {
               //    mat.side = THREE.DoubleSide;
-              //}
+              // }
 
               var meshes = [];
               object_json.positions.forEach(function (position) {
@@ -306,34 +324,54 @@ define(["exports", "three-full"], function (exports, _threeFull) {
                 meshes.push(mesh);
               });
 
-              // TODO: test axes are correct!
-              if (object_json.ellipsoids) {
-                var vec_z = new THREE.Vector3(0, 0, 1);
-                var quaternion = new THREE.Quaternion();
-                object_json.ellipsoids.rotations.forEach(function (rotation, index) {
-                  var rotation_vec = new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(rotation))))();
-                  quaternion.setFromUnitVectors(vec_z, rotation_vec.normalize());
-                  meshes[index].setRotationFromQuaternion(quaternion);
-                });
-                object_json.ellipsoids.scales.forEach(function (scale, index) {
-                  var _meshes$index$scale;
-
-                  (_meshes$index$scale = meshes[index].scale).set.apply(_meshes$index$scale, _toConsumableArray(scale));
-                });
-              }
-
               meshes.forEach(function (mesh) {
                 obj.add(mesh);
               });
 
               return obj;
             }
-          case "cylinders":
+          case 'ellipsoids':
+            {
+              var _geom = new THREE.SphereBufferGeometry(this.settings.sphereScale, this.settings.sphereSegments, this.settings.sphereSegments, object_json.phiStart || 0, object_json.phiEnd || Math.PI * 2);
+              var _mat = this.makeMaterial(object_json.color);
+
+              // if we allow occupancies not to sum to 100
+              // if (object_json.phiStart || object_json.phiEnd) {
+              //    mat.side = THREE.DoubleSide;
+              // }
+
+              var _meshes = [];
+              object_json.positions.forEach(function (position) {
+                var _mesh$position2, _mesh$scale;
+
+                var mesh = new THREE.Mesh(_geom, _mat);
+                (_mesh$position2 = mesh.position).set.apply(_mesh$position2, _toConsumableArray(position));
+                (_mesh$scale = mesh.scale).set.apply(_mesh$scale, _toConsumableArray(object_json.scale)); // TODO: Is this valid JS?
+                _meshes.push(mesh);
+              });
+
+              // TODO: test axes are correct!
+
+              var vec_z = new THREE.Vector3(0, 0, 1);
+              var quaternion = new THREE.Quaternion();
+              object_json.rotate_to.forEach(function (rotation, index) {
+                var rotation_vec = new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(rotation))))();
+                quaternion.setFromUnitVectors(vec_z, rotation_vec.normalize());
+                _meshes[index].setRotationFromQuaternion(quaternion);
+              });
+
+              _meshes.forEach(function (mesh) {
+                obj.add(mesh);
+              });
+
+              return obj;
+            }
+          case 'cylinders':
             {
               var radius = object_json.radius || 1;
 
-              var _geom = new THREE.CylinderBufferGeometry(radius * this.settings.cylinderScale, radius * this.settings.cylinderScale, 1.0, this.settings.cylinderSegments);
-              var _mat = this.makeMaterial(object_json.color);
+              var _geom2 = new THREE.CylinderBufferGeometry(radius * this.settings.cylinderScale, radius * this.settings.cylinderScale, 1.0, this.settings.cylinderSegments);
+              var _mat2 = this.makeMaterial(object_json.color);
 
               var vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
               var _quaternion = new THREE.Quaternion();
@@ -341,7 +379,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
               object_json.positionPairs.forEach(function (positionPair) {
                 // the following is technically correct but could be optimized?
 
-                var mesh = new THREE.Mesh(_geom, _mat);
+                var mesh = new THREE.Mesh(_geom2, _mat2);
                 var vec_a = new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(positionPair[0]))))();
                 var vec_b = new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(positionPair[1]))))();
                 var vec_rel = vec_b.sub(vec_a);
@@ -362,44 +400,44 @@ define(["exports", "three-full"], function (exports, _threeFull) {
 
               return obj;
             }
-          case "cubes":
+          case 'cubes':
             {
-              var _geom2 = new THREE.BoxBufferGeometry(object_json.width * this.settings.sphereScale, object_json.width * this.settings.sphereScale, object_json.width * this.settings.sphereScale);
-              var _mat2 = this.makeMaterial(object_json.color);
+              var _geom3 = new THREE.BoxBufferGeometry(object_json.width * this.settings.sphereScale, object_json.width * this.settings.sphereScale, object_json.width * this.settings.sphereScale);
+              var _mat3 = this.makeMaterial(object_json.color);
 
               object_json.positions.forEach(function (position) {
-                var _mesh$position2;
+                var _mesh$position3;
 
-                var mesh = new THREE.Mesh(_geom2, _mat2);
-                (_mesh$position2 = mesh.position).set.apply(_mesh$position2, _toConsumableArray(position));
+                var mesh = new THREE.Mesh(_geom3, _mat3);
+                (_mesh$position3 = mesh.position).set.apply(_mesh$position3, _toConsumableArray(position));
                 obj.add(mesh);
               });
 
               return obj;
             }
-          case "lines":
+          case 'lines':
             {
               var verts = new THREE.Float32BufferAttribute([].concat.apply([], object_json.positions), 3);
-              var _geom3 = new THREE.BufferGeometry();
-              _geom3.addAttribute("position", verts);
+              var _geom4 = new THREE.BufferGeometry();
+              _geom4.addAttribute('position', verts);
 
-              var _mat3 = void 0;
+              var _mat4 = void 0;
               if (object_json.dashSize || object_json.scale || object_json.gapSize) {
-                _mat3 = new THREE.LineDashedMaterial({
-                  color: object_json.color || "#000000",
+                _mat4 = new THREE.LineDashedMaterial({
+                  color: object_json.color || '#000000',
                   linewidth: object_json.line_width || 1,
                   scale: object_json.scale || 1,
                   dashSize: object_json.dashSize || 3,
                   gapSize: object_json.gapSize || 1
                 });
               } else {
-                _mat3 = new THREE.LineBasicMaterial({
-                  color: object_json.color || "#2c3c54",
+                _mat4 = new THREE.LineBasicMaterial({
+                  color: object_json.color || '#2c3c54',
                   linewidth: object_json.line_width || 1
                 });
               }
 
-              var mesh = new THREE.LineSegments(_geom3, _mat3);
+              var mesh = new THREE.LineSegments(_geom4, _mat4);
               if (object_json.dashSize || object_json.scale || object_json.gapSize) {
                 mesh.computeLineDistances();
               }
@@ -407,57 +445,57 @@ define(["exports", "three-full"], function (exports, _threeFull) {
 
               return obj;
             }
-          case "surface":
+          case 'surface':
             {
               var _verts = new THREE.Float32BufferAttribute([].concat.apply([], object_json.positions), 3);
-              var _geom4 = new THREE.BufferGeometry();
-              _geom4.addAttribute("position", _verts);
+              var _geom5 = new THREE.BufferGeometry();
+              _geom5.addAttribute('position', _verts);
 
               var opacity = object_json.opacity || this.settings.defaultSurfaceOpacity;
-              var _mat4 = this.makeMaterial(object_json.color, opacity);
+              var _mat5 = this.makeMaterial(object_json.color, opacity);
 
               if (object_json.normals) {
                 var normals = new THREE.Float32BufferAttribute([].concat.apply([], object_json.normals), 3);
-                _geom4.addAttribute("normal", normals);
+                _geom5.addAttribute('normal', normals);
               } else {
-                _geom4.computeFaceNormals();
-                _mat4.side = THREE.DoubleSide; // not sure if this is necessary if we compute normals correctly
+                _geom5.computeFaceNormals();
+                _mat5.side = THREE.DoubleSide; // not sure if this is necessary if we compute normals correctly
               }
 
               if (opacity) {
-                _mat4.transparent = true;
-                _mat4.depthWrite = false;
-              }
-
-              var _mesh = new THREE.Mesh(_geom4, _mat4);
-              obj.add(_mesh);
-              //TODO smooth the surfaces?
-              return obj;
-            }
-          case "convex":
-            {
-              var points = object_json.positions.map(function (p) {
-                return new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(p))))();
-              });
-              var _geom5 = new THREE.ConvexBufferGeometry(points);
-
-              var _opacity = object_json.opacity || this.settings.defaultSurfaceOpacity;
-              var _mat5 = this.makeMaterial(object_json.color, _opacity);
-              if (_opacity) {
                 _mat5.transparent = true;
                 _mat5.depthWrite = false;
               }
 
-              var _mesh2 = new THREE.Mesh(_geom5, _mat5);
+              var _mesh = new THREE.Mesh(_geom5, _mat5);
+              obj.add(_mesh);
+              // TODO smooth the surfaces?
+              return obj;
+            }
+          case 'convex':
+            {
+              var points = object_json.positions.map(function (p) {
+                return new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(p))))();
+              });
+              var _geom6 = new THREE.ConvexBufferGeometry(points);
+
+              var _opacity = object_json.opacity || this.settings.defaultSurfaceOpacity;
+              var _mat6 = this.makeMaterial(object_json.color, _opacity);
+              if (_opacity) {
+                _mat6.transparent = true;
+                _mat6.depthWrite = false;
+              }
+
+              var _mesh2 = new THREE.Mesh(_geom6, _mat6);
               obj.add(_mesh2);
 
-              var edges = new THREE.EdgesGeometry(_geom5);
+              var edges = new THREE.EdgesGeometry(_geom6);
               var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: object_json.color }));
               obj.add(line);
 
               return obj;
             }
-          case "arrows":
+          case 'arrows':
             {
               // take inspiration from ArrowHelper, user cones and cylinders
               var _radius = object_json.radius || 1;
@@ -469,7 +507,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
               // head
               var geom_head = new THREE.ConeBufferGeometry(headWidth * this.settings.cylinderScale, headLength * this.settings.cylinderScale, this.settings.cylinderSegments);
 
-              var _mat6 = this.makeMaterial(object_json.color);
+              var _mat7 = this.makeMaterial(object_json.color);
 
               var _vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
               var _vec_z = new THREE.Vector3(0, 0, 1); // initial axis of cylinder
@@ -479,7 +517,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
               object_json.positionPairs.forEach(function (positionPair) {
                 // the following is technically correct but could be optimized?
 
-                var mesh = new THREE.Mesh(geom_cyl, _mat6);
+                var mesh = new THREE.Mesh(geom_cyl, _mat7);
                 var vec_a = new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(positionPair[0]))))();
                 var vec_b = new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(positionPair[1]))))();
                 var vec_head = new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(positionPair[1]))))();
@@ -499,7 +537,7 @@ define(["exports", "three-full"], function (exports, _threeFull) {
                 obj.add(mesh);
 
                 // add arrowhead
-                var mesh_head = new THREE.Mesh(geom_head, _mat6);
+                var mesh_head = new THREE.Mesh(geom_head, _mat7);
                 mesh_head.position.set(vec_head.x, vec_head.y, vec_head.z);
                 // rotate cylinder into correct orientation
                 quaternion_head.setFromUnitVectors(_vec_y, vec_rel.normalize());
@@ -508,10 +546,10 @@ define(["exports", "three-full"], function (exports, _threeFull) {
               });
               return obj;
             }
-          case "labels":
+          case 'labels':
             {
               // Not implemented
-              //THREE.CSS2DObject see https://github.com/mrdoob/three.js/blob/master/examples/css2d_label.html
+              // THREE.CSS2DObject see https://github.com/mrdoob/three.js/blob/master/examples/css2d_label.html
               return obj;
             }
           default:
@@ -521,53 +559,53 @@ define(["exports", "three-full"], function (exports, _threeFull) {
         }
       }
     }, {
-      key: "makeMaterial",
+      key: 'makeMaterial',
       value: function makeMaterial(color, opacity) {
         var parameters = Object.assign(this.settings.material.parameters, {
-          color: color || "#52afb0",
+          color: color || '#52afb0',
           opacity: opacity || 1.0
         });
 
         switch (this.settings.material.type) {
-          case "MeshStandardMaterial":
+          case 'MeshStandardMaterial':
             {
               return new THREE.MeshStandardMaterial(parameters);
             }
           default:
-            throw new Error("Unknown material.");
+            throw new Error('Unknown material.');
         }
       }
     }, {
-      key: "start",
+      key: 'start',
       value: function start() {
         if (!this.frameId) {
           this.frameId = requestAnimationFrame(this.animate);
         }
       }
     }, {
-      key: "stop",
+      key: 'stop',
       value: function stop() {
         cancelAnimationFrame(this.frameId);
       }
     }, {
-      key: "animate",
+      key: 'animate',
       value: function animate() {
         this.renderScene();
         this.frameId = window.requestAnimationFrame(this.animate);
       }
     }, {
-      key: "renderScene",
+      key: 'renderScene',
       value: function renderScene() {
         this.renderer.render(this.scene, this.camera);
       }
     }, {
-      key: "toggleVisibility",
+      key: 'toggleVisibility',
       value: function toggleVisibility(namesToVisibility) {
-        if (typeof namesToVisibility !== "undefined") {
+        if (typeof namesToVisibility !== 'undefined') {
           for (var objName in namesToVisibility) {
             if (namesToVisibility.hasOwnProperty(objName)) {
               var obj = this.scene.getObjectByName(objName);
-              if (typeof obj !== "undefined") {
+              if (typeof obj !== 'undefined') {
                 obj.visible = Boolean(namesToVisibility[objName]);
               }
             }
@@ -575,12 +613,32 @@ define(["exports", "three-full"], function (exports, _threeFull) {
         }
         this.renderScene();
       }
+    }, {
+      key: 'getClickedReference',
+      value: function getClickedReference(clientX, clientY) {
+        var raycaster = new THREE.Raycaster();
+        var mouse = new THREE.Vector2();
+
+        mouse.x = clientX / this.renderer.domElement.clientWidth * 2 - 1;
+        mouse.y = -(clientY / this.renderer.domElement.clientHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, this.camera);
+
+        // Three.js objects with click handlers we are interested in
+        var intersects = raycaster.intersectObjects(this.clickable_objects);
+
+        if (intersects.length > 0) {
+          return intersects[0].object.reference;
+        }
+
+        return null;
+      }
     }], [{
-      key: "removeObjectByName",
+      key: 'removeObjectByName',
       value: function removeObjectByName(scene, name) {
         // name is not necessarily unique, make this recursive ?
         var object = scene.getObjectByName(name);
-        if (typeof object !== "undefined") {
+        if (typeof object !== 'undefined') {
           scene.remove(object);
         }
       }
