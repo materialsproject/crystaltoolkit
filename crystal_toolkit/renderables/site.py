@@ -99,7 +99,6 @@ def get_site_scene(
                 radius=radius,
                 phiStart=phiStart,
                 phiEnd=phiEnd,
-                ellipsoids=ellipsoids,
             )
             atoms.append(sphere)
 
