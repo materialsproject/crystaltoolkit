@@ -162,7 +162,6 @@ class PourbaixDiagramComponent(MPComponent):
             shapes.append(shape)
 
             # Generate annotation
-            print(pourbaix_options)
             if "show_labels" in (pourbaix_options or []):
                 x, y = np.average(vertices, axis=0)
                 annotation = {
@@ -186,18 +185,6 @@ class PourbaixDiagramComponent(MPComponent):
         layout.update({"shapes": shapes,
                        "annotations": annotations,
                        })
-
-        # if show_heatmap:
-        #     # Find entry
-        #     print("Finding {}".format(heatmap_id))
-        #     entry = [entry for entry in pourbaix_diagram._unprocessed_entries
-        #              if heatmap_id in entry.entry_id][0]
-        #     ph = np.arange(-2, 16, 0.1)
-        #     v = np.arange(-2, 4, 0.1)
-        #     ph, v = np.meshgrid(ph, v)
-        #     decomposition_e = pourbaix_diagram.get_decomposition_energy(entry, ph, v)
-        #     hmap = go.Heatmap(x=ph, y=v, z=decomposition_e)
-        #     layout.update({"data": hmap})
 
         return layout
 
@@ -263,9 +250,7 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("pourbaix-div"), "children"), [Input(self.id("figure"), "data")]
         )
         def update_graph(figure):
-            print("Updating graph")
             if figure is None:
-                print("Prevent")
                 raise PreventUpdate
             elif figure == "error":
                 search_error = (
@@ -283,7 +268,6 @@ class PourbaixDiagramComponent(MPComponent):
                 return search_error
 
             else:
-                print("Plot")
                 plot = [
                     dcc.Graph(
                         figure=figure,
@@ -303,7 +287,6 @@ class PourbaixDiagramComponent(MPComponent):
                         ):
             if pourbaix_diagram is None:
                 raise PreventUpdate
-            print("Making figure for {}".format(struct))
 
             pourbaix_diagram = self.from_data(pourbaix_diagram)
 
@@ -318,7 +301,6 @@ class PourbaixDiagramComponent(MPComponent):
                     heatmap_id = mpr.find_structure(struct)[0]
 
                 # Find entry
-                print("Finding {}".format(heatmap_id))
                 entry = [entry for entry in pourbaix_diagram._unprocessed_entries
                          if heatmap_id in entry.entry_id][0]
                 ph = np.arange(-2, 16.001, 0.1)
@@ -339,7 +321,6 @@ class PourbaixDiagramComponent(MPComponent):
             fig.layout = self.figure_layout(pourbaix_diagram,
                                             pourbaix_options)
 
-            print("Figure complete")
             return fig
 
         @app.callback(Output(self.id("pourbaix_data"), "data"),
@@ -361,7 +342,6 @@ class PourbaixDiagramComponent(MPComponent):
                 filter_solids = "filter_solids" in pourbaix_options
             else:
                 filter_solids = True
-            print(pourbaix_options)
 
             pourbaix_diagram = PourbaixDiagram(pourbaix_entries,
                                                filter_solids=filter_solids)
@@ -377,7 +357,6 @@ class PourbaixDiagramComponent(MPComponent):
             ],
         )
         def get_chemsys_from_struct_mpid(mpid, struct):
-            print("getting chemsys")
             ctx = dash.callback_context
 
             if ctx is None or not ctx.triggered:
@@ -391,16 +370,12 @@ class PourbaixDiagramComponent(MPComponent):
             # mpid trigger
             if trigger["prop_id"] == self.id("mpid") + ".data":
                 with MPRester() as mpr:
-                    print("Fetching {}".format(mpid))
-                    print("Fetching {}".format(struct))
                     entry = mpr.get_entry_by_material_id(mpid)
 
                 chemsys = [str(elem) for elem in entry.composition.elements]
 
             # struct trigger
             if trigger["prop_id"] == self.id("struct") + ".data":
-                print("Fetching {}".format(mpid))
-                print("Fetching {}".format(struct))
                 chemsys = [
                     str(elem) for elem in self.from_data(struct).composition.elements
                 ]
