@@ -120,7 +120,10 @@ def view(obj_or_scene, **kwargs):
     elif hasattr(obj_or_scene, "get_scene"):
         scene = obj_or_scene.get_scene(**kwargs)
     elif isinstance(obj_or_scene, Structure):
-        scene = StructureMoleculeComponent._preprocess_input_to_graph(obj_or_scene).get_scene(**kwargs)
+        smc = StructureMoleculeComponent(
+            obj_or_scene, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+        scene = smc.initial_graph.get_scene(
+            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
     else:
         raise ValueError(
             "Only Scene objects or objects with get_scene() methods "
@@ -168,12 +171,15 @@ def display_scene(scene):
 
 
 def _get_line_from_vec(v0, v1, d_args):
-    allowed_args = ['linewidth', 'color']
-    args = {k:v for k, v in d_args.items() if k in allowed_args}
-    logger.debug(args)
+    allowed_lm_args = ['linewidth', 'color']
+    #allowed_ldm_args = []
+    line_material_args = {k:v for k, v in d_args.items() if k in allowed_lm_args}
+    #line_dashed_material_args = {k:v for k, v in d_args.items() if k in allowed_ldm_args}
+    logger.debug(line_material_args)
+    #print(line_dashed_material_args)
     line = LineSegments2(
         LineSegmentsGeometry(positions=[[v0, v1]]),
-        LineDashedMaterial(**args),  ## Get defaullt colors and dash working
+        LineMaterial(**line_material_args),  ## Get defaullt colors and dash working
     )
     return line
 
