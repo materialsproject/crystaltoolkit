@@ -293,7 +293,7 @@ class PourbaixDiagramComponent(MPComponent):
                     print("Found {}".format(heatmap_id))
 
                 # Find entry
-                print([e.entry_id for e in pourbaix_diagram._unprocessed_entries])
+                print(sorted([e.entry_id for e in pourbaix_diagram._unprocessed_entries]))
                 entry = [entry for entry in pourbaix_diagram._unprocessed_entries
                          if heatmap_id in entry.entry_id][0]
                 ph = np.arange(-2, 16.001, 0.1)
