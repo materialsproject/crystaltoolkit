@@ -133,7 +133,7 @@ class PourbaixDiagramComponent(MPComponent):
         shapes = []
         annotations = []
 
-        show_heatmap = "show_heatmap" in pourbaix_options or [] and heatmap_id
+        show_heatmap = "show_heatmap" in (pourbaix_options or []) and heatmap_id
 
         for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
             formula = entry.name
