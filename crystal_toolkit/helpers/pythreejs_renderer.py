@@ -28,6 +28,9 @@ from pymatgen import Structure
 
 import numpy as np
 import warnings
+import os
+import json
+from collections import defaultdict
 from crystal_toolkit.renderables import *
 from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
 from crystal_toolkit.components.structure import StructureMoleculeComponent
@@ -36,6 +39,14 @@ import logging
 
 logger = logging.getLogger('crystaltoolkit.pythreejs_renderer')
 
+# Populate the default values from the JSON file
+_DEFAULTS = defaultdict(lambda: None)
+default_js = os.path.join(os.path.join(os.path.dirname(
+    os.path.abspath(__file__))), "../core/", "defaults.js")
+with open(default_js) as handle:
+    _DEFAULTS.update(json.loads(handle.read()))
+
+
 def traverse_scene_object(scene_data, parent=None):
     """
     Recursivesly populate a scene object with tree of children 
@@ -43,25 +54,9 @@ def traverse_scene_object(scene_data, parent=None):
     :param parent:
     :return:
     """
-    
-    if type(scene_data) != list:
-        logger.debug(scene_data.name)
 
-    # Doing a few checks for objects that do not have the contents property
-    # if type(scene_data) == list:
-    #     for iobj in scene_data:
-    #         traverse_scene_object(iobj, parent)
-    #     return parent
-    # if hasattr(scene_data, "type"):
-    #     parent.add(convert_object_to_pythreejs(scene_data))
-    #     return parent
-
-    if not hasattr(scene_data, "name"):
-        # we reached the end of a tree that has not information
-        print(scene_data.name)
-    
     if parent is None:
-        # We are at the tree root
+        # At the tree root
         new_parent = Object3D(name=scene_data.name)
         parent = new_parent
 
@@ -97,12 +92,14 @@ def convert_object_to_pythreejs(scene_obj):
             obs.append(obj3d)
     elif scene_obj.type == "cylinders":
         for ipos in scene_obj.positionPairs:
-            obj3d = _get_cylinder_from_vec(tuple(ipos[0]), tuple(ipos[1]), color=scene_obj.color)
+            obj3d = _get_cylinder_from_vec(
+                tuple(ipos[0]), tuple(ipos[1]), scene_obj.__dict__)
             obs.append(obj3d)
     elif scene_obj.type == "lines":
         for ipos, jpos in zip(scene_obj.positions[::2], scene_obj.positions[1::2]):
             logger.debug(scene_obj.__dict__)
-            obj3d = _get_line_from_vec(tuple(ipos), tuple(jpos), scene_obj.__dict__)
+            obj3d = _get_line_from_vec(
+                tuple(ipos), tuple(jpos), scene_obj.__dict__)
             obs.append(obj3d)
     else:
         warnings.warn(
@@ -120,6 +117,7 @@ def view(obj_or_scene, **kwargs):
     elif hasattr(obj_or_scene, "get_scene"):
         scene = obj_or_scene.get_scene(**kwargs)
     elif isinstance(obj_or_scene, Structure):
+        # TODO Temporary place holder for render structure until structure.get_scene() is implemented
         smc = StructureMoleculeComponent(
             obj_or_scene, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
         scene = smc.initial_graph.get_scene(
@@ -140,12 +138,8 @@ def display_scene(scene):
     logger.debug(type(obs))
     scene2render = Scene(children=list(obs.children))
     logger.debug(len(scene2render.children))
-    # TODO the setFromObject function is not working yet so we have to use bounding box for now
-    # box3 = Box3()
-    # box3.exec_three_obj_method('setFromObject', obs)
-    # extent = max(box3.max[2] - box3.min[2], box3.max[1] -
-    #              box3.min[1], box3.max[0] - box3.min[0]) * 1.2
-
+    # cannot use the setFromObject function because the function call is asyncronous
+    # https://github.com/jupyter-widgets/pythreejs/issues/282
     bounding_box = scene.bounding_box
     extent = max([p[1]-p[0] for p in zip(*bounding_box)]) * 1.2
     logger.debug(f"extent : {extent}")
@@ -171,15 +165,26 @@ def display_scene(scene):
 
 
 def _get_line_from_vec(v0, v1, d_args):
-    allowed_lm_args = ['linewidth', 'color']
-    #allowed_ldm_args = []
-    line_material_args = {k:v for k, v in d_args.items() if k in allowed_lm_args}
-    #line_dashed_material_args = {k:v for k, v in d_args.items() if k in allowed_ldm_args}
-    logger.debug(line_material_args)
-    #print(line_dashed_material_args)
+    """Draw the line given the two endpoints, some threejs functionalities still don't work well in pythreejs (unable to update linewidth and such) 
+    LineSegments2 is the onlyone that has tested sucessfully but it cannot handle LineDashedMaterial
+    
+    Args:
+        v0 (list): one endpoint of line
+        v1 (list): other endpoint of line
+        d_args (dict): properties of the line (line_width and color)
+    
+    Returns:
+        LineSegments2: Pythreejs object that displays the line sement
+    """
+    allowed_args = ['linewidth', 'color']
+    obj_args = dict(
+        {k: v for k, v in (_DEFAULTS['Lines'] or {}).items() if k in allowed_args})
+    obj_args.update({k: v for k, v in (d_args or {}).items()
+                     if k in allowed_args and v != None})
+    logger.debug(obj_args)
     line = LineSegments2(
         LineSegmentsGeometry(positions=[[v0, v1]]),
-        LineMaterial(**line_material_args),  ## Get defaullt colors and dash working
+        LineMaterial(**obj_args),  # Dashed lines do not work in pythreejs yet
     )
     return line
 
@@ -188,7 +193,23 @@ def _get_cube_from_pos(v0, **kwargs):
     pass
 
 
-def _get_cylinder_from_vec(v0, v1, radius=0.15, color="#FFFFFF"):
+def _get_cylinder_from_vec(v0, v1, d_args=None):
+    """Draw the cylinder given the two endpoints.
+    
+    Args:
+        v0 (list): one endpoint of line
+        v1 (list): other endpoint of line
+        d_args (dict): properties of the line (line_width and color)
+    
+    Returns:
+        Mesh: Pythreejs object that displays the cylinders
+    """
+    allowed_args = ['radius', 'color']
+    obj_args = dict(
+        {k: v for k, v in (_DEFAULTS['Cylinders'] or {}).items() if k in allowed_args})
+    obj_args.update({k: v for k, v in (d_args or {}).items()
+                     if k in allowed_args and v != None})
+
     v0 = np.array(v0)
     v1 = np.array(v1)
     vec = v1 - v0
@@ -199,13 +220,13 @@ def _get_cylinder_from_vec(v0, v1, radius=0.15, color="#FFFFFF"):
     rot_arg = np.arccos(np.dot([0, 1, 0], vec) / np.linalg.norm(vec))
     new_bond = Mesh(
         geometry=CylinderBufferGeometry(
-            radiusTop=radius,
-            radiusBottom=radius,
+            radiusTop=obj_args['radius'],
+            radiusBottom=obj_args['radius'],
             height=np.linalg.norm(v1 - v0),
             radialSegments=12,
             heightSegments=10,
         ),
-        material=MeshLambertMaterial(color=color),
+        material=MeshLambertMaterial(color=obj_args['color']),
         position=tuple(mid_point),
     )
     rot = R.from_rotvec(rot_arg * rot_vec)
