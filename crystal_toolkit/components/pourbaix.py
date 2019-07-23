@@ -23,6 +23,9 @@ __author__ = "Joseph Montoya"
 __email__ = "joseph.montoya@tri.global"
 
 
+SUPPORTED_N_ELEMENTS = 3
+
+
 class PourbaixDiagramComponent(MPComponent):
     def __init__(self, pourbaix_diagram=None, **kwargs):
         super().__init__(**kwargs)
@@ -31,6 +34,7 @@ class PourbaixDiagramComponent(MPComponent):
         self.create_store("figure")
         self.create_store("pourbaix_entries")
         self.create_store("pourbaix_options")
+        self.create_store("concentration")
         self.create_store("pourbaix_data", initial_data=self.to_data(pourbaix_diagram))
 
 
@@ -226,13 +230,32 @@ class PourbaixDiagramComponent(MPComponent):
             id=self.id("pourbaix-div"),
         )
 
-        return {"graph": graph, "options": options}
+        sliders = html.Div(
+            [
+                html.Div(
+                    dcc.Slider(
+                        id="concentration-slider-{}".format(n),
+                        min=-8,
+                        max=1,
+                        step=1,
+                        value=-4,
+                    ),
+                    id="concentration-slider-{}-div",
+                    style={}
+                )
+                for n in range(SUPPORTED_N_ELEMENTS)
+            ],
+            id=self.id("slider-div"),
+        )
+
+        return {"graph": graph, "options": options, "sliders": sliders}
 
     @property
     def standard_layout(self):
         return html.Div(
             children=[
                 self.all_layouts["options"],
+                self.all_layouts["sliders"],
                 self.all_layouts["graph"]
             ]
         )
@@ -250,7 +273,8 @@ class PourbaixDiagramComponent(MPComponent):
                         [
                             MessageBody(
                                 dcc.Markdown(
-                                    "Pourbaix diagrams may only be calculated for materials with 3 or fewer non-OH elements"
+                                    "Pourbaix diagrams may only be calculated for materials "
+                                    "with {} or fewer non-OH elements".format(SUPPORTED_N_ELEMENTS)
                                 )
                             )
                         ],
@@ -408,6 +432,47 @@ class PourbaixDiagramComponent(MPComponent):
                 pourbaix_entries = mpr.get_pourbaix_entries(chemsys)
 
             return self.to_data(pourbaix_entries)
+
+        # This is a hacked way of getting concentration, but haven't found a more sane fix
+        # Basically creates 3 persistent sliders and updates the concentration according to
+        # their values.  Renders only the necessary ones visible.
+        # @app.callback(
+        #     [
+        #         Output("concentration-slider-{}-div".format(index), "style")
+        #         for index in range(SUPPORTED_N_ELEMENTS)
+        #     ],
+        #     [
+        #         Input(self.id("struct"), "data")
+        #     ],
+        # )
+        # def hide_sliders(struct):
+        #     print("updating style")
+        #     struct = self.from_data(struct)
+        #     pbx_elts = [elt for elt in struct.composition.keys()
+        #                 if elt not in ELEMENTS_HO]
+        #     nelts = len(pbx_elts)
+        #     styles = [{}] * nelts
+        #     styles += [{"display": 'none'}] * (SUPPORTED_N_ELEMENTS - nelts)
+        #     print(styles)
+        #     return styles
+
+        @app.callback(
+            Output("concentration-slider-2-div", "style"),
+            [
+                Input(self.id("struct"), "data"),
+                Input(self.id("pourbaix_options"), "value")
+            ],
+        )
+        def hide_sliders(struct):
+            print("updating style")
+            struct = self.from_data(struct)
+            pbx_elts = [elt for elt in struct.composition.keys()
+                        if elt not in ELEMENTS_HO]
+            # nelts = len(pbx_elts)
+            # styles = [{}] * nelts
+            # styles += [{"display": 'none'}] * (SUPPORTED_N_ELEMENTS - nelts)
+            # print(styles)
+            return {'display': 'none'}
 
 
 class PourbaixDiagramPanelComponent(PanelComponent):
