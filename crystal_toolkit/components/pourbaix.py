@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 import plotly.graph_objs as go
+import plotly.figure_factory as ff
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -166,7 +167,7 @@ class PourbaixDiagramComponent(MPComponent):
                 x, y = np.average(vertices, axis=0)
                 annotation = {
                     "align": "center",
-                    "font": {"color": "#000000", "size": 20.0},
+                    "font": {"color": "#000000", "size": 15.0},
                     "opacity": 1,
                     "showarrow": False,
                     "text": clean_formula,
@@ -243,13 +244,13 @@ class PourbaixDiagramComponent(MPComponent):
         def update_graph(figure):
             if figure is None:
                 raise PreventUpdate
-            elif figure == "error":
+            elif figure == "too_many_elements":
                 search_error = (
                     MessageContainer(
                         [
                             MessageBody(
                                 dcc.Markdown(
-                                    "Plotting is only available for phase diagrams containing 2-4 components."
+                                    "Pourbaix diagrams may only be calculated for materials with <4 non-OH elements"
                                 )
                             )
                         ],
@@ -278,6 +279,9 @@ class PourbaixDiagramComponent(MPComponent):
                         pourbaix_entries,
                         struct
                         ):
+            if pourbaix_entries == "too_many_elements":
+                return "too_many_elements"
+
             if pourbaix_diagram is None:
                 raise PreventUpdate
 
@@ -296,14 +300,30 @@ class PourbaixDiagramComponent(MPComponent):
                 # Find entry
                 entry = [entry for entry in pourbaix_entries
                          if heatmap_id in entry.entry_id][0]
-                ph = np.arange(-2, 16.001, 0.1)
-                v = np.arange(-2, 4.001, 0.1)
-                decomposition_e = pourbaix_diagram.get_decomposition_energy(entry, *np.meshgrid(ph, v))
+                ph_range = np.arange(-2, 16.001, 0.1)
+                v_range = np.arange(-2, 4.001, 0.1)
+                ph_mesh, v_mesh = np.meshgrid(ph_range, v_range)
+                decomposition_e = pourbaix_diagram.get_decomposition_energy(entry, ph_mesh, v_mesh)
+
+                # Generate hoverinfo
+                hovertexts = []
+                for ph_val, v_val, de_val in zip(ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()):
+                    hovertext = ["∆G<sub>pbx</sub>={:.2f}".format(de_val),
+                                 "ph={:.2f}".format(ph_val),
+                                 "V={:.2f}".format(v_val)]
+                    hovertext = "<br>".join(hovertext)
+                    hovertexts.append(hovertext)
+                hovertexts = np.reshape(hovertexts, list(decomposition_e.shape))
 
                 # Enforce decomposition limit energy
                 decomposition_e = np.min([decomposition_e, np.ones(decomposition_e.shape)], axis=0)
-                hmap = go.Heatmap(x=ph, y=v, z=decomposition_e,
-                                  colorscale="Viridis")
+
+                # Plotly needs a list here for validation
+                hmap = go.Heatmap(x=list(ph_range), y=list(v_range), z=decomposition_e,
+                                                   text=hovertexts, hoverinfo='text',
+                                                   colorbar={"title": "∆G<sub>pbx</sub> (eV/atom)",
+                                                             "titleside": "right"},
+                                                   colorscale="Viridis")
 
             else:
                 hmap = None
@@ -323,6 +343,10 @@ class PourbaixDiagramComponent(MPComponent):
                               pourbaix_options,
                               struct
                               ):
+            # Pass along element restriction
+            if pourbaix_entries == "too_many_elements":
+                return "too_many_elements"
+
             self.logger.debug("Updating entries")
             if pourbaix_entries is None or not pourbaix_entries:
                 self.logger.debug("Preventing updating entries")
@@ -377,6 +401,8 @@ class PourbaixDiagramComponent(MPComponent):
                 chemsys = [
                     str(elem) for elem in self.from_data(struct).composition.elements
                 ]
+            if len(set(chemsys) - {"O", "H"}) > 3:
+                return "too_many_elements"
 
             with MPRester() as mpr:
                 pourbaix_entries = mpr.get_pourbaix_entries(chemsys)
@@ -398,7 +424,7 @@ class PourbaixDiagramPanelComponent(PanelComponent):
     def description(self):
         return (
             "Display the pourbaix diagram for the"
-            " chemical system containing this structure (between 2–4 species)."
+            " chemical system containing this structure (fewer than 3 non-OH species)."
         )
 
     def update_contents(self, new_store_contents, *args):
