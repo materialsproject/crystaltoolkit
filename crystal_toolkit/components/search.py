@@ -13,7 +13,7 @@ from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify
 
 
-from crystal_toolkit.components.core import unicodeify_spacegroup
+from pymatgen.util.string import unicodeify_spacegroup
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit import __file__ as module_path
