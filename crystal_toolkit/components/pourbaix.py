@@ -250,7 +250,7 @@ class PourbaixDiagramComponent(MPComponent):
                         [
                             MessageBody(
                                 dcc.Markdown(
-                                    "Pourbaix diagrams may only be calculated for materials with <4 non-OH elements"
+                                    "Pourbaix diagrams may only be calculated for materials with 3 or fewer non-OH elements"
                                 )
                             )
                         ],
