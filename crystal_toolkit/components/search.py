@@ -8,14 +8,14 @@ from dash.exceptions import PreventUpdate
 
 from monty.serialization import loadfn, dumpfn
 from fuzzywuzzy import process
-from pymatgen import MPRester
 from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify
 
 
-from crystal_toolkit.components.core import unicodeify_spacegroup
+from pymatgen.util.string import unicodeify_spacegroup
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.mprester import MPRester
 from crystal_toolkit import __file__ as module_path
 
 import numpy as np

@@ -9,7 +9,7 @@ from dash.exceptions import PreventUpdate
 import warnings
 
 from crystal_toolkit import Simple3DSceneComponent
-from crystal_toolkit.components.core import unicodeify_species
+from pymatgen.util.string import unicodeify_species
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 
