@@ -118,7 +118,7 @@ class PourbaixDiagramComponent(MPComponent):
     }
 
     # TODO: why both plotter and pd
-    def figure_layout(self, pourbaix_diagram, pourbaix_options, heatmap_id=None):
+    def figure_layout(self, pourbaix_diagram, pourbaix_options):
         """
 
         Args:
@@ -133,7 +133,7 @@ class PourbaixDiagramComponent(MPComponent):
         shapes = []
         annotations = []
 
-        show_heatmap = "show_heatmap" in (pourbaix_options or []) and heatmap_id
+        show_heatmap = "show_heatmap" in (pourbaix_options or [])
 
         for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
             formula = entry.name
@@ -270,17 +270,19 @@ class PourbaixDiagramComponent(MPComponent):
         @app.callback(Output(self.id("figure"), "data"),
                       [Input(self.id("pourbaix_data"), "data"),
                        Input(self.id("pourbaix_options"), "value"),
+                       Input(self.id("pourbaix_entries"), "data"),
                        Input(self.id("struct"), "data")
                        ])
         def make_figure(pourbaix_diagram,
                         pourbaix_options,
+                        pourbaix_entries,
                         struct
                         ):
             if pourbaix_diagram is None:
                 raise PreventUpdate
 
             pourbaix_diagram = self.from_data(pourbaix_diagram)
-
+            pourbaix_entries = self.from_data(pourbaix_entries)
 
 
             # TODO: fix mpid problem.  Can't attach from mpid without it being a structure.
@@ -290,19 +292,18 @@ class PourbaixDiagramComponent(MPComponent):
                     # Should probably enable fetching pourbaix entry
                     # by mpid in MPRester
                     heatmap_id = mpr.find_structure(struct)[0]
-                    print("Found {}".format(heatmap_id))
 
                 # Find entry
-                print(sorted([e.entry_id for e in pourbaix_diagram._unprocessed_entries]))
-                entry = [entry for entry in pourbaix_diagram._unprocessed_entries
+                entry = [entry for entry in pourbaix_entries
                          if heatmap_id in entry.entry_id][0]
                 ph = np.arange(-2, 16.001, 0.1)
                 v = np.arange(-2, 4.001, 0.1)
-                # ph, v = np.meshgrid(ph, v)
                 decomposition_e = pourbaix_diagram.get_decomposition_energy(entry, *np.meshgrid(ph, v))
+
                 # Enforce decomposition limit energy
                 decomposition_e = np.min([decomposition_e, np.ones(decomposition_e.shape)], axis=0)
-                hmap = go.Heatmap(x=ph, y=v, z=decomposition_e)
+                hmap = go.Heatmap(x=ph, y=v, z=decomposition_e,
+                                  colorscale="Viridis")
 
             else:
                 hmap = None
