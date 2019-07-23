@@ -4,8 +4,6 @@ from typing import List, Optional, Dict, Any
 from itertools import chain
 from collections import defaultdict
 from warnings import warn
-import json
-import os
 
 
 """
@@ -15,13 +13,6 @@ a list of any of the geometric primitives defined below (e.g. Spheres,
 Cylinders, etc.) or can be another Scene. Then use scene_to_json() to convert
 the Scene to the JSON format to pass to Simple3DSceneComponent's data attribute.
 """
-
-# Populate the default values from the JSON file
-default_js = os.path.join(os.path.join(os.path.dirname(
-    os.path.abspath(__file__))), "./", "defaults.js")
-print(default_js)
-with open(default_js) as handle:
-    _DEFAULTS = json.loads(handle.read())
 
 class Primitive:
     """
@@ -347,8 +338,8 @@ class Lines(Primitive):
     """
 
     positions: List[List[float]]
-    color: str = _DEFAULTS['Lines']['color']
-    linewidth: float = _DEFAULTS['Lines']['linewidth']
+    color: str = None
+    linewidth: float = None
     scale: float = None
     dashSize: float = None
     gapSize: float = None
