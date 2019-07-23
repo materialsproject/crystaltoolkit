@@ -148,7 +148,7 @@ bsdos_component = ctc.BandstructureAndDosPanelComponent(
 )
 # grain_boundary_panel = ctc.GrainBoundaryPanel(origin_component=search_component)
 
-xas_component = ctc.XASPanelComponent(origin_component=search_component)
+#xas_component = ctc.XASPanelComponent(origin_component=search_component)
 
 bonding_graph_component = ctc.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
@@ -182,7 +182,7 @@ else:
     mp_panels = [
         pd_component,
         magnetism_component,
-        xas_component,
+        # xas_component,
         # bsdos_component,
         # grain_boundary_panel,
         literature_component,
