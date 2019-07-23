@@ -2,12 +2,14 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table as dt
+import dash_dangerously_set_inner_html
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import os
 import logging
+import re
 
 from flask import make_response, jsonify, request
 from flask_caching import Cache
@@ -265,6 +267,12 @@ if api_offline:
 # region CREATE OTHER LAYOUT ELEMENTS
 ################################################################################
 
+def open_links_in_new_tab(md: str) -> str:
+    return re.sub(
+        r"(?:\[([^\]]+?)\])(?:\(([^\)]+?)\))",
+        r"<a href='\2' target='_blank'>\1</a>",
+        md
+    )
 
 footer = ctc.Footer(
     html.Div(
@@ -279,14 +287,14 @@ footer = ctc.Footer(
             #    },
             # ),
             # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
-            dcc.Markdown(
+            dash_dangerously_set_inner_html.DangerouslySetInnerHTML(open_links_in_new_tab(
                 f"App created by [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors).  \n"
                 f"Bug reports and feature requests gratefully accepted, please send them to [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
                 f"Powered by [The Materials Project](https://materialsproject.org), "
                 f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
                 f"[Dash by Plotly](https://plot.ly/products/dash/). "
                 f"Deployed on [Spin](http://www.nersc.gov/users/data-analytics/spin/)."
-            )
+            ))
         ],
         className="content has-text-centered",
     ),
