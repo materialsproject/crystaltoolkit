@@ -22,7 +22,7 @@ __email__ = "joseph.montoya@tri.global"
 
 # TODO: fix bug for Pa, etc.
 
-SUPPORTED_N_ELEMENTS = 3
+SUPPORTED_N_ELEMENTS = 4
 WIDTH = 700  # in px
 
 
@@ -97,16 +97,10 @@ class PourbaixDiagramComponent(MPComponent):
     }
 
     colorscale = [
-        [0.0, "#008d00"],
-        [0.1111111111111111, "#4b9f3f"],
-        [0.2222222222222222, "#73b255"],
-        [0.3333333333333333, "#97c65b"],
-        [0.4444444444444444, "#b9db53"],
-        [0.5555555555555556, "#ffdcdf"],
-        [0.6666666666666666, "#ffb8bf"],
-        [0.7777777777777778, "#fd92a0"],
-        [0.8888888888888888, "#f46b86"],
-        [1.0, "#e24377"],
+        [0.00, "#4728fa"],  # blue
+        [0.33, "#f9f273"],  # yellow
+        [0.66, "#e5211b"],  # red
+        [1.00, "#ffffff"],  # white
     ]
 
     default_table_params = [
@@ -168,7 +162,8 @@ class PourbaixDiagramComponent(MPComponent):
                               text=hovertexts, hoverinfo='text',
                               colorbar={"title": "∆G<sub>pbx</sub> (eV/atom)",
                                         "titleside": "right"},
-                              colorscale="Viridis")
+                              colorscale=PourbaixDiagramComponent.colorscale,
+                              zmin=0, zmax=1)
             data.append(hmap)
 
 
@@ -529,7 +524,7 @@ class PourbaixDiagramComponent(MPComponent):
                                if elt not in ELEMENTS_HO])
             conc_dict = {k: 10 ** arg for k, arg
                          in zip(pbx_elts, args[:len(pbx_elts)])}
-            conc_text = ["{}: {}".format(k, v) for k, v in conc_dict.items()]
+            conc_text = ["{}: {} M".format(k, v) for k, v in conc_dict.items()]
             conc_text += [""] * (SUPPORTED_N_ELEMENTS - len(pbx_elts))
             return [self.to_data(conc_dict)] + conc_text
 
