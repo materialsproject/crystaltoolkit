@@ -417,7 +417,6 @@ class PourbaixDiagramComponent(MPComponent):
             ],
         )
         def get_chemsys_from_struct_mpid(mpid, struct):
-            print("other callback")
             ctx = dash.callback_context
 
             if ctx is None or not ctx.triggered:
@@ -444,7 +443,6 @@ class PourbaixDiagramComponent(MPComponent):
                 return "too_many_elements"
 
             with MPRester() as mpr:
-                print("Chemsys is {}".format(chemsys))
                 pourbaix_entries = mpr.get_pourbaix_entries(chemsys)
 
             return self.to_data(pourbaix_entries)
@@ -465,27 +463,20 @@ class PourbaixDiagramComponent(MPComponent):
         def reveal_sliders(pourbaix_diagram, struct):
             if struct is None:
                 raise PreventUpdate
-            print("updating style")
             struct = self.from_data(struct)
             pbx_elts = [elt for elt in struct.composition.keys()
                         if elt not in ELEMENTS_HO]
-            print(pbx_elts)
             nelts = len(pbx_elts)
             styles = [{}] * nelts
             styles += [{"display": 'none'}] * (SUPPORTED_N_ELEMENTS - nelts)
-            print(styles)
             return styles
 
-        # @app.callback(
-        #     Output(self.id("concentration-slider-2-div"), "style"),
-        #     [Input(self.id("pourbaix_diagram"), "data")]
-        # )
-        # def hide_one_slider(pbx):
-        #     print("updating style")
-        #     return {"display": "none"}
-
         @app.callback(
-            Output(self.id("conc_dict"), "data"),
+            [Output(self.id("conc_dict"), "data"),
+             Output(self.id("concentration_0_text"), "children"),
+             Output(self.id("concentration_1_text"), "children"),
+             Output(self.id("concentration_2_text"), "children")
+            ],
             [Input(self.id("struct"), "data")] + \
             [
                 Input(self.id("concentration-slider-{}".format(index)), "value")
@@ -493,9 +484,7 @@ class PourbaixDiagramComponent(MPComponent):
             ],
         )
         def update_conc_dict(struct, *args):
-            print("updating concentration")
             if args[0] is None:
-                print("no concentration")
                 raise PreventUpdate
 
             struct = self.from_data(struct)
@@ -503,8 +492,9 @@ class PourbaixDiagramComponent(MPComponent):
                                if elt not in ELEMENTS_HO])
             conc_dict = {k: 10 ** arg for k, arg
                          in zip(pbx_elts, args[:len(pbx_elts)])}
-            print(conc_dict)
-            return self.to_data(conc_dict)
+            conc_text = ["{}: {}".format(k, v) for k, v in conc_dict.items()]
+            conc_text += [""] * (SUPPORTED_N_ELEMENTS - len(pbx_elts))
+            return [self.to_data(conc_dict)] + conc_text
 
 
 class PourbaixDiagramPanelComponent(PanelComponent):
