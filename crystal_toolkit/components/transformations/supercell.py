@@ -30,8 +30,7 @@ integers.
     def transformation(self):
         return SupercellTransformation
 
-    @property
-    def options_layout(self):
+    def options_layout(self, inital_args_kwargs):
 
         options = get_matrix_input(self.id(), label="Scaling matrix")
 
