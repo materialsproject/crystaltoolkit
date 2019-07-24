@@ -1,19 +1,16 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_table
 import plotly.graph_objs as go
-import plotly.figure_factory as ff
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import numpy as np
 import re
 from pymatgen import MPRester
-from pymatgen.core.composition import Composition
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, ELEMENTS_HO
 
-from crystal_toolkit.helpers.layouts import Columns, Column, MessageContainer, \
+from crystal_toolkit.helpers.layouts import MessageContainer, \
     MessageBody # layout helpers like `Columns` etc. (most subclass html.Div)
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
