@@ -251,7 +251,20 @@
   "src/lib/components/Simple3DSceneComponent.react.js": {
     "description": "Simple3DSceneComponent is intended to draw simple 3D scenes using the popular\nThree.js scene graph library. In particular, the JSON representing the 3D scene\nis intended to be human-readable, and easily generated via Python. In future, a\nlong-term approach would be to develop a library to generate Three.js JSON directly\ninside Python to make this component redundant.",
     "displayName": "Simple3DSceneComponent",
-    "methods": [],
+    "methods": [
+      {
+        "name": "handleClick",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "event",
+            "type": null
+          }
+        ],
+        "returns": null
+      }
+    ],
     "props": {
       "id": {
         "type": {
@@ -294,6 +307,20 @@
         },
         "required": false,
         "description": "Dash-assigned callback that should be called whenever any of the\nproperties change"
+      },
+      "selectedObjectReference": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "Reference to selected objects when clicked"
+      },
+      "selectedObjectCount": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Click count for selected object"
       }
     }
   }
