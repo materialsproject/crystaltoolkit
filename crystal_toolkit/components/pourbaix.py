@@ -23,6 +23,8 @@ __author__ = "Joseph Montoya"
 __email__ = "joseph.montoya@tri.global"
 
 
+# TODO: fix bug for Pa, etc.
+
 SUPPORTED_N_ELEMENTS = 3
 
 
@@ -34,8 +36,12 @@ class PourbaixDiagramComponent(MPComponent):
         self.create_store("figure")
         self.create_store("pourbaix_entries")
         self.create_store("pourbaix_options")
-        self.create_store("concentration")
-        self.create_store("pourbaix_data", initial_data=self.to_data(pourbaix_diagram))
+        for index in range(SUPPORTED_N_ELEMENTS):
+            self.create_store("concentration-slider-{}".format(index))
+            self.create_store("concentration-slider-{}-div".format(index))
+
+        self.create_store("conc_dict")
+        self.create_store("pourbaix_diagram", initial_data=self.to_data(pourbaix_diagram))
 
 
     default_plot_style = dict(
@@ -43,7 +49,6 @@ class PourbaixDiagramComponent(MPComponent):
             "title": "pH",
             "anchor": "y",
             "mirror": "ticks",
-            # "nticks": 8,
             "showgrid": False,
             "showline": True,
             "side": "bottom",
@@ -59,7 +64,6 @@ class PourbaixDiagramComponent(MPComponent):
             "anchor": "x",
             "mirror": "ticks",
             "range": [-2, 4],
-            # "nticks": 7,
             "showgrid": False,
             "showline": True,
             "side": "left",
@@ -233,15 +237,21 @@ class PourbaixDiagramComponent(MPComponent):
         sliders = html.Div(
             [
                 html.Div(
-                    dcc.Slider(
-                        id="concentration-slider-{}".format(n),
-                        min=-8,
-                        max=1,
-                        step=1,
-                        value=-4,
-                    ),
-                    id="concentration-slider-{}-div",
-                    style={}
+                    children=[
+                        html.Div(
+                            "concentration_{}".format(n),
+                            id=self.id("concentration_{}_text".format(n))
+                        ),
+                        dcc.Slider(
+                            id=self.id("concentration-slider-{}".format(n)),
+                            min=-8,
+                            max=1,
+                            step=1,
+                            value=-4,
+                        ),
+                    ],
+                    id=self.id("concentration-slider-{}-div".format(n)),
+                    style={"display": "none"}
                 )
                 for n in range(SUPPORTED_N_ELEMENTS)
             ],
@@ -293,7 +303,7 @@ class PourbaixDiagramComponent(MPComponent):
                 return plot
 
         @app.callback(Output(self.id("figure"), "data"),
-                      [Input(self.id("pourbaix_data"), "data"),
+                      [Input(self.id("pourbaix_diagram"), "data"),
                        Input(self.id("pourbaix_options"), "value"),
                        Input(self.id("pourbaix_entries"), "data"),
                        Input(self.id("struct"), "data")
@@ -358,13 +368,15 @@ class PourbaixDiagramComponent(MPComponent):
 
             return fig
 
-        @app.callback(Output(self.id("pourbaix_data"), "data"),
+        @app.callback(Output(self.id("pourbaix_diagram"), "data"),
                       [Input(self.id("pourbaix_entries"), "data"),
                        Input(self.id("pourbaix_options"), "value"),
+                       Input(self.id("conc_dict"), "data"),
                        Input(self.id("struct"), "data")
                        ])
         def create_pbx_object(pourbaix_entries,
                               pourbaix_options,
+                              conc_dict,
                               struct
                               ):
             # Pass along element restriction
@@ -388,9 +400,11 @@ class PourbaixDiagramComponent(MPComponent):
             struct = self.from_data(struct)
             comp_dict = {str(elt): coeff for elt, coeff in struct.composition.items()
                          if elt not in ELEMENTS_HO}
+            if conc_dict is not None:
+                conc_dict = self.from_data(conc_dict)
 
             pourbaix_diagram = PourbaixDiagram(pourbaix_entries, comp_dict=comp_dict,
-                                               filter_solids=filter_solids)
+                                               conc_dict=conc_dict, filter_solids=filter_solids)
             self.logger.debug("Generated pourbaix diagram")
             return self.to_data(pourbaix_diagram)
 
@@ -403,6 +417,7 @@ class PourbaixDiagramComponent(MPComponent):
             ],
         )
         def get_chemsys_from_struct_mpid(mpid, struct):
+            print("other callback")
             ctx = dash.callback_context
 
             if ctx is None or not ctx.triggered:
@@ -425,10 +440,11 @@ class PourbaixDiagramComponent(MPComponent):
                 chemsys = [
                     str(elem) for elem in self.from_data(struct).composition.elements
                 ]
-            if len(set(chemsys) - {"O", "H"}) > 3:
+            if len(set(chemsys) - {"O", "H"}) > SUPPORTED_N_ELEMENTS:
                 return "too_many_elements"
 
             with MPRester() as mpr:
+                print("Chemsys is {}".format(chemsys))
                 pourbaix_entries = mpr.get_pourbaix_entries(chemsys)
 
             return self.to_data(pourbaix_entries)
@@ -436,43 +452,59 @@ class PourbaixDiagramComponent(MPComponent):
         # This is a hacked way of getting concentration, but haven't found a more sane fix
         # Basically creates 3 persistent sliders and updates the concentration according to
         # their values.  Renders only the necessary ones visible.
-        # @app.callback(
-        #     [
-        #         Output("concentration-slider-{}-div".format(index), "style")
-        #         for index in range(SUPPORTED_N_ELEMENTS)
-        #     ],
-        #     [
-        #         Input(self.id("struct"), "data")
-        #     ],
-        # )
-        # def hide_sliders(struct):
-        #     print("updating style")
-        #     struct = self.from_data(struct)
-        #     pbx_elts = [elt for elt in struct.composition.keys()
-        #                 if elt not in ELEMENTS_HO]
-        #     nelts = len(pbx_elts)
-        #     styles = [{}] * nelts
-        #     styles += [{"display": 'none'}] * (SUPPORTED_N_ELEMENTS - nelts)
-        #     print(styles)
-        #     return styles
-
         @app.callback(
-            Output("concentration-slider-2-div", "style"),
             [
-                Input(self.id("struct"), "data"),
-                Input(self.id("pourbaix_options"), "value")
+                Output(self.id("concentration-slider-{}-div".format(index)), "style")
+                for index in range(SUPPORTED_N_ELEMENTS)
+            ],
+            [
+                Input(self.id("pourbaix_diagram"), "data"),
+                Input(self.id("struct"), "data")
             ],
         )
-        def hide_sliders(struct):
+        def reveal_sliders(pourbaix_diagram, struct):
+            if struct is None:
+                raise PreventUpdate
             print("updating style")
             struct = self.from_data(struct)
             pbx_elts = [elt for elt in struct.composition.keys()
                         if elt not in ELEMENTS_HO]
-            # nelts = len(pbx_elts)
-            # styles = [{}] * nelts
-            # styles += [{"display": 'none'}] * (SUPPORTED_N_ELEMENTS - nelts)
-            # print(styles)
-            return {'display': 'none'}
+            print(pbx_elts)
+            nelts = len(pbx_elts)
+            styles = [{}] * nelts
+            styles += [{"display": 'none'}] * (SUPPORTED_N_ELEMENTS - nelts)
+            print(styles)
+            return styles
+
+        # @app.callback(
+        #     Output(self.id("concentration-slider-2-div"), "style"),
+        #     [Input(self.id("pourbaix_diagram"), "data")]
+        # )
+        # def hide_one_slider(pbx):
+        #     print("updating style")
+        #     return {"display": "none"}
+
+        @app.callback(
+            Output(self.id("conc_dict"), "data"),
+            [Input(self.id("struct"), "data")] + \
+            [
+                Input(self.id("concentration-slider-{}".format(index)), "value")
+                for index in range(SUPPORTED_N_ELEMENTS)
+            ],
+        )
+        def update_conc_dict(struct, *args):
+            print("updating concentration")
+            if args[0] is None:
+                print("no concentration")
+                raise PreventUpdate
+
+            struct = self.from_data(struct)
+            pbx_elts = sorted([str(elt) for elt in struct.composition.keys()
+                               if elt not in ELEMENTS_HO])
+            conc_dict = {k: 10 ** arg for k, arg
+                         in zip(pbx_elts, args[:len(pbx_elts)])}
+            print(conc_dict)
+            return self.to_data(conc_dict)
 
 
 class PourbaixDiagramPanelComponent(PanelComponent):
