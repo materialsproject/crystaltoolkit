@@ -476,7 +476,7 @@ class PourbaixDiagramComponent(MPComponent):
              Output(self.id("concentration_0_text"), "children"),
              Output(self.id("concentration_1_text"), "children"),
              Output(self.id("concentration_2_text"), "children")
-            ],
+             ],
             [Input(self.id("struct"), "data")] + \
             [
                 Input(self.id("concentration-slider-{}".format(index)), "value")
