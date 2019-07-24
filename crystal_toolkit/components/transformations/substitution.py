@@ -31,8 +31,7 @@ and copper). Please consult the pymatgen documentation for more information.
     def transformation(self):
         return SubstitutionTransformation
 
-    @property
-    def options_layout(self):
+    def options_layout(self, inital_args_kwargs):
 
         options = html.Div(
             [

@@ -9,6 +9,9 @@ RUN pip install --no-cache-dir numpy scipy
 ADD requirements.txt /home/project/dash_app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# whether to embed in materialsproject.org or not
+ENV CRYSTAL_TOOLKIT_MP_EMBED_MODE=False
+
 ENV CRYSTAL_TOOLKIT_NUM_WORKERS=16
 
 # for Crossref API, used for DOI lookups

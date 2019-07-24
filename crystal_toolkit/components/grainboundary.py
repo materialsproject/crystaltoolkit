@@ -15,6 +15,7 @@ from crystal_toolkit.helpers.layouts import (
     Columns,
 )
 from crystal_toolkit.helpers.mprester import MPRester
+from pymatgen.util.string import unicodeify_spacegroup
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 
