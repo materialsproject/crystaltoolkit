@@ -1153,7 +1153,7 @@ class StructureMoleculeComponent(MPComponent):
         scene = graph.get_scene(
             draw_image_atoms=draw_image_atoms,
             bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
-            hide_incomplete_bonds=hide_incomplete_bonds,
+            hide_incomplete_edges=hide_incomplete_bonds,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             origin=origin,
         )

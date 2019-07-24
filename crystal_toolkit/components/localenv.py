@@ -38,6 +38,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Molecule
 from pymatgen.analysis.graphs import MoleculeGraph
+from pymatgen.util.string import unicodeify_species
 
 
 class LocalEnvironmentPanel(PanelComponent2):
@@ -142,6 +143,12 @@ class LocalEnvironmentPanel(PanelComponent2):
                 )
 
         @app.callback(
+            Output(self.id("localenv_analysis"), "children"), [Input(self.id(), "data")]
+        )
+        def update_localenv_analysis(data):
+            ...
+
+        @app.callback(
             Output(self.id("chemenv_analysis"), "children"),
             [
                 Input(self.id(), "data"),
@@ -154,9 +161,17 @@ class LocalEnvironmentPanel(PanelComponent2):
             if not struct:
                 raise PreventUpdate
 
-            struct = self.from_data(struct)
+            struct = self.from_data(struct).structure
             distance_cutoff = float(distance_cutoff)
             angle_cutoff = float(angle_cutoff)
+
+            def get_valences(struct):
+                valences = [getattr(site.specie, "oxi_state", None) for site in struct]
+                valences = [v for v in valences if v is not None]
+                if len(valences) == len(struct):
+                    return valences
+                else:
+                    return "undefined"
 
             # decide which indices to present to user
             sga = SpacegroupAnalyzer(struct)
@@ -172,6 +187,7 @@ class LocalEnvironmentPanel(PanelComponent2):
             se = lgf.compute_structure_environments(
                 maximum_distance_factor=distance_cutoff + 0.01,
                 only_indices=inequivalent_indices,
+                valences=get_valences(struct),
             )
             strategy = SimplestChemenvStrategy(
                 distance_cutoff=distance_cutoff, angle_cutoff=angle_cutoff
@@ -187,7 +203,7 @@ class LocalEnvironmentPanel(PanelComponent2):
             for index, wyckoff in zip(inequivalent_indices, wyckoffs):
 
                 datalist = {
-                    "Site": struct[index].species_string,
+                    "Site": unicodeify_species(struct[index].species_string),
                     "Wyckoff Label": wyckoff,
                 }
 
@@ -249,7 +265,8 @@ class LocalEnvironmentPanel(PanelComponent2):
             if unknown_sites:
                 unknown_sites = html.Strong(
                     f"The following sites were not identified: {', '.join(unknown_sites)}. "
-                    f"Please try changing the distance or angle cut-offs to identify these sites."
+                    f"Please try changing the distance or angle cut-offs to identify these sites, "
+                    f"or try an alternative algorithm such as LocalEnv."
                 )
             else:
                 unknown_sites = html.Span()
