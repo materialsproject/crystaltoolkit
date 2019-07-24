@@ -302,8 +302,8 @@ class PourbaixDiagramComponent(MPComponent):
                 html.Div(
                     children=[
                         html.Div(
-                            "concentration_{}".format(n),
-                            id=self.id("concentration_{}_text".format(n))
+                            "concentration-{}".format(n),
+                            id=self.id("concentration-{}-text".format(n))
                         ),
                         dcc.Slider(
                             id=self.id("concentration-slider-{}".format(n)),
@@ -512,12 +512,12 @@ class PourbaixDiagramComponent(MPComponent):
             return styles
 
         @app.callback(
-            [Output(self.id("conc_dict"), "data"),
-             Output(self.id("concentration_0_text"), "children"),
-             Output(self.id("concentration_1_text"), "children"),
-             Output(self.id("concentration_2_text"), "children")
-             ],
-            [Input(self.id("struct"), "data")] + \
+            [Output(self.id("conc_dict"), "data")] +
+            [
+                Output(self.id("concentration-{}-text".format(index)), "children")
+                for index in range(SUPPORTED_N_ELEMENTS)
+            ],
+            [Input(self.id("struct"), "data")] +
             [
                 Input(self.id("concentration-slider-{}".format(index)), "value")
                 for index in range(SUPPORTED_N_ELEMENTS)
