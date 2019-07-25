@@ -24,7 +24,7 @@ from pythreejs import (
 
 from IPython.display import display
 from scipy.spatial.transform import Rotation as R
-from pymatgen import Structure
+from pymatgen import Structure, Molecule
 
 import numpy as np
 import warnings
@@ -121,7 +121,13 @@ def view(obj_or_scene, **kwargs):
         smc = StructureMoleculeComponent(
             obj_or_scene, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
         scene = smc.initial_graph.get_scene(
-            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True)
+    elif isinstance(obj_or_scene, Molecule):
+        # TODO Temporary place holder for render molecules
+        smc = StructureMoleculeComponent(
+            obj_or_scene, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+        scene = smc.initial_graph.get_scene(
+            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True)
     else:
         raise ValueError(
             "Only Scene objects or objects with get_scene() methods "
