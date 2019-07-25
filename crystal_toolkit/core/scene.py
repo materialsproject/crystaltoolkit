@@ -14,7 +14,6 @@ Cylinders, etc.) or can be another Scene. Then use scene_to_json() to convert
 the Scene to the JSON format to pass to Simple3DSceneComponent's data attribute.
 """
 
-
 class Primitive:
     """
     A Mixin class for standard plottable primitive behavior
@@ -32,7 +31,7 @@ class Primitive:
     @property
     def bounding_box(self) -> List[List[float]]:
         x, y, z = zip(*self.positions)
-        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
+        return [[min(x), min(y), min(z)], [max(x), max(y), max(z)]]
 
 
 @dataclass
@@ -92,17 +91,14 @@ class Scene:
         """
         Returns the boundinx box coordinates 
         """
+        if len(self.contents) > 0:
+            min_list, max_list = zip(*[p.bounding_box for p in self.contents])
+            min_x, min_y, min_z = map(min, list(zip(*min_list)))
+            max_x, max_y, max_z = map(max, list(zip(*max_list)))
         
-        x_extents, y_extents, z_extents = zip(*[p.bounding_box for p in self.contents])
-        
-        min_x = min([x[0] for x in x_extents])
-        max_x = max([x[1] for x in x_extents])
-        min_y = min([y[0] for y in y_extents])
-        max_y = max([y[1] for y in y_extents])
-        min_z = min([z[0] for z in z_extents])
-        max_z = max([z[1] for z in z_extents])
-
-        return [[min_x, max_x], [min_y, max_y], [min_z, max_z]]
+            return [[min_x, min_y, min_z], [max_x, max_y, max_z]]
+        else:
+            return [[0,0,0], [0,0,0]]
 
     @staticmethod
     def merge_primitives(primitives):
@@ -278,7 +274,7 @@ class Cylinders(Primitive):
     @property
     def bounding_box(self) -> List[List[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
-        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
+        return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
 
 
 @dataclass
@@ -331,7 +327,7 @@ class Lines(Primitive):
     position of a line segment (line segments do not have to be joined
     together).
     :param color: Line color as a hexadecimal string, e.g. #ff0000
-    :param lineWidth: The width of the line, defaults to 1
+    :param linewidth: The width of the line, defaults to 1
     :param scale: Optional, if provided will set a global scale for line dashes.
     :param dashSize: Optional, if provided will specify length of line dashes.
     :param gapSize: Optional, if provided will specify gap between line dashes.
@@ -343,7 +339,7 @@ class Lines(Primitive):
 
     positions: List[List[float]]
     color: str = None
-    lineWidth: float = None
+    linewidth: float = None
     scale: float = None
     dashSize: float = None
     gapSize: float = None
@@ -355,7 +351,7 @@ class Lines(Primitive):
 
     @property
     def key(self):
-        return f"line_{self.color}_{self.lineWidth}_{self.dashSize}_{self.gapSize}_{self.reference}"
+        return f"line_{self.color}_{self.linewidth}_{self.dashSize}_{self.gapSize}_{self.reference}"
 
     @classmethod
     def merge(cls, line_list):
@@ -365,7 +361,7 @@ class Lines(Primitive):
         return cls(
             positions=new_positions,
             color=line_list[0].color,
-            lineWidth=line_list[0].lineWidth,
+            linewidth=line_list[0].linewidth,
             scale=line_list[0].scale,
             dashSize=line_list[0].dashSize,
             gapSize=line_list[0].gapSize,
@@ -390,6 +386,10 @@ class Surface:
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        # Not used in the calculation of the bounding box
+        return [[0,0,0], [0,0,0]]
 
 
 @dataclass
@@ -410,6 +410,10 @@ class Convex:
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
+    @property
+    def bounding_box(self) -> List[List[float]]:
+        # Not used in the calculation of the bounding box
+        return [[0,0,0], [0,0,0]]
 
 
 @dataclass
@@ -459,7 +463,7 @@ class Arrows(Primitive):
     @property
     def bounding_box(self) -> List[List[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
-        return [[min(x), max(x)], [min(y), max(y)], [min(z), max(z)]]
+        return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
 
 
 # class VolumetricData:
