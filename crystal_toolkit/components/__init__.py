@@ -35,6 +35,10 @@ from crystal_toolkit.components.phase_diagram import (
     PhaseDiagramComponent,
     PhaseDiagramPanelComponent,
 )
+from crystal_toolkit.components.pourbaix import (
+    PourbaixDiagramComponent,
+    PourbaixDiagramPanelComponent,
+)
 from crystal_toolkit.components.localenv import LocalEnvironmentPanel
 from crystal_toolkit.components.grainboundary import GrainBoundaryPanel
 

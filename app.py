@@ -135,6 +135,8 @@ upload_component = ctc.StructureMoleculeUploadComponent()
 robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
 xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+pbx_component = ctc.PourbaixDiagramPanelComponent(origin_component=struct_component)
+
 symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
 localenv_component = ctc.LocalEnvironmentPanel()
 localenv_component.attach_from(
@@ -183,6 +185,7 @@ else:
 
     mp_panels = [
         pd_component,
+        pbx_component,
         magnetism_component,
         xas_component,
         # bsdos_component,
