@@ -108,24 +108,27 @@ def convert_object_to_pythreejs(scene_obj):
     return obs
 
 
-def view(obj_or_scene, **kwargs):
+def view(molecule_or_structure, **kwargs):
     """
-    :param obj: input structure
+    View a pymatgen Molecule or Structure object interactively in a
+    Jupyter notebook.
+    :param molecule_or_structure: Molecule or Structure object
     """
     if isinstance(obj_or_scene, CrystalToolkitScene):
         scene = obj_or_scene
     elif hasattr(obj_or_scene, "get_scene"):
         scene = obj_or_scene.get_scene(**kwargs)
+    # TODO: next two elif statements are only here until Molecule and Structure have get_scene()
     elif isinstance(obj_or_scene, Structure):
         # TODO Temporary place holder for render structure until structure.get_scene() is implemented
         smc = StructureMoleculeComponent(
-            obj_or_scene, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+            obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
         scene = smc.initial_graph.get_scene(
             draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True)
     elif isinstance(obj_or_scene, Molecule):
         # TODO Temporary place holder for render molecules
         smc = StructureMoleculeComponent(
-            obj_or_scene, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+            obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
         scene = smc.initial_graph.get_scene(
             draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True)
     else:
