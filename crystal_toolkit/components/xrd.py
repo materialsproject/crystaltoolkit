@@ -23,9 +23,9 @@ from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 
 
 class XRayDiffractionComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, initial_structure=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.create_store("struct")
+        self.create_store("struct", initial_data=initial_structure)
 
         self.initial_xrdcalculator_kwargs = {
             "wavelength": "CuKa",
@@ -344,11 +344,8 @@ class XRayDiffractionComponent(MPComponent):
             [State(self.id("xrdcalculator_kwargs"), "data")],
         )
         def update_kwargs(rad_source, xrdcalculator_kwargs):
-            if rad_source == self.initial_xrdcalculator_kwargs["wavelength"]:
-                raise PreventUpdate
-            else:
-                xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
-                xrdcalculator_kwargs["wavelength"] = rad_source
+            xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
+            xrdcalculator_kwargs["wavelength"] = rad_source
             return self.to_data(xrdcalculator_kwargs)
 
         @app.callback(
@@ -359,15 +356,15 @@ class XRayDiffractionComponent(MPComponent):
             return html.P("Selected: {} nm".format(round(10 ** value, 3)))
 
 
-class XRayDiffractionPanelComponent(PanelComponent):
+class XRayDiffractionPanelComponent(PanelComponent2):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.xrd = XRayDiffractionComponent()
+        super().__init__(*args, **kwargs)
         self.xrd.attach_from(self, this_store_name="struct")
 
     @property
     def title(self):
-        return "X-ray Diffraction Pattern"
+        return "Diffraction Pattern"
 
     @property
     def description(self):
@@ -376,13 +373,12 @@ class XRayDiffractionPanelComponent(PanelComponent):
     def update_contents(self, new_store_contents, *args):
         return self.xrd.standard_layout
 
-    # def generate_callbacks(self, app, cache):
-    #
-    #     super().generate_callbacks(app, cache)
-    #
-    #     @app.callback(
-    #         Output(self.id("inner_contents"), "children"),
-    #         [Input(self.id(), "data")]
-    #     )
-    #     def create_xrd_layout(new_store_contents):
-    #         return self.xrd.standard_layout
+    def generate_callbacks(self, app, cache):
+
+        super().generate_callbacks(app, cache)
+
+        @app.callback(
+            Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
+        )
+        def create_xrd_layout(new_store_contents):
+            return self.xrd.standard_layout

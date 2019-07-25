@@ -15,9 +15,10 @@ from flask_caching import Cache
 from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.mprester import MPRester
 import crystal_toolkit.components as ctc
 
-from pymatgen import MPRester, Structure, Molecule
+from pymatgen import Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen import __version__ as pmg_version
 
@@ -44,23 +45,29 @@ meta_tags = [
     }
 ]
 
+DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
+MP_EMBED_MODE = literal_eval(
+    os.environ.get("CRYSTAL_TOOLKIT_MP_EMBED_MODE", "False").title()
+)
+ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").title())
+
 crystal_toolkit_app = dash.Dash(__name__, meta_tags=meta_tags)
 crystal_toolkit_app.config["suppress_callback_exceptions"] = True
 crystal_toolkit_app.title = "Crystal Toolkit"
 crystal_toolkit_app.scripts.config.serve_locally = True
 
-crystal_toolkit_app.server.secret_key = str(
-    uuid4()
-)  # TODO: will need to change this one day
+if not MP_EMBED_MODE:
+    crystal_toolkit_app.config["assets_ignore"] = r".*\.mpembed\..*"
+    box_size = "65vmin"
+else:
+    # reduce zoom level and box size due to iframe on materialsproject.org
+    ctc.StructureMoleculeComponent.default_scene_settings["defaultZoom"] = 0.5
+    box_size = "50vmin"
+
+
+crystal_toolkit_app.server.secret_key = str(uuid4())
 server = crystal_toolkit_app.server
 
-
-DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
-MP_EMBED_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_MP_EMBED_MODE", "False").title())
-ENABLE_API = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_ENABLE_API", "False").title())
-
-if not MP_EMBED_MODE:
-    crystal_toolkit_app.assets_ignore = r".*\.mpembed\..*"
 
 # endregion
 ##########
@@ -83,7 +90,7 @@ elif DEBUG_MODE:
     cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "null"})
 else:
     crystal_toolkit_app.logger.error(
-        f"Failed to connect to Redis cache, falling back to " f"file system cache."
+        "Failed to connect to Redis cache, falling back to file system cache."
     )
     cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "simple"})
 
@@ -116,8 +123,6 @@ transformation_component = ctc.AllTransformationsComponent(
     transformations=[supercell, slab, grain_boundary, oxi_state, substitution]
 )
 
-if MP_EMBED_MODE:
-    ctc.StructureMoleculeComponent.default_scene_settings["defaultZoom"] = 0.5
 struct_component = ctc.StructureMoleculeComponent()
 struct_component.attach_from(transformation_component, origin_store_name="out")
 
@@ -127,18 +132,16 @@ download_component = ctc.DownloadPanelComponent(origin_component=struct_componen
 search_component = ctc.SearchComponent()
 upload_component = ctc.StructureMoleculeUploadComponent()
 
-literature_component = ctc.LiteratureComponent(origin_component=struct_component)
 robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
 xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
-pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
-symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
-submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
-localenv_component = ctc.LocalEnvironmentPanel(origin_component=struct_component)
-bsdos_component = ctc.BandstructureAndDosPanelComponent(origin_component=search_component)
-# grain_boundary_panel = ctc.GrainBoundaryPanel(origin_component=search_component)
+pbx_component = ctc.PourbaixDiagramPanelComponent(origin_component=struct_component)
 
-xas_component = ctc.XASPanelComponent(origin_component=search_component)
+symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
+localenv_component = ctc.LocalEnvironmentPanel()
+localenv_component.attach_from(
+    origin_component=struct_component, origin_store_name="graph"
+)
 
 bonding_graph_component = ctc.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
@@ -149,22 +152,52 @@ bonding_graph_component.attach_from(
     origin_store_name="display_options",
 )
 
+# favorites_component = ctc.FavoritesComponent()
+# favorites_component.attach_from(search_component, this_store_name="current-mpid")
+
+if MP_EMBED_MODE:
+    submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
+    action_div = html.Div(
+        [submit_snl_panel.panel_layout, download_component.panel_layout]
+    )
+else:
+    action_div = html.Div([download_component.panel_layout])
+
 panels = [
     symmetry_component,
     bonding_graph_component,
     localenv_component,
-    bsdos_component,
     xrd_component,
     robocrys_component,
 ]
 
-mp_panels = [
-    pd_component,
-    magnetism_component,
-    xas_component,
-    # grain_boundary_panel,
-    literature_component,
-]
+if MP_EMBED_MODE:
+    mp_section = (html.Div(),)
+else:
+
+    bsdos_component = ctc.BandstructureAndDosPanelComponent(
+        origin_component=search_component
+    )
+    # grain_boundary_panel = ctc.GrainBoundaryPanel(origin_component=search_component)
+    xas_component = ctc.XASPanelComponent(origin_component=search_component)
+    pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
+    literature_component = ctc.LiteratureComponent(origin_component=struct_component)
+
+    mp_panels = [
+        pd_component,
+        pbx_component,
+        magnetism_component,
+        xas_component,
+        # bsdos_component,
+        # grain_boundary_panel,
+        literature_component,
+    ]
+
+    mp_section = (
+        H3("Materials Project"),
+        html.Div([panel.panel_layout for panel in mp_panels], id="mp_panels"),
+    )
+
 
 body_layout = [
     html.Br(),
@@ -174,8 +207,7 @@ body_layout = [
     H3("Analyze"),
     html.Div([panel.panel_layout for panel in panels], id="panels"),
     html.Br(),
-    H3("Materials Project"),
-    html.Div([panel.panel_layout for panel in mp_panels], id="mp_panels"),
+    *mp_section,
 ]
 
 STRUCT_VIEWER_SOURCE = transformation_component.id()
@@ -329,8 +361,8 @@ master_layout = Container(
                                 Box(
                                     struct_component.struct_layout,
                                     style={
-                                        "width": "50vmin",
-                                        "height": "50vmin",
+                                        "width": box_size,
+                                        "height": box_size,
                                         "min-width": "300px",
                                         "min-height": "300px",
                                         "max-width": "600px",
@@ -352,7 +384,7 @@ master_layout = Container(
                                         ),
                                     ],
                                     style={
-                                        "width": "50vmin",
+                                        "width": box_size,
                                         "min-width": "300px",
                                         "margin-bottom": "40px",
                                     },
@@ -378,18 +410,10 @@ master_layout = Container(
                                     title="Display Options",
                                     id="display-options",
                                 ),
-                                html.Div(
-                                    [
-                                        submit_snl_panel.panel_layout,
-                                        download_component.panel_layout,
-                                    ]
-                                ),
+                                action_div,
                                 # favorites_component.notes_layout,
                             ],
-                            style={
-                                "width": "50vmin",
-                                "max-width": "50vmin",
-                            },
+                            style={"width": box_size, "max-width": box_size},
                         ),
                     ],
                     desktop_only=False,
@@ -398,7 +422,6 @@ master_layout = Container(
                 Columns([Column(body_layout)]),
             ]
         ),
-        # Section(search_component.api_hint_layout),
         Section(footer),
     ]
 )

@@ -18,18 +18,20 @@ import flask
 
 
 class TransformationComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, initial_args_kwargs=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.initial_args_kwargs = initial_args_kwargs or {"args": [], "kwargs": {}}
         self.create_store(
-            "transformation_args_kwargs", initial_data={"args": [], "kwargs": {}}
+            "transformation_args_kwargs", initial_data=self.initial_args_kwargs
         )
+        self.enabled = False
 
     @property
     def all_layouts(self):
 
         enable = dcc.Checklist(
             options=[{"label": "Enable transformation", "value": "enable"}],
-            value=[],
+            value=["enable"] if self.enabled else [],
             inputClassName="mpc-radio",
             id=self.id("enable_transformation"),
         )
@@ -38,7 +40,9 @@ class TransformationComponent(MPComponent):
 
         description = dcc.Markdown(self.description)
 
-        options = html.Div(self.options_layout, id=self.id("options"))
+        options = html.Div(
+            self.options_layout(self.initial_args_kwargs), id=self.id("options")
+        )
 
         container = MessageContainer(
             [
@@ -64,8 +68,7 @@ class TransformationComponent(MPComponent):
             "container": container,
         }
 
-    @property
-    def options_layout(self):
+    def options_layout(self, initial_args_kwargs):
         raise NotImplementedError
 
     @property
@@ -93,6 +96,9 @@ class TransformationComponent(MPComponent):
             make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
         )
         def update_transformation(args_kwargs, enabled):
+
+            if "enable" not in enabled:
+                return None
 
             # TODO: this is madness
             if not isinstance(args_kwargs, dict):

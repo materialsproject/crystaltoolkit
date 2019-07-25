@@ -17,11 +17,26 @@ export default class Simple3DScene {
       sphereScale: 1.0,
       cylinderScale: 1.0,
       defaultSurfaceOpacity: 0.5,
-      lights: [{ type: 'HemisphereLight', args: ['#ffffff', '#202020', 1] }],
+      lights: [
+        {
+          type: 'HemisphereLight',
+          args: ['#eeeeee', '#999999', 1.0]
+        },
+        {
+          type: 'DirectionalLight',
+          args: ['#ffffff', 0.15],
+          position: [0, 0, -10]
+        },
+        {
+          type: 'DirectionalLight',
+          args: ['#ffffff', 0.15],
+          position: [-10, 10, 10]
+        }
+      ],
       material: {
         type: 'MeshStandardMaterial',
         parameters: {
-          roughness: 0.2,
+          roughness: 0.07,
           metalness: 0.0
         }
       },
@@ -570,25 +585,22 @@ export default class Simple3DScene {
   }
 
   getClickedReference (clientX, clientY) {
-    var camera = this.camera
-    var renderer = this.renderer
-    var raycaster = new THREE.Raycaster()
-    var mouse = new THREE.Vector2()
+    const raycaster = new THREE.Raycaster()
+    const mouse = new THREE.Vector2()
 
-    mouse.x = (clientX / renderer.domElement.clientWidth) * 2 - 1
-    mouse.y = -(clientY / renderer.domElement.clientHeight) * 2 + 1
+    mouse.x = (clientX / this.renderer.domElement.clientWidth) * 2 - 1
+    mouse.y = -(clientY / this.renderer.domElement.clientHeight) * 2 + 1
 
-    raycaster.setFromCamera(mouse, camera)
+    raycaster.setFromCamera(mouse, this.camera)
 
-    meshObjects = this.clickable_objects // three.js objects with click handlers we are interested in
-
-    var intersects = raycaster.intersectObjects(meshObjects)
+    // Three.js objects with click handlers we are interested in
+    var intersects = raycaster.intersectObjects(this.clickable_objects)
 
     if (intersects.length > 0) {
       return intersects[0].object.reference
-    } else {
-      return null
     }
+
+    return null
   }
 
   static removeObjectByName (scene, name) {

@@ -9,7 +9,7 @@ from dash.exceptions import PreventUpdate
 import warnings
 
 from crystal_toolkit import Simple3DSceneComponent
-from crystal_toolkit.components.core import unicodeify_species
+from pymatgen.util.string import unicodeify_species
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 
@@ -65,28 +65,7 @@ class StructureMoleculeComponent(MPComponent):
         "uniform",
     )
 
-    default_scene_settings = {
-        "lights": [
-            {
-                "type": "DirectionalLight",
-                "args": ["#ffffff", 0.15],
-                "position": [-10, 10, 10],
-            },
-            {
-                "type": "DirectionalLight",
-                "args": ["#ffffff", 0.15],
-                "position": [0, 0, -10],
-            },
-            {"type": "HemisphereLight", "args": ["#eeeeee", "#999999", 1.0]},
-        ],
-        "material": {
-            "type": "MeshStandardMaterial",
-            "parameters": {"roughness": 0.07, "metalness": 0.00},
-        },
-        "cylinderScale": 0.1,
-        "defaultSurfaceOpacity": 0.5,
-        "staticScene": True,
-    }
+    default_scene_settings = {"cylinderScale": 0.1}
 
     def __init__(
         self,
@@ -1174,7 +1153,7 @@ class StructureMoleculeComponent(MPComponent):
         scene = graph.get_scene(
             draw_image_atoms=draw_image_atoms,
             bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
-            hide_incomplete_bonds=hide_incomplete_bonds,
+            hide_incomplete_edges=hide_incomplete_bonds,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             origin=origin,
         )
