@@ -34,8 +34,7 @@ class GrainBoundaryTransformationComponent(TransformationComponent):
     def default_transformation(self):
         return self.transformation([1, 0, 0], 0)
 
-    @property
-    def options_layout(self):
+    def options_layout(self, inital_args_kwargs):
 
         options = html.Div(
             [

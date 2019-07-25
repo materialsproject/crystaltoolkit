@@ -4,7 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.components.core import unicodeify_spacegroup, unicodeify_species
+from pymatgen.util.string import unicodeify_spacegroup, unicodeify_species
 from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
 from crystal_toolkit.helpers.inputs import *
 

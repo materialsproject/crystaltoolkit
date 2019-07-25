@@ -7,6 +7,8 @@ from pymatgen.analysis.graphs import StructureGraph
 
 from crystal_toolkit.core.scene import Scene
 
+from matplotlib.cm import get_cmap
+
 
 def _get_sites_to_draw(
     self, draw_image_atoms=True, bonded_sites_outside_unit_cell=False
@@ -79,7 +81,10 @@ def get_structure_graph_scene(
     origin=(0, 0, 0),
     draw_image_atoms=True,
     bonded_sites_outside_unit_cell=True,
-    hide_incomplete_bonds=False,
+    hide_incomplete_edges=False,
+    incomplete_edge_length_scale=0.3,
+    color_edges_by_edge_weight=True,
+    edge_weight_color_scale="coolwarm",
     explicitly_calculate_polyhedra_hull=False,
 ) -> Scene:
 
@@ -89,6 +94,30 @@ def get_structure_graph_scene(
         draw_image_atoms=draw_image_atoms,
         bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
     )
+
+    color_edges = False
+    if color_edges_by_edge_weight:
+
+        weights = [e[2].get("weight") for e in self.graph.edges(data=True)]
+        weights = np.array([w for w in weights if w])
+
+        if any(weights):
+
+            cmap = get_cmap(edge_weight_color_scale)
+
+            # try to keep color scheme symmetric around 0
+            weight_max = max([abs(min(weights)), max(weights)])
+            weight_min = -weight_max
+
+            def get_weight_color(weight):
+                if not weight:
+                    weight = 0
+                x = (weight - weight_min) / (weight_max - weight_min)
+                return "#{:02x}{:02x}{:02x}".format(
+                    *[int(c * 255) for c in cmap(x)[0:3]]
+                )
+
+            color_edges = True
 
     for (idx, jimage) in sites_to_draw:
 
@@ -104,21 +133,34 @@ def get_structure_graph_scene(
         else:
             connected_sites = self.get_connected_sites(idx)
 
-        true_number_of_connected_sites = len(connected_sites)
-        connected_sites_being_drawn = [
+        connected_sites = [
             cs for cs in connected_sites if (cs.index, cs.jimage) in sites_to_draw
         ]
-        number_of_connected_sites_drawn = len(connected_sites_being_drawn)
-        all_connected_sites_present = (
-            true_number_of_connected_sites == number_of_connected_sites_drawn
-        )
-        if hide_incomplete_bonds:
-            # only draw bonds if the destination site is also being drawn
-            connected_sites = connected_sites_being_drawn
+        connected_sites_not_drawn = [
+            cs for cs in connected_sites if (cs.index, cs.jimage) not in sites_to_draw
+        ]
+
+        if color_edges:
+
+            connected_sites_colors = [
+                get_weight_color(cs.weight) for cs in connected_sites
+            ]
+            connected_sites_not_drawn_colors = [
+                get_weight_color(cs.weight) for cs in connected_sites_not_drawn
+            ]
+
+        else:
+
+            connected_sites_colors = None
+            connected_sites_not_drawn_colors = None
 
         site_scene = site.get_scene(
             connected_sites=connected_sites,
-            all_connected_sites_present=all_connected_sites_present,
+            connected_sites_not_drawn=connected_sites_not_drawn,
+            hide_incomplete_edges=hide_incomplete_edges,
+            incomplete_edge_length_scale=incomplete_edge_length_scale,
+            connected_sites_colors=connected_sites_colors,
+            connected_sites_not_drawn_colors=connected_sites_not_drawn_colors,
             origin=origin,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
         )

@@ -7,27 +7,24 @@ from dash.exceptions import PreventUpdate
 from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
-from pymatgen.transformations.standard_transformations import (
-    AutoOxiStateDecorationTransformation,
+from pymatgen.transformations.advanced_transformations import (
+    CubicSupercellTransformation,
 )
 
 
-class AutoOxiStateDecorationTransformationComponent(TransformationComponent):
+class CubicTransformationComponent(TransformationComponent):
     @property
     def title(self):
-        return "Detect likely oxidation states"
+        return "Make nearly cubic supercell"
 
     @property
     def description(self):
-        return """Annotate the crystal structure with likely oxidation states 
-using a bond valence approach. This transformation can fail if it cannot find 
-a satisfactory combination of oxidation states, and might be slow for large 
-structures. 
+        return """...
 """
 
     @property
     def transformation(self):
-        return AutoOxiStateDecorationTransformation
+        return CubicSupercellTransformation
 
     def options_layout(self, inital_args_kwargs):
         return html.Div()

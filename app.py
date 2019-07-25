@@ -15,9 +15,10 @@ from flask_caching import Cache
 from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.mprester import MPRester
 import crystal_toolkit.components as ctc
 
-from pymatgen import MPRester, Structure, Molecule
+from pymatgen import Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen import __version__ as pmg_version
 
@@ -89,7 +90,7 @@ elif DEBUG_MODE:
     cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "null"})
 else:
     crystal_toolkit_app.logger.error(
-        f"Failed to connect to Redis cache, falling back to " f"file system cache."
+        "Failed to connect to Redis cache, falling back to file system cache."
     )
     cache = Cache(crystal_toolkit_app.server, config={"CACHE_TYPE": "simple"})
 
@@ -131,23 +132,16 @@ download_component = ctc.DownloadPanelComponent(origin_component=struct_componen
 search_component = ctc.SearchComponent()
 upload_component = ctc.StructureMoleculeUploadComponent()
 
-literature_component = ctc.LiteratureComponent(origin_component=struct_component)
 robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
 magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
 xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
-pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
 pbx_component = ctc.PourbaixDiagramPanelComponent(origin_component=struct_component)
+
 symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
 localenv_component = ctc.LocalEnvironmentPanel()
 localenv_component.attach_from(
     origin_component=struct_component, origin_store_name="graph"
 )
-bsdos_component = ctc.BandstructureAndDosPanelComponent(
-    origin_component=search_component
-)
-# grain_boundary_panel = ctc.GrainBoundaryPanel(origin_component=search_component)
-
-xas_component = ctc.XASPanelComponent(origin_component=search_component)
 
 bonding_graph_component = ctc.BondingGraphComponent()
 bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
@@ -157,6 +151,9 @@ bonding_graph_component.attach_from(
     this_store_name="display_options",
     origin_store_name="display_options",
 )
+
+# favorites_component = ctc.FavoritesComponent()
+# favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
 if MP_EMBED_MODE:
     submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
@@ -175,8 +172,16 @@ panels = [
 ]
 
 if MP_EMBED_MODE:
-    mp_section = html.Div()
+    mp_section = (html.Div(),)
 else:
+
+    bsdos_component = ctc.BandstructureAndDosPanelComponent(
+        origin_component=search_component
+    )
+    # grain_boundary_panel = ctc.GrainBoundaryPanel(origin_component=search_component)
+    xas_component = ctc.XASPanelComponent(origin_component=search_component)
+    pd_component = ctc.PhaseDiagramPanelComponent(origin_component=struct_component)
+    literature_component = ctc.LiteratureComponent(origin_component=struct_component)
 
     mp_panels = [
         pd_component,
@@ -417,7 +422,6 @@ master_layout = Container(
                 Columns([Column(body_layout)]),
             ]
         ),
-        # Section(search_component.api_hint_layout),
         Section(footer),
     ]
 )
