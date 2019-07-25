@@ -9,9 +9,9 @@ RUN pip install --no-cache-dir numpy scipy
 ADD requirements.txt /home/project/dash_app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Dash callbacks are blocking, and also often network-limited
-# rather than CPU-limited, so using NUM_WORKERS >> number of
-# CPU cores is sensible
+# whether to embed in materialsproject.org or not
+ENV CRYSTAL_TOOLKIT_MP_EMBED_MODE=False
+
 ENV CRYSTAL_TOOLKIT_NUM_WORKERS=16
 
 # for Crossref API, used for DOI lookups
@@ -26,5 +26,4 @@ ENV CRYSTAL_TOOLKIT_DEBUG_MODE=False
 ADD . /home/project/dash_app
 
 EXPOSE 8000
-CMD gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --worker-class=gevent --worker-connections=1000 \
-    --threads=2 --timeout=300 --bind=0.0.0.0 app:server
+CMD gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 app:server
