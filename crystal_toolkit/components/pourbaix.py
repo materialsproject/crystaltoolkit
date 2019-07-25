@@ -8,7 +8,7 @@ from dash.exceptions import PreventUpdate
 import numpy as np
 import re
 from pymatgen import MPRester
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, ELEMENTS_HO
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, elements_HO
 
 from crystal_toolkit.helpers.layouts import MessageContainer, \
     MessageBody # layout helpers like `Columns` etc. (most subclass html.Div)
