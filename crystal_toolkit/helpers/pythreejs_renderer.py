@@ -114,6 +114,7 @@ def view(molecule_or_structure, **kwargs):
     Jupyter notebook.
     :param molecule_or_structure: Molecule or Structure object
     """
+    obj_or_scene = molecule_or_structure
     if isinstance(obj_or_scene, CrystalToolkitScene):
         scene = obj_or_scene
     elif hasattr(obj_or_scene, "get_scene"):
@@ -124,13 +125,13 @@ def view(molecule_or_structure, **kwargs):
         smc = StructureMoleculeComponent(
             obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
         scene = smc.initial_graph.get_scene(
-            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True)
+            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True, **kwargs)
     elif isinstance(obj_or_scene, Molecule):
         # TODO Temporary place holder for render molecules
         smc = StructureMoleculeComponent(
             obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
         scene = smc.initial_graph.get_scene(
-            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True)
+            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True, **kwargs)
     else:
         raise ValueError(
             "Only Scene objects or objects with get_scene() methods "
