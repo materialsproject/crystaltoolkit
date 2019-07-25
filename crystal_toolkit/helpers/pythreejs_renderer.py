@@ -81,7 +81,6 @@ def convert_object_to_pythreejs(scene_obj):
     """
     obs = []
     if scene_obj.type == "spheres":
-        print(scene_obj.positions)
         obs.extend(_get_spheres(scene_obj))
     elif scene_obj.type == "cylinders":
         for ipos in scene_obj.positionPairs:
