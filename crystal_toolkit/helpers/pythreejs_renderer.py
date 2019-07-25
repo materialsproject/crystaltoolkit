@@ -81,15 +81,8 @@ def convert_object_to_pythreejs(scene_obj):
     """
     obs = []
     if scene_obj.type == "spheres":
-        for ipos in scene_obj.positions:
-            obj3d = Mesh(
-                geometry=SphereBufferGeometry(
-                    radius=scene_obj.radius, dthSegments=32, heightSegments=16
-                ),
-                material=MeshLambertMaterial(color=scene_obj.color),
-                position=tuple(ipos),
-            )
-            obs.append(obj3d)
+        print(scene_obj.positions)
+        obs.extend(_get_spheres(scene_obj))
     elif scene_obj.type == "cylinders":
         for ipos in scene_obj.positionPairs:
             obj3d = _get_cylinder_from_vec(
@@ -193,6 +186,24 @@ def _get_line_from_vec(v0, v1, d_args):
         LineMaterial(**obj_args),  # Dashed lines do not work in pythreejs yet
     )
     return line
+
+def _get_spheres(ctk_scene):
+    """
+    render spheres
+    """
+
+    if ctk_scene.phiEnd and ctk_scene.phiStart:
+        phi_length = ctk_scene.phiEnd - ctk_scene.phiStart
+    else:
+        phi_length = np.pi * 2
+
+    return [Mesh(
+        geometry=SphereBufferGeometry(
+            radius=ctk_scene.radius, phiStart=ctk_scene.phiStart or 0, phiLength=phi_length),
+        material=MeshLambertMaterial(color=ctk_scene.color),
+        position=tuple(ipos),
+    )
+        for ipos in ctk_scene.positions]
 
 
 def _get_cube_from_pos(v0, **kwargs):
