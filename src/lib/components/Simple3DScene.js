@@ -17,11 +17,26 @@ export default class Simple3DScene {
       sphereScale: 1.0,
       cylinderScale: 1.0,
       defaultSurfaceOpacity: 0.5,
-      lights: [{ type: 'HemisphereLight', args: ['#ffffff', '#202020', 1] }],
+      lights: [
+        {
+          type: 'HemisphereLight',
+          args: ['#eeeeee', '#999999', 1.0]
+        },
+        {
+          type: 'DirectionalLight',
+          args: ['#ffffff', 0.15],
+          position: [0, 0, -10]
+        },
+        {
+          type: 'DirectionalLight',
+          args: ['#ffffff', 0.15],
+          position: [-10, 10, 10]
+        }
+      ],
       material: {
         type: 'MeshStandardMaterial',
         parameters: {
-          roughness: 0.2,
+          roughness: 0.07,
           metalness: 0.0
         }
       },
@@ -570,7 +585,6 @@ export default class Simple3DScene {
   }
 
   getClickedReference (clientX, clientY) {
-
     const raycaster = new THREE.Raycaster()
     const mouse = new THREE.Vector2()
 
@@ -587,7 +601,6 @@ export default class Simple3DScene {
     }
 
     return null
-
   }
 
   static removeObjectByName (scene, name) {

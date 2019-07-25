@@ -26,8 +26,7 @@ vacuum inserted so that the properties of the crystal surface can be studied.
     def transformation(self):
         return SlabTransformation
 
-    @property
-    def options_layout(self):
+    def options_layout(self, inital_args_kwargs):
 
         miller_index = get_matrix_input(
             self.id(),

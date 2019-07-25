@@ -17,23 +17,51 @@ Keyword arguments:
 - settings (dict; optional): Options used for generating scene
 - toggleVisibility (dict; optional): Hide/show nodes in scene by name (key), value is 1 to show the node
 and 0 to hide it
-- downloadRequest (dict; optional): Increment to trigger a screenshot or scene download."""
-    @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, data=Component.UNDEFINED, settings=Component.UNDEFINED, toggleVisibility=Component.UNDEFINED, downloadRequest=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'data', 'settings', 'toggleVisibility', 'downloadRequest']
-        self._type = 'Simple3DSceneComponent'
-        self._namespace = 'crystal_toolkit'
-        self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'data', 'settings', 'toggleVisibility', 'downloadRequest']
-        self.available_wildcard_properties =            []
+- downloadRequest (dict; optional): Increment to trigger a screenshot or scene download.
+- selectedObjectReference (string; optional): Reference to selected objects when clicked
+- selectedObjectCount (number; optional): Click count for selected object"""
 
-        _explicit_args = kwargs.pop('_explicit_args')
+    @_explicitize_args
+    def __init__(
+        self,
+        id=Component.UNDEFINED,
+        data=Component.UNDEFINED,
+        settings=Component.UNDEFINED,
+        toggleVisibility=Component.UNDEFINED,
+        downloadRequest=Component.UNDEFINED,
+        selectedObjectReference=Component.UNDEFINED,
+        selectedObjectCount=Component.UNDEFINED,
+        **kwargs
+    ):
+        self._prop_names = [
+            "id",
+            "data",
+            "settings",
+            "toggleVisibility",
+            "downloadRequest",
+            "selectedObjectReference",
+            "selectedObjectCount",
+        ]
+        self._type = "Simple3DSceneComponent"
+        self._namespace = "crystal_toolkit"
+        self._valid_wildcard_attributes = []
+        self.available_properties = [
+            "id",
+            "data",
+            "settings",
+            "toggleVisibility",
+            "downloadRequest",
+            "selectedObjectReference",
+            "selectedObjectCount",
+        ]
+        self.available_wildcard_properties = []
+
+        _explicit_args = kwargs.pop("_explicit_args")
         _locals = locals()
         _locals.update(kwargs)  # For wildcard attrs
-        args = {k: _locals[k] for k in _explicit_args if k != 'children'}
+        args = {k: _locals[k] for k in _explicit_args if k != "children"}
 
         for k in []:
             if k not in args:
-                raise TypeError(
-                    'Required argument `' + k + '` was not specified.')
+                raise TypeError("Required argument `" + k + "` was not specified.")
         super(Simple3DSceneComponent, self).__init__(**args)

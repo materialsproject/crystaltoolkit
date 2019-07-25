@@ -5,30 +5,41 @@ from scipy.spatial.qhull import Delaunay
 from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface, Convex
 
 from pymatgen import Site
+from pymatgen.analysis.graphs import ConnectedSite
+
+from typing import List, Optional
 
 
 def get_site_scene(
     self,
-    connected_sites=None,
-    connected_site_color=None,
-    origin=(0, 0, 0),
-    ellipsoid_site_prop=None,
-    all_connected_sites_present=True,
-    explicitly_calculate_polyhedra_hull=False,
+    connected_sites: List[ConnectedSite] = None,
+    connected_sites_not_drawn: List[ConnectedSite] = None,
+    hide_incomplete_edges: bool = False,
+    incomplete_edge_length_scale: Optional[float] = 1.0,
+    connected_sites_colors: Optional[List[str]] = None,
+    connected_sites_not_drawn_colors: Optional[List[str]] = None,
+    origin: List[float] = (0, 0, 0),
+    ellipsoid_site_prop: str = None,
+    draw_polyhedra: bool = True,
+    explicitly_calculate_polyhedra_hull: bool = False,
 ) -> Scene:
     """
-        Sites must have display_radius and display_color, display_vector,
-        display_ellipsoid site properties.
 
-        TODO: add bond colours to connected_site_properties
-        :param site:
-        :param connected_sites:
-        :param origin:
-        :param all_connected_sites_present: if False, will not calculate
-        polyhedra since this would be misleading
-        :param explicitly_calculate_polyhedra_hull:
-        :return:
-        """
+    Args:
+        self:
+        connected_sites:
+        connected_sites_not_drawn:
+        hide_incomplete_edges:
+        incomplete_edge_length_scale:
+        connected_sites_colors:
+        connected_sites_not_drawn_colors:
+        origin:
+        ellipsoid_site_prop:
+        explicitly_calculate_polyhedra_hull:
+
+    Returns:
+
+    """
 
     atoms = []
     bonds = []
@@ -110,25 +121,55 @@ def get_site_scene(
             radius=self.properties["display_radius"][0],
             phiStart=phiEnd,
             phiEnd=np.pi * 2,
-            ellipsoids=ellipsoids,
         )
         atoms.append(sphere)
 
     if connected_sites:
 
         all_positions = []
-        for connected_site in connected_sites:
+        for idx, connected_site in enumerate(connected_sites):
 
             connected_position = np.subtract(connected_site.site.coords, origin)
             bond_midpoint = np.add(position, connected_position) / 2
 
+            if connected_sites_colors:
+                color = connected_sites_colors[idx]
+            else:
+                color = site_color
+
             cylinder = Cylinders(
-                positionPairs=[[position, bond_midpoint.tolist()]], color=site_color
+                positionPairs=[[position, bond_midpoint.tolist()]], color=color
             )
             bonds.append(cylinder)
             all_positions.append(connected_position.tolist())
 
-        if len(connected_sites) > 3 and all_connected_sites_present:
+        if connected_sites_not_drawn and not hide_incomplete_edges:
+
+            for idx, connected_site in enumerate(connected_sites_not_drawn):
+
+                connected_position = np.subtract(connected_site.site.coords, origin)
+                bond_midpoint = (
+                    incomplete_edge_length_scale
+                    * np.add(position, connected_position)
+                    / 2
+                )
+
+                if connected_sites_not_drawn_colors:
+                    color = connected_sites_not_drawn_colors[idx]
+                else:
+                    color = site_color
+
+                cylinder = Cylinders(
+                    positionPairs=[[position, bond_midpoint.tolist()]], color=color
+                )
+                bonds.append(cylinder)
+                all_positions.append(connected_position.tolist())
+
+        if (
+            draw_polyhedra
+            and len(connected_sites) > 3
+            and not connected_sites_not_drawn
+        ):
             if explicitly_calculate_polyhedra_hull:
 
                 try:

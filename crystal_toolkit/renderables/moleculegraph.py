@@ -9,11 +9,7 @@ from crystal_toolkit.core.scene import Scene
 
 
 def get_molecule_graph_scene(
-    self,
-    origin=(0, 0, 0),
-    explicitly_calculate_polyhedra_hull=False,
-    draw_polyhedra=True,
-    **kwargs
+    self, origin=(0, 0, 0), explicitly_calculate_polyhedra_hull=False, **kwargs
 ) -> Scene:
 
     primitives = defaultdict(list)
@@ -24,7 +20,6 @@ def get_molecule_graph_scene(
 
         site_scene = site.get_scene(
             connected_sites=connected_sites,
-            all_connected_sites_present=draw_polyhedra,
             origin=origin,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
         )
