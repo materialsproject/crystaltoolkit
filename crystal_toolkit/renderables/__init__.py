@@ -9,7 +9,7 @@ from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.graphs import StructureGraph
 
 
-Renderer.register(Lattice,get_lattice_scene)
-Renderer.register(Site,get_site_scene)
-Renderer.register(MoleculeGraph,get_molecule_graph_scene)
-Renderer.register(StructureGraph,get_structure_graph_scene)
+Renderer.register_interface(Lattice,get_lattice_scene)
+Renderer.register_interface(Site,get_site_scene)
+Renderer.register_interface(MoleculeGraph,get_molecule_graph_scene)
+Renderer.register_interface(StructureGraph,get_structure_graph_scene)

@@ -11,7 +11,7 @@ class Renderer:
     all_interfaces = {}
 
     @staticmethod
-    def register(rendering_type, render_method):
+    def register_interface(rendering_type, render_method):
         Renderer.all_interfaces[rendering_type] = render_method
 
     @staticmethod
@@ -19,7 +19,7 @@ class Renderer:
         Renderer.all_interfaces = dict()
 
     @staticmethod
-    def render(obj, *args, **kwargs):
+    def to_scene(obj, *args, **kwargs):
         if type(obj) in Renderer.all_interfaces:
             return Renderer.all_interfaces[type(obj)](obj, *args, **kwargs)
         else:

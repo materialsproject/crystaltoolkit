@@ -10,7 +10,7 @@ from pymatgen.analysis.graphs import StructureGraph
 
 def test_Lattice():
 	latt = Lattice([[1.0,0,0],[0,1.0,0],[0,0,1.0]])
-	latt_scene = Renderer.render(latt)
+	latt_scene = Renderer.to_scene(latt)
 	assert type(latt_scene) == Scene
 
 
@@ -19,7 +19,7 @@ def test_Site():
 	# TODO: Move display_color and display_radius into something else
 	# TODO: What are the formats for display_color and display_radius?
 	site = Site("Fe", [0.25, 0.35, 0.45],properties={"display_color": ["ff0000"], "display_radius": [1.0]})
-	site_scene = Renderer.render(site)
+	site_scene = Renderer.to_scene(site)
 	assert type(site_scene) == Scene
 
 
@@ -31,5 +31,5 @@ def test_StructureGraph():
             structure, edge_weight_name="", edge_weight_units=""
         )
 
-	struc_graph_scene = Renderer.render(struc_graph)
+	struc_graph_scene = Renderer.to_scene(struc_graph)
 	assert type(struc_graph_scene) == Scene
