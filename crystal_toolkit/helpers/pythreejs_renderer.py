@@ -36,6 +36,7 @@ from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 import logging
+import warnings
 
 logger = logging.getLogger('crystaltoolkit.pythreejs_renderer')
 
@@ -106,30 +107,33 @@ def view(molecule_or_structure, **kwargs):
     Jupyter notebook.
     :param molecule_or_structure: Molecule or Structure object
     """
-    obj_or_scene = molecule_or_structure
-    if isinstance(obj_or_scene, CrystalToolkitScene):
-        scene = obj_or_scene
-    elif hasattr(obj_or_scene, "get_scene"):
-        scene = obj_or_scene.get_scene(**kwargs)
-    # TODO: next two elif statements are only here until Molecule and Structure have get_scene()
-    elif isinstance(obj_or_scene, Structure):
-        # TODO Temporary place holder for render structure until structure.get_scene() is implemented
-        smc = StructureMoleculeComponent(
-            obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
-        scene = smc.initial_graph.get_scene(
-            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True, **kwargs)
-    elif isinstance(obj_or_scene, Molecule):
-        # TODO Temporary place holder for render molecules
-        smc = StructureMoleculeComponent(
-            obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
-        scene = smc.initial_graph.get_scene(
-            draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True, **kwargs)
-    else:
-        raise ValueError(
-            "Only Scene objects or objects with get_scene() methods "
-            "can be displayed."
-        )
-    display_scene(scene)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+
+        obj_or_scene = molecule_or_structure
+        if isinstance(obj_or_scene, CrystalToolkitScene):
+            scene = obj_or_scene
+        elif hasattr(obj_or_scene, "get_scene"):
+            scene = obj_or_scene.get_scene(**kwargs)
+        # TODO: next two elif statements are only here until Molecule and Structure have get_scene()
+        elif isinstance(obj_or_scene, Structure):
+            # TODO Temporary place holder for render structure until structure.get_scene() is implemented
+            smc = StructureMoleculeComponent(
+                obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+            scene = smc.initial_graph.get_scene(
+                draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True, **kwargs)
+        elif isinstance(obj_or_scene, Molecule):
+            # TODO Temporary place holder for render molecules
+            smc = StructureMoleculeComponent(
+                obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
+            scene = smc.initial_graph.get_scene(
+                draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True, **kwargs)
+        else:
+            raise ValueError(
+                "Only Scene objects or objects with get_scene() methods "
+                "can be displayed."
+            )
+        display_scene(scene)
 
 
 def display_scene(scene):
