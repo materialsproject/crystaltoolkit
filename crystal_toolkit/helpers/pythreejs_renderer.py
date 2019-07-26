@@ -102,10 +102,12 @@ def convert_object_to_pythreejs(scene_obj):
 
 
 def view(molecule_or_structure, **kwargs):
-    """
-    View a pymatgen Molecule or Structure object interactively in a
+    """View a pymatgen Molecule or Structure object interactively in a
     Jupyter notebook.
-    :param molecule_or_structure: Molecule or Structure object
+    
+    Raises:
+        molecule_or_structure: Molecule or structure to display
+        draw_image_atoms (bool):  Show periodic copies of atoms
     """
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -128,7 +130,7 @@ def view(molecule_or_structure, **kwargs):
             # TODO Temporary place holder for render structure until structure.get_scene() is implemented
             smc = StructureMoleculeComponent(obj_or_scene,
                                              static=True,
-                                             **kwargs)
+                                             )
             origin = np.sum(obj_or_scene.lattice.matrix, axis=0)/2.
             scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
         elif isinstance(obj_or_scene, Molecule):
@@ -136,7 +138,7 @@ def view(molecule_or_structure, **kwargs):
             origin = obj_or_scene.center_of_mass
             smc = StructureMoleculeComponent(obj_or_scene,
                                              static=True,
-                                             **kwargs)
+                                             )
             scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
         else:
             raise ValueError(
