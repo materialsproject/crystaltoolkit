@@ -36,9 +36,9 @@ def test_spheres():
     assert merged_spheres.key == "sphere_ff0000_1.0_None_None_None"
     assert len(merged_spheres.positions) == 2
 
-    assert sphere.bounding_box == [[0, 0], [0, 0], [0, 0]]
-    assert sphere2.bounding_box == [[1.0, 1.0], [0, 0], [0, 0]]
-    assert merged_spheres.bounding_box == [[0, 1.0], [0, 0], [0, 0]]
+    assert sphere.bounding_box == [[0, 0, 0], [0, 0, 0]]
+    assert sphere2.bounding_box == [[1.0, 0, 0], [1.0, 0, 0]]
+    assert merged_spheres.bounding_box == [[0, 0, 0], [1.0, 0, 0]]
 
 
 def test_ellipsoids():
@@ -57,9 +57,9 @@ def test_ellipsoids():
     assert merged_ellipsoids.key == "ellipsoid_ff0000_[1, 1, 1]_None_None_None"
     assert len(merged_ellipsoids.positions) == 2
 
-    assert ellipsoid.bounding_box == [[0, 0], [0, 0], [0, 0]]
-    assert ellipsoid2.bounding_box == [[1.0, 1.0], [0, 0], [0, 0]]
-    assert merged_ellipsoids.bounding_box == [[0, 1.0], [0, 0], [0, 0]]
+    assert ellipsoid.bounding_box == [[0, 0, 0], [0, 0, 0]]
+    assert ellipsoid2.bounding_box == [[1.0, 0, 0], [1.0, 0, 0]]
+    assert merged_ellipsoids.bounding_box == [[0, 0, 0], [1.0, 0, 0]]
 
 
 def test_cyclinderss():
@@ -78,9 +78,9 @@ def test_cyclinderss():
     assert merged_cyclinderss.key == "cyclinder_ff0000_1.0_None"
     assert len(merged_cyclinderss.positionPairs) == 2
 
-    assert cyclinders.bounding_box == [[0, 1.0], [0, 0], [0, 0]]
-    assert cyclinders2.bounding_box == [[0, 1.0], [0, 2.0], [0, 0]]
-    assert merged_cyclinderss.bounding_box == [[0, 1.0], [0, 2.0], [0, 0]]
+    assert cyclinders.bounding_box == [[0, 0, 0], [1.0, 0, 0]]
+    assert cyclinders2.bounding_box == [[0, 0, 0], [1.0, 2.00, 0]]
+    assert merged_cyclinderss.bounding_box == [[0, 0, 0], [1.0, 2.0, 0]]
 
 def test_cubes():
 
@@ -94,6 +94,6 @@ def test_cubes():
     assert merged_cubes.key == "cube_ff0000_1.0_None"
     assert len(merged_cubes.positions) == 2
 
-    assert cube.bounding_box == [[0, 0], [0, 0], [0, 0]]
-    assert cube2.bounding_box == [[1.0, 1.0], [0, 0], [0, 0]]
-    assert merged_cubes.bounding_box == [[0, 1.0], [0, 0], [0, 0]]
+    assert cube.bounding_box == [[0, 0, 0], [0, 0, 0]]
+    assert cube2.bounding_box == [[1.0, 0, 0], [1.0, 0, 0]]
+    assert merged_cubes.bounding_box == [[0, 0, 0], [1.0, 0, 0]]
