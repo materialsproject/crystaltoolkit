@@ -18,15 +18,15 @@ def test_Site():
 
 	# TODO: Move display_color and display_radius into something else
 	# TODO: What are the formats for display_color and display_radius?
-	site = Site("Fe", [0.25, 0.35, 0.45],properties={"display_color": "ff0000", "display_radius": 1})
+	site = Site("Fe", [0.25, 0.35, 0.45],properties={"display_color": ["ff0000"], "display_radius": [1.0]})
 	site_scene = Renderer.render(site)
 	assert type(site_scene) == Scene
 
 
 def test_StructureGraph():
 	structure = Structure(Lattice.tetragonal(5.0, 50.0), ["H"], [[0, 0, 0]])
-	structure.add_site_property("display_color",["ff0000"])
-	structure.add_site_property("display_radius",[1])
+	structure.add_site_property("display_color",[["ff0000"]])
+	structure.add_site_property("display_radius",[[1.0]])
 	struc_graph = StructureGraph.with_empty_graph(
             structure, edge_weight_name="", edge_weight_units=""
         )
