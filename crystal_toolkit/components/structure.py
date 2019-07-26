@@ -73,7 +73,7 @@ class StructureMoleculeComponent(MPComponent):
         id=None,
         origin_component=None,
         scene_additions=None,
-        bonding_strategy="CrystalNN",
+        bonding_strategy="MinimumDistanceNN",
         bonding_strategy_kwargs=None,
         color_scheme="VESTA",
         color_scale=None,
