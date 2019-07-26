@@ -274,7 +274,7 @@ class Cylinders(Primitive):
     @property
     def bounding_box(self) -> List[List[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
-        return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
+        return [[min(x), min(y), min(z)], [max(x), max(y), max(z)]]
 
 
 @dataclass
