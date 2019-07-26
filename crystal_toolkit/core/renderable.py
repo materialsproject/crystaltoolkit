@@ -6,53 +6,21 @@ convert objects into Scenes for rendering
 """
 
 
-class RenderableMeta(ABCMeta):
+class Renderer:
 
-    all_instances = None
+    all_interfaces = {}
 
-    def __init__(cls, name, bases, namespace, **kwds):
-        """
-        Initialize the Renderbale class
-            1.) Find the namespace property for the target type
-            2.) register in my main dict what
-        """
+    @staticmethod
+    def register(rendering_type, render_method):
+        Renderer.all_interfaces[rendering_type] = render_method
 
-        if name != "Renderable":
-            if "target_type" not in namespace:
-                raise Exception(
-                    "Renderable pattern needs a target type"
-                    "to associate this crystal_toolkit interfaces to"
-                )
-            if not any(b is Renderable for b in bases):
-                raise Exception(
-                    "Can only register Renderable"
-                    "objects with the RenderableMeta type"
-                )
+    @staticmethod
+    def clear_interfaces():
+        Renderer.all_interfaces = dict()
 
-            RenderableMeta.all_instances = RenderableMeta.all_instances or dict()
-
-            RenderableMeta.all_instances[namespace["target_type"]] = cls
-
-        super(RenderableMeta, cls).__init__(name, bases, namespace, **kwds)
-
-    @classmethod
-    def clear_interfaces(cls):
-        RenderableMeta.all_instances = dict()
-
-    @classmethod
-    def get_interface(cls, obj):
-        if type(obj) in RenderableMeta.all_instances:
-            return RenderableMeta.all_instances[type(obj)]
+    @staticmethod
+    def render(obj, *args, **kwargs):
+        if type(obj) in Renderer.all_interfaces:
+            return Renderer.all_interfaces[type(obj)](obj, *args, **kwargs)
         else:
             raise Exception(f"Could not find appropriate interface for {type(obj)}")
-
-
-class Renderable(metaclass=RenderableMeta):
-    @classmethod
-    @abstractmethod
-    def to_scene(cls, obj, **kwargs):
-        raise NotImplemented("This method has not been implemented")
-
-    @classmethod
-    def render(cls, obj, **kwargs):
-        return RenderableMeta.get_interface(obj).to_scene(cls, obj, **kwargs)
