@@ -21,7 +21,7 @@ from pythreejs import (
     DirectionalLight,
     Box3,
 )
-
+from math import isnan
 from IPython.display import display
 from scipy.spatial.transform import Rotation as R
 from pymatgen import Structure, Molecule
@@ -105,7 +105,7 @@ def view(molecule_or_structure, **kwargs):
     """View a pymatgen Molecule or Structure object interactively in a
     Jupyter notebook.
     
-    Raises:
+    Args:
         molecule_or_structure: Molecule or structure to display
         draw_image_atoms (bool):  Show periodic copies of atoms
     """
@@ -128,17 +128,25 @@ def view(molecule_or_structure, **kwargs):
         # TODO: next two elif statements are only here until Molecule and Structure have get_scene()
         elif isinstance(obj_or_scene, Structure):
             # TODO Temporary place holder for render structure until structure.get_scene() is implemented
-            smc = StructureMoleculeComponent(obj_or_scene,
-                                             static=True,
-                                             )
+            smc = StructureMoleculeComponent(
+                obj_or_scene,
+                static=True,
+                hide_incomplete_bonds=kwargs['hide_incomplete_edges'],
+                draw_image_atoms=kwargs['draw_image_atoms'],
+                bonded_sites_outside_unit_cell=kwargs['bonded_sites_outside_unit_cell'],
+            )
             origin = np.sum(obj_or_scene.lattice.matrix, axis=0)/2.
             scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
         elif isinstance(obj_or_scene, Molecule):
             # TODO Temporary place holder for render molecules
+            kwargs.pop('draw_image_atoms')
+            kwargs.pop('hide_incomplete_edges')
+            kwargs.pop('bonded_sites_outside_unit_cell')
             origin = obj_or_scene.center_of_mass
-            smc = StructureMoleculeComponent(obj_or_scene,
-                                             static=True,
-                                             )
+            smc = StructureMoleculeComponent(
+                obj_or_scene,
+                static=True,
+                **kwargs)
             scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
         else:
             raise ValueError(
@@ -216,13 +224,17 @@ def _get_spheres(ctk_scene):
     else:
         phi_length = np.pi * 2
 
-    return [Mesh(
-        geometry=SphereBufferGeometry(
-            radius=ctk_scene.radius, phiStart=ctk_scene.phiStart or 0, phiLength=phi_length),
-        material=MeshLambertMaterial(color=ctk_scene.color),
-        position=tuple(ipos),
-    )
-        for ipos in ctk_scene.positions]
+    return [
+        Mesh(
+            geometry=SphereBufferGeometry(radius=ctk_scene.radius,
+                                          phiStart=ctk_scene.phiStart or 0,
+                                          phiLength=phi_length,
+                                          widthSegments=32,
+                                          heightSegments=32),
+            material=MeshLambertMaterial(color=ctk_scene.color),
+            position=tuple(ipos),
+        ) for ipos in ctk_scene.positions
+    ]
 
 
 def _get_cube_from_pos(v0, **kwargs):
@@ -266,5 +278,10 @@ def _get_cylinder_from_vec(v0, v1, d_args=None):
         position=tuple(mid_point),
     )
     rot = R.from_rotvec(rot_arg * rot_vec)
-    new_bond.quaternion = tuple(rot.as_quat())
+    quat = tuple(rot.as_quat())
+    if any(isnan(itr_q) for itr_q in quat):
+        new_bond.quaternion = (0, 0, 0, 0)
+    else:
+        new_bond.quaternion = quat
+
     return new_bond
