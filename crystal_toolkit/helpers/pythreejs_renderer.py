@@ -110,6 +110,14 @@ def view(molecule_or_structure, **kwargs):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
+        # Since the jupyter viewer is meant for quick peaks at the structure the default behaviour should be different
+        # ex. draw_image_atoms should be set to false:
+        if "draw_image_atoms" not in kwargs:
+            kwargs["draw_image_atoms"] = False
+        if "bonded_sites_outside_unit_cell" not in kwargs:
+            kwargs["bonded_sites_outside_unit_cell"] = False
+        if "hide_incomplete_edges" not in kwargs:
+            kwargs["hide_incomplete_edges"] = True
         obj_or_scene = molecule_or_structure
         if isinstance(obj_or_scene, CrystalToolkitScene):
             scene = obj_or_scene
@@ -118,16 +126,18 @@ def view(molecule_or_structure, **kwargs):
         # TODO: next two elif statements are only here until Molecule and Structure have get_scene()
         elif isinstance(obj_or_scene, Structure):
             # TODO Temporary place holder for render structure until structure.get_scene() is implemented
-            smc = StructureMoleculeComponent(
-                obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
-            scene = smc.initial_graph.get_scene(
-                draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True, **kwargs)
+            smc = StructureMoleculeComponent(obj_or_scene,
+                                             static=True,
+                                             **kwargs)
+            origin = np.sum(obj_or_scene.lattice.matrix, axis=0)/2.
+            scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
         elif isinstance(obj_or_scene, Molecule):
             # TODO Temporary place holder for render molecules
-            smc = StructureMoleculeComponent(
-                obj_or_scene, static=True, draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True)
-            scene = smc.initial_graph.get_scene(
-                draw_image_atoms=False, bonded_sites_outside_unit_cell=False, hide_incomplete_edges=True, **kwargs)
+            origin = obj_or_scene.center_of_mass
+            smc = StructureMoleculeComponent(obj_or_scene,
+                                             static=True,
+                                             **kwargs)
+            scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
         else:
             raise ValueError(
                 "Only Scene objects or objects with get_scene() methods "
