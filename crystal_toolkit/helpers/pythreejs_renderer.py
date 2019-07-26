@@ -43,7 +43,7 @@ logger = logging.getLogger('crystaltoolkit.pythreejs_renderer')
 # Populate the default values from the JSON file
 _DEFAULTS = defaultdict(lambda: None)
 default_js = os.path.join(os.path.join(os.path.dirname(
-    os.path.abspath(__file__))), "../core/", "defaults.js")
+    os.path.abspath(__file__))), "../core/", "defaults.json")
 with open(default_js) as handle:
     _DEFAULTS.update(json.loads(handle.read()))
 
