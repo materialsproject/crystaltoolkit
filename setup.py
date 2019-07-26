@@ -23,6 +23,7 @@ setup(
     author=package['author'],
     packages=find_packages(),
     include_package_data=True,
+    package_data={'': ['./crystal_toolkit/core/defaults.json']},
     license=package['license'],
     description=package['description'] if 'description' in package else package_name,
     install_requires=requirements('requirements.txt'),
