@@ -11,7 +11,7 @@ from typing import List, Optional
 
 
 def get_site_scene(
-    self,
+    site,
     connected_sites: List[ConnectedSite] = None,
     connected_sites_not_drawn: List[ConnectedSite] = None,
     hide_incomplete_edges: bool = False,
@@ -26,7 +26,7 @@ def get_site_scene(
     """
 
     Args:
-        self:
+        site:
         connected_sites:
         connected_sites_not_drawn:
         hide_incomplete_edges:
@@ -46,7 +46,7 @@ def get_site_scene(
     polyhedron = []
 
     # for disordered structures
-    is_ordered = self.is_ordered
+    is_ordered = site.is_ordered
     phiStart, phiEnd = None, None
     occu_start = 0.0
 
@@ -57,36 +57,36 @@ def get_site_scene(
         # eigenvalues, eigenvectors = np.linalg.eig(matrix)
 
     if ellipsoid_site_prop:
-        matrix = self.properties[ellipsoid_site_prop]
+        matrix = site.properties[ellipsoid_site_prop]
         ellipsoids = _get_ellipsoids_from_matrix(matrix)
     else:
         ellipsoids = None
 
-    position = np.subtract(self.coords, origin).tolist()
+    position = np.subtract(site.coords, origin).tolist()
 
     # site_color is used for bonds and polyhedra, if multiple colors are
     # defined for site (e.g. a disordered site), then we use grey
-    all_colors = set(self.properties["display_color"])
+    all_colors = set(site.properties["display_color"])
     if len(all_colors) > 1:
         site_color = "#555555"
     else:
         site_color = list(all_colors)[0]
 
-    for idx, (sp, occu) in enumerate(self.species.items()):
+    for idx, (sp, occu) in enumerate(site.species.items()):
 
         if isinstance(sp, DummySpecie):
 
             cube = Cubes(
                 positions=[position],
-                color=self.properties["display_color"][idx],
+                color=site.properties["display_color"][idx],
                 width=0.4,
             )
             atoms.append(cube)
 
         else:
 
-            color = self.properties["display_color"][idx]
-            radius = self.properties["display_radius"][idx]
+            color = site.properties["display_color"][idx]
+            radius = site.properties["display_radius"][idx]
 
             # TODO: make optional/default to None
             # in disordered structures, we fractionally color-code spheres,
@@ -118,7 +118,7 @@ def get_site_scene(
         sphere = Spheres(
             positions=[position],
             color="#ffffff",
-            radius=self.properties["display_radius"][0],
+            radius=site.properties["display_radius"][0],
             phiStart=phiEnd,
             phiEnd=np.pi * 2,
         )
@@ -185,7 +185,7 @@ def get_site_scene(
                     polyhedron = [
                         Surface(
                             positions=vertices,
-                            color=self.properties["display_color"][0],
+                            color=site.properties["display_color"][0],
                         )
                     ]
 
@@ -198,13 +198,10 @@ def get_site_scene(
                 polyhedron = [Convex(positions=all_positions, color=site_color)]
 
     return Scene(
-        self.species_string,
+        site.species_string,
         [
             Scene("atoms", contents=atoms),
             Scene("bonds", contents=bonds),
             Scene("polyhedra", contents=polyhedron),
         ],
     )
-
-
-Site.get_scene = get_site_scene

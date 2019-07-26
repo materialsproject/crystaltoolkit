@@ -1,22 +1,23 @@
 from collections import defaultdict
 from itertools import combinations
-
 import numpy as np
-from pymatgen import PeriodicSite
-from pymatgen.analysis.graphs import MoleculeGraph
 
 from crystal_toolkit.core.scene import Scene
 
 
 def get_molecule_graph_scene(
-    self, origin=(0, 0, 0), explicitly_calculate_polyhedra_hull=False, **kwargs
+    molecule_graph,
+    origin=(0, 0, 0),
+    explicitly_calculate_polyhedra_hull=False,
+    draw_polyhedra=True,
+    **kwargs
 ) -> Scene:
 
     primitives = defaultdict(list)
 
-    for idx, site in enumerate(self.molecule):
+    for idx, site in enumerate(molecule_graph.molecule):
 
-        connected_sites = self.get_connected_sites(idx)
+        connected_sites = molecule_graph.get_connected_sites(idx)
 
         site_scene = site.get_scene(
             connected_sites=connected_sites,
@@ -27,9 +28,6 @@ def get_molecule_graph_scene(
             primitives[scene.name] += scene.contents
 
     return Scene(
-        name=self.molecule.composition.reduced_formula,
+        name=molecule_graph.molecule.composition.reduced_formula,
         contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
     )
-
-
-MoleculeGraph.get_scene = get_molecule_graph_scene

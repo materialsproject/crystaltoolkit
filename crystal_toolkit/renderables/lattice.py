@@ -1,14 +1,10 @@
 import numpy as np
-
 from crystal_toolkit.core.scene import Scene, Lines
 
-from pymatgen import Lattice
-
-
-def get_lattice_scene(self, origin=(0, 0, 0), **kwargs):
+def get_lattice_scene(lattice, origin=(0, 0, 0), **kwargs):
 
     o = -np.array(origin)
-    a, b, c = self.matrix[0], self.matrix[1], self.matrix[2]
+    a, b, c = lattice.matrix[0], lattice.matrix[1], lattice.matrix[2]
     line_pairs = [
         o,
         o + a,
@@ -38,12 +34,8 @@ def get_lattice_scene(self, origin=(0, 0, 0), **kwargs):
     line_pairs = [line.tolist() for line in line_pairs]
 
     name = (
-        f"a={self.a}, b={self.b}, c={self.c}, "
-        f"alpha={self.alpha}, beta={self.beta}, gamma={self.gamma}"
+        f"a={lattice.a}, b={lattice.b}, c={lattice.c}, "
+        f"alpha={lattice.alpha}, beta={lattice.beta}, gamma={lattice.gamma}"
     )
 
     return Scene(name, contents=[Lines(line_pairs, **kwargs)])
-
-
-# todo: re-think origin, shift globally at end (scene.origin)
-Lattice.get_scene = get_lattice_scene

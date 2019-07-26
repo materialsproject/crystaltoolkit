@@ -3,25 +3,25 @@ from itertools import combinations
 
 import numpy as np
 from pymatgen import PeriodicSite
-from pymatgen.analysis.graphs import StructureGraph
 
 from crystal_toolkit.core.scene import Scene
 
 from matplotlib.cm import get_cmap
 
+from crystal_toolkit.renderables import get_site_scene, get_lattice_scene
 
 def _get_sites_to_draw(
-    self, draw_image_atoms=True, bonded_sites_outside_unit_cell=False
+    structure_graph, draw_image_atoms=True, bonded_sites_outside_unit_cell=False
 ):
     """
     Returns a list of site indices and image vectors.
     """
 
-    sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(self.structure))]
+    sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(structure_graph.structure))]
 
     if draw_image_atoms:
 
-        for idx, site in enumerate(self.structure):
+        for idx, site in enumerate(structure_graph.structure):
 
             zero_elements = [
                 idx
@@ -61,7 +61,7 @@ def _get_sites_to_draw(
 
         sites_to_append = []
         for (n, jimage) in sites_to_draw:
-            connected_sites = self.get_connected_sites(n, jimage=jimage)
+            connected_sites = structure_graph.get_connected_sites(n, jimage=jimage)
             for connected_site in connected_sites:
                 if connected_site.jimage != (0, 0, 0):
                     sites_to_append.append(
@@ -77,7 +77,7 @@ def _get_sites_to_draw(
 
 
 def get_structure_graph_scene(
-    self,
+    structure_graph,
     origin=(0, 0, 0),
     draw_image_atoms=True,
     bonded_sites_outside_unit_cell=True,
@@ -90,7 +90,8 @@ def get_structure_graph_scene(
 
     primitives = defaultdict(list)
 
-    sites_to_draw = self._get_sites_to_draw(
+    sites_to_draw = _get_sites_to_draw(
+        structure_graph=structure_graph,
         draw_image_atoms=draw_image_atoms,
         bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
     )
@@ -98,7 +99,7 @@ def get_structure_graph_scene(
     color_edges = False
     if color_edges_by_edge_weight:
 
-        weights = [e[2].get("weight") for e in self.graph.edges(data=True)]
+        weights = [e[2].get("weight") for e in structure_graph.graph.edges(data=True)]
         weights = np.array([w for w in weights if w])
 
         if any(weights):
@@ -121,9 +122,9 @@ def get_structure_graph_scene(
 
     for (idx, jimage) in sites_to_draw:
 
-        site = self.structure[idx]
+        site = structure_graph.structure[idx]
         if jimage != (0, 0, 0):
-            connected_sites = self.get_connected_sites(idx, jimage=jimage)
+            connected_sites = structure_graph.get_connected_sites(idx, jimage=jimage)
             site = PeriodicSite(
                 site.species,
                 np.add(site.frac_coords, jimage),
@@ -131,7 +132,7 @@ def get_structure_graph_scene(
                 properties=site.properties,
             )
         else:
-            connected_sites = self.get_connected_sites(idx)
+            connected_sites = structure_graph.get_connected_sites(idx)
 
         connected_sites = [
             cs for cs in connected_sites if (cs.index, cs.jimage) in sites_to_draw
@@ -154,7 +155,8 @@ def get_structure_graph_scene(
             connected_sites_colors = None
             connected_sites_not_drawn_colors = None
 
-        site_scene = site.get_scene(
+        site_scene = get_site_scene(
+            site=site,
             connected_sites=connected_sites,
             connected_sites_not_drawn=connected_sites_not_drawn,
             hide_incomplete_edges=hide_incomplete_edges,
@@ -177,13 +179,11 @@ def get_structure_graph_scene(
     # def _split_set() ->List: (by type, then..?)
     # def _order_sets()... pick 1, ask can add 2? etc
 
-    primitives["unit_cell"].append(self.structure.lattice.get_scene(origin=origin))
-
-    return Scene(
-        name=self.structure.composition.reduced_formula,
-        contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
+    primitives["unit_cell"].append(
+        get_lattice_scene(lattice=structure_graph.structure.lattice,origin=origin)
     )
 
-
-StructureGraph._get_sites_to_draw = _get_sites_to_draw
-StructureGraph.get_scene = get_structure_graph_scene
+    return Scene(
+        name=structure_graph.structure.composition.reduced_formula,
+        contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
+    )
