@@ -66,7 +66,7 @@ def get_site_scene(
 
     # site_color is used for bonds and polyhedra, if multiple colors are
     # defined for site (e.g. a disordered site), then we use grey
-    all_colors = set(self.properties["display_color"])
+    all_colors = set(self.properties["display_color"] or "#555555")
     if len(all_colors) > 1:
         site_color = "#555555"
     else:
