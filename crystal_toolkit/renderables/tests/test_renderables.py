@@ -18,7 +18,7 @@ def test_Site():
 
 	# TODO: Move display_color and display_radius into something else
 	# TODO: What are the formats for display_color and display_radius?
-	site = Site("Fe", [0.25, 0.35, 0.45],properties={"display_color": ["ff0000"], "display_radius": [1.0]})
+	site = Site("Fe", [0.25, 0.35, 0.45])
 	site_scene = Renderer.to_scene(site)
 	assert type(site_scene) == Scene
 
