@@ -135,9 +135,10 @@ def view(molecule_or_structure, **kwargs):
                 draw_image_atoms=kwargs['draw_image_atoms'],
                 bonded_sites_outside_unit_cell=kwargs['bonded_sites_outside_unit_cell'],
             )
-            for isite in obj_or_scene.sites:
-                isite.properties.pop('display_radius')
-                isite.properties.pop('display_color')
+            try:
+                for isite in obj_or_scene.sites:
+                    isite.properties.pop('display_radius')
+                    isite.properties.pop('display_color')
             origin = np.sum(obj_or_scene.lattice.matrix, axis=0)/2.
             scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
         elif isinstance(obj_or_scene, Molecule):
@@ -146,9 +147,10 @@ def view(molecule_or_structure, **kwargs):
             kwargs.pop('hide_incomplete_edges')
             kwargs.pop('bonded_sites_outside_unit_cell')
             origin = obj_or_scene.center_of_mass
-            for isite in obj_or_scene.sites:
-                isite.properties.pop('display_radius')
-                isite.properties.pop('display_color')
+            try:
+                for isite in obj_or_scene.sites:
+                    isite.properties.pop('display_radius')
+                    isite.properties.pop('display_color')
             smc = StructureMoleculeComponent(
                 obj_or_scene,
                 static=True,
