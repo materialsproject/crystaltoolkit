@@ -69,8 +69,8 @@ def get_site_scene(
     if "display_color" in self.properties and self.properties["display_color"]:
         all_colors = set(self.properties["display_color"])
     else:
-        all_colors = []
-    if len(all_colors) != 1:
+        all_colors = [None]
+    if len(all_colors) > 1:
         site_color = "#555555"
     else:
         site_color = list(all_colors)[0]
@@ -91,11 +91,11 @@ def get_site_scene(
             if self.properties["display_color"]:
                 color = self.properties["display_color"][idx]
             else: 
-                color = ["#555555"]
+                color = None
             if self.properties["display_radius"]:
                 radius = self.properties["display_radius"][idx]
             else: 
-                radius = [0.5]
+                radius = None 
 
             # TODO: make optional/default to None
             # in disordered structures, we fractionally color-code spheres,
