@@ -66,10 +66,7 @@ def get_site_scene(
 
     # site_color is used for bonds and polyhedra, if multiple colors are
     # defined for site (e.g. a disordered site), then we use grey
-    if "display_color" in self.properties and self.properties["display_color"]:
-        all_colors = set(self.properties["display_color"])
-    else:
-        all_colors = [None]
+    all_colors = set(self.properties["display_color"])
     if len(all_colors) > 1:
         site_color = "#555555"
     else:
@@ -88,12 +85,8 @@ def get_site_scene(
 
         else:
 
-            try:
-                color = self.properties["display_color"][idx]
-                radius = self.properties["display_radius"][idx]
-            except:
-                color=None
-                radius=None
+            color = self.properties["display_color"][idx]
+            radius = self.properties["display_radius"][idx]
 
             # TODO: make optional/default to None
             # in disordered structures, we fractionally color-code spheres,
