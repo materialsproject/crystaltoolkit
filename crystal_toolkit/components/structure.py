@@ -868,7 +868,10 @@ class StructureMoleculeComponent(MPComponent):
         legend = {"composition": struct_or_mol.composition.as_dict(), "colors": {}}
 
         # don't calculate color if one is explicitly supplied
-        if "display_color" in struct_or_mol.site_properties:
+        if "display_color" in struct_or_mol.site_properties and struct_or_mol.site_properties[
+                "display_color"] is not None and all(
+                    isinstance(x, float)
+                    for x in struct_or_mol.site_properties["display_color"]):
             # don't know what the color legend (meaning) is, so return empty legend
             return (struct_or_mol.site_properties["display_color"], legend)
 
@@ -1049,7 +1052,10 @@ class StructureMoleculeComponent(MPComponent):
         """
 
         # don't calculate radius if one is explicitly supplied
-        if "display_radius" in struct_or_mol.site_properties:
+        if "display_radius" in struct_or_mol.site_properties and struct_or_mol.site_properties[
+                "display_radius"] is not None and all(
+                    isinstance(x, float)
+                    for x in struct_or_mol.site_properties["display_radius"]):
             return struct_or_mol.site_properties["display_radius"]
 
         if (
