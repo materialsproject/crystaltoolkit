@@ -64,9 +64,12 @@ def get_site_scene(
 
     position = np.subtract(self.coords, origin).tolist()
 
-    # site_color is used for bonds and polyhedra, if multiple colors are
-    # defined for site (e.g. a disordered site), then we use grey
-    all_colors = set(self.properties["display_color"])
+    # site_color is used for bonds and polyhedra, if "display_color" is missing or
+    # multiple colors are defined for site (e.g. a disordered site), then we use grey
+    if "display_color" in self.properties
+        all_colors = set(self.properties["display_color"])
+    else:
+        all_colors = ("#555555")
     if len(all_colors) > 1:
         site_color = "#555555"
     else:
