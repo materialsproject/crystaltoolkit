@@ -139,6 +139,8 @@ def view(molecule_or_structure, **kwargs):
                 for isite in obj_or_scene.sites:
                     isite.properties.pop('display_radius')
                     isite.properties.pop('display_color')
+            except:
+                pass
             origin = np.sum(obj_or_scene.lattice.matrix, axis=0)/2.
             scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
         elif isinstance(obj_or_scene, Molecule):
@@ -151,6 +153,8 @@ def view(molecule_or_structure, **kwargs):
                 for isite in obj_or_scene.sites:
                     isite.properties.pop('display_radius')
                     isite.properties.pop('display_color')
+            except:
+                pass
             smc = StructureMoleculeComponent(
                 obj_or_scene,
                 static=True,
