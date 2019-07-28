@@ -1,207 +1,221 @@
 import numpy as np
 from pymatgen import DummySpecie
-from scipy.spatial.qhull import Delaunay
 
 from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface, Convex
 
 from pymatgen import Site
-from pymatgen.analysis.graphs import ConnectedSite
+from pymatgen.vis.structure_vtk import EL_COLORS
+from palettable.colorbrewer.qualitative import Set1_9, Set2_8
+from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 
 from typing import List, Optional
 
 
-def get_site_scene(
-    site,
-    connected_sites: List[ConnectedSite] = None,
-    connected_sites_not_drawn: List[ConnectedSite] = None,
-    hide_incomplete_edges: bool = False,
-    incomplete_edge_length_scale: Optional[float] = 1.0,
-    connected_sites_colors: Optional[List[str]] = None,
-    connected_sites_not_drawn_colors: Optional[List[str]] = None,
-    origin: List[float] = (0, 0, 0),
-    ellipsoid_site_prop: str = None,
-    draw_polyhedra: bool = True,
-    explicitly_calculate_polyhedra_hull: bool = False,
-) -> Scene:
-    """
+def get_color_hex(x):
+    return "#{:02x}{:02x}{:02x}".format(*x)
 
-    Args:
-        site:
-        connected_sites:
-        connected_sites_not_drawn:
-        hide_incomplete_edges:
-        incomplete_edge_length_scale:
-        connected_sites_colors:
-        connected_sites_not_drawn_colors:
-        origin:
-        ellipsoid_site_prop:
-        explicitly_calculate_polyhedra_hull:
 
-    Returns:
+class SiteRenderable:
 
-    """
+    default_color_scheme = None
+    default_radii_strategy = None
 
-    atoms = []
-    bonds = []
-    polyhedron = []
+    color_map = {}
 
-    # for disordered structures
-    is_ordered = site.is_ordered
-    phiStart, phiEnd = None, None
-    occu_start = 0.0
+    @classmethod
+    def set_default_color_scheme(cls, scheme="VESTA"):
+        """
+        Sets the default color scheme using VESTA if
+        not specified
+        """
+        allowed_color_schemes = ["VESTA", "Jmol", "colorblind_friendly"]
+        if scheme not in allowed_color_schemes:
+            raise Exception(f"Color Scheme {scheme} has not been implemented")
 
-    # for thermal ellipsoids etc.
-    def _get_ellipsoids_from_matrix(matrix):
-        raise NotImplementedError
-        # matrix = np.array(matrix)
-        # eigenvalues, eigenvectors = np.linalg.eig(matrix)
+        SiteRenderable.color_map = {}
+        SiteRenderable.default_color_scheme = scheme
 
-    if ellipsoid_site_prop:
-        matrix = site.properties[ellipsoid_site_prop]
-        ellipsoids = _get_ellipsoids_from_matrix(matrix)
-    else:
-        ellipsoids = None
-
-    position = np.subtract(site.coords, origin).tolist()
-
-    # site_color is used for bonds and polyhedra, if multiple colors are
-    # defined for site (e.g. a disordered site), then we use grey
-    all_colors = set(site.properties["display_color"])
-    if len(all_colors) > 1:
-        site_color = "#555555"
-    else:
-        site_color = list(all_colors)[0]
-
-    for idx, (sp, occu) in enumerate(site.species.items()):
-
-        if isinstance(sp, DummySpecie):
-
-            cube = Cubes(
-                positions=[position],
-                color=site.properties["display_color"][idx],
-                width=0.4,
-            )
-            atoms.append(cube)
-
-        else:
-
-            color = site.properties["display_color"][idx]
-            radius = site.properties["display_radius"][idx]
-
-            # TODO: make optional/default to None
-            # in disordered structures, we fractionally color-code spheres,
-            # drawing a sphere segment from phi_end to phi_start
-            # (think a sphere pie chart)
-            if not is_ordered:
-                phi_frac_end = occu_start + occu
-                phi_frac_start = occu_start
-                occu_start = phi_frac_end
-                phiStart = phi_frac_start * np.pi * 2
-                phiEnd = phi_frac_end * np.pi * 2
-
-            # TODO: add names for labels
-            # name = "{}".format(sp)
-            # if occu != 1.0:
-            #    name += " ({}% occupancy)".format(occu)
-
-            sphere = Spheres(
-                positions=[position],
-                color=color,
-                radius=radius,
-                phiStart=phiStart,
-                phiEnd=phiEnd,
-            )
-            atoms.append(sphere)
-
-    if not is_ordered and not np.isclose(phiEnd, np.pi * 2):
-        # if site occupancy doesn't sum to 100%, cap sphere
-        sphere = Spheres(
-            positions=[position],
-            color="#ffffff",
-            radius=site.properties["display_radius"][0],
-            phiStart=phiEnd,
-            phiEnd=np.pi * 2,
+    @classmethod
+    def set_default_radii_strategy(cls, strategy="atomic"):
+        """
+        Sets the default radii scheme using atomic radii
+        if not specified
+        """
+        available_radius_strategies = (
+            "atomic",
+            "specified_or_average_ionic",
+            "covalent",
+            "van_der_waals",
+            "atomic_calculated",
+            "uniform",
         )
-        atoms.append(sphere)
+        if strategy not in available_radius_strategies:
+            raise Exception(f"Radius scheme {scheme} has not been implemented")
 
-    if connected_sites:
+        SiteRenderable.default_radii_strategy = strategy
 
-        all_positions = []
-        for idx, connected_site in enumerate(connected_sites):
+    @classmethod
+    def color(cls, specie):
 
-            connected_position = np.subtract(connected_site.site.coords, origin)
-            bond_midpoint = np.add(position, connected_position) / 2
+        if SiteRenderable.default_color_scheme == None:
+            SiteRenderable.set_default_color_scheme()
 
-            if connected_sites_colors:
-                color = connected_sites_colors[idx]
+        color_scheme = SiteRenderable.default_color_scheme
+
+        if specie in SiteRenderable.color_map:
+            return SiteRenderable.color_map[specie]
+        elif color_scheme in ("VESTA", "Jmol"):
+            color = get_color_hex(EL_COLORS[color_scheme].get(str(specie), [0, 0, 0]))
+            SiteRenderable.color_map[specie] = color
+        elif color_scheme == "colorblind_friendly":
+            # thanks to https://doi.org/10.1038/nmeth.1618
+            palette = {
+                0: (0, 0, 0),  # 0, black
+                1: (230, 159, 0),  # 1, orange
+                2: (86, 180, 233),  # 2, sky blue
+                3: (0, 158, 115),  #  3, bluish green
+                4: (240, 228, 66),  # 4, yellow
+                5: (0, 114, 178),  # 5, blue
+                6: (213, 94, 0),  # 6, vermillion
+                7: (204, 121, 167),  # 7, reddish purple
+                8: (255, 255, 255),  #  8, white
+            }
+
+            # similar to CPK
+            preferred_colors = {
+                "O": 6,
+                "N": 2,
+                "C": 0,
+                "H": 8,
+                "F": 3,
+                "Cl": 3,
+                "Fe": 1,
+                "Br": 7,
+                "I": 7,
+                "P": 1,
+                "S": 4,
+            }
+
+            remaining_palette = {
+                idx: c
+                for idx, c in palette.items()
+                if c not in SiteRenderable.color_map.values()
+            }
+            if (
+                str(specie) in preferred_colors
+                and preferred_colors[str(specie)] in remaining_palette
+            ):
+                # Choose a prefereed color if available
+                pref_color_index = preferred_colors[str(specie)]
+
+                SiteRenderable.color_map[specie] = get_color_hex(
+                    remaining_palette[pref_color_index]
+                )
             else:
-                color = site_color
-
-            cylinder = Cylinders(
-                positionPairs=[[position, bond_midpoint.tolist()]], color=color
-            )
-            bonds.append(cylinder)
-            all_positions.append(connected_position.tolist())
-
-        if connected_sites_not_drawn and not hide_incomplete_edges:
-
-            for idx, connected_site in enumerate(connected_sites_not_drawn):
-
-                connected_position = np.subtract(connected_site.site.coords, origin)
-                bond_midpoint = (
-                    incomplete_edge_length_scale
-                    * np.add(position, connected_position)
-                    / 2
+                # else choose next available color
+                SiteRenderable.color_map[specie] = get_color_hex(
+                    next(remaining_palette.values())
                 )
 
-                if connected_sites_not_drawn_colors:
-                    color = connected_sites_not_drawn_colors[idx]
-                else:
-                    color = site_color
+        return SiteRenderable.color_map[specie]
 
-                cylinder = Cylinders(
-                    positionPairs=[[position, bond_midpoint.tolist()]], color=color
-                )
-                bonds.append(cylinder)
-                all_positions.append(connected_position.tolist())
+    @classmethod
+    def radius(cls, specie):
 
-        if (
-            draw_polyhedra
-            and len(connected_sites) > 3
-            and not connected_sites_not_drawn
+        if SiteRenderable.default_radii_strategy == None:
+            SiteRenderable.set_default_radii_strategy()
+
+        radius_strategy = SiteRenderable.default_radii_strategy
+
+        if radius_strategy == "uniform":
+            return 0.5
+        elif radius_strategy == "atomic":
+            return specie.atomic_radius
+        elif (
+            radius_strategy == "specified_or_average_ionic"
+            and isinstance(specie, Specie)
+            and specie.oxi_state
         ):
-            if explicitly_calculate_polyhedra_hull:
+            return specie.ionic_radius
+        elif radius_strategy == "specified_or_average_ionic":
+            return specie.average_ionic_radius
+        elif radius_strategy == "covalent":
+            el = str(getattr(specie, "element", specie))
+            return CovalentRadius.radius[el]
+        elif radius_strategy == "van_der_waals":
+            return specie.van_der_waals_radius
+        elif radius_strategy == "atomic_calculated":
+            return specie.atomic_radius_calculated
 
-                try:
+        raise Exception(f"Could not determine radius for {specie}")
 
-                    # all_positions = [[0, 0, 0], [0, 0, 10], [0, 10, 0], [10, 0, 0]]
-                    # gives...
-                    # .convex_hull = [[2, 3, 0], [1, 3, 0], [1, 2, 0], [1, 2, 3]]
-                    # .vertex_neighbor_vertices = [1, 2, 3, 2, 3, 0, 1, 3, 0, 1, 2, 0]
+    @staticmethod
+    def get_site_scene(site, origin: List[float] = (0, 0, 0)) -> Scene:
+        """
 
-                    vertices_indices = Delaunay(all_positions).vertex_neighbor_vertices
-                    vertices = [all_positions[idx] for idx in vertices_indices]
+        Args:
+            site:
+            connected_sites:
+            connected_sites_not_drawn:
+            hide_incomplete_edges:
+            incomplete_edge_length_scale:
+            connected_sites_colors:
+            connected_sites_not_drawn_colors:
+            origin:
+            ellipsoid_site_prop:
+            explicitly_calculate_polyhedra_hull:
 
-                    polyhedron = [
-                        Surface(
-                            positions=vertices,
-                            color=site.properties["display_color"][0],
-                        )
-                    ]
+        Returns:
 
-                except Exception as e:
+        """
 
-                    polyhedron = []
+        atoms = []
+        position = np.subtract(site.coords, origin).tolist()
+        species = list(site.species.keys())
 
-            else:
+        if len(species) == 1 and any(isinstance(sp, DummySpecie) for sp in species):
+            # If we have on Dummy Species, make it a cube
+            color = SiteRenderable.color(species[0])
+            cube = Cubes(positions=[position], color=color, width=0.4)
+            atoms = [cube]
+        else:
+            # Build PhiStart PhiEnd pairs for sphere coloring
+            occupancies = list(site.species.values())
+            phiList = np.cumsum([0] + occupancies).tolist()
+            phiStarts = np.array(phiList[:-1]) * np.pi * 2
+            phiEnds = np.array(phiList[1:]) * np.pi * 2
 
-                polyhedron = [Convex(positions=all_positions, color=site_color)]
+            display_colors = site.properties.get("display_color") or [
+                SiteRenderable.color(sp) for sp in species
+            ]
 
-    return Scene(
-        site.species_string,
-        [
-            Scene("atoms", contents=atoms),
-            Scene("bonds", contents=bonds),
-            Scene("polyhedra", contents=polyhedron),
-        ],
-    )
+            display_radii = site.properties.get("display_radius") or [
+                SiteRenderable.radius(sp) for sp in species
+            ]
+
+            # Itterate over all species and build sphere
+            for (specie, phiStart, phiEnd, color, radius) in zip(
+                species, phiStarts, phiEnds, display_colors, display_radii
+            ):
+
+                sphere = Spheres(
+                    positions=[position],
+                    color=color,
+                    radius=radius,
+                    phiStart=phiStart,
+                    phiEnd=phiEnd,
+                )
+                atoms.append(sphere)
+
+            if not np.isclose(phiEnds[-1], np.pi * 2):
+                # if site occupancy doesn't sum to 100%, cap sphere
+                sphere = Spheres(
+                    positions=[position],
+                    color="#ffffff",
+                    radius=display_radii[0],
+                    phiStart=phiEnd[-1],
+                    phiEnd=np.pi * 2,
+                )
+                atoms.append(sphere)
+
+        return Scene(site.species_string, contents=atoms)
