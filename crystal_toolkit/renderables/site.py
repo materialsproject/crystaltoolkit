@@ -5,42 +5,20 @@ from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface
 
 from pymatgen import Site
 from pymatgen.vis.structure_vtk import EL_COLORS
-from palettable.colorbrewer.qualitative import Set1_9, Set2_8
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 
 from typing import List, Optional
+
+from palettable.colorbrewer.qualitative import Set1_9
+from matplotlib.cm import get_cmap
 
 
 def get_color_hex(x):
     return "#{:02x}{:02x}{:02x}".format(*x)
 
+class DefaultSiteRenderer:
+    def __init__(self, color_scheme="VESTA", radii_strategy="atomic", scale=1.0):
 
-class SiteRenderable:
-
-    default_color_scheme = None
-    default_radii_strategy = None
-
-    color_map = {}
-
-    @classmethod
-    def set_default_color_scheme(cls, scheme="VESTA"):
-        """
-        Sets the default color scheme using VESTA if
-        not specified
-        """
-        allowed_color_schemes = ["VESTA", "Jmol", "colorblind_friendly"]
-        if scheme not in allowed_color_schemes:
-            raise Exception(f"Color Scheme {scheme} has not been implemented")
-
-        SiteRenderable.color_map = {}
-        SiteRenderable.default_color_scheme = scheme
-
-    @classmethod
-    def set_default_radii_strategy(cls, strategy="atomic"):
-        """
-        Sets the default radii scheme using atomic radii
-        if not specified
-        """
         available_radius_strategies = (
             "atomic",
             "specified_or_average_ionic",
@@ -49,24 +27,30 @@ class SiteRenderable:
             "atomic_calculated",
             "uniform",
         )
-        if strategy not in available_radius_strategies:
+        allowed_color_schemes = ["VESTA", "Jmol", "colorblind_friendly"]
+
+        if radii_strategy not in available_radius_strategies:
             raise Exception(f"Radius scheme {scheme} has not been implemented")
 
-        SiteRenderable.default_radii_strategy = strategy
+        if color_scheme not in allowed_color_schemes:
+            raise Exception(f"Color Scheme {scheme} has not been implemented")
 
-    @classmethod
-    def color(cls, specie):
+        self.color_scheme = color_scheme
+        self.radii_strategy = radii_strategy
+        self.color_map = {}
 
-        if SiteRenderable.default_color_scheme == None:
-            SiteRenderable.set_default_color_scheme()
+    def reset_color_map(self):
+        self.color_map = {}
 
-        color_scheme = SiteRenderable.default_color_scheme
+    def color(self, specie):
 
-        if specie in SiteRenderable.color_map:
-            return SiteRenderable.color_map[specie]
+        color_scheme = self.color_scheme
+
+        if specie in self.color_map:
+            return self.color_map[specie]
         elif color_scheme in ("VESTA", "Jmol"):
             color = get_color_hex(EL_COLORS[color_scheme].get(str(specie), [0, 0, 0]))
-            SiteRenderable.color_map[specie] = color
+            self.color_map[specie] = color
         elif color_scheme == "colorblind_friendly":
             # thanks to https://doi.org/10.1038/nmeth.1618
             palette = {
@@ -97,9 +81,7 @@ class SiteRenderable:
             }
 
             remaining_palette = {
-                idx: c
-                for idx, c in palette.items()
-                if c not in SiteRenderable.color_map.values()
+                idx: c for idx, c in palette.items() if c not in self.color_map.values()
             }
             if (
                 str(specie) in preferred_colors
@@ -108,49 +90,41 @@ class SiteRenderable:
                 # Choose a prefereed color if available
                 pref_color_index = preferred_colors[str(specie)]
 
-                SiteRenderable.color_map[specie] = get_color_hex(
+                self.color_map[specie] = get_color_hex(
                     remaining_palette[pref_color_index]
                 )
             else:
                 # else choose next available color
-                SiteRenderable.color_map[specie] = get_color_hex(
-                    next(remaining_palette.values())
-                )
+                self.color_map[specie] = get_color_hex(next(remaining_palette.values()))
 
-        return SiteRenderable.color_map[specie]
+        return self.color_map[specie]
 
-    @classmethod
-    def radius(cls, specie):
+    def radius(self, specie):
+        radii_strategy = self.radii_strategy
 
-        if SiteRenderable.default_radii_strategy == None:
-            SiteRenderable.set_default_radii_strategy()
-
-        radius_strategy = SiteRenderable.default_radii_strategy
-
-        if radius_strategy == "uniform":
+        if radii_strategy == "uniform":
             return 0.5
-        elif radius_strategy == "atomic":
+        elif radii_strategy == "atomic":
             return specie.atomic_radius
         elif (
-            radius_strategy == "specified_or_average_ionic"
+            radii_strategy == "specified_or_average_ionic"
             and isinstance(specie, Specie)
             and specie.oxi_state
         ):
             return specie.ionic_radius
-        elif radius_strategy == "specified_or_average_ionic":
+        elif radii_strategy == "specified_or_average_ionic":
             return specie.average_ionic_radius
-        elif radius_strategy == "covalent":
+        elif radii_strategy == "covalent":
             el = str(getattr(specie, "element", specie))
             return CovalentRadius.radius[el]
-        elif radius_strategy == "van_der_waals":
+        elif radii_strategy == "van_der_waals":
             return specie.van_der_waals_radius
-        elif radius_strategy == "atomic_calculated":
+        elif radii_strategy == "atomic_calculated":
             return specie.atomic_radius_calculated
 
         raise Exception(f"Could not determine radius for {specie}")
 
-    @staticmethod
-    def get_site_scene(site, origin: List[float] = (0, 0, 0)) -> Scene:
+    def to_scene(self, site, origin: List[float] = (0, 0, 0)) -> Scene:
         """
 
         Args:
@@ -175,7 +149,7 @@ class SiteRenderable:
 
         if len(species) == 1 and any(isinstance(sp, DummySpecie) for sp in species):
             # If we have on Dummy Species, make it a cube
-            color = SiteRenderable.color(species[0])
+            color = self.color(species[0])
             cube = Cubes(positions=[position], color=color, width=0.4)
             atoms = [cube]
         else:
@@ -186,11 +160,11 @@ class SiteRenderable:
             phiEnds = np.array(phiList[1:]) * np.pi * 2
 
             display_colors = site.properties.get("display_color") or [
-                SiteRenderable.color(sp) for sp in species
+                self.color(sp) for sp in species
             ]
 
             display_radii = site.properties.get("display_radius") or [
-                SiteRenderable.radius(sp) for sp in species
+                self.radius(sp) for sp in species
             ]
 
             # Itterate over all species and build sphere
@@ -219,3 +193,102 @@ class SiteRenderable:
                 atoms.append(sphere)
 
         return Scene(site.species_string, contents=atoms)
+
+
+class VectorSiteRenderer(DefaultSiteRenderer):
+    def __init__(
+        self, site_property, color_scale="coolwarm", radii_strategy="atomic", scale=1.0
+    ):
+        # by default, use blue-grey-red color scheme,
+        # so that zero is ~ grey, and positive/negative
+        # are red/blue
+        self.site_property = site_property
+        self.color_scale = color_scale
+        self.cmap = get_cmap(color_scale)
+
+        if radii_strategy not in available_radius_strategies:
+            raise Exception(f"Radius scheme {scheme} has not been implemented")
+
+        self.radii_strategy = radii_strategy
+        self.color_map = {}
+
+    def set_prop_scale(self, sites):
+        props = np.array([s.properties[self.site_property] for s in sites])
+        # try to keep color scheme symmetric around 0
+        self.prop_max = max([abs(min(props)), max(props)])
+        self.prop_min = -prop_max
+
+    def to_scene(self, site, origin: List[float] = (0, 0, 0)) -> Scene:
+
+        # normalize in [0, 1] range, as expected by cmap
+        prop_normed = (site.properties[self.site_property] - self.prop_min) / (
+            self.prop_max - self.prop_min
+        )
+
+        def get_color_cmap(x):
+            return [int(c * 255) for c in cmap(x)[0:3]]
+
+        color = [get_color_hex(get_color_cmap(prop_normed))]
+
+        site.property["display_colors"] = colors
+        self.color_map[site.properties[self.site_property]] = color
+
+        return super().to_scene(site, origin)
+
+
+class CategoricalSiteRenderer(DefaultSiteRenderer):
+    def __init__(
+        self, site_property, color_scale="coolwarm", radii_strategy="atomic", scale=1.0
+    ):
+        # by default, use blue-grey-red color scheme,
+        # so that zero is ~ grey, and positive/negative
+        # are red/blue
+        self.site_property = site_property
+        self.color_scale = color_scale
+        self.cmap = get_cmap(color_scale)
+
+        if radii_strategy not in available_radius_strategies:
+            raise Exception(f"Radius scheme {scheme} has not been implemented")
+
+        self.radii_strategy = radii_strategy
+        self.color_map = {}
+
+    def set_prop_scale(self, sites):
+        props = np.array([s.properties[self.site_property] for s in sites])
+
+        palette = [get_color_hex(c) for c in Set1_9.colors]
+
+        le = LabelEncoder()
+        le.fit(props)
+        transformed_props = le.transform(props)
+        unique_props = set(transformed_props)
+        # if we have more categories than availiable colors,
+        # arbitrarily group some categories together
+        if len(unique_props) > len(palette):
+            warnings.warn(
+                "Too many categories for a complete categorical " "color scheme."
+            )
+            # Build recurring sequence to map overlapping property set to color map
+            prop_multiplicity = np.ceil(len(unique_props) / len(palette))
+            prop_table = list(range(len(palette))) * prop_multiplicity
+            self.color_map = {category: palette[prop_table[p]] for category, p in zip(props,transformed_props)}
+        else:
+            self.color_map = {category: palette[p] for category, p in zip(props,transformed_props)}
+
+    def to_scene(self, site, origin: List[float] = (0, 0, 0)) -> Scene:
+
+        colors = [[palette[p]] for p in transformed_props]
+
+        sites.add_site_property("display_colors", colors)
+
+        for category, p in zip(props, transformed_props):
+            SiteCollectionRenderable.legend[palette[p]] = category
+
+        def get_color_cmap(x):
+            return [int(c * 255) for c in cmap(x)[0:3]]
+
+        color = [get_color_hex(get_color_cmap(prop_normed))]
+
+        site.property["display_colors"] = colors
+
+        return super().to_scene(site, origin)
