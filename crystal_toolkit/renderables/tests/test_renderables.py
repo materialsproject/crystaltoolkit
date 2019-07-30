@@ -3,6 +3,7 @@ from crystal_toolkit.core.renderable import Renderer
 import crystal_toolkit.renderables
 
 from pymatgen import Lattice, Site, Structure
+from pymatgen.core.structure import SiteCollection
 #from pymatgen.analysis.graphs import MoleculeGraph
 #from pymatgen.analysis.graphs import StructureGraph
 
@@ -15,12 +16,13 @@ def test_Lattice():
 
 
 def test_Site():
-
-	# TODO: Move display_color and display_radius into something else
-	# TODO: What are the formats for display_color and display_radius?
 	site = Site("Fe", [0.25, 0.35, 0.45])
 	site_scene = Renderer.to_scene(site)
 	assert type(site_scene) == Scene
+
+	# TODO: Test more complex cases with changing default schemes
+
+
 
 
 # def test_StructureGraph():
