@@ -16,18 +16,20 @@ from matplotlib.cm import get_cmap
 def get_color_hex(x):
     return "#{:02x}{:02x}{:02x}".format(*x)
 
+
+available_radius_strategies = (
+    "atomic",
+    "specified_or_average_ionic",
+    "covalent",
+    "van_der_waals",
+    "atomic_calculated",
+    "uniform",
+)
+allowed_color_schemes = ("VESTA", "Jmol", "colorblind_friendly")
+
+
 class DefaultSiteRenderer:
     def __init__(self, color_scheme="VESTA", radii_strategy="atomic", scale=1.0):
-
-        available_radius_strategies = (
-            "atomic",
-            "specified_or_average_ionic",
-            "covalent",
-            "van_der_waals",
-            "atomic_calculated",
-            "uniform",
-        )
-        allowed_color_schemes = ["VESTA", "Jmol", "colorblind_friendly"]
 
         if radii_strategy not in available_radius_strategies:
             raise Exception(f"Radius scheme {scheme} has not been implemented")
@@ -47,7 +49,7 @@ class DefaultSiteRenderer:
         color_scheme = self.color_scheme
 
         if specie in self.color_map:
-            return self.color_map[specie]
+            pass
         elif color_scheme in ("VESTA", "Jmol"):
             color = get_color_hex(EL_COLORS[color_scheme].get(str(specie), [0, 0, 0]))
             self.color_map[specie] = color
@@ -96,6 +98,8 @@ class DefaultSiteRenderer:
             else:
                 # else choose next available color
                 self.color_map[specie] = get_color_hex(next(remaining_palette.values()))
+        else:
+            raise Exception(f"Unable to assign color for {specie}")
 
         return self.color_map[specie]
 
@@ -149,7 +153,9 @@ class DefaultSiteRenderer:
 
         if len(species) == 1 and any(isinstance(sp, DummySpecie) for sp in species):
             # If we have on Dummy Species, make it a cube
-            color = self.color(species[0])
+            color = site.properties.get("display_color", [None])[0] or self.color(
+                species[0]
+            )
             cube = Cubes(positions=[position], color=color, width=0.4)
             atoms = [cube]
         else:
@@ -202,6 +208,7 @@ class VectorSiteRenderer(DefaultSiteRenderer):
         # by default, use blue-grey-red color scheme,
         # so that zero is ~ grey, and positive/negative
         # are red/blue
+        # TODO: Maybe flip this so positive is blue and red is negative?
         self.site_property = site_property
         self.color_scale = color_scale
         self.cmap = get_cmap(color_scale)
@@ -271,24 +278,20 @@ class CategoricalSiteRenderer(DefaultSiteRenderer):
             # Build recurring sequence to map overlapping property set to color map
             prop_multiplicity = np.ceil(len(unique_props) / len(palette))
             prop_table = list(range(len(palette))) * prop_multiplicity
-            self.color_map = {category: palette[prop_table[p]] for category, p in zip(props,transformed_props)}
+            self.color_map = {
+                category: palette[prop_table[p]]
+                for category, p in zip(props, transformed_props)
+            }
         else:
-            self.color_map = {category: palette[p] for category, p in zip(props,transformed_props)}
+            self.color_map = {
+                category: palette[p] for category, p in zip(props, transformed_props)
+            }
 
     def to_scene(self, site, origin: List[float] = (0, 0, 0)) -> Scene:
 
-        colors = [[palette[p]] for p in transformed_props]
+        colors = [self.color_map[site.properties[self.site_property]]]
 
-        sites.add_site_property("display_colors", colors)
+        site_copy = site.coy()
+        site_copy.properties["display_colors"] = colors
 
-        for category, p in zip(props, transformed_props):
-            SiteCollectionRenderable.legend[palette[p]] = category
-
-        def get_color_cmap(x):
-            return [int(c * 255) for c in cmap(x)[0:3]]
-
-        color = [get_color_hex(get_color_cmap(prop_normed))]
-
-        site.property["display_colors"] = colors
-
-        return super().to_scene(site, origin)
+        return super().to_scene(site_copy, origin)
