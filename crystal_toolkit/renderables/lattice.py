@@ -9,32 +9,32 @@ class LatticeRenderer:
     compass_style = "corner"
 
     def __init__(self, scale=0.7, offset=0.15, compass_style="corner"):
+        """
+        :param scale: scale all the geometric objects that makes up the compass the lattice vectors are normalized before the scaling so everything should be the same size
+        :param offset: shift the compass from the origin by a ratio of the diagonal of the cell relative the size 
+        """
         self.scale = scale
         self.offset = offset
         self.compass_style = compass_style
 
-    def to_scene(self, lattice, origin=(0,0,0)):
+    def to_scene(self, lattice, origin=(0, 0, 0)):
 
         components = []
         if self.compass_style in ["corner"]:
             return Scene(
-                "Lattice",
                 contents=[
                     self.get_compas_scene(lattice, origin),
                     self.get_lattice_scene(lattice, origin),
-                ],
+                ]
             )
 
-        self.get_lattice_scene(lattice, origin)
+        return self.get_lattice_scene(lattice, origin)
 
-    def get_compas_scene(self, lattice, origin=(0, 0, 0), **kwargs):
-        # TODO: add along lattice
+    def get_compass_scene(self, lattice, origin=(0, 0, 0), **kwargs):
         """
         Get the display components of the compass
         :param lattice: the pymatgen Lattice object that contains the primitive lattice vectors
         :param origin: the reference position to place the compass
-        :param scale: scale all the geometric objects that makes up the compass the lattice vectors are normalized before the scaling so everything should be the same size
-        :param offset: shift the compass from the origin by a ratio of the diagonal of the cell relative the size 
         :return: list of cystal_toolkit.helper.scene objects that makes up the compass
         """
         scale = self.scale
@@ -112,9 +112,4 @@ class LatticeRenderer:
         ]
         line_pairs = [line.tolist() for line in line_pairs]
 
-        name = (
-            f"a={lattice.a}, b={lattice.b}, c={lattice.c}, "
-            f"alpha={lattice.alpha}, beta={lattice.beta}, gamma={lattice.gamma}"
-        )
-
-        return Scene(name, contents=[Lines(line_pairs, **kwargs)])
+        return Scene(name="lattice", contents=[Lines(line_pairs, **kwargs)])
