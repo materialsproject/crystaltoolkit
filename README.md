@@ -2,6 +2,14 @@
 
 **Crystal Toolkit is not ready for the public yet! Please wait for a release announcement soon, thank you :-)** 
 
+## Installation
+
+The easiest way to install crystal toolkit is via pip:
+
+```
+pip install crystal_toolkit
+```
+
 ## Acknowledgements
 
 Thank you to all the authors and maintainers of the libraries Crystal Toolkit 
