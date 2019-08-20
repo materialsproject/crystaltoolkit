@@ -4,10 +4,6 @@ from crystal_toolkit.core.scene import Scene, Lines, Arrows, Spheres
 
 class LatticeRenderer:
 
-    scale = 0.7
-    offset = 0.15
-    compass_style = "corner"
-
     def __init__(self, scale=0.7, offset=0.15, compass_style="corner"):
         """
         :param scale: scale all the geometric objects that makes up the compass the lattice vectors are normalized before the scaling so everything should be the same size
