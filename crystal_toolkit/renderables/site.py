@@ -164,12 +164,10 @@ def get_site_scene(
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
-        not_most_electro_neg = map(lambda x : x.site.specie < self.specie, connected_sites)
         if (
             draw_polyhedra
             and len(connected_sites) > 3
             and not connected_sites_not_drawn
-            and not any(not_most_electro_neg)
         ):
             if explicitly_calculate_polyhedra_hull:
 
