@@ -4,13 +4,18 @@ Also includes some helper functions for draw addition objects using pythreejs
 """
 
 from pythreejs import (
+    BufferAttribute,
+    EdgesGeometry,
+    BufferGeometry,
     MeshLambertMaterial,
     Mesh,
     SphereBufferGeometry,
     CylinderBufferGeometry,
     Object3D,
+    LineSegments,
     LineSegments2,
     LineSegmentsGeometry,
+    LineBasicMaterial,
     LineMaterial,
     LineDashedMaterial,
     Scene,
@@ -46,6 +51,18 @@ default_js = os.path.join(os.path.join(os.path.dirname(
     os.path.abspath(__file__))), "../core/", "defaults.json")
 with open(default_js) as handle:
     _DEFAULTS.update(json.loads(handle.read()))
+
+def update_object_args(d_args, object_name, allowed_args):
+    # read the default values then ovewrite allowed arg values
+    obj_args = dict({
+        k: v
+        for k, v in (_DEFAULTS[object_name] or {}).items() if k in allowed_args
+    })
+    obj_args.update({
+        k: v
+        for k, v in (d_args or {}).items() if k in allowed_args and v != None
+    })
+    return obj_args
 
 
 def traverse_scene_object(scene_data, parent=None):
@@ -83,6 +100,11 @@ def convert_object_to_pythreejs(scene_obj):
     obs = []
     if scene_obj.type == "spheres":
         obs.extend(_get_spheres(scene_obj))
+    elif scene_obj.type == "surface":
+        obj3d, edges = _get_surface_from_positions(scene_obj.positions,
+                                            scene_obj.__dict__)
+        obs.append(obj3d)
+        obs.append(edges)
     elif scene_obj.type == "cylinders":
         for ipos in scene_obj.positionPairs:
             obj3d = _get_cylinder_from_vec(
@@ -204,11 +226,7 @@ def _get_line_from_vec(v0, v1, d_args):
     Returns:
         LineSegments2: Pythreejs object that displays the line sement
     """
-    allowed_args = ['linewidth', 'color']
-    obj_args = dict(
-        {k: v for k, v in (_DEFAULTS['Lines'] or {}).items() if k in allowed_args})
-    obj_args.update({k: v for k, v in (d_args or {}).items()
-                     if k in allowed_args and v != None})
+    obj_args = update_object_args(d_args, "Lines", ['linewidth', 'color'])
     logger.debug(obj_args)
     line = LineSegments2(
         LineSegmentsGeometry(positions=[[v0, v1]]),
@@ -238,6 +256,46 @@ def _get_spheres(ctk_scene):
         ) for ipos in ctk_scene.positions
     ]
 
+def _get_surface_from_positions(positions, draw_edges=False, d_args):
+    # get defaults
+    obj_args = update_object_args(d_args, "Surfaces", ['color', 'opacity'])
+    num_triangle = len(positions)/3.
+    assert(num_triangle.is_integer())
+    # make decision on transparency
+    if obj_args['opacity'] > 0.99:
+        transparent = False
+    else:
+        transparent = True
+
+
+
+    num_triangle = int(num_triangle)
+    index_list = [[itr*3, itr*3+1, itr*3+2] for itr in range(num_triangle)]
+    # Vertex ositions as a list of lists
+    surf_vertices = BufferAttribute(
+        array=positions,
+        normalized=False)
+    # Indices
+    surf_indices = BufferAttribute(
+        array=np.array(index_list, dtype=np.uint16).ravel(),
+        normalized=False)
+    geometry = BufferGeometry(
+        attributes={
+            'position': surf_vertices,
+            'index': surf_indices,
+        })
+    new_surface = Mesh(geometry=geometry,
+                       material=MeshLambertMaterial(color=obj_args['color'],
+                                                    side='DoubleSide',
+                                                    transparent=transparent,
+                                                    opacity=obj_args['opacity']))
+    if draw_edges: 
+        edges = EdgesGeometry(geometry)
+        edges_lines = LineSegments(edges, LineBasicMaterial(color = obj_args['color']))
+        return new_surface, edges_lines
+    else:
+        return new_surface
+
 
 def _get_cube_from_pos(v0, **kwargs):
     pass
@@ -254,12 +312,7 @@ def _get_cylinder_from_vec(v0, v1, d_args=None):
     Returns:
         Mesh: Pythreejs object that displays the cylinders
     """
-    allowed_args = ['radius', 'color']
-    obj_args = dict(
-        {k: v for k, v in (_DEFAULTS['Cylinders'] or {}).items() if k in allowed_args})
-    obj_args.update({k: v for k, v in (d_args or {}).items()
-                     if k in allowed_args and v != None})
-
+    obj_args = update_object_args(d_args, "Cylinders", ['radius', 'color'])
     v0 = np.array(v0)
     v1 = np.array(v1)
     vec = v1 - v0
