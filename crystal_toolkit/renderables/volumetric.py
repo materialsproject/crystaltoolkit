@@ -22,6 +22,7 @@ def get_isosurface_scene(self,
     pos = [vert for triangle in vertices[faces].tolist() for vert in triangle]
     return Scene("isosurface", contents=[Surface(pos, show_edges=False, color='cornflowerblue', **kwargs)])
 
+# TODO: re-think origin, shift globally at end (scene.origin)
 def get_volumetric_scene(self,
                          data_key='total',
                          isolvl=50.0,
