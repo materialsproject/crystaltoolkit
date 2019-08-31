@@ -3,7 +3,7 @@ from pymatgen import DummySpecie
 from scipy.spatial.qhull import Delaunay
 
 from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface, Convex
-
+from itertools import chain
 from pymatgen import Site
 from pymatgen.analysis.graphs import ConnectedSite
 
@@ -64,12 +64,9 @@ def get_site_scene(
 
     position = np.subtract(self.coords, origin).tolist()
 
-    # site_color is used for bonds and polyhedra, if "display_color" is missing or
-    # multiple colors are defined for site (e.g. a disordered site), then we use grey
-    if "display_color" in self.properties
-        all_colors = set(self.properties["display_color"])
-    else:
-        all_colors = ("#555555")
+    # site_color is used for bonds and polyhedra, if multiple colors are
+    # defined for site (e.g. a disordered site), then we use grey
+    all_colors = set(self.properties["display_color"])
     if len(all_colors) > 1:
         site_color = "#555555"
     else:
@@ -167,11 +164,12 @@ def get_site_scene(
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
-
+        not_most_electro_neg = map(lambda x : x.site.specie < self.specie, connected_sites)
         if (
             draw_polyhedra
             and len(connected_sites) > 3
             and not connected_sites_not_drawn
+            and not any(not_most_electro_neg)
         ):
             if explicitly_calculate_polyhedra_hull:
 
@@ -182,19 +180,19 @@ def get_site_scene(
                     # .convex_hull = [[2, 3, 0], [1, 3, 0], [1, 2, 0], [1, 2, 3]]
                     # .vertex_neighbor_vertices = [1, 2, 3, 2, 3, 0, 1, 3, 0, 1, 2, 0]
 
-                    vertices_indices = Delaunay(all_positions).vertex_neighbor_vertices
-                    vertices = [all_positions[idx] for idx in vertices_indices]
-
-                    polyhedron = [
-                        Surface(
-                            positions=vertices,
-                            color=self.properties["display_color"][0],
-                        )
-                    ]
-
+                    vertices_indices = Delaunay(all_positions).convex_hull
                 except Exception as e:
+                    vertices_indices=[]
 
-                    polyhedron = []
+                vertices = [all_positions[idx] for idx in chain.from_iterable(vertices_indices)]
+
+                polyhedron = [
+                    Surface(
+                        positions=vertices,
+                        show_edges = True,
+                        color=self.properties["display_color"][0],
+                    )
+                ]
 
             else:
 
