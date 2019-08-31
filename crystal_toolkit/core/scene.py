@@ -381,6 +381,7 @@ class Surface:
     normals: Optional[List[List[float]]] = None
     color: str = None
     opacity: float = None
+    show_edges: bool = False
     type: str = field(default="surface", init=False)  # private field
     visible: bool = None
     clickable: bool = False
