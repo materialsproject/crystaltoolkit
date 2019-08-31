@@ -102,7 +102,7 @@ def convert_object_to_pythreejs(scene_obj):
         obs.extend(_get_spheres(scene_obj))
     elif scene_obj.type == "surface":
         obj3d, edges = _get_surface_from_positions(scene_obj.positions,
-                                            scene_obj.__dict__)
+                                            scene_obj.__dict__, draw_edges=scene_obj.show_edges)
         obs.append(obj3d)
         obs.append(edges)
     elif scene_obj.type == "cylinders":
@@ -123,9 +123,15 @@ def convert_object_to_pythreejs(scene_obj):
     return obs
 
 
-def view(molecule_or_structure, **kwargs):
+def view(renderable_obj, **kwargs):
+    ctk_scene = renderable_obj.get_scene
+    display_scene(renderable_obj.get_scene(**kwargs))
+
+def view_old(molecule_or_structure, **kwargs):
     """View a pymatgen Molecule or Structure object interactively in a
     Jupyter notebook.
+
+    NOTE: SHOULD NO LONGER BE NEEDED
     
     Args:
         molecule_or_structure: Molecule or structure to display
@@ -160,6 +166,8 @@ def view(molecule_or_structure, **kwargs):
             )
             origin = np.sum(obj_or_scene.lattice.matrix, axis=0)/2.
             scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
+            if add_chg:
+                scene.contents.append(add_chg)
         elif isinstance(obj_or_scene, Molecule):
             # TODO Temporary place holder for render molecules
             kwargs.pop('draw_image_atoms')
@@ -256,7 +264,7 @@ def _get_spheres(ctk_scene):
         ) for ipos in ctk_scene.positions
     ]
 
-def _get_surface_from_positions(positions, draw_edges=False, d_args):
+def _get_surface_from_positions(positions, d_args, draw_edges=False):
     # get defaults
     obj_args = update_object_args(d_args, "Surfaces", ['color', 'opacity'])
     num_triangle = len(positions)/3.
@@ -289,12 +297,12 @@ def _get_surface_from_positions(positions, draw_edges=False, d_args):
                                                     side='DoubleSide',
                                                     transparent=transparent,
                                                     opacity=obj_args['opacity']))
-    if draw_edges: 
+    if draw_edges == True: 
         edges = EdgesGeometry(geometry)
         edges_lines = LineSegments(edges, LineBasicMaterial(color = obj_args['color']))
         return new_surface, edges_lines
     else:
-        return new_surface
+        return new_surface, None
 
 
 def _get_cube_from_pos(v0, **kwargs):
