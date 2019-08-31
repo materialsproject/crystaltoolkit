@@ -189,6 +189,7 @@ def get_site_scene(
                 polyhedron = [
                     Surface(
                         positions=vertices,
+                        show_edges = True,
                         color=self.properties["display_color"][0],
                     )
                 ]
