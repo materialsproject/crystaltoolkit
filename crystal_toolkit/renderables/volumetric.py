@@ -9,11 +9,11 @@ import crystal_toolkit.renderables.structure
 
 def get_isosurface_scene(self,
                          data_key='total',
-                         isolvl=50.0,
-                         step_size=4,
-                         origin = (0.5,0.5,0.5),
+                         isolvl=10.0,
+                         step_size=3,
+                         origin_frac = (0.5,0.5,0.5),
                          **kwargs):
-    o = -np.array(origin)
+    o = -np.array(origin_frac)
     padded_data = np.pad(self.data[data_key], (0,1),"wrap")
     vertices, faces, normals, values = measure.marching_cubes_lewiner(
         padded_data, level=isolvl, step_size=step_size)
@@ -25,15 +25,17 @@ def get_isosurface_scene(self,
 # TODO: re-think origin, shift globally at end (scene.origin)
 def get_volumetric_scene(self,
                          data_key='total',
-                         isolvl=50.0,
-                         step_size=4,
+                         isolvl=10.0,
+                         step_size=3,
                          iso_kwargs_dict=None, 
+                         origin_frac = (0.5,0.5,0.5),
                          **struct_kwargs):
     iso_kwags = iso_kwargs_dict or {}
     struct_scene = self.structure.get_scene(**struct_kwargs)
     iso_scene = self.get_isosurface_scene(data_key='total',
                                           isolvl=isolvl,
                                           step_size=step_size,
+                                          origin_frac=origin_frac,
                                           **iso_kwags)
     return Scene("volumetric-data", contents=[struct_scene, iso_scene])
 
