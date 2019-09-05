@@ -20,6 +20,7 @@ dash-katex>=0.0.1
 pymatgen>=2019.7.21
 networkx>=2.0
 scikit-learn>=0.20.2
+colour>=0.1.5
 
 # for favorites
 toml==0.10.0
