@@ -125,7 +125,6 @@ def convert_object_to_pythreejs(scene_obj):
 
 
 def view(renderable_obj, **kwargs):
-    ctk_scene = renderable_obj.get_scene()
     display_scene(renderable_obj.get_scene(**kwargs))
 
 def view_old(molecule_or_structure, **kwargs):
