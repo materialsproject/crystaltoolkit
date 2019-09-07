@@ -34,8 +34,7 @@ def get_isosurface_scene(self,
     padded_data = np.pad(vol_data, (0, 1), "wrap")
     vertices, faces, normals, values = measure.marching_cubes_lewiner(
         padded_data, level=isolvl, step_size=step_size)
-    vertices = vertices / self.data[
-        data_key].shape  # transform to fractional coordinates
+    vertices = vertices / (vol_data.shape[0]-1, vol_data.shape[1]-1, vol_data.shape[2]-1)  # transform to fractional coordinates
     vertices = np.dot(o + vertices,
                       self.structure.lattice.matrix)  # transform to cartesian
     pos = [vert for triangle in vertices[faces].tolist() for vert in triangle]
