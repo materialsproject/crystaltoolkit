@@ -30,10 +30,8 @@ def get_isosurface_scene(self,
     vol_data = np.copy(self.data[data_key])
     vol = self.structure.volume
     vol_data = vol_data / vol / angs2bhor3
-    print(vol_data.max())
 
     padded_data = np.pad(vol_data, (0, 1), "wrap")
-    print(padded_data.max(), padded_data.min(), isolvl)
     vertices, faces, normals, values = measure.marching_cubes_lewiner(
         padded_data, level=isolvl, step_size=step_size)
     vertices = vertices / self.data[
