@@ -11,7 +11,7 @@ analysis and [Dash from Plotly](https://plot.ly/products/dash/) for their web ap
 Thank you to the [NERSC Spin](http://www.nersc.gov/users/data-analytics/spin/) service for
 hosting the app and for their technical support.
 
-Cross-browser Testing Platform and Open Source <3 generously provided by [Sauce Labs][https://saucelabs.com]
+Cross-browser Testing Platform and Open Source <3 generously provided by [Sauce Labs](https://saucelabs.com)
 
 ## Contact
 
