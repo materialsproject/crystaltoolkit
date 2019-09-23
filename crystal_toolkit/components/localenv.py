@@ -244,10 +244,13 @@ class LocalEnvironmentPanel(PanelComponent2):
                         "IUPAC Symbol": co.IUPAC_symbol_str,
                         get_tooltip(
                             "CSM",
-                            '"Continuous Symmetry Measure," a measure of how symmetrical a '
-                            "local environment is from most symmetrical at 0% to least "
-                            "symmetrical at 100%",
-                        ): f"{env[0]['csm']:.2f}%",
+                            "The continuous symmetry measure (CSM) describes the similarity to an "
+                            "ideal coordination environment. It can be understood as a 'distance' to"
+                            "a shape and ranges from 0 to 100 in which 0 corresponds to a"
+                            "coordination environment that is exactly identical to the ideal one. A"
+                            "CSM larger than 5.0 already indicates a relatively strong distortion of"
+                            "the investigated coordination environment.",
+                        ): f"{env[0]['csm']:.2f}",
                         "Interactive View": view,
                     }
                 )
