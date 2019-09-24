@@ -1,2 +1,4 @@
 black
 pre-commit
+dash[testing]
+pytest
