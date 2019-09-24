@@ -4,7 +4,7 @@ heroImage: /home.png
 heroText: Crystal Toolkit
 tagline: Crystal Toolkit is an interactive web app from the Materials Project that allows you to import, view, analyze and transform crystal structures and molecules.
 actionText: Open Web App
-actionLink: https://viewer.materialsproject.org/
+actionLink: https://materialsproject.org/#apps/xtaltoolkit
 features:
 - title: Analyze
   details: Import any crystal structure or molecule from one of many common file formats, and visualize and analyze using the power of pymatgen.

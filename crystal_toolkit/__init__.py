@@ -46,11 +46,3 @@ _css_dist = []
 for _component in __all__:
     setattr(locals()[_component], "_js_dist", _js_dist)
     setattr(locals()[_component], "_css_dist", _css_dist)
-
-# convenience imports
-# TODO: rename view to dash_view, add pythreejs_view etc.
-try:
-    import pythreejs
-    from crystal_toolkit.helpers.pythreejs_renderer import view
-except ImportError:
-    pass
