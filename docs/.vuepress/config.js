@@ -10,7 +10,6 @@ module.exports = {
 		displayAllHeaders: true,
 		nav: [
 			{ text: 'Home', link: '/' },
-			{ text: 'Documentation', link: '/docs.md' },
 			{ text: 'Open Web App', link: 'https://crystaltoolkit.org/' },
 		],
 		sidebar: ['/'],
