@@ -64,12 +64,11 @@ class BandstructureAndDosComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("bsdos-div"),
-                   "children"), [Input(self.id("traces"), "data")]
+            Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
         )
         def update_graph(traces):
 
-            if traces == 'error':
+            if traces == "error":
                 search_error = (
                     MessageContainer(
                         [
@@ -181,8 +180,8 @@ class BandstructureAndDosComponent(MPComponent):
         )
         def bs_dos_traces(bandStructureSymmLine, densityOfStates):
 
-            if bandStructureSymmLine == 'error' or densityOfStates == 'error':
-                return 'error'
+            if bandStructureSymmLine == "error" or densityOfStates == "error":
+                return "error"
 
             if bandStructureSymmLine == None or densityOfStates == None:
                 raise PreventUpdate
@@ -195,14 +194,23 @@ class BandstructureAndDosComponent(MPComponent):
             bs_data = bs_reg_plot.bs_plot_data()
 
             # -- Strip latex math wrapping
-            str_replace = {'$': '', '\\mid': '|', '\\Gamma': 'Γ', '\\Sigma': 'Σ',
-                           '_1': '₁', '_2': '₂', '_3': '₃', '_4': '₄'}
+            str_replace = {
+                "$": "",
+                "\\mid": "|",
+                "\\Gamma": "Γ",
+                "\\Sigma": "Σ",
+                "_1": "₁",
+                "_2": "₂",
+                "_3": "₃",
+                "_4": "₄",
+            }
 
             for entry_num in range(len(bs_data["ticks"]["label"])):
                 for key in str_replace.keys():
                     if key in bs_data["ticks"]["label"][entry_num]:
-                        bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][entry_num].replace(
-                            key, str_replace[key])
+                        bs_data["ticks"]["label"][entry_num] = bs_data["ticks"][
+                            "label"
+                        ][entry_num].replace(key, str_replace[key])
 
             for d in range(len(bs_data["distances"])):
                 for i in range(bs_reg_plot._nb_bands):
@@ -229,8 +237,7 @@ class BandstructureAndDosComponent(MPComponent):
                                     for j in range(len(bs_data["distances"][d]))
                                 ],
                                 mode="lines",
-                                line=dict(color=("#666666"),
-                                          width=2, dash="dash"),
+                                line=dict(color=("#666666"), width=2, dash="dash"),
                                 hoverinfo="skip",
                                 showlegend=False,
                             )
@@ -241,7 +248,7 @@ class BandstructureAndDosComponent(MPComponent):
 
             dos = CompleteDos.from_dict(densityOfStates)
 
-            if bs_reg_plot._bs.is_spin_polarized:
+            if Spin.down in dos.densities:
                 # Add second spin data if available
                 trace_tdos = go.Scatter(
                     x=dos.densities[Spin.down],
@@ -335,12 +342,11 @@ class BandstructureAndDosComponent(MPComponent):
             mpid = mpid["mpid"]
 
             with MPRester() as m:
-                bandStructureSymmLine = m.get_bandstructure_by_material_id(
-                    mpid)
+                bandStructureSymmLine = m.get_bandstructure_by_material_id(mpid)
                 densityOfStates = m.get_dos_by_material_id(mpid)
 
             if bandStructureSymmLine == None or densityOfStates == None:
-                return 'error', 'error'
+                return "error", "error"
             else:
                 return bandStructureSymmLine.as_dict(), densityOfStates.as_dict()
 
