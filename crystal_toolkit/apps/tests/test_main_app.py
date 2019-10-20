@@ -5,6 +5,7 @@ import time
 def test_main_app_startup(dash_duo):
 
     dash_duo.start_server(crystal_toolkit_app)
+    # dash_duo.clear_storage()
 
     dash_duo.wait_for_element("#StructureMoleculeComponent_title", timeout=4)
     time.sleep(10)
