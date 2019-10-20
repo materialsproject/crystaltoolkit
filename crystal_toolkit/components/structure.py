@@ -12,12 +12,11 @@ from crystal_toolkit import Simple3DSceneComponent
 from pymatgen.util.string import unicodeify_species
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.core.legend import Legend
 
 from matplotlib.cm import get_cmap
 
 from pymatgen.core.composition import Composition
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.lattice import Lattice
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core.periodic_table import Specie
@@ -56,15 +55,6 @@ class StructureMoleculeComponent(MPComponent):
         subclass.__name__: subclass for subclass in NearNeighbors.__subclasses__()
     }
 
-    available_radius_strategies = (
-        "atomic",
-        "specified_or_average_ionic",
-        "covalent",
-        "van_der_waals",
-        "atomic_calculated",
-        "uniform",
-    )
-
     default_scene_settings = {"cylinderScale": 0.1}
 
     def __init__(
@@ -82,7 +72,7 @@ class StructureMoleculeComponent(MPComponent):
         draw_image_atoms=True,
         bonded_sites_outside_unit_cell=False,
         hide_incomplete_bonds=False,
-        show_compass=False,
+        show_compass=True,
         scene_settings=None,
         **kwargs,
     ):
@@ -208,38 +198,17 @@ class StructureMoleculeComponent(MPComponent):
             return self.to_data(graph)
 
         @app.callback(
-            Output(self.id("scene"), "data"),
+            [Output(self.id("scene"), "data"), Output(self.id("legend_data"), "data")],
             [
                 Input(self.id("graph"), "data"),
                 Input(self.id("display_options"), "data"),
             ],
         )
-        def update_scene(graph, display_options):
+        def update_scene_and_legend(graph, display_options):
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
             scene, legend = self.get_scene_and_legend(graph, **display_options)
-            return scene.to_json()
-
-        @app.callback(
-            Output(self.id("legend_data"), "data"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-            ],
-        )
-        def update_legend(graph, display_options):
-            # TODO: more cleanly split legend from scene generation
-            display_options = self.from_data(display_options)
-            graph = self.from_data(graph)
-            struct_or_mol = self._get_struct_or_mol(graph)
-            site_prop_types = self._analyze_site_props(struct_or_mol)
-            colors, legend = self._get_display_colors_and_legend_for_sites(
-                struct_or_mol,
-                site_prop_types,
-                color_scheme=display_options.get("color_scheme", None),
-                color_scale=display_options.get("color_scale", None),
-            )
-            return self.to_data(legend)
+            return scene.to_json(), self.to_data(legend)
 
         @app.callback(
             Output(self.id("color-scheme"), "options"),
@@ -250,11 +219,11 @@ class StructureMoleculeComponent(MPComponent):
             options = [
                 {"label": "Jmol", "value": "Jmol"},
                 {"label": "VESTA", "value": "VESTA"},
-                {"label": "Colorblind-friendly", "value": "colorblind_friendly"},
+                {"label": "Accessible", "value": "accessible"},
             ]
             graph = self.from_data(graph)
             struct_or_mol = self._get_struct_or_mol(graph)
-            site_props = self._analyze_site_props(struct_or_mol)
+            site_props = Legend(struct_or_mol).analyze_site_props(struct_or_mol)
             for site_prop_type in ("scalar", "categorical"):
                 if site_prop_type in site_props:
                     for prop in site_props[site_prop_type]:
@@ -355,7 +324,7 @@ class StructureMoleculeComponent(MPComponent):
                 Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
             ],
         )
-        def update_structure_viewer_data(bonding_algorithm, custom_cutoffs_rows):
+        def update_bonding_algorithm(bonding_algorithm, custom_cutoffs_rows):
 
             graph_generation_options = {
                 "bonding_strategy": bonding_algorithm,
@@ -430,7 +399,7 @@ class StructureMoleculeComponent(MPComponent):
         try:
             formula = Composition.from_dict(legend["composition"]).reduced_formula
         except:
-            # TODO: fix for Dummy Specie compositions
+            # TODO: fix legend for Dummy Specie compositions
             formula = "Unknown"
 
         legend_colors = OrderedDict(
@@ -460,9 +429,10 @@ class StructureMoleculeComponent(MPComponent):
             return H1(self.default_title, id=self.id("title"))
 
         composition = legend["composition"]
+        print(legend)
         if isinstance(composition, dict):
 
-            # TODO: make Composition handle DummySpecie
+            # TODO: make Composition handle DummySpecie for title
             try:
                 composition = Composition.from_dict(composition)
                 formula = composition.reduced_formula
@@ -599,6 +569,7 @@ class StructureMoleculeComponent(MPComponent):
                         ],
                         value=self.initial_display_options["radius_strategy"],
                         clearable=False,
+                        persistence=True,
                         id=self.id("radius_strategy"),
                     ),
                     className="mpc-control",
@@ -646,8 +617,9 @@ class StructureMoleculeComponent(MPComponent):
                                 {"label": "Bonds", "value": "bonds"},
                                 {"label": "Unit cell", "value": "unit_cell"},
                                 {"label": "Polyhedra", "value": "polyhedra"},
+                                {"label": "Axes", "value": "axes"},
                             ],
-                            value=["atoms", "bonds", "unit_cell", "polyhedra"],
+                            value=["atoms", "bonds", "unit_cell", "polyhedra", "axes"],
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("hide-show"),
@@ -669,7 +641,7 @@ class StructureMoleculeComponent(MPComponent):
     @property
     def standard_layout(self):
         return html.Div(
-            self.all_layouts["struct"], style={"width": "100vw", "height": "100vh"}
+            self.all_layouts["struct"], style={"width": "400px", "height": "400px"}
         )
 
     @staticmethod
@@ -747,364 +719,15 @@ class StructureMoleculeComponent(MPComponent):
         return graph
 
     @staticmethod
-    def _analyze_site_props(struct_or_mol):
-
-        # store list of site props that are vectors, so these can be displayed as arrows
-        # (implicitly assumes all site props for a given key are same type)
-        site_prop_names = defaultdict(list)
-        for name, props in struct_or_mol.site_properties.items():
-            if isinstance(props[0], float) or isinstance(props[0], int):
-                site_prop_names["scalar"].append(name)
-            elif isinstance(props[0], list) and len(props[0]) == 3:
-                if isinstance(props[0][0], list) and len(props[0][0]) == 3:
-                    site_prop_names["matrix"].append(name)
-                else:
-                    site_prop_names["vector"].append(name)
-            elif isinstance(props[0], str):
-                site_prop_names["categorical"].append(name)
-
-        return dict(site_prop_names)
-
-    @staticmethod
-    def _get_origin(struct_or_mol):
-
-        if isinstance(struct_or_mol, Structure):
-            # display_range = [0.5, 0.5, 0.5]
-            # x_center = 0.5 * (max(display_range[0]) - min(display_range[0]))
-            # y_center = 0.5 * (max(display_range[1]) - min(display_range[1]))
-            # z_center = 0.5 * (max(display_range[2]) - min(display_range[2]))
-            geometric_center = struct_or_mol.lattice.get_cartesian_coords(
-                (0.5, 0.5, 0.5)
-            )
-        elif isinstance(struct_or_mol, Molecule):
-            geometric_center = np.average(struct_or_mol.cart_coords, axis=0)
-        else:
-            geometric_center = (0, 0, 0)
-
-        return geometric_center
-
-    @staticmethod
-    def _get_struct_or_mol(graph) -> Union[Structure, Molecule]:
+    def _get_struct_or_mol(
+        graph: Union[StructureGraph, MoleculeGraph]
+    ) -> Union[Structure, Molecule]:
         if isinstance(graph, StructureGraph):
             return graph.structure
         elif isinstance(graph, MoleculeGraph):
             return graph.molecule
         else:
             raise ValueError
-
-    @staticmethod
-    def _compass_from_lattice(
-        lattice,
-        origin=(0, 0, 0),
-        scale=0.7,
-        offset=0.15,
-        compass_style="corner",
-        **kwargs,
-    ):
-        # TODO: add along lattice
-        """
-        Get the display components of the compass
-        :param lattice: the pymatgen Lattice object that contains the primitive lattice vectors
-        :param origin: the reference position to place the compass
-        :param scale: scale all the geometric objects that makes up the compass the lattice vectors are normalized before the scaling so everything should be the same size
-        :param offset: shift the compass from the origin by a ratio of the diagonal of the cell relative the size 
-        :return: list of cystal_toolkit.helper.scene objects that makes up the compass
-        """
-        o = -np.array(origin)
-        o = o - offset * (lattice.matrix[0] + lattice.matrix[1] + lattice.matrix[2])
-        a = lattice.matrix[0] / np.linalg.norm(lattice.matrix[0]) * scale
-        b = lattice.matrix[1] / np.linalg.norm(lattice.matrix[1]) * scale
-        c = lattice.matrix[2] / np.linalg.norm(lattice.matrix[2]) * scale
-        a_arrow = [[o, o + a]]
-        b_arrow = [[o, o + b]]
-        c_arrow = [[o, o + c]]
-
-        o_sphere = Spheres(positions=[o], color="black", radius=0.1 * scale)
-
-        return Scene(name='compass', contents=[
-            Arrows(
-                a_arrow,
-                color="red",
-                radius=0.7 * scale,
-                headLength=2.3 * scale,
-                headWidth=1.4 * scale,
-                **kwargs,
-            ),
-            Arrows(
-                b_arrow,
-                color="blue",
-                radius=0.7 * scale,
-                headLength=2.3 * scale,
-                headWidth=1.4 * scale,
-                **kwargs,
-            ),
-            Arrows(
-                c_arrow,
-                color="green",
-                radius=0.7 * scale,
-                headLength=2.3 * scale,
-                headWidth=1.4 * scale,
-                **kwargs,
-            ),
-            o_sphere,
-        ])
-
-    @staticmethod
-    def _get_display_colors_and_legend_for_sites(
-        struct_or_mol, site_prop_types, color_scheme="Jmol", color_scale=None
-    ) -> Tuple[List[List[str]], Dict]:
-        """
-        Note this returns a list of lists of strings since each
-        site might have multiple colors defined if the site is
-        disordered.
-
-        The legend is a dictionary whose keys are colors and values
-        are corresponding element names or values, depending on the color
-        scheme chosen.
-        """
-
-        # TODO: check to see if there is a bug here due to Composition being unordered(?)
-
-        legend = {"composition": struct_or_mol.composition.as_dict(), "colors": {}}
-
-        # don't calculate color if one is explicitly supplied
-        if "display_color" in struct_or_mol.site_properties:
-            # don't know what the color legend (meaning) is, so return empty legend
-            return (struct_or_mol.site_properties["display_color"], legend)
-
-        def get_color_hex(x):
-            return "#{:02x}{:02x}{:02x}".format(*x)
-
-        allowed_schemes = (
-            ["VESTA", "Jmol", "colorblind_friendly"]
-            + site_prop_types.get("scalar", [])
-            + site_prop_types.get("categorical", [])
-        )
-        default_scheme = "Jmol"
-        if color_scheme not in allowed_schemes:
-            warnings.warn(
-                f"Color scheme {color_scheme} not available, falling back to {default_scheme}."
-            )
-            color_scheme = default_scheme
-
-        if color_scheme not in ("VESTA", "Jmol", "colorblind_friendly"):
-
-            if not struct_or_mol.is_ordered:
-                raise ValueError(
-                    "Can only use VESTA, Jmol or colorblind_friendly color "
-                    "schemes for disordered structures or molecules, color "
-                    "schemes based on site properties are ill-defined."
-                )
-
-            if (color_scheme not in site_prop_types.get("scalar", [])) and (
-                color_scheme not in site_prop_types.get("categorical", [])
-            ):
-
-                raise ValueError(
-                    "Unsupported color scheme. Should be VESTA, Jmol, "
-                    "colorblind_friendly or a scalar (float) or categorical "
-                    "(string) site property."
-                )
-
-        if color_scheme in ("VESTA", "Jmol"):
-
-            #  TODO: define fallback color as global variable
-            # TODO: maybe fallback categorical based on letter, for DummySpecie?
-
-            colors = []
-            for site in struct_or_mol:
-                elements = [sp.as_dict()["element"] for sp, _ in site.species.items()]
-                colors.append(
-                    [
-                        get_color_hex(EL_COLORS[color_scheme].get(element, [0, 0, 0]))
-                        for element in elements
-                    ]
-                )
-                # construct legend
-                for element in elements:
-                    color = get_color_hex(
-                        EL_COLORS[color_scheme].get(element, [0, 0, 0])
-                    )
-                    label = unicodeify_species(site.species_string)
-                    if color in legend["colors"] and legend["colors"][color] != label:
-                        legend["colors"][
-                            color
-                        ] = f"{element}ˣ"  # TODO: mixed valence, improve this
-                    else:
-                        legend["colors"][color] = label
-
-        elif color_scheme == "colorblind_friendly":
-
-            labels = [site.species_string for site in struct_or_mol]
-
-            # thanks to https://doi.org/10.1038/nmeth.1618
-            palette = [
-                [0, 0, 0],  # 0, black
-                [230, 159, 0],  # 1, orange
-                [86, 180, 233],  # 2, sky blue
-                [0, 158, 115],  #  3, bluish green
-                [240, 228, 66],  # 4, yellow
-                [0, 114, 178],  # 5, blue
-                [213, 94, 0],  # 6, vermillion
-                [204, 121, 167],  # 7, reddish purple
-                [255, 255, 255],  #  8, white
-            ]
-
-            # similar to CPK
-            preferred_colors = {
-                "O": 6,
-                "N": 2,
-                "C": 0,
-                "H": 8,
-                "F": 3,
-                "Cl": 3,
-                "Fe": 1,
-                "Br": 7,
-                "I": 7,
-                "P": 1,
-                "S": 4,
-            }
-
-            if len(set(labels)) > len(palette):
-                warnings.warn(
-                    "Too many distinct types of site to use a color-blind friendly color scheme."
-                )
-
-        # colors = [......]
-        # present_specie = sorted(struct_or_mol.types_of_specie)
-        # if len(struct_or_mol.types_of_specie) > len(colors):
-        #
-        #    colors.append([DEFAULT_COLOR]*(len(struct_or_mol.types_of_specie)-len(colors))
-        # # test for disordered structures too!
-        # # try to prefer certain colors of certain elements for historical consistency
-        # preferred_colors = {"O": 1}  # idx of colors
-        # for el, idx in preferred_colors.items():
-        #   if el in present_specie:
-        #       want (idx of el in present_specie) to match idx
-        #       colors.swap(idx to present_specie_idx)
-        # color_scheme = {el:colors[idx] for idx, el in enumerate(sorted(struct_or_mol.types_of_specie))}
-
-        elif color_scheme in site_prop_types.get("scalar", []):
-
-            props = np.array(struct_or_mol.site_properties[color_scheme])
-
-            # by default, use blue-grey-red color scheme,
-            # so that zero is ~ grey, and positive/negative
-            # are red/blue
-            color_scale = color_scale or "coolwarm"
-            # try to keep color scheme symmetric around 0
-            prop_max = max([abs(min(props)), max(props)])
-            prop_min = -prop_max
-
-            cmap = get_cmap(color_scale)
-            # normalize in [0, 1] range, as expected by cmap
-            props_normed = (props - prop_min) / (prop_max - prop_min)
-
-            def get_color_cmap(x):
-                return [int(c * 255) for c in cmap(x)[0:3]]
-
-            colors = [[get_color_hex(get_color_cmap(x))] for x in props_normed]
-
-            # construct legend
-            rounded_props = sorted(list(set([np.around(p, decimals=1) for p in props])))
-            for prop in rounded_props:
-                prop_normed = (prop - prop_min) / (prop_max - prop_min)
-                c = get_color_hex(get_color_cmap(prop_normed))
-                legend["colors"][c] = "{:.1f}".format(prop)
-
-        elif color_scheme in site_prop_types.get("categorical", []):
-
-            props = np.array(struct_or_mol.site_properties[color_scheme])
-
-            palette = [get_color_hex(c) for c in Set1_9.colors]
-
-            le = LabelEncoder()
-            le.fit(props)
-            transformed_props = le.transform(props)
-
-            # if we have more categories than availiable colors,
-            # arbitrarily group some categories together
-            warnings.warn(
-                "Too many categories for a complete categorical " "color scheme."
-            )
-            transformed_props = [
-                p if p < len(palette) else -1 for p in transformed_props
-            ]
-
-            colors = [[palette[p]] for p in transformed_props]
-
-            for category, p in zip(props, transformed_props):
-                legend["colors"][palette[p]] = category
-
-        return colors, legend
-
-    @staticmethod
-    def _get_display_radii_for_sites(
-        struct_or_mol, radius_strategy="specified_or_average_ionic", radius_scale=1.0
-    ) -> List[List[float]]:
-        """
-        Note this returns a list of lists of floats since each
-        site might have multiple radii defined if the site is
-        disordered.
-        """
-
-        # don't calculate radius if one is explicitly supplied
-        if "display_radius" in struct_or_mol.site_properties:
-            return struct_or_mol.site_properties["display_radius"]
-
-        if (
-            radius_strategy
-            not in StructureMoleculeComponent.available_radius_strategies
-        ):
-            raise ValueError(
-                "Unknown radius strategy {}, choose from: {}".format(
-                    radius_strategy,
-                    StructureMoleculeComponent.available_radius_strategies,
-                )
-            )
-        radii = []
-
-        for site_idx, site in enumerate(struct_or_mol):
-
-            site_radii = []
-
-            for comp_idx, (sp, occu) in enumerate(site.species.items()):
-
-                radius = None
-
-                if radius_strategy == "uniform":
-                    radius = 0.5
-                if radius_strategy == "atomic":
-                    radius = sp.atomic_radius
-                elif (
-                    radius_strategy == "specified_or_average_ionic"
-                    and isinstance(sp, Specie)
-                    and sp.oxi_state
-                ):
-                    radius = sp.ionic_radius
-                elif radius_strategy == "specified_or_average_ionic":
-                    radius = sp.average_ionic_radius
-                elif radius_strategy == "covalent":
-                    el = str(getattr(sp, "element", sp))
-                    radius = CovalentRadius.radius[el]
-                elif radius_strategy == "van_der_waals":
-                    radius = sp.van_der_waals_radius
-                elif radius_strategy == "atomic_calculated":
-                    radius = sp.atomic_radius_calculated
-
-                if not radius:
-                    warnings.warn(
-                        "Radius unknown for {} and strategy {}, "
-                        "setting to 1.0.".format(sp, radius_strategy)
-                    )
-                    radius = 1.0
-
-                radius = radius * radius_scale
-                site_radii.append(radius)
-
-            radii.append(site_radii)
-
-        return radii
 
     @staticmethod
     def get_scene_and_legend(
@@ -1129,47 +752,32 @@ class StructureMoleculeComponent(MPComponent):
             return scene, {}
 
         struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
-        site_prop_types = StructureMoleculeComponent._analyze_site_props(struct_or_mol)
 
-        radii = StructureMoleculeComponent._get_display_radii_for_sites(
-            struct_or_mol, radius_strategy=radius_strategy, radius_scale=radius_scale
-        )
-        colors, legend = StructureMoleculeComponent._get_display_colors_and_legend_for_sites(
+        # TODO: add radius_scale
+        legend = Legend(
             struct_or_mol,
-            site_prop_types,
-            color_scale=color_scale,
             color_scheme=color_scheme,
+            radius_scheme=radius_strategy,
+            cmap_range=color_scale,
         )
 
-        # TODO: add set_display_color option, set_display_radius, set_ellipsoid
-        # call it "set_display_options" ?
-        # sets legend too! display_legend
-
-        struct_or_mol.add_site_property("display_radius", radii)
-        struct_or_mol.add_site_property("display_color", colors)
-
-        origin = StructureMoleculeComponent._get_origin(struct_or_mol)
-
-        scene = graph.get_scene(
-            draw_image_atoms=draw_image_atoms,
-            bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
-            hide_incomplete_edges=hide_incomplete_bonds,
-            explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
-            origin=origin,
-        )
+        if isinstance(graph, StructureGraph):
+            scene = graph.get_scene(
+                draw_image_atoms=draw_image_atoms,
+                bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
+                hide_incomplete_edges=hide_incomplete_bonds,
+                explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+                legend=legend,
+            )
+        elif isinstance(graph, MoleculeGraph):
+            scene = graph.get_scene(legend=legend)
 
         scene.name = name
-        # TODO: ...
-        scene.origin = StructureMoleculeComponent._get_origin(struct_or_mol)
 
-        if show_compass:
-            scene.contents.append(
-                StructureMoleculeComponent._compass_from_lattice(
-                    struct_or_mol.lattice, origin=origin
-                )
-            )
+        if show_compass and hasattr(struct_or_mol, "lattice"):
+            scene.contents.append(struct_or_mol.lattice._axes_from_lattice())
 
         if scene_additions:
             scene.contents.append(scene_additions)
 
-        return scene, legend
+        return scene, legend.get_legend()
