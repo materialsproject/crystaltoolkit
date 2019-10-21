@@ -307,6 +307,7 @@ class PourbaixDiagramComponent(MPComponent):
                     value=["filter_solids", "show_labels"],
                     id=self.id("pourbaix_diagram_options"),
                     style={"display": "inline-block"},
+                    inputClassName="mpc-radio",
                 ),
                 dcc.Checklist(
                     options=[
@@ -316,6 +317,7 @@ class PourbaixDiagramComponent(MPComponent):
                     value=["show_labels"],
                     id=self.id("pourbaix_display_options"),
                     style={"display": "inline-block"},
+                    inputClassName="mpc-radio",
                 ),
             ],
             style={"width": WIDTH, "display": "inline-block"},
