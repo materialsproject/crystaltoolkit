@@ -1,4 +1,4 @@
-from crystal_toolkit.renderables.legend import Legend
+from crystal_toolkit.core.legend import Legend
 
 from pymatgen import Structure, Lattice
 
@@ -38,7 +38,7 @@ class TestLegend:
 
         self.struct_manual = Structure(
             Lattice.cubic(5),
-            ["H", "O", "In"],
+            ["H", "O2-", "In"],
             [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0, 0]],
             site_properties={"display_color": [[255, 0, 0], "blue", "#00ff00"]},
         )
@@ -59,7 +59,11 @@ class TestLegend:
         color = legend.get_color(self.sp2)
         assert color == "#a67573"
 
-        assert legend.get_legend() == {"#a67573": "In", "#fe0300": "O", "#ffcccc": "H"}
+        assert legend.get_legend()["colors"] == {
+            "#a67573": "In",
+            "#fe0300": "O",
+            "#ffcccc": "H",
+        }
 
         # test alternate
 
@@ -68,7 +72,11 @@ class TestLegend:
         color = legend.get_color(self.sp0)
         assert color == "#ffffff"
 
-        assert legend.get_legend() == {"#a67573": "In", "#ff0d0d": "O", "#ffffff": "H"}
+        assert legend.get_legend()["colors"] == {
+            "#a67573": "In",
+            "#ff0d0d": "O",
+            "#ffffff": "H",
+        }
 
         # test coloring by site properties
 
@@ -83,7 +91,7 @@ class TestLegend:
         color = legend.get_color(self.sp2, site=self.site2)
         assert color == "#7b9ef8"
 
-        assert legend.get_legend() == {
+        assert legend.get_legend()["colors"] == {
             "#7b9ef8": "-3.00",
             "#b30326": "5.00",
             "#dddcdb": "0.00",
@@ -102,7 +110,11 @@ class TestLegend:
         color = legend.get_color(self.sp2, site=self.site2)
         assert color == "#cc79a7"
 
-        assert legend.get_legend() == {"#cc79a7": "In", "#d55e00": "O", "#ffffff": "H"}
+        assert legend.get_legend()["colors"] == {
+            "#cc79a7": "In",
+            "#d55e00": "O",
+            "#ffffff": "H",
+        }
 
         # test disordered
 
@@ -114,7 +126,7 @@ class TestLegend:
         color = legend.get_color(self.site_d_sp1, site=self.site_d)
         assert color == "#bfa6a6"
 
-        assert legend.get_legend() == {
+        assert legend.get_legend()["colors"] == {
             "#a67573": "In",
             "#bfa6a6": "Al",
             "#ff0d0d": "O",
@@ -125,18 +137,36 @@ class TestLegend:
 
         legend = Legend(self.struct, color_scheme="example_categorical_site_prop")
 
-        assert legend.get_legend() == {"#377eb8": "8b", "#e41a1c": "4a"}
+        assert legend.get_legend()["colors"] == {"#377eb8": "8b", "#e41a1c": "4a"}
 
         # test pre-defined
 
         legend = Legend(self.struct_manual)
 
-        assert legend.get_legend() == {"#0000ff": "O", "#00ff00": "In", "#ff0000": "H"}
+        assert legend.get_legend()["colors"] == {
+            "#0000ff": "O2-",
+            "#00ff00": "In",
+            "#ff0000": "H",
+        }
 
     def test_get_radius(self):
 
-        pass
+        legend = Legend(self.struct, radius_scheme="uniform")
 
-    def test_get_title(self):
+        assert legend.get_radius(sp=self.sp0) == 0.5
 
-        pass
+        legend = Legend(self.struct, radius_scheme="covalent")
+
+        assert legend.get_radius(sp=self.sp1) == 0.66
+
+        legend = Legend(self.struct, radius_scheme="specified_or_average_ionic")
+
+        assert legend.get_radius(sp=self.sp2) == 0.94
+
+    def test_msonable(self):
+
+        legend = Legend(self.struct)
+        legend_dict = legend.as_dict()
+        legend_from_dict = Legend.from_dict(legend_dict)
+
+        assert legend.get_legend() == legend_from_dict.get_legend()

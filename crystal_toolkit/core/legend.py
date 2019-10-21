@@ -1,5 +1,6 @@
 from pymatgen import Specie, Element, Molecule
 from pymatgen.core.structure import SiteCollection, Site
+from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -35,7 +36,7 @@ class Legend(MSONable):
     generate the legend.
     """
 
-    default_scheme = "Jmol"
+    default_color_scheme = "Jmol"
     default_color = [0, 0, 0]
     default_radius = 1.0
 
@@ -65,7 +66,8 @@ class Legend(MSONable):
             (e.g. magnetic moment) or a categorical/string site
             property (e.g. Wyckoff label)
             radius_scheme: choose the radius for a species, one of
-            ...
+            "atomic", "specified_or_average_ionic", "covalent",
+            "van_der_waals", "atomic_calculated", "uniform"
             cmap: only used if color_mode is set to a scalar site
             property, defines the matplotlib color map to use, by
             default is blue-white-red for negative to postive values
@@ -79,18 +81,27 @@ class Legend(MSONable):
 
         site_prop_types = self.analyze_site_props(site_collection)
 
-        self.allowed_schemes = (
+        self.allowed_color_schemes = (
             ["VESTA", "Jmol", "accessible"]
             + site_prop_types.get("scalar", [])
             + site_prop_types.get("categorical", [])
         )
 
-        if color_scheme not in self.allowed_schemes:
+        self.allowed_radius_schemes = (
+            "atomic",
+            "specified_or_average_ionic",
+            "covalent",
+            "van_der_waals",
+            "atomic_calculated",
+            "uniform",
+        )
+
+        if color_scheme not in self.allowed_color_schemes:
             warnings.warn(
                 f"Color scheme {color_scheme} not available, "
-                f"falling back to {self.default_scheme}."
+                f"falling back to {self.default_color_scheme}."
             )
-            color_scheme = self.default_scheme
+            color_scheme = self.default_color_scheme
 
         # if color-coding by a scalar site property, determine minimum and
         # maximum values for color scheme, will default to be symmetric
@@ -114,9 +125,11 @@ class Legend(MSONable):
         self.site_prop_types = site_prop_types
         self.site_collection = site_collection
         self.color_scheme = color_scheme
-        self.radius_mode = radius_scheme
+        self.radius_scheme = radius_scheme
         self.cmap = cmap
         self.cmap_range = cmap_range
+        self.fallback_radius = 0.5
+        self.uniform_radius = 0.5
 
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(
@@ -256,14 +269,18 @@ class Legend(MSONable):
         # allow manual override by user
         if site and "display_color" in site.properties:
             color = site.properties["display_color"]
+            # TODO: next two lines due to change in API, will be removed
+            if isinstance(color, list) and isinstance(color[0], str):
+                color = color[0]
             if isinstance(color, list):
                 return html5_serialize_simple_color(color)
             else:
                 return html5_serialize_simple_color(html5_parse_legacy_color(color))
 
         if self.color_scheme in ("VESTA", "Jmol", "accessible"):
+            el = sp.as_dict()["element"]
             color = self.el_colors[self.color_scheme].get(
-                sp.as_dict()["element"], self.default_color
+                el, self.el_colors["Extras"].get(el, self.default_color)
             )
 
         elif self.color_scheme in self.site_prop_types.get("scalar", []):
@@ -307,13 +324,49 @@ class Legend(MSONable):
 
         return html5_serialize_simple_color(color)
 
-    def get_radius(self, sp: Union[Specie, Element]):
+    def get_radius(
+        self, sp: Union[Specie, Element], site: Optional[Site] = None
+    ) -> float:
 
         # allow manual override by user
-        # if "display_radius" in site.properties:
-        #    return site.properties["display_radius"]
+        if site and "display_radius" in site.properties:
+            return site.properties["display_radius"]
 
-        pass
+        if self.radius_scheme not in self.allowed_radius_schemes:
+            raise ValueError(
+                f"Unknown radius scheme {self.radius_scheme}, "
+                f"choose from: {self.allowed_radius_schemes}."
+            )
+
+        radius = None
+        if self.radius_scheme == "uniform":
+            radius = self.uniform_radius
+        elif self.radius_scheme == "atomic":
+            radius = sp.atomic_radius
+        elif (
+            self.radius_scheme == "specified_or_average_ionic"
+            and isinstance(sp, Specie)
+            and sp.oxi_state
+        ):
+            radius = sp.ionic_radius
+        elif self.radius_scheme == "specified_or_average_ionic":
+            radius = sp.average_ionic_radius
+        elif self.radius_scheme == "covalent":
+            el = str(getattr(sp, "element", sp))
+            radius = CovalentRadius.radius[el]
+        elif self.radius_scheme == "van_der_waals":
+            radius = sp.van_der_waals_radius
+        elif self.radius_scheme == "atomic_calculated":
+            radius = sp.atomic_radius_calculated
+
+        if not radius:
+            warnings.warn(
+                "Radius unknown for {} and strategy {}, "
+                "setting to 0.5.".format(sp, self.radius_scheme)
+            )
+            radius = self.fallback_radius
+
+        return radius
 
     @staticmethod
     def analyze_site_props(site_collection: SiteCollection) -> Dict[str, List[str]]:
@@ -368,10 +421,7 @@ class Legend(MSONable):
 
         legend = {k: ", ".join(sorted(list(set(v)))) for k, v in legend.items()}
 
-        return legend
-
-    def get_title(self) -> str:
-        pass
-
-    def available_color_schemes(self) -> List[str]:
-        pass
+        return {
+            "composition": self.site_collection.composition.as_dict(),
+            "colors": legend,
+        }
