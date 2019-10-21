@@ -69,7 +69,7 @@ class LocalEnvironmentPanel(PanelComponent2):
                     dcc.RadioItems(
                         id=self.id("algorithm"),
                         options=[
-                            {"label": "ChemEnv Analysis", "value": "chemenv"},
+                            {"label": "Chemenv Analysis", "value": "chemenv"},
                             {"label": "LocalEnv Analysis", "value": "localenv"},
                             {"label": "Bonding Graph", "value": "bondinggraph"},
                         ],
@@ -104,7 +104,7 @@ class LocalEnvironmentPanel(PanelComponent2):
             if algorithm == "chemenv":
 
                 description = (
-                    "The ChemEnv algorithm is developed by David Waroquiers et al. to analyze "
+                    "The Chemenv algorithm is developed by David Waroquiers et al. to analyze "
                     'local chemical environments. In this interactive app, the "SimplestChemenvStrategy" '
                     'and "LightStructureEnvironments" are used. For more powerful analysis, please use '
                     "the *pymatgen* code."
@@ -131,7 +131,11 @@ class LocalEnvironmentPanel(PanelComponent2):
                     [
                         dcc.Markdown(description),
                         html.Br(),
-                        cite_me(None, cite_text="Cite ChemEnv Analysis"),
+                        cite_me(
+                            manual_ref="Chemenv: A fast and robust coordination environment identification tool, "
+                            "David Waroquiers et al. (2019)",
+                            cite_text="Cite Chemenv Analysis",
+                        ),
                         html.Br(),
                         distance_cutoff,
                         angle_cutoff,
@@ -245,10 +249,10 @@ class LocalEnvironmentPanel(PanelComponent2):
                         get_tooltip(
                             "CSM",
                             "The continuous symmetry measure (CSM) describes the similarity to an "
-                            "ideal coordination environment. It can be understood as a 'distance' to"
-                            "a shape and ranges from 0 to 100 in which 0 corresponds to a"
-                            "coordination environment that is exactly identical to the ideal one. A"
-                            "CSM larger than 5.0 already indicates a relatively strong distortion of"
+                            "ideal coordination environment. It can be understood as a 'distance' to "
+                            "a shape and ranges from 0 to 100 in which 0 corresponds to a "
+                            "coordination environment that is exactly identical to the ideal one. A "
+                            "CSM larger than 5.0 already indicates a relatively strong distortion of "
                             "the investigated coordination environment.",
                         ): f"{env[0]['csm']:.2f}",
                         "Interactive View": view,
