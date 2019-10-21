@@ -10,9 +10,10 @@ export default class Simple3DScene {
     const defaults = {
       shadows: true,
       antialias: true,
-      transparent_background: true,
+      transparent_background: false,
+      background: '#ffffff',
       sphereSegments: 32,
-      cylinderSegments: 8,
+      cylinderSegments: 16,
       staticScene: true,
       sphereScale: 1.0,
       cylinderScale: 1.0,
@@ -70,6 +71,7 @@ export default class Simple3DScene {
     dom_elt.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
+    scene.background = new THREE.Color(this.settings.background)
     this.scene = scene
 
     // Camera
@@ -209,6 +211,15 @@ export default class Simple3DScene {
     this.camera.updateProjectionMatrix()
     this.camera.updateMatrix()
     this.renderScene()
+
+    // we can automatically output a screenshot to be the background of the parent div
+    // this helps for automated testing, printing the web page, etc.
+    if (!this.settings.transparent_background) {
+      this.renderer.domElement.parentElement.style.backgroundSize = '100%'
+      this.renderer.domElement.parentElement.style.backgroundRepeat = 'no-repeat'
+      this.renderer.domElement.parentElement.style.backgroundPosition = 'center'
+      this.renderer.domElement.parentElement.style.backgroundImage = "url('" + this.renderer.domElement.toDataURL('image/png') + "')"
+    }
   }
 
   makeLights (light_json) {
