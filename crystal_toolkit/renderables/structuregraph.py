@@ -6,8 +6,11 @@ from pymatgen import PeriodicSite
 from pymatgen.analysis.graphs import StructureGraph
 
 from crystal_toolkit.core.scene import Scene
+from crystal_toolkit.core.legend import Legend
 
 from matplotlib.cm import get_cmap
+
+from typing import Optional
 
 
 def _get_sites_to_draw(
@@ -86,7 +89,10 @@ def get_structure_graph_scene(
     color_edges_by_edge_weight=True,
     edge_weight_color_scale="coolwarm",
     explicitly_calculate_polyhedra_hull=False,
+    legend: Optional[Legend] = None,
 ) -> Scene:
+
+    legend = legend or Legend(self.structure)
 
     primitives = defaultdict(list)
 
@@ -163,19 +169,10 @@ def get_structure_graph_scene(
             connected_sites_not_drawn_colors=connected_sites_not_drawn_colors,
             origin=origin,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+            legend=legend,
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
-
-    # we are here ...
-    # select polyhedra
-    # split by atom type at center
-    # see if any intersect, if yes split further
-    # order sets, with each choice, go to add second set etc if don't intersect
-    # they intersect if centre atom forms vertex of another atom (caveat: centre atom may not actually be inside polyhedra! not checking for this, add todo)
-    # def _set_intersects() ->bool:
-    # def _split_set() ->List: (by type, then..?)
-    # def _order_sets()... pick 1, ask can add 2? etc
 
     primitives["unit_cell"].append(self.structure.lattice.get_scene(origin=origin))
 
