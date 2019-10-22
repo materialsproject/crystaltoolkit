@@ -6,11 +6,17 @@ from pymatgen import PeriodicSite
 from pymatgen.analysis.graphs import MoleculeGraph
 
 from crystal_toolkit.core.scene import Scene
+from crystal_toolkit.core.legend import Legend
+
+
+# TODO: fix Sam's bug (reorder)
 
 
 def get_molecule_graph_scene(
-    self, origin=(0, 0, 0), explicitly_calculate_polyhedra_hull=False, **kwargs
+    self, origin=(0, 0, 0), explicitly_calculate_polyhedra_hull=False, legend=None
 ) -> Scene:
+
+    legend = legend or Legend(self.molecule)
 
     primitives = defaultdict(list)
 
@@ -22,6 +28,7 @@ def get_molecule_graph_scene(
             connected_sites=connected_sites,
             origin=origin,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+            legend=legend,
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents

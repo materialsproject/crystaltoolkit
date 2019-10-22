@@ -1,11 +1,73 @@
 import numpy as np
 
-from crystal_toolkit.core.scene import Scene, Lines
+from crystal_toolkit.core.scene import Scene, Lines, Arrows, Spheres
 
 from pymatgen import Lattice
 
 
-def get_lattice_scene(self, origin=(0, 0, 0), **kwargs):
+def _axes_from_lattice(self, origin=(0, 0, 0), scale=1, offset=0, **kwargs):
+    # TODO: add along lattice
+    """
+    Get the display components of the compass
+    :param lattice: the pymatgen Lattice object that contains the primitive
+    lattice vectors
+    :param origin: the reference position to place the compass
+    :param scale: scale all the geometric objects that makes up the compass
+    the lattice vectors are normalized before the scaling so everything should
+    be the same size
+    :param offset: shift the compass from the origin by a ratio of the diagonal
+    of the cell relative the size
+    :param **kwargs: keyword args to pass to the Arrows initializer
+    :return: Scene object
+    """
+    o = -np.array(origin)
+    o = o - offset * (self.matrix[0] + self.matrix[1] + self.matrix[2])
+    a = self.matrix[0] / np.linalg.norm(self.matrix[0]) * scale
+    b = self.matrix[1] / np.linalg.norm(self.matrix[1]) * scale
+    c = self.matrix[2] / np.linalg.norm(self.matrix[2]) * scale
+    a_arrow = [[o, o + a]]
+    b_arrow = [[o, o + b]]
+    c_arrow = [[o, o + c]]
+
+    radius_scale = 0.7
+    head_scale = 2.3
+    head_width = 1.4
+
+    o_sphere = Spheres(positions=[o], color="white", radius=radius_scale * scale / 4)
+
+    return Scene(
+        name="axes",
+        contents=[
+            Arrows(
+                a_arrow,
+                color="red",
+                radius=radius_scale * scale,
+                headLength=head_scale * scale,
+                headWidth=head_width * scale,
+                **kwargs,
+            ),
+            Arrows(
+                b_arrow,
+                color="green",
+                radius=radius_scale * scale,
+                headLength=head_scale * scale,
+                headWidth=head_width * scale,
+                **kwargs,
+            ),
+            Arrows(
+                c_arrow,
+                color="blue",
+                radius=radius_scale * scale,
+                headLength=head_scale * scale,
+                headWidth=head_width * scale,
+                **kwargs,
+            ),
+            o_sphere,
+        ],
+    )
+
+
+def get_lattice_scene(self, origin=(0, 0, 0), show_axes=False, **kwargs):
 
     o = -np.array(origin)
     a, b, c = self.matrix[0], self.matrix[1], self.matrix[2]
@@ -42,8 +104,14 @@ def get_lattice_scene(self, origin=(0, 0, 0), **kwargs):
         f"alpha={self.alpha}, beta={self.beta}, gamma={self.gamma}"
     )
 
-    return Scene(name, contents=[Lines(line_pairs, **kwargs)])
+    contents = [Lines(line_pairs, **kwargs)]
+
+    if show_axes:
+        contents.append(self._axes_from_lattice(origin=origin))
+
+    return Scene(name, contents)
 
 
-# todo: re-think origin, shift globally at end (scene.origin)
+# TODO: re-think origin, shift globally at end (scene.origin)
+Lattice._axes_from_lattice = _axes_from_lattice
 Lattice.get_scene = get_lattice_scene

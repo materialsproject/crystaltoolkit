@@ -3,6 +3,8 @@ from pymatgen import DummySpecie
 from scipy.spatial.qhull import Delaunay
 
 from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface, Convex
+from crystal_toolkit.core.legend import Legend
+
 from itertools import chain
 from pymatgen import Site
 from pymatgen.analysis.graphs import ConnectedSite
@@ -19,14 +21,13 @@ def get_site_scene(
     connected_sites_colors: Optional[List[str]] = None,
     connected_sites_not_drawn_colors: Optional[List[str]] = None,
     origin: List[float] = (0, 0, 0),
-    ellipsoid_site_prop: str = None,
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
+    legend: Optional[Legend] = None,
 ) -> Scene:
     """
 
     Args:
-        self:
         connected_sites:
         connected_sites_not_drawn:
         hide_incomplete_edges:
@@ -34,8 +35,8 @@ def get_site_scene(
         connected_sites_colors:
         connected_sites_not_drawn_colors:
         origin:
-        ellipsoid_site_prop:
         explicitly_calculate_polyhedra_hull:
+        legend:
 
     Returns:
 
@@ -45,48 +46,28 @@ def get_site_scene(
     bonds = []
     polyhedron = []
 
+    legend = legend or Legend(self)
+
     # for disordered structures
     is_ordered = self.is_ordered
     phiStart, phiEnd = None, None
     occu_start = 0.0
 
-    # for thermal ellipsoids etc.
-    def _get_ellipsoids_from_matrix(matrix):
-        raise NotImplementedError
-        # matrix = np.array(matrix)
-        # eigenvalues, eigenvectors = np.linalg.eig(matrix)
-
-    if ellipsoid_site_prop:
-        matrix = self.properties[ellipsoid_site_prop]
-        ellipsoids = _get_ellipsoids_from_matrix(matrix)
-    else:
-        ellipsoids = None
-
     position = np.subtract(self.coords, origin).tolist()
-
-    # site_color is used for bonds and polyhedra, if multiple colors are
-    # defined for site (e.g. a disordered site), then we use grey
-    all_colors = set(self.properties["display_color"])
-    if len(all_colors) > 1:
-        site_color = "#555555"
-    else:
-        site_color = list(all_colors)[0]
 
     for idx, (sp, occu) in enumerate(self.species.items()):
 
         if isinstance(sp, DummySpecie):
 
             cube = Cubes(
-                positions=[position],
-                color=self.properties["display_color"][idx],
-                width=0.4,
+                positions=[position], color=legend.get_color(sp, site=self), width=0.4
             )
             atoms.append(cube)
 
         else:
 
-            color = self.properties["display_color"][idx]
-            radius = self.properties["display_radius"][idx]
+            color = legend.get_color(sp, site=self)
+            radius = legend.get_radius(sp, site=self)
 
             # TODO: make optional/default to None
             # in disordered structures, we fractionally color-code spheres,
@@ -126,7 +107,14 @@ def get_site_scene(
 
     if connected_sites:
 
-        all_positions = []
+        # TODO: more graceful solution here
+        # if ambiguous (disordered), re-use last color used
+        site_color = color
+
+        # can cause a bug if all vertices almost co-planar
+        # necessary to include center site in case it's outside polyhedra
+        all_positions = [np.subtract(self.coords, origin)]
+
         for idx, connected_site in enumerate(connected_sites):
 
             connected_position = np.subtract(connected_site.site.coords, origin)
@@ -164,10 +152,17 @@ def get_site_scene(
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
+
+        # ensure intersecting polyhedra are not shown, defaults to choose by electronegativity
+        not_most_electro_negative = map(
+            lambda x: x.site.specie < self.specie, connected_sites
+        )
+
         if (
             draw_polyhedra
             and len(connected_sites) > 3
             and not connected_sites_not_drawn
+            and not any(not_most_electro_negative)
         ):
             if explicitly_calculate_polyhedra_hull:
 
@@ -180,14 +175,15 @@ def get_site_scene(
 
                     vertices_indices = Delaunay(all_positions).convex_hull
                 except Exception as e:
-                    vertices_indices=[]
+                    vertices_indices = []
 
-                vertices = [all_positions[idx] for idx in chain.from_iterable(vertices_indices)]
+                vertices = [
+                    all_positions[idx] for idx in chain.from_iterable(vertices_indices)
+                ]
 
                 polyhedron = [
                     Surface(
-                        positions=vertices,
-                        color=self.properties["display_color"][0],
+                        positions=vertices, color=self.properties["display_color"][0]
                     )
                 ]
 
