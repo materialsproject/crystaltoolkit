@@ -194,7 +194,7 @@ For more information, see the Materials Project
             if comments:
                 remarks.append(comments)
 
-            contents = get_token_response("5cbf5b5ad5707100144b990a")
+            contents = get_token_response(token)
 
             user_name = f"{contents['first_name']} {contents['last_name']}"
             user_email = contents["email"]
