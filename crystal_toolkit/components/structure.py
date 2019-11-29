@@ -1,52 +1,27 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table as dt
+import re
+import sys
+from collections import OrderedDict
+from itertools import combinations_with_replacement, chain
+from typing import Dict, Union, Optional, Tuple
 
+import dash_table as dt
+import numpy as np
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-
-import warnings
-
-from crystal_toolkit import Simple3DSceneComponent
-from pymatgen.util.string import unicodeify_species
-from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import *
-from crystal_toolkit.core.legend import Legend
-
-from matplotlib.cm import get_cmap
-
-from pymatgen.core.composition import Composition
 from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen.analysis.local_env import NearNeighbors
-from pymatgen.core.periodic_table import Specie
-from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.vis.structure_vtk import EL_COLORS
+from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from sklearn.preprocessing import LabelEncoder
-from palettable.colorbrewer.qualitative import Set1_9, Set2_8
+from crystal_toolkit import Simple3DSceneComponent
+from crystal_toolkit.core.legend import Legend
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.scene import Scene
+from crystal_toolkit.helpers.layouts import *
 
-from typing import Dict, Union, Optional, List, Tuple
-
-from collections import defaultdict, OrderedDict
-
-from itertools import combinations_with_replacement, chain
-import re
-
-from crystal_toolkit.core.scene import Scene, Spheres, Arrows
-
-import numpy as np
 
 # TODO: make dangling bonds "stubs"? (fixed length)
-
-EL_COLORS["VESTA"]["bcp"] = [0, 0, 255]
-EL_COLORS["VESTA"]["rcp"] = [255, 0, 0]
-EL_COLORS["VESTA"]["ccp"] = [255, 255, 0]
-EL_COLORS["Jmol"]["bcp"] = [0, 0, 255]
-EL_COLORS["Jmol"]["rcp"] = [255, 0, 0]
-EL_COLORS["Jmol"]["ccp"] = [255, 255, 0]
 
 
 class StructureMoleculeComponent(MPComponent):
@@ -55,7 +30,11 @@ class StructureMoleculeComponent(MPComponent):
         subclass.__name__: subclass for subclass in NearNeighbors.__subclasses__()
     }
 
-    default_scene_settings = {"cylinderScale": 0.1}
+    default_scene_settings = {"cylinderScale": 0.1, "transparentBackground": True}
+
+    # whether to persist options such as atomic radii etc.
+    persistence = True
+    persistence_type = "local"
 
     def __init__(
         self,
@@ -76,9 +55,41 @@ class StructureMoleculeComponent(MPComponent):
         scene_settings=None,
         **kwargs,
     ):
+        """
+        
+        :param struct_or_mol:
+        :param id:
+        :param origin_component:
+        :param scene_additions:
+        :param bonding_strategy:
+        :param bonding_strategy_kwargs:
+        :param color_scheme:
+        :param color_scale:
+        :param radius_strategy:
+        :param radius_scale:
+        :param draw_image_atoms:
+        :param bonded_sites_outside_unit_cell:
+        :param hide_incomplete_bonds:
+        :param show_compass:
+        :param scene_settings:
+        :param kwargs:
+        """
+
+        if "pytest" in sys.modules:
+            # For visual diff testing, we set the background of the
+            # Div containing the 3D scene to be an image of the WebGL
+            # viewport, since the canvas contents are not captured by
+            # the test framework. This is wasteful for normal app usage
+            # so is otherwise disabled.
+            self.default_scene_settings["transparentBackground"] = False
+        else:
+            self.default_scene_settings["transparentBackground"] = True
 
         super().__init__(
-            id=id, contents=struct_or_mol, origin_component=origin_component, **kwargs
+            id=id,
+            default_data=struct_or_mol,
+            origin_component=origin_component,
+            **kwargs,
         )
 
         self.default_title = "Crystal Toolkit"
@@ -156,7 +167,7 @@ class StructureMoleculeComponent(MPComponent):
         self.initial_scene_data = scene.to_json()
 
         self.initial_graph = graph
-        self.create_store("graph", initial_data=self.to_data(graph))
+        self.create_store("graph", initial_data=graph)
 
     def generate_callbacks(self, app, cache):
         @app.callback(
@@ -195,7 +206,7 @@ class StructureMoleculeComponent(MPComponent):
 
             self.logger.debug("Constructed graph")
 
-            return self.to_data(graph)
+            return graph
 
         @app.callback(
             [Output(self.id("scene"), "data"), Output(self.id("legend_data"), "data")],
@@ -205,17 +216,20 @@ class StructureMoleculeComponent(MPComponent):
             ],
         )
         def update_scene_and_legend(graph, display_options):
+            if not graph or not display_options:
+                raise PreventUpdate
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
             scene, legend = self.get_scene_and_legend(graph, **display_options)
-            return scene.to_json(), self.to_data(legend)
+            return scene.to_json(), legend
 
         @app.callback(
             Output(self.id("color-scheme"), "options"),
             [Input(self.id("graph"), "data")],
         )
         def update_color_options(graph):
-
+            if not graph:
+                raise PreventUpdate
             options = [
                 {"label": "Jmol", "value": "Jmol"},
                 {"label": "VESTA", "value": "VESTA"},
@@ -243,6 +257,9 @@ class StructureMoleculeComponent(MPComponent):
         def update_display_options(
             color_scheme, radius_strategy, draw_options, display_options
         ):
+
+            initial_display_options = display_options.copy()
+
             display_options = self.from_data(display_options)
             display_options.update({"color_scheme": color_scheme})
             display_options.update({"radius_strategy": radius_strategy})
@@ -259,12 +276,12 @@ class StructureMoleculeComponent(MPComponent):
                 {"hide_incomplete_bonds": "hide_incomplete_bonds" in draw_options}
             )
 
-            if display_options == self.initial_display_options:
+            if display_options == initial_display_options:
                 raise PreventUpdate
 
             self.logger.debug("Display options updated")
 
-            return self.to_data(display_options)
+            return display_options
 
         @app.callback(
             Output(self.id("scene"), "downloadRequest"),
@@ -335,6 +352,7 @@ class StructureMoleculeComponent(MPComponent):
                 raise PreventUpdate
 
             if bonding_algorithm == "CutOffDictNN":
+                custom_cutoffs_rows = custom_cutoffs_rows or []
                 # this is not the format CutOffDictNN expects (since that is not JSON
                 # serializable), so we store as a list of tuples instead
                 # TODO: make CutOffDictNN args JSON serializable
@@ -345,7 +363,7 @@ class StructureMoleculeComponent(MPComponent):
                 graph_generation_options["bonding_strategy_kwargs"] = {
                     "cut_off_dict": custom_cutoffs
                 }
-            return self.to_data(graph_generation_options)
+            return graph_generation_options
 
         @app.callback(
             [
@@ -384,7 +402,7 @@ class StructureMoleculeComponent(MPComponent):
 
     def _make_legend(self, legend):
 
-        if legend is None or (not legend.get("colors", None)):
+        if not legend:
             return html.Div(id=self.id("legend"))
 
         def get_font_color(hex_code):
@@ -429,13 +447,12 @@ class StructureMoleculeComponent(MPComponent):
             return H1(self.default_title, id=self.id("title"))
 
         composition = legend["composition"]
-        print(legend)
         if isinstance(composition, dict):
 
             # TODO: make Composition handle DummySpecie for title
             try:
                 composition = Composition.from_dict(composition)
-                formula = composition.reduced_formula
+                formula = composition.iupac_formula
                 formula_parts = re.findall(r"[^\d_]+|\d+", formula)
                 formula_components = [
                     html.Sub(part) if part.isnumeric() else html.Span(part)
@@ -449,7 +466,7 @@ class StructureMoleculeComponent(MPComponent):
         )
 
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         struct_layout = html.Div(
             Simple3DSceneComponent(
@@ -499,6 +516,8 @@ class StructureMoleculeComponent(MPComponent):
             options=[{"label": k, "value": v} for k, v in nn_mapping.items()],
             value="CrystalNN",
             id=self.id("bonding_algorithm"),
+            persistence=self.persistence,
+            persistence_type=self.persistence_type,
         )
 
         bonding_algorithm_custom_cutoffs = html.Div(
@@ -535,6 +554,8 @@ class StructureMoleculeComponent(MPComponent):
                         id=self.id("unit-cell-choice"),
                         labelStyle={"display": "block"},
                         inputClassName="mpc-radio",
+                        persistence=self.persistence,
+                        persistence_type=self.persistence_type,
                     ),
                     className="mpc-control",
                 ),
@@ -554,6 +575,8 @@ class StructureMoleculeComponent(MPComponent):
                         ],
                         value=self.initial_display_options["color_scheme"],
                         clearable=False,
+                        persistence=self.persistence,
+                        persistence_type=self.persistence_type,
                         id=self.id("color-scheme"),
                     ),
                     className="mpc-control",
@@ -565,11 +588,15 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Ionic", "value": "specified_or_average_ionic"},
                             {"label": "Covalent", "value": "covalent"},
                             {"label": "Van der Waals", "value": "van_der_waals"},
-                            {"label": "Uniform (0.5Å)", "value": "uniform"},
+                            {
+                                "label": f"Uniform ({Legend.uniform_radius}Å)",
+                                "value": "uniform",
+                            },
                         ],
                         value=self.initial_display_options["radius_strategy"],
                         clearable=False,
-                        persistence=True,
+                        persistence=self.persistence,
+                        persistence_type=self.persistence_type,
                         id=self.id("radius_strategy"),
                     ),
                     className="mpc-control",
@@ -605,6 +632,8 @@ class StructureMoleculeComponent(MPComponent):
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("draw_options"),
+                            persistence=self.persistence,
+                            persistence_type=self.persistence_type,
                         )
                     ]
                 ),
@@ -619,10 +648,12 @@ class StructureMoleculeComponent(MPComponent):
                                 {"label": "Polyhedra", "value": "polyhedra"},
                                 {"label": "Axes", "value": "axes"},
                             ],
-                            value=["atoms", "bonds", "unit_cell", "polyhedra", "axes"],
+                            value=["atoms", "bonds", "unit_cell", "polyhedra"],
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("hide-show"),
+                            persistence=self.persistence,
+                            persistence_type=self.persistence_type,
                         )
                     ],
                     className="mpc-control",
@@ -639,9 +670,9 @@ class StructureMoleculeComponent(MPComponent):
         }
 
     @property
-    def standard_layout(self):
+    def layout(self):
         return html.Div(
-            self.all_layouts["struct"], style={"width": "400px", "height": "400px"}
+            self._sub_layouts["struct"], style={"width": "400px", "height": "400px"}
         )
 
     @staticmethod
@@ -778,6 +809,35 @@ class StructureMoleculeComponent(MPComponent):
             scene.contents.append(struct_or_mol.lattice._axes_from_lattice())
 
         if scene_additions:
+            scene_additions.origin = scene.origin
             scene.contents.append(scene_additions)
 
         return scene, legend.get_legend()
+
+    @property
+    def screenshot_layout(self):
+        """
+        :return: A layout including a button to trigger a screenshot download.
+        """
+        return self._sub_layouts["screenshot"]
+
+    @property
+    def options_layout(self):
+        """
+        :return: A layout including options to change the appearance, bonding, etc.
+        """
+        return self._sub_layouts["options"]
+
+    @property
+    def title_layout(self):
+        """
+        :return: A layout including the composition of the structure/molecule as a title.
+        """
+        return self._sub_layouts["title"]
+
+    @property
+    def legend_layout(self):
+        """
+        :return: A layout including a legend for the structure/molecule.
+        """
+        return self._sub_layouts["legend"]
