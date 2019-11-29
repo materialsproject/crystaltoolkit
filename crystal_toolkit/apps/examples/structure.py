@@ -1,6 +1,7 @@
 # standard Dash imports
 import dash
 import dash_html_components as html
+import dash_core_components as dcc
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
@@ -31,15 +32,15 @@ my_layout = html.Div(
         structure_component.layout,
         html.H2("Optional Additional Layouts"),
         html.H3("Screenshot Layout"),
-        structure_component._sub_layouts["screenshot"],
+        structure_component.screenshot_layout,
         html.H3("Options Layout"),
-        structure_component._sub_layouts["options"],
+        structure_component.options_layout,
         html.H3("Title Layout"),
-        structure_component._sub_layouts["title"],
+        structure_component.title_layout,
         html.H3("Legend Layout"),
-        structure_component._sub_layouts["legend"],
+        structure_component.legend_layout,
         html.H2("Technical Details"),
-        html.P(str(structure_component)),
+        dcc.Markdown(str(structure_component)),
     ]
 )
 
