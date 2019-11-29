@@ -4,6 +4,7 @@ from collections import OrderedDict
 from itertools import combinations_with_replacement, chain
 from typing import Dict, Union, Optional, Tuple
 
+import dash
 import dash_table as dt
 import numpy as np
 from dash.dependencies import Input, Output, State
@@ -23,6 +24,18 @@ from crystal_toolkit.helpers.layouts import *
 
 # TODO: make dangling bonds "stubs"? (fixed length)
 
+DEFAULTS = {
+    "color_scheme": "VESTA",
+    "bonding_strategy": "CrystalNN",
+    "radius_strategy": "uniform",
+    "draw_image_atoms": True,
+    "bonded_sites_outside_unit_cell": True,
+    "hide_incomplete_bonds": True,
+    "show_compass": False,
+}
+
+# TODO: get rid of "initial" nonsense, this should be a dict / integrated with add_store also
+
 
 class StructureMoleculeComponent(MPComponent):
 
@@ -33,7 +46,7 @@ class StructureMoleculeComponent(MPComponent):
     default_scene_settings = {"cylinderScale": 0.1, "transparentBackground": True}
 
     # whether to persist options such as atomic radii etc.
-    persistence = True
+    persistence = False
     persistence_type = "local"
 
     def __init__(
@@ -42,16 +55,15 @@ class StructureMoleculeComponent(MPComponent):
         id=None,
         origin_component=None,
         scene_additions=None,
-        bonding_strategy="MinimumDistanceNN",
+        bonding_strategy=DEFAULTS["bonding_strategy"],
         bonding_strategy_kwargs=None,
-        color_scheme="VESTA",
+        color_scheme=DEFAULTS["color_scheme"],
         color_scale=None,
-        radius_strategy="uniform",
-        radius_scale=1.0,
-        draw_image_atoms=True,
-        bonded_sites_outside_unit_cell=False,
-        hide_incomplete_bonds=False,
-        show_compass=True,
+        radius_strategy=DEFAULTS["radius_strategy"],
+        draw_image_atoms=DEFAULTS["draw_image_atoms"],
+        bonded_sites_outside_unit_cell=DEFAULTS["bonded_sites_outside_unit_cell"],
+        hide_incomplete_bonds=DEFAULTS["hide_incomplete_bonds"],
+        show_compass=DEFAULTS["show_compass"],
         scene_settings=None,
         **kwargs,
     ):
@@ -66,7 +78,6 @@ class StructureMoleculeComponent(MPComponent):
         :param color_scheme:
         :param color_scale:
         :param radius_strategy:
-        :param radius_scale:
         :param draw_image_atoms:
         :param bonded_sites_outside_unit_cell:
         :param hide_incomplete_bonds:
@@ -92,11 +103,10 @@ class StructureMoleculeComponent(MPComponent):
             **kwargs,
         )
 
+        # what to show for the title_layout if structure/molecule not loaded
         self.default_title = "Crystal Toolkit"
 
-        self.initial_scene_settings = (
-            StructureMoleculeComponent.default_scene_settings.copy()
-        )
+        self.initial_scene_settings = self.default_scene_settings.copy()
         if scene_settings:
             self.initial_scene_settings.update(scene_settings)
 
@@ -115,7 +125,6 @@ class StructureMoleculeComponent(MPComponent):
             "color_scheme": color_scheme,
             "color_scale": color_scale,
             "radius_strategy": radius_strategy,
-            "radius_scale": radius_scale,
             "draw_image_atoms": draw_image_atoms,
             "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
             "hide_incomplete_bonds": hide_incomplete_bonds,
@@ -288,7 +297,7 @@ class StructureMoleculeComponent(MPComponent):
             [Input(self.id("screenshot_button"), "n_clicks")],
             [State(self.id("scene"), "downloadRequest"), State(self.id(), "data")],
         )
-        def screenshot_callback(n_clicks, current_requests, struct_or_mol):
+        def trigger_screenshot(n_clicks, current_requests, struct_or_mol):
             if n_clicks is None:
                 raise PreventUpdate
             struct_or_mol = self.from_data(struct_or_mol)
@@ -315,6 +324,8 @@ class StructureMoleculeComponent(MPComponent):
             [State(self.id("hide-show"), "options")],
         )
         def update_visibility(values, options):
+            # TODO: to make this callback more efficient,
+            # would need to be able to access current object visibility from Simple3DSceneComponent
             visibility = {opt["value"]: (opt["value"] in values) for opt in options}
             return visibility
 
@@ -325,7 +336,7 @@ class StructureMoleculeComponent(MPComponent):
             ],
             [Input(self.id("legend_data"), "data")],
         )
-        def update_legend(legend):
+        def update_legend_and_title(legend):
 
             legend = self.from_data(legend)
 
@@ -348,9 +359,6 @@ class StructureMoleculeComponent(MPComponent):
                 "bonding_strategy_kwargs": None,
             }
 
-            if graph_generation_options == self.initial_graph_generation_options:
-                raise PreventUpdate
-
             if bonding_algorithm == "CutOffDictNN":
                 custom_cutoffs_rows = custom_cutoffs_rows or []
                 # this is not the format CutOffDictNN expects (since that is not JSON
@@ -363,6 +371,10 @@ class StructureMoleculeComponent(MPComponent):
                 graph_generation_options["bonding_strategy_kwargs"] = {
                     "cut_off_dict": custom_cutoffs
                 }
+
+            if graph_generation_options == self.initial_graph_generation_options:
+                raise PreventUpdate
+
             return graph_generation_options
 
         @app.callback(
@@ -371,9 +383,12 @@ class StructureMoleculeComponent(MPComponent):
                 Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
             ],
             [Input(self.id("bonding_algorithm"), "value")],
-            [State(self.id("graph"), "data")],
+            [
+                State(self.id("graph"), "data"),
+                State(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
+            ],
         )
-        def update_custom_bond_options(bonding_algorithm, graph):
+        def update_custom_bond_options(bonding_algorithm, graph, current_style):
 
             if not graph:
                 raise PreventUpdate
@@ -382,22 +397,13 @@ class StructureMoleculeComponent(MPComponent):
                 style = {}
             else:
                 style = {"display": "none"}
+                if style == current_style:
+                    # no need to update rows if we're not showing them
+                    raise PreventUpdate
 
             graph = self.from_data(graph)
-            struct_or_mol = self._get_struct_or_mol(graph)
-            # can't use type_of_specie because it doesn't work with disordered structures
-            species = set(
-                map(
-                    str,
-                    chain.from_iterable(
-                        [list(c.keys()) for c in struct_or_mol.species_and_occu]
-                    ),
-                )
-            )
-            rows = [
-                {"A": combination[0], "B": combination[1], "A—B": 0}
-                for combination in combinations_with_replacement(species, 2)
-            ]
+            rows = self._make_bonding_algorithm_custom_cuffoff_data(graph)
+
             return rows, style
 
     def _make_legend(self, legend):
@@ -465,6 +471,24 @@ class StructureMoleculeComponent(MPComponent):
             formula_components, id=self.id("title"), style={"display": "inline-block"}
         )
 
+    @staticmethod
+    def _make_bonding_algorithm_custom_cuffoff_data(graph):
+        struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
+        # can't use type_of_specie because it doesn't work with disordered structures
+        species = set(
+            map(
+                str,
+                chain.from_iterable(
+                    [list(c.keys()) for c in struct_or_mol.species_and_occu]
+                ),
+            )
+        )
+        rows = [
+            {"A": combination[0], "B": combination[1], "A—B": 0}
+            for combination in combinations_with_replacement(species, 2)
+        ]
+        return rows
+
     @property
     def _sub_layouts(self):
 
@@ -514,7 +538,8 @@ class StructureMoleculeComponent(MPComponent):
 
         bonding_algorithm = dcc.Dropdown(
             options=[{"label": k, "value": v} for k, v in nn_mapping.items()],
-            value="CrystalNN",
+            value=self.initial_graph_generation_options["bonding_strategy"],
+            clearable=False,
             id=self.id("bonding_algorithm"),
             persistence=self.persistence,
             persistence_type=self.persistence_type,
@@ -530,6 +555,9 @@ class StructureMoleculeComponent(MPComponent):
                         {"name": "A—B /Å", "id": "A—B"},
                     ],
                     editable=True,
+                    data=self._make_bonding_algorithm_custom_cuffoff_data(
+                        self.initial_data
+                    ),
                     id=self.id("bonding_algorithm_custom_cutoffs"),
                 ),
                 html.Br(),
@@ -543,7 +571,7 @@ class StructureMoleculeComponent(MPComponent):
                 #  TODO: hide if molecule
                 html.Label("Change unit cell:", className="mpc-label"),
                 html.Div(
-                    dcc.RadioItems(
+                    dcc.Dropdown(
                         options=[
                             {"label": "Input cell", "value": "input"},
                             {"label": "Primitive cell", "value": "primitive"},
@@ -551,9 +579,8 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Reduced cell", "value": "reduced"},
                         ],
                         value="input",
+                        clearable=False,
                         id=self.id("unit-cell-choice"),
-                        labelStyle={"display": "block"},
-                        inputClassName="mpc-radio",
                         persistence=self.persistence,
                         persistence_type=self.persistence_type,
                     ),
@@ -751,12 +778,14 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _get_struct_or_mol(
-        graph: Union[StructureGraph, MoleculeGraph]
+        graph: Union[StructureGraph, MoleculeGraph, Structure, Molecule]
     ) -> Union[Structure, Molecule]:
         if isinstance(graph, StructureGraph):
             return graph.structure
         elif isinstance(graph, MoleculeGraph):
             return graph.molecule
+        elif isinstance(graph, Structure) or isinstance(graph, Molecule):
+            return graph
         else:
             raise ValueError
 
@@ -764,17 +793,15 @@ class StructureMoleculeComponent(MPComponent):
     def get_scene_and_legend(
         graph: Union[StructureGraph, MoleculeGraph],
         name="StructureMoleculeComponent",
-        color_scheme="Jmol",
+        color_scheme=DEFAULTS["color_scheme"],
         color_scale=None,
-        radius_strategy="specified_or_average_ionic",
-        radius_scale=1.0,
-        ellipsoid_site_prop=None,
-        draw_image_atoms=True,
-        bonded_sites_outside_unit_cell=True,
-        hide_incomplete_bonds=False,
+        radius_strategy=DEFAULTS["radius_strategy"],
+        draw_image_atoms=DEFAULTS["draw_image_atoms"],
+        bonded_sites_outside_unit_cell=DEFAULTS["bonded_sites_outside_unit_cell"],
+        hide_incomplete_bonds=DEFAULTS["hide_incomplete_bonds"],
         explicitly_calculate_polyhedra_hull=False,
         scene_additions=None,
-        show_compass=True,
+        show_compass=DEFAULTS["show_compass"],
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name=name)
@@ -805,8 +832,10 @@ class StructureMoleculeComponent(MPComponent):
 
         scene.name = name
 
-        if show_compass and hasattr(struct_or_mol, "lattice"):
-            scene.contents.append(struct_or_mol.lattice._axes_from_lattice())
+        if hasattr(struct_or_mol, "lattice"):
+            axes = struct_or_mol.lattice._axes_from_lattice()
+            axes.visible = show_compass
+            scene.contents.append(axes)
 
         if scene_additions:
             scene_additions.origin = scene.origin
