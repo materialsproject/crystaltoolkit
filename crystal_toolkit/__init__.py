@@ -46,3 +46,13 @@ _css_dist = []
 for _component in __all__:
     setattr(locals()[_component], "_js_dist", _js_dist)
     setattr(locals()[_component], "_css_dist", _css_dist)
+
+# pleasant hack to support MSONable objects in Dash callbacks natively
+from monty.json import MSONable
+
+
+def to_plotly_json(self):
+    return self.as_dict()
+
+
+MSONable.to_plotly_json = to_plotly_json
