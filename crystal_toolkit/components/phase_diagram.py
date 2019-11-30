@@ -404,8 +404,67 @@ class PhaseDiagramComponent(MPComponent):
 
         return clean_formula
 
+    @staticmethod
+    def ternary_plot(plot_data):
+        """
+        Return a ternary phase diagram in a two-dimensional plot.
+
+        Args:
+            plot_data: plot data from PDPlotter
+
+        Returns: go.Figure
+        """
+
+        go.Scatterternary(
+            {
+                "mode": "markers",
+                "a": list_of_a_comp,
+                "b": ...,
+                "c": ...,
+                "text": ...,
+                "marker": {
+                    "symbol": 100,
+                    "color": ...,
+                    "size": ...,
+                    "line": {"width": 2},
+                },
+            }
+        )
+
+        go.Scatterternary({"mode": "lines", "a": ..., "b": ..., "c": ..., "line": ...})
+
+        go.Layout(
+            {
+                "title": "Ternary Scatter Plot",
+                "ternary": {
+                    "sum": 1,
+                    "aaxis": {
+                        "title": "X",
+                        "min": 0.01,
+                        "linewidth": 2,
+                        "ticks": "outside",
+                    },
+                    "baxis": {
+                        "title": "W",
+                        "min": 0.01,
+                        "linewidth": 2,
+                        "ticks": "outside",
+                    },
+                    "caxis": {
+                        "title": "S",
+                        "min": 0.01,
+                        "linewidth": 2,
+                        "ticks": "outside",
+                    },
+                },
+                "showlegend": False,
+            }
+        )
+
+        return go.Figure()
+
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         graph = html.Div(
             [
@@ -475,13 +534,13 @@ class PhaseDiagramComponent(MPComponent):
         return {"graph": graph, "table": table}
 
     @property
-    def standard_layout(self):
+    def layout(self):
         return html.Div(
             [
                 Columns(
                     [
-                        Column(self.all_layouts["graph"]),
-                        Column(self.all_layouts["table"]),
+                        Column(self._sub_layouts["graph"]),
+                        Column(self._sub_layouts["table"]),
                     ],
                     centered=True,
                 )
@@ -582,7 +641,7 @@ class PhaseDiagramComponent(MPComponent):
 
             entries = self.from_data(entries)
 
-            return self.to_data(PhaseDiagram(entries))
+            return PhaseDiagram(entries)
 
         @app.callback(
             Output(self.id("entries"), "data"),
@@ -611,7 +670,7 @@ class PhaseDiagramComponent(MPComponent):
             if not entries:
                 raise PreventUpdate
 
-            return self.to_data(entries)
+            return entries
 
         @app.callback(
             Output(self.id("entry-table"), "data"),
@@ -705,4 +764,4 @@ class PhaseDiagramPanelComponent(PanelComponent):
         )
 
     def update_contents(self, new_store_contents, *args):
-        return self.pd_component.standard_layout
+        return self.pd_component.layout

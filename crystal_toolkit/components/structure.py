@@ -34,8 +34,6 @@ DEFAULTS = {
     "show_compass": False,
 }
 
-# TODO: get rid of "initial" nonsense, this should be a dict / integrated with add_store also
-
 
 class StructureMoleculeComponent(MPComponent):
 
@@ -116,31 +114,27 @@ class StructureMoleculeComponent(MPComponent):
             "bonding_strategy": bonding_strategy,
             "bonding_strategy_kwargs": bonding_strategy_kwargs,
         }
-        self.create_store(
-            "graph_generation_options",
-            initial_data=self.initial_graph_generation_options,
-        )
 
-        self.initial_display_options = {
-            "color_scheme": color_scheme,
-            "color_scale": color_scale,
-            "radius_strategy": radius_strategy,
-            "draw_image_atoms": draw_image_atoms,
-            "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
-            "hide_incomplete_bonds": hide_incomplete_bonds,
-            "show_compass": show_compass,
-        }
-        self.create_store("display_options", initial_data=self.initial_display_options)
+        self.create_store(
+            "display_options",
+            initial_data={
+                "color_scheme": color_scheme,
+                "color_scale": color_scale,
+                "radius_strategy": radius_strategy,
+                "draw_image_atoms": draw_image_atoms,
+                "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
+                "hide_incomplete_bonds": hide_incomplete_bonds,
+                "show_compass": show_compass,
+            },
+        )
 
         if scene_additions:
-            self.initial_scene_additions = Scene(
+            initial_scene_additions = Scene(
                 name="scene_additions", contents=scene_additions
-            )
+            ).to_json()
         else:
-            self.initial_scene_additions = Scene(name="scene_additions")
-        self.create_store(
-            "scene_additions", initial_data=self.initial_scene_additions.to_json()
-        )
+            initial_scene_additions = None
+        self.create_store("scene_additions", initial_data=initial_scene_additions)
 
         if struct_or_mol:
             # graph is cached explicitly, this isn't necessary but is an
@@ -154,8 +148,8 @@ class StructureMoleculeComponent(MPComponent):
             scene, legend = self.get_scene_and_legend(
                 graph,
                 name=self.id(),
-                scene_additions=self.initial_scene_additions,
-                **self.initial_display_options,
+                scene_additions=self.initial_data["scene_additions"],
+                **self.initial_data["display_options"],
             )
             if hasattr(struct_or_mol, "lattice"):
                 self._lattice = struct_or_mol.lattice
@@ -166,17 +160,15 @@ class StructureMoleculeComponent(MPComponent):
             scene, legend = self.get_scene_and_legend(
                 None,
                 name=self.id(),
-                scene_additions=self.initial_scene_additions,
-                **self.initial_display_options,
+                scene_additions=self.initial_data["scene_additions"],
+                **self.initial_data["display_options"],
             )
 
-        self.initial_legend = legend
-        self.create_store("legend_data", initial_data=self.initial_legend)
-
-        self.initial_scene_data = scene.to_json()
-
-        self.initial_graph = graph
+        self.create_store("legend_data", initial_data=legend)
         self.create_store("graph", initial_data=graph)
+
+        # this is used by a Simple3DScene component, not a dcc.Store
+        self._initial_data["scene"] = scene
 
     def generate_callbacks(self, app, cache):
         @app.callback(
@@ -247,14 +239,17 @@ class StructureMoleculeComponent(MPComponent):
             [
                 Input(self.id("graph"), "data"),
                 Input(self.id("display_options"), "data"),
+                Input(self.id("scene_additions"), "data"),
             ],
         )
-        def update_scene_and_legend_and_colors(graph, display_options):
+        def update_scene_and_legend_and_colors(graph, display_options, scene_additions):
             if not graph or not display_options:
                 raise PreventUpdate
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
-            scene, legend = self.get_scene_and_legend(graph, **display_options)
+            scene, legend = self.get_scene_and_legend(
+                graph, **display_options, scene_additions=scene_additions
+            )
 
             color_options = [
                 {"label": "Jmol", "value": "Jmol"},
@@ -270,7 +265,7 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": f"Site property: {prop}", "value": prop}
                         ]
 
-            return scene.to_json(), legend, color_options
+            return scene, legend, color_options
 
         @app.callback(
             Output(self.id("display_options"), "data"),
@@ -481,7 +476,7 @@ class StructureMoleculeComponent(MPComponent):
         struct_layout = html.Div(
             Simple3DSceneComponent(
                 id=self.id("scene"),
-                data=self.initial_scene_data,
+                data=self.initial_data["scene"],
                 settings=self.initial_scene_settings,
             ),
             style={
@@ -505,11 +500,13 @@ class StructureMoleculeComponent(MPComponent):
         )
 
         title_layout = html.Div(
-            self._make_title(self.initial_legend), id=self.id("title_container")
+            self._make_title(self._initial_data["legend_data"]),
+            id=self.id("title_container"),
         )
 
         legend_layout = html.Div(
-            self._make_legend(self.initial_legend), id=self.id("legend_container")
+            self._make_legend(self._initial_data["legend_data"]),
+            id=self.id("legend_container"),
         )
 
         nn_mapping = {
@@ -542,7 +539,7 @@ class StructureMoleculeComponent(MPComponent):
                     ],
                     editable=True,
                     data=self._make_bonding_algorithm_custom_cuffoff_data(
-                        self.initial_data
+                        self.initial_data["default"]
                     ),
                     id=self.id("bonding_algorithm_custom_cutoffs"),
                 ),
@@ -587,7 +584,7 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Jmol", "value": "Jmol"},
                             {"label": "Accessible", "value": "accessible"},
                         ],
-                        value=self.initial_display_options["color_scheme"],
+                        value=self.initial_data["display_options"]["color_scheme"],
                         clearable=False,
                         persistence=self.persistence,
                         persistence_type=self.persistence_type,
@@ -607,7 +604,7 @@ class StructureMoleculeComponent(MPComponent):
                                 "value": "uniform",
                             },
                         ],
-                        value=self.initial_display_options["radius_strategy"],
+                        value=self.initial_data["display_options"]["radius_strategy"],
                         clearable=False,
                         persistence=self.persistence,
                         persistence_type=self.persistence_type,
@@ -641,7 +638,7 @@ class StructureMoleculeComponent(MPComponent):
                                     "bonded_sites_outside_unit_cell",
                                     "hide_incomplete_bonds",
                                 )
-                                if self.initial_display_options[opt]
+                                if self.initial_data["display_options"][opt]
                             ],
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
@@ -780,7 +777,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def get_scene_and_legend(
-        graph: Union[StructureGraph, MoleculeGraph],
+        graph: Optional[Union[StructureGraph, MoleculeGraph]],
         name="StructureMoleculeComponent",
         color_scheme=DEFAULTS["color_scheme"],
         color_scale=None,
@@ -828,10 +825,11 @@ class StructureMoleculeComponent(MPComponent):
             scene.contents.append(axes)
 
         if scene_additions:
-            scene_additions.origin = scene.origin
-            scene.contents.append(scene_additions)
+            # TODO: need a Scene.from_json() to make this work
+            raise NotImplementedError
+            scene["contents"].append(scene_additions)
 
-        return scene, legend.get_legend()
+        return scene.to_json(), legend.get_legend()
 
     @property
     def screenshot_layout(self):

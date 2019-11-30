@@ -231,7 +231,7 @@ class LocalEnvironmentPanel(PanelComponent2):
                             static=True,
                             id=f"{struct.composition.reduced_formula}_site_{index}",
                             scene_settings={"enableZoom": False, "defaultZoom": 0.6},
-                        ).all_layouts["struct"]
+                        )._sub_layouts["struct"]
                     ],
                     style={"width": "300px", "height": "300px"},
                 )

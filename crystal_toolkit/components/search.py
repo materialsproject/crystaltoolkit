@@ -134,7 +134,7 @@ class SearchComponent(MPComponent):
         )
 
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         search = html.Div(self._make_search_box(), id=self.id("search_container"))
 
@@ -158,8 +158,8 @@ class SearchComponent(MPComponent):
         return {"search": search}
 
     @property
-    def standard_layout(self):
-        return html.Div([self.all_layouts["search"]])
+    def layout(self):
+        return html.Div([self._sub_layouts["search"]])
 
     def generate_callbacks(self, app, cache):
 
@@ -255,7 +255,7 @@ class SearchComponent(MPComponent):
             Output(self.id("dropdown"), "options"), [Input(self.id("results"), "data")]
         )
         def update_dropdown_options(results):
-            if "error" in results:
+            if not results or "error" in results:
                 raise PreventUpdate
             return [{"value": mpid, "label": label} for mpid, label in results.items()]
 
@@ -263,7 +263,7 @@ class SearchComponent(MPComponent):
             Output(self.id("dropdown"), "value"), [Input(self.id("results"), "data")]
         )
         def update_dropdown_value(results):
-            if "error" in results:
+            if not results or "error" in results:
                 raise PreventUpdate
             return list(results.keys())[0]
 
@@ -272,7 +272,7 @@ class SearchComponent(MPComponent):
             [Input(self.id("results"), "data")],
         )
         def hide_show_dropdown(results):
-            if len(results) <= 1:
+            if not results or len(results) <= 1:
                 return {"display": "none"}
             else:
                 return {}
@@ -281,7 +281,7 @@ class SearchComponent(MPComponent):
             Output(self.id("warning"), "children"), [Input(self.id("results"), "data")]
         )
         def show_warning(results):
-            if "error" in results:
+            if results and "error" in results:
                 return MessageContainer(MessageBody(results["error"]))
             else:
                 return html.Div()
@@ -295,5 +295,5 @@ class SearchComponent(MPComponent):
             return self._make_search_box(search_term=choice(self.mpid_cache))
 
         @app.callback(Output(self.id(), "data"), [Input(self.id("dropdown"), "value")])
-        def update_store_from_value(value):
-            return {"time_requested": self.get_time(), "mpid": value}
+        def update_store_from_value(mpid):
+            return mpid
