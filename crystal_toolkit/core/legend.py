@@ -39,6 +39,8 @@ class Legend(MSONable):
     default_color_scheme = "Jmol"
     default_color = [0, 0, 0]
     default_radius = 1.0
+    fallback_radius = 0.5
+    uniform_radius = 0.5
 
     def __init__(
         self,
@@ -128,8 +130,6 @@ class Legend(MSONable):
         self.radius_scheme = radius_scheme
         self.cmap = cmap
         self.cmap_range = cmap_range
-        self.fallback_radius = 0.5
-        self.uniform_radius = 0.5
 
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(
