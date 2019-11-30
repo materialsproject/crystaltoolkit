@@ -56,3 +56,10 @@ def to_plotly_json(self):
 
 
 MSONable.to_plotly_json = to_plotly_json
+
+import warnings
+
+warnings.warn(
+    "Master branch is in undefined state. Please wait for first "
+    "versioned release, at which point master branch will be protected."
+)
