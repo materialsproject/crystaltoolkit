@@ -248,7 +248,10 @@ class StructureMoleculeComponent(MPComponent):
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
             scene, legend = self.get_scene_and_legend(
-                graph, **display_options, scene_additions=scene_additions
+                graph,
+                name=self.id(),
+                **display_options,
+                scene_additions=scene_additions,
             )
 
             color_options = [
@@ -778,7 +781,7 @@ class StructureMoleculeComponent(MPComponent):
     @staticmethod
     def get_scene_and_legend(
         graph: Optional[Union[StructureGraph, MoleculeGraph]],
-        name="StructureMoleculeComponent",
+        name,
         color_scheme=DEFAULTS["color_scheme"],
         color_scale=None,
         radius_strategy=DEFAULTS["radius_strategy"],
@@ -790,7 +793,8 @@ class StructureMoleculeComponent(MPComponent):
         show_compass=DEFAULTS["show_compass"],
     ) -> Tuple[Scene, Dict[str, str]]:
 
-        scene = Scene(name=name)
+        # strip leading _ since this will cause problems in JavaScript land
+        scene = Scene(name=name[1:])
 
         if graph is None:
             return scene, {}

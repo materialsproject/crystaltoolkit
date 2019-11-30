@@ -6,8 +6,6 @@ def test_structure(dash_duo):
 
     dash_duo.start_server(app)
     dash_duo.clear_storage()
-
-    dash_duo.wait_for_element("#StructureMoleculeComponent_title", timeout=4)
     time.sleep(1)
 
     dash_duo.percy_snapshot("example_structure-layout")
