@@ -12,8 +12,11 @@ from pymatgen import Structure, Lattice
 # create Dash app as normal
 app = dash.Dash()
 
-# callbacks created dynamically, so cannot be statically checked at start
-app.config["suppress_callback_exceptions"] = True
+# If callbacks created dynamically they cannot be statically checked at app startup.
+# For this simple example this is not a problem, but if creating a complicated,
+# nested layout this will need to be enabled -- consult Dash documentation
+# for more information.
+# app.config["suppress_callback_exceptions"] = True
 
 # tell Crystal Toolkit about the app
 ctc.register_app(app)
@@ -47,6 +50,7 @@ my_layout = html.Div(
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
 app.layout = ctc.crystal_toolkit_layout(my_layout)
+
 
 # allow app to be run using "python structure.py"
 # in production, deploy behind gunicorn or similar
