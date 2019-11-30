@@ -27,7 +27,7 @@ structure = Structure(Lattice.cubic(5), ["H"], [[0, 0, 0]])
 # create the Crystal Toolkit component
 structure_component = ctc.StructureMoleculeComponent(structure)
 
-# example layout to demonstrate capabilities of comopnent
+# example layout to demonstrate capabilities of component
 my_layout = html.Div(
     [
         html.H1("StructureMoleculeComponent Example"),
