@@ -29,7 +29,7 @@ DEFAULTS = {
     "bonding_strategy": "CrystalNN",
     "radius_strategy": "uniform",
     "draw_image_atoms": True,
-    "bonded_sites_outside_unit_cell": True,
+    "bonded_sites_outside_unit_cell": False,
     "hide_incomplete_bonds": True,
     "show_compass": False,
 }
@@ -218,41 +218,38 @@ class StructureMoleculeComponent(MPComponent):
             return graph
 
         @app.callback(
-            [Output(self.id("scene"), "data"), Output(self.id("legend_data"), "data")],
+            [
+                Output(self.id("scene"), "data"),
+                Output(self.id("legend_data"), "data"),
+                Output(self.id("color-scheme"), "options"),
+            ],
             [
                 Input(self.id("graph"), "data"),
                 Input(self.id("display_options"), "data"),
             ],
         )
-        def update_scene_and_legend(graph, display_options):
+        def update_scene_and_legend_and_colors(graph, display_options):
             if not graph or not display_options:
                 raise PreventUpdate
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
             scene, legend = self.get_scene_and_legend(graph, **display_options)
-            return scene.to_json(), legend
 
-        @app.callback(
-            Output(self.id("color-scheme"), "options"),
-            [Input(self.id("graph"), "data")],
-        )
-        def update_color_options(graph):
-            if not graph:
-                raise PreventUpdate
-            options = [
+            color_options = [
                 {"label": "Jmol", "value": "Jmol"},
                 {"label": "VESTA", "value": "VESTA"},
                 {"label": "Accessible", "value": "accessible"},
             ]
-            graph = self.from_data(graph)
             struct_or_mol = self._get_struct_or_mol(graph)
             site_props = Legend(struct_or_mol).analyze_site_props(struct_or_mol)
             for site_prop_type in ("scalar", "categorical"):
                 if site_prop_type in site_props:
                     for prop in site_props[site_prop_type]:
-                        options += [{"label": f"Site property: {prop}", "value": prop}]
+                        color_options += [
+                            {"label": f"Site property: {prop}", "value": prop}
+                        ]
 
-            return options
+            return scene.to_json(), legend, color_options
 
         @app.callback(
             Output(self.id("display_options"), "data"),
