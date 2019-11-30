@@ -5,8 +5,7 @@ from crystal_toolkit.core.scene import Scene, Lines, Arrows, Spheres
 from pymatgen import Lattice
 
 
-def _axes_from_lattice(self, origin=(0, 0, 0), scale=1, offset=0, **kwargs):
-    # TODO: add along lattice
+def _axes_from_lattice(self, origin=None, scale=1, offset=0, **kwargs):
     """
     Get the display components of the compass
     :param lattice: the pymatgen Lattice object that contains the primitive
@@ -20,7 +19,10 @@ def _axes_from_lattice(self, origin=(0, 0, 0), scale=1, offset=0, **kwargs):
     :param **kwargs: keyword args to pass to the Arrows initializer
     :return: Scene object
     """
-    o = -np.array(origin)
+
+    # TODO: add along lattice
+
+    o = -self.get_cartesian_coords([0.5, 0.5, 0.5])
     o = o - offset * (self.matrix[0] + self.matrix[1] + self.matrix[2])
     a = self.matrix[0] / np.linalg.norm(self.matrix[0]) * scale
     b = self.matrix[1] / np.linalg.norm(self.matrix[1]) * scale
@@ -64,12 +66,13 @@ def _axes_from_lattice(self, origin=(0, 0, 0), scale=1, offset=0, **kwargs):
             ),
             o_sphere,
         ],
+        origin=origin,
     )
 
 
-def get_lattice_scene(self, origin=(0, 0, 0), show_axes=False, **kwargs):
+def get_lattice_scene(self, origin=None, show_axes=False, **kwargs):
 
-    o = -np.array(origin)
+    o = -np.array((0, 0, 0))
     a, b, c = self.matrix[0], self.matrix[1], self.matrix[2]
     line_pairs = [
         o,
@@ -107,9 +110,9 @@ def get_lattice_scene(self, origin=(0, 0, 0), show_axes=False, **kwargs):
     contents = [Lines(line_pairs, **kwargs)]
 
     if show_axes:
-        contents.append(self._axes_from_lattice(origin=origin))
+        contents.append(self._axes_from_lattice())
 
-    return Scene(name, contents)
+    return Scene(name, contents, origin=origin)
 
 
 # TODO: re-think origin, shift globally at end (scene.origin)

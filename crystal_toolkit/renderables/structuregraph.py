@@ -81,7 +81,7 @@ def _get_sites_to_draw(
 
 def get_structure_graph_scene(
     self,
-    origin=(0, 0, 0),
+    origin=None,
     draw_image_atoms=True,
     bonded_sites_outside_unit_cell=True,
     hide_incomplete_edges=False,
@@ -91,6 +91,10 @@ def get_structure_graph_scene(
     explicitly_calculate_polyhedra_hull=False,
     legend: Optional[Legend] = None,
 ) -> Scene:
+
+    origin = origin or list(
+        -self.structure.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
+    )
 
     legend = legend or Legend(self.structure)
 
@@ -167,18 +171,19 @@ def get_structure_graph_scene(
             incomplete_edge_length_scale=incomplete_edge_length_scale,
             connected_sites_colors=connected_sites_colors,
             connected_sites_not_drawn_colors=connected_sites_not_drawn_colors,
-            origin=origin,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             legend=legend,
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
 
-    primitives["unit_cell"].append(self.structure.lattice.get_scene(origin=origin))
+    primitives["unit_cell"].append(self.structure.lattice.get_scene())
 
     return Scene(
-        name=self.structure.composition.reduced_formula,
-        contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
+        name=self.structure.composition,
+        contents=[
+            Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
+        ],
     )
 
 
