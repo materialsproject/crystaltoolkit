@@ -62,7 +62,7 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
 
 def get_structure_scene(
     self,
-    origin=(0, 0, 0),
+    origin=None,
     draw_image_atoms=True,
     bonded_sites_outside_unit_cell=False,
     legend: Optional[Legend] = None,
@@ -100,6 +100,7 @@ def get_structure_scene(
     return Scene(
         name=self.structure.composition.reduced_formula,
         contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
+        origin=origin,
     )
 
 

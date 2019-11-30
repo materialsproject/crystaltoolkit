@@ -20,7 +20,7 @@ def get_site_scene(
     incomplete_edge_length_scale: Optional[float] = 1.0,
     connected_sites_colors: Optional[List[str]] = None,
     connected_sites_not_drawn_colors: Optional[List[str]] = None,
-    origin: List[float] = (0, 0, 0),
+    origin: Optional[List[float]] = None,
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
     legend: Optional[Legend] = None,
@@ -53,7 +53,7 @@ def get_site_scene(
     phiStart, phiEnd = None, None
     occu_start = 0.0
 
-    position = np.subtract(self.coords, origin).tolist()
+    position = self.coords.tolist()
 
     for idx, (sp, occu) in enumerate(self.species.items()):
 
@@ -91,6 +91,7 @@ def get_site_scene(
                 radius=radius,
                 phiStart=phiStart,
                 phiEnd=phiEnd,
+                clickable=True,
             )
             atoms.append(sphere)
 
@@ -111,13 +112,13 @@ def get_site_scene(
         # if ambiguous (disordered), re-use last color used
         site_color = color
 
-        # can cause a bug if all vertices almost co-planar
+        # TODO: can cause a bug if all vertices almost co-planar
         # necessary to include center site in case it's outside polyhedra
-        all_positions = [np.subtract(self.coords, origin)]
+        all_positions = [self.coords]
 
         for idx, connected_site in enumerate(connected_sites):
 
-            connected_position = np.subtract(connected_site.site.coords, origin)
+            connected_position = connected_site.site.coords
             bond_midpoint = np.add(position, connected_position) / 2
 
             if connected_sites_colors:
@@ -135,7 +136,7 @@ def get_site_scene(
 
             for idx, connected_site in enumerate(connected_sites_not_drawn):
 
-                connected_position = np.subtract(connected_site.site.coords, origin)
+                connected_position = connected_site.site.coords
                 bond_midpoint = (
                     incomplete_edge_length_scale
                     * np.add(position, connected_position)
@@ -155,7 +156,8 @@ def get_site_scene(
 
         # ensure intersecting polyhedra are not shown, defaults to choose by electronegativity
         not_most_electro_negative = map(
-            lambda x: x.site.specie < self.specie, connected_sites
+            lambda x: (x.site.specie < self.specie) or (x.site.specie == self.specie),
+            connected_sites,
         )
 
         if (
@@ -198,6 +200,7 @@ def get_site_scene(
             Scene("bonds", contents=bonds),
             Scene("polyhedra", contents=polyhedron),
         ],
+        origin=origin,
     )
 
 
