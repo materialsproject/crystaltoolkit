@@ -1,5 +1,6 @@
 import re
 import sys
+import warnings
 from collections import OrderedDict
 from itertools import combinations_with_replacement, chain
 from typing import Dict, Union, Optional, Tuple
@@ -20,7 +21,6 @@ from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.helpers.layouts import *
-
 
 # TODO: make dangling bonds "stubs"? (fixed length)
 
@@ -356,10 +356,10 @@ class StructureMoleculeComponent(MPComponent):
         )
         def update_legend_and_title(legend):
 
-            legend = self.from_data(legend)
-
-            if legend == self.initial_legend:
+            if not legend:
                 raise PreventUpdate
+
+            legend = self.from_data(legend)
 
             return self._make_legend(legend), self._make_title(legend)
 
@@ -585,6 +585,7 @@ class StructureMoleculeComponent(MPComponent):
                         options=[
                             {"label": "VESTA", "value": "VESTA"},
                             {"label": "Jmol", "value": "Jmol"},
+                            {"label": "Accessible", "value": "accessible"},
                         ],
                         value=self.initial_display_options["color_scheme"],
                         clearable=False,
@@ -691,7 +692,7 @@ class StructureMoleculeComponent(MPComponent):
     @staticmethod
     def _preprocess_input_to_graph(
         input: Union[Structure, StructureGraph, Molecule, MoleculeGraph],
-        bonding_strategy: str = "CrystalNN",
+        bonding_strategy: str = DEFAULTS["bonding_strategy"],
         bonding_strategy_kwargs: Optional[Dict] = None,
     ) -> Union[StructureGraph, MoleculeGraph]:
 
@@ -745,14 +746,16 @@ class StructureMoleculeComponent(MPComponent):
                     **bonding_strategy_kwargs
                 )
                 try:
-                    if isinstance(input, Structure):
-                        graph = StructureGraph.with_local_env_strategy(
-                            input, bonding_strategy
-                        )
-                    else:
-                        graph = MoleculeGraph.with_local_env_strategy(
-                            input, bonding_strategy
-                        )
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        if isinstance(input, Structure):
+                            graph = StructureGraph.with_local_env_strategy(
+                                input, bonding_strategy
+                            )
+                        else:
+                            graph = MoleculeGraph.with_local_env_strategy(
+                                input, bonding_strategy
+                            )
                 except:
                     # for some reason computing bonds failed, so let's not have any bonds(!)
                     if isinstance(input, Structure):
