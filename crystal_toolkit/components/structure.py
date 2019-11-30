@@ -182,18 +182,40 @@ class StructureMoleculeComponent(MPComponent):
         @app.callback(
             Output(self.id("graph"), "data"),
             [
-                Input(self.id("graph_generation_options"), "data"),
+                Input(self.id("bonding_algorithm"), "value"),
+                Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
                 Input(self.id("unit-cell-choice"), "value"),
                 Input(self.id(), "data"),
             ],
+            [State(self.id("graph"), "data")],
         )
-        def update_graph(graph_generation_options, unit_cell_choice, struct_or_mol):
+        def update_graph(
+            bonding_algorithm,
+            custom_cutoffs_rows,
+            unit_cell_choice,
+            struct_or_mol,
+            current_graph,
+        ):
 
             if not struct_or_mol:
                 raise PreventUpdate
 
             struct_or_mol = self.from_data(struct_or_mol)
-            graph_generation_options = self.from_data(graph_generation_options)
+            current_graph = self.from_data(current_graph)
+
+            bonding_strategy_kwargs = None
+            if bonding_algorithm == "CutOffDictNN":
+                custom_cutoffs_rows = custom_cutoffs_rows or []
+                # this is not the format CutOffDictNN expects (since that is not JSON
+                # serializable), so we store as a list of tuples instead
+                # TODO: make CutOffDictNN args JSON serializable
+                custom_cutoffs = [
+                    (row["A"], row["B"], float(row["A—B"]))
+                    for row in custom_cutoffs_rows
+                ]
+                bonding_strategy_kwargs = {"cut_off_dict": custom_cutoffs}
+
+            # TODO: add additional check here?
 
             if isinstance(struct_or_mol, Structure):
                 if unit_cell_choice != "input":
@@ -207,13 +229,12 @@ class StructureMoleculeComponent(MPComponent):
 
             graph = self._preprocess_input_to_graph(
                 struct_or_mol,
-                bonding_strategy=graph_generation_options["bonding_strategy"],
-                bonding_strategy_kwargs=graph_generation_options[
-                    "bonding_strategy_kwargs"
-                ],
+                bonding_strategy=bonding_algorithm,
+                bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
 
-            self.logger.debug("Constructed graph")
+            if graph == current_graph:
+                raise PreventUpdate
 
             return graph
 
@@ -341,38 +362,6 @@ class StructureMoleculeComponent(MPComponent):
                 raise PreventUpdate
 
             return self._make_legend(legend), self._make_title(legend)
-
-        @app.callback(
-            Output(self.id("graph_generation_options"), "data"),
-            [
-                Input(self.id("bonding_algorithm"), "value"),
-                Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
-            ],
-        )
-        def update_bonding_algorithm(bonding_algorithm, custom_cutoffs_rows):
-
-            graph_generation_options = {
-                "bonding_strategy": bonding_algorithm,
-                "bonding_strategy_kwargs": None,
-            }
-
-            if bonding_algorithm == "CutOffDictNN":
-                custom_cutoffs_rows = custom_cutoffs_rows or []
-                # this is not the format CutOffDictNN expects (since that is not JSON
-                # serializable), so we store as a list of tuples instead
-                # TODO: make CutOffDictNN args JSON serializable
-                custom_cutoffs = [
-                    (row["A"], row["B"], float(row["A—B"]))
-                    for row in custom_cutoffs_rows
-                ]
-                graph_generation_options["bonding_strategy_kwargs"] = {
-                    "cut_off_dict": custom_cutoffs
-                }
-
-            if graph_generation_options == self.initial_graph_generation_options:
-                raise PreventUpdate
-
-            return graph_generation_options
 
         @app.callback(
             [
@@ -831,6 +820,7 @@ class StructureMoleculeComponent(MPComponent):
 
         if hasattr(struct_or_mol, "lattice"):
             axes = struct_or_mol.lattice._axes_from_lattice()
+            # TODO: fix pop-in ?
             axes.visible = show_compass
             scene.contents.append(axes)
 
