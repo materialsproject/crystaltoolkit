@@ -34,12 +34,26 @@ class MPComponent(ABC):
     is designed to help render an MSONable object.
     """
 
-    app = None  # reference to global Dash app
-    cache = null_cache  # reference to Flask cache
+    # reference to global Dash app
+    app = None
 
+    # reference to Flask cache
+    cache = null_cache
+
+    # used to track all dcc.Stores required for all MPComponents to work
+    # keyed by the MPComponent id
     _app_stores_dict: Dict[str, List[dcc.Store]] = defaultdict(list)
+
+    # used to track what individual Dash components are defined
+    # by this MPComponent
     _all_id_basenames: Set[str] = set()
+
+    # used to track what callbacks have been generated
     _callbacks_generated_for_ids: Set[str] = set()
+
+    # used to defer generation of callbacks until app.layout defined
+    # can be helpful to callback exceptions retained
+    _callbacks_to_generate: Set["MPComponent"] = set()
 
     @staticmethod
     def register_app(app: dash.Dash):
@@ -78,15 +92,31 @@ class MPComponent(ABC):
         """
         MPComponent.cache = cache
 
-    # TODO: move these to Crystal Toolkit singleton (?)
+    # TODO: move these to a Crystal Toolkit singleton (?)
     @staticmethod
     def crystal_toolkit_layout(layout: html.Div) -> html.Div:
+
+        if not MPComponent.app:
+            raise ValueError(
+                "Please register the Dash app with Crystal Toolkit "
+                "using register_app()."
+            )
+
         layout_str = str(layout)
         stores_to_add = []
         for basename in MPComponent._all_id_basenames:
             if basename in layout_str:
                 stores_to_add += MPComponent._app_stores_dict[basename]
         layout.children += stores_to_add
+
+        # set app.layout to layout so that callbacks can be validated
+        MPComponent.app.layout = layout
+
+        for component in MPComponent._callbacks_to_generate:
+            if component.id() not in MPComponent._callbacks_generated_for_ids:
+                component.generate_callbacks(MPComponent.app, MPComponent.cache)
+                MPComponent._callbacks_generated_for_ids.add(component.id())
+
         return layout
 
     @staticmethod
@@ -105,8 +135,9 @@ class MPComponent(ABC):
 
     def __init__(
         self,
-        contents: Optional[MSONable] = None,
+        default_data: Optional[MSONable] = None,
         id: Optional[str] = None,
+        links: Optional[Dict[str, str]] = None,
         origin_component: Optional["MPComponent"] = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
@@ -141,9 +172,16 @@ class MPComponent(ABC):
         are _sub_layouts and generate_callbacks().
 
         Args:
-            contents: inital contents for the component, can be None
+            default_data: inital contents for the component, can be None
             id: a unique id, required if multiple of the same type of
             MPComponent are included in an app
+            links: if set, will set store contents from the stores of another
+            component to reduce unnecessary callbacks and duplication of data,
+            note that links are one directional only and specific the origin
+            stores, e.g. set {"default": my_other_component.id()} to fill this
+            component's default store contents from the other component's default store,
+            or {"graph": my_other_component.id("graph")} to fill this component's
+            "graph" store from another component's "graph" store
             origin_component: if set, will fill contents using the contents
             of the origin_component, can be useful to chain together multiple
             components without creating unnecessary duplication of contents
@@ -171,6 +209,14 @@ class MPComponent(ABC):
         self._id = id
         self._all_ids = set()
         self._stores = {}
+        self.links = links or {}
+
+        if self.links and not MPComponent.app:
+            raise ValueError(
+                "Can only link stores if an app is registered. Either register the "
+                "global Dash app variable with Crystal Toolkit, or remove links and "
+                "run with disable_callbacks=True."
+            )
 
         if MPComponent.app is None:
             warn(
@@ -187,29 +233,23 @@ class MPComponent(ABC):
             )
 
         if origin_component is None:
-            self._canonical_store_id = self._id
             self.create_store(
-                name="default", initial_data=contents, storage_type=storage_type
+                name="default", initial_data=default_data, storage_type=storage_type
             )
-            self.initial_data = contents
+            self.initial_data = default_data
+            self.links["default"] = self.id()
         else:
-            if MPComponent.app is None:
-                raise ValueError("Can only link stores if an app is registered.")
-            self._canonical_store_id = origin_component._canonical_store_id
+            print("origin component deprecated", self.id())
+            self.links["default"] = origin_component.links["default"]
             self.initial_data = origin_component.initial_data
 
-        if (
-            MPComponent.app
-            and not disable_callbacks
-            and (self.id not in MPComponent._callbacks_generated_for_ids)
-        ):
-            self.generate_callbacks(MPComponent.app, MPComponent.cache)
-            # prevent callbacks being generated twice for the same ID
-            MPComponent._callbacks_generated_for_ids.add(self.id)
+        if not disable_callbacks:
+            # callbacks generated as final step by crystal_toolkit_layout()
+            self._callbacks_to_generate.add(self)
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def id(self, name: str = "default"):
+    def id(self, name: str = "default") -> str:
         """
         Generate an id from a name combined with the
         base id of the MPComponent itself, useful for generating
@@ -220,11 +260,17 @@ class MPComponent(ABC):
 
         Returns: e.g. "MPComponent_default"
         """
+
+        # if we're linking to another component, return that id
+        if name in self.links:
+            return self.links[name]
+
+        # otherwise create a new id
         self._all_ids.add(name)
         if name != "default":
             name = f"{self._id}_{name}"
         else:
-            name = self._canonical_store_id
+            name = f"{self._id}"
         return name
 
     def create_store(
@@ -233,7 +279,6 @@ class MPComponent(ABC):
         initial_data: Optional[Union[MSONable, Dict, str]] = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         debug_clear: bool = False,
-        to_data: bool = True,
     ):
         """
         Generate a dcc.Store to hold something (MSONable object, Dict
@@ -247,6 +292,11 @@ class MPComponent(ABC):
             debug_clear: set to True to empty the store if using
             persistent storage
         """
+
+        # if we're linking to another component, do not create a new store
+        if name in self.links:
+            return
+
         store = dcc.Store(
             id=self.id(name),
             data=initial_data,
@@ -280,6 +330,7 @@ class MPComponent(ABC):
         origin_store_suffix
         :return:
         """
+        print("attach_from deprecated", self.id())
 
         if MPComponent.app is None:
             raise AttributeError("No app defined, callbacks cannot be created.")
@@ -302,37 +353,53 @@ class MPComponent(ABC):
 
     def __getattr__(self, item):
         # TODO: remove, this isn't helpful (or add autocomplete)
-        if item == "supported_stores":
+        if item == "all_stores":
             raise AttributeError  # prevent infinite recursion
-        if item.endswith("store") and item.split("_store")[0] in self.supported_stores:
-            print(self.__class__.__name__, "attr hack")
+        if item.endswith("store") and item.split("_store")[0] in self.all_stores:
+            print(self.__class__.__name__, item, "attr hack")
             return self.id(item)
         elif (
             item.endswith("layout")
-            and item.split("_layout")[0] in self.supported_layouts
+            and item.split("_layout")[0] in self._sub_layouts.keys()
         ):
-            print(self.__class__.__name__, "attr hack")
+            print(self.__class__.__name__, item, "attr hack")
             return self._sub_layouts[item.split("_layout")[0]]
         else:
             raise AttributeError
 
     @property
-    def supported_stores(self):
-        return self._stores.keys()
+    def all_stores(self) -> List[str]:
+        """
+        :return: List of all store ids generated by this component
+        """
+        return list(self._stores.keys())
 
     @property
-    def supported_layouts(self):
-        return self._sub_layouts.keys()
-
-    @property
-    def supported_ids(self):
-        return list(self._all_ids)
+    def all_ids(self) -> List[str]:
+        """
+        :return: List of all ids generated by this component
+        """
+        return list(
+            [
+                component_id
+                for component_id in self._all_ids
+                if component_id not in self.all_stores
+            ]
+        )
 
     def __repr__(self):
-        return f"""{self.id()}<{self.__class__.__name__}>
-IDs: {list(self.supported_ids)}
-Stores: {list(self.supported_stores)}
-Layouts: {list(self.supported_layouts)}"""
+        ids = "\n".join(
+            [f"* {component_id}  " for component_id in sorted(self.all_ids)]
+        )
+        stores = "\n".join([f"* {store}  " for store in sorted(self.all_stores)])
+        layouts = "\n".join(
+            [f"* {layout}  " for layout in sorted(self._sub_layouts.keys())]
+        )
+
+        return f"""{self.id()}<{self.__class__.__name__}>  \n
+IDs:  \n{ids}  \n
+Stores:  \n{stores}  \n
+Sub-layouts:  \n{layouts}"""
 
     @property
     @abstractmethod
@@ -367,8 +434,8 @@ Layouts: {list(self.supported_layouts)}"""
     @property
     def layout(self):
         """
-        :return: A Dash layout for the full component, for example including
-        both the main component and controls for that component. Must
+        :return: A Dash layout for the full component. Basic implementation
+        provided, but should in general be overridden.
         """
         return html.Div(list(self._sub_layouts.values()))
 
