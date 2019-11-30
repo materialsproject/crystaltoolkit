@@ -64,4 +64,9 @@ class DownloadPanelComponent(PanelComponent):
 
             href = f"data:text/plain;charset=utf-8;base64,{base64}"
 
-            return html.A(f"Download File", href=href, target="_blank")
+            return html.A(
+                f"Download File",
+                href=href,
+                download=f"{structure.composition.reduced_formula}.{fmt}",
+                target="_blank",
+            )

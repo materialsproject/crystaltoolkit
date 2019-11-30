@@ -41,7 +41,7 @@ class BandstructureAndDosComponent(MPComponent):
     }
 
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         # Main plot
         graph = html.Div(
@@ -59,8 +59,8 @@ class BandstructureAndDosComponent(MPComponent):
         return {"graph": graph}
 
     @property
-    def standard_layout(self):
-        return html.Div([Column([self.all_layouts["graph"]], size=8)])
+    def layout(self):
+        return html.Div([Column([self._sub_layouts["graph"]], size=8)])
 
     def generate_callbacks(self, app, cache):
         @app.callback(
@@ -371,9 +371,9 @@ class BandstructureAndDosPanelComponent(PanelComponent):
         return html.Div(
             [
                 super().initial_contents,
-                html.Div([self.bs.standard_layout], style={"display": "none"}),
+                html.Div([self.bs.layout], style={"display": "none"}),
             ]
         )
 
     def update_contents(self, new_store_contents, *args):
-        return self.bs.standard_layout
+        return self.bs.layout

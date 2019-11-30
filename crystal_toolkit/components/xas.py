@@ -78,7 +78,7 @@ class XASComponent(MPComponent):
     }
 
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         graph = html.Div(
             [
@@ -105,9 +105,9 @@ class XASComponent(MPComponent):
         return {"graph": graph, "element_selector": element_selector}
 
     @property
-    def standard_layout(self):
+    def layout(self):
         return html.Div(
-            [self.all_layouts["graph"], self.all_layouts["element_selector"]]
+            [self._sub_layouts["graph"], self._sub_layouts["element_selector"]]
         )
 
     def generate_callbacks(self, app, cache):
@@ -221,12 +221,10 @@ class XASPanelComponent(PanelComponent):
 
     @property
     def initial_contents(self):
-        return html.Div(
-            [super().initial_contents, html.Div([self.xas.standard_layout])]
-        )
+        return html.Div([super().initial_contents, html.Div([self.xas.layout])])
 
     def update_contents(self, new_store_contents, *args):
-        return self.xas.standard_layout
+        return self.xas.layout
 
     # def generate_callbacks(self, app, cache):
     #
@@ -238,4 +236,4 @@ class XASPanelComponent(PanelComponent):
     #     def add_xas(mpid):
     #         if not mpid:
     #             raise PreventUpdate
-    #         return self.xas.standard_layout
+    #         return self.xas.layout
