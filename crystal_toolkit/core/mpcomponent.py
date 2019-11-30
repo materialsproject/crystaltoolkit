@@ -27,6 +27,10 @@ from functools import wraps
 # fallback cache if Redis etc. isn't set up
 null_cache = Cache(config={"CACHE_TYPE": "null"})
 
+# Crystal Toolkit namespace, added to the start of all ids
+# so we can see which layouts have been added by Crystal Toolkit
+CT_NAMESPACE = "_ct_"
+
 
 class MPComponent(ABC):
     """
@@ -195,20 +199,26 @@ class MPComponent(ABC):
         """
 
         # ensure ids are unique
+        # Note: shadowing Python built-in here, but only because Dash does it...
         if id is None:
             counter = 0
-            while id not in MPComponent._all_id_basenames:
-                if counter == 0:
-                    test_id = self.__class__.__name__
-                else:
-                    test_id = f"{self.__class__.__name__}_{counter}"
+            test_id = f"{CT_NAMESPACE}{self.__class__.__name__}"
+            while test_id not in MPComponent._all_id_basenames:
+                if counter != 0:
+                    test_id = f"{CT_NAMESPACE}{self.__class__.__name__}_{counter}"
+                counter += 1
                 if test_id not in MPComponent._all_id_basenames:
                     id = test_id
-                    MPComponent._all_id_basenames.add(id)
+                    MPComponent._all_id_basenames.add(test_id)
+        else:
+            id = f"{CT_NAMESPACE}{id}"
+            MPComponent._all_id_basenames.add(id)
 
         self._id = id
         self._all_ids = set()
         self._stores = {}
+        self._initial_data = {}
+
         self.links = links or {}
 
         if self.links and not MPComponent.app:
@@ -236,12 +246,10 @@ class MPComponent(ABC):
             self.create_store(
                 name="default", initial_data=default_data, storage_type=storage_type
             )
-            self.initial_data = default_data
             self.links["default"] = self.id()
         else:
             print("origin component deprecated", self.id())
             self.links["default"] = origin_component.links["default"]
-            self.initial_data = origin_component.initial_data
 
         if not disable_callbacks:
             # callbacks generated as final step by crystal_toolkit_layout()
@@ -304,7 +312,16 @@ class MPComponent(ABC):
             clear_data=debug_clear,
         )
         self._stores[name] = store
+        self._initial_data[name] = initial_data
         MPComponent._app_stores_dict[self.id()].append(store)
+
+    @property
+    def initial_data(self):
+        """
+        :return: Initial data for all the stores defined by component,
+        keyed by store name.
+        """
+        return self._initial_data
 
     @staticmethod
     def from_data(data):
@@ -350,22 +367,6 @@ class MPComponent(ABC):
         def update_store(modified_timestamp, data):
             # TODO: make clientside callback!
             return data
-
-    def __getattr__(self, item):
-        # TODO: remove, this isn't helpful (or add autocomplete)
-        if item == "all_stores":
-            raise AttributeError  # prevent infinite recursion
-        if item.endswith("store") and item.split("_store")[0] in self.all_stores:
-            print(self.__class__.__name__, item, "attr hack")
-            return self.id(item)
-        elif (
-            item.endswith("layout")
-            and item.split("_layout")[0] in self._sub_layouts.keys()
-        ):
-            print(self.__class__.__name__, item, "attr hack")
-            return self._sub_layouts[item.split("_layout")[0]]
-        else:
-            raise AttributeError
 
     @property
     def all_stores(self) -> List[str]:
