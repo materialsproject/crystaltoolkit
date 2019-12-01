@@ -2,6 +2,9 @@
 
 **Crystal Toolkit is not ready for the public yet! Please wait for a release announcement soon, thank you :-)** 
 
+[![Python Test Status](https://img.shields.io/github/workflow/status/materialsproject/crystaltoolkit/pytest)](https://github.com/materialsproject/crystaltoolkit/actions?query=workflow%3Apytest)
+[![Visual Regression Test Status](https://percy.io/static/images/percy-badge.svg)](https://percy.io/Materials-Project/crystaltoolkit)
+
 ## Acknowledgements
 
 Thank you to all the authors and maintainers of the libraries Crystal Toolkit 
