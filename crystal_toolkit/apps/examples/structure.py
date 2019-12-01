@@ -24,8 +24,6 @@ ctc.register_app(app)
 # create the Structure object
 structure = Structure(Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-print(structure.get_primitive_structure())
-
 # create the Crystal Toolkit component
 structure_component = ctc.StructureMoleculeComponent(structure)
 
