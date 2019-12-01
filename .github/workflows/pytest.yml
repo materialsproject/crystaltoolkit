@@ -24,7 +24,7 @@ jobs:
       env:
         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       run: |
-        pytest crystal_toolkit/apps/examples/tests/
+        pytest --headless crystal_toolkit/apps/examples/tests/
     - name: Build new docs
       run: |
         git config --global user.name 'Matthew Horton'
@@ -40,4 +40,5 @@ jobs:
         git add -A
         git diff-index --quiet HEAD || git commit -m "Automated doc build"
         git push
+      continue-on-error: true
 
