@@ -25,3 +25,17 @@ jobs:
         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       run: |
         pytest --headless crystal_toolkit/apps/examples/tests/
+    - name: Build new docs
+      run: |
+        cd docs
+        make html
+    - name: Commit new docs
+      run: |
+        git config --global user.name 'Matthew Horton'
+        git config --global user.email 'mkhorton@users.noreply.github.com'
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+        git checkout "${GITHUB_REF:11}"
+        git add -A
+        git commit -m "Automated doc build"
+        git push
+
