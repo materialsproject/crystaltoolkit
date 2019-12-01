@@ -24,7 +24,7 @@ jobs:
       env:
         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       run: |
-        pytest --headless crystal_toolkit/apps/examples/tests/
+        pytest crystal_toolkit/apps/examples/tests/
     - name: Build new docs
       run: |
         git config --global user.name 'Matthew Horton'
