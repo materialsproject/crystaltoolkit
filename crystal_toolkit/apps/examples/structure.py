@@ -22,7 +22,7 @@ app = dash.Dash()
 ctc.register_app(app)
 
 # create the Structure object
-structure = Structure(Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
 # create the Crystal Toolkit component
 structure_component = ctc.StructureMoleculeComponent(structure)
