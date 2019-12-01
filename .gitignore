@@ -216,8 +216,8 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
-docs/source/
+docs_rst/_build/
+docs_rst/source/
 
 # PyBuilder
 target/
