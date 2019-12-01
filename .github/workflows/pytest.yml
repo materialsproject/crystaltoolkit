@@ -18,7 +18,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install chromium-chromedriver
         python -m pip install --upgrade pip
-        pip install -r requirements.txt -r requirements-dev.txt
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
     - name: Test with pytest
       env:
         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
