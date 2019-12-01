@@ -1,0 +1,35 @@
+name: pytest
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install chromium-chromedriver
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    - name: Generate docs
+      run: |
+        cd docs
+        make html
+    - name: Commit new docs
+      run: |
+        git config --global user.name 'Matthew Horton'
+        git config --global user.email 'mkhorton@users.noreply.github.com'
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+        git checkout "${GITHUB_REF:11}"
+        git add -A
+        git commit -m "Automated doc build"
+        git push
