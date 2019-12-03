@@ -1,0 +1,29 @@
+crystal\_toolkit package
+========================
+
+Subpackages
+-----------
+
+.. toctree::
+
+   crystal_toolkit.components
+   crystal_toolkit.core
+   crystal_toolkit.helpers
+   crystal_toolkit.renderables
+
+Submodules
+----------
+
+.. toctree::
+
+   crystal_toolkit.GraphComponent
+   crystal_toolkit.JSONViewComponent
+   crystal_toolkit.Simple3DSceneComponent
+
+Module contents
+---------------
+
+.. automodule:: crystal_toolkit
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+crystal\_toolkit.core.panelcomponent module
+===========================================
+
+.. automodule:: crystal_toolkit.core.panelcomponent
+   :members:
+   :undoc-members:
+   :show-inheritance:

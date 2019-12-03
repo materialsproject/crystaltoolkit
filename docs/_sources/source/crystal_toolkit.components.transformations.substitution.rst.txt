@@ -1,0 +1,7 @@
+crystal\_toolkit.components.transformations.substitution module
+===============================================================
+
+.. automodule:: crystal_toolkit.components.transformations.substitution
+   :members:
+   :undoc-members:
+   :show-inheritance:

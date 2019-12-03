@@ -1,0 +1,7 @@
+crystal\_toolkit.renderables.lattice module
+===========================================
+
+.. automodule:: crystal_toolkit.renderables.lattice
+   :members:
+   :undoc-members:
+   :show-inheritance:
