@@ -134,6 +134,7 @@ html_context = {
     "conf_py_path": "/docs/",
 }
 
+html_style = "css/theme.css"
 
 # -- Options for LaTeX output ------------------------------------------------
 
