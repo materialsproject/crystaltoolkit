@@ -39,6 +39,6 @@ jobs:
       run: |
         git add -A
         git diff-index --quiet HEAD || git commit -m "Automated doc build"
-        git push
+        git push --set-upstream origin gh-pages
       continue-on-error: true
 
