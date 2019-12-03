@@ -1,0 +1,7 @@
+crystal\_toolkit.helpers.inputs module
+======================================
+
+.. automodule:: crystal_toolkit.helpers.inputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
