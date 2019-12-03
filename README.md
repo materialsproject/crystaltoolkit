@@ -7,7 +7,7 @@
 
 ## Documentation
 
-[Documentation can be found at crystaltoolkit.org](https://docs.crystaltoolkit.org)
+[Documentation can be found at docs.crystaltoolkit.org](https://docs.crystaltoolkit.org)
 
 ## Team and Contribution Policy
 
