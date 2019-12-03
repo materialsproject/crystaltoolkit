@@ -1,0 +1,7 @@
+crystal\_toolkit.components.magnetism module
+============================================
+
+.. automodule:: crystal_toolkit.components.magnetism
+   :members:
+   :undoc-members:
+   :show-inheritance:

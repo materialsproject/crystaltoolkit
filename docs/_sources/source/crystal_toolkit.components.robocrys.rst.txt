@@ -1,0 +1,7 @@
+crystal\_toolkit.components.robocrys module
+===========================================
+
+.. automodule:: crystal_toolkit.components.robocrys
+   :members:
+   :undoc-members:
+   :show-inheritance:

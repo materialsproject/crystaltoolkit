@@ -1,0 +1,7 @@
+crystal\_toolkit.components.transformations.slab module
+=======================================================
+
+.. automodule:: crystal_toolkit.components.transformations.slab
+   :members:
+   :undoc-members:
+   :show-inheritance:

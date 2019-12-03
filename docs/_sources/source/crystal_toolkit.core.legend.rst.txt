@@ -1,0 +1,7 @@
+crystal\_toolkit.core.legend module
+===================================
+
+.. automodule:: crystal_toolkit.core.legend
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,1187 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>flask_caching &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/flask_caching.html"/>
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>flask_caching</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for flask_caching</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    flask_caching</span>
+<span class="sd">    ~~~~~~~~~~~~~</span>
+
+<span class="sd">    Adds cache support to your application.</span>
+
+<span class="sd">    :copyright: (c) 2010 by Thadeus Burgess.</span>
+<span class="sd">    :license: BSD, see LICENSE for more details.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">current_app</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">url_for</span>
+<span class="kn">from</span> <span class="nn">werkzeug.utils</span> <span class="kn">import</span> <span class="n">import_string</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.8.0&quot;</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">TEMPLATE_FRAGMENT_KEY_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;_template_fragment_cache_</span><span class="si">%s%s</span><span class="s2">&quot;</span>
+<span class="n">SUPPORTED_HASH_FUNCTIONS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">hashlib</span><span class="o">.</span><span class="n">sha1</span><span class="p">,</span>
+    <span class="n">hashlib</span><span class="o">.</span><span class="n">sha224</span><span class="p">,</span>
+    <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">,</span>
+    <span class="n">hashlib</span><span class="o">.</span><span class="n">sha384</span><span class="p">,</span>
+    <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">,</span>
+    <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Used to remove control characters and whitespace from cache keys.</span>
+<span class="n">valid_chars</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="s2">&quot;_.&quot;</span><span class="p">)</span>
+<span class="n">delchars</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="nb">chr</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">))</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_chars</span><span class="p">)</span>
+<span class="n">null_control</span> <span class="o">=</span> <span class="p">(</span><span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">delchars</span><span class="p">),)</span>
+
+
+<span class="k">def</span> <span class="nf">wants_args</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check if the function wants any arguments</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">argspec</span><span class="o">.</span><span class="n">args</span> <span class="ow">or</span> <span class="n">argspec</span><span class="o">.</span><span class="n">varargs</span> <span class="ow">or</span> <span class="n">argspec</span><span class="o">.</span><span class="n">varkw</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_arg_names</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return arguments of function</span>
+
+<span class="sd">    :param f:</span>
+<span class="sd">    :return: String list of arguments</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">parameter</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">parameter</span><span class="o">.</span><span class="n">POSITIONAL_OR_KEYWORD</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">get_arg_default</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">arg</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="n">position</span><span class="p">]</span>
+    <span class="n">arg_def</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">default</span>
+    <span class="k">return</span> <span class="n">arg_def</span> <span class="k">if</span> <span class="n">arg_def</span> <span class="o">!=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;__caching_id__&quot;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">)(</span><span class="n">obj</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">function_namespace</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attempts to returns unique namespace for function&quot;&quot;&quot;</span>
+    <span class="n">m_args</span> <span class="o">=</span> <span class="n">get_arg_names</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="n">instance_token</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">instance_self</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;__self__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">instance_self</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">instance_self</span><span class="p">):</span>
+        <span class="n">instance_token</span> <span class="o">=</span> <span class="n">get_id</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="vm">__self__</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">m_args</span> <span class="ow">and</span> <span class="n">m_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;self&quot;</span> <span class="ow">and</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">instance_token</span> <span class="o">=</span> <span class="n">get_id</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">module</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__module__</span>
+
+    <span class="k">if</span> <span class="n">m_args</span> <span class="ow">and</span> <span class="n">m_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cls&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;When using `delete_memoized` on a &quot;</span>
+            <span class="s2">&quot;`@classmethod` you must provide the &quot;</span>
+            <span class="s2">&quot;class as the first argument&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;__qualname__&quot;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__qualname__</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">klass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;__self__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">klass</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">klass</span><span class="p">):</span>
+            <span class="n">klass</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="vm">__class__</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">klass</span><span class="p">:</span>
+            <span class="n">klass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;im_class&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">klass</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">m_args</span> <span class="ow">and</span> <span class="n">args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">m_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;self&quot;</span><span class="p">:</span>
+                    <span class="n">klass</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__class__</span>
+                <span class="k">elif</span> <span class="n">m_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cls&quot;</span><span class="p">:</span>
+                    <span class="n">klass</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">klass</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">klass</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>
+
+    <span class="n">ns</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+    <span class="n">ns</span> <span class="o">=</span> <span class="n">ns</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">*</span><span class="n">null_control</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">instance_token</span><span class="p">:</span>
+        <span class="n">ins</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">instance_token</span><span class="p">))</span>
+        <span class="n">ins</span> <span class="o">=</span> <span class="n">ins</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">*</span><span class="n">null_control</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ins</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">ns</span><span class="p">,</span> <span class="n">ins</span>
+
+
+<span class="k">def</span> <span class="nf">make_template_fragment_key</span><span class="p">(</span><span class="n">fragment_name</span><span class="p">,</span> <span class="n">vary_on</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="sd">&quot;&quot;&quot;Make a cache key for a specific fragment name.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">vary_on</span><span class="p">:</span>
+        <span class="n">fragment_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="n">fragment_name</span>
+    <span class="k">return</span> <span class="n">TEMPLATE_FRAGMENT_KEY_TEMPLATE</span> <span class="o">%</span> <span class="p">(</span><span class="n">fragment_name</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vary_on</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">Cache</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class is used to control the cache objects.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">with_jinja2_ext</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`config` must be an instance of dict or None&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">with_jinja2_ext</span> <span class="o">=</span> <span class="n">with_jinja2_ext</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">init_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is used to initialize cache with your app object&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`config` must be an instance of dict or None&quot;</span><span class="p">)</span>
+
+        <span class="c1">#: Ref PR #44.</span>
+        <span class="c1">#: Do not set self.app in the case a single instance of the Cache</span>
+        <span class="c1">#: object is being used for multiple app instances.</span>
+        <span class="c1">#: Example use case would be Cache shipped as part of a blueprint</span>
+        <span class="c1">#: or utility library.</span>
+
+        <span class="n">base_config</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="n">base_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">base_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">base_config</span>
+
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_DEFAULT_TIMEOUT&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_IGNORE_ERRORS&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_THRESHOLD&quot;</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_KEY_PREFIX&quot;</span><span class="p">,</span> <span class="s2">&quot;flask_cache_&quot;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_MEMCACHED_SERVERS&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_DIR&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_OPTIONS&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_ARGS&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_TYPE&quot;</span><span class="p">,</span> <span class="s2">&quot;null&quot;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;CACHE_NO_NULL_WARNING&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_TYPE&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;null&quot;</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_NO_NULL_WARNING&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Flask-Caching: CACHE_TYPE is set to null, &quot;</span>
+                <span class="s2">&quot;caching is effectively disabled.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_TYPE&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;filesystem&quot;</span> <span class="ow">and</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_DIR&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Flask-Caching: CACHE_TYPE is set to filesystem but no &quot;</span>
+                <span class="s2">&quot;CACHE_DIR is set.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_jinja2_ext</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.jinja2ext</span> <span class="kn">import</span> <span class="n">CacheExtension</span><span class="p">,</span> <span class="n">JINJA_CACHE_ATTR_NAME</span>
+
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">jinja_env</span><span class="p">,</span> <span class="n">JINJA_CACHE_ATTR_NAME</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">jinja_env</span><span class="o">.</span><span class="n">add_extension</span><span class="p">(</span><span class="n">CacheExtension</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_cache</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">import_me</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_TYPE&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">import_me</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">backends</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cache_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">backends</span><span class="p">,</span> <span class="n">import_me</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a valid Flask-Caching backend&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">import_me</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cache_obj</span> <span class="o">=</span> <span class="n">import_string</span><span class="p">(</span><span class="n">import_me</span><span class="p">)</span>
+
+        <span class="n">cache_args</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_ARGS&quot;</span><span class="p">][:]</span>
+        <span class="n">cache_options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;default_timeout&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_DEFAULT_TIMEOUT&quot;</span><span class="p">]}</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_OPTIONS&quot;</span><span class="p">]:</span>
+            <span class="n">cache_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;CACHE_OPTIONS&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="s2">&quot;extensions&quot;</span><span class="p">):</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">extensions</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">app</span><span class="o">.</span><span class="n">extensions</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">extensions</span><span class="p">[</span><span class="s2">&quot;cache&quot;</span><span class="p">][</span><span class="bp">self</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache_obj</span><span class="p">(</span>
+            <span class="n">app</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">cache_args</span><span class="p">,</span> <span class="n">cache_options</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">current_app</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span>
+        <span class="k">return</span> <span class="n">app</span><span class="o">.</span><span class="n">extensions</span><span class="p">[</span><span class="s2">&quot;cache&quot;</span><span class="p">][</span><span class="bp">self</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">delete_many</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">delete_many</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_many</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_many</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_many</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">set_many</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">unlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proxy function for internal cache object</span>
+<span class="sd">        only support Redis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unlink</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span> <span class="s2">&quot;unlink&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unlink</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="n">unlink</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">unlink</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete_many</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">cached</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">key_prefix</span><span class="o">=</span><span class="s2">&quot;view/</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">unless</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">forced_update</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">response_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">query_string</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">hash_method</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">,</span>
+        <span class="n">cache_none</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Decorator. Use this to cache a function. By default the cache key</span>
+<span class="sd">        is `view/request.path`. You are able to use this decorator with any</span>
+<span class="sd">        function by changing the `key_prefix`. If the token `%s` is located</span>
+<span class="sd">        within the `key_prefix` then it will replace that with `request.path`</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            # An example view function</span>
+<span class="sd">            @cache.cached(timeout=50)</span>
+<span class="sd">            def big_foo():</span>
+<span class="sd">                return big_bar_calc()</span>
+
+<span class="sd">            # An example misc function to cache.</span>
+<span class="sd">            @cache.cached(key_prefix=&#39;MyCachedList&#39;)</span>
+<span class="sd">            def get_list():</span>
+<span class="sd">                return [random.randrange(0, 1) for i in range(50000)]</span>
+
+<span class="sd">            my_list = get_list()</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            You MUST have a request context to actually called any functions</span>
+<span class="sd">            that are cached.</span>
+
+<span class="sd">        .. versionadded:: 0.4</span>
+<span class="sd">            The returned decorated function now has three function attributes</span>
+<span class="sd">            assigned to it. These attributes are readable/writable.</span>
+
+<span class="sd">                **uncached**</span>
+<span class="sd">                    The original undecorated function</span>
+
+<span class="sd">                **cache_timeout**</span>
+<span class="sd">                    The cache timeout value for this function. For a</span>
+<span class="sd">                    custom value to take affect, this must be set before the</span>
+<span class="sd">                    function is called.</span>
+
+<span class="sd">                **make_cache_key**</span>
+<span class="sd">                    A function used in generating the cache_key used.</span>
+
+<span class="sd">        :param timeout: Default None. If set to an integer, will cache for that</span>
+<span class="sd">                        amount of time. Unit of time is in seconds.</span>
+
+<span class="sd">        :param key_prefix: Default &#39;view/%(request.path)s&#39;. Beginning key to .</span>
+<span class="sd">                           use for the cache key. `request.path` will be the</span>
+<span class="sd">                           actual request path, or in cases where the</span>
+<span class="sd">                           `make_cache_key`-function is called from other</span>
+<span class="sd">                           views it will be the expected URL for the view</span>
+<span class="sd">                           as generated by Flask&#39;s `url_for()`.</span>
+
+<span class="sd">                           .. versionadded:: 0.3.4</span>
+<span class="sd">                               Can optionally be a callable which takes</span>
+<span class="sd">                               no arguments but returns a string that will</span>
+<span class="sd">                               be used as the cache_key.</span>
+
+<span class="sd">        :param unless: Default None. Cache will *always* execute the caching</span>
+<span class="sd">                       facilities unless this callable is true.</span>
+<span class="sd">                       This will bypass the caching entirely.</span>
+
+<span class="sd">        :param forced_update: Default None. If this callable is true,</span>
+<span class="sd">                              cache value will be updated regardless cache</span>
+<span class="sd">                              is expired or not. Useful for background</span>
+<span class="sd">                              renewal of cached functions.</span>
+
+<span class="sd">        :param response_filter: Default None. If not None, the callable is</span>
+<span class="sd">                                invoked after the cached funtion evaluation,</span>
+<span class="sd">                                and is given one arguement, the response</span>
+<span class="sd">                                content. If the callable returns False, the</span>
+<span class="sd">                                content will not be cached. Useful to prevent</span>
+<span class="sd">                                caching of code 500 responses.</span>
+
+<span class="sd">        :param query_string: Default False. When True, the cache key</span>
+<span class="sd">                             used will be the result of hashing the</span>
+<span class="sd">                             ordered query string parameters. This</span>
+<span class="sd">                             avoids creating different caches for</span>
+<span class="sd">                             the same query just because the parameters</span>
+<span class="sd">                             were passed in a different order. See</span>
+<span class="sd">                             _make_cache_key_query_string() for more</span>
+<span class="sd">                             details.</span>
+
+<span class="sd">        :param hash_method: Default hashlib.md5. The hash method used to</span>
+<span class="sd">                            generate the keys for cached results.</span>
+<span class="sd">        :param cache_none: Default False. If set to True, add a key exists</span>
+<span class="sd">                           check when cache.get returns None. This will likely</span>
+<span class="sd">                           lead to wrongly returned None values in concurrent</span>
+<span class="sd">                           situations and is not recommended to use.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">decorated_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="c1">#: Bypass the cache entirely.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bypass_cache</span><span class="p">(</span><span class="n">unless</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">query_string</span><span class="p">:</span>
+                        <span class="n">cache_key</span> <span class="o">=</span> <span class="n">_make_cache_key_query_string</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">cache_key</span> <span class="o">=</span> <span class="n">_make_cache_key</span><span class="p">(</span>
+                            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">use_request</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">callable</span><span class="p">(</span><span class="n">forced_update</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="p">(</span>
+                            <span class="n">forced_update</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">wants_args</span><span class="p">(</span><span class="n">forced_update</span><span class="p">)</span>
+                            <span class="k">else</span> <span class="n">forced_update</span><span class="p">()</span>
+                        <span class="p">)</span>
+                        <span class="ow">is</span> <span class="kc">True</span>
+                    <span class="p">):</span>
+                        <span class="n">rv</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">rv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+
+                        <span class="c1"># If the value returned by cache.get() is None, it</span>
+                        <span class="c1"># might be because the key is not found in the cache</span>
+                        <span class="c1"># or because the cached value is actually None</span>
+                        <span class="k">if</span> <span class="n">rv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="c1"># If we&#39;re sure we don&#39;t need to cache None values</span>
+                            <span class="c1"># (cache_none=False), don&#39;t bother checking for</span>
+                            <span class="c1"># key existence, as it can lead to false positives</span>
+                            <span class="c1"># if a concurrent call already cached the</span>
+                            <span class="c1"># key between steps. This would cause us to</span>
+                            <span class="c1"># return None when we shouldn&#39;t</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_none</span><span class="p">:</span>
+                                <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                        <span class="k">raise</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Exception possibly due to cache backend.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="n">rv</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">response_filter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">response_filter</span><span class="p">(</span><span class="n">rv</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                                <span class="n">cache_key</span><span class="p">,</span>
+                                <span class="n">rv</span><span class="p">,</span>
+                                <span class="n">timeout</span><span class="o">=</span><span class="n">decorated_function</span><span class="o">.</span><span class="n">cache_timeout</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                                <span class="k">raise</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                                <span class="s2">&quot;Exception possibly due to cache backend.&quot;</span>
+                            <span class="p">)</span>
+                <span class="k">return</span> <span class="n">rv</span>
+
+            <span class="k">def</span> <span class="nf">make_cache_key</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="c1"># Convert non-keyword arguments (which is the way</span>
+                <span class="c1"># `make_cache_key` expects them) to keyword arguments</span>
+                <span class="c1"># (the way `url_for` expects them)</span>
+                <span class="n">argspec_args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">args</span>
+
+                <span class="k">for</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">argspec_args</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="n">arg_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arg</span>
+
+                <span class="k">return</span> <span class="n">_make_cache_key</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">use_request</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">_make_cache_key_query_string</span><span class="p">():</span>
+                <span class="sd">&quot;&quot;&quot;Create consistent keys for query string arguments.</span>
+
+<span class="sd">                Produces the same cache key regardless of argument order, e.g.,</span>
+<span class="sd">                both `?limit=10&amp;offset=20` and `?offset=20&amp;limit=10` will</span>
+<span class="sd">                always produce the same exact cache key.</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+
+                <span class="c1"># Create a tuple of (key, value) pairs, where the key is the</span>
+                <span class="c1"># argument name and the value is its respective value. Order</span>
+                <span class="c1"># this tuple by key. Doing this ensures the cache key created</span>
+                <span class="c1"># is always the same for query string args whose keys/values</span>
+                <span class="c1"># are the same, regardless of the order in which they are</span>
+                <span class="c1"># provided.</span>
+                <span class="n">args_as_sorted_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="nb">sorted</span><span class="p">((</span><span class="n">pair</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+                <span class="p">)</span>
+                <span class="c1"># ... now hash the sorted (key, value) tuple so it can be</span>
+                <span class="c1"># used as a key for cache. Turn them into bytes so that the</span>
+                <span class="c1"># hash function will accept them</span>
+                <span class="n">args_as_bytes</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">args_as_sorted_tuple</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+                <span class="n">hashed_args</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">hash_method</span><span class="p">(</span><span class="n">args_as_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span>
+                <span class="n">cache_key</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="n">hashed_args</span>
+                <span class="k">return</span> <span class="n">cache_key</span>
+
+            <span class="k">def</span> <span class="nf">_make_cache_key</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">use_request</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">key_prefix</span><span class="p">):</span>
+                    <span class="n">cache_key</span> <span class="o">=</span> <span class="n">key_prefix</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">key_prefix</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">use_request</span><span class="p">:</span>
+                        <span class="n">cache_key</span> <span class="o">=</span> <span class="n">key_prefix</span> <span class="o">%</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">cache_key</span> <span class="o">=</span> <span class="n">key_prefix</span> <span class="o">%</span> <span class="n">url_for</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cache_key</span> <span class="o">=</span> <span class="n">key_prefix</span>
+
+                <span class="k">return</span> <span class="n">cache_key</span>
+
+            <span class="n">decorated_function</span><span class="o">.</span><span class="n">uncached</span> <span class="o">=</span> <span class="n">f</span>
+            <span class="n">decorated_function</span><span class="o">.</span><span class="n">cache_timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+            <span class="n">decorated_function</span><span class="o">.</span><span class="n">make_cache_key</span> <span class="o">=</span> <span class="n">make_cache_key</span>
+
+            <span class="k">return</span> <span class="n">decorated_function</span>
+
+        <span class="k">return</span> <span class="n">decorator</span>
+
+    <span class="k">def</span> <span class="nf">_memvname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funcname</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">funcname</span> <span class="o">+</span> <span class="s2">&quot;_memver&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_memoize_make_version_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">bytes</span><span class="p">)[:</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_memoize_version</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">f</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">forced_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates the hash version associated with a memoized function or</span>
+<span class="sd">        method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fname</span><span class="p">,</span> <span class="n">instance_fname</span> <span class="o">=</span> <span class="n">function_namespace</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">version_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memvname</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">fetch_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">version_key</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">instance_fname</span><span class="p">:</span>
+            <span class="n">instance_version_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memvname</span><span class="p">(</span><span class="n">instance_fname</span><span class="p">)</span>
+            <span class="n">fetch_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instance_version_key</span><span class="p">)</span>
+
+        <span class="c1"># Only delete the per-instance version key or per-function version</span>
+        <span class="c1"># key but not both.</span>
+        <span class="k">if</span> <span class="n">delete</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">delete_many</span><span class="p">(</span><span class="n">fetch_keys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">fname</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">version_data_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_many</span><span class="p">(</span><span class="o">*</span><span class="n">fetch_keys</span><span class="p">))</span>
+        <span class="n">dirty</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">callable</span><span class="p">(</span><span class="n">forced_update</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">forced_update</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">args</span> <span class="ow">or</span> <span class="p">()),</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="ow">or</span> <span class="p">{}))</span>
+                <span class="k">if</span> <span class="n">wants_args</span><span class="p">(</span><span class="n">forced_update</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">forced_update</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="ow">is</span> <span class="kc">True</span>
+        <span class="p">):</span>
+            <span class="c1"># Mark key as dirty to update its TTL</span>
+            <span class="n">dirty</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">version_data_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">version_data_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memoize_make_version_hash</span><span class="p">()</span>
+            <span class="n">dirty</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">instance_fname</span> <span class="ow">and</span> <span class="n">version_data_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">version_data_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memoize_make_version_hash</span><span class="p">()</span>
+            <span class="n">dirty</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Only reset the per-instance version or the per-function version</span>
+        <span class="c1"># but not both.</span>
+        <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
+            <span class="n">fetch_keys</span> <span class="o">=</span> <span class="n">fetch_keys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">version_data_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_memoize_make_version_hash</span><span class="p">()]</span>
+            <span class="n">dirty</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">dirty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">set_many</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">fetch_keys</span><span class="p">,</span> <span class="n">version_data_list</span><span class="p">)),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">version_data_list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_memoize_make_cache_key</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">make_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">forced_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">hash_method</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function used to create the cache_key for memoized functions.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">make_cache_key</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">_timeout</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="s2">&quot;cache_timeout&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+            <span class="n">fname</span><span class="p">,</span> <span class="n">version_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memoize_version</span><span class="p">(</span>
+                <span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">_timeout</span><span class="p">,</span> <span class="n">forced_update</span><span class="o">=</span><span class="n">forced_update</span>
+            <span class="p">)</span>
+
+            <span class="c1">#: this should have to be after version_data, so that it</span>
+            <span class="c1">#: does not break the delete_memoized functionality.</span>
+            <span class="n">altfname</span> <span class="o">=</span> <span class="n">make_name</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">make_name</span><span class="p">)</span> <span class="k">else</span> <span class="n">fname</span>
+
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+                <span class="n">keyargs</span><span class="p">,</span> <span class="n">keykwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memoize_kwargs_to_args</span><span class="p">(</span>
+                    <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">keyargs</span><span class="p">,</span> <span class="n">keykwargs</span> <span class="o">=</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+
+            <span class="n">updated</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{0}{1}{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">altfname</span><span class="p">,</span> <span class="n">keyargs</span><span class="p">,</span> <span class="n">keykwargs</span><span class="p">)</span>
+
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="n">hash_method</span><span class="p">()</span>
+            <span class="n">cache_key</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updated</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">cache_key</span><span class="o">.</span><span class="n">digest</span><span class="p">())[:</span><span class="mi">16</span><span class="p">]</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="n">cache_key</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="n">cache_key</span> <span class="o">+=</span> <span class="n">version_data</span>
+
+            <span class="k">return</span> <span class="n">cache_key</span>
+
+        <span class="k">return</span> <span class="n">make_cache_key</span>
+
+    <span class="k">def</span> <span class="nf">_memoize_kwargs_to_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1">#: Inspect the arguments to the function</span>
+        <span class="c1">#: This allows the memoization to be the same</span>
+        <span class="c1">#: whether the function was called with</span>
+        <span class="c1">#: 1, b=2 is equivilant to a=1, b=2, etc.</span>
+        <span class="n">new_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">arg_num</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># If the function uses VAR_KEYWORD type of parameters,</span>
+        <span class="c1"># we need to pass these further</span>
+        <span class="n">kw_keys_remaining</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">arg_names</span> <span class="o">=</span> <span class="n">get_arg_names</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">args_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg_names</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args_len</span><span class="p">):</span>
+            <span class="n">arg_default</span> <span class="o">=</span> <span class="n">get_arg_default</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">arg_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;self&quot;</span><span class="p">,</span> <span class="s2">&quot;cls&quot;</span><span class="p">):</span>
+                <span class="c1">#: use the id func of the class instance</span>
+                <span class="c1">#: this supports instance methods for</span>
+                <span class="c1">#: the memoized functions, giving more</span>
+                <span class="c1">#: flexibility to developers</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="n">get_id</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">arg_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">arg_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">arg_names</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+                <span class="n">kw_keys_remaining</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">kw_keys_remaining</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg_names</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="n">arg_num</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">arg_num</span><span class="p">]</span>
+                <span class="n">arg_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">arg_default</span><span class="p">:</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="n">arg_default</span>
+                <span class="n">arg_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">arg_num</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1">#: Attempt to convert all arguments to a</span>
+            <span class="c1">#: hash/id or a representation?</span>
+            <span class="c1">#: Not sure if this is necessary, since</span>
+            <span class="c1">#: using objects as keys gets tricky quickly.</span>
+            <span class="c1"># if hasattr(arg, &#39;__class__&#39;):</span>
+            <span class="c1">#     try:</span>
+            <span class="c1">#         arg = hash(arg)</span>
+            <span class="c1">#     except:</span>
+            <span class="c1">#         arg = get_id(arg)</span>
+
+            <span class="c1">#: Or what about a special __cacherepr__ function</span>
+            <span class="c1">#: on an object, this allows objects to act normal</span>
+            <span class="c1">#: upon inspection, yet they can define a representation</span>
+            <span class="c1">#: that can be used to make the object unique in the</span>
+            <span class="c1">#: cache key. Given that a case comes across that</span>
+            <span class="c1">#: an object &quot;must&quot; be used as a cache key</span>
+            <span class="c1"># if hasattr(arg, &#39;__cacherepr__&#39;):</span>
+            <span class="c1">#     arg = arg.__cacherepr__</span>
+
+            <span class="n">new_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+        <span class="n">new_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">arg_names</span><span class="p">)</span> <span class="p">:])</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">new_args</span><span class="p">),</span>
+            <span class="n">OrderedDict</span><span class="p">(</span>
+                <span class="nb">sorted</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kw_keys_remaining</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_bypass_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unless</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines whether or not to bypass the cache by calling unless().</span>
+<span class="sd">        Supports both unless() that takes in arguments and unless()</span>
+<span class="sd">        that doesn&#39;t.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bypass_cache</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">unless</span><span class="p">):</span>
+            <span class="n">argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">unless</span><span class="p">)</span>
+            <span class="n">has_args</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">argspec</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">argspec</span><span class="o">.</span><span class="n">varargs</span> <span class="ow">or</span> <span class="n">argspec</span><span class="o">.</span><span class="n">varkw</span>
+
+            <span class="c1"># If unless() takes args, pass them in.</span>
+            <span class="k">if</span> <span class="n">has_args</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">unless</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">bypass_cache</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">unless</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">bypass_cache</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">bypass_cache</span>
+
+    <span class="k">def</span> <span class="nf">memoize</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">make_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">unless</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">forced_update</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">response_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">hash_method</span><span class="o">=</span><span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">,</span>
+        <span class="n">cache_none</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use this to cache the result of a function, taking its arguments</span>
+<span class="sd">        into account in the cache key.</span>
+
+<span class="sd">        Information on</span>
+<span class="sd">        `Memoization &lt;http://en.wikipedia.org/wiki/Memoization&gt;`_.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            @cache.memoize(timeout=50)</span>
+<span class="sd">            def big_foo(a, b):</span>
+<span class="sd">                return a + b + random.randrange(0, 1000)</span>
+
+<span class="sd">        .. code-block:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; big_foo(5, 2)</span>
+<span class="sd">            753</span>
+<span class="sd">            &gt;&gt;&gt; big_foo(5, 3)</span>
+<span class="sd">            234</span>
+<span class="sd">            &gt;&gt;&gt; big_foo(5, 2)</span>
+<span class="sd">            753</span>
+
+<span class="sd">        .. versionadded:: 0.4</span>
+<span class="sd">            The returned decorated function now has three function attributes</span>
+<span class="sd">            assigned to it.</span>
+
+<span class="sd">                **uncached**</span>
+<span class="sd">                    The original undecorated function. readable only</span>
+
+<span class="sd">                **cache_timeout**</span>
+<span class="sd">                    The cache timeout value for this function.</span>
+<span class="sd">                    For a custom value to take affect, this must be</span>
+<span class="sd">                    set before the function is called.</span>
+
+<span class="sd">                    readable and writable</span>
+
+<span class="sd">                **make_cache_key**</span>
+<span class="sd">                    A function used in generating the cache_key used.</span>
+
+<span class="sd">                    readable and writable</span>
+
+
+<span class="sd">        :param timeout: Default None. If set to an integer, will cache for that</span>
+<span class="sd">                        amount of time. Unit of time is in seconds.</span>
+<span class="sd">        :param make_name: Default None. If set this is a function that accepts</span>
+<span class="sd">                          a single argument, the function name, and returns a</span>
+<span class="sd">                          new string to be used as the function name.</span>
+<span class="sd">                          If not set then the function name is used.</span>
+<span class="sd">        :param unless: Default None. Cache will *always* execute the caching</span>
+<span class="sd">                       facilities unless this callable is true.</span>
+<span class="sd">                       This will bypass the caching entirely.</span>
+<span class="sd">        :param forced_update: Default None. If this callable is true,</span>
+<span class="sd">                              cache value will be updated regardless cache</span>
+<span class="sd">                              is expired or not. Useful for background</span>
+<span class="sd">                              renewal of cached functions.</span>
+<span class="sd">        :param response_filter: Default None. If not None, the callable is</span>
+<span class="sd">                                invoked after the cached funtion evaluation,</span>
+<span class="sd">                                and is given one arguement, the response</span>
+<span class="sd">                                content. If the callable returns False, the</span>
+<span class="sd">                                content will not be cached. Useful to prevent</span>
+<span class="sd">                                caching of code 500 responses.</span>
+<span class="sd">        :param hash_method: Default hashlib.md5. The hash method used to</span>
+<span class="sd">                            generate the keys for cached results.</span>
+<span class="sd">        :param cache_none: Default False. If set to True, add a key exists</span>
+<span class="sd">                           check when cache.get returns None. This will likely</span>
+<span class="sd">                           lead to wrongly returned None values in concurrent</span>
+<span class="sd">                           situations and is not recommended to use.</span>
+
+<span class="sd">        .. versionadded:: 0.5</span>
+<span class="sd">            params ``make_name``, ``unless``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">memoize</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">decorated_function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="c1">#: bypass cache</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bypass_cache</span><span class="p">(</span><span class="n">unless</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">cache_key</span> <span class="o">=</span> <span class="n">decorated_function</span><span class="o">.</span><span class="n">make_cache_key</span><span class="p">(</span>
+                        <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">callable</span><span class="p">(</span><span class="n">forced_update</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="p">(</span>
+                            <span class="n">forced_update</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">wants_args</span><span class="p">(</span><span class="n">forced_update</span><span class="p">)</span>
+                            <span class="k">else</span> <span class="n">forced_update</span><span class="p">()</span>
+                        <span class="p">)</span>
+                        <span class="ow">is</span> <span class="kc">True</span>
+                    <span class="p">):</span>
+                        <span class="n">rv</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">rv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+
+                        <span class="c1"># If the value returned by cache.get() is None, it</span>
+                        <span class="c1"># might be because the key is not found in the cache</span>
+                        <span class="c1"># or because the cached value is actually None</span>
+                        <span class="k">if</span> <span class="n">rv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="c1"># If we&#39;re sure we don&#39;t need to cache None values</span>
+                            <span class="c1"># (cache_none=False), don&#39;t bother checking for</span>
+                            <span class="c1"># key existence, as it can lead to false positives</span>
+                            <span class="c1"># if a concurrent call already cached the</span>
+                            <span class="c1"># key between steps. This would cause us to</span>
+                            <span class="c1"># return None when we shouldn&#39;t</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">cache_none</span><span class="p">:</span>
+                                <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                        <span class="k">raise</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Exception possibly due to cache backend.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="n">rv</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">response_filter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">response_filter</span><span class="p">(</span><span class="n">rv</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                                <span class="n">cache_key</span><span class="p">,</span>
+                                <span class="n">rv</span><span class="p">,</span>
+                                <span class="n">timeout</span><span class="o">=</span><span class="n">decorated_function</span><span class="o">.</span><span class="n">cache_timeout</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+                                <span class="k">raise</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                                <span class="s2">&quot;Exception possibly due to cache backend.&quot;</span>
+                            <span class="p">)</span>
+                <span class="k">return</span> <span class="n">rv</span>
+
+            <span class="n">decorated_function</span><span class="o">.</span><span class="n">uncached</span> <span class="o">=</span> <span class="n">f</span>
+            <span class="n">decorated_function</span><span class="o">.</span><span class="n">cache_timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+            <span class="n">decorated_function</span><span class="o">.</span><span class="n">make_cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memoize_make_cache_key</span><span class="p">(</span>
+                <span class="n">make_name</span><span class="o">=</span><span class="n">make_name</span><span class="p">,</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="n">decorated_function</span><span class="p">,</span>
+                <span class="n">forced_update</span><span class="o">=</span><span class="n">forced_update</span><span class="p">,</span>
+                <span class="n">hash_method</span><span class="o">=</span><span class="n">hash_method</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">decorated_function</span><span class="o">.</span><span class="n">delete_memoized</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete_memoized</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">decorated_function</span>
+
+        <span class="k">return</span> <span class="n">memoize</span>
+
+    <span class="k">def</span> <span class="nf">delete_memoized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deletes the specified functions caches, based by given parameters.</span>
+<span class="sd">        If parameters are given, only the functions that were memoized</span>
+<span class="sd">        with them will be erased. Otherwise all versions of the caches</span>
+<span class="sd">        will be forgotten.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            @cache.memoize(50)</span>
+<span class="sd">            def random_func():</span>
+<span class="sd">                return random.randrange(1, 50)</span>
+
+<span class="sd">            @cache.memoize()</span>
+<span class="sd">            def param_func(a, b):</span>
+<span class="sd">                return a+b+random.randrange(1, 50)</span>
+
+<span class="sd">        .. code-block:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; random_func()</span>
+<span class="sd">            43</span>
+<span class="sd">            &gt;&gt;&gt; random_func()</span>
+<span class="sd">            43</span>
+<span class="sd">            &gt;&gt;&gt; cache.delete_memoized(random_func)</span>
+<span class="sd">            &gt;&gt;&gt; random_func()</span>
+<span class="sd">            16</span>
+<span class="sd">            &gt;&gt;&gt; param_func(1, 2)</span>
+<span class="sd">            32</span>
+<span class="sd">            &gt;&gt;&gt; param_func(1, 2)</span>
+<span class="sd">            32</span>
+<span class="sd">            &gt;&gt;&gt; param_func(2, 2)</span>
+<span class="sd">            47</span>
+<span class="sd">            &gt;&gt;&gt; cache.delete_memoized(param_func, 1, 2)</span>
+<span class="sd">            &gt;&gt;&gt; param_func(1, 2)</span>
+<span class="sd">            13</span>
+<span class="sd">            &gt;&gt;&gt; param_func(2, 2)</span>
+<span class="sd">            47</span>
+
+<span class="sd">        Delete memoized is also smart about instance methods vs class methods.</span>
+
+<span class="sd">        When passing a instancemethod, it will only clear the cache related</span>
+<span class="sd">        to that instance of that object. (object uniqueness can be overridden</span>
+<span class="sd">        by defining the __repr__ method, such as user id).</span>
+
+<span class="sd">        When passing a classmethod, it will clear all caches related across</span>
+<span class="sd">        all instances of that class.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            class Adder(object):</span>
+<span class="sd">                @cache.memoize()</span>
+<span class="sd">                def add(self, b):</span>
+<span class="sd">                    return b + random.random()</span>
+
+<span class="sd">        .. code-block:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; adder1 = Adder()</span>
+<span class="sd">            &gt;&gt;&gt; adder2 = Adder()</span>
+<span class="sd">            &gt;&gt;&gt; adder1.add(3)</span>
+<span class="sd">            3.23214234</span>
+<span class="sd">            &gt;&gt;&gt; adder2.add(3)</span>
+<span class="sd">            3.60898509</span>
+<span class="sd">            &gt;&gt;&gt; cache.delete_memoized(adder1.add)</span>
+<span class="sd">            &gt;&gt;&gt; adder1.add(3)</span>
+<span class="sd">            3.01348673</span>
+<span class="sd">            &gt;&gt;&gt; adder2.add(3)</span>
+<span class="sd">            3.60898509</span>
+<span class="sd">            &gt;&gt;&gt; cache.delete_memoized(Adder.add)</span>
+<span class="sd">            &gt;&gt;&gt; adder1.add(3)</span>
+<span class="sd">            3.53235667</span>
+<span class="sd">            &gt;&gt;&gt; adder2.add(3)</span>
+<span class="sd">            3.72341788</span>
+
+<span class="sd">        :param fname: The memoized function.</span>
+<span class="sd">        :param \*args: A list of positional parameters used with</span>
+<span class="sd">                       memoized function.</span>
+<span class="sd">        :param \**kwargs: A dict of named parameters used with</span>
+<span class="sd">                          memoized function.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            Flask-Caching uses inspect to order kwargs into positional args when</span>
+<span class="sd">            the function is memoized. If you pass a function reference into</span>
+<span class="sd">            ``fname``, Flask-Caching will be able to place the args/kwargs in</span>
+<span class="sd">            the proper order, and delete the positional cache.</span>
+
+<span class="sd">            However, if ``delete_memoized`` is just called with the name of the</span>
+<span class="sd">            function, be sure to pass in potential arguments in the same order</span>
+<span class="sd">            as defined in your function as args only, otherwise Flask-Caching</span>
+<span class="sd">            will not be able to compute the same cache key and delete all</span>
+<span class="sd">            memoized versions of it.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            Flask-Caching maintains an internal random version hash for</span>
+<span class="sd">            the function. Using delete_memoized will only swap out</span>
+<span class="sd">            the version hash, causing the memoize function to recompute</span>
+<span class="sd">            results and put them into another key.</span>
+
+<span class="sd">            This leaves any computed caches for this memoized function within</span>
+<span class="sd">            the caching backend.</span>
+
+<span class="sd">            It is recommended to use a very high timeout with memoize if using</span>
+<span class="sd">            this function, so that when the version hash is swapped, the old</span>
+<span class="sd">            cached results would eventually be reclaimed by the caching</span>
+<span class="sd">            backend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Deleting messages by relative name is not supported, please &quot;</span>
+                <span class="s2">&quot;use a function reference.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">args</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_memoize_version</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">make_cache_key</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">uncached</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">delete_memoized_verhash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete the version hash associated with the function.</span>
+
+<span class="sd">        .. warning::</span>
+
+<span class="sd">            Performing this operation could leave keys behind that have</span>
+<span class="sd">            been created with this version hash. It is up to the application</span>
+<span class="sd">            to make sure that all keys that may have been created with this</span>
+<span class="sd">            version hash at least have timeouts so they will not sit orphaned</span>
+<span class="sd">            in the cache backend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Deleting messages by relative name is not supported, please&quot;</span>
+                <span class="s2">&quot;use a function reference.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memoize_version</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Crystal Toolkit Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

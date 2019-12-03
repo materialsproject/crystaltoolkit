@@ -1,0 +1,23 @@
+crystal\_toolkit.components.transformations package
+===================================================
+
+Submodules
+----------
+
+.. toctree::
+
+   crystal_toolkit.components.transformations.autooxistatedecoration
+   crystal_toolkit.components.transformations.core
+   crystal_toolkit.components.transformations.cubic
+   crystal_toolkit.components.transformations.grainboundary
+   crystal_toolkit.components.transformations.slab
+   crystal_toolkit.components.transformations.substitution
+   crystal_toolkit.components.transformations.supercell
+
+Module contents
+---------------
+
+.. automodule:: crystal_toolkit.components.transformations
+   :members:
+   :undoc-members:
+   :show-inheritance:

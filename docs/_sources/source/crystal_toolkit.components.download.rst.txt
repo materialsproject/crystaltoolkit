@@ -1,0 +1,7 @@
+crystal\_toolkit.components.download module
+===========================================
+
+.. automodule:: crystal_toolkit.components.download
+   :members:
+   :undoc-members:
+   :show-inheritance:

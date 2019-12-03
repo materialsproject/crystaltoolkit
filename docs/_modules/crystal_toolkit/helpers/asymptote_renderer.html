@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>crystal_toolkit.helpers.asymptote_renderer &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/helpers/asymptote_renderer.html"/>
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>crystal_toolkit.helpers.asymptote_renderer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.helpers.asymptote_renderer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Export wrapper for asymptote</span>
+<span class="sd">For creating publication quality plots</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.components.structure</span> <span class="kn">import</span> <span class="n">StructureMoleculeComponent</span>
+
+<span class="n">HEAD</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">size(300);</span>
+<span class="s2">import solids;</span>
+<span class="s2">// Camera information</span>
+<span class="s2">currentprojection=orthographic (</span>
+<span class="s2">camera=(8,5,4),</span>
+<span class="s2">up=(0,0,1),</span>
+<span class="s2">target=(0,0,0),</span>
+<span class="s2">zoom=0.5</span>
+<span class="s2">);</span>
+
+<span class="s2">// Plot appearance parameters</span>
+<span class="s2">real cylR=0.1;</span>
+
+<span class="s2">// Basic function for drawing spheres</span>
+<span class="s2">void drawSpheres(triple[] C, real R, pen p=currentpen){</span>
+<span class="s2">  for(int i=0;i&lt;C.length;++i){</span>
+<span class="s2">    draw(sphere(C[i],R).surface(</span>
+<span class="s2">                        new pen(int i, real j){return p;}</span>
+<span class="s2">                        )</span>
+<span class="s2">    );</span>
+<span class="s2">  }</span>
+<span class="s2">}</span>
+
+<span class="s2">// Draw a cylinder</span>
+<span class="s2">void Draw(guide3 g,pen p=currentpen){</span>
+<span class="s2">  draw(</span>
+<span class="s2">    cylinder(</span>
+<span class="s2">      point(g,0),cylR,arclength(g),point(g,1)-point(g,0)</span>
+<span class="s2">    ).surface(</span>
+<span class="s2">               new pen(int i, real j){</span>
+<span class="s2">                 return p;</span>
+<span class="s2">               }</span>
+<span class="s2">             )</span>
+<span class="s2">  );</span>
+<span class="s2">}</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_SPHERE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or val in positions %}</span>
+<span class="s2">triple sphere{{loop.index}}={{val}};</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+
+<span class="s2">triple[] spheres = {</span>
+<span class="s2">{</span><span class="si">%- f</span><span class="s2">or val in positions -%}</span>
+<span class="s2">sphere{{loop.index}}</span>
+<span class="s2">{</span><span class="si">%- i</span><span class="s2">f not loop.last %},{</span><span class="si">% e</span><span class="s2">ndif %}</span>
+<span class="s2">{</span><span class="si">%- e</span><span class="s2">ndfor -%}</span>
+<span class="s2">};</span>
+<span class="s2">drawSpheres(spheres, {{radius}}, rgb(&#39;{{color}}&#39;));</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_CYLINDER</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">pen connectPen=rgb(&#39;{{color}}&#39;);</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos, fpos in posPairs %}</span>
+<span class="s2">triple IPOS = {{ipos}};</span>
+<span class="s2">triple FPOS = {{fpos}};</span>
+<span class="s2">Draw(IPOS--FPOS, connectPen);</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_LINE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos, fpos in posPairs %}</span>
+<span class="s2">triple IPOS = {{ipos}};</span>
+<span class="s2">triple FPOS = {{fpos}};</span>
+<span class="s2">draw(IPOS--FPOS, dashed);</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="asy_write_data"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.asy_write_data">[docs]</a><span class="k">def</span> <span class="nf">asy_write_data</span><span class="p">(</span><span class="n">input_scene_comp</span><span class="p">,</span> <span class="n">fstream</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    parse a primitive display object in crystaltoolkit and print it to asymptote</span>
+<span class="sd">    input_scene_comp</span>
+<span class="sd">    fstream</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;spheres&quot;</span><span class="p">:</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">]</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">]</span>
+
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">Environment</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_SPHERE</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">render</span><span class="p">(</span>
+                <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cylinders&quot;</span><span class="p">:</span>
+        <span class="c1"># need to transforme all the cylinders to vector</span>
+        <span class="n">posPairs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ipos</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">fpos</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">ipos</span><span class="p">,</span> <span class="n">fpos</span> <span class="ow">in</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positionPairs&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">Environment</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_CYLINDER</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">posPairs</span><span class="o">=</span><span class="n">posPairs</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;lines&quot;</span><span class="p">:</span>
+        <span class="c1"># need to transforme all the cylinders to vector</span>
+        <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">posPairs</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ipos</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">fpos</span><span class="p">)]</span> <span class="k">for</span> <span class="n">ipos</span><span class="p">,</span> <span class="n">fpos</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)]</span>
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_LINE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">posPairs</span><span class="o">=</span><span class="n">posPairs</span><span class="p">))</span></div>
+
+    <span class="c1"># TODO Leaving out polyhedra for now since asymptote</span>
+    <span class="c1"># does not have an easy way to generate convex polyhedra from the points</span>
+    <span class="c1"># Need to write a python conversion between Convex type and surfaces to make this work.</span>
+
+    <span class="c1"># TODO we can make the line solide for the forground and dashed for the background</span>
+    <span class="c1"># This will require use to modify the way the line objects are generated</span>
+    <span class="c1"># at each vertex in the unit cell, we can evaluate the sum of all three lattice vectors from the point</span>
+    <span class="c1"># then the &lt;vec_sum | vec_to_camera&gt; for each vertex.  The smallest normalized vertex contians the three lines that should be dashed</span>
+
+
+<div class="viewcode-block" id="filter_data"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.filter_data">[docs]</a><span class="k">def</span> <span class="nf">filter_data</span><span class="p">(</span><span class="n">scene_data</span><span class="p">,</span> <span class="n">fstream</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursively traverse the scene_data dictionary to find objects to draw</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">scene_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">asy_write_data</span><span class="p">(</span><span class="n">scene_data</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="n">scene_data</span><span class="p">[</span><span class="s2">&quot;contents&quot;</span><span class="p">]:</span>
+            <span class="n">filter_data</span><span class="p">(</span><span class="n">itr</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_asy_file"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.write_asy_file">[docs]</a><span class="k">def</span> <span class="nf">write_asy_file</span><span class="p">(</span><span class="n">smc</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    smc : (StructureMoleculeComponent)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fstream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">HEAD</span><span class="p">)</span>
+    <span class="n">filter_data</span><span class="p">(</span><span class="n">smc</span><span class="o">.</span><span class="n">initial_scene_data</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Crystal Toolkit Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
