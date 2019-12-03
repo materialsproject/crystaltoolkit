@@ -31,14 +31,12 @@ jobs:
         git config --global user.email 'mkhorton@users.noreply.github.com'
         git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
         git checkout "${GITHUB_REF:11}"
-        git checkout -b gh-pages
-        git merge origin/master
         cd docs_rst
         make html
     - name: Commit new docs
       run: |
         git add -A
         git diff-index --quiet HEAD || git commit -m "Automated doc build"
-        git push --set-upstream origin gh-pages
+        git push
       continue-on-error: true
 
