@@ -16,11 +16,12 @@ The [Crystal Toolkit Development Team](https://github.com/materialsproject/cryst
 * [Matthew Horton](https://github.com/mkhorton), lead
 * [Jimmy Shen](https://github.com/jmmshn) contributed pythreejs support, surface plotting, initial arrows/axes support, and various bug fixes
 * [Joey Montoya](https://github.com/JosephMontoya-TRI) for Pourbaix component
-* [Shyam Dwaraknath](https://github.com/shyamd)
+* [Shyam Dwaraknath](https://github.com/shyamd) for planned contributions for ellipsoid support and architectural design
 * [Donny Winston](https://github.com/dwinston), assisted by Tyler Huntington (https://github.com/tylerhuntington), for helping embed Crystal Toolkit in a Django app
 * [Matt McDermott](https://github.com/mattmcdermott) for phase diagram, X-ray Diffraction, X-ray Absorption Spectrum components
 * [Jason Munro](https://github.com/munrojm) for band structure component
-* [Stephen Weitzner](https://github.com/sweitzner) for POV-Ray integration
+* [Stephen Weitzner](https://github.com/sweitzner) for POV-Ray integration (in progress)
+* [Richard Tran](https://github.com/richardtran415) for planned Wulff shape integration
 
 New contributors are welcome, please see our [Code of Conduct.](code-of-conduct.md) If you are a new contributor please modify this README in your Pull Request to add your name to the list.
 
