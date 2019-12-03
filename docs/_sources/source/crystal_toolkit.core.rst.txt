@@ -1,0 +1,27 @@
+crystal\_toolkit.core package
+=============================
+
+Subpackages
+-----------
+
+.. toctree::
+
+   crystal_toolkit.core.tests
+
+Submodules
+----------
+
+.. toctree::
+
+   crystal_toolkit.core.legend
+   crystal_toolkit.core.mpcomponent
+   crystal_toolkit.core.panelcomponent
+   crystal_toolkit.core.scene
+
+Module contents
+---------------
+
+.. automodule:: crystal_toolkit.core
+   :members:
+   :undoc-members:
+   :show-inheritance:

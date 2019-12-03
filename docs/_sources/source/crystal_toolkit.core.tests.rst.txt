@@ -1,0 +1,17 @@
+crystal\_toolkit.core.tests package
+===================================
+
+Submodules
+----------
+
+.. toctree::
+
+   crystal_toolkit.core.tests.test_legend
+
+Module contents
+---------------
+
+.. automodule:: crystal_toolkit.core.tests
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+crystal\_toolkit.GraphComponent module
+======================================
+
+.. automodule:: crystal_toolkit.GraphComponent
+   :members:
+   :undoc-members:
+   :show-inheritance:

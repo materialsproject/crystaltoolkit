@@ -1,0 +1,7 @@
+crystal\_toolkit.components.upload module
+=========================================
+
+.. automodule:: crystal_toolkit.components.upload
+   :members:
+   :undoc-members:
+   :show-inheritance:

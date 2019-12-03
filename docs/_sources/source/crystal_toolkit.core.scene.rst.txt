@@ -1,0 +1,7 @@
+crystal\_toolkit.core.scene module
+==================================
+
+.. automodule:: crystal_toolkit.core.scene
+   :members:
+   :undoc-members:
+   :show-inheritance:

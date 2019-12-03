@@ -1,0 +1,7 @@
+crystal\_toolkit.components.transformations.autooxistatedecoration module
+=========================================================================
+
+.. automodule:: crystal_toolkit.components.transformations.autooxistatedecoration
+   :members:
+   :undoc-members:
+   :show-inheritance:

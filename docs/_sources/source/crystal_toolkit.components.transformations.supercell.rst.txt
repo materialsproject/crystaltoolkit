@@ -1,0 +1,7 @@
+crystal\_toolkit.components.transformations.supercell module
+============================================================
+
+.. automodule:: crystal_toolkit.components.transformations.supercell
+   :members:
+   :undoc-members:
+   :show-inheritance:

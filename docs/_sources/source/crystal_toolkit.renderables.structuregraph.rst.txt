@@ -1,0 +1,7 @@
+crystal\_toolkit.renderables.structuregraph module
+==================================================
+
+.. automodule:: crystal_toolkit.renderables.structuregraph
+   :members:
+   :undoc-members:
+   :show-inheritance:
