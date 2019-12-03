@@ -22,7 +22,7 @@ The [Crystal Toolkit Development Team](https://github.com/materialsproject/cryst
 * [Jason Munro](https://github.com/munrojm) for band structure component
 * [Stephen Weitzner](https://github.com/sweitzner) for POV-Ray integration
 
-New contributors are welcome, please see our [Code of Conduct.](code-of-conduct.md)
+New contributors are welcome, please see our [Code of Conduct.](code-of-conduct.md) If you are a new contributor please modify this README in your Pull Request to add your name to the list.
 
 ## Future of This Repository
 
