@@ -31,7 +31,7 @@ jobs:
         git config --global user.email 'mkhorton@users.noreply.github.com'
         git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
         git checkout "${GITHUB_REF:11}"
-        git checkout gh-pages
+        git checkout -b gh-pages
         git merge origin/master
         cd docs_rst
         make html
