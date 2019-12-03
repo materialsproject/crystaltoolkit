@@ -19,4 +19,4 @@ help:
 	@rm -rf source/
 	@sphinx-apidoc -e -f -o source/ ../crystal_toolkit ../crystal_toolkit/apps
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	@cp -r "$(BUILDDIR)/html/" ../docs/
+	@cp -r "$(BUILDDIR)/html/." ../docs/
