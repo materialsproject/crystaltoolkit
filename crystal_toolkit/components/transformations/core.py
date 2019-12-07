@@ -68,6 +68,12 @@ class TransformationComponent(MPComponent):
             "container": container,
         }
 
+    def container_layout(self) -> html.Div:
+        """
+        :return: Layout defining transformation and its options.
+        """
+        return self._sub_layouts["container"]
+
     def options_layout(self, initial_args_kwargs):
         raise NotImplementedError
 
@@ -150,7 +156,7 @@ class AllTransformationsComponent(MPComponent):
 
         all_transformations = html.Div(
             [
-                transformation.container_layout
+                transformation.container_layout()
                 for name, transformation in self.transformations.items()
             ]
         )
@@ -171,7 +177,6 @@ class AllTransformationsComponent(MPComponent):
 
         return layouts
 
-    @property
     def layout(self):
 
         return html.Div(
@@ -180,7 +185,7 @@ class AllTransformationsComponent(MPComponent):
                     "Transform your crystal structure using the power of pymatgen.",
                     className="mpc-panel-description",
                 ),
-                self.choices_layout,
+                self._sub_layouts["choices"],
                 html.Br(),
                 html.Div(id=self.id("error")),
                 html.Div(id=self.id("transformation_options")),
@@ -219,7 +224,7 @@ class AllTransformationsComponent(MPComponent):
             values = values or []
 
             transformation_options = html.Div(
-                [self.transformations[name].container_layout for name in values]
+                [self.transformations[name].container_layout() for name in values]
             )
 
             return [transformation_options]

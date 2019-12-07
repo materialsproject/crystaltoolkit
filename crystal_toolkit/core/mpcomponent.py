@@ -432,8 +432,7 @@ Sub-layouts:  \n{layouts}"""
         """
         return {}
 
-    @property
-    def layout(self):
+    def layout(self) -> html.Div:
         """
         :return: A Dash layout for the full component. Basic implementation
         provided, but should in general be overridden.
