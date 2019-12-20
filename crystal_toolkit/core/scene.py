@@ -14,6 +14,7 @@ Cylinders, etc.) or can be another Scene. Then use scene_to_json() to convert
 the Scene to the JSON format to pass to Simple3DSceneComponent's data attribute.
 """
 
+
 class Primitive:
     """
     A Mixin class for standard plottable primitive behavior
@@ -44,6 +45,7 @@ class Scene:
     name: str  # name for the scene, does not have to be unique
     contents: list = field(default_factory=list)
     origin: List[float] = field(default=(0, 0, 0))
+    visible: bool = True
     _meta: Any = None
 
     def to_json(self):
@@ -95,10 +97,10 @@ class Scene:
             min_list, max_list = zip(*[p.bounding_box for p in self.contents])
             min_x, min_y, min_z = map(min, list(zip(*min_list)))
             max_x, max_y, max_z = map(max, list(zip(*max_list)))
-        
+
             return [[min_x, min_y, min_z], [max_x, max_y, max_z]]
         else:
-            return [[0,0,0], [0,0,0]]
+            return [[0, 0, 0], [0, 0, 0]]
 
     @staticmethod
     def merge_primitives(primitives):
@@ -157,7 +159,7 @@ class Spheres(Primitive):
 
     @property
     def key(self):
-        return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}_{self.reference}"
+        return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}_{self.clickable}"
 
     @classmethod
     def merge(cls, sphere_list):
@@ -171,6 +173,7 @@ class Spheres(Primitive):
             phiStart=sphere_list[0].phiStart,
             phiEnd=sphere_list[0].phiEnd,
             visible=sphere_list[0].visible,
+            clickable=sphere_list[0].clickable,
         )
 
 
@@ -208,7 +211,7 @@ class Ellipsoids(Primitive):
 
     @property
     def key(self):
-        return f"ellipsoid_{self.color}_{self.scale}_{self.phiStart}_{self.phiEnd}_{self.reference}"
+        return f"ellipsoid_{self.color}_{self.scale}_{self.phiStart}_{self.phiEnd}"
 
     @classmethod
     def merge(cls, ellipsoid_list):
@@ -387,10 +390,11 @@ class Surface:
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
+
     @property
     def bounding_box(self) -> List[List[float]]:
         # Not used in the calculation of the bounding box
-        return [[0,0,0], [0,0,0]]
+        return [[0, 0, 0], [0, 0, 0]]
 
 
 @dataclass
@@ -411,10 +415,11 @@ class Convex:
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
+
     @property
     def bounding_box(self) -> List[List[float]]:
         # Not used in the calculation of the bounding box
-        return [[0,0,0], [0,0,0]]
+        return [[0, 0, 0], [0, 0, 0]]
 
 
 @dataclass
@@ -467,19 +472,15 @@ class Arrows(Primitive):
         return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
 
 
-# class VolumetricData:
-#
-#    basis: List  # basis vectors of grid
-#    size: # size of each cell in Cartesian space
-#    values: # scalar values of the grid itself
-
-
 @dataclass
-class Labels:
+class Label:
     """
-    Not implemented yet.
+    Add a label to an object.
     """
 
+    label: str
+    labelHover: str = None
+    position: List[List[float]] = None
     type: str = field(default="labels", init=False)  # private field
     visible: bool = None
     clickable: bool = False

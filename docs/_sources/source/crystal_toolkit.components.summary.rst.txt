@@ -1,0 +1,7 @@
+crystal\_toolkit.components.summary module
+==========================================
+
+.. automodule:: crystal_toolkit.components.summary
+   :members:
+   :undoc-members:
+   :show-inheritance:

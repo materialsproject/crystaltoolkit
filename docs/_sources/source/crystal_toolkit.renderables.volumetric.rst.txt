@@ -1,0 +1,7 @@
+crystal\_toolkit.renderables.volumetric module
+==============================================
+
+.. automodule:: crystal_toolkit.renderables.volumetric
+   :members:
+   :undoc-members:
+   :show-inheritance:

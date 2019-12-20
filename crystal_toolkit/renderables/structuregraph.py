@@ -6,8 +6,11 @@ from pymatgen import PeriodicSite
 from pymatgen.analysis.graphs import StructureGraph
 
 from crystal_toolkit.core.scene import Scene
+from crystal_toolkit.core.legend import Legend
 
 from matplotlib.cm import get_cmap
+
+from typing import Optional
 
 
 def _get_sites_to_draw(
@@ -78,7 +81,7 @@ def _get_sites_to_draw(
 
 def get_structure_graph_scene(
     self,
-    origin=(0, 0, 0),
+    origin=None,
     draw_image_atoms=True,
     bonded_sites_outside_unit_cell=True,
     hide_incomplete_edges=False,
@@ -86,7 +89,14 @@ def get_structure_graph_scene(
     color_edges_by_edge_weight=True,
     edge_weight_color_scale="coolwarm",
     explicitly_calculate_polyhedra_hull=False,
+    legend: Optional[Legend] = None,
 ) -> Scene:
+
+    origin = origin or list(
+        -self.structure.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
+    )
+
+    legend = legend or Legend(self.structure)
 
     primitives = defaultdict(list)
 
@@ -161,27 +171,19 @@ def get_structure_graph_scene(
             incomplete_edge_length_scale=incomplete_edge_length_scale,
             connected_sites_colors=connected_sites_colors,
             connected_sites_not_drawn_colors=connected_sites_not_drawn_colors,
-            origin=origin,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+            legend=legend,
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
 
-    # we are here ...
-    # select polyhedra
-    # split by atom type at center
-    # see if any intersect, if yes split further
-    # order sets, with each choice, go to add second set etc if don't intersect
-    # they intersect if centre atom forms vertex of another atom (caveat: centre atom may not actually be inside polyhedra! not checking for this, add todo)
-    # def _set_intersects() ->bool:
-    # def _split_set() ->List: (by type, then..?)
-    # def _order_sets()... pick 1, ask can add 2? etc
-
-    primitives["unit_cell"].append(self.structure.lattice.get_scene(origin=origin))
+    primitives["unit_cell"].append(self.structure.lattice.get_scene())
 
     return Scene(
-        name=self.structure.composition.reduced_formula,
-        contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
+        name=self.structure.composition,
+        contents=[
+            Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
+        ],
     )
 
 

@@ -1,5 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
+import warnings
 
 from typing import List
 
@@ -305,12 +306,18 @@ def get_table(rows):
     return html.Table([html.Tbody(contents)], className="table")
 
 
-def cite_me(doi=None, cite_text="Cite me"):
+def cite_me(doi=None, manual_ref=None, cite_text="Cite me"):
 
     if doi:
         tooltip_text = (
             f"If this analysis is useful, please cite the "
             f"relevant publication at https://dx.doi.org/{doi}"
+        )
+    elif manual_ref:
+        warnings.warn("Please use the DOI if available.")
+        tooltip_text = (
+            f"If this analysis is useful, please cite the "
+            f"relevant publication: {manual_ref}"
         )
     else:
         tooltip_text = (

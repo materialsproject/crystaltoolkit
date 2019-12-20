@@ -19,7 +19,7 @@ from monty.serialization import loadfn
 
 class StructureMoleculeUploadComponent(MPComponent):
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         # this is a very custom component based on Bulma css stlyes
         upload_layout = html.Div(
@@ -108,7 +108,7 @@ class StructureMoleculeUploadComponent(MPComponent):
             decoded_contents = b64decode(content_string)
 
             error = None
-            data = None
+            struct_or_mol = None
 
             # necessary to write to file so pymatgen's filetype detection can work
             with NamedTemporaryFile(suffix=filename) as tmp:
@@ -116,11 +116,9 @@ class StructureMoleculeUploadComponent(MPComponent):
                 tmp.flush()
                 try:
                     struct_or_mol = Structure.from_file(tmp.name)
-                    data = self.to_data(struct_or_mol)
                 except:
                     try:
                         struct_or_mol = Molecule.from_file(tmp.name)
-                        data = self.to_data(struct_or_mol)
                     except:
                         try:
                             struct_or_mol = Chgcar.from_file(tmp.name)
@@ -128,7 +126,6 @@ class StructureMoleculeUploadComponent(MPComponent):
                             # TODO: fix these horrible try/excepts, loadfn may be dangerous
                             try:
                                 struct_or_mol = loadfn(tmp.name)
-                                data = self.to_data(struct_or_mol)
                             except:
                                 error = (
                                     "Could not parse uploaded file. "
@@ -138,4 +135,4 @@ class StructureMoleculeUploadComponent(MPComponent):
                                     "supported by pymatgen."
                                 )
 
-            return {"data": data, "error": error, "time_requested": self.get_time()}
+            return {"data": struct_or_mol, "error": error}

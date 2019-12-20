@@ -1,0 +1,7 @@
+crystal\_toolkit.components.phase\_diagram module
+=================================================
+
+.. automodule:: crystal_toolkit.components.phase_diagram
+   :members:
+   :undoc-members:
+   :show-inheritance:

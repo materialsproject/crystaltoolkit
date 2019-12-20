@@ -1,18 +1,21 @@
-import * as THREE from 'three-full'
+import * as THREE from 'three'
+import { TrackballControls } from '../../../node_modules/three/examples/jsm/controls/TrackballControls.js'
+import { ConvexBufferGeometry } from '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js'
+import { CSS2DRenderer, CSS2DObject } from '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js'
 
 export default class Simple3DScene {
   constructor (scene_json, dom_elt, settings) {
     this.start = this.start.bind(this)
     this.stop = this.stop.bind(this)
     this.animate = this.animate.bind(this)
-    // var modifier = new THREE.SubdivisionModifier( 2 );
 
     const defaults = {
       shadows: true,
       antialias: true,
-      transparent_background: true,
+      transparentBackground: false,
+      background: '#ffffff',
       sphereSegments: 32,
-      cylinderSegments: 8,
+      cylinderSegments: 16,
       staticScene: true,
       sphereScale: 1.0,
       cylinderScale: 1.0,
@@ -53,7 +56,7 @@ export default class Simple3DScene {
 
     const renderer = new THREE.WebGLRenderer({
       antialias: this.settings.antialias,
-      alpha: this.settings.transparent_background,
+      alpha: this.settings.transparentBackground,
       gammaInput: true,
       gammaOutput: true,
       gammaFactor: 2.2,
@@ -65,11 +68,21 @@ export default class Simple3DScene {
     renderer.setPixelRatio(
       window.devicePixelRatio
     )
-    renderer.setClearColor(0xffffff, 0)
     renderer.setSize(width, height)
     dom_elt.appendChild(renderer.domElement)
 
+    const labelRenderer = new CSS2DRenderer()
+    this.labelRenderer = labelRenderer
+    labelRenderer.setSize(width, height)
+    labelRenderer.domElement.style.position = 'relative'
+    labelRenderer.domElement.style.top = `-${height}px`
+    labelRenderer.domElement.style.pointerEvents = 'none'
+    dom_elt.appendChild(labelRenderer.domElement)
+
     const scene = new THREE.Scene()
+    if (!this.settings.transparentBackground) {
+      scene.background = new THREE.Color(this.settings.background)
+    }
     this.scene = scene
 
     // Camera
@@ -98,20 +111,24 @@ export default class Simple3DScene {
     const lights = this.makeLights(this.settings.lights)
     camera.add(lights)
 
-    const controls = new THREE.OrbitControls(
+    const controls = new TrackballControls(
       this.camera,
       this.renderer.domElement
     )
     controls.enableKeys = false
-    controls.minZoom = 2
-    controls.maxZoom = 100
-    controls.enablePan = false
-    controls.enableZoom = this.settings.enableZoom
+    //controls.minDistance = 20
+    //controls.maxDistance = 50
+    //controls.noPan = true
+    //controls.noZoom = !this.settings.enableZoom
+    //controls.rotateSpeed = 4.0
+    //controls.zoomSpeed = 2.0
+    //controls.staticMoving = true
 
     // initial render
     function render () {
       // TODO: brush up on JS! why can't we just use this.renderScene for EventListener?
       renderer.render(scene, camera)
+      labelRenderer.render(scene, camera)
     }
     render()
 
@@ -129,8 +146,10 @@ export default class Simple3DScene {
       const height = canvas.parentElement.clientHeight | 0
       if (canvas.width !== width || canvas.height !== height) {
         renderer.setSize(width, height, true)
+        labelRenderer.setSize(width, height)
       }
       renderer.render(scene, camera)
+      labelRenderer.render(scene, camera)
     }
 
     window.addEventListener('resize', resizeRendererToDisplaySize, false)
@@ -181,6 +200,11 @@ export default class Simple3DScene {
         } else {
           const new_parent = new THREE.Object3D()
           new_parent.name = sub_o.name
+          if (sub_o.hasOwnProperty("origin")) {
+            const translation = new THREE.Matrix4()
+            translation.makeTranslation(...sub_o.origin)
+            new_parent.applyMatrix(translation)
+          }
           parent.add(new_parent)
           traverse_scene(sub_o, new_parent, self)
         }
@@ -209,6 +233,15 @@ export default class Simple3DScene {
     this.camera.updateProjectionMatrix()
     this.camera.updateMatrix()
     this.renderScene()
+
+    // we can automatically output a screenshot to be the background of the parent div
+    // this helps for automated testing, printing the web page, etc.
+    if (!this.settings.transparentBackground) {
+      this.renderer.domElement.parentElement.style.backgroundSize = '100%'
+      this.renderer.domElement.parentElement.style.backgroundRepeat = 'no-repeat'
+      this.renderer.domElement.parentElement.style.backgroundPosition = 'center'
+      this.renderer.domElement.parentElement.style.backgroundImage = "url('" + this.renderer.domElement.toDataURL('image/png') + "')"
+    }
   }
 
   makeLights (light_json) {
@@ -443,12 +476,12 @@ export default class Simple3DScene {
 
         const mesh = new THREE.Mesh(geom, mat)
         obj.add(mesh)
-        // TODO smooth the surfaces?
+        // TODO: smooth the surfaces?
         return obj
       }
       case 'convex': {
         const points = object_json.positions.map(p => new THREE.Vector3(...p))
-        const geom = new THREE.ConvexBufferGeometry(points)
+        const geom = new ConvexBufferGeometry(points)
 
         const opacity =
           object_json.opacity || this.settings.defaultSurfaceOpacity
@@ -489,7 +522,6 @@ export default class Simple3DScene {
         const mat = this.makeMaterial(object_json.color)
 
         const vec_y = new THREE.Vector3(0, 1, 0) // initial axis of cylinder
-        const vec_z = new THREE.Vector3(0, 0, 1) // initial axis of cylinder
         const quaternion = new THREE.Quaternion()
         const quaternion_head = new THREE.Quaternion()
 
@@ -526,8 +558,17 @@ export default class Simple3DScene {
         return obj
       }
       case 'labels': {
-        // Not implemented
-        // THREE.CSS2DObject see https://github.com/mrdoob/three.js/blob/master/examples/css2d_label.html
+        const label = document.createElement('div')
+        label.className = 'tooltip'
+        label.textContent = object_json.label
+        if (object_json.hoverLabel) {
+          const hoverLabel = document.createElement('span')
+          hoverLabel.textContent = object_json.hoverLabel
+          hoverLabel.className = 'tooltiptext'
+          label.appendChild(hoverLabel)
+        }
+        const labelObject = new CSS2DObject(label)
+        obj.add(labelObject)
         return obj
       }
       default: {
@@ -568,6 +609,7 @@ export default class Simple3DScene {
 
   renderScene () {
     this.renderer.render(this.scene, this.camera)
+    this.labelRenderer.render(this.scene, this.camera)
   }
 
   toggleVisibility (namesToVisibility) {
@@ -594,9 +636,10 @@ export default class Simple3DScene {
     raycaster.setFromCamera(mouse, this.camera)
 
     // Three.js objects with click handlers we are interested in
-    var intersects = raycaster.intersectObjects(this.clickable_objects)
+    const intersects = raycaster.intersectObjects(this.clickable_objects)
 
     if (intersects.length > 0) {
+      console.log('intersects', intersects[0].object.reference)
       return intersects[0].object.reference
     }
 

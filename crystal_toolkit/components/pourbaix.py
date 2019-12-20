@@ -42,9 +42,7 @@ class PourbaixDiagramComponent(MPComponent):
             self.create_store("concentration-slider-{}-div".format(index))
 
         self.create_store("conc_dict")
-        self.create_store(
-            "pourbaix_diagram", initial_data=self.to_data(pourbaix_diagram)
-        )
+        self.create_store("pourbaix_diagram", initial_data=pourbaix_diagram)
 
     default_plot_style = dict(
         xaxis={
@@ -298,7 +296,7 @@ class PourbaixDiagramComponent(MPComponent):
         return clean_formula
 
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         options = html.Div(
             [
@@ -307,6 +305,7 @@ class PourbaixDiagramComponent(MPComponent):
                     value=["filter_solids", "show_labels"],
                     id=self.id("pourbaix_diagram_options"),
                     style={"display": "inline-block"},
+                    inputClassName="mpc-radio",
                 ),
                 dcc.Checklist(
                     options=[
@@ -316,6 +315,7 @@ class PourbaixDiagramComponent(MPComponent):
                     value=["show_labels"],
                     id=self.id("pourbaix_display_options"),
                     style={"display": "inline-block"},
+                    inputClassName="mpc-radio",
                 ),
             ],
             style={"width": WIDTH, "display": "inline-block"},
@@ -360,12 +360,12 @@ class PourbaixDiagramComponent(MPComponent):
         return {"graph": graph, "options": options, "sliders": sliders}
 
     @property
-    def standard_layout(self):
+    def layout(self):
         return html.Div(
             children=[
-                self.all_layouts["options"],
-                self.all_layouts["sliders"],
-                self.all_layouts["graph"],
+                self._sub_layouts["options"],
+                self._sub_layouts["sliders"],
+                self._sub_layouts["graph"],
             ]
         )
 
@@ -494,7 +494,7 @@ class PourbaixDiagramComponent(MPComponent):
                 filter_solids=filter_solids,
             )
             self.logger.debug("Generated pourbaix diagram")
-            return self.to_data(pourbaix_diagram)
+            return pourbaix_diagram
 
         # Add arbitrary chemsys?
         @app.callback(
@@ -530,7 +530,7 @@ class PourbaixDiagramComponent(MPComponent):
             with MPRester() as mpr:
                 pourbaix_entries = mpr.get_pourbaix_entries(chemsys)
 
-            return self.to_data(pourbaix_entries)
+            return pourbaix_entries
 
         # This is a hacked way of getting concentration, but haven't found a more sane fix
         # Basically creates 3 persistent sliders and updates the concentration according to
@@ -586,7 +586,7 @@ class PourbaixDiagramComponent(MPComponent):
             }
             conc_text = ["{}: {} M".format(k, v) for k, v in conc_dict.items()]
             conc_text += [""] * (SUPPORTED_N_ELEMENTS - len(pbx_elts))
-            return [self.to_data(conc_dict)] + conc_text
+            return [conc_dict] + conc_text
 
 
 class PourbaixDiagramPanelComponent(PanelComponent):
@@ -607,4 +607,4 @@ class PourbaixDiagramPanelComponent(PanelComponent):
         )
 
     def update_contents(self, new_store_contents, *args):
-        return self.pourbaix_component.standard_layout
+        return self.pourbaix_component.layout

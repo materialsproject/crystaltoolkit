@@ -1,0 +1,7 @@
+crystal\_toolkit.components.symmetry module
+===========================================
+
+.. automodule:: crystal_toolkit.components.symmetry
+   :members:
+   :undoc-members:
+   :show-inheritance:

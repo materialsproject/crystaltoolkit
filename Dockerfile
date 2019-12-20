@@ -26,4 +26,4 @@ ENV CRYSTAL_TOOLKIT_DEBUG_MODE=False
 ADD . /home/project/dash_app
 
 EXPOSE 8000
-CMD gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 app:server
+CMD gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 crystal_toolkit.apps.main_app:server

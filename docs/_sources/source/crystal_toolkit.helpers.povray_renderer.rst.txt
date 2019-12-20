@@ -1,0 +1,7 @@
+crystal\_toolkit.helpers.povray\_renderer module
+================================================
+
+.. automodule:: crystal_toolkit.helpers.povray_renderer
+   :members:
+   :undoc-members:
+   :show-inheritance:
