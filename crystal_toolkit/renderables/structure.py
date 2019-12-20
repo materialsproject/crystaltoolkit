@@ -10,7 +10,7 @@ def get_scene_from_structure(self,
                              **kwargs):
     radii = SMC._get_display_radii_for_sites(self, radius_strategy='uniform')
     colors, legend = SMC._get_display_colors_and_legend_for_sites(
-        self, {})
+        self, {}, color_scheme="VESTA")
     origin = SMC._get_origin(self)
     self.add_site_property("display_radius", radii)
     self.add_site_property("display_color", colors)
