@@ -5,60 +5,228 @@ from datetime import datetime
 from json import dumps, loads
 from time import mktime
 from warnings import warn
+import dash
 
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Output, Input, State
-from monty.json import MontyEncoder, MontyDecoder
-from pymatgen import MPRester
+from monty.json import MontyEncoder, MontyDecoder, MSONable
+
+from crystal_toolkit import __version__ as ct_version
 
 from flask_caching import Cache
+
+from collections import defaultdict
+from itertools import chain
+
+from typing import Optional, Union, Dict, List, Set
+from typing_extensions import Literal
+
+from functools import wraps
 
 # fallback cache if Redis etc. isn't set up
 null_cache = Cache(config={"CACHE_TYPE": "null"})
 
+# Crystal Toolkit namespace, added to the start of all ids
+# so we can see which layouts have been added by Crystal Toolkit
+CT_NAMESPACE = "_ct_"
+
 
 class MPComponent(ABC):
+    """
+    The abstract base class for an MPComponent. MPComponent
+    is designed to help render an MSONable object.
+    """
 
-    _app_stores = []
+    # reference to global Dash app
     app = None
+
+    # reference to Flask cache
     cache = null_cache
 
-    @staticmethod
-    def register_app(app):
-        MPComponent.app = app
+    # used to track all dcc.Stores required for all MPComponents to work
+    # keyed by the MPComponent id
+    _app_stores_dict: Dict[str, List[dcc.Store]] = defaultdict(list)
+
+    # used to track what individual Dash components are defined
+    # by this MPComponent
+    _all_id_basenames: Set[str] = set()
+
+    # used to track what callbacks have been generated
+    _callbacks_generated_for_ids: Set[str] = set()
+
+    # used to defer generation of callbacks until app.layout defined
+    # can be helpful to callback exceptions retained
+    _callbacks_to_generate: Set["MPComponent"] = set()
 
     @staticmethod
-    def register_cache(cache):
+    def register_app(app: dash.Dash):
+        """
+        This method must be called at least once in your Crystal
+        Toolkit Dash app if you want to enable interactivity with the
+        MPComponents. The "app" variable is a special global
+        variable used by Dash/Flask, and registering it with
+        MPComponent allows callbacks to be registered with the
+        app on instantiation.
+
+        Args:
+            app: a Dash app instance
+        """
+        MPComponent.app = app
+        # add metadata
+        app.config.meta_tags.append(
+            {
+                "name": "generator",
+                "content": f"Crystal Toolkit {ct_version} (Materials Project)",
+            }
+        )
+
+    @staticmethod
+    def register_cache(cache: Cache):
+        """
+        This method must be called at least once in your
+        Crystal Toolkit Dash app if you want to enable
+        callback caching. Callback caching is one of the
+        easiest ways to see significant performance
+        improvements, especially for callbacks that are
+        computationally expensive.
+
+        Args:
+            cache: a flask_caching Cache instance
+        """
         MPComponent.cache = cache
 
+    # TODO: move these to a Crystal Toolkit singleton (?)
     @staticmethod
-    def all_app_stores():
-        return html.Div(MPComponent._app_stores)
+    def crystal_toolkit_layout(layout: html.Div) -> html.Div:
+
+        if not MPComponent.app:
+            raise ValueError(
+                "Please register the Dash app with Crystal Toolkit "
+                "using register_app()."
+            )
+
+        layout_str = str(layout)
+        stores_to_add = []
+        for basename in MPComponent._all_id_basenames:
+            if basename in layout_str:
+                stores_to_add += MPComponent._app_stores_dict[basename]
+        layout.children += stores_to_add
+
+        # set app.layout to layout so that callbacks can be validated
+        MPComponent.app.layout = layout
+
+        for component in MPComponent._callbacks_to_generate:
+            if component.id() not in MPComponent._callbacks_generated_for_ids:
+                component.generate_callbacks(MPComponent.app, MPComponent.cache)
+                MPComponent._callbacks_generated_for_ids.add(component.id())
+
+        return layout
+
+    @staticmethod
+    def all_app_stores() -> html.Div:
+        """
+        This must be included somewhere in your
+        Crystal Toolkit Dash app's layout for
+        interactivity to work. This is a hidden element
+        that contains the MSON for each MPComponent.
+
+        Returns: a html.Div Dash Layout
+        """
+        return html.Div(
+            list(chain.from_iterable(MPComponent._app_stores_dict.values()))
+        )
 
     def __init__(
         self,
-        contents=None,
-        id=None,
-        origin_component=None,
-        storage_type="memory",
-        static=False,
+        default_data: Optional[MSONable] = None,
+        id: Optional[str] = None,
+        links: Optional[Dict[str, str]] = None,
+        origin_component: Optional["MPComponent"] = None,
+        storage_type: Literal["memory", "local", "session"] = "memory",
+        disable_callbacks: bool = False,
     ):
         """
-        :param id: a unique id for this component, if not specified a random
-        one will be chosen
-        :param origin_component: if specified, component will reference the
-        Store in the origin MPComponent instead of creating its own Store
-        :param contents: an object that can be serialized using the MSON
-        protocol, can be set to None initially
+        The abstract base class for an MPComponent.
+
+        The MPComponent is designed to help render any MSONable object,
+        for example many of the objects in pymatgen (Structure, PhaseDiagram, etc.)
+
+        To instantiate an MPComponent, you will need to create it outside
+        of your Dash app layout:
+
+        my_component = MPComponent(my_msonable_object)
+
+        Then, inside the app.layout, you can include the component's layout
+        anywhere you choose: my_component.layout
+
+        If you want the layouts to be interactive, i.e. to respond to callbacks,
+        you have to also use the MPComponent.register_app(app) method in your app,
+        and also include MPComponent.all_app_stores in your app.layout (an
+        invisible layout that contains the MSON itself).
+
+        If you do not want the layouts to be interactive, set disable_callbacks
+        to True to prevent errors.
+
+        If including multiple MPComponents of the same type, make sure
+        to set the id field to a unique value, as you would in any other
+        Dash component.
+
+        When sub-classing MPComponent, the most important methods to implement
+        are _sub_layouts and generate_callbacks().
+
+        Args:
+            default_data: inital contents for the component, can be None
+            id: a unique id, required if multiple of the same type of
+            MPComponent are included in an app
+            links: if set, will set store contents from the stores of another
+            component to reduce unnecessary callbacks and duplication of data,
+            note that links are one directional only and specific the origin
+            stores, e.g. set {"default": my_other_component.id()} to fill this
+            component's default store contents from the other component's default store,
+            or {"graph": my_other_component.id("graph")} to fill this component's
+            "graph" store from another component's "graph" store
+            origin_component: if set, will fill contents using the contents
+            of the origin_component, can be useful to chain together multiple
+            components without creating unnecessary duplication of contents
+            storage_type: whether to persist contents of component through
+            browser refresh or browser sessions, use with caution, defaults
+            to "memory" so component store will be emptied on refresh, see
+            dcc.Store documentation for more information
+            disable_callbacks: if True, will not generate callbacks, useful
+            for static layouts or returning new MPComponents dynamically where
+            generating callbacks are not possible due to limitations of Dash
         """
 
+        # ensure ids are unique
+        # Note: shadowing Python built-in here, but only because Dash does it...
         if id is None:
-            id = self.__class__.__name__
+            counter = 0
+            test_id = f"{CT_NAMESPACE}{self.__class__.__name__}"
+            while test_id not in MPComponent._all_id_basenames:
+                if counter != 0:
+                    test_id = f"{CT_NAMESPACE}{self.__class__.__name__}_{counter}"
+                counter += 1
+                if test_id not in MPComponent._all_id_basenames:
+                    id = test_id
+                    MPComponent._all_id_basenames.add(test_id)
+        else:
+            id = f"{CT_NAMESPACE}{id}"
+            MPComponent._all_id_basenames.add(id)
 
         self._id = id
         self._all_ids = set()
         self._stores = {}
+        self._initial_data = {}
+
+        self.links = links or {}
+
+        if self.links and not MPComponent.app:
+            raise ValueError(
+                "Can only link stores if an app is registered. Either register the "
+                "global Dash app variable with Crystal Toolkit, or remove links and "
+                "run with disable_callbacks=True."
+            )
 
         if MPComponent.app is None:
             warn(
@@ -75,61 +243,85 @@ class MPComponent(ABC):
             )
 
         if origin_component is None:
-            self._canonical_store_id = self._id
             self.create_store(
-                name="default", initial_data=contents, storage_type=storage_type
+                name="default", initial_data=default_data, storage_type=storage_type
             )
-            self.initial_data = self.to_data(contents)
+            self.links["default"] = self.id()
         else:
-            if MPComponent.app is None:
-                raise ValueError("Can only link stores if an app is defined.")
-            self._canonical_store_id = origin_component._canonical_store_id
-            self.initial_data = origin_component.initial_data
+            print("origin component deprecated", self.id())
+            self.links["default"] = origin_component.links["default"]
 
-        if MPComponent.app and not static:
-            self.generate_callbacks(MPComponent.app, MPComponent.cache)
+        if not disable_callbacks:
+            # callbacks generated as final step by crystal_toolkit_layout()
+            self._callbacks_to_generate.add(self)
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def id(self, name="default"):
+    def id(self, name: str = "default") -> str:
+        """
+        Generate an id from a name combined with the
+        base id of the MPComponent itself, useful for generating
+        ids of individual components in the layout.
+
+        Args:
+            name: e.g. "default"
+
+        Returns: e.g. "MPComponent_default"
+        """
+
+        # if we're linking to another component, return that id
+        if name in self.links:
+            return self.links[name]
+
+        # otherwise create a new id
+        self._all_ids.add(name)
         if name != "default":
             name = f"{self._id}_{name}"
         else:
-            name = self._canonical_store_id
-        self._all_ids.add(name)
+            name = f"{self._id}"
         return name
 
     def create_store(
         self,
-        name,
-        initial_data=None,
-        storage_type="memory",
-        debug_clear=False,
-        to_data=True,
+        name: str,
+        initial_data: Optional[Union[MSONable, Dict, str]] = None,
+        storage_type: Literal["memory", "local", "session"] = "memory",
+        debug_clear: bool = False,
     ):
+        """
+        Generate a dcc.Store to hold something (MSONable object, Dict
+        or string), and register it so that it will be included in the
+        Dash app automatically.
+
+        Args:
+            name: name for the store
+            initial_data: initial data to include
+            storage_type: as in dcc.Store
+            debug_clear: set to True to empty the store if using
+            persistent storage
+        """
+
+        # if we're linking to another component, do not create a new store
+        if name in self.links:
+            return
+
         store = dcc.Store(
             id=self.id(name),
-            data=self.to_data(initial_data) if to_data else initial_data,
+            data=initial_data,
             storage_type=storage_type,
             clear_data=debug_clear,
         )
         self._stores[name] = store
-        MPComponent._app_stores.append(store)
+        self._initial_data[name] = initial_data
+        MPComponent._app_stores_dict[self.id()].append(store)
 
-    @staticmethod
-    def to_data(msonable_obj):
+    @property
+    def initial_data(self):
         """
-        Converts any MSONable object into a format suitable for storing in
-        a dcc.Store data prop
-
-        :param msonable_obj: Any MSONable object
-        :return: A JSON string (a string is preferred over a dict since this can
-        be easily memoized)
+        :return: Initial data for all the stores defined by component,
+        keyed by store name.
         """
-        if msonable_obj is None:
-            return None
-        data_str = dumps(msonable_obj, cls=MontyEncoder, indent=4)
-        return data_str
+        return self._initial_data
 
     @staticmethod
     def from_data(data):
@@ -138,7 +330,7 @@ class MPComponent(ABC):
         :param data: contents of a dcc.Store created by to_data
         :return: a Python object
         """
-        return loads(data, cls=MontyDecoder)
+        return loads(dumps(data), cls=MontyDecoder)
 
     def attach_from(
         self, origin_component, origin_store_name="default", this_store_name="default"
@@ -155,6 +347,7 @@ class MPComponent(ABC):
         origin_store_suffix
         :return:
         """
+        print("attach_from deprecated", self.id())
 
         if MPComponent.app is None:
             raise AttributeError("No app defined, callbacks cannot be created.")
@@ -172,43 +365,46 @@ class MPComponent(ABC):
             [State(origin_store_id, "data")],
         )
         def update_store(modified_timestamp, data):
+            # TODO: make clientside callback!
             return data
 
-    def __getattr__(self, item):
-        # TODO: remove, this isn't helpful (or add autocomplete)
-        if item == "supported_stores":
-            raise AttributeError  # prevent infinite recursion
-        if item.endswith("store") and item.split("_store")[0] in self.supported_stores:
-            return self.id(item)
-        elif (
-            item.endswith("layout")
-            and item.split("_layout")[0] in self.supported_layouts
-        ):
-            return self.all_layouts[item.split("_layout")[0]]
-        else:
-            raise AttributeError
+    @property
+    def all_stores(self) -> List[str]:
+        """
+        :return: List of all store ids generated by this component
+        """
+        return list(self._stores.keys())
 
     @property
-    def supported_stores(self):
-        return self._stores.keys()
-
-    @property
-    def supported_layouts(self):
-        return self.all_layouts.keys()
-
-    @property
-    def supported_ids(self):
-        return list(self._all_ids)
+    def all_ids(self) -> List[str]:
+        """
+        :return: List of all ids generated by this component
+        """
+        return list(
+            [
+                component_id
+                for component_id in self._all_ids
+                if component_id not in self.all_stores
+            ]
+        )
 
     def __repr__(self):
-        return f"""{self.id()}<{self.__class__.__name__}>
-IDs: {list(self.supported_ids)}
-Stores: {list(self.supported_stores)}
-Layouts: {list(self.supported_layouts)}"""
+        ids = "\n".join(
+            [f"* {component_id}  " for component_id in sorted(self.all_ids)]
+        )
+        stores = "\n".join([f"* {store}  " for store in sorted(self.all_stores)])
+        layouts = "\n".join(
+            [f"* {layout}  " for layout in sorted(self._sub_layouts.keys())]
+        )
+
+        return f"""{self.id()}<{self.__class__.__name__}>  \n
+IDs:  \n{ids}  \n
+Stores:  \n{stores}  \n
+Sub-layouts:  \n{layouts}"""
 
     @property
     @abstractmethod
-    def all_layouts(self):
+    def _sub_layouts(self):
         """
         Layouts associated with this component.
 
@@ -237,12 +433,12 @@ Layouts: {list(self.supported_layouts)}"""
         return {}
 
     @property
-    def standard_layout(self):
+    def layout(self):
         """
-        :return: A Dash layout for the full component, for example including
-        both the main component and controls for that component. Must
+        :return: A Dash layout for the full component. Basic implementation
+        provided, but should in general be overridden.
         """
-        return html.Div(list(self.all_layouts.values()))
+        return html.Div(list(self._sub_layouts.values()))
 
     @abstractmethod
     def generate_callbacks(self, app, cache):
@@ -253,10 +449,3 @@ Layouts: {list(self.supported_layouts)}"""
         times, but it's important the callbacks are defined on the server.
         """
         raise NotImplementedError
-
-    @staticmethod
-    def get_time() -> float:
-        """
-        :return: Current time as a float. Use with caution!
-        """
-        return mktime(datetime.now().timetuple())

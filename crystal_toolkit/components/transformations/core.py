@@ -27,7 +27,7 @@ class TransformationComponent(MPComponent):
         self.enabled = False
 
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         enable = dcc.Checklist(
             options=[{"label": "Enable transformation", "value": "enable"}],
@@ -108,13 +108,11 @@ class TransformationComponent(MPComponent):
 
             try:
                 trans = self.transformation(*args, **kwargs)
-                data = self.to_data(trans)
                 error = None
             except Exception as exception:
-                data = None
                 error = str(exception)
 
-            return {"data": data, "error": error}
+            return {"data": trans, "error": error}
 
         @app.callback(
             [
@@ -147,8 +145,8 @@ class AllTransformationsComponent(MPComponent):
         self.create_store("out")
 
     @property
-    def all_layouts(self):
-        layouts = super().all_layouts
+    def _sub_layouts(self):
+        layouts = super()._sub_layouts
 
         all_transformations = html.Div(
             [
@@ -174,7 +172,7 @@ class AllTransformationsComponent(MPComponent):
         return layouts
 
     @property
-    def standard_layout(self):
+    def layout(self):
 
         return html.Div(
             [
@@ -247,13 +245,11 @@ class AllTransformationsComponent(MPComponent):
                     transformations.append(transformation["data"])
 
             if not transformations:
-                return self.to_data(struct), html.Div()
+                return struct, html.Div()
 
             for transformation_data in transformations:
 
-                struct, error = apply_transformation(
-                    transformation_data, self.to_data(struct)
-                )
+                struct, error = apply_transformation(transformation_data, struct)
 
                 if error:
                     errors += error
@@ -287,7 +283,7 @@ class AllTransformationsComponent(MPComponent):
                     ]
                 )
 
-            return self.to_data(struct), error_msg
+            return struct, error_msg
 
         # callback to take all transformations
         # and also state of which transformations are user-visible (+ their order)

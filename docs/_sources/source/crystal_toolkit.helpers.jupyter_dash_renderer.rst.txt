@@ -1,0 +1,7 @@
+crystal\_toolkit.helpers.jupyter\_dash\_renderer module
+=======================================================
+
+.. automodule:: crystal_toolkit.helpers.jupyter_dash_renderer
+   :members:
+   :undoc-members:
+   :show-inheritance:

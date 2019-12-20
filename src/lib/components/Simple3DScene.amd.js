@@ -1,11 +1,11 @@
-define(['exports', 'three-full'], function (exports, _threeFull) {
+define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/TrackballControls.js', '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js', '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js'], function (exports, _three, _TrackballControls, _ConvexGeometry, _CSS2DRenderer) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
 
-  var THREE = _interopRequireWildcard(_threeFull);
+  var THREE = _interopRequireWildcard(_three);
 
   function _interopRequireWildcard(obj) {
     if (obj && obj.__esModule) {
@@ -67,14 +67,14 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
       this.start = this.start.bind(this);
       this.stop = this.stop.bind(this);
       this.animate = this.animate.bind(this);
-      // var modifier = new THREE.SubdivisionModifier( 2 );
 
       var defaults = {
         shadows: true,
         antialias: true,
-        transparent_background: true,
+        transparentBackground: false,
+        background: '#ffffff',
         sphereSegments: 32,
-        cylinderSegments: 8,
+        cylinderSegments: 16,
         staticScene: true,
         sphereScale: 1.0,
         cylinderScale: 1.0,
@@ -111,7 +111,7 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
 
       var renderer = new THREE.WebGLRenderer({
         antialias: this.settings.antialias,
-        alpha: this.settings.transparent_background,
+        alpha: this.settings.transparentBackground,
         gammaInput: true,
         gammaOutput: true,
         gammaFactor: 2.2,
@@ -121,11 +121,21 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
       this.renderer = renderer;
 
       renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setClearColor(0xffffff, 0);
       renderer.setSize(width, height);
       dom_elt.appendChild(renderer.domElement);
 
+      var labelRenderer = new _CSS2DRenderer.CSS2DRenderer();
+      this.labelRenderer = labelRenderer;
+      labelRenderer.setSize(width, height);
+      labelRenderer.domElement.style.position = 'relative';
+      labelRenderer.domElement.style.top = '-' + height + 'px';
+      labelRenderer.domElement.style.pointerEvents = 'none';
+      dom_elt.appendChild(labelRenderer.domElement);
+
       var scene = new THREE.Scene();
+      if (!this.settings.transparentBackground) {
+        scene.background = new THREE.Color(this.settings.background);
+      }
       this.scene = scene;
 
       // Camera
@@ -147,17 +157,21 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
       var lights = this.makeLights(this.settings.lights);
       camera.add(lights);
 
-      var controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+      var controls = new _TrackballControls.TrackballControls(this.camera, this.renderer.domElement);
       controls.enableKeys = false;
-      controls.minZoom = 2;
-      controls.maxZoom = 100;
-      controls.enablePan = false;
-      controls.enableZoom = this.settings.enableZoom;
+      //controls.minDistance = 20
+      //controls.maxDistance = 50
+      //controls.noPan = true
+      //controls.noZoom = !this.settings.enableZoom
+      //controls.rotateSpeed = 4.0
+      //controls.zoomSpeed = 2.0
+      //controls.staticMoving = true
 
       // initial render
       function render() {
         // TODO: brush up on JS! why can't we just use this.renderScene for EventListener?
         renderer.render(scene, camera);
+        labelRenderer.render(scene, camera);
       }
       render();
 
@@ -175,8 +189,10 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
         var height = canvas.parentElement.clientHeight | 0;
         if (canvas.width !== width || canvas.height !== height) {
           renderer.setSize(width, height, true);
+          labelRenderer.setSize(width, height);
         }
         renderer.render(scene, camera);
+        labelRenderer.render(scene, camera);
       }
 
       window.addEventListener('resize', resizeRendererToDisplaySize, false);
@@ -231,6 +247,11 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
             } else {
               var new_parent = new THREE.Object3D();
               new_parent.name = sub_o.name;
+              if (sub_o.hasOwnProperty("origin")) {
+                var translation = new THREE.Matrix4();
+                translation.makeTranslation.apply(translation, _toConsumableArray(sub_o.origin));
+                new_parent.applyMatrix(translation);
+              }
               parent.add(new_parent);
               traverse_scene(sub_o, new_parent, self);
             }
@@ -254,6 +275,15 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
         this.camera.updateProjectionMatrix();
         this.camera.updateMatrix();
         this.renderScene();
+
+        // we can automatically output a screenshot to be the background of the parent div
+        // this helps for automated testing, printing the web page, etc.
+        if (!this.settings.transparentBackground) {
+          this.renderer.domElement.parentElement.style.backgroundSize = '100%';
+          this.renderer.domElement.parentElement.style.backgroundRepeat = 'no-repeat';
+          this.renderer.domElement.parentElement.style.backgroundPosition = 'center';
+          this.renderer.domElement.parentElement.style.backgroundImage = "url('" + this.renderer.domElement.toDataURL('image/png') + "')";
+        }
       }
     }, {
       key: 'makeLights',
@@ -469,7 +499,7 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
 
               var _mesh = new THREE.Mesh(_geom5, _mat5);
               obj.add(_mesh);
-              // TODO smooth the surfaces?
+              // TODO: smooth the surfaces?
               return obj;
             }
           case 'convex':
@@ -477,7 +507,7 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
               var points = object_json.positions.map(function (p) {
                 return new (Function.prototype.bind.apply(THREE.Vector3, [null].concat(_toConsumableArray(p))))();
               });
-              var _geom6 = new THREE.ConvexBufferGeometry(points);
+              var _geom6 = new _ConvexGeometry.ConvexBufferGeometry(points);
 
               var _opacity = object_json.opacity || this.settings.defaultSurfaceOpacity;
               var _mat6 = this.makeMaterial(object_json.color, _opacity);
@@ -510,7 +540,6 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
               var _mat7 = this.makeMaterial(object_json.color);
 
               var _vec_y = new THREE.Vector3(0, 1, 0); // initial axis of cylinder
-              var _vec_z = new THREE.Vector3(0, 0, 1); // initial axis of cylinder
               var _quaternion2 = new THREE.Quaternion();
               var quaternion_head = new THREE.Quaternion();
 
@@ -548,8 +577,17 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
             }
           case 'labels':
             {
-              // Not implemented
-              // THREE.CSS2DObject see https://github.com/mrdoob/three.js/blob/master/examples/css2d_label.html
+              var label = document.createElement('div');
+              label.className = 'tooltip';
+              label.textContent = object_json.label;
+              if (object_json.hoverLabel) {
+                var hoverLabel = document.createElement('span');
+                hoverLabel.textContent = object_json.hoverLabel;
+                hoverLabel.className = 'tooltiptext';
+                label.appendChild(hoverLabel);
+              }
+              var labelObject = new _CSS2DRenderer.CSS2DObject(label);
+              obj.add(labelObject);
               return obj;
             }
           default:
@@ -597,6 +635,7 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
       key: 'renderScene',
       value: function renderScene() {
         this.renderer.render(this.scene, this.camera);
+        this.labelRenderer.render(this.scene, this.camera);
       }
     }, {
       key: 'toggleVisibility',
@@ -628,6 +667,7 @@ define(['exports', 'three-full'], function (exports, _threeFull) {
         var intersects = raycaster.intersectObjects(this.clickable_objects);
 
         if (intersects.length > 0) {
+          console.log('intersects', intersects[0].object.reference);
           return intersects[0].object.reference;
         }
 

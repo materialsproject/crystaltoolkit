@@ -70,7 +70,7 @@ class FavoritesComponent(MPComponent):
         )
 
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         self.favorite_button = Button(
             [Icon(kind="heart", fill="r"), html.Span("Favorite")],

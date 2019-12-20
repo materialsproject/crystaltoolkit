@@ -1,0 +1,7 @@
+crystal\_toolkit.renderables.moleculegraph module
+=================================================
+
+.. automodule:: crystal_toolkit.renderables.moleculegraph
+   :members:
+   :undoc-members:
+   :show-inheritance:

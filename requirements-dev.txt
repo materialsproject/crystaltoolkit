@@ -2,3 +2,6 @@ black
 pre-commit
 dash[testing]
 pytest
+sphinx
+sphinx_rtd_theme
+recommonmark

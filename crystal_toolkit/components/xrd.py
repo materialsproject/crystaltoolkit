@@ -120,7 +120,7 @@ class XRayDiffractionComponent(MPComponent):
         )  # Scherrer equation for half-width half max
 
     @property
-    def all_layouts(self):
+    def _sub_layouts(self):
 
         # Main plot
         graph = html.Div(
@@ -211,18 +211,18 @@ class XRayDiffractionComponent(MPComponent):
         }
 
     @property
-    def standard_layout(self):
+    def layout(self):
         return html.Div(
             [
                 Columns(
                     [
-                        Column([self.all_layouts["graph"]], size=8),
+                        Column([self._sub_layouts["graph"]], size=8),
                         Column(
                             [
-                                self.all_layouts["rad_source"],
-                                self.all_layouts["shape_factor"],
-                                self.all_layouts["peak_profile"],
-                                self.all_layouts["crystallite_size"],
+                                self._sub_layouts["rad_source"],
+                                self._sub_layouts["shape_factor"],
+                                self._sub_layouts["peak_profile"],
+                                self._sub_layouts["crystallite_size"],
                             ],
                             size=4,
                         ),
@@ -346,7 +346,7 @@ class XRayDiffractionComponent(MPComponent):
         def update_kwargs(rad_source, xrdcalculator_kwargs):
             xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
             xrdcalculator_kwargs["wavelength"] = rad_source
-            return self.to_data(xrdcalculator_kwargs)
+            return xrdcalculator_kwargs
 
         @app.callback(
             Output(self.id("crystallite-input"), "children"),
@@ -371,7 +371,7 @@ class XRayDiffractionPanelComponent(PanelComponent2):
         return "Display the powder X-ray diffraction pattern for this structure."
 
     def update_contents(self, new_store_contents, *args):
-        return self.xrd.standard_layout
+        return self.xrd.layout
 
     def generate_callbacks(self, app, cache):
 
@@ -381,4 +381,4 @@ class XRayDiffractionPanelComponent(PanelComponent2):
             Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
         )
         def create_xrd_layout(new_store_contents):
-            return self.xrd.standard_layout
+            return self.xrd.layout
