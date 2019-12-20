@@ -30,6 +30,7 @@ from math import isnan
 from IPython.display import display
 from scipy.spatial.transform import Rotation as R
 from pymatgen import Structure, Molecule
+from pymatgen.analysis.graphs import StructureGraph
 
 import numpy as np
 import warnings
@@ -125,6 +126,10 @@ def convert_object_to_pythreejs(scene_obj):
 
 
 def view(renderable_obj, **kwargs):
+    # convex types are not implemented in threejs 
+    if isinstance(renderable_obj, Structure) or isinstance(renderable_obj, StructureGraph):
+        kwargs['explicitly_calculate_polyhedra_hull'] = True
+        
     display_scene(renderable_obj.get_scene(**kwargs))
 
 def view_old(molecule_or_structure, **kwargs):
