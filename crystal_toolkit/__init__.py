@@ -3,6 +3,7 @@ from __future__ import print_function as _
 import os as _os
 import sys as _sys
 import json
+from collections import defaultdict
 
 import dash as _dash
 
@@ -63,3 +64,12 @@ warnings.warn(
     "Master branch is in undefined state. Please wait for first "
     "versioned release, at which point master branch will be protected."
 )
+
+
+# Populate the default values from the JSON file
+_DEFAULTS = defaultdict(lambda: None)
+default_js = _os.path.join(_os.path.join(_os.path.dirname(
+    _os.path.abspath(__file__))), "./", "defaults.json")
+
+with open(default_js) as handle:
+    _DEFAULTS.update(json.loads(handle.read()))

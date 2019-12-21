@@ -34,32 +34,31 @@ from pymatgen.analysis.graphs import StructureGraph
 
 import numpy as np
 import warnings
-import os
 import json
-from collections import defaultdict
+from crystal_toolkit import _DEFAULTS
 import crystal_toolkit.renderables.structure
 import crystal_toolkit.renderables.volumetric
 from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 import logging
-import warnings
 
 logger = logging.getLogger('crystaltoolkit.pythreejs_renderer')
 
-# Populate the default values from the JSON file
-_DEFAULTS = defaultdict(lambda: None)
-default_js = os.path.join(os.path.join(os.path.dirname(
-    os.path.abspath(__file__))), "../core/", "defaults.json")
-with open(default_js) as handle:
-    _DEFAULTS.update(json.loads(handle.read()))
-
-def update_object_args(d_args, object_name, allowed_args):
-    # read the default values then ovewrite allowed arg values
-    obj_args = dict({
+def update_object_args(d_args, object_name):
+    """Read dafault properties and overwrite them if user input exists
+    
+    Arguments:
+        d_args {Dictionary} -- User defined properties
+        object_name {String} -- Name of object
+    
+    Returns:
+        Dictionary -- Properties of object after userinput and default values are considered
+    """
+    obj_args = {
         k: v
-        for k, v in (_DEFAULTS[object_name] or {}).items() if k in allowed_args
-    })
+        for k, v in (_DEFAULTS['scene'][object_name] or {}).items()
+    }
     obj_args.update({
         k: v
         for k, v in (d_args or {}).items() if k in allowed_args and v != None
@@ -227,19 +226,19 @@ def display_scene(scene):
     display(renderer)
 
 
-def _get_line_from_vec(v0, v1, d_args):
+def _get_line_from_vec(v0, v1, scene_args):
     """Draw the line given the two endpoints, some threejs functionalities still don't work well in pythreejs (unable to update linewidth and such) 
     LineSegments2 is the onlyone that has tested sucessfully but it cannot handle LineDashedMaterial
     
     Args:
         v0 (list): one endpoint of line
         v1 (list): other endpoint of line
-        d_args (dict): properties of the line (line_width and color)
+        scene_args (dict): properties of the line (line_width and color)
     
     Returns:
         LineSegments2: Pythreejs object that displays the line sement
     """
-    obj_args = update_object_args(d_args, "Lines", ['linewidth', 'color'])
+    obj_args = update_object_args(scene_args, "Lines")
     logger.debug(obj_args)
     line = LineSegments2(
         LineSegmentsGeometry(positions=[[v0, v1]]),
@@ -271,7 +270,7 @@ def _get_spheres(ctk_scene):
 
 def _get_surface_from_positions(positions, d_args, draw_edges=False):
     # get defaults
-    obj_args = update_object_args(d_args, "Surfaces", ['color', 'opacity'])
+    obj_args = update_object_args(d_args, "Surfaces")
     num_triangle = len(positions)/3.
     assert(num_triangle.is_integer())
     # make decision on transparency
@@ -325,7 +324,7 @@ def _get_cylinder_from_vec(v0, v1, d_args=None):
     Returns:
         Mesh: Pythreejs object that displays the cylinders
     """
-    obj_args = update_object_args(d_args, "Cylinders", ['radius', 'color'])
+    obj_args = update_object_args(d_args, "Cylinders")
     v0 = np.array(v0)
     v1 = np.array(v1)
     vec = v1 - v0
