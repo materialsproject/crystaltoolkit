@@ -287,3 +287,7 @@ bh_unicode_properties.cache
 GitHub.sublime-settings
 
 assets/.sass-cache/
+
+.vscode/
+./usage/dev.ipynb
+

@@ -12,6 +12,6 @@ def get_scene_from_structure(self,
                                             bonding_strategy=bonding_strategy,
                                             bonding_strategy_kwargs=bonding_strategy_kwargs,
                                             )
-    return sgraph.get_scene(origin=None, **kwargs)
+    return sgraph.get_scene(origin=origin, **kwargs)
 
 Structure.get_scene = get_scene_from_structure

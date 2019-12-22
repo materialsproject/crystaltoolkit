@@ -45,12 +45,13 @@ import logging
 
 logger = logging.getLogger('crystaltoolkit.pythreejs_renderer')
 
-def update_object_args(d_args, object_name):
+def update_object_args(d_args, object_name, allowed_args):
     """Read dafault properties and overwrite them if user input exists
     
     Arguments:
-        d_args {Dictionary} -- User defined properties
-        object_name {String} -- Name of object
+        d_args {dict} -- User defined properties
+        object_name {str} -- Name of object
+        allowed_kwargs {List[str]} -- Used to limit the data that is passed to pythreejs
     
     Returns:
         Dictionary -- Properties of object after userinput and default values are considered
@@ -67,12 +68,17 @@ def update_object_args(d_args, object_name):
 
 
 def traverse_scene_object(scene_data, parent=None):
-    """
-    Recursivesly populate a scene object with tree of children 
-    :param scene_data:
-    :param parent:
-    :return:
-    """
+    """Recursivesly populate a nested Object3D object from pythreejs using the same tree structure from crystaltoolkit (CTK)
+    
+    Arguments:
+        scene_data {CTK.core.scene} -- The content of the current branch of the CTK object
+    
+    Keyword Arguments:
+        parent {Object3D} -- Reference to the parent in the Pythreejs tree (default: {None} means you are at the root)
+    
+    Returns:
+        Object3D -- The current Pythreejs object with all the children fully populated
+    """   
 
     if parent is None:
         # At the tree root
@@ -94,10 +100,15 @@ def traverse_scene_object(scene_data, parent=None):
 
 
 def convert_object_to_pythreejs(scene_obj):
-    """
-    Cases for the conversion
-    :return:
-    """
+    """Convert different primitive geometries of CTK objects to PythreeJS geometry objects
+    
+    Arguments:
+        scene_obj -- Object from crystalltoolkit
+    
+    Returns:
+        List[Object3D] -- List of objects from pythreeJS
+    """    
+
     obs = []
     if scene_obj.type == "spheres":
         obs.extend(_get_spheres(scene_obj))
@@ -128,7 +139,6 @@ def view(renderable_obj, **kwargs):
     # convex types are not implemented in threejs 
     if isinstance(renderable_obj, Structure) or isinstance(renderable_obj, StructureGraph):
         kwargs['explicitly_calculate_polyhedra_hull'] = True
-        
     display_scene(renderable_obj.get_scene(**kwargs))
 
 def view_old(molecule_or_structure, **kwargs):
@@ -193,8 +203,10 @@ def view_old(molecule_or_structure, **kwargs):
 
 
 def display_scene(scene):
-    """
-    :param smc: input structure structure molecule component
+    """Render the scene in the pythreeJS
+    
+    Arguments:
+        scene {Object3D} -- Root node of the PythreeJS object we want to plot
     """
     obs = traverse_scene_object(scene)
     logger.debug(type(obs))
@@ -238,7 +250,7 @@ def _get_line_from_vec(v0, v1, scene_args):
     Returns:
         LineSegments2: Pythreejs object that displays the line sement
     """
-    obj_args = update_object_args(scene_args, "Lines")
+    obj_args = update_object_args(scene_args, "Lines", ['linewidth', 'color'])
     logger.debug(obj_args)
     line = LineSegments2(
         LineSegmentsGeometry(positions=[[v0, v1]]),
@@ -270,7 +282,7 @@ def _get_spheres(ctk_scene):
 
 def _get_surface_from_positions(positions, d_args, draw_edges=False):
     # get defaults
-    obj_args = update_object_args(d_args, "Surfaces")
+    obj_args = update_object_args(d_args, "Surfaces", ['color', 'opacity'])
     num_triangle = len(positions)/3.
     assert(num_triangle.is_integer())
     # make decision on transparency
@@ -324,7 +336,7 @@ def _get_cylinder_from_vec(v0, v1, d_args=None):
     Returns:
         Mesh: Pythreejs object that displays the cylinders
     """
-    obj_args = update_object_args(d_args, "Cylinders")
+    obj_args = update_object_args(d_args, "Cylinders", ['radius', 'color'])
     v0 = np.array(v0)
     v1 = np.array(v1)
     vec = v1 - v0
