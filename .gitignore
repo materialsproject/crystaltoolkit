@@ -289,5 +289,9 @@ GitHub.sublime-settings
 assets/.sass-cache/
 
 .vscode/
-./usage/dev.ipynb
+usage/dev.ipynb
 
+
+tests/test_pythreejs/example.ipynb
+
+tests/test_pythreejs/example2.ipynb
