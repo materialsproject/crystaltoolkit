@@ -42,7 +42,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.14.2",
     "eslint-plugin-standard": "^4.0.0",
-    "npm": "^6.1.0",
+    "npm": "^6.13.4",
     "react": ">=0.14",
     "react-docgen": "^2.20.1",
     "react-dom": ">=0.14",
