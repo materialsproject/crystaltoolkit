@@ -88,6 +88,12 @@ class Scene:
 
         return remove_defaults(asdict(merged_scene))
 
+    def to_plotly_json(self):
+        """
+        Easy way to allow Scene objects to be returned from callbacks.
+        """
+        return self.to_json()
+
     @property
     def bounding_box(self) -> List[List[float]]:
         """
