@@ -25,5 +25,5 @@ def test_structure(dash_duo):
     dash_duo.percy_snapshot("example_structure_primitive_radius_index_2")
 
     assert (
-        dash_duo.get_logs() == []
+        bool(dash_duo.get_logs()) is False
     ), f"Browser console contains an error: {dash_duo.get_logs()}"
