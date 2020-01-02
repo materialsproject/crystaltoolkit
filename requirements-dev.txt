@@ -5,4 +5,4 @@ pytest
 sphinx
 sphinx_rtd_theme
 recommonmark
-selenium>3.141.0
+selenium>=3.141.0
