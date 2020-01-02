@@ -1,6 +1,9 @@
 name: pytest_and_docs
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -16,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install chromium-chromedriver
+        sudo apt-get install firefox-geckodriver
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
@@ -24,7 +27,7 @@ jobs:
       env:
         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       run: |
-        pytest --headless crystal_toolkit/apps/examples/tests/
+        pytest --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
     - name: Build new docs
       run: |
         git config --global user.name 'Matthew Horton'
