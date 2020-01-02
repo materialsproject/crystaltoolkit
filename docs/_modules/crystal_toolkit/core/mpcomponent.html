@@ -577,13 +577,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{}</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MPComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: A Dash layout for the full component. Basic implementation</span>
 <span class="sd">        provided, but should in general be overridden.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div>
 
 <div class="viewcode-block" id="MPComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent.generate_callbacks">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
