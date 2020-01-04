@@ -2,6 +2,9 @@ import * as THREE from 'three'
 import { TrackballControls } from '../../../node_modules/three/examples/jsm/controls/TrackballControls.js'
 import { ConvexBufferGeometry } from '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js'
 import { CSS2DRenderer, CSS2DObject } from '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js'
+import { SVGRenderer } from '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js'
+import { ColladaExporter } from '../../../node_modules/three/examples/jsm/exporters/ColladaExporter'
+import { JSZip } from 'jszip'
 
 export default class Simple3DScene {
   constructor (scene_json, dom_elt, settings) {
@@ -10,9 +13,10 @@ export default class Simple3DScene {
     this.animate = this.animate.bind(this)
 
     const defaults = {
-      shadows: true,
       antialias: true,
       transparentBackground: false,
+      renderer: 'webgl',
+      renderDivBackground: false,
       background: '#ffffff',
       sphereSegments: 32,
       cylinderSegments: 16,
@@ -54,15 +58,19 @@ export default class Simple3DScene {
     const width = dom_elt.clientWidth
     const height = dom_elt.clientHeight
 
-    const renderer = new THREE.WebGLRenderer({
+    let renderer;
+    if (this.settings.renderer === 'webgl') {
+      renderer = new THREE.WebGLRenderer({
       antialias: this.settings.antialias,
       alpha: this.settings.transparentBackground,
       gammaInput: true,
       gammaOutput: true,
-      gammaFactor: 2.2,
-      shadowMapEnabled: this.settings.shadows,
-      shadowMapType: THREE.PCFSoftShadowMap
-    })
+      gammaFactor: 2.2
+      })
+    } else if (this.settings.renderer === 'svg') {
+      renderer = new SVGRenderer()
+    }
+
     this.renderer = renderer
 
     renderer.setPixelRatio(
@@ -116,6 +124,8 @@ export default class Simple3DScene {
       this.renderer.domElement
     )
     controls.enableKeys = false
+
+    // for OrbitControls
     //controls.minDistance = 20
     //controls.maxDistance = 50
     //controls.noPan = true
@@ -163,6 +173,9 @@ export default class Simple3DScene {
       case 'png':
         this.downloadScreenshot(filename)
         break
+      case 'dae':
+        this.downloadCollada(filename);
+        break
       default:
         throw new Error('Unknown filetype.')
     }
@@ -185,6 +198,31 @@ export default class Simple3DScene {
     link.download = filename || 'screenshot.png'
     link.click()
   }
+
+  downloadCollada(filename) {
+     // Adapted from ColladaArchiveExporter from @gkjohnson
+
+     const files = new ColladaExporter().parse(this.scene);
+     const manifest =
+       '<?xml version="1.0" encoding="utf-8"?>' +
+       `<dae_root>./${filename}</dae_root>`;
+
+     const zip = new JSZip();
+     zip.file("manifest.xml", manifest);
+     zip.file(filename, files.data);
+     files.textures.forEach(tex =>
+       zip.file(`${tex.directory}${tex.name}.${tex.ext}`, tex.data)
+     );
+
+     var link = document.createElement("a");
+     link.style.display = "none";
+     document.body.appendChild(link);
+     zip.generateAsync({ type: "base64" }).then(function(base64) {
+       link.href = "data:application/zip;base64," + base64;
+     });
+     link.download = filename || "scene.dae";
+     link.click();
+   }
 
   addToScene (scene_json) {
     Simple3DScene.removeObjectByName(this.scene, scene_json.name)
@@ -236,7 +274,7 @@ export default class Simple3DScene {
 
     // we can automatically output a screenshot to be the background of the parent div
     // this helps for automated testing, printing the web page, etc.
-    if (!this.settings.transparentBackground) {
+    if (this.settings.renderDivBackground) {
       this.renderer.domElement.parentElement.style.backgroundSize = '100%'
       this.renderer.domElement.parentElement.style.backgroundRepeat = 'no-repeat'
       this.renderer.domElement.parentElement.style.backgroundPosition = 'center'
@@ -582,6 +620,10 @@ export default class Simple3DScene {
       color: color || '#52afb0',
       opacity: opacity || 1.0
     })
+
+    if (this.settings.renderer === "svg"){
+      return new THREE.MeshBasicMaterial(parameters)
+    }
 
     switch (this.settings.material.type) {
       case 'MeshStandardMaterial': {

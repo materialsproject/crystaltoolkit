@@ -85,14 +85,12 @@ class StructureMoleculeComponent(MPComponent):
         """
 
         if "pytest" in sys.modules:
-            # For visual diff testing, we set the background of the
-            # Div containing the 3D scene to be an image of the WebGL
-            # viewport, since the canvas contents are not captured by
-            # the test framework. This is wasteful for normal app usage
-            # so is otherwise disabled.
-            self.default_scene_settings["transparentBackground"] = False
+            # For visual diff testing, we change the renderer
+            # to SVG since this WebGL support is more difficult
+            # in headless browsers / CI.
+            self.default_scene_settings["renderer"] = "svg"
         else:
-            self.default_scene_settings["transparentBackground"] = True
+            self.default_scene_settings["renderer"] = "webgl"
 
         super().__init__(
             id=id,
