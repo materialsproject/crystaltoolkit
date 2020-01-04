@@ -4,7 +4,6 @@ import { ConvexBufferGeometry } from '../../../node_modules/three/examples/jsm/g
 import { CSS2DRenderer, CSS2DObject } from '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js'
 import { SVGRenderer } from '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js'
 import { ColladaExporter } from '../../../node_modules/three/examples/jsm/exporters/ColladaExporter'
-import { JSZip } from 'jszip'
 
 export default class Simple3DScene {
   constructor (scene_json, dom_elt, settings) {
@@ -200,26 +199,13 @@ export default class Simple3DScene {
   }
 
   downloadCollada(filename) {
-     // Adapted from ColladaArchiveExporter from @gkjohnson
 
      const files = new ColladaExporter().parse(this.scene);
-     const manifest =
-       '<?xml version="1.0" encoding="utf-8"?>' +
-       `<dae_root>./${filename}</dae_root>`;
-
-     const zip = new JSZip();
-     zip.file("manifest.xml", manifest);
-     zip.file(filename, files.data);
-     files.textures.forEach(tex =>
-       zip.file(`${tex.directory}${tex.name}.${tex.ext}`, tex.data)
-     );
 
      var link = document.createElement("a");
      link.style.display = "none";
      document.body.appendChild(link);
-     zip.generateAsync({ type: "base64" }).then(function(base64) {
-       link.href = "data:application/zip;base64," + base64;
-     });
+     link.href = "data:text/plain;base64," + btoa(files.data);
      link.download = filename || "scene.dae";
      link.click();
    }
