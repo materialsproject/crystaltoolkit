@@ -88,7 +88,7 @@ class StructureMoleculeComponent(MPComponent):
             # For visual diff testing, we change the renderer
             # to SVG since this WebGL support is more difficult
             # in headless browsers / CI.
-            self.default_scene_settings["renderer"] = "svg"
+            self.default_scene_settings["renderer"] = "webgl"
         else:
             self.default_scene_settings["renderer"] = "webgl"
 
@@ -321,7 +321,7 @@ class StructureMoleculeComponent(MPComponent):
                 spgrp = struct_or_mol.get_space_group_info()[0]
             else:
                 spgrp = ""
-            request_filename = "{}-{}-crystal-toolkit.png".format(formula, spgrp)
+            request_filename = "{}-{}-crystal-toolkit.dae".format(formula, spgrp)
             if not current_requests:
                 n_requests = 1
             else:
@@ -329,7 +329,7 @@ class StructureMoleculeComponent(MPComponent):
             return {
                 "n_requests": n_requests,
                 "filename": request_filename,
-                "filetype": "png",
+                "filetype": "dae",
             }
 
         @app.callback(

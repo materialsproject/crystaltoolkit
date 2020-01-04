@@ -1,4 +1,4 @@
-define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/TrackballControls.js', '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js', '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js', '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js', '../../../node_modules/three/examples/jsm/exporters/ColladaExporter', 'jszip'], function (exports, _three, _TrackballControls, _ConvexGeometry, _CSS2DRenderer, _SVGRenderer, _ColladaExporter, _jszip) {
+define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/TrackballControls.js', '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js', '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js', '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js', '../../../node_modules/three/examples/jsm/exporters/ColladaExporter'], function (exports, _three, _TrackballControls, _ConvexGeometry, _CSS2DRenderer, _SVGRenderer, _ColladaExporter) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -244,24 +244,13 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
     }, {
       key: 'downloadCollada',
       value: function downloadCollada(filename) {
-        // Adapted from ColladaArchiveExporter from @gkjohnson
 
         var files = new _ColladaExporter.ColladaExporter().parse(this.scene);
-        var manifest = '<?xml version="1.0" encoding="utf-8"?>' + ('<dae_root>./' + filename + '</dae_root>');
-
-        var zip = new _jszip.JSZip();
-        zip.file("manifest.xml", manifest);
-        zip.file(filename, files.data);
-        files.textures.forEach(function (tex) {
-          return zip.file('' + tex.directory + tex.name + '.' + tex.ext, tex.data);
-        });
 
         var link = document.createElement("a");
         link.style.display = "none";
         document.body.appendChild(link);
-        zip.generateAsync({ type: "base64" }).then(function (base64) {
-          link.href = "data:application/zip;base64," + base64;
-        });
+        link.href = "data:text/plain;base64," + btoa(files.data);
         link.download = filename || "scene.dae";
         link.click();
       }
