@@ -90,7 +90,7 @@ class StructureMoleculeComponent(MPComponent):
             # in headless browsers / CI.
             self.default_scene_settings["renderer"] = "svg"
         else:
-            self.default_scene_settings["renderer"] = "webgl"
+            self.default_scene_settings["renderer"] = "svg"
 
         super().__init__(
             id=id,
