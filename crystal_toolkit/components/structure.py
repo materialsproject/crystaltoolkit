@@ -1,5 +1,5 @@
 import re
-import sys
+import os
 import warnings
 from collections import OrderedDict
 from itertools import combinations_with_replacement, chain
@@ -84,11 +84,11 @@ class StructureMoleculeComponent(MPComponent):
         :param kwargs:
         """
 
-        if "pytest" in sys.modules:
+        if "PYTEST_CURRENT_TEST" in os.environ:
             # For visual diff testing, we change the renderer
             # to SVG since this WebGL support is more difficult
             # in headless browsers / CI.
-            self.default_scene_settings["renderer"] = "webgl"
+            self.default_scene_settings["renderer"] = "svg"
         else:
             self.default_scene_settings["renderer"] = "webgl"
 
@@ -321,7 +321,7 @@ class StructureMoleculeComponent(MPComponent):
                 spgrp = struct_or_mol.get_space_group_info()[0]
             else:
                 spgrp = ""
-            request_filename = "{}-{}-crystal-toolkit.dae".format(formula, spgrp)
+            request_filename = "{}-{}-crystal-toolkit.png".format(formula, spgrp)
             if not current_requests:
                 n_requests = 1
             else:
@@ -329,7 +329,7 @@ class StructureMoleculeComponent(MPComponent):
             return {
                 "n_requests": n_requests,
                 "filename": request_filename,
-                "filetype": "dae",
+                "filetype": "png",
             }
 
         @app.callback(
