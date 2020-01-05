@@ -7,7 +7,7 @@ def test_structure(dash_duo):
     dash_duo.start_server(app)
     dash_duo.clear_storage()
 
-    time.sleep(1)
+    time.sleep(5)
     dash_duo.percy_snapshot("example_structure_on_load")
 
     # test changing radius
