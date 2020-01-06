@@ -57,14 +57,14 @@ export default class Simple3DScene {
     const width = dom_elt.clientWidth
     const height = dom_elt.clientHeight
 
-    let renderer;
+    let renderer
     if (this.settings.renderer === 'webgl') {
       renderer = new THREE.WebGLRenderer({
-      antialias: this.settings.antialias,
-      alpha: this.settings.transparentBackground,
-      gammaInput: true,
-      gammaOutput: true,
-      gammaFactor: 2.2
+        antialias: this.settings.antialias,
+        alpha: this.settings.transparentBackground,
+        gammaInput: true,
+        gammaOutput: true,
+        gammaFactor: 2.2
       })
     } else if (this.settings.renderer === 'svg') {
       renderer = new SVGRenderer()
@@ -125,13 +125,13 @@ export default class Simple3DScene {
     controls.enableKeys = false
 
     // for OrbitControls
-    //controls.minDistance = 20
-    //controls.maxDistance = 50
-    //controls.noPan = true
-    //controls.noZoom = !this.settings.enableZoom
-    //controls.rotateSpeed = 4.0
-    //controls.zoomSpeed = 2.0
-    //controls.staticMoving = true
+    // controls.minDistance = 20
+    // controls.maxDistance = 50
+    // controls.noPan = true
+    // controls.noZoom = !this.settings.enableZoom
+    // controls.rotateSpeed = 4.0
+    // controls.zoomSpeed = 2.0
+    // controls.staticMoving = true
 
     // initial render
     function render () {
@@ -173,7 +173,7 @@ export default class Simple3DScene {
         this.downloadScreenshot(filename)
         break
       case 'dae':
-        this.downloadCollada(filename);
+        this.downloadCollada(filename)
         break
       default:
         throw new Error('Unknown filetype.')
@@ -198,17 +198,16 @@ export default class Simple3DScene {
     link.click()
   }
 
-  downloadCollada(filename) {
+  downloadCollada (filename) {
+    const files = new ColladaExporter().parse(this.scene)
 
-     const files = new ColladaExporter().parse(this.scene);
-
-     var link = document.createElement("a");
-     link.style.display = "none";
-     document.body.appendChild(link);
-     link.href = "data:text/plain;base64," + btoa(files.data);
-     link.download = filename || "scene.dae";
-     link.click();
-   }
+    var link = document.createElement('a')
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.href = 'data:text/plain;base64,' + btoa(files.data)
+    link.download = filename || 'scene.dae'
+    link.click()
+  }
 
   addToScene (scene_json) {
     Simple3DScene.removeObjectByName(this.scene, scene_json.name)
@@ -224,7 +223,7 @@ export default class Simple3DScene {
         } else {
           const new_parent = new THREE.Object3D()
           new_parent.name = sub_o.name
-          if (sub_o.hasOwnProperty("origin")) {
+          if (sub_o.hasOwnProperty('origin')) {
             const translation = new THREE.Matrix4()
             translation.makeTranslation(...sub_o.origin)
             new_parent.applyMatrix(translation)
@@ -607,7 +606,7 @@ export default class Simple3DScene {
       opacity: opacity || 1.0
     })
 
-    if (this.settings.renderer === "svg"){
+    if (this.settings.renderer === 'svg') {
       return new THREE.MeshBasicMaterial(parameters)
     }
 
