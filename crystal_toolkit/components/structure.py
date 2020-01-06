@@ -84,14 +84,6 @@ class StructureMoleculeComponent(MPComponent):
         :param kwargs:
         """
 
-        if "PYTEST_CURRENT_TEST" in os.environ:
-            # For visual diff testing, we change the renderer
-            # to SVG since this WebGL support is more difficult
-            # in headless browsers / CI.
-            self.default_scene_settings["renderer"] = "svg"
-        else:
-            self.default_scene_settings["renderer"] = "svg"
-
         super().__init__(
             id=id,
             default_data=struct_or_mol,
