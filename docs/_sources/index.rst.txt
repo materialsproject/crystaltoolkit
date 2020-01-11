@@ -2,7 +2,7 @@
    :hidden:
 
    introduction
-   Try The App!<https://app.crystaltoolkit.org>
+   Try The App!<https://materialsproject.org/#apps/xtaltoolkit>
    first_web_app
    components
    jupyter
