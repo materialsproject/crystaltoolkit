@@ -6,6 +6,6 @@
    first_web_app
    components
    jupyter
-   API Docs<modules>
+   API Docs<py-modindex>
 
 .. include:: introduction.rst
