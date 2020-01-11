@@ -3,7 +3,7 @@ import { TrackballControls } from '../../../node_modules/three/examples/jsm/cont
 import { ConvexBufferGeometry } from '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js'
 import { CSS2DRenderer, CSS2DObject } from '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js'
 import { SVGRenderer } from '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js'
-import { ColladaExporter } from '../../../node_modules/three/examples/jsm/exporters/ColladaExporter'
+import { ColladaExporter } from '../../../node_modules/three/examples/jsm/exporters/ColladaExporter.js'
 
 export default class Simple3DScene {
   constructor (scene_json, dom_elt, settings) {
