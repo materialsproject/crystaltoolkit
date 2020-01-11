@@ -1,0 +1,424 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Your First App &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.orgfirst_web_app.html"/>
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Your First Component" href="first_component.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Your First App</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-app">Example App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preamble">Preamble</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-an-mpcomponent">Adding an MPComponent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interactivity">Interactivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#caching">Caching</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Integration</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Your First App</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/first_web_app.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="your-first-app">
+<h1>Your First App<a class="headerlink" href="#your-first-app" title="Permalink to this headline">¶</a></h1>
+<p>This page is intended for users who want to make their own web app
+to explore materials science data.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Crystal Toolkit is built on top of <a class="reference external" href="https://dash.plot.ly">Dash by Plotly</a>.
+Dash is a framework to build rich, interactive web apps purely from Python with
+no JavaScript knowledge required.
+If you’re not familiar with the Dash framework, please read their documentation
+and try their example app first.</p>
+</div>
+<div class="section" id="example-app">
+<h2>Example App<a class="headerlink" href="#example-app" title="Permalink to this headline">¶</a></h2>
+<p>Each component has a self-contained example app in the
+<a class="reference external" href="https://github.com/materialsproject/crystaltoolkit/tree/master/crystal_toolkit/apps/examples">crystal_toolkit.apps.examples</a>
+folder. If you prefer to learn by seeing, take a look at one of these!
+Otherwise, building an app is explained step-by-step below.</p>
+</div>
+<div class="section" id="preamble">
+<h2>Preamble<a class="headerlink" href="#preamble" title="Permalink to this headline">¶</a></h2>
+<p>Every Crystal Toolkit app needs the following basic structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># standard Dash imports</span>
+<span class="kn">import</span> <span class="nn">dash</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+
+<span class="c1"># standard Crystal Toolkit import</span>
+<span class="kn">import</span> <span class="nn">crystal_toolkit.components</span> <span class="k">as</span> <span class="nn">ctc</span>
+
+<span class="c1"># create Dash app as normal</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
+
+<span class="c1"># tell Crystal Toolkit about the app</span>
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="c1"># create your layout</span>
+<span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="s2">&quot;Hello scientist!&quot;</span><span class="p">])</span>
+
+<span class="c1"># wrap your app.layout with crystal_toolkit_layout()</span>
+<span class="c1"># to ensure all necessary components are loaded into layout</span>
+<span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
+
+<span class="c1"># allow app to be run using &quot;python app.py&quot;</span>
+<span class="c1"># in production, deploy behind gunicorn or similar</span>
+<span class="c1"># see Dash documentation for more information</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run_server</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8050</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Save this code as <cite>app.py</cite> and it can be run with <cite>python app.py</cite>.</p>
+<p>Visiting <a class="reference external" href="http://localhost:8050">http://localhost:8050</a> in your web browser should then
+give a blank page with the text “Hello scientist!”.</p>
+</div>
+<div class="section" id="adding-an-mpcomponent">
+<h2>Adding an MPComponent<a class="headerlink" href="#adding-an-mpcomponent" title="Permalink to this headline">¶</a></h2>
+<p>To display information such as crystal structures or phase diagrams, we
+have to add an <a class="reference external" href="source/crystal_toolkit.core.mpcomponent">MPComponent</a> to our layout. To illustrate, we’ll use a simple
+crystal structure.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># as explained in &quot;preamble&quot; section in documentation</span>
+<span class="kn">import</span> <span class="nn">dash</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">import</span> <span class="nn">crystal_toolkit.components</span> <span class="k">as</span> <span class="nn">ctc</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="c1"># create our crystal structure using pymatgen</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+
+<span class="c1"># create the Crystal Toolkit component</span>
+<span class="n">structure_component</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">StructureMoleculeComponent</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+<span class="c1"># add the component&#39;s layout to our app&#39;s layout</span>
+<span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="n">structure_component</span><span class="o">.</span><span class="n">layout</span><span class="p">()])</span>
+
+<span class="c1"># as explained in &quot;preamble&quot; section in documentation</span>
+<span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run_server</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8050</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The important thing here is that we instantiated the <code class="docutils literal notranslate"><span class="pre">structure_component</span></code> outside
+the layout, and then called its <code class="docutils literal notranslate"><span class="pre">.layout()</span></code> method to get the Dash layout to insert
+as part of the <code class="docutils literal notranslate"><span class="pre">app.layout</span></code>.</p>
+<p>All <code class="docutils literal notranslate"><span class="pre">MPComponents</span></code> follow this basic structure:</p>
+<ul class="simple">
+<li><p>They can be instantiated with an <code class="docutils literal notranslate"><span class="pre">MSONable</span></code> object as their only argument.
+Here, it was a <code class="docutils literal notranslate"><span class="pre">Structure</span></code> object. There may be additional arguments to customize
+the component.</p></li>
+<li><p>They have at least one <code class="docutils literal notranslate"><span class="pre">.layout()</span></code> method to generate the Dash layout for that
+component, although some components have additional (optional) <code class="docutils literal notranslate"><span class="pre">layout</span></code> methods.</p></li>
+</ul>
+</div>
+<div class="section" id="interactivity">
+<h2>Interactivity<a class="headerlink" href="#interactivity" title="Permalink to this headline">¶</a></h2>
+<p>For the purposes of interactivity, we can use callbacks as in any other Dash app.</p>
+<p>The important addition from an <code class="docutils literal notranslate"><span class="pre">MPComponent</span></code> is that they an <code class="docutils literal notranslate"><span class="pre">id()</span></code> method to access the
+ids of the component itself or of any sub-layouts inside that component. The canonical
+layout is a <a class="reference external" href="https://dash.plot.ly/dash-core-components/store">dcc.Store()</a> containing
+the serialized representation of your Python object, such as the crystallographic structure.
+By updating the contents of this store with a new object, the</p>
+<p>This is best illustrated by example. We will add a button that shows a random crystal
+structure when clicked.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># as above</span>
+<span class="kn">import</span> <span class="nn">dash</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">import</span> <span class="nn">crystal_toolkit.components</span> <span class="k">as</span> <span class="nn">ctc</span>
+
+<span class="c1"># standard Dash imports for callbacks (interactivity)</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+
+<span class="c1"># so we can pick a structure at random</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="c1"># prevent static checking of your layout ahead-of-time</span>
+<span class="c1"># otherwise errors can be raised in certain instances</span>
+<span class="c1"># see discussion below</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;suppress_callback_exceptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># now we give a list of structures to pick from</span>
+<span class="n">structures</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]),</span>
+    <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]),</span>
+    <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+<span class="p">]</span>
+
+<span class="c1"># we show the first structure by default</span>
+<span class="n">structure_component</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">StructureMoleculeComponent</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c1"># and we create a button for user interaction</span>
+<span class="n">my_button</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Randomize!&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;random_button&quot;</span><span class="p">)</span>
+
+<span class="c1"># now we have two entries in our app layout,</span>
+<span class="c1"># the structure component&#39;s layout and the button</span>
+<span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="n">structure_component</span><span class="o">.</span><span class="n">layout</span><span class="p">(),</span> <span class="n">my_button</span><span class="p">])</span>
+<span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
+
+<span class="c1"># for the interactivity, we use a standard Dash callback</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+    <span class="n">Output</span><span class="p">(</span><span class="n">structure_component</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+    <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="s2">&quot;random_button&quot;</span><span class="p">,</span> <span class="s2">&quot;n_clicks&quot;</span><span class="p">)]</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">update_structure</span><span class="p">(</span><span class="n">n_clicks</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">choice</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span>
+
+<span class="c1"># as above</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run_server</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8050</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The two features here that make this slightly different from a regular Dash app are:</p>
+<ol class="arabic simple">
+<li><p>The structure object is stored and accessed via <code class="docutils literal notranslate"><span class="pre">structure_component.id()</span></code>
+and its <code class="docutils literal notranslate"><span class="pre">data</span></code> prop.</p></li>
+<li><p>We can return the object directly (as a <code class="docutils literal notranslate"><span class="pre">Structure</span></code> object) via the callback,
+without needing to serialize or deserialize it.</p></li>
+</ol>
+<p>Finally, it is important to mention why we have set <code class="docutils literal notranslate"><span class="pre">supress_callback_exceptions</span></code>
+to <code class="docutils literal notranslate"><span class="pre">True</span></code>. In a Dash app, the layout is walked on first load to make sure that all
+interactive elements are actually in your app. This is to prevent common errors for
+first-time users, for example creating a callback to an <code class="docutils literal notranslate"><span class="pre">id</span></code> that doesn’t exist.
+However, in Crystal Toolkit, many components have optional additional interactive
+elements. In the case of the structure component, this includes things like displaying
+a legend, or providing controls to modify the color scheme. Since we haven’t included
+these optional elements in this example, callback exceptions would be raised if this
+setting wasn’t enabled.</p>
+</div>
+<div class="section" id="caching">
+<h2>Caching<a class="headerlink" href="#caching" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This section is optional for getting an app working.</p>
+</div>
+<p>Long-running callbacks (&gt; 0.1ms) can make a web app feel slow and sluggish.
+Since callbacks do not rely on any external state, they are easy to cache.</p>
+<p>Caching is supported by many Crystal Toolkit components, but the cache
+backend has to be registered first. Any <a class="reference external" href="https://pythonhosted.org/Flask-Caching/">Flask-Caching</a>
+backend is supported, but we recommend either:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SimpleCache</span></code> for easy testing:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ... define your Dash &quot;app&quot; variable first</span>
+
+<span class="kn">from</span> <span class="nn">flask_caching</span> <span class="kn">import</span> <span class="n">Cache</span>
+<span class="n">cache</span> <span class="o">=</span> <span class="n">Cache</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;CACHE_TYPE&#39;</span><span class="p">:</span> <span class="s1">&#39;simple&#39;</span><span class="p">})</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.components</span> <span class="kn">import</span> <span class="n">register_cache</span>
+<span class="n">register_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><code class="docutils literal notranslate"><span class="pre">RedisCache</span></code> for production:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ... define your Dash &quot;app&quot; variable first</span>
+<span class="kn">from</span> <span class="nn">flask_caching</span> <span class="kn">import</span> <span class="n">Cache</span>
+
+<span class="n">cache</span> <span class="o">=</span> <span class="n">Cache</span><span class="p">(</span>
+    <span class="n">crystal_toolkit_app</span><span class="o">.</span><span class="n">server</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;CACHE_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;redis&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CACHE_REDIS_URL&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;localhost:6379&quot;</span><span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.components</span> <span class="kn">import</span> <span class="n">register_cache</span>
+<span class="n">register_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Crystal Toolkit Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
