@@ -5,11 +5,11 @@ Introduction
 Crystal Toolkit is an interactive web app from the `Materials Project <https://materialsproject.org>`_
 that allows you to import, view, analyze and transform crystal structures and molecules.
 
-
-**Warning: The Crystal Toolkit code not intended for public release yet.**
-It is being developed in the open but the current master branch
-may not work, and documentation may be incomplete and/or misleading.
-We're working hard to reach release status, please check back soon.
+.. warning::
+  The Crystal Toolkit code not intended for public release yet.
+  It is being developed in the open but the current master branch
+  **may not work**, and **documentation may be incomplete and/or misleading.**
+  We're working hard to reach release status, please check back soon.
 
 Web App
 -------
@@ -27,7 +27,7 @@ one example of using these components.
 Installation
 ------------
 
-You can `pip install crystaltoolkit`.
+You can ``pip install crystaltoolkit``.
 
 For Jupyter integration, please see the `additional installation steps <jupyter>`_.
 
