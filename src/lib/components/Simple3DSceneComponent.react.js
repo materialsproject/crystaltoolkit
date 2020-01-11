@@ -7,9 +7,9 @@ import Simple3DScene from './Simple3DScene.js'
 /**
  * Simple3DSceneComponent is intended to draw simple 3D scenes using the popular
  * Three.js scene graph library. In particular, the JSON representing the 3D scene
- * is intended to be human-readable, and easily generated via Python. In future, a
- * long-term approach would be to develop a library to generate Three.js JSON directly
- * inside Python to make this component redundant.
+ * is intended to be human-readable, and easily generated via Python. This is not
+ * intended to be a replacement for a full scene graph library, but for rapid
+ * prototyping by non-experts.
  */
 export default class Simple3DSceneComponent extends Component {
   constructor (props) {
@@ -109,7 +109,7 @@ Simple3DSceneComponent.propTypes = {
    *    sphereSegments: 32, // decrease to improve performance
    *    cylinderSegments: 16, // decrease to improve performance
    *    staticScene: true, // disable if animation required
-   *    defaultZoom: 0.8, // 1 will completely fill viewport with scen
+   *    defaultZoom: 0.8, // 1 will completely fill viewport with scene
    * }
    * There are several additional options used for debugging and testing,
    * please consult the source code directly for these.
