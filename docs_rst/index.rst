@@ -2,8 +2,9 @@
    :hidden:
 
    introduction
-   Try The App!<https://materialsproject.org/#apps/xtaltoolkit>
+   Try the app!<https://materialsproject.org/#apps/xtaltoolkit>
    first_web_app
+   first_component
    components
    jupyter
    API Docs<py-modindex>
