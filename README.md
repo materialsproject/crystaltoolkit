@@ -4,6 +4,7 @@
 
 [![Pytest Status](https://img.shields.io/github/workflow/status/materialsproject/crystaltoolkit/pytest_and_docs?label=pytest)](https://github.com/materialsproject/crystaltoolkit/actions?query=workflow%3Apytest_and_docs)
 [![Visual Regression Test Status](https://percy.io/static/images/percy-badge.svg)](https://percy.io/Materials-Project/crystaltoolkit)
+[![Docker Build Status](https://img.shields.io/docker/cloud/build/materialsproject/crystaltoolkit)](https://hub.docker.com/repository/docker/materialsproject/crystaltoolkit/general)
 
 ## Documentation
 
