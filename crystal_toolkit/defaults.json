@@ -9,7 +9,7 @@
             "linewidth": 3.0
         },
         "Surfaces": {
-            "color": "#000000",
+            "color": "#6495ed",
             "opacity": 0.5,
             "edge_width" : 0.2
         },

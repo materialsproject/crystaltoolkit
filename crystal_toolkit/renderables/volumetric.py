@@ -41,7 +41,6 @@ def get_isosurface_scene(self,
                  contents=[
                      Surface(pos,
                              show_edges=False,
-                             color='cornflowerblue',
                              **kwargs)
                  ])
 
