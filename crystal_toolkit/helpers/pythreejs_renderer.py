@@ -40,32 +40,11 @@ import crystal_toolkit.renderables.structure
 import crystal_toolkit.renderables.volumetric
 from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
 from crystal_toolkit.components.structure import StructureMoleculeComponent
+from crystal_toolkit.helpers.utils import update_object_args
 
 import logging
 
 logger = logging.getLogger('crystaltoolkit.pythreejs_renderer')
-
-def update_object_args(d_args, object_name, allowed_args):
-    """Read dafault properties and overwrite them if user input exists
-    
-    Arguments:
-        d_args {dict} -- User defined properties
-        object_name {str} -- Name of object
-        allowed_kwargs {List[str]} -- Used to limit the data that is passed to pythreejs
-    
-    Returns:
-        Dictionary -- Properties of object after userinput and default values are considered
-    """
-    obj_args = {
-        k: v
-        for k, v in (_DEFAULTS['scene'][object_name] or {}).items()
-    }
-    obj_args.update({
-        k: v
-        for k, v in (d_args or {}).items() if k in allowed_args and v != None
-    })
-    return obj_args
-
 
 def traverse_scene_object(scene_data, parent=None):
     """Recursivesly populate a nested Object3D object from pythreejs using the same tree structure from crystaltoolkit (CTK)
@@ -136,7 +115,7 @@ def convert_object_to_pythreejs(scene_obj):
 
 
 def view(renderable_obj, **kwargs):
-    # convex types are not implemented in threejs 
+    # convex types are not implemented in threejs
     if isinstance(renderable_obj, Structure) or isinstance(renderable_obj, StructureGraph):
         kwargs['explicitly_calculate_polyhedra_hull'] = True
     display_scene(renderable_obj.get_scene(**kwargs))
@@ -146,7 +125,7 @@ def view_old(molecule_or_structure, **kwargs):
     Jupyter notebook.
 
     NOTE: SHOULD NO LONGER BE NEEDED
-    
+
     Args:
         molecule_or_structure: Molecule or structure to display
         draw_image_atoms (bool):  Show periodic copies of atoms
@@ -209,6 +188,7 @@ def display_scene(scene):
         scene {Object3D} -- Root node of the PythreeJS object we want to plot
     """
     obs = traverse_scene_object(scene)
+
     logger.debug(type(obs))
     scene2render = Scene(children=list(obs.children))
     logger.debug(len(scene2render.children))
@@ -218,18 +198,23 @@ def display_scene(scene):
     extent = max([p[1]-p[0] for p in zip(*bounding_box)]) * 1.2
     logger.debug(f"extent : {extent}")
     camera = OrthographicCamera(
-        -extent, extent, extent, -extent, -2000, 2000, position=(0, 0, 2)
+        -extent, +extent, extent, -extent, -2000, 2000, position=[0,0,10]
     )
+    cam_target = tuple(-i for i in scene.origin)
+    controls = OrbitControls(target=cam_target, controlling=camera)
+    camera.lookAt(cam_target)
+
     scene2render.children = scene2render.children + (
         AmbientLight(color="#cccccc", intensity=0.75),
         DirectionalLight(color="#ccaabb", position=[0, 20, 10], intensity=0.5),
+        camera
     )
     renderer = Renderer(
         camera=camera,
         background="white",
         background_opacity=1,
         scene=scene2render,
-        controls=[OrbitControls(controlling=camera)],
+        controls=[controls],
         width=500,
         height=500,
         antialias=True,
@@ -258,7 +243,7 @@ def _get_line_from_vec(v0, v1, scene_args):
     )
     return line
 
-def _get_spheres(ctk_scene):
+def _get_spheres(ctk_scene, d_args=None):
     """
     render spheres
     """
@@ -290,8 +275,6 @@ def _get_surface_from_positions(positions, d_args, draw_edges=False):
         transparent = False
     else:
         transparent = True
-
-
 
     num_triangle = int(num_triangle)
     index_list = [[itr*3, itr*3+1, itr*3+2] for itr in range(num_triangle)]
