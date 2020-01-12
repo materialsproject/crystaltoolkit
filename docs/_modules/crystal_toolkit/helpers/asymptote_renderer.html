@@ -151,11 +151,23 @@
             
   <h1>Source code for crystal_toolkit.helpers.asymptote_renderer</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Export wrapper for asymptote</span>
+<span class="sd">Export wrapper for asymptote (ASY)</span>
 <span class="sd">For creating publication quality plots</span>
+<span class="sd">Since ASY does not have the nested tree structure of threejs, we just have to traverse the tree and draw each material as we see them.</span>
+
+<span class="sd">TODO The code should also appends a set of special points at the end in case the user wants to add more &quot;hand drawn&quot; features to the plot</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span>
-<span class="kn">from</span> <span class="nn">crystal_toolkit.components.structure</span> <span class="kn">import</span> <span class="n">StructureMoleculeComponent</span>
+<span class="c1"># from crystal_toolkit.components.structure import StructureMoleculeComponent</span>
+<span class="kn">import</span> <span class="nn">crystal_toolkit.renderables.structure</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.utils</span> <span class="kn">import</span> <span class="n">update_object_args</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;crystaltoolkit - asymptote_renderer&#39;</span><span class="p">)</span>
 
 <span class="n">HEAD</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">size(300);</span>
@@ -164,13 +176,9 @@
 <span class="s2">currentprojection=orthographic (</span>
 <span class="s2">camera=(8,5,4),</span>
 <span class="s2">up=(0,0,1),</span>
-<span class="s2">target=(0,0,0),</span>
+<span class="s2">target={{target}},</span>
 <span class="s2">zoom=0.5</span>
 <span class="s2">);</span>
-
-<span class="s2">// Plot appearance parameters</span>
-<span class="s2">real cylR=0.1;</span>
-
 <span class="s2">// Basic function for drawing spheres</span>
 <span class="s2">void drawSpheres(triple[] C, real R, pen p=currentpen){</span>
 <span class="s2">  for(int i=0;i&lt;C.length;++i){</span>
@@ -182,7 +190,7 @@
 <span class="s2">}</span>
 
 <span class="s2">// Draw a cylinder</span>
-<span class="s2">void Draw(guide3 g,pen p=currentpen){</span>
+<span class="s2">void Draw(guide3 g,pen p=currentpen, real cylR=0.2){</span>
 <span class="s2">  draw(</span>
 <span class="s2">    cylinder(</span>
 <span class="s2">      point(g,0),cylR,arclength(g),point(g,1)-point(g,0)</span>
@@ -215,18 +223,152 @@
 <span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos, fpos in posPairs %}</span>
 <span class="s2">triple IPOS = {{ipos}};</span>
 <span class="s2">triple FPOS = {{fpos}};</span>
-<span class="s2">Draw(IPOS--FPOS, connectPen);</span>
+<span class="s2">Draw(IPOS--FPOS, connectPen, {{radius}});</span>
 <span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
 <span class="n">TEMP_LINE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">pen connectPen=rgb(&#39;{{color}}&#39;);</span>
 <span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos, fpos in posPairs %}</span>
 <span class="s2">triple IPOS = {{ipos}};</span>
 <span class="s2">triple FPOS = {{fpos}};</span>
-<span class="s2">draw(IPOS--FPOS, dashed);</span>
+<span class="s2">draw(IPOS--FPOS, connectPen);</span>
 <span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
+<span class="n">TEMP_CYLINDER</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">pen connectPen=rgb(&#39;{{color}}&#39;);</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos, fpos in posPairs %}</span>
+<span class="s2">triple IPOS = {{ipos}};</span>
+<span class="s2">triple FPOS = {{fpos}};</span>
+<span class="s2">Draw(IPOS--FPOS, connectPen, {{radius}});</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_SURF</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">real[][] A = {</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos in positions -%}</span>
+<span class="s2">    {{ipos}},</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+<span class="s2">};</span>
+<span class="s2">A = transpose(A);</span>
+
+<span class="s2">material m = rgb(&#39;{{face_color}}&#39;) + opacity({{opac}});</span>
+<span class="s2">triple a,b,c;</span>
+<span class="s2">for(int i=0; i &lt; A[0].length/3; ++i) {</span>
+<span class="s2">  a=(A[0][i*3],A[1][i*3],A[2][i*3]);</span>
+<span class="s2">  b=(A[0][i*3+1],A[1][i*3+1],A[2][i*3+1]);</span>
+<span class="s2">  c=(A[0][i*3+2],A[1][i*3+2],A[2][i*3+2]);</span>
+<span class="s2">  draw(surface(a--b--c--cycle),surfacepen = m);        // draw i-th triangle</span>
+<span class="s2">}</span>
+<span class="s2">path3 no_show = path3(scale(0) * box((-1,-1),(1,1)));</span>
+<span class="s2">draw(surface(no_show), surfacepen=m);        // draw i-th triangle</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="c1">### Functions for parsing specific shapes</span>
+<span class="c1">### Each function should only take in the CTK object and the changes to the default display parameters</span>
+
+<span class="k">def</span> <span class="nf">_get_lines</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">d_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return the ASY string output to draw cylinders</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == &#39;cylinders&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    Keyword Arguments:</span>
+<span class="sd">        d_args {dict} -- User defined defaults of the plot (default: {None})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;lines&#39;</span><span class="p">)</span>
+    <span class="n">updated_defaults</span> <span class="o">=</span> <span class="n">update_object_args</span><span class="p">(</span><span class="n">d_args</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="s1">&#39;Lines&#39;</span><span class="p">,</span> <span class="n">allowed_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;linewidth&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">])</span>
+    <span class="n">ipos</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">fpos</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">posPairs</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">ipos</span><span class="p">,</span> <span class="n">fpos</span><span class="p">)]</span>
+    
+    <span class="n">linewidth</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">linewidth</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s1">&#39;linewidth&#39;</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">color</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_LINE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">posPairs</span><span class="o">=</span><span class="n">posPairs</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_get_spheres</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">d_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return the ASY string output to draw the spheres</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == &#39;spheres&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    Keyword Arguments:</span>
+<span class="sd">        d_args {dict} -- User defined defaults of the plot (default: {None})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;spheres&#39;</span><span class="p">)</span>
+    <span class="n">updated_defaults</span> <span class="o">=</span> <span class="n">update_object_args</span><span class="p">(</span><span class="n">d_args</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="s1">&#39;Spheres&#39;</span><span class="p">,</span> <span class="n">allowed_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">])</span>
+    
+    <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">]</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">radius</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">color</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">phiStart</span> <span class="ow">or</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">phiEnd</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="c1"># phiStart = ctk_scene.phiStart or 0 # not yet implemented</span>
+    <span class="c1"># phiEnd = ctk_scene.phiEnd or 2*pi</span>
+    
+    <span class="k">return</span> <span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_SPHERE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+        <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
+        <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">_get_cylinders</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">d_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return the ASY string output to draw cylinders</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == &#39;cylinders&#39;</span>
+<span class="sd">    </span>
+<span class="sd">    Keyword Arguments:</span>
+<span class="sd">        d_args {dict} -- User defined defaults of the plot (default: {None})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;cylinders&#39;</span><span class="p">)</span>
+    <span class="n">updated_defaults</span> <span class="o">=</span> <span class="n">update_object_args</span><span class="p">(</span><span class="n">d_args</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="s1">&#39;Cylinders&#39;</span><span class="p">,</span> <span class="n">allowed_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">])</span>
+    
+    <span class="n">posPairs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ipos</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">fpos</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">ipos</span><span class="p">,</span> <span class="n">fpos</span> <span class="ow">in</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positionPairs</span>
+    <span class="p">]</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">radius</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">color</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_CYLINDER</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">posPairs</span><span class="o">=</span><span class="n">posPairs</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_get_surface</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">d_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return the ASY string output to draw cylinders</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == &#39;surface&#39;</span>
+
+<span class="sd">    Keyword Arguments:</span>
+<span class="sd">        d_args {dict} -- User defined defaults of the plot (default: {None})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;surface&#39;</span><span class="p">)</span>
+    <span class="n">updated_defaults</span> <span class="o">=</span> <span class="n">update_object_args</span><span class="p">(</span><span class="n">d_args</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="s1">&#39;Surfaces&#39;</span><span class="p">,</span> <span class="n">allowed_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;opacity&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;edge_width&#39;</span><span class="p">])</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">color</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">opacity</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">opacity</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s1">&#39;opacity&#39;</span><span class="p">]</span>
+
+    <span class="n">positions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{x[0]}</span><span class="s2">, </span><span class="si">{x[1]}</span><span class="s2">, </span><span class="si">{x[2]}</span><span class="s2">&quot;</span> <span class="o">+</span><span class="s2">&quot;}&quot;</span><span class="p">,</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">))</span>
+    <span class="n">num_triangle</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span><span class="o">/</span><span class="mf">3.</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">num_triangle</span><span class="o">.</span><span class="n">is_integer</span><span class="p">())</span> <span class="c1"># sanity check the mesh must be triangles</span>
+
+    <span class="c1"># # make decision on transparency</span>
+    <span class="c1"># transparent = if obj_args[&#39;opacity&#39;] &lt; 0.99</span>
+    <span class="c1">#</span>
+    <span class="c1"># # asymptote just needs the xyz positions</span>
+    <span class="n">num_triangle</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_triangle</span><span class="p">)</span>
+    <span class="n">pos_xyz</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">([(</span><span class="n">positions</span><span class="p">[</span><span class="n">itr</span><span class="o">*</span><span class="mi">3</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="n">itr</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="n">itr</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_triangle</span><span class="p">)]))</span>
+    <span class="c1">#</span>
+    <span class="c1"># # write the data array</span>
+    <span class="n">data_array_asy</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_SURF</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">positions</span><span class="o">=</span><span class="n">pos_xyz</span><span class="p">,</span> <span class="n">face_color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">opac</span> <span class="o">=</span> <span class="n">opacity</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data_array_asy</span>
+
+    <span class="c1"># write the </span>
 
 <div class="viewcode-block" id="asy_write_data"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.asy_write_data">[docs]</a><span class="k">def</span> <span class="nf">asy_write_data</span><span class="p">(</span><span class="n">input_scene_comp</span><span class="p">,</span> <span class="n">fstream</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -234,19 +376,22 @@
 <span class="sd">    input_scene_comp</span>
 <span class="sd">    fstream</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;spheres&quot;</span><span class="p">:</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">]</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;spheres&quot;</span><span class="p">:</span>
+        <span class="n">asy_out</span> <span class="o">=</span> <span class="n">_get_spheres</span><span class="p">(</span><span class="n">input_scene_comp</span><span class="p">)</span>
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">asy_out</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;cylinders&quot;</span><span class="p">:</span>
+        <span class="n">asy_out</span> <span class="o">=</span> <span class="n">_get_cylinders</span><span class="p">(</span><span class="n">input_scene_comp</span><span class="p">)</span>
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">asy_out</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;lines&quot;</span><span class="p">:</span>
+        <span class="n">asy_out</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">input_scene_comp</span><span class="p">)</span>
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">asy_out</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;surface&quot;</span><span class="p">:</span>
+        <span class="n">asy_out</span> <span class="o">=</span> <span class="n">_get_surface</span><span class="p">(</span><span class="n">input_scene_comp</span><span class="p">)</span>
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">asy_out</span><span class="p">)</span>
 
-        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="n">Environment</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_SPHERE</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">render</span><span class="p">(</span>
-                <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
-                <span class="n">radius</span><span class="o">=</span><span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">],</span>
-                <span class="n">color</span><span class="o">=</span><span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
+    <span class="k">return</span> 
 
     <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cylinders&quot;</span><span class="p">:</span>
         <span class="c1"># need to transforme all the cylinders to vector</span>
@@ -261,13 +406,7 @@
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;lines&quot;</span><span class="p">:</span>
-        <span class="c1"># need to transforme all the cylinders to vector</span>
-        <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
-            <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
-        <span class="p">)</span>
-        <span class="n">posPairs</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ipos</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">fpos</span><span class="p">)]</span> <span class="k">for</span> <span class="n">ipos</span><span class="p">,</span> <span class="n">fpos</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)]</span>
-        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_LINE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">posPairs</span><span class="o">=</span><span class="n">posPairs</span><span class="p">))</span></div>
+        <span class="k">pass</span></div>
 
     <span class="c1"># TODO Leaving out polyhedra for now since asymptote</span>
     <span class="c1"># does not have an easy way to generate convex polyhedra from the points</span>
@@ -289,15 +428,36 @@
         <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="n">scene_data</span><span class="p">[</span><span class="s2">&quot;contents&quot;</span><span class="p">]:</span>
             <span class="n">filter_data</span><span class="p">(</span><span class="n">itr</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="traverse_scene_object"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.traverse_scene_object">[docs]</a><span class="k">def</span> <span class="nf">traverse_scene_object</span><span class="p">(</span><span class="n">scene_data</span><span class="p">,</span> <span class="n">fstream</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Traverse object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">sub_object</span> <span class="ow">in</span> <span class="n">scene_data</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sub_object</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">iobj</span> <span class="ow">in</span> <span class="n">sub_object</span><span class="p">:</span>
+                <span class="n">traverse_scene_object</span><span class="p">(</span><span class="n">iobj</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sub_object</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">):</span>
+            <span class="n">asy_write_data</span><span class="p">(</span><span class="n">sub_object</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">traverse_scene_object</span><span class="p">(</span><span class="n">sub_object</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="write_asy_file"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.write_asy_file">[docs]</a><span class="k">def</span> <span class="nf">write_asy_file</span><span class="p">(</span><span class="n">smc</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+
+<div class="viewcode-block" id="write_asy_file"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.write_asy_file">[docs]</a><span class="k">def</span> <span class="nf">write_asy_file</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    smc : (StructureMoleculeComponent)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fstream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-    <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">HEAD</span><span class="p">)</span>
-    <span class="n">filter_data</span><span class="p">(</span><span class="n">smc</span><span class="o">.</span><span class="n">initial_scene_data</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="o">-</span><span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">HEAD</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+    <span class="n">traverse_scene_object</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span>
     <span class="n">fstream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="view"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.view">[docs]</a><span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="n">renderable_object</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_object</span><span class="p">,</span> <span class="n">Structure</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_obj</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;explicitly_calculate_polyhedra_hull&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">write_asy_file</span><span class="p">(</span><span class="n">renderable_object</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">file_name</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
