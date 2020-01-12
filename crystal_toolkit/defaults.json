@@ -10,7 +10,12 @@
         },
         "Surfaces": {
             "color": "#000000",
-            "opacity": 0.5
+            "opacity": 0.5,
+            "edge_width" : 0.2
+        },
+        "Spheres": {
+            "color": "#000000",
+            "radius": 0.5
         }
     }
 }
