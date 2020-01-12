@@ -8,14 +8,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>crystal_toolkit.helpers package &mdash; Crystal Toolkit  documentation</title>
+  <title>crystal_toolkit.helpers.utils module &mdash; Crystal Toolkit  documentation</title>
   
 
   
   
   
   
-    <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.helpers.html"/>
+    <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.helpers.utils.html"/>
   
 
   
@@ -132,14 +132,14 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>crystal_toolkit.helpers package</li>
+      <li>crystal_toolkit.helpers.utils module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
             
-              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.helpers.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.helpers.utils.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -153,26 +153,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="crystal-toolkit-helpers-package">
-<h1>crystal_toolkit.helpers package<a class="headerlink" href="#crystal-toolkit-helpers-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="crystal_toolkit.helpers.asymptote_renderer.html">crystal_toolkit.helpers.asymptote_renderer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="crystal_toolkit.helpers.inputs.html">crystal_toolkit.helpers.inputs module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="crystal_toolkit.helpers.jupyter_dash_renderer.html">crystal_toolkit.helpers.jupyter_dash_renderer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="crystal_toolkit.helpers.layouts.html">crystal_toolkit.helpers.layouts module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="crystal_toolkit.helpers.mprester.html">crystal_toolkit.helpers.mprester module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="crystal_toolkit.helpers.povray_renderer.html">crystal_toolkit.helpers.povray_renderer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="crystal_toolkit.helpers.pythreejs_renderer.html">crystal_toolkit.helpers.pythreejs_renderer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="crystal_toolkit.helpers.utils.html">crystal_toolkit.helpers.utils module</a></li>
+  <div class="section" id="module-crystal_toolkit.helpers.utils">
+<span id="crystal-toolkit-helpers-utils-module"></span><h1>crystal_toolkit.helpers.utils module<a class="headerlink" href="#module-crystal_toolkit.helpers.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="crystal_toolkit.helpers.utils.update_object_args">
+<code class="sig-prename descclassname">crystal_toolkit.helpers.utils.</code><code class="sig-name descname">update_object_args</code><span class="sig-paren">(</span><em class="sig-param">d_args</em>, <em class="sig-param">object_name</em>, <em class="sig-param">allowed_args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/utils.html#update_object_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.utils.update_object_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read dafault properties and overwrite them if user input exists</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{dict} -- User defined properties</strong> (<em>d_args</em>) – </p></li>
+<li><p><strong>{str} -- Name of object</strong> (<em>object_name</em>) – </p></li>
+<li><p><strong>{List</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>} -- Used to limit the data that is passed to pythreejs</strong> (<em>allowed_kwargs</em>) – </p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="module-crystal_toolkit.helpers">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-crystal_toolkit.helpers" title="Permalink to this headline">¶</a></h2>
-</div>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary – Properties of object after userinput and default values are considered</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 

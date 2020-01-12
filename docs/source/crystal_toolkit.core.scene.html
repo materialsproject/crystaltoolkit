@@ -761,7 +761,7 @@ and trigger and event</p>
 
 <dl class="class">
 <dt id="crystal_toolkit.core.scene.Surface">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Surface</code><span class="sig-paren">(</span><em class="sig-param">positions: List[List[float]], normals: Optional[List[List[float]]] = None, color: str = None, opacity: float = None, visible: bool = None, clickable: bool = False, reference: Optional[str] = None, _meta: Any = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Surface" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Surface</code><span class="sig-paren">(</span><em class="sig-param">positions: List[List[float]], normals: Optional[List[List[float]]] = None, color: str = None, opacity: float = None, show_edges: bool = False, visible: bool = None, clickable: bool = False, reference: Optional[str] = None, _meta: Any = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Surface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Define a surface by its vertices. Please also provide normals if known.
 Opacity can be set to enable transparency, but note that the current
@@ -794,6 +794,11 @@ Three.js renderer doesn’t support nested transparent objects very well.</p>
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.reference">
 <code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.reference" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Surface.show_edges">
+<code class="sig-name descname">show_edges</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.show_edges" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">

@@ -153,8 +153,73 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="crystal-toolkit-helpers-pythreejs-renderer-module">
-<h1>crystal_toolkit.helpers.pythreejs_renderer module<a class="headerlink" href="#crystal-toolkit-helpers-pythreejs-renderer-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-crystal_toolkit.helpers.pythreejs_renderer">
+<span id="crystal-toolkit-helpers-pythreejs-renderer-module"></span><h1>crystal_toolkit.helpers.pythreejs_renderer module<a class="headerlink" href="#module-crystal_toolkit.helpers.pythreejs_renderer" title="Permalink to this headline">¶</a></h1>
+<p>Link up the StructureMoleculeComponent objects to pythreejs
+Also includes some helper functions for draw addition objects using pythreejs</p>
+<dl class="function">
+<dt id="crystal_toolkit.helpers.pythreejs_renderer.convert_object_to_pythreejs">
+<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">convert_object_to_pythreejs</code><span class="sig-paren">(</span><em class="sig-param">scene_obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#convert_object_to_pythreejs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.convert_object_to_pythreejs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert different primitive geometries of CTK objects to PythreeJS geometry objects</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>-- Object from crystalltoolkit</strong> (<em>scene_obj</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List[Object3D] – List of objects from pythreeJS</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="crystal_toolkit.helpers.pythreejs_renderer.display_scene">
+<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">display_scene</code><span class="sig-paren">(</span><em class="sig-param">scene</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#display_scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.display_scene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render the scene in the pythreeJS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>{Object3D} -- Root node of the PythreeJS object we want to plot</strong> (<em>scene</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="crystal_toolkit.helpers.pythreejs_renderer.traverse_scene_object">
+<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">traverse_scene_object</code><span class="sig-paren">(</span><em class="sig-param">scene_data</em>, <em class="sig-param">parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#traverse_scene_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.traverse_scene_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursivesly populate a nested Object3D object from pythreejs using the same tree structure from crystaltoolkit (CTK)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>{CTK.core.scene} -- The content of the current branch of the CTK object</strong> (<em>scene_data</em>) – </p>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>{Object3D} -- Reference to the parent in the Pythreejs tree</strong><strong> (</strong><strong>default</strong> (<em>parent</em>) – {None} means you are at the root)</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Object3D – The current Pythreejs object with all the children fully populated</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="crystal_toolkit.helpers.pythreejs_renderer.view">
+<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">view</code><span class="sig-paren">(</span><em class="sig-param">renderable_obj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.view" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="crystal_toolkit.helpers.pythreejs_renderer.view_old">
+<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">view_old</code><span class="sig-paren">(</span><em class="sig-param">molecule_or_structure</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#view_old"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.view_old" title="Permalink to this definition">¶</a></dt>
+<dd><p>View a pymatgen Molecule or Structure object interactively in a
+Jupyter notebook.</p>
+<p>NOTE: SHOULD NO LONGER BE NEEDED</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>molecule_or_structure</strong> – Molecule or structure to display</p></li>
+<li><p><strong>draw_image_atoms</strong> (<em>bool</em>) – Show periodic copies of atoms</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
