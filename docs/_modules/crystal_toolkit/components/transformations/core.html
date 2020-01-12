@@ -80,8 +80,15 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jupyter.html">Jupyter Integration</a></li>
+</ul>
+
             
           
         </div>
@@ -213,6 +220,12 @@
             <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="n">container</span><span class="p">,</span>
         <span class="p">}</span>
 
+<div class="viewcode-block" id="TransformationComponent.container_layout"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent.container_layout">[docs]</a>    <span class="k">def</span> <span class="nf">container_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Layout defining transformation and its options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;container&quot;</span><span class="p">]</span></div>
+
 <div class="viewcode-block" id="TransformationComponent.options_layout"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent.options_layout">[docs]</a>    <span class="k">def</span> <span class="nf">options_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_args_kwargs</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
@@ -295,7 +308,7 @@
 
         <span class="n">all_transformations</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="n">transformation</span><span class="o">.</span><span class="n">container_layout</span>
+                <span class="n">transformation</span><span class="o">.</span><span class="n">container_layout</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">]</span>
         <span class="p">)</span>
@@ -316,8 +329,7 @@
 
         <span class="k">return</span> <span class="n">layouts</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AllTransformationsComponent.layout"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.AllTransformationsComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
             <span class="p">[</span>
@@ -325,12 +337,12 @@
                     <span class="s2">&quot;Transform your crystal structure using the power of pymatgen.&quot;</span><span class="p">,</span>
                     <span class="n">className</span><span class="o">=</span><span class="s2">&quot;mpc-panel-description&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">choices_layout</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">],</span>
                 <span class="n">html</span><span class="o">.</span><span class="n">Br</span><span class="p">(),</span>
                 <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)),</span>
                 <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;transformation_options&quot;</span><span class="p">)),</span>
             <span class="p">]</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="AllTransformationsComponent.generate_callbacks"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.AllTransformationsComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
         <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
@@ -364,7 +376,7 @@
             <span class="n">values</span> <span class="o">=</span> <span class="n">values</span> <span class="ow">or</span> <span class="p">[]</span>
 
             <span class="n">transformation_options</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">container_layout</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">container_layout</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
             <span class="p">)</span>
 
             <span class="k">return</span> <span class="p">[</span><span class="n">transformation_options</span><span class="p">]</span>

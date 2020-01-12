@@ -1,4 +1,4 @@
-define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/TrackballControls.js', '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js', '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js'], function (exports, _three, _TrackballControls, _ConvexGeometry, _CSS2DRenderer) {
+define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/TrackballControls.js', '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js', '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js', '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js', '../../../node_modules/three/examples/jsm/exporters/ColladaExporter'], function (exports, _three, _TrackballControls, _ConvexGeometry, _CSS2DRenderer, _SVGRenderer, _ColladaExporter) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -69,9 +69,10 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
       this.animate = this.animate.bind(this);
 
       var defaults = {
-        shadows: true,
         antialias: true,
         transparentBackground: false,
+        renderer: 'webgl',
+        renderDivBackground: false,
         background: '#ffffff',
         sphereSegments: 32,
         cylinderSegments: 16,
@@ -109,15 +110,19 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
       var width = dom_elt.clientWidth;
       var height = dom_elt.clientHeight;
 
-      var renderer = new THREE.WebGLRenderer({
-        antialias: this.settings.antialias,
-        alpha: this.settings.transparentBackground,
-        gammaInput: true,
-        gammaOutput: true,
-        gammaFactor: 2.2,
-        shadowMapEnabled: this.settings.shadows,
-        shadowMapType: THREE.PCFSoftShadowMap
-      });
+      var renderer = void 0;
+      if (this.settings.renderer === 'webgl') {
+        renderer = new THREE.WebGLRenderer({
+          antialias: this.settings.antialias,
+          alpha: this.settings.transparentBackground,
+          gammaInput: true,
+          gammaOutput: true,
+          gammaFactor: 2.2
+        });
+      } else if (this.settings.renderer === 'svg') {
+        renderer = new _SVGRenderer.SVGRenderer();
+      }
+
       this.renderer = renderer;
 
       renderer.setPixelRatio(window.devicePixelRatio);
@@ -159,6 +164,8 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
 
       var controls = new _TrackballControls.TrackballControls(this.camera, this.renderer.domElement);
       controls.enableKeys = false;
+
+      // for OrbitControls
       //controls.minDistance = 20
       //controls.maxDistance = 50
       //controls.noPan = true
@@ -208,6 +215,9 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
           case 'png':
             this.downloadScreenshot(filename);
             break;
+          case 'dae':
+            this.downloadCollada(filename);
+            break;
           default:
             throw new Error('Unknown filetype.');
         }
@@ -229,6 +239,19 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
 
         // click link to download
         link.download = filename || 'screenshot.png';
+        link.click();
+      }
+    }, {
+      key: 'downloadCollada',
+      value: function downloadCollada(filename) {
+
+        var files = new _ColladaExporter.ColladaExporter().parse(this.scene);
+
+        var link = document.createElement("a");
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.href = "data:text/plain;base64," + btoa(files.data);
+        link.download = filename || "scene.dae";
         link.click();
       }
     }, {
@@ -278,7 +301,7 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
 
         // we can automatically output a screenshot to be the background of the parent div
         // this helps for automated testing, printing the web page, etc.
-        if (!this.settings.transparentBackground) {
+        if (this.settings.renderDivBackground) {
           this.renderer.domElement.parentElement.style.backgroundSize = '100%';
           this.renderer.domElement.parentElement.style.backgroundRepeat = 'no-repeat';
           this.renderer.domElement.parentElement.style.backgroundPosition = 'center';
@@ -603,6 +626,10 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
           color: color || '#52afb0',
           opacity: opacity || 1.0
         });
+
+        if (this.settings.renderer === "svg") {
+          return new THREE.MeshBasicMaterial(parameters);
+        }
 
         switch (this.settings.material.type) {
           case 'MeshStandardMaterial':

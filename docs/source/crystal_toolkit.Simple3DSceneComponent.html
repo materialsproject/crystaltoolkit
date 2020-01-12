@@ -80,11 +80,15 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">crystal_toolkit.Simple3DSceneComponent module</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -163,11 +167,35 @@ long-term approach would be to develop a library to generate Three.js JSON direc
 inside Python to make this component redundant.</p>
 <p>Keyword arguments:
 - id (string; optional): The ID used to identify this component in Dash callbacks
-- data (dict; optional): Simple3DScene JSON
-- settings (dict; optional): Options used for generating scene
-- toggleVisibility (dict; optional): Hide/show nodes in scene by name (key), value is 1 to show the node
-and 0 to hide it
-- downloadRequest (dict; optional): Increment to trigger a screenshot or scene download.
+- data (dict; optional): Simple3DScene JSON, the easiest way to generate this is to use the Scene class
+in crystal_toolkit.core.scene and its to_json method.
+- settings (dict; optional): Options used for generating scene.
+Supported options and their defaults are given as follows:
+{</p>
+<blockquote>
+<div><p>antialias: true, // set to false to improve performance
+renderer: ‘webgl’, // ‘svg’ also an option, used for unit testing
+transparentBackground: false, // transparent background
+background: ‘#ffffff’, // background color if not transparent,
+sphereSegments: 32, // decrease to improve performance
+cylinderSegments: 16, // decrease to improve performance
+staticScene: true, // disable if animation required
+defaultZoom: 0.8, // 1 will completely fill viewport with scen</p>
+</div></blockquote>
+<p>}
+There are several additional options used for debugging and testing,
+please consult the source code directly for these.
+- toggleVisibility (dict; optional): Hide/show nodes in scene by its name (key), value is 1 to show the node
+and 0 to hide it.
+- downloadRequest (dict; optional): Set to trigger a screenshot or scene download. Should be an object with
+the structure:
+{</p>
+<blockquote>
+<div><p>“n_requests”: n_requests, // increment to trigger a new download request
+“filename”: request_filename, // the download filename
+“filetype”: “png”, // the download format</p>
+</div></blockquote>
+<p>}
 - selectedObjectReference (string; optional): Reference to selected objects when clicked
 - selectedObjectCount (number; optional): Click count for selected object</p>
 </dd></dl>

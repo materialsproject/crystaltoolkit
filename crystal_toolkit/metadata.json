@@ -278,28 +278,28 @@
           "name": "object"
         },
         "required": false,
-        "description": "Simple3DScene JSON"
+        "description": "Simple3DScene JSON, the easiest way to generate this is to use the Scene class\nin crystal_toolkit.core.scene and its to_json method."
       },
       "settings": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": "Options used for generating scene"
+        "description": "Options used for generating scene.\nSupported options and their defaults are given as follows:\n{\n   antialias: true, // set to false to improve performance\n   renderer: 'webgl', // 'svg' also an option, used for unit testing\n   transparentBackground: false, // transparent background\n   background: '#ffffff', // background color if not transparent,\n   sphereSegments: 32, // decrease to improve performance\n   cylinderSegments: 16, // decrease to improve performance\n   staticScene: true, // disable if animation required\n   defaultZoom: 0.8, // 1 will completely fill viewport with scen\n}\nThere are several additional options used for debugging and testing,\nplease consult the source code directly for these."
       },
       "toggleVisibility": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": "Hide/show nodes in scene by name (key), value is 1 to show the node\nand 0 to hide it"
+        "description": "Hide/show nodes in scene by its name (key), value is 1 to show the node\nand 0 to hide it."
       },
       "downloadRequest": {
         "type": {
           "name": "object"
         },
         "required": false,
-        "description": "Increment to trigger a screenshot or scene download."
+        "description": "Set to trigger a screenshot or scene download. Should be an object with\nthe structure:\n{\n   \"n_requests\": n_requests, // increment to trigger a new download request\n   \"filename\": request_filename, // the download filename\n   \"filetype\": \"png\", // the download format\n}"
       },
       "setProps": {
         "type": {

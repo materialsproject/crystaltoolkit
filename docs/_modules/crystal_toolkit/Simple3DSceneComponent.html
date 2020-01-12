@@ -80,8 +80,15 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../jupyter.html">Jupyter Integration</a></li>
+</ul>
+
             
           
         </div>
@@ -158,11 +165,31 @@
 
 <span class="sd">Keyword arguments:</span>
 <span class="sd">- id (string; optional): The ID used to identify this component in Dash callbacks</span>
-<span class="sd">- data (dict; optional): Simple3DScene JSON</span>
-<span class="sd">- settings (dict; optional): Options used for generating scene</span>
-<span class="sd">- toggleVisibility (dict; optional): Hide/show nodes in scene by name (key), value is 1 to show the node</span>
-<span class="sd">and 0 to hide it</span>
-<span class="sd">- downloadRequest (dict; optional): Increment to trigger a screenshot or scene download.</span>
+<span class="sd">- data (dict; optional): Simple3DScene JSON, the easiest way to generate this is to use the Scene class</span>
+<span class="sd">in crystal_toolkit.core.scene and its to_json method.</span>
+<span class="sd">- settings (dict; optional): Options used for generating scene.</span>
+<span class="sd">Supported options and their defaults are given as follows:</span>
+<span class="sd">{</span>
+<span class="sd">   antialias: true, // set to false to improve performance</span>
+<span class="sd">   renderer: &#39;webgl&#39;, // &#39;svg&#39; also an option, used for unit testing</span>
+<span class="sd">   transparentBackground: false, // transparent background</span>
+<span class="sd">   background: &#39;#ffffff&#39;, // background color if not transparent,</span>
+<span class="sd">   sphereSegments: 32, // decrease to improve performance</span>
+<span class="sd">   cylinderSegments: 16, // decrease to improve performance</span>
+<span class="sd">   staticScene: true, // disable if animation required</span>
+<span class="sd">   defaultZoom: 0.8, // 1 will completely fill viewport with scen</span>
+<span class="sd">}</span>
+<span class="sd">There are several additional options used for debugging and testing,</span>
+<span class="sd">please consult the source code directly for these.</span>
+<span class="sd">- toggleVisibility (dict; optional): Hide/show nodes in scene by its name (key), value is 1 to show the node</span>
+<span class="sd">and 0 to hide it.</span>
+<span class="sd">- downloadRequest (dict; optional): Set to trigger a screenshot or scene download. Should be an object with</span>
+<span class="sd">the structure:</span>
+<span class="sd">{</span>
+<span class="sd">   &quot;n_requests&quot;: n_requests, // increment to trigger a new download request</span>
+<span class="sd">   &quot;filename&quot;: request_filename, // the download filename</span>
+<span class="sd">   &quot;filetype&quot;: &quot;png&quot;, // the download format</span>
+<span class="sd">}</span>
 <span class="sd">- selectedObjectReference (string; optional): Reference to selected objects when clicked</span>
 <span class="sd">- selectedObjectCount (number; optional): Click count for selected object&quot;&quot;&quot;</span>
 

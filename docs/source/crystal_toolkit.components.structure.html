@@ -80,11 +80,15 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">crystal_toolkit.components.structure module</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -181,18 +185,20 @@ times, but it’s important the callbacks are defined on the server.</p>
 
 <dl class="method">
 <dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.layout">
-<em class="property">property </em><code class="sig-name descname">layout</code><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.layout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">layout</code><span class="sig-paren">(</span><em class="sig-param">size: str = '400px'</em><span class="sig-paren">)</span> &#x2192; dash_html_components.Div.Div<a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.layout" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A Dash layout for the full component. Basic implementation</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – a CSS string specifying width/height of Div</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A html.Div containing the 3D structure or molecule</p>
 </dd>
 </dl>
-<p>provided, but should in general be overridden.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.legend_layout">
-<em class="property">property </em><code class="sig-name descname">legend_layout</code><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.legend_layout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">legend_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.legend_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.legend_layout" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A layout including a legend for the structure/molecule.</p>
@@ -202,7 +208,7 @@ times, but it’s important the callbacks are defined on the server.</p>
 
 <dl class="method">
 <dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.options_layout">
-<em class="property">property </em><code class="sig-name descname">options_layout</code><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.options_layout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">options_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.options_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.options_layout" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A layout including options to change the appearance, bonding, etc.</p>
@@ -222,7 +228,7 @@ times, but it’s important the callbacks are defined on the server.</p>
 
 <dl class="method">
 <dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.screenshot_layout">
-<em class="property">property </em><code class="sig-name descname">screenshot_layout</code><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.screenshot_layout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">screenshot_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.screenshot_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.screenshot_layout" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A layout including a button to trigger a screenshot download.</p>
@@ -232,7 +238,7 @@ times, but it’s important the callbacks are defined on the server.</p>
 
 <dl class="method">
 <dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.title_layout">
-<em class="property">property </em><code class="sig-name descname">title_layout</code><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.title_layout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">title_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.title_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.title_layout" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A layout including the composition of the structure/molecule as a title.</p>

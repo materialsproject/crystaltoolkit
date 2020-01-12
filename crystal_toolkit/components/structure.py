@@ -1,5 +1,5 @@
 import re
-import sys
+import os
 import warnings
 from collections import OrderedDict
 from itertools import combinations_with_replacement, chain
@@ -83,16 +83,6 @@ class StructureMoleculeComponent(MPComponent):
         :param scene_settings:
         :param kwargs:
         """
-
-        if "pytest" in sys.modules:
-            # For visual diff testing, we set the background of the
-            # Div containing the 3D scene to be an image of the WebGL
-            # viewport, since the canvas contents are not captured by
-            # the test framework. This is wasteful for normal app usage
-            # so is otherwise disabled.
-            self.default_scene_settings["transparentBackground"] = False
-        else:
-            self.default_scene_settings["transparentBackground"] = True
 
         super().__init__(
             id=id,
@@ -225,7 +215,7 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
 
-            if graph == current_graph:
+            if current_graph and graph == current_graph:
                 raise PreventUpdate
 
             return graph
@@ -457,6 +447,8 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _make_bonding_algorithm_custom_cuffoff_data(graph):
+        if not graph:
+            return [{"A": None, "B": None, "A—B": None}]
         struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
         # can't use type_of_specie because it doesn't work with disordered structures
         species = set(
@@ -683,10 +675,13 @@ class StructureMoleculeComponent(MPComponent):
             "legend": legend_layout,
         }
 
-    @property
-    def layout(self):
+    def layout(self, size: str = "400px") -> html.Div:
+        """
+        :param size: a CSS string specifying width/height of Div
+        :return: A html.Div containing the 3D structure or molecule
+        """
         return html.Div(
-            self._sub_layouts["struct"], style={"width": "400px", "height": "400px"}
+            self._sub_layouts["struct"], style={"width": size, "height": size}
         )
 
     @staticmethod
@@ -835,28 +830,24 @@ class StructureMoleculeComponent(MPComponent):
 
         return scene.to_json(), legend.get_legend()
 
-    @property
     def screenshot_layout(self):
         """
         :return: A layout including a button to trigger a screenshot download.
         """
         return self._sub_layouts["screenshot"]
 
-    @property
     def options_layout(self):
         """
         :return: A layout including options to change the appearance, bonding, etc.
         """
         return self._sub_layouts["options"]
 
-    @property
     def title_layout(self):
         """
         :return: A layout including the composition of the structure/molecule as a title.
         """
         return self._sub_layouts["title"]
 
-    @property
     def legend_layout(self):
         """
         :return: A layout including a legend for the structure/molecule.

@@ -157,7 +157,6 @@ class SearchComponent(MPComponent):
 
         return {"search": search}
 
-    @property
     def layout(self):
         return html.Div([self._sub_layouts["search"]])
 

@@ -1,0 +1,30 @@
+name: pytest
+
+on:
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install firefox-geckodriver
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    - name: Test with pytest
+      env:
+        PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      run: |
+        pytest --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/

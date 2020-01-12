@@ -80,8 +80,15 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
+</ul>
+
             
           
         </div>
@@ -302,9 +309,8 @@
 
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;search&quot;</span><span class="p">:</span> <span class="n">search</span><span class="p">}</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;search&quot;</span><span class="p">]])</span>
+<div class="viewcode-block" id="SearchComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.search.html#crystal_toolkit.components.search.SearchComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;search&quot;</span><span class="p">]])</span></div>
 
 <div class="viewcode-block" id="SearchComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.search.html#crystal_toolkit.components.search.SearchComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
 
