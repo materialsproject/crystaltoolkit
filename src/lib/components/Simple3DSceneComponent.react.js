@@ -7,9 +7,9 @@ import Simple3DScene from './Simple3DScene.js'
 /**
  * Simple3DSceneComponent is intended to draw simple 3D scenes using the popular
  * Three.js scene graph library. In particular, the JSON representing the 3D scene
- * is intended to be human-readable, and easily generated via Python. In future, a
- * long-term approach would be to develop a library to generate Three.js JSON directly
- * inside Python to make this component redundant.
+ * is intended to be human-readable, and easily generated via Python. This is not
+ * intended to be a replacement for a full scene graph library, but for rapid
+ * prototyping by non-experts.
  */
 export default class Simple3DSceneComponent extends Component {
   constructor (props) {
@@ -88,44 +88,65 @@ export default class Simple3DSceneComponent extends Component {
 
 Simple3DSceneComponent.propTypes = {
   /**
-         * The ID used to identify this component in Dash callbacks
-         */
+   * The ID used to identify this component in Dash callbacks
+   */
   id: PropTypes.string,
 
   /**
-         * Simple3DScene JSON
-         */
+   * Simple3DScene JSON, the easiest way to generate this is to use the Scene class
+   * in crystal_toolkit.core.scene and its to_json method.
+   */
   data: PropTypes.object,
 
   /**
-         * Options used for generating scene
-         */
+   * Options used for generating scene.
+   * Supported options and their defaults are given as follows:
+   * {
+   *    antialias: true, // set to false to improve performance
+   *    renderer: 'webgl', // 'svg' also an option, used for unit testing
+   *    transparentBackground: false, // transparent background
+   *    background: '#ffffff', // background color if not transparent,
+   *    sphereSegments: 32, // decrease to improve performance
+   *    cylinderSegments: 16, // decrease to improve performance
+   *    staticScene: true, // disable if animation required
+   *    defaultZoom: 0.8, // 1 will completely fill viewport with scene
+   * }
+   * There are several additional options used for debugging and testing,
+   * please consult the source code directly for these.
+   */
   settings: PropTypes.object,
 
   /**
-         * Hide/show nodes in scene by name (key), value is 1 to show the node
-         * and 0 to hide it
-         */
+   * Hide/show nodes in scene by its name (key), value is 1 to show the node
+   * and 0 to hide it.
+   */
   toggleVisibility: PropTypes.object,
 
   /**
-         * Increment to trigger a screenshot or scene download.
-         */
+   * Set to trigger a screenshot or scene download. Should be an object with
+   * the structure:
+   * {
+   *    "n_requests": n_requests, // increment to trigger a new download request
+   *    "filename": request_filename, // the download filename
+   *    "filetype": "png", // the download format
+   * }
+   */
   downloadRequest: PropTypes.object,
 
   /**
-         * Dash-assigned callback that should be called whenever any of the
-         * properties change
-         */
+   * Dash-assigned callback that should be called whenever any of the
+   * properties change
+   */
   setProps: PropTypes.func,
+
   /**
-         * Reference to selected objects when clicked
-         */
+   * Reference to selected objects when clicked
+   */
   selectedObjectReference: PropTypes.string,
 
   /**
-         * Click count for selected object
-         */
+   * Click count for selected object
+   */
   selectedObjectCount: PropTypes.number
 
 }

@@ -7,7 +7,7 @@ def test_structure(dash_duo):
     dash_duo.start_server(app)
     dash_duo.clear_storage()
 
-    time.sleep(1)
+    time.sleep(5)
     dash_duo.percy_snapshot("example_structure_on_load")
 
     # test changing radius
@@ -25,5 +25,5 @@ def test_structure(dash_duo):
     dash_duo.percy_snapshot("example_structure_primitive_radius_index_2")
 
     assert (
-        dash_duo.get_logs() == []
+        bool(dash_duo.get_logs()) is False
     ), f"Browser console contains an error: {dash_duo.get_logs()}"

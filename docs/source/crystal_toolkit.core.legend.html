@@ -80,11 +80,15 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">crystal_toolkit.core.legend module</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -193,8 +197,9 @@ and values of a list of site property names corresponding to each type</p>
 <dt id="crystal_toolkit.core.legend.Legend.generate_accessible_color_scheme_on_the_fly">
 <em class="property">static </em><code class="sig-name descname">generate_accessible_color_scheme_on_the_fly</code><span class="sig-paren">(</span><em class="sig-param">site_collection: pymatgen.core.structure.SiteCollection</em><span class="sig-paren">)</span> &#x2192; Dict[str, Dict[str, Tuple[int, int, int]]]<a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.generate_accessible_color_scheme_on_the_fly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.generate_accessible_color_scheme_on_the_fly" title="Permalink to this definition">¶</a></dt>
 <dd><p>e.g. for a color scheme more appropriate for people with color blindness</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>site_collection: SiteCollection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site_collection</strong> – SiteCollection</p>
 </dd>
 </dl>
 <p>Returns: A dictionary in similar format to EL_COLORS</p>
@@ -204,8 +209,9 @@ and values of a list of site property names corresponding to each type</p>
 <dt id="crystal_toolkit.core.legend.Legend.generate_categorical_color_scheme_on_the_fly">
 <em class="property">static </em><code class="sig-name descname">generate_categorical_color_scheme_on_the_fly</code><span class="sig-paren">(</span><em class="sig-param">site_collection: pymatgen.core.structure.SiteCollection</em>, <em class="sig-param">site_prop_types</em><span class="sig-paren">)</span> &#x2192; Dict[str, Dict[str, Tuple[int, int, int]]]<a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.generate_categorical_color_scheme_on_the_fly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.generate_categorical_color_scheme_on_the_fly" title="Permalink to this definition">¶</a></dt>
 <dd><p>e.g. for Wykcoff</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>site_collection: SiteCollection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site_collection</strong> – SiteCollection</p>
 </dd>
 </dl>
 <p>Returns: A dictionary in similar format to EL_COLORS</p>
@@ -216,9 +222,12 @@ and values of a list of site property names corresponding to each type</p>
 <code class="sig-name descname">get_color</code><span class="sig-paren">(</span><em class="sig-param">sp: Union[pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.Element], site: Optional[pymatgen.core.sites.Site] = None</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.get_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.get_color" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a color to render a specific species. Optionally, you can provide
 a site for context, since …</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>sp: Specie or Element
-site: Site</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp</strong> – Specie or Element</p></li>
+<li><p><strong>site</strong> – Site</p></li>
+</ul>
 </dd>
 </dl>
 <p>Returns: Color</p>
@@ -237,8 +246,9 @@ site: Site</p>
 <dl class="method">
 <dt id="crystal_toolkit.core.legend.Legend.get_species_str">
 <em class="property">static </em><code class="sig-name descname">get_species_str</code><span class="sig-paren">(</span><em class="sig-param">sp: Union[pymatgen.core.periodic_table.Specie, pymatgen.core.periodic_table.Element]</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.get_species_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.get_species_str" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Args:</dt><dd><p>sp: Specie or Element</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sp</strong> – Specie or Element</p>
 </dd>
 </dl>
 <p>Returns: string representation</p>

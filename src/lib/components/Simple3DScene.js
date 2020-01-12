@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import { TrackballControls } from '../../../node_modules/three/examples/jsm/controls/TrackballControls.js'
 import { ConvexBufferGeometry } from '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js'
 import { CSS2DRenderer, CSS2DObject } from '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js'
+import { SVGRenderer } from '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js'
+import { ColladaExporter } from '../../../node_modules/three/examples/jsm/exporters/ColladaExporter.js'
 
 export default class Simple3DScene {
   constructor (scene_json, dom_elt, settings) {
@@ -10,9 +12,10 @@ export default class Simple3DScene {
     this.animate = this.animate.bind(this)
 
     const defaults = {
-      shadows: true,
       antialias: true,
       transparentBackground: false,
+      renderer: 'webgl',
+      renderDivBackground: false,
       background: '#ffffff',
       sphereSegments: 32,
       cylinderSegments: 16,
@@ -54,15 +57,19 @@ export default class Simple3DScene {
     const width = dom_elt.clientWidth
     const height = dom_elt.clientHeight
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: this.settings.antialias,
-      alpha: this.settings.transparentBackground,
-      gammaInput: true,
-      gammaOutput: true,
-      gammaFactor: 2.2,
-      shadowMapEnabled: this.settings.shadows,
-      shadowMapType: THREE.PCFSoftShadowMap
-    })
+    let renderer
+    if (this.settings.renderer === 'webgl') {
+      renderer = new THREE.WebGLRenderer({
+        antialias: this.settings.antialias,
+        alpha: this.settings.transparentBackground,
+        gammaInput: true,
+        gammaOutput: true,
+        gammaFactor: 2.2
+      })
+    } else if (this.settings.renderer === 'svg') {
+      renderer = new SVGRenderer()
+    }
+
     this.renderer = renderer
 
     renderer.setPixelRatio(
@@ -116,13 +123,15 @@ export default class Simple3DScene {
       this.renderer.domElement
     )
     controls.enableKeys = false
-    //controls.minDistance = 20
-    //controls.maxDistance = 50
-    //controls.noPan = true
-    //controls.noZoom = !this.settings.enableZoom
-    //controls.rotateSpeed = 4.0
-    //controls.zoomSpeed = 2.0
-    //controls.staticMoving = true
+
+    // for OrbitControls
+    // controls.minDistance = 20
+    // controls.maxDistance = 50
+    // controls.noPan = true
+    // controls.noZoom = !this.settings.enableZoom
+    // controls.rotateSpeed = 4.0
+    // controls.zoomSpeed = 2.0
+    // controls.staticMoving = true
 
     // initial render
     function render () {
@@ -163,6 +172,9 @@ export default class Simple3DScene {
       case 'png':
         this.downloadScreenshot(filename)
         break
+      case 'dae':
+        this.downloadCollada(filename)
+        break
       default:
         throw new Error('Unknown filetype.')
     }
@@ -186,6 +198,17 @@ export default class Simple3DScene {
     link.click()
   }
 
+  downloadCollada (filename) {
+    const files = new ColladaExporter().parse(this.scene)
+
+    var link = document.createElement('a')
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.href = 'data:text/plain;base64,' + btoa(files.data)
+    link.download = filename || 'scene.dae'
+    link.click()
+  }
+
   addToScene (scene_json) {
     Simple3DScene.removeObjectByName(this.scene, scene_json.name)
     this.clickable_objects = []
@@ -200,7 +223,7 @@ export default class Simple3DScene {
         } else {
           const new_parent = new THREE.Object3D()
           new_parent.name = sub_o.name
-          if (sub_o.hasOwnProperty("origin")) {
+          if (sub_o.hasOwnProperty('origin')) {
             const translation = new THREE.Matrix4()
             translation.makeTranslation(...sub_o.origin)
             new_parent.applyMatrix(translation)
@@ -236,7 +259,7 @@ export default class Simple3DScene {
 
     // we can automatically output a screenshot to be the background of the parent div
     // this helps for automated testing, printing the web page, etc.
-    if (!this.settings.transparentBackground) {
+    if (this.settings.renderDivBackground) {
       this.renderer.domElement.parentElement.style.backgroundSize = '100%'
       this.renderer.domElement.parentElement.style.backgroundRepeat = 'no-repeat'
       this.renderer.domElement.parentElement.style.backgroundPosition = 'center'
@@ -582,6 +605,10 @@ export default class Simple3DScene {
       color: color || '#52afb0',
       opacity: opacity || 1.0
     })
+
+    if (this.settings.renderer === 'svg') {
+      return new THREE.MeshBasicMaterial(parameters)
+    }
 
     switch (this.settings.material.type) {
       case 'MeshStandardMaterial': {
