@@ -1,0 +1,253 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>crystal_toolkit.core.mpapp module &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.core.mpapp.html"/>
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>crystal_toolkit.core.mpapp module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.core.mpapp.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-crystal_toolkit.core.mpapp">
+<span id="crystal-toolkit-core-mpapp-module"></span><h1>crystal_toolkit.core.mpapp module<a class="headerlink" href="#module-crystal_toolkit.core.mpapp" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="crystal_toolkit.core.mpapp.MPApp">
+<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.mpapp.</code><code class="sig-name descname">MPApp</code><span class="sig-paren">(</span><em class="sig-param">default_data: Optional[monty.json.MSONable] = None</em>, <em class="sig-param">id: Optional[str] = None</em>, <em class="sig-param">links: Optional[Dict[str</em>, <em class="sig-param">str]] = None</em>, <em class="sig-param">origin_component: Optional[MPComponent] = None</em>, <em class="sig-param">storage_type: typing_extensions.Literal['memory'</em>, <em class="sig-param">'local'</em>, <em class="sig-param">'session'][memory</em>, <em class="sig-param">local</em>, <em class="sig-param">session] = 'memory'</em>, <em class="sig-param">disable_callbacks: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/mpapp.html#MPApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Class to make an app for the Materials Project website.</p>
+<dl class="method">
+<dt id="crystal_toolkit.core.mpapp.MPApp.description">
+<em class="property">abstract property </em><code class="sig-name descname">description</code><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Short description of app (max 140 characters).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="crystal_toolkit.core.mpapp.MPApp.generate_callbacks">
+<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/mpapp.html#MPApp.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.generate_callbacks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all callbacks associated with the layouts in this app. Assume
+that “suppress_callback_exceptions” is True, since it is not always
+guaranteed that all layouts will be displayed to the end user at all
+times, but it’s important the callbacks are defined on the server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="crystal_toolkit.core.mpapp.MPApp.get_layout">
+<code class="sig-name descname">get_layout</code><span class="sig-paren">(</span><em class="sig-param">payload=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/mpapp.html#MPApp.get_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.get_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a Dash layout for the app. If the app requires any
+global set-up before a layout can be generated, put this in
+the app’s initializer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>payload</strong> – anything in the URL after</p>
+</dd>
+</dl>
+<p><a class="reference external" href="https://materialsproject.org/your_app_name/">https://materialsproject.org/your_app_name/</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="crystal_toolkit.core.mpapp.MPApp.name">
+<em class="property">abstract property </em><code class="sig-name descname">name</code><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of your app, will be included in navigation menu</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="crystal_toolkit.core.mpapp.MPApp.url">
+<em class="property">abstract property </em><code class="sig-name descname">url</code><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.url" title="Permalink to this definition">¶</a></dt>
+<dd><p>//materialsproject.org/{url}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>URL of your app, will set its url as https</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Crystal Toolkit Development Team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
