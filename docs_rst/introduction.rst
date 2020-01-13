@@ -2,6 +2,11 @@
 Introduction
 ============
 
+.. image:: images/logo.png
+  :scale: 50%
+  :align: center
+  :alt: Crystal Toolkit Logo
+
 Crystal Toolkit is an interactive web app and its supporting framework
 from the `Materials Project <https://materialsproject.org>`_.
 The app allows you to import, view, analyze and transform crystal structures and molecules, while
