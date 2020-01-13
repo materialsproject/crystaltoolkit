@@ -445,7 +445,8 @@
 
 <div class="viewcode-block" id="write_asy_file"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.write_asy_file">[docs]</a><span class="k">def</span> <span class="nf">write_asy_file</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    smc : (StructureMoleculeComponent)</span>
+<span class="sd">    ctk_scene : Scene object from crystaltoolkit</span>
+<span class="sd">    filename : Output asymptote file and location</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fstream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
     <span class="n">target</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="o">-</span><span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
