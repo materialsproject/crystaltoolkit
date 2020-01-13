@@ -20,9 +20,8 @@ You can visit the current Crystal Toolkit web app `here <https://materialsprojec
 
 .. warning::
   While the web app is online, the Crystal Toolkit source code itself is not
-  intended for public use at this time.
-  It is being developed in the open but the current master branch
-  **may not work**, and **documentation may be incomplete and/or misleading.**
+  intended for public use at this time. The current master branch **may not work**,
+  and **documentation may be incomplete and/or misleading.**
   We're working hard to reach release status, please check back soon.
 
 Crystal Toolkit Framework
@@ -49,9 +48,9 @@ installed Docker, run the following:
 
 ::
 
-    docker run
+    docker container run -p 8000:8000 -e PMG_MAPI_KEY=YOUR_API_KEY_HERE materialsproject/crystal_toolkit
 
-The app should then be available
+The app should then be available at `<http://localhost:8000>`_.
 
 Make sure to set your ``PMG_MAPI_KEY`` appropriately.
 If you need a Materials Project API key, please get a free account on
