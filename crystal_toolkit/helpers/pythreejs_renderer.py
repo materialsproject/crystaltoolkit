@@ -17,14 +17,14 @@ from pythreejs import (
     LineSegmentsGeometry,
     LineBasicMaterial,
     LineMaterial,
-    LineDashedMaterial,
+    # LineDashedMaterial,
     Scene,
     AmbientLight,
     Renderer,
     OrbitControls,
     OrthographicCamera,
     DirectionalLight,
-    Box3,
+    # Box3,
 )
 from math import isnan
 from IPython.display import display
@@ -34,10 +34,6 @@ from pymatgen.analysis.graphs import StructureGraph
 
 import numpy as np
 import warnings
-import json
-from crystal_toolkit import _DEFAULTS
-import crystal_toolkit.renderables.structure
-import crystal_toolkit.renderables.volumetric
 from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 from crystal_toolkit.helpers.utils import update_object_args
@@ -119,66 +115,6 @@ def view(renderable_obj, **kwargs):
     if isinstance(renderable_obj, Structure) or isinstance(renderable_obj, StructureGraph):
         kwargs['explicitly_calculate_polyhedra_hull'] = True
     display_scene(renderable_obj.get_scene(**kwargs))
-
-def view_old(molecule_or_structure, **kwargs):
-    """View a pymatgen Molecule or Structure object interactively in a
-    Jupyter notebook.
-
-    NOTE: SHOULD NO LONGER BE NEEDED
-
-    Args:
-        molecule_or_structure: Molecule or structure to display
-        draw_image_atoms (bool):  Show periodic copies of atoms
-    """
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-
-        # Since the jupyter viewer is meant for quick peaks at the structure the default behaviour should be different
-        # ex. draw_image_atoms should be set to false:
-        if "draw_image_atoms" not in kwargs:
-            kwargs["draw_image_atoms"] = False
-        if "bonded_sites_outside_unit_cell" not in kwargs:
-            kwargs["bonded_sites_outside_unit_cell"] = False
-        if "hide_incomplete_edges" not in kwargs:
-            kwargs["hide_incomplete_edges"] = True
-        obj_or_scene = molecule_or_structure
-        if isinstance(obj_or_scene, CrystalToolkitScene):
-            scene = obj_or_scene
-        elif hasattr(obj_or_scene, "get_scene"):
-            scene = obj_or_scene.get_scene(**kwargs)
-        # TODO: next two elif statements are only here until Molecule and Structure have get_scene()
-        elif isinstance(obj_or_scene, Structure):
-            # TODO Temporary place holder for render structure until structure.get_scene() is implemented
-            struct_or_mol = obj_or_scene.copy()
-            smc = StructureMoleculeComponent(
-                struct_or_mol,
-                static=True,
-                hide_incomplete_bonds=kwargs['hide_incomplete_edges'],
-                draw_image_atoms=kwargs['draw_image_atoms'],
-                bonded_sites_outside_unit_cell=kwargs['bonded_sites_outside_unit_cell'],
-            )
-            origin = np.sum(obj_or_scene.lattice.matrix, axis=0)/2.
-            scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
-            if add_chg:
-                scene.contents.append(add_chg)
-        elif isinstance(obj_or_scene, Molecule):
-            # TODO Temporary place holder for render molecules
-            kwargs.pop('draw_image_atoms')
-            kwargs.pop('hide_incomplete_edges')
-            kwargs.pop('bonded_sites_outside_unit_cell')
-            origin = obj_or_scene.center_of_mass
-            struct_or_mol = obj_or_scene.copy()
-            smc = StructureMoleculeComponent(
-                struct_or_mol,
-                static=True,
-                **kwargs)
-            scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
-        else:
-            raise ValueError(
-                "Only Scene objects or objects with get_scene() methods "
-                "can be displayed."
-            )
-        display_scene(scene)
 
 
 def display_scene(scene):

@@ -293,7 +293,8 @@ def traverse_scene_object(scene_data, fstream):
 
 def write_asy_file(ctk_scene, file_name):
     """
-    smc : (StructureMoleculeComponent)
+    ctk_scene : Scene object from crystaltoolkit
+    filename : Output asymptote file and location
     """
     fstream = open(file_name, "w")
     target = tuple(-ii for ii in ctk_scene.origin)
