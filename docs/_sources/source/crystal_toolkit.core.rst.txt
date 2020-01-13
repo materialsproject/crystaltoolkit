@@ -14,6 +14,7 @@ Submodules
 .. toctree::
 
    crystal_toolkit.core.legend
+   crystal_toolkit.core.mpapp
    crystal_toolkit.core.mpcomponent
    crystal_toolkit.core.panelcomponent
    crystal_toolkit.core.scene

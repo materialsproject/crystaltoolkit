@@ -2,26 +2,28 @@
 Introduction
 ============
 
-Crystal Toolkit is an interactive web app from the `Materials Project <https://materialsproject.org>`_
-that allows you to import, view, analyze and transform crystal structures and molecules.
+Crystal Toolkit is an interactive web app and its supporting framework
+from the `Materials Project <https://materialsproject.org>`_.
+The app allows you to import, view, analyze and transform crystal structures and molecules, while
+the framework that powers the app can be used for your own materials science applications.
+
+Crystal Toolkit App
+-------------------
+
+You can visit the current Crystal Toolkit web app `here <https://materialsproject.org/#apps/xtaltoolkit>`_.
 
 .. warning::
-  The Crystal Toolkit code not intended for public release yet.
+  While the web app is online, the Crystal Toolkit source code itself is not
+  intended for public use at this time.
   It is being developed in the open but the current master branch
   **may not work**, and **documentation may be incomplete and/or misleading.**
   We're working hard to reach release status, please check back soon.
 
-Web App
--------
-
-You can visit the current Crystal Toolkit web app `here <https://materialsproject.org/#apps/xtaltoolkit>`_.
-
-
-Web App Framework
------------------
+Crystal Toolkit Framework
+-------------------------
 
 Crystal Toolkit is designed as a modular, object-orientated suite of UI components
-built upon the Dash framework from Plotly. The main Crystal Toolkit web app is just
+built upon the `Dash framework by Plotly <https://dash.plot.ly>`_. The main Crystal Toolkit web app is just
 one example of using these components.
 
 Installation
@@ -30,6 +32,24 @@ Installation
 You can ``pip install crystaltoolkit``.
 
 For Jupyter integration, please see the `additional installation steps <jupyter>`_.
+
+
+Running the App Locally
+-----------------------
+
+If the web app is offline or undergoing maintenance, you can also run the
+web app locally using `Docker <https://www.docker.com>`_. After you've
+installed Docker, run the following:
+
+::
+
+    docker run
+
+The app should then be available
+
+Make sure to set your ``PMG_MAPI_KEY`` appropriately.
+If you need a Materials Project API key, please get a free account on
+`Materials Project <https://materialsproject.org>`_ and access your dashboard.
 
 Development Team
 ----------------
@@ -46,4 +66,4 @@ The `Crystal Toolkit Development Team <https://github.com/materialsproject/cryst
 * `Stephen Weitzner <https://github.com/sweitzner>`_ contributed POV-Ray integration (in progress)
 * `Richard Tran <https://github.com/richardtran415>`_ for planned contribution of Wulff shape component
 
-New contributors are welcome, please see our `Code of Conduct <https://github.com/materialsproject/crystaltoolkit/blob/master/code-of-conduct.md>`_.
+New contributors are welcome, please see our `Code of Conduct. <https://github.com/materialsproject/crystaltoolkit/blob/master/code-of-conduct.md>`_

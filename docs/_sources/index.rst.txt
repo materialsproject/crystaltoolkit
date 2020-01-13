@@ -6,6 +6,7 @@
    first_web_app
    first_component
    components
+   helpers
    jupyter
    API Docs<py-modindex>
 
