@@ -6,6 +6,7 @@ Introduction
   :scale: 50%
   :align: center
   :alt: Crystal Toolkit Logo
+  :target: https://materialsproject.org/#apps/xtaltoolkit
 
 Crystal Toolkit is an interactive web app and its supporting framework
 from the `Materials Project <https://materialsproject.org>`_.
