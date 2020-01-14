@@ -16,7 +16,9 @@ help:
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
+	@rm -rf ../docs/
 	@rm -rf source/
 	@sphinx-apidoc -e -f -o source/ ../crystal_toolkit ../crystal_toolkit/apps
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@cp -r "$(BUILDDIR)/html/." ../docs/
+	@cp CNAME ../docs/
