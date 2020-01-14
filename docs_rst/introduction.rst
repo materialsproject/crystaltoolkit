@@ -15,7 +15,7 @@ the framework that powers the app can be used for your own materials science app
 Crystal Toolkit App
 -------------------
 
-You can visit the current Crystal Toolkit web app `here <https://materialsproject.org/#apps/xtaltoolkit>`_.
+You can visit the current Crystal Toolkit web app `here. <https://materialsproject.org/#apps/xtaltoolkit>`_
 
 .. warning::
   While the web app is online, the Crystal Toolkit source code itself is not
