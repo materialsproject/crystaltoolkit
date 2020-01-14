@@ -84,4 +84,3 @@ Callback Graph
 .. image:: ../images/structuremoleculecomponent_callbacks.png
   :align: center
   :alt: Example of StructureMoleculeComponent
-  :target: https://materialsproject.org/#apps/xtaltoolkit
