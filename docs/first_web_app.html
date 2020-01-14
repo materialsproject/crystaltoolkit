@@ -323,7 +323,9 @@ structure when clicked.</p>
 <p>The two features here that make this slightly different from a regular Dash app are:</p>
 <ol class="arabic simple">
 <li><p>The structure object is stored and accessed via <code class="docutils literal notranslate"><span class="pre">structure_component.id()</span></code>
-and its <code class="docutils literal notranslate"><span class="pre">data</span></code> prop.</p></li>
+and its <code class="docutils literal notranslate"><span class="pre">data</span></code> prop. The <cite>.id()</cite> method ensures that each Dash component
+has a unique id, even if multiple of the same MPComponent are present on the
+same page.</p></li>
 <li><p>We can return the object directly (as a <code class="docutils literal notranslate"><span class="pre">Structure</span></code> object) via the callback,
 without needing to serialize or deserialize it.</p></li>
 </ol>
@@ -364,6 +366,7 @@ backend is supported, but we recommend either:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">RedisCache</span></code> for production:</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ... define your Dash &quot;app&quot; variable first</span>
+
 <span class="kn">from</span> <span class="nn">flask_caching</span> <span class="kn">import</span> <span class="n">Cache</span>
 
 <span class="n">cache</span> <span class="o">=</span> <span class="n">Cache</span><span class="p">(</span>
