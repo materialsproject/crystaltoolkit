@@ -8,6 +8,6 @@
    components
    helpers
    jupyter
-   API Docs<source/modules>
+   API Docs<source/crystal_toolkit>
 
 .. include:: introduction.rst

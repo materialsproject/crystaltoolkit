@@ -8,10 +8,9 @@ documentation `here. <source/crystal_toolkit.components.structure>`_
 Screenshot
 ~~~~~~~~~~
 
-.. image:: images/structuremoleculecomponent.png
+.. image:: ../images/structuremoleculecomponent.png
   :align: center
   :alt: Example of StructureMoleculeComponent
-  :target: https://materialsproject.org/#apps/xtaltoolkit
 
 Example Usage
 ~~~~~~~~~~~~~
@@ -82,7 +81,7 @@ Example Usage
 Callback Graph
 ~~~~~~~~~~~~~~
 
-.. image:: images/structuremoleculecomponent_callbacks.png
+.. image:: ../images/structuremoleculecomponent_callbacks.png
   :align: center
   :alt: Example of StructureMoleculeComponent
   :target: https://materialsproject.org/#apps/xtaltoolkit
