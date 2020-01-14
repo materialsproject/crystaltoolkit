@@ -169,6 +169,39 @@ no JavaScript knowledge required.
 If you’re not familiar with the Dash framework, please read their documentation
 and try their example app first.</p>
 </div>
+<p>The basic steps are to:</p>
+<ol class="arabic">
+<li><p>Sub-class <a class="reference external" href="source/crystal_toolkit.core.mpcomponent">MPComponent</a>. Recognize
+that the component comes with a <code class="docutils literal notranslate"><span class="pre">dcc.Store</span></code> which contains the <code class="docutils literal notranslate"><span class="pre">MSON</span></code>
+representation of whatever the component is intended to render.</p></li>
+<li><p>Implement its <code class="docutils literal notranslate"><span class="pre">_sub_layouts</span></code> method to return a dictionary with
+values correponding to different Dash layouts you want in your component
+(<code class="docutils literal notranslate"><span class="pre">html.Div</span></code> elements etc). The use of <code class="docutils literal notranslate"><span class="pre">_sub_layouts</span></code> is mostly for
+book-keeping if the component is complex.</p></li>
+<li><p>Implement its master <code class="docutils literal notranslate"><span class="pre">layout()</span></code> method to return the “default” layout
+for your component. You may also add additional <code class="docutils literal notranslate"><span class="pre">..._layout()</span></code>
+methods for optional layouts; for example, the <code class="docutils literal notranslate"><span class="pre">StructureMoleculeComponent</span></code>
+has <code class="docutils literal notranslate"><span class="pre">legend_layout()</span></code> to return the legend for the structure or molecule
+being displayed.</p></li>
+<li><p>For interactivity, implement the <code class="docutils literal notranslate"><span class="pre">generate_callbacks(app,</span> <span class="pre">cache)</span></code> method.
+Inside this method you can define callbacks to be associated with the component.
+<em>At minimum,</em> make sure that if the component’s main <code class="docutils literal notranslate"><span class="pre">dcc.Store</span></code> is updated
+with a new object (for example, a new crystal structure is set for
+<code class="docutils literal notranslate"><span class="pre">StructureMoleculeComponent</span></code>) that the state of the component is also updated
+appropriately.</p>
+<p>Try to keep the total number of callbacks to a minimum, and
+the size of the data stores small wherever possible, to improve performance of
+your component. Using multiple-output callbacks, and judicious use of
+<code class="docutils literal notranslate"><span class="pre">raise</span> <span class="pre">PreventUpdate</span></code> and <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">no_update</span></code> can help with this, especially
+if checking for the initial callback firing on page load.</p>
+<p>If you have a long-running callback, or one that <em>may</em> be long-running, make
+sure to wrap it in a <code class="docutils literal notranslate"><span class="pre">dcc.Loading</span></code> component to improve the user experience.</p>
+</li>
+</ol>
+<p>At this point, the component should be working. It needs a simple <strong>example app</strong>
+to be added to <code class="docutils literal notranslate"><span class="pre">crystal_toolkit.apps.examples</span></code> and a corresponding <strong>test</strong> that
+the example app runs, and finally a short documentation page in <code class="docutils literal notranslate"><span class="pre">docs_rst</span></code>. Please
+copy from the existing examples as necessary.</p>
 </div>
 
 
