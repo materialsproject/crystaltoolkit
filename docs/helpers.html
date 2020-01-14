@@ -8,14 +8,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; Crystal Toolkit  documentation</title>
+  <title>Helpers &mdash; Crystal Toolkit  documentation</title>
   
 
   
   
   
   
-    <link rel="canonical" href="https://crystaltoolkit.orgsearch.html"/>
+    <link rel="canonical" href="https://crystaltoolkit.orghelpers.html"/>
   
 
   
@@ -27,7 +27,6 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
-        <script type="text/javascript" src="_static/searchtools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -37,7 +36,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Jupyter Integration" href="jupyter.html" />
+    <link rel="prev" title="Dash Components" href="components/dash_components.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,7 +65,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -81,13 +82,18 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_component.html">Your First Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Helpers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#inputs">Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#layouts">Layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#renderers">Renderers</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Integration</a></li>
 </ul>
 
@@ -134,14 +140,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Search</li>
+      <li>Helpers</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
             
-              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/search" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/helpers.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -155,19 +161,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="helpers">
+<h1>Helpers<a class="headerlink" href="#helpers" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">helpers</span></code> submodule in Crystal Toolkit contains a few utilities
+that are useful for making your app.</p>
+<div class="section" id="inputs">
+<h2>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="source/crystal_toolkit.helpers.layouts">inputs</a> submodule contains various
+controls for inputting floating point numbers, matrices, boolean values, etc. with labels
+attached.</p>
+</div>
+<div class="section" id="layouts">
+<h2>Layouts<a class="headerlink" href="#layouts" title="Permalink to this headline">¶</a></h2>
+<p>The Crystal Toolkit app makes heavy use of the
+<a class="reference external" href="https://bulma.io">Bulma CSS Framework</a> for styling. The
+<a class="reference external" href="source/crystal_toolkit.helpers.layouts">layouts</a> submodule contains
+a few wrappers for <code class="docutils literal notranslate"><span class="pre">html.Div</span></code> with these styles pre-applied, such as
+<code class="docutils literal notranslate"><span class="pre">Columns</span></code>, <code class="docutils literal notranslate"><span class="pre">Box</span></code>, <code class="docutils literal notranslate"><span class="pre">Footer</span></code>, etc.</p>
+</div>
+<div class="section" id="renderers">
+<h2>Renderers<a class="headerlink" href="#renderers" title="Permalink to this headline">¶</a></h2>
+<p>Three-dimensional scenes created using the
+<a class="reference external" href="source/crystal_toolkit.core.scene">Scene</a> class can be rendered
+by the <code class="docutils literal notranslate"><span class="pre">Simple3DScene</span></code> Dash component, but also other tools including
+pythreejs (for Jupypter integration), POV-Ray (for high-quality rendering) and
+asymptote (for LaTeX integration).</p>
+</div>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
            
@@ -205,14 +226,7 @@
   
   
     
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>
