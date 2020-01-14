@@ -91,10 +91,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#development-team">Development Team</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_component.html">Your First Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Integration</a></li>
 </ul>
 
@@ -164,7 +165,7 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<a class="reference internal image-reference" href="_images/logo.png"><img alt="Crystal Toolkit Logo" class="align-center" src="_images/logo.png" style="width: 1204.0px; height: 214.5px;" /></a>
+<a class="reference external image-reference" href="https://materialsproject.org/#apps/xtaltoolkit"><img alt="Crystal Toolkit Logo" class="align-center" src="_images/logo.png" style="width: 1204.0px; height: 214.5px;" /></a>
 <p>Crystal Toolkit is an interactive web app and its supporting framework
 from the <a class="reference external" href="https://materialsproject.org">Materials Project</a>.
 The app allows you to import, view, analyze and transform crystal structures and molecules, while
@@ -175,9 +176,8 @@ the framework that powers the app can be used for your own materials science app
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>While the web app is online, the Crystal Toolkit source code itself is not
-intended for public use at this time.
-It is being developed in the open but the current master branch
-<strong>may not work</strong>, and <strong>documentation may be incomplete and/or misleading.</strong>
+intended for public use at this time. The current master branch <strong>may not work</strong>,
+and <strong>documentation may be incomplete and/or misleading.</strong>
 We’re working hard to reach release status, please check back soon.</p>
 </div>
 </div>
@@ -197,10 +197,10 @@ one example of using these components.</p>
 <p>If the web app is offline or undergoing maintenance, you can also run the
 web app locally using <a class="reference external" href="https://www.docker.com">Docker</a>. After you’ve
 installed Docker, run the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">container</span> <span class="n">run</span> <span class="o">-</span><span class="n">p</span> <span class="mi">8000</span><span class="p">:</span><span class="mi">8000</span> <span class="o">-</span><span class="n">e</span> <span class="n">PMG_MAPI_KEY</span><span class="o">=</span><span class="n">YOUR_API_KEY_HERE</span> <span class="n">materialsproject</span><span class="o">/</span><span class="n">crystal_toolkit</span>
 </pre></div>
 </div>
-<p>The app should then be available</p>
+<p>The app should then be available at <a class="reference external" href="http://localhost:8000">http://localhost:8000</a>.</p>
 <p>Make sure to set your <code class="docutils literal notranslate"><span class="pre">PMG_MAPI_KEY</span></code> appropriately.
 If you need a Materials Project API key, please get a free account on
 <a class="reference external" href="https://materialsproject.org">Materials Project</a> and access your dashboard.</p>
