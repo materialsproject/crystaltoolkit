@@ -1,6 +1,6 @@
-==========
-Components
-==========
+=================
+Component Library
+=================
 
 .. toctree::
    :hidden:
