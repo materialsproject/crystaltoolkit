@@ -8,6 +8,6 @@
    components
    helpers
    jupyter
-   API Docs<py-modindex>
+   API Docs<source/modules>
 
 .. include:: introduction.rst
