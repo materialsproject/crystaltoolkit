@@ -54,7 +54,7 @@ Every Crystal Toolkit app needs the following basic structure:
     if __name__ == "__main__":
         app.run_server(debug=True, port=8050)
 
-Save this code as `app.py` and it can be run with `python app.py`.
+Save this code as ``app.py`` and it can be run with ``python app.py``.
 
 Visiting `<http://localhost:8050>`_ in your web browser should then
 give a blank page with the text "Hello scientist!".
