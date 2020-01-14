@@ -174,7 +174,9 @@ structure when clicked.
 The two features here that make this slightly different from a regular Dash app are:
 
 1. The structure object is stored and accessed via ``structure_component.id()``
-   and its ``data`` prop.
+   and its ``data`` prop. The `.id()` method ensures that each Dash component
+   has a unique id, even if multiple of the same MPComponent are present on the
+   same page.
 2. We can return the object directly (as a ``Structure`` object) via the callback,
    without needing to serialize or deserialize it.
 
@@ -218,6 +220,7 @@ backend is supported, but we recommend either:
 ::
 
    # ... define your Dash "app" variable first
+
    from flask_caching import Cache
 
    cache = Cache(
