@@ -196,7 +196,7 @@ Caching
 .. note::
    This section is optional for getting an app working.
 
-Long-running callbacks (> 0.1ms) can make a web app feel slow and sluggish.
+Long-running callbacks (> 0.1 ms) can make a web app feel slow and sluggish.
 Since callbacks do not rely on any external state, they are easy to cache.
 
 Caching is supported by many Crystal Toolkit components, but the cache
