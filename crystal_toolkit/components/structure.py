@@ -181,6 +181,11 @@ class StructureMoleculeComponent(MPComponent):
             current_graph,
         ):
 
+            # unit cell choice and bonding algorithms need to come from a settings
+            # object (in a dcc.Store) guaranteed to be present in layout, rather
+            # than from the controls themselves -- since these are optional and
+            # may not be present in the layout
+
             if not struct_or_mol:
                 raise PreventUpdate
 
@@ -217,7 +222,11 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
 
-            if current_graph and graph == current_graph:
+            if (
+                current_graph
+                and graph.structure == current_graph.structure
+                and graph == current_graph
+            ):
                 raise PreventUpdate
 
             return graph
