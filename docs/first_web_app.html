@@ -279,9 +279,8 @@ structure when clicked.</p>
 
 <span class="c1"># standard Dash imports for callbacks (interactivity)</span>
 <span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
 
-<span class="c1"># so we can pick a structure at random</span>
-<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
@@ -296,27 +295,30 @@ structure when clicked.</p>
 <span class="n">structures</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]),</span>
     <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]),</span>
-    <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]),</span>
 <span class="p">]</span>
 
 <span class="c1"># we show the first structure by default</span>
 <span class="n">structure_component</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">StructureMoleculeComponent</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 <span class="c1"># and we create a button for user interaction</span>
-<span class="n">my_button</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Randomize!&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;random_button&quot;</span><span class="p">)</span>
+<span class="n">my_button</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Swap Structure&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;change_structure_button&quot;</span><span class="p">)</span>
 
 <span class="c1"># now we have two entries in our app layout,</span>
 <span class="c1"># the structure component&#39;s layout and the button</span>
 <span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="n">structure_component</span><span class="o">.</span><span class="n">layout</span><span class="p">(),</span> <span class="n">my_button</span><span class="p">])</span>
 <span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
 
-
 <span class="c1"># for the interactivity, we use a standard Dash callback</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-    <span class="n">Output</span><span class="p">(</span><span class="n">structure_component</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="s2">&quot;random_button&quot;</span><span class="p">,</span> <span class="s2">&quot;n_clicks&quot;</span><span class="p">)]</span>
+    <span class="n">Output</span><span class="p">(</span><span class="n">structure_component</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+    <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="s2">&quot;change_structure_button&quot;</span><span class="p">,</span> <span class="s2">&quot;n_clicks&quot;</span><span class="p">)],</span>
 <span class="p">)</span>
 <span class="k">def</span> <span class="nf">update_structure</span><span class="p">(</span><span class="n">n_clicks</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">choice</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span>
+    <span class="c1"># on load, n_clicks will be None, and no update is required</span>
+    <span class="c1"># after clicking on the button, n_clicks will be and int and incremented</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">n_clicks</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PreventUpdate</span>
+    <span class="k">return</span> <span class="n">structures</span><span class="p">[</span><span class="n">n_clicks</span> <span class="o">%</span> <span class="mi">2</span><span class="p">]</span>
 
 
 <span class="c1"># as above</span>
