@@ -334,9 +334,9 @@ react-json-view from &#64;mac-s-g</p>
 <p>A Simple3DSceneComponent component.
 Simple3DSceneComponent is intended to draw simple 3D scenes using the popular
 Three.js scene graph library. In particular, the JSON representing the 3D scene
-is intended to be human-readable, and easily generated via Python. In future, a
-long-term approach would be to develop a library to generate Three.js JSON directly
-inside Python to make this component redundant.</p>
+is intended to be human-readable, and easily generated via Python. This is not
+intended to be a replacement for a full scene graph library, but for rapid
+prototyping by non-experts.</p>
 <p>Keyword arguments:
 - id (string; optional): The ID used to identify this component in Dash callbacks
 - data (dict; optional): Simple3DScene JSON, the easiest way to generate this is to use the Scene class
@@ -352,7 +352,7 @@ background: ‘#ffffff’, // background color if not transparent,
 sphereSegments: 32, // decrease to improve performance
 cylinderSegments: 16, // decrease to improve performance
 staticScene: true, // disable if animation required
-defaultZoom: 0.8, // 1 will completely fill viewport with scen</p>
+defaultZoom: 0.8, // 1 will completely fill viewport with scene</p>
 </div></blockquote>
 <p>}
 There are several additional options used for debugging and testing,
