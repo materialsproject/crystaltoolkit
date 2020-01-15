@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Dash Components" href="dash_components.html" />
-    <link rel="prev" title="Components" href="../components.html" /> 
+    <link rel="prev" title="Component Library" href="../components.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,10 +84,10 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../components.html">Components</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../components.html">Component Library</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Structures and Molecules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#screenshot">Screenshot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#example-usage">Example Usage</a></li>
@@ -97,7 +97,9 @@
 <li class="toctree-l2"><a class="reference internal" href="dash_components.html">Dash Components</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../helpers.html">Helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
             
@@ -143,7 +145,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="../components.html">Components</a> &raquo;</li>
+          <li><a href="../components.html">Component Library</a> &raquo;</li>
         
       <li>Structures and Molecules</li>
     
@@ -168,15 +170,80 @@
             
   <div class="section" id="structures-and-molecules">
 <h1>Structures and Molecules<a class="headerlink" href="#structures-and-molecules" title="Permalink to this headline">¶</a></h1>
-<p>Docs</p>
+<p>This component can render the <code class="docutils literal notranslate"><span class="pre">pymatgen</span></code> objects <code class="docutils literal notranslate"><span class="pre">Structure</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Molecule</span></code>, <code class="docutils literal notranslate"><span class="pre">StructureGraph</span></code> and <code class="docutils literal notranslate"><span class="pre">MoleculeGraph</span></code>. See its
+documentation <a class="reference external" href="../source/crystal_toolkit.components.structure">here.</a></p>
 <div class="section" id="screenshot">
 <h2>Screenshot<a class="headerlink" href="#screenshot" title="Permalink to this headline">¶</a></h2>
+<img alt="Example of StructureMoleculeComponent" class="align-center" src="../_images/structuremoleculecomponent.png" />
 </div>
 <div class="section" id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># standard Dash imports</span>
+<span class="kn">import</span> <span class="nn">dash</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+
+<span class="c1"># standard Crystal Toolkit import</span>
+<span class="kn">import</span> <span class="nn">crystal_toolkit.components</span> <span class="k">as</span> <span class="nn">ctc</span>
+
+<span class="c1"># import for this example</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+
+<span class="c1"># create Dash app as normal</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
+
+<span class="c1"># If callbacks created dynamically they cannot be statically checked at app startup.</span>
+<span class="c1"># For this simple example this is not a problem, but if creating a complicated,</span>
+<span class="c1"># nested layout this will need to be enabled -- consult Dash documentation</span>
+<span class="c1"># for more information.</span>
+<span class="c1"># app.config[&quot;suppress_callback_exceptions&quot;] = True</span>
+
+<span class="c1"># tell Crystal Toolkit about the app</span>
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="c1"># create the Structure object</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+
+<span class="c1"># create the Crystal Toolkit component</span>
+<span class="n">structure_component</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">StructureMoleculeComponent</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+<span class="c1"># example layout to demonstrate capabilities of component</span>
+<span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H1</span><span class="p">(</span><span class="s2">&quot;StructureMoleculeComponent Example&quot;</span><span class="p">),</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H2</span><span class="p">(</span><span class="s2">&quot;Standard Layout&quot;</span><span class="p">),</span>
+        <span class="n">structure_component</span><span class="o">.</span><span class="n">layout</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s2">&quot;400px&quot;</span><span class="p">),</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H2</span><span class="p">(</span><span class="s2">&quot;Optional Additional Layouts&quot;</span><span class="p">),</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H3</span><span class="p">(</span><span class="s2">&quot;Screenshot Layout&quot;</span><span class="p">),</span>
+        <span class="n">structure_component</span><span class="o">.</span><span class="n">screenshot_layout</span><span class="p">(),</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H3</span><span class="p">(</span><span class="s2">&quot;Options Layout&quot;</span><span class="p">),</span>
+        <span class="n">structure_component</span><span class="o">.</span><span class="n">options_layout</span><span class="p">(),</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H3</span><span class="p">(</span><span class="s2">&quot;Title Layout&quot;</span><span class="p">),</span>
+        <span class="n">structure_component</span><span class="o">.</span><span class="n">title_layout</span><span class="p">(),</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H3</span><span class="p">(</span><span class="s2">&quot;Legend Layout&quot;</span><span class="p">),</span>
+        <span class="n">structure_component</span><span class="o">.</span><span class="n">legend_layout</span><span class="p">(),</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H2</span><span class="p">(</span><span class="s2">&quot;Technical Details&quot;</span><span class="p">),</span>
+        <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">structure_component</span><span class="p">)),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># wrap your app.layout with crystal_toolkit_layout()</span>
+<span class="c1"># to ensure all necessary components are loaded into layout</span>
+<span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
+
+
+<span class="c1"># allow app to be run using &quot;python structure.py&quot;</span>
+<span class="c1"># in production, deploy behind gunicorn or similar</span>
+<span class="c1"># see Dash documentation for more information</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run_server</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8050</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="callback-graph">
 <h2>Callback Graph<a class="headerlink" href="#callback-graph" title="Permalink to this headline">¶</a></h2>
+<img alt="Example of StructureMoleculeComponent" class="align-center" src="../_images/structuremoleculecomponent_callbacks.png" />
 </div>
 </div>
 

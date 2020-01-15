@@ -82,11 +82,13 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../helpers.html">Helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
             
@@ -188,12 +190,16 @@
 
 
 <div class="viewcode-block" id="StructureMoleculeComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.structure.html#crystal_toolkit.components.structure.StructureMoleculeComponent">[docs]</a><span class="k">class</span> <span class="nc">StructureMoleculeComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A component to display pymatgen Structure, Molecule, StructureGraph</span>
+<span class="sd">    and MoleculeGraph objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">available_bonding_strategies</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">subclass</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">subclass</span> <span class="k">for</span> <span class="n">subclass</span> <span class="ow">in</span> <span class="n">NearNeighbors</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span>
     <span class="p">}</span>
 
-    <span class="n">default_scene_settings</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cylinderScale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;transparentBackground&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="n">default_scene_settings</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="c1"># whether to persist options such as atomic radii etc.</span>
     <span class="n">persistence</span> <span class="o">=</span> <span class="kc">False</span>
@@ -201,47 +207,45 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">struct_or_mol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">origin_component</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">scene_additions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">bonding_strategy</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;bonding_strategy&quot;</span><span class="p">],</span>
-        <span class="n">bonding_strategy_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">color_scheme</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;color_scheme&quot;</span><span class="p">],</span>
-        <span class="n">color_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">radius_strategy</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">],</span>
-        <span class="n">draw_image_atoms</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;draw_image_atoms&quot;</span><span class="p">],</span>
-        <span class="n">bonded_sites_outside_unit_cell</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span><span class="p">],</span>
-        <span class="n">hide_incomplete_bonds</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;hide_incomplete_bonds&quot;</span><span class="p">],</span>
-        <span class="n">show_compass</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;show_compass&quot;</span><span class="p">],</span>
-        <span class="n">scene_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">struct_or_mol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+            <span class="n">Union</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">MoleculeGraph</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">scene_additions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Scene</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bonding_strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;bonding_strategy&quot;</span><span class="p">],</span>
+        <span class="n">bonding_strategy_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">color_scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;color_scheme&quot;</span><span class="p">],</span>
+        <span class="n">color_scale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">radius_strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">],</span>
+        <span class="n">draw_image_atoms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;draw_image_atoms&quot;</span><span class="p">],</span>
+        <span class="n">bonded_sites_outside_unit_cell</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span>
+            <span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span>
+        <span class="p">],</span>
+        <span class="n">hide_incomplete_bonds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;hide_incomplete_bonds&quot;</span><span class="p">],</span>
+        <span class="n">show_compass</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;show_compass&quot;</span><span class="p">],</span>
+        <span class="n">scene_settings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        </span>
-<span class="sd">        :param struct_or_mol:</span>
-<span class="sd">        :param id:</span>
-<span class="sd">        :param origin_component:</span>
-<span class="sd">        :param scene_additions:</span>
-<span class="sd">        :param bonding_strategy:</span>
-<span class="sd">        :param bonding_strategy_kwargs:</span>
-<span class="sd">        :param color_scheme:</span>
-<span class="sd">        :param color_scale:</span>
-<span class="sd">        :param radius_strategy:</span>
-<span class="sd">        :param draw_image_atoms:</span>
-<span class="sd">        :param bonded_sites_outside_unit_cell:</span>
-<span class="sd">        :param hide_incomplete_bonds:</span>
-<span class="sd">        :param show_compass:</span>
-<span class="sd">        :param scene_settings:</span>
-<span class="sd">        :param kwargs:</span>
+<span class="sd">        Create a StructureMoleculeComponent from a structure or molecule.</span>
+
+<span class="sd">        :param struct_or_mol: input structure or molecule</span>
+<span class="sd">        :param id: canonical id</span>
+<span class="sd">        :param scene_additions: extra geometric elements to add to the 3D scene</span>
+<span class="sd">        :param bonding_strategy: bonding strategy from pymatgen NearNeighbors class</span>
+<span class="sd">        :param bonding_strategy_kwargs: options for the bonding strategy</span>
+<span class="sd">        :param color_scheme: color scheme, see Legend class</span>
+<span class="sd">        :param color_scale: color scale, see Legend class</span>
+<span class="sd">        :param radius_strategy: radius strategy, see Legend class</span>
+<span class="sd">        :param draw_image_atoms: whether to draw repeats of atoms on periodic images</span>
+<span class="sd">        :param bonded_sites_outside_unit_cell: whether to draw sites bonded outside the unit cell</span>
+<span class="sd">        :param hide_incomplete_bonds: whether to hide or show incomplete bonds</span>
+<span class="sd">        :param show_compass: whether to hide or show the compass</span>
+<span class="sd">        :param scene_settings: scene settings (lighting etc.) to pass to Simple3DScene</span>
+<span class="sd">        :param kwargs: extra keyword arguments to pass to MPComponent</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
-            <span class="n">default_data</span><span class="o">=</span><span class="n">struct_or_mol</span><span class="p">,</span>
-            <span class="n">origin_component</span><span class="o">=</span><span class="n">origin_component</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">default_data</span><span class="o">=</span><span class="n">struct_or_mol</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># what to show for the title_layout if structure/molecule not loaded</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_title</span> <span class="o">=</span> <span class="s2">&quot;Crystal Toolkit&quot;</span>
@@ -940,6 +944,7 @@
         <span class="n">show_compass</span><span class="o">=</span><span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;show_compass&quot;</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Scene</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 
+        <span class="c1"># default scene name will be name of component, &quot;_ct_...&quot;</span>
         <span class="c1"># strip leading _ since this will cause problems in JavaScript land</span>
         <span class="n">scene</span> <span class="o">=</span> <span class="n">Scene</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
 

@@ -36,7 +36,9 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="crystal_toolkit.renderables package" href="crystal_toolkit.renderables.html" />
+    <link rel="prev" title="crystal_toolkit.helpers.povray_renderer module" href="crystal_toolkit.helpers.povray_renderer.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,13 +82,30 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../helpers.html">Helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystal_toolkit.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystal_toolkit.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.helpers.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.helpers.html#module-crystal_toolkit.helpers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -132,6 +151,10 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="crystal_toolkit.html">crystal_toolkit package</a> &raquo;</li>
+        
+          <li><a href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a> &raquo;</li>
+        
       <li>crystal_toolkit.helpers.pythreejs_renderer module</li>
     
     
@@ -153,57 +176,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.helpers.pythreejs_renderer">
-<span id="crystal-toolkit-helpers-pythreejs-renderer-module"></span><h1>crystal_toolkit.helpers.pythreejs_renderer module<a class="headerlink" href="#module-crystal_toolkit.helpers.pythreejs_renderer" title="Permalink to this headline">¶</a></h1>
-<p>Link up the StructureMoleculeComponent objects to pythreejs
-Also includes some helper functions for draw addition objects using pythreejs</p>
-<dl class="function">
-<dt id="crystal_toolkit.helpers.pythreejs_renderer.convert_object_to_pythreejs">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">convert_object_to_pythreejs</code><span class="sig-paren">(</span><em class="sig-param">scene_obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#convert_object_to_pythreejs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.convert_object_to_pythreejs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert different primitive geometries of CTK objects to PythreeJS geometry objects</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>-- Object from crystalltoolkit</strong> (<em>scene_obj</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>List[Object3D] – List of objects from pythreeJS</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.helpers.pythreejs_renderer.display_scene">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">display_scene</code><span class="sig-paren">(</span><em class="sig-param">scene</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#display_scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.display_scene" title="Permalink to this definition">¶</a></dt>
-<dd><p>Render the scene in the pythreeJS</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>{Object3D} -- Root node of the PythreeJS object we want to plot</strong> (<em>scene</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.helpers.pythreejs_renderer.traverse_scene_object">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">traverse_scene_object</code><span class="sig-paren">(</span><em class="sig-param">scene_data</em>, <em class="sig-param">parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#traverse_scene_object"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.traverse_scene_object" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recursivesly populate a nested Object3D object from pythreejs using the same tree structure from crystaltoolkit (CTK)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>{CTK.core.scene} -- The content of the current branch of the CTK object</strong> (<em>scene_data</em>) – </p>
-</dd>
-<dt class="field-even">Keyword Arguments</dt>
-<dd class="field-even"><p><strong>{Object3D} -- Reference to the parent in the Pythreejs tree</strong><strong> (</strong><strong>default</strong> (<em>parent</em>) – {None} means you are at the root)</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Object3D – The current Pythreejs object with all the children fully populated</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.helpers.pythreejs_renderer.view">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">view</code><span class="sig-paren">(</span><em class="sig-param">renderable_obj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.view" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+  <div class="section" id="crystal-toolkit-helpers-pythreejs-renderer-module">
+<h1>crystal_toolkit.helpers.pythreejs_renderer module<a class="headerlink" href="#crystal-toolkit-helpers-pythreejs-renderer-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
