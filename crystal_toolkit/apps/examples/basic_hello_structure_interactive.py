@@ -6,9 +6,8 @@ import crystal_toolkit.components as ctc
 
 # standard Dash imports for callbacks (interactivity)
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 
-# so we can pick a structure at random
-from random import choice
 from pymatgen import Structure, Lattice
 
 app = dash.Dash()
@@ -23,27 +22,30 @@ app.config["suppress_callback_exceptions"] = True
 structures = [
     Structure(Lattice.cubic(4), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
     Structure(Lattice.cubic(5), ["K", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
-    Structure(Lattice.cubic(6), ["Li", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
 ]
 
 # we show the first structure by default
 structure_component = ctc.StructureMoleculeComponent(structures[0])
 
 # and we create a button for user interaction
-my_button = html.Button("Randomize!", id="random_button")
+my_button = html.Button("Swap Structure", id="change_structure_button")
 
 # now we have two entries in our app layout,
 # the structure component's layout and the button
 my_layout = html.Div([structure_component.layout(), my_button])
 app.layout = ctc.crystal_toolkit_layout(my_layout)
 
-
 # for the interactivity, we use a standard Dash callback
 @app.callback(
-    Output(structure_component.id(), "data"), [Input("random_button", "n_clicks")]
+    Output(structure_component.id(), "data"),
+    [Input("change_structure_button", "n_clicks")],
 )
 def update_structure(n_clicks):
-    return choice(structures)
+    # on load, n_clicks will be None, and no update is required
+    # after clicking on the button, n_clicks will be and int and incremented
+    if not n_clicks:
+        raise PreventUpdate
+    return structures[n_clicks % 2]
 
 
 # as above
