@@ -13,6 +13,7 @@ Submodules
    crystal_toolkit.helpers.mprester
    crystal_toolkit.helpers.povray_renderer
    crystal_toolkit.helpers.pythreejs_renderer
+   crystal_toolkit.helpers.utils
 
 Module contents
 ---------------
