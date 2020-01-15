@@ -161,9 +161,9 @@
     <span class="sd">&quot;&quot;&quot;A Simple3DSceneComponent component.</span>
 <span class="sd">Simple3DSceneComponent is intended to draw simple 3D scenes using the popular</span>
 <span class="sd">Three.js scene graph library. In particular, the JSON representing the 3D scene</span>
-<span class="sd">is intended to be human-readable, and easily generated via Python. In future, a</span>
-<span class="sd">long-term approach would be to develop a library to generate Three.js JSON directly</span>
-<span class="sd">inside Python to make this component redundant.</span>
+<span class="sd">is intended to be human-readable, and easily generated via Python. This is not</span>
+<span class="sd">intended to be a replacement for a full scene graph library, but for rapid</span>
+<span class="sd">prototyping by non-experts.</span>
 
 <span class="sd">Keyword arguments:</span>
 <span class="sd">- id (string; optional): The ID used to identify this component in Dash callbacks</span>
@@ -179,7 +179,7 @@
 <span class="sd">   sphereSegments: 32, // decrease to improve performance</span>
 <span class="sd">   cylinderSegments: 16, // decrease to improve performance</span>
 <span class="sd">   staticScene: true, // disable if animation required</span>
-<span class="sd">   defaultZoom: 0.8, // 1 will completely fill viewport with scen</span>
+<span class="sd">   defaultZoom: 0.8, // 1 will completely fill viewport with scene</span>
 <span class="sd">}</span>
 <span class="sd">There are several additional options used for debugging and testing,</span>
 <span class="sd">please consult the source code directly for these.</span>
