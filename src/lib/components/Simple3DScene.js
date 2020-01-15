@@ -215,15 +215,21 @@ export default class Simple3DScene {
 
     const root_obj = new THREE.Object3D()
     root_obj.name = scene_json.name
+    if (scene_json.hasOwnProperty('visible')) {
+      root_obj.visible = scene_json.visible
+    }
 
     function traverse_scene (o, parent, self) {
       o.contents.forEach(function (sub_o) {
-        if (sub_o.hasOwnProperty('type')) {
+        if (sub_o.type) {
           parent.add(self.makeObject(sub_o))
         } else {
           const new_parent = new THREE.Object3D()
           new_parent.name = sub_o.name
-          if (sub_o.hasOwnProperty('origin')) {
+          if (sub_o.hasOwnProperty('visible')) {
+            new_parent.visible = sub_o.visible
+          }
+          if (sub_o.origin) {
             const translation = new THREE.Matrix4()
             translation.makeTranslation(...sub_o.origin)
             new_parent.applyMatrix(translation)
@@ -304,11 +310,6 @@ export default class Simple3DScene {
 
   makeObject (object_json) {
     const obj = new THREE.Object3D()
-    obj.name = object_json.name
-
-    if (object_json.visible) {
-      obj.visible = object_json.visible
-    }
 
     if (object_json.clickable) {
       obj.reference = object_json.reference
@@ -325,11 +326,6 @@ export default class Simple3DScene {
           object_json.phiEnd || Math.PI * 2
         )
         const mat = this.makeMaterial(object_json.color)
-
-        // if we allow occupancies not to sum to 100
-        // if (object_json.phiStart || object_json.phiEnd) {
-        //    mat.side = THREE.DoubleSide;
-        // }
 
         const meshes = []
         object_json.positions.forEach(function (position) {
@@ -353,11 +349,6 @@ export default class Simple3DScene {
           object_json.phiEnd || Math.PI * 2
         )
         const mat = this.makeMaterial(object_json.color)
-
-        // if we allow occupancies not to sum to 100
-        // if (object_json.phiStart || object_json.phiEnd) {
-        //    mat.side = THREE.DoubleSide;
-        // }
 
         const meshes = []
         object_json.positions.forEach(function (position) {
