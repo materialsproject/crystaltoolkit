@@ -36,9 +36,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="crystal_toolkit.helpers package" href="crystal_toolkit.helpers.html" />
-    <link rel="prev" title="crystal_toolkit.core.panelcomponent module" href="crystal_toolkit.core.panelcomponent.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,31 +80,13 @@
               
             
             
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components.html">Component Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="crystal_toolkit.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="crystal_toolkit.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.core.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.core.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.core.html#module-crystal_toolkit.core">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
-</ul>
-</li>
 </ul>
 
             
@@ -151,10 +131,6 @@
   <ul class="wy-breadcrumbs">
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="crystal_toolkit.html">crystal_toolkit package</a> &raquo;</li>
-        
-          <li><a href="crystal_toolkit.core.html">crystal_toolkit.core package</a> &raquo;</li>
         
       <li>crystal_toolkit.core.scene module</li>
     
@@ -785,7 +761,7 @@ and trigger and event</p>
 
 <dl class="class">
 <dt id="crystal_toolkit.core.scene.Surface">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Surface</code><span class="sig-paren">(</span><em class="sig-param">positions: List[List[float]], normals: Optional[List[List[float]]] = None, color: str = None, opacity: float = None, visible: bool = None, clickable: bool = False, reference: Optional[str] = None, _meta: Any = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Surface" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Surface</code><span class="sig-paren">(</span><em class="sig-param">positions: List[List[float]], normals: Optional[List[List[float]]] = None, color: str = None, opacity: float = None, show_edges: bool = False, visible: bool = None, clickable: bool = False, reference: Optional[str] = None, _meta: Any = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Surface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Define a surface by its vertices. Please also provide normals if known.
 Opacity can be set to enable transparency, but note that the current
@@ -818,6 +794,11 @@ Three.js renderer doesn’t support nested transparent objects very well.</p>
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.reference">
 <code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.reference" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Surface.show_edges">
+<code class="sig-name descname">show_edges</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.show_edges" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">

@@ -168,7 +168,7 @@
                          <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
                          <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get the isosurface from a VolumetricData object</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        data_key (str, optional): Use the volumetric data from self.data[data_key]. Defaults to &#39;total&#39;.</span>
 <span class="sd">        isolvl (float, optional): The cuoff for the isosurface to using the same units as VESTA so e/bhor and kept grid size independent</span>
@@ -184,7 +184,9 @@
     <span class="n">padded_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">vol_data</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;wrap&quot;</span><span class="p">)</span>
     <span class="n">vertices</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">marching_cubes_lewiner</span><span class="p">(</span>
         <span class="n">padded_data</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">isolvl</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">)</span>
-    <span class="n">vertices</span> <span class="o">=</span> <span class="n">vertices</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vol_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vol_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># transform to fractional coordinates</span>
+    <span class="c1"># transform to fractional coordinates</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="n">vertices</span> <span class="o">/</span> \
+        <span class="p">(</span><span class="n">vol_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vol_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vol_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
     <span class="n">vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span>
                       <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>  <span class="c1"># transform to cartesian</span>
     <span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">vert</span> <span class="k">for</span> <span class="n">triangle</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">[</span><span class="n">faces</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">vert</span> <span class="ow">in</span> <span class="n">triangle</span><span class="p">]</span>
@@ -205,18 +207,18 @@
                          <span class="n">iso_kwargs_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="o">**</span><span class="n">struct_kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get the Scene object which contains a structure and a isosurface components</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        data_key (str, optional): Use the volumetric data from self.data[data_key]. Defaults to &#39;total&#39;.</span>
 <span class="sd">        isolvl (float, optional): The cuoff for the isosurface to using the same units as VESTA so e/bhor and kept grid size independent</span>
 <span class="sd">        step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.</span>
 <span class="sd">        iso_kwargs_dict ([type], optional): additional kwargs to pass to the get_isosurface_scene. Defaults to None.</span>
 <span class="sd">        struct_kwargs: kwarges for the Structure.get_scene function</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        [type]: [description]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">iso_kwags</span> <span class="o">=</span> <span class="n">iso_kwargs_dict</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">struct_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">struct_kwargs</span><span class="p">)</span>
     <span class="n">iso_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_isosurface_scene</span><span class="p">(</span><span class="n">data_key</span><span class="o">=</span><span class="s1">&#39;total&#39;</span><span class="p">,</span>
@@ -227,6 +229,7 @@
     <span class="k">return</span> <span class="n">Scene</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
                  <span class="n">origin</span><span class="o">=</span><span class="n">struct_scene</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span>
                  <span class="n">contents</span><span class="o">=</span><span class="p">[</span><span class="n">struct_scene</span><span class="p">,</span> <span class="n">iso_scene</span><span class="p">])</span></div>
+
 
 <span class="c1"># todo: re-think origin, shift globally at end (scene.origin)</span>
 <span class="n">VolumetricData</span><span class="o">.</span><span class="n">get_isosurface_scene</span> <span class="o">=</span> <span class="n">get_isosurface_scene</span>
