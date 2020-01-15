@@ -169,14 +169,14 @@
     <span class="n">LineSegmentsGeometry</span><span class="p">,</span>
     <span class="n">LineBasicMaterial</span><span class="p">,</span>
     <span class="n">LineMaterial</span><span class="p">,</span>
-    <span class="n">LineDashedMaterial</span><span class="p">,</span>
+    <span class="c1"># LineDashedMaterial,</span>
     <span class="n">Scene</span><span class="p">,</span>
     <span class="n">AmbientLight</span><span class="p">,</span>
     <span class="n">Renderer</span><span class="p">,</span>
     <span class="n">OrbitControls</span><span class="p">,</span>
     <span class="n">OrthographicCamera</span><span class="p">,</span>
     <span class="n">DirectionalLight</span><span class="p">,</span>
-    <span class="n">Box3</span><span class="p">,</span>
+    <span class="c1"># Box3,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">isnan</span>
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
@@ -186,10 +186,6 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">crystal_toolkit</span> <span class="kn">import</span> <span class="n">_DEFAULTS</span>
-<span class="kn">import</span> <span class="nn">crystal_toolkit.renderables.structure</span>
-<span class="kn">import</span> <span class="nn">crystal_toolkit.renderables.volumetric</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.scene</span> <span class="kn">import</span> <span class="n">Scene</span> <span class="k">as</span> <span class="n">CrystalToolkitScene</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.components.structure</span> <span class="kn">import</span> <span class="n">StructureMoleculeComponent</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.utils</span> <span class="kn">import</span> <span class="n">update_object_args</span>
@@ -271,66 +267,6 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_obj</span><span class="p">,</span> <span class="n">Structure</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_obj</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;explicitly_calculate_polyhedra_hull&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">display_scene</span><span class="p">(</span><span class="n">renderable_obj</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="view_old"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.pythreejs_renderer.html#crystal_toolkit.helpers.pythreejs_renderer.view_old">[docs]</a><span class="k">def</span> <span class="nf">view_old</span><span class="p">(</span><span class="n">molecule_or_structure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;View a pymatgen Molecule or Structure object interactively in a</span>
-<span class="sd">    Jupyter notebook.</span>
-
-<span class="sd">    NOTE: SHOULD NO LONGER BE NEEDED</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        molecule_or_structure: Molecule or structure to display</span>
-<span class="sd">        draw_image_atoms (bool):  Show periodic copies of atoms</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Since the jupyter viewer is meant for quick peaks at the structure the default behaviour should be different</span>
-        <span class="c1"># ex. draw_image_atoms should be set to false:</span>
-        <span class="k">if</span> <span class="s2">&quot;draw_image_atoms&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;draw_image_atoms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="s2">&quot;hide_incomplete_edges&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;hide_incomplete_edges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">obj_or_scene</span> <span class="o">=</span> <span class="n">molecule_or_structure</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj_or_scene</span><span class="p">,</span> <span class="n">CrystalToolkitScene</span><span class="p">):</span>
-            <span class="n">scene</span> <span class="o">=</span> <span class="n">obj_or_scene</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj_or_scene</span><span class="p">,</span> <span class="s2">&quot;get_scene&quot;</span><span class="p">):</span>
-            <span class="n">scene</span> <span class="o">=</span> <span class="n">obj_or_scene</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="c1"># TODO: next two elif statements are only here until Molecule and Structure have get_scene()</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj_or_scene</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
-            <span class="c1"># TODO Temporary place holder for render structure until structure.get_scene() is implemented</span>
-            <span class="n">struct_or_mol</span> <span class="o">=</span> <span class="n">obj_or_scene</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">smc</span> <span class="o">=</span> <span class="n">StructureMoleculeComponent</span><span class="p">(</span>
-                <span class="n">struct_or_mol</span><span class="p">,</span>
-                <span class="n">static</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">hide_incomplete_bonds</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;hide_incomplete_edges&#39;</span><span class="p">],</span>
-                <span class="n">draw_image_atoms</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;draw_image_atoms&#39;</span><span class="p">],</span>
-                <span class="n">bonded_sites_outside_unit_cell</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;bonded_sites_outside_unit_cell&#39;</span><span class="p">],</span>
-            <span class="p">)</span>
-            <span class="n">origin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">obj_or_scene</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span>
-            <span class="n">scene</span> <span class="o">=</span> <span class="n">smc</span><span class="o">.</span><span class="n">initial_graph</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">add_chg</span><span class="p">:</span>
-                <span class="n">scene</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">add_chg</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj_or_scene</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
-            <span class="c1"># TODO Temporary place holder for render molecules</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;draw_image_atoms&#39;</span><span class="p">)</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;hide_incomplete_edges&#39;</span><span class="p">)</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;bonded_sites_outside_unit_cell&#39;</span><span class="p">)</span>
-            <span class="n">origin</span> <span class="o">=</span> <span class="n">obj_or_scene</span><span class="o">.</span><span class="n">center_of_mass</span>
-            <span class="n">struct_or_mol</span> <span class="o">=</span> <span class="n">obj_or_scene</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">smc</span> <span class="o">=</span> <span class="n">StructureMoleculeComponent</span><span class="p">(</span>
-                <span class="n">struct_or_mol</span><span class="p">,</span>
-                <span class="n">static</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">scene</span> <span class="o">=</span> <span class="n">smc</span><span class="o">.</span><span class="n">initial_graph</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Only Scene objects or objects with get_scene() methods &quot;</span>
-                <span class="s2">&quot;can be displayed.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">display_scene</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="display_scene"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.pythreejs_renderer.html#crystal_toolkit.helpers.pythreejs_renderer.display_scene">[docs]</a><span class="k">def</span> <span class="nf">display_scene</span><span class="p">(</span><span class="n">scene</span><span class="p">):</span>
