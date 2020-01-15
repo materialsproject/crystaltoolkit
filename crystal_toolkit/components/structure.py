@@ -335,16 +335,20 @@ class StructureMoleculeComponent(MPComponent):
                 "filetype": "png",
             }
 
-        @app.callback(
+        app.clientside_callback(
+            """
+            function (values, options) {
+                const visibility = {}
+                options.forEach(function (opt) {
+                    visibility[opt.value] = Boolean(values.includes(opt.value))
+                })
+                return visibility
+            }
+            """,
             Output(self.id("scene"), "toggleVisibility"),
             [Input(self.id("hide-show"), "value")],
             [State(self.id("hide-show"), "options")],
         )
-        def update_visibility(values, options):
-            # TODO: to make this callback more efficient,
-            # would need to be able to access current object visibility from Simple3DSceneComponent
-            visibility = {opt["value"]: (opt["value"] in values) for opt in options}
-            return visibility
 
         @app.callback(
             [
