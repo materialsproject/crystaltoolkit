@@ -1,6 +1,8 @@
 FROM python:3.7
 LABEL maintainer="mkhorton@lbl.gov"
 
+RUN apt install vim povray asymptote -y
+
 RUN mkdir -p /home/project/dash_app
 WORKDIR /home/project/dash_app
 

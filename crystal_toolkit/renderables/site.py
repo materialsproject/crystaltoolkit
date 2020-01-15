@@ -23,6 +23,7 @@ def get_site_scene(
     origin: Optional[List[float]] = None,
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
+    bond_radius: float = 0.1,
     legend: Optional[Legend] = None,
 ) -> Scene:
     """
@@ -127,7 +128,9 @@ def get_site_scene(
                 color = site_color
 
             cylinder = Cylinders(
-                positionPairs=[[position, bond_midpoint.tolist()]], color=color
+                positionPairs=[[position, bond_midpoint.tolist()]],
+                color=color,
+                radius=bond_radius,
             )
             bonds.append(cylinder)
             all_positions.append(connected_position.tolist())
@@ -149,7 +152,9 @@ def get_site_scene(
                     color = site_color
 
                 cylinder = Cylinders(
-                    positionPairs=[[position, bond_midpoint.tolist()]], color=color
+                    positionPairs=[[position, bond_midpoint.tolist()]],
+                    color=color,
+                    radius=bond_radius,
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())

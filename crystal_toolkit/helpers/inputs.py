@@ -7,24 +7,6 @@ from crystal_toolkit.helpers.layouts import *
 
 from collections import namedtuple
 
-# from abc import ABC, abstractmethod
-# class MPInput(ABC):
-#
-#    def __init__(self, id):
-#        self.id = id
-#
-#    @abstractmethod
-#    def layout(self, label=None, help=None, default=None):
-#        raise NotImplementedError
-#
-#    @abstractmethod
-#    def inputs(self):
-#        raise NotImplementedError
-#
-#    @abstractmethod
-#    def func(self):
-#        raise NotImplementedError
-
 
 def _add_label_help(input, label, help):
 
@@ -46,7 +28,6 @@ def get_float_input(id, label=None, default=None, help=None):
         id=id,
         inputMode="numeric",
         className="input",
-        maxLength=1,
         style={
             "text-align": "center",
             "width": "2rem",

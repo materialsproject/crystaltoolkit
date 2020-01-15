@@ -31,9 +31,9 @@ def _axes_from_lattice(self, origin=None, scale=1, offset=0, **kwargs):
     b_arrow = [[o, o + b]]
     c_arrow = [[o, o + c]]
 
-    radius_scale = 0.7
-    head_scale = 2.3
-    head_width = 1.4
+    radius_scale = 0.07
+    head_scale = 0.24
+    head_width = 0.14
 
     o_sphere = Spheres(positions=[o], color="white", radius=radius_scale * scale / 4)
 

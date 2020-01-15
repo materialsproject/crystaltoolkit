@@ -36,12 +36,16 @@ DEFAULTS = {
 
 
 class StructureMoleculeComponent(MPComponent):
+    """
+    A component to display pymatgen Structure, Molecule, StructureGraph
+    and MoleculeGraph objects.
+    """
 
     available_bonding_strategies = {
         subclass.__name__: subclass for subclass in NearNeighbors.__subclasses__()
     }
 
-    default_scene_settings = {"cylinderScale": 0.1, "transparentBackground": True}
+    default_scene_settings = {}
 
     # whether to persist options such as atomic radii etc.
     persistence = False
@@ -49,47 +53,45 @@ class StructureMoleculeComponent(MPComponent):
 
     def __init__(
         self,
-        struct_or_mol=None,
-        id=None,
-        origin_component=None,
-        scene_additions=None,
-        bonding_strategy=DEFAULTS["bonding_strategy"],
-        bonding_strategy_kwargs=None,
-        color_scheme=DEFAULTS["color_scheme"],
-        color_scale=None,
-        radius_strategy=DEFAULTS["radius_strategy"],
-        draw_image_atoms=DEFAULTS["draw_image_atoms"],
-        bonded_sites_outside_unit_cell=DEFAULTS["bonded_sites_outside_unit_cell"],
-        hide_incomplete_bonds=DEFAULTS["hide_incomplete_bonds"],
-        show_compass=DEFAULTS["show_compass"],
-        scene_settings=None,
+        struct_or_mol: Optional[
+            Union[Structure, StructureGraph, Molecule, MoleculeGraph]
+        ] = None,
+        id: str = None,
+        scene_additions: Optional[Scene] = None,
+        bonding_strategy: str = DEFAULTS["bonding_strategy"],
+        bonding_strategy_kwargs: Optional[dict] = None,
+        color_scheme: str = DEFAULTS["color_scheme"],
+        color_scale: Optional[str] = None,
+        radius_strategy: str = DEFAULTS["radius_strategy"],
+        draw_image_atoms: bool = DEFAULTS["draw_image_atoms"],
+        bonded_sites_outside_unit_cell: bool = DEFAULTS[
+            "bonded_sites_outside_unit_cell"
+        ],
+        hide_incomplete_bonds: bool = DEFAULTS["hide_incomplete_bonds"],
+        show_compass: bool = DEFAULTS["show_compass"],
+        scene_settings: Optional[Dict] = None,
         **kwargs,
     ):
         """
-        
-        :param struct_or_mol:
-        :param id:
-        :param origin_component:
-        :param scene_additions:
-        :param bonding_strategy:
-        :param bonding_strategy_kwargs:
-        :param color_scheme:
-        :param color_scale:
-        :param radius_strategy:
-        :param draw_image_atoms:
-        :param bonded_sites_outside_unit_cell:
-        :param hide_incomplete_bonds:
-        :param show_compass:
-        :param scene_settings:
-        :param kwargs:
+        Create a StructureMoleculeComponent from a structure or molecule.
+
+        :param struct_or_mol: input structure or molecule
+        :param id: canonical id
+        :param scene_additions: extra geometric elements to add to the 3D scene
+        :param bonding_strategy: bonding strategy from pymatgen NearNeighbors class
+        :param bonding_strategy_kwargs: options for the bonding strategy
+        :param color_scheme: color scheme, see Legend class
+        :param color_scale: color scale, see Legend class
+        :param radius_strategy: radius strategy, see Legend class
+        :param draw_image_atoms: whether to draw repeats of atoms on periodic images
+        :param bonded_sites_outside_unit_cell: whether to draw sites bonded outside the unit cell
+        :param hide_incomplete_bonds: whether to hide or show incomplete bonds
+        :param show_compass: whether to hide or show the compass
+        :param scene_settings: scene settings (lighting etc.) to pass to Simple3DScene
+        :param kwargs: extra keyword arguments to pass to MPComponent
         """
 
-        super().__init__(
-            id=id,
-            default_data=struct_or_mol,
-            origin_component=origin_component,
-            **kwargs,
-        )
+        super().__init__(id=id, default_data=struct_or_mol, **kwargs)
 
         # what to show for the title_layout if structure/molecule not loaded
         self.default_title = "Crystal Toolkit"
@@ -788,6 +790,7 @@ class StructureMoleculeComponent(MPComponent):
         show_compass=DEFAULTS["show_compass"],
     ) -> Tuple[Scene, Dict[str, str]]:
 
+        # default scene name will be name of component, "_ct_..."
         # strip leading _ since this will cause problems in JavaScript land
         scene = Scene(name=name[1:])
 
