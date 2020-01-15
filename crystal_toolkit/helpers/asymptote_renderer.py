@@ -93,7 +93,7 @@ Draw(IPOS--FPOS, connectPen, {{radius}});
 {% endfor %}
 """
 
-TEMP_SURF= """
+TEMP_SURF = """
 real[][] A = {
 {% for ipos in positions -%}
     {{ipos}},
@@ -113,41 +113,49 @@ path3 no_show = path3(scale(0) * box((-1,-1),(1,1)));
 draw(surface(no_show), surfacepen=m);        // draw i-th triangle
 """
 
-### Functions for parsing specific shapes
-### Each function should only take in the CTK object and the changes to the default display parameters
+# Functions for parsing specific shapes
+# Each function should only take in the CTK object and the changes to the
+# default display parameters
+
 
 def _get_lines(ctk_scene, d_args=None):
     """return the ASY string output to draw cylinders
-    
+
     Arguments:
         ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == 'cylinders'
-    
+
     Keyword Arguments:
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
     assert(ctk_scene.type == 'lines')
-    updated_defaults = update_object_args(d_args, object_name='Lines', allowed_args=['linewidth', 'color'])
+    updated_defaults = update_object_args(
+        d_args, object_name='Lines', allowed_args=[
+            'linewidth', 'color'])
     ipos = map(tuple, ctk_scene.positions[0::2])
     fpos = map(tuple, ctk_scene.positions[1::2])
     posPairs = [*zip(ipos, fpos)]
-    
+
     linewidth = ctk_scene.linewidth or updated_defaults['linewidth']
     color = ctk_scene.color or updated_defaults['color']
     color = color.replace("#", "")
-    return Environment().from_string(TEMP_LINE).render(posPairs=posPairs, color=color, linewidth=linewidth)
+    return Environment().from_string(TEMP_LINE).render(
+        posPairs=posPairs, color=color, linewidth=linewidth)
+
 
 def _get_spheres(ctk_scene, d_args=None):
     """return the ASY string output to draw the spheres
-    
+
     Arguments:
         ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == 'spheres'
-    
+
     Keyword Arguments:
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
     assert(ctk_scene.type == 'spheres')
-    updated_defaults = update_object_args(d_args, object_name='Spheres', allowed_args=['radius', 'color'])
-    
+    updated_defaults = update_object_args(
+        d_args, object_name='Spheres', allowed_args=[
+            'radius', 'color'])
+
     positions = [tuple(pos) for pos in ctk_scene.positions]
     radius = ctk_scene.radius or updated_defaults['radius']
     color = ctk_scene.color or updated_defaults['color']
@@ -157,25 +165,28 @@ def _get_spheres(ctk_scene, d_args=None):
 
     # phiStart = ctk_scene.phiStart or 0 # not yet implemented
     # phiEnd = ctk_scene.phiEnd or 2*pi
-    
+
     return Environment().from_string(TEMP_SPHERE).render(
         positions=positions,
         radius=radius,
         color=color,
     )
-    
+
+
 def _get_cylinders(ctk_scene, d_args=None):
     """return the ASY string output to draw cylinders
-    
+
     Arguments:
         ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == 'cylinders'
-    
+
     Keyword Arguments:
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
     assert(ctk_scene.type == 'cylinders')
-    updated_defaults = update_object_args(d_args, object_name='Cylinders', allowed_args=['radius', 'color'])
-    
+    updated_defaults = update_object_args(
+        d_args, object_name='Cylinders', allowed_args=[
+            'radius', 'color'])
+
     posPairs = [
         [tuple(ipos), tuple(fpos)]
         for ipos, fpos in ctk_scene.positionPairs
@@ -183,7 +194,9 @@ def _get_cylinders(ctk_scene, d_args=None):
     radius = ctk_scene.radius or updated_defaults['radius']
     color = ctk_scene.color or updated_defaults['color']
     color = color.replace("#", "")
-    return Environment().from_string(TEMP_CYLINDER).render(posPairs=posPairs, color=color, radius=radius)
+    return Environment().from_string(TEMP_CYLINDER).render(
+        posPairs=posPairs, color=color, radius=radius)
+
 
 def _get_surface(ctk_scene, d_args=None):
     """return the ASY string output to draw cylinders
@@ -195,28 +208,35 @@ def _get_surface(ctk_scene, d_args=None):
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
     assert (ctk_scene.type == 'surface')
-    updated_defaults = update_object_args(d_args, object_name='Surfaces', allowed_args=['opacity', 'color', 'edge_width'])
+    updated_defaults = update_object_args(
+        d_args, object_name='Surfaces', allowed_args=[
+            'opacity', 'color', 'edge_width'])
     color = ctk_scene.color or updated_defaults['color']
     color = color.replace("#", "")
     opacity = ctk_scene.opacity or updated_defaults['opacity']
 
-    positions = tuple(map(lambda x : "{" + f"{x[0]}, {x[1]}, {x[2]}" +"}", ctk_scene.positions))
-    num_triangle = len(ctk_scene.positions)/3.
-    assert(num_triangle.is_integer()) # sanity check the mesh must be triangles
+    positions = tuple(
+        map(lambda x: "{" + f"{x[0]}, {x[1]}, {x[2]}" + "}", ctk_scene.positions))
+    num_triangle = len(ctk_scene.positions) / 3.
+    # sanity check the mesh must be triangles
+    assert(num_triangle.is_integer())
 
     # # make decision on transparency
     # transparent = if obj_args['opacity'] < 0.99
     #
     # # asymptote just needs the xyz positions
     num_triangle = int(num_triangle)
-    pos_xyz = tuple(chain.from_iterable([(positions[itr*3], positions[itr*3+1], positions[itr*3+2]) for itr in range(num_triangle)]))
+    pos_xyz = tuple(chain.from_iterable(
+        [(positions[itr * 3], positions[itr * 3 + 1], positions[itr * 3 + 2]) for itr in range(num_triangle)]))
     #
     # # write the data array
-    data_array_asy = Environment().from_string(TEMP_SURF).render(positions=pos_xyz, face_color=color, opac = opacity)
+    data_array_asy = Environment().from_string(TEMP_SURF).render(
+        positions=pos_xyz, face_color=color, opac=opacity)
 
     return data_array_asy
 
-    # write the 
+    # write the
+
 
 def asy_write_data(input_scene_comp, fstream):
     """
@@ -227,43 +247,31 @@ def asy_write_data(input_scene_comp, fstream):
     if input_scene_comp.type == "spheres":
         asy_out = _get_spheres(input_scene_comp)
         fstream.write(asy_out)
-    
+
     if input_scene_comp.type == "cylinders":
         asy_out = _get_cylinders(input_scene_comp)
         fstream.write(asy_out)
-    
+
     if input_scene_comp.type == "lines":
         asy_out = _get_lines(input_scene_comp)
         fstream.write(asy_out)
+
     if input_scene_comp.type == "surface":
         asy_out = _get_surface(input_scene_comp)
         fstream.write(asy_out)
 
-    return 
-
-    if input_scene_comp["type"] == "cylinders":
-        # need to transforme all the cylinders to vector
-        posPairs = [
-            [tuple(ipos), tuple(fpos)]
-            for ipos, fpos in input_scene_comp["positionPairs"]
-        ]
-        fstream.write(
-            Environment()
-            .from_string(TEMP_CYLINDER)
-            .render(posPairs=posPairs, color=input_scene_comp["color"].replace("#", ""))
-        )
-
-    if input_scene_comp["type"] == "lines":
-        pass
+    return
 
     # TODO Leaving out polyhedra for now since asymptote
     # does not have an easy way to generate convex polyhedra from the points
-    # Need to write a python conversion between Convex type and surfaces to make this work.
+    # Need to write a python conversion between Convex type and surfaces to
+    # make this work.
 
     # TODO we can make the line solide for the forground and dashed for the background
     # This will require use to modify the way the line objects are generated
     # at each vertex in the unit cell, we can evaluate the sum of all three lattice vectors from the point
-    # then the <vec_sum | vec_to_camera> for each vertex.  The smallest normalized vertex contians the three lines that should be dashed
+    # then the <vec_sum | vec_to_camera> for each vertex.  The smallest
+    # normalized vertex contians the three lines that should be dashed
 
 
 def filter_data(scene_data, fstream):
@@ -276,12 +284,13 @@ def filter_data(scene_data, fstream):
         for itr in scene_data["contents"]:
             filter_data(itr, fstream)
 
+
 def traverse_scene_object(scene_data, fstream):
     """
     Traverse object
     """
     for sub_object in scene_data.contents:
-        if type(sub_object) == list:
+        if isinstance(sub_object, list):
             for iobj in sub_object:
                 traverse_scene_object(iobj)
             continue
@@ -303,7 +312,9 @@ def write_asy_file(ctk_scene, file_name):
     traverse_scene_object(ctk_scene, fstream)
     fstream.close()
 
+
 def view(renderable_object, file_name):
-    if isinstance(renderable_object, Structure) or isinstance(renderable_obj, StructureGraph):
+    if isinstance(renderable_object, Structure) or isinstance(
+            renderable_obj, StructureGraph):
         kwargs['explicitly_calculate_polyhedra_hull'] = True
     write_asy_file(renderable_object.get_scene(**kwargs), file_name)
