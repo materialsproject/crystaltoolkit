@@ -1,0 +1,7 @@
+crystal\_toolkit.helpers.dash\_renderer module
+==============================================
+
+.. automodule:: crystal_toolkit.helpers.dash_renderer
+   :members:
+   :undoc-members:
+   :show-inheritance:
