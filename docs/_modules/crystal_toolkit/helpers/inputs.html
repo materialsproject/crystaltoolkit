@@ -82,11 +82,13 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../helpers.html">Helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
             
@@ -159,24 +161,6 @@
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 
-<span class="c1"># from abc import ABC, abstractmethod</span>
-<span class="c1"># class MPInput(ABC):</span>
-<span class="c1">#</span>
-<span class="c1">#    def __init__(self, id):</span>
-<span class="c1">#        self.id = id</span>
-<span class="c1">#</span>
-<span class="c1">#    @abstractmethod</span>
-<span class="c1">#    def layout(self, label=None, help=None, default=None):</span>
-<span class="c1">#        raise NotImplementedError</span>
-<span class="c1">#</span>
-<span class="c1">#    @abstractmethod</span>
-<span class="c1">#    def inputs(self):</span>
-<span class="c1">#        raise NotImplementedError</span>
-<span class="c1">#</span>
-<span class="c1">#    @abstractmethod</span>
-<span class="c1">#    def func(self):</span>
-<span class="c1">#        raise NotImplementedError</span>
-
 
 <span class="k">def</span> <span class="nf">_add_label_help</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">help</span><span class="p">):</span>
 
@@ -198,7 +182,6 @@
         <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
         <span class="n">inputMode</span><span class="o">=</span><span class="s2">&quot;numeric&quot;</span><span class="p">,</span>
         <span class="n">className</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span>
-        <span class="n">maxLength</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">style</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;text-align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
             <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;2rem&quot;</span><span class="p">,</span>
