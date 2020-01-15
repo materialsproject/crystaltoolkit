@@ -1,7 +1,0 @@
-crystal\_toolkit.helpers.utils module
-=====================================
-
-.. automodule:: crystal_toolkit.helpers.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
