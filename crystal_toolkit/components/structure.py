@@ -45,7 +45,7 @@ class StructureMoleculeComponent(MPComponent):
         subclass.__name__: subclass for subclass in NearNeighbors.__subclasses__()
     }
 
-    default_scene_settings = {"cylinderScale": 0.1, "transparentBackground": True}
+    default_scene_settings = {}
 
     # whether to persist options such as atomic radii etc.
     persistence = False
@@ -790,6 +790,7 @@ class StructureMoleculeComponent(MPComponent):
         show_compass=DEFAULTS["show_compass"],
     ) -> Tuple[Scene, Dict[str, str]]:
 
+        # default scene name will be name of component, "_ct_..."
         # strip leading _ since this will cause problems in JavaScript land
         scene = Scene(name=name[1:])
 
