@@ -1,4 +1,4 @@
-define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/TrackballControls.js', '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js', '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js', '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js', '../../../node_modules/three/examples/jsm/exporters/ColladaExporter'], function (exports, _three, _TrackballControls, _ConvexGeometry, _CSS2DRenderer, _SVGRenderer, _ColladaExporter) {
+define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/TrackballControls.js', '../../../node_modules/three/examples/jsm/geometries/ConvexGeometry.js', '../../../node_modules/three/examples/jsm/renderers/CSS2DRenderer.js', '../../../node_modules/three/examples/jsm/renderers/SVGRenderer.js', '../../../node_modules/three/examples/jsm/exporters/ColladaExporter.js'], function (exports, _three, _TrackballControls, _ConvexGeometry, _CSS2DRenderer, _SVGRenderer, _ColladaExporter) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -166,13 +166,13 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
       controls.enableKeys = false;
 
       // for OrbitControls
-      //controls.minDistance = 20
-      //controls.maxDistance = 50
-      //controls.noPan = true
-      //controls.noZoom = !this.settings.enableZoom
-      //controls.rotateSpeed = 4.0
-      //controls.zoomSpeed = 2.0
-      //controls.staticMoving = true
+      // controls.minDistance = 20
+      // controls.maxDistance = 50
+      // controls.noPan = true
+      // controls.noZoom = !this.settings.enableZoom
+      // controls.rotateSpeed = 4.0
+      // controls.zoomSpeed = 2.0
+      // controls.staticMoving = true
 
       // initial render
       function render() {
@@ -244,14 +244,13 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
     }, {
       key: 'downloadCollada',
       value: function downloadCollada(filename) {
-
         var files = new _ColladaExporter.ColladaExporter().parse(this.scene);
 
-        var link = document.createElement("a");
-        link.style.display = "none";
+        var link = document.createElement('a');
+        link.style.display = 'none';
         document.body.appendChild(link);
-        link.href = "data:text/plain;base64," + btoa(files.data);
-        link.download = filename || "scene.dae";
+        link.href = 'data:text/plain;base64,' + btoa(files.data);
+        link.download = filename || 'scene.dae';
         link.click();
       }
     }, {
@@ -262,15 +261,21 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
 
         var root_obj = new THREE.Object3D();
         root_obj.name = scene_json.name;
+        if (scene_json.hasOwnProperty('visible')) {
+          root_obj.visible = scene_json.visible;
+        }
 
         function traverse_scene(o, parent, self) {
           o.contents.forEach(function (sub_o) {
-            if (sub_o.hasOwnProperty('type')) {
+            if (sub_o.type) {
               parent.add(self.makeObject(sub_o));
             } else {
               var new_parent = new THREE.Object3D();
               new_parent.name = sub_o.name;
-              if (sub_o.hasOwnProperty("origin")) {
+              if (sub_o.hasOwnProperty('visible')) {
+                new_parent.visible = sub_o.visible;
+              }
+              if (sub_o.origin) {
                 var translation = new THREE.Matrix4();
                 translation.makeTranslation.apply(translation, _toConsumableArray(sub_o.origin));
                 new_parent.applyMatrix(translation);
@@ -346,11 +351,6 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
       key: 'makeObject',
       value: function makeObject(object_json) {
         var obj = new THREE.Object3D();
-        obj.name = object_json.name;
-
-        if (object_json.visible) {
-          obj.visible = object_json.visible;
-        }
 
         if (object_json.clickable) {
           obj.reference = object_json.reference;
@@ -362,11 +362,6 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
             {
               var geom = new THREE.SphereBufferGeometry(object_json.radius * this.settings.sphereScale, this.settings.sphereSegments, this.settings.sphereSegments, object_json.phiStart || 0, object_json.phiEnd || Math.PI * 2);
               var mat = this.makeMaterial(object_json.color);
-
-              // if we allow occupancies not to sum to 100
-              // if (object_json.phiStart || object_json.phiEnd) {
-              //    mat.side = THREE.DoubleSide;
-              // }
 
               var meshes = [];
               object_json.positions.forEach(function (position) {
@@ -387,11 +382,6 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
             {
               var _geom = new THREE.SphereBufferGeometry(this.settings.sphereScale, this.settings.sphereSegments, this.settings.sphereSegments, object_json.phiStart || 0, object_json.phiEnd || Math.PI * 2);
               var _mat = this.makeMaterial(object_json.color);
-
-              // if we allow occupancies not to sum to 100
-              // if (object_json.phiStart || object_json.phiEnd) {
-              //    mat.side = THREE.DoubleSide;
-              // }
 
               var _meshes = [];
               object_json.positions.forEach(function (position) {
@@ -627,7 +617,7 @@ define(['exports', 'three', '../../../node_modules/three/examples/jsm/controls/T
           opacity: opacity || 1.0
         });
 
-        if (this.settings.renderer === "svg") {
+        if (this.settings.renderer === 'svg') {
           return new THREE.MeshBasicMaterial(parameters);
         }
 
