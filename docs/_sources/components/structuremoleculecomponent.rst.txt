@@ -3,7 +3,7 @@ Structures and Molecules
 
 This component can render the ``pymatgen`` objects ``Structure``,
 ``Molecule``, ``StructureGraph`` and ``MoleculeGraph``. See its
-documentation `here. <source/crystal_toolkit.components.structure>`_
+documentation `here. <../source/crystal_toolkit.components.structure>`_
 
 Screenshot
 ~~~~~~~~~~
