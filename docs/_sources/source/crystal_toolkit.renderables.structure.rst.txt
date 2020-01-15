@@ -1,0 +1,7 @@
+crystal\_toolkit.renderables.structure module
+=============================================
+
+.. automodule:: crystal_toolkit.renderables.structure
+   :members:
+   :undoc-members:
+   :show-inheritance:
