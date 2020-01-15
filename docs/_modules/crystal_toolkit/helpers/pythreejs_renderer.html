@@ -194,18 +194,19 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;crystaltoolkit.pythreejs_renderer&#39;</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="traverse_scene_object"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.pythreejs_renderer.html#crystal_toolkit.helpers.pythreejs_renderer.traverse_scene_object">[docs]</a><span class="k">def</span> <span class="nf">traverse_scene_object</span><span class="p">(</span><span class="n">scene_data</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Recursivesly populate a nested Object3D object from pythreejs using the same tree structure from crystaltoolkit (CTK)</span>
-<span class="sd">    </span>
+
 <span class="sd">    Arguments:</span>
 <span class="sd">        scene_data {CTK.core.scene} -- The content of the current branch of the CTK object</span>
-<span class="sd">    </span>
+
 <span class="sd">    Keyword Arguments:</span>
 <span class="sd">        parent {Object3D} -- Reference to the parent in the Pythreejs tree (default: {None} means you are at the root)</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Object3D -- The current Pythreejs object with all the children fully populated</span>
-<span class="sd">    &quot;&quot;&quot;</span>   
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># At the tree root</span>
@@ -213,7 +214,7 @@
         <span class="n">parent</span> <span class="o">=</span> <span class="n">new_parent</span>
 
     <span class="k">for</span> <span class="n">sub_object</span> <span class="ow">in</span> <span class="n">scene_data</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sub_object</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_object</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">iobj</span> <span class="ow">in</span> <span class="n">sub_object</span><span class="p">:</span>
                 <span class="n">traverse_scene_object</span><span class="p">(</span><span class="n">iobj</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
             <span class="k">continue</span>
@@ -228,20 +229,20 @@
 
 <div class="viewcode-block" id="convert_object_to_pythreejs"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.pythreejs_renderer.html#crystal_toolkit.helpers.pythreejs_renderer.convert_object_to_pythreejs">[docs]</a><span class="k">def</span> <span class="nf">convert_object_to_pythreejs</span><span class="p">(</span><span class="n">scene_obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convert different primitive geometries of CTK objects to PythreeJS geometry objects</span>
-<span class="sd">    </span>
+
 <span class="sd">    Arguments:</span>
 <span class="sd">        scene_obj -- Object from crystalltoolkit</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        List[Object3D] -- List of objects from pythreeJS</span>
-<span class="sd">    &quot;&quot;&quot;</span>    
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">obs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">scene_obj</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;spheres&quot;</span><span class="p">:</span>
         <span class="n">obs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_get_spheres</span><span class="p">(</span><span class="n">scene_obj</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">scene_obj</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;surface&quot;</span><span class="p">:</span>
         <span class="n">obj3d</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">_get_surface_from_positions</span><span class="p">(</span><span class="n">scene_obj</span><span class="o">.</span><span class="n">positions</span><span class="p">,</span>
-                                            <span class="n">scene_obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="n">draw_edges</span><span class="o">=</span><span class="n">scene_obj</span><span class="o">.</span><span class="n">show_edges</span><span class="p">)</span>
+                                                   <span class="n">scene_obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="n">draw_edges</span><span class="o">=</span><span class="n">scene_obj</span><span class="o">.</span><span class="n">show_edges</span><span class="p">)</span>
         <span class="n">obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj3d</span><span class="p">)</span>
         <span class="n">obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">scene_obj</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;cylinders&quot;</span><span class="p">:</span>
@@ -250,7 +251,8 @@
                 <span class="nb">tuple</span><span class="p">(</span><span class="n">ipos</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ipos</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">scene_obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
             <span class="n">obs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj3d</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">scene_obj</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;lines&quot;</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">ipos</span><span class="p">,</span> <span class="n">jpos</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">scene_obj</span><span class="o">.</span><span class="n">positions</span><span class="p">[::</span><span class="mi">2</span><span class="p">],</span> <span class="n">scene_obj</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">ipos</span><span class="p">,</span> <span class="n">jpos</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">scene_obj</span><span class="o">.</span><span class="n">positions</span><span class="p">[::</span><span class="mi">2</span><span class="p">],</span> <span class="n">scene_obj</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">scene_obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
             <span class="n">obj3d</span> <span class="o">=</span> <span class="n">_get_line_from_vec</span><span class="p">(</span>
                 <span class="nb">tuple</span><span class="p">(</span><span class="n">ipos</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">jpos</span><span class="p">),</span> <span class="n">scene_obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
@@ -264,14 +266,15 @@
 
 <div class="viewcode-block" id="view"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.pythreejs_renderer.html#crystal_toolkit.helpers.pythreejs_renderer.view">[docs]</a><span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="n">renderable_obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="c1"># convex types are not implemented in threejs</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_obj</span><span class="p">,</span> <span class="n">Structure</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_obj</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_obj</span><span class="p">,</span> <span class="n">Structure</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">renderable_obj</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;explicitly_calculate_polyhedra_hull&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">display_scene</span><span class="p">(</span><span class="n">renderable_obj</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="display_scene"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.pythreejs_renderer.html#crystal_toolkit.helpers.pythreejs_renderer.display_scene">[docs]</a><span class="k">def</span> <span class="nf">display_scene</span><span class="p">(</span><span class="n">scene</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Render the scene in the pythreeJS</span>
-<span class="sd">    </span>
+
 <span class="sd">    Arguments:</span>
 <span class="sd">        scene {Object3D} -- Root node of the PythreeJS object we want to plot</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -283,10 +286,10 @@
     <span class="c1"># cannot use the setFromObject function because the function call is asyncronous</span>
     <span class="c1"># https://github.com/jupyter-widgets/pythreejs/issues/282</span>
     <span class="n">bounding_box</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">bounding_box</span>
-    <span class="n">extent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">bounding_box</span><span class="p">)])</span> <span class="o">*</span> <span class="mf">1.2</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">bounding_box</span><span class="p">)])</span> <span class="o">*</span> <span class="mf">1.2</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;extent : </span><span class="si">{extent}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">camera</span> <span class="o">=</span> <span class="n">OrthographicCamera</span><span class="p">(</span>
-        <span class="o">-</span><span class="n">extent</span><span class="p">,</span> <span class="o">+</span><span class="n">extent</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="o">-</span><span class="n">extent</span><span class="p">,</span> <span class="o">-</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+        <span class="o">-</span><span class="n">extent</span><span class="p">,</span> <span class="o">+</span><span class="n">extent</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="o">-</span><span class="n">extent</span><span class="p">,</span> <span class="o">-</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">cam_target</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="o">-</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">scene</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
     <span class="n">controls</span> <span class="o">=</span> <span class="n">OrbitControls</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">cam_target</span><span class="p">,</span> <span class="n">controlling</span><span class="o">=</span><span class="n">camera</span><span class="p">)</span>
@@ -312,14 +315,14 @@
 
 
 <span class="k">def</span> <span class="nf">_get_line_from_vec</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">scene_args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Draw the line given the two endpoints, some threejs functionalities still don&#39;t work well in pythreejs (unable to update linewidth and such) </span>
+    <span class="sd">&quot;&quot;&quot;Draw the line given the two endpoints, some threejs functionalities still don&#39;t work well in pythreejs (unable to update linewidth and such)</span>
 <span class="sd">    LineSegments2 is the onlyone that has tested sucessfully but it cannot handle LineDashedMaterial</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        v0 (list): one endpoint of line</span>
 <span class="sd">        v1 (list): other endpoint of line</span>
 <span class="sd">        scene_args (dict): properties of the line (line_width and color)</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        LineSegments2: Pythreejs object that displays the line sement</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -330,6 +333,7 @@
         <span class="n">LineMaterial</span><span class="p">(</span><span class="o">**</span><span class="n">obj_args</span><span class="p">),</span>  <span class="c1"># Dashed lines do not work in pythreejs yet</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">line</span>
+
 
 <span class="k">def</span> <span class="nf">_get_spheres</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">d_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -353,10 +357,11 @@
         <span class="p">)</span> <span class="k">for</span> <span class="n">ipos</span> <span class="ow">in</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span>
     <span class="p">]</span>
 
+
 <span class="k">def</span> <span class="nf">_get_surface_from_positions</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">d_args</span><span class="p">,</span> <span class="n">draw_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="c1"># get defaults</span>
     <span class="n">obj_args</span> <span class="o">=</span> <span class="n">update_object_args</span><span class="p">(</span><span class="n">d_args</span><span class="p">,</span> <span class="s2">&quot;Surfaces&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;opacity&#39;</span><span class="p">])</span>
-    <span class="n">num_triangle</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span><span class="o">/</span><span class="mf">3.</span>
+    <span class="n">num_triangle</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.</span>
     <span class="k">assert</span><span class="p">(</span><span class="n">num_triangle</span><span class="o">.</span><span class="n">is_integer</span><span class="p">())</span>
     <span class="c1"># make decision on transparency</span>
     <span class="k">if</span> <span class="n">obj_args</span><span class="p">[</span><span class="s1">&#39;opacity&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.99</span><span class="p">:</span>
@@ -365,7 +370,8 @@
         <span class="n">transparent</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="n">num_triangle</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_triangle</span><span class="p">)</span>
-    <span class="n">index_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">itr</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">itr</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">itr</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_triangle</span><span class="p">)]</span>
+    <span class="n">index_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">itr</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">itr</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">itr</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+                  <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_triangle</span><span class="p">)]</span>
     <span class="c1"># Vertex ositions as a list of lists</span>
     <span class="n">surf_vertices</span> <span class="o">=</span> <span class="n">BufferAttribute</span><span class="p">(</span>
         <span class="n">array</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
@@ -384,9 +390,11 @@
                                                     <span class="n">side</span><span class="o">=</span><span class="s1">&#39;DoubleSide&#39;</span><span class="p">,</span>
                                                     <span class="n">transparent</span><span class="o">=</span><span class="n">transparent</span><span class="p">,</span>
                                                     <span class="n">opacity</span><span class="o">=</span><span class="n">obj_args</span><span class="p">[</span><span class="s1">&#39;opacity&#39;</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="n">draw_edges</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span> 
+    <span class="k">if</span> <span class="n">draw_edges</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">edges</span> <span class="o">=</span> <span class="n">EdgesGeometry</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
-        <span class="n">edges_lines</span> <span class="o">=</span> <span class="n">LineSegments</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">LineBasicMaterial</span><span class="p">(</span><span class="n">color</span> <span class="o">=</span> <span class="n">obj_args</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]))</span>
+        <span class="n">edges_lines</span> <span class="o">=</span> <span class="n">LineSegments</span><span class="p">(</span>
+            <span class="n">edges</span><span class="p">,</span> <span class="n">LineBasicMaterial</span><span class="p">(</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">obj_args</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]))</span>
         <span class="k">return</span> <span class="n">new_surface</span><span class="p">,</span> <span class="n">edges_lines</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">new_surface</span><span class="p">,</span> <span class="kc">None</span>
@@ -398,12 +406,12 @@
 
 <span class="k">def</span> <span class="nf">_get_cylinder_from_vec</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">d_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Draw the cylinder given the two endpoints.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        v0 (list): one endpoint of line</span>
 <span class="sd">        v1 (list): other endpoint of line</span>
 <span class="sd">        d_args (dict): properties of the line (line_width and color)</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Mesh: Pythreejs object that displays the cylinders</span>
 <span class="sd">    &quot;&quot;&quot;</span>

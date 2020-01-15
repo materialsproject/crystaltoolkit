@@ -36,8 +36,7 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="crystal_toolkit.JSONViewComponent module" href="crystal_toolkit.JSONViewComponent.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -81,25 +80,13 @@
               
             
             
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../components.html">Component Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="crystal_toolkit.html">API Docs</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#subpackages">Subpackages</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.GraphComponent.html">crystal_toolkit.GraphComponent module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.JSONViewComponent.html">crystal_toolkit.JSONViewComponent module</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">crystal_toolkit.Simple3DSceneComponent module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
-</ul>
-</li>
 </ul>
 
             
@@ -145,8 +132,6 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="crystal_toolkit.html">crystal_toolkit package</a> &raquo;</li>
-        
       <li>crystal_toolkit.Simple3DSceneComponent module</li>
     
     
@@ -177,9 +162,9 @@
 <p>A Simple3DSceneComponent component.
 Simple3DSceneComponent is intended to draw simple 3D scenes using the popular
 Three.js scene graph library. In particular, the JSON representing the 3D scene
-is intended to be human-readable, and easily generated via Python. This is not
-intended to be a replacement for a full scene graph library, but for rapid
-prototyping by non-experts.</p>
+is intended to be human-readable, and easily generated via Python. In future, a
+long-term approach would be to develop a library to generate Three.js JSON directly
+inside Python to make this component redundant.</p>
 <p>Keyword arguments:
 - id (string; optional): The ID used to identify this component in Dash callbacks
 - data (dict; optional): Simple3DScene JSON, the easiest way to generate this is to use the Scene class
@@ -195,7 +180,7 @@ background: ‘#ffffff’, // background color if not transparent,
 sphereSegments: 32, // decrease to improve performance
 cylinderSegments: 16, // decrease to improve performance
 staticScene: true, // disable if animation required
-defaultZoom: 0.8, // 1 will completely fill viewport with scene</p>
+defaultZoom: 0.8, // 1 will completely fill viewport with scen</p>
 </div></blockquote>
 <p>}
 There are several additional options used for debugging and testing,

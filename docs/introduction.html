@@ -84,20 +84,17 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#crystal-toolkit-app">Crystal Toolkit App</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#crystal-toolkit-framework">Crystal Toolkit Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#web-app">Web App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#web-app-framework">Web App Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#running-the-app-locally">Running the App Locally</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#development-team">Development Team</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_component.html">Your First Component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">Component Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
             
@@ -164,47 +161,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <a class="reference external image-reference" href="https://materialsproject.org/#apps/xtaltoolkit"><img alt="Crystal Toolkit Logo" class="align-center" src="_images/logo.png" /></a>
-<div class="section" id="introduction">
+  <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>Crystal Toolkit is an interactive web app and its supporting framework
-from the <a class="reference external" href="https://materialsproject.org">Materials Project</a>.
-The app allows you to import, view, analyze and transform crystal structures and molecules, while
-the framework that powers the app can be used for your own materials science applications.</p>
-<div class="section" id="crystal-toolkit-app">
-<h2>Crystal Toolkit App<a class="headerlink" href="#crystal-toolkit-app" title="Permalink to this headline">¶</a></h2>
-<p>You can visit the current Crystal Toolkit web app <a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">here.</a></p>
+<p>Crystal Toolkit is an interactive web app from the <a class="reference external" href="https://materialsproject.org">Materials Project</a>
+that allows you to import, view, analyze and transform crystal structures and molecules.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>While the web app is online, the Crystal Toolkit source code itself is not
-intended for public use at this time. The current master branch <strong>may not work</strong>,
-and <strong>documentation may be incomplete and/or misleading.</strong>
+<p>The Crystal Toolkit code not intended for public release yet.
+It is being developed in the open but the current master branch
+<strong>may not work</strong>, and <strong>documentation may be incomplete and/or misleading.</strong>
 We’re working hard to reach release status, please check back soon.</p>
 </div>
+<div class="section" id="web-app">
+<h2>Web App<a class="headerlink" href="#web-app" title="Permalink to this headline">¶</a></h2>
+<p>You can visit the current Crystal Toolkit web app <a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">here</a>.</p>
 </div>
-<div class="section" id="crystal-toolkit-framework">
-<h2>Crystal Toolkit Framework<a class="headerlink" href="#crystal-toolkit-framework" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="web-app-framework">
+<h2>Web App Framework<a class="headerlink" href="#web-app-framework" title="Permalink to this headline">¶</a></h2>
 <p>Crystal Toolkit is designed as a modular, object-orientated suite of UI components
-built upon the <a class="reference external" href="https://dash.plot.ly">Dash framework by Plotly</a>. The main Crystal Toolkit web app is just
+built upon the Dash framework from Plotly. The main Crystal Toolkit web app is just
 one example of using these components.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>You can <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">crystaltoolkit</span></code>.</p>
 <p>For Jupyter integration, please see the <a class="reference external" href="jupyter">additional installation steps</a>.</p>
-</div>
-<div class="section" id="running-the-app-locally">
-<h2>Running the App Locally<a class="headerlink" href="#running-the-app-locally" title="Permalink to this headline">¶</a></h2>
-<p>If the web app is offline or undergoing maintenance, you can also run the
-web app locally using <a class="reference external" href="https://www.docker.com">Docker</a>. After you’ve
-installed Docker, run the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">container</span> <span class="n">run</span> <span class="o">-</span><span class="n">p</span> <span class="mi">8000</span><span class="p">:</span><span class="mi">8000</span> <span class="o">-</span><span class="n">e</span> <span class="n">PMG_MAPI_KEY</span><span class="o">=</span><span class="n">YOUR_API_KEY_HERE</span> <span class="n">materialsproject</span><span class="o">/</span><span class="n">crystal_toolkit</span>
-</pre></div>
-</div>
-<p>The app should then be available at <a class="reference external" href="http://localhost:8000">http://localhost:8000</a>.</p>
-<p>Make sure to set your <code class="docutils literal notranslate"><span class="pre">PMG_MAPI_KEY</span></code> appropriately.
-If you need a Materials Project API key, please get a free account on
-<a class="reference external" href="https://materialsproject.org">Materials Project</a> and access your dashboard.</p>
 </div>
 <div class="section" id="development-team">
 <h2>Development Team<a class="headerlink" href="#development-team" title="Permalink to this headline">¶</a></h2>
@@ -220,7 +201,7 @@ If you need a Materials Project API key, please get a free account on
 <li><p><a class="reference external" href="https://github.com/sweitzner">Stephen Weitzner</a> contributed POV-Ray integration (in progress)</p></li>
 <li><p><a class="reference external" href="https://github.com/richardtran415">Richard Tran</a> for planned contribution of Wulff shape component</p></li>
 </ul>
-<p>New contributors are welcome, please see our <a class="reference external" href="https://github.com/materialsproject/crystaltoolkit/blob/master/code-of-conduct.md">Code of Conduct.</a></p>
+<p>New contributors are welcome, please see our <a class="reference external" href="https://github.com/materialsproject/crystaltoolkit/blob/master/code-of-conduct.md">Code of Conduct</a>.</p>
 </div>
 </div>
 
