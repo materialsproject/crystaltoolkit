@@ -84,7 +84,7 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try the app!</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Your First App</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#example-app">Example App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#preamble">Preamble</a></li>
@@ -94,10 +94,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="first_component.html">Your First Component</a></li>
-<li class="toctree-l1"><a class="reference internal" href="components.html">Component Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
             
@@ -214,7 +212,7 @@ Otherwise, building an app is explained step-by-step below.</p>
     <span class="n">app</span><span class="o">.</span><span class="n">run_server</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8050</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Save this code as <code class="docutils literal notranslate"><span class="pre">app.py</span></code> and it can be run with <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">app.py</span></code>.</p>
+<p>Save this code as <cite>app.py</cite> and it can be run with <cite>python app.py</cite>.</p>
 <p>Visiting <a class="reference external" href="http://localhost:8050">http://localhost:8050</a> in your web browser should then
 give a blank page with the text “Hello scientist!”.</p>
 </div>
@@ -234,7 +232,6 @@ crystal structure.</p>
 
 <span class="c1"># create our crystal structure using pymatgen</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
-
 <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
 
 <span class="c1"># create the Crystal Toolkit component</span>
@@ -279,8 +276,9 @@ structure when clicked.</p>
 
 <span class="c1"># standard Dash imports for callbacks (interactivity)</span>
 <span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
-<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
 
+<span class="c1"># so we can pick a structure at random</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
@@ -295,13 +293,14 @@ structure when clicked.</p>
 <span class="n">structures</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]),</span>
     <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]),</span>
+    <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Li&quot;</span><span class="p">,</span> <span class="s2">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
 <span class="p">]</span>
 
 <span class="c1"># we show the first structure by default</span>
 <span class="n">structure_component</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">StructureMoleculeComponent</span><span class="p">(</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 <span class="c1"># and we create a button for user interaction</span>
-<span class="n">my_button</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Swap Structure&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;change_structure_button&quot;</span><span class="p">)</span>
+<span class="n">my_button</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">&quot;Randomize!&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;random_button&quot;</span><span class="p">)</span>
 
 <span class="c1"># now we have two entries in our app layout,</span>
 <span class="c1"># the structure component&#39;s layout and the button</span>
@@ -311,15 +310,10 @@ structure when clicked.</p>
 <span class="c1"># for the interactivity, we use a standard Dash callback</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
     <span class="n">Output</span><span class="p">(</span><span class="n">structure_component</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-    <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="s2">&quot;change_structure_button&quot;</span><span class="p">,</span> <span class="s2">&quot;n_clicks&quot;</span><span class="p">)],</span>
+    <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="s2">&quot;random_button&quot;</span><span class="p">,</span> <span class="s2">&quot;n_clicks&quot;</span><span class="p">)]</span>
 <span class="p">)</span>
 <span class="k">def</span> <span class="nf">update_structure</span><span class="p">(</span><span class="n">n_clicks</span><span class="p">):</span>
-    <span class="c1"># on load, n_clicks will be None, and no update is required</span>
-    <span class="c1"># after clicking on the button, n_clicks will be and int and incremented</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">n_clicks</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">PreventUpdate</span>
-    <span class="k">return</span> <span class="n">structures</span><span class="p">[</span><span class="n">n_clicks</span> <span class="o">%</span> <span class="mi">2</span><span class="p">]</span>
-
+    <span class="k">return</span> <span class="n">choice</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span>
 
 <span class="c1"># as above</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -329,9 +323,7 @@ structure when clicked.</p>
 <p>The two features here that make this slightly different from a regular Dash app are:</p>
 <ol class="arabic simple">
 <li><p>The structure object is stored and accessed via <code class="docutils literal notranslate"><span class="pre">structure_component.id()</span></code>
-and its <code class="docutils literal notranslate"><span class="pre">data</span></code> prop. The <cite>.id()</cite> method ensures that each Dash component
-has a unique id, even if multiple of the same MPComponent are present on the
-same page.</p></li>
+and its <code class="docutils literal notranslate"><span class="pre">data</span></code> prop.</p></li>
 <li><p>We can return the object directly (as a <code class="docutils literal notranslate"><span class="pre">Structure</span></code> object) via the callback,
 without needing to serialize or deserialize it.</p></li>
 </ol>
@@ -351,7 +343,7 @@ setting wasn’t enabled.</p>
 <p class="admonition-title">Note</p>
 <p>This section is optional for getting an app working.</p>
 </div>
-<p>Long-running callbacks (&gt; 0.1 ms) can make a web app feel slow and sluggish.
+<p>Long-running callbacks (&gt; 0.1ms) can make a web app feel slow and sluggish.
 Since callbacks do not rely on any external state, they are easy to cache.</p>
 <p>Caching is supported by many Crystal Toolkit components, but the cache
 backend has to be registered first. Any <a class="reference external" href="https://pythonhosted.org/Flask-Caching/">Flask-Caching</a>
@@ -372,7 +364,6 @@ backend is supported, but we recommend either:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">RedisCache</span></code> for production:</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ... define your Dash &quot;app&quot; variable first</span>
-
 <span class="kn">from</span> <span class="nn">flask_caching</span> <span class="kn">import</span> <span class="n">Cache</span>
 
 <span class="n">cache</span> <span class="o">=</span> <span class="n">Cache</span><span class="p">(</span>

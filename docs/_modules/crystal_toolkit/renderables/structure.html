@@ -157,14 +157,15 @@
 
 
 <div class="viewcode-block" id="get_scene_from_structure"><a class="viewcode-back" href="../../../source/crystal_toolkit.renderables.structure.html#crystal_toolkit.renderables.structure.get_scene_from_structure">[docs]</a><span class="k">def</span> <span class="nf">get_scene_from_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                             <span class="n">bonding_strategy</span><span class="o">=</span> <span class="s2">&quot;CrystalNN&quot;</span><span class="p">,</span>
-                             <span class="n">bonding_strategy_kwargs</span><span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">bonding_strategy</span><span class="o">=</span><span class="s2">&quot;CrystalNN&quot;</span><span class="p">,</span>
+                             <span class="n">bonding_strategy_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">sgraph</span> <span class="o">=</span> <span class="n">SMC</span><span class="o">.</span><span class="n">_preprocess_input_to_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                             <span class="n">bonding_strategy</span><span class="o">=</span><span class="n">bonding_strategy</span><span class="p">,</span>
                                             <span class="n">bonding_strategy_kwargs</span><span class="o">=</span><span class="n">bonding_strategy_kwargs</span><span class="p">,</span>
                                             <span class="p">)</span>
     <span class="k">return</span> <span class="n">sgraph</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
 <span class="n">Structure</span><span class="o">.</span><span class="n">get_scene</span> <span class="o">=</span> <span class="n">get_scene_from_structure</span>
 </pre></div>
