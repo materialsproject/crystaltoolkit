@@ -221,6 +221,29 @@ class StructureMoleculeComponent(MPComponent):
             [State(self.id("hide-show"), "options")],
         )
 
+        app.clientside_callback(
+            """
+            function (colorScheme, radiusStrategy, drawOptions, displayOptions) {
+            
+                const newDisplayOptions = Object.assign({}, displayOptions);
+                newDisplayOptions.color_scheme = colorScheme
+                newDisplayOptions.radius_strategy = radiusStrategy
+                newDisplayOptions.draw_image_atoms = drawOptions.includes('draw_image_atoms')
+                newDisplayOptions.bonded_sites_outside_unit_cell =  drawOptions.includes('bonded_sites_outside_unit_cell')
+                newDisplayOptions.hide_incomplete_bonds = drawOptions.includes('hide_incomplete_bonds')
+
+                return newDisplayOptions
+            }
+            """,
+            Output(self.id("display_options"), "data"),
+            [
+                Input(self.id("color-scheme"), "value"),
+                Input(self.id("radius_strategy"), "value"),
+                Input(self.id("draw_options"), "value"),
+            ],
+            [State(self.id("display_options"), "data")],
+        )
+
         @app.callback(
             Output(self.id("graph"), "data"),
             [
@@ -307,44 +330,6 @@ class StructureMoleculeComponent(MPComponent):
                         ]
 
             return scene, legend, color_options
-
-        @app.callback(
-            Output(self.id("display_options"), "data"),
-            [
-                Input(self.id("color-scheme"), "value"),
-                Input(self.id("radius_strategy"), "value"),
-                Input(self.id("draw_options"), "value"),
-            ],
-            [State(self.id("display_options"), "data")],
-        )
-        def update_display_options(
-            color_scheme, radius_strategy, draw_options, display_options
-        ):
-
-            initial_display_options = display_options.copy()
-
-            display_options = self.from_data(display_options)
-            display_options.update({"color_scheme": color_scheme})
-            display_options.update({"radius_strategy": radius_strategy})
-            display_options.update(
-                {"draw_image_atoms": "draw_image_atoms" in draw_options}
-            )
-            display_options.update(
-                {
-                    "bonded_sites_outside_unit_cell": "bonded_sites_outside_unit_cell"
-                    in draw_options
-                }
-            )
-            display_options.update(
-                {"hide_incomplete_bonds": "hide_incomplete_bonds" in draw_options}
-            )
-
-            if display_options == initial_display_options:
-                raise PreventUpdate
-
-            self.logger.debug("Display options updated")
-
-            return display_options
 
         @app.callback(
             Output(self.id("scene"), "downloadRequest"),
@@ -447,13 +432,13 @@ class StructureMoleculeComponent(MPComponent):
                     name, className="icon", style={"color": get_font_color(color)}
                 ),
                 kind="static",
-                style={"background-color": color},
+                style={"backgroundColor": color},
             )
             for color, name in legend_colors.items()
         ]
 
         return Field(
-            [Control(el, style={"margin-right": "0.2rem"}) for el in legend_elements],
+            [Control(el, style={"marginRight": "0.2rem"}) for el in legend_elements],
             id=self.id("legend"),
             grouped=True,
         )
@@ -528,7 +513,7 @@ class StructureMoleculeComponent(MPComponent):
                 )
             ],
             # TODO: change to "bottom" when dropdown included
-            style={"vertical-align": "top", "display": "inline-block"},
+            style={"verticalAlign": "top", "display": "inline-block"},
         )
 
         title_layout = html.Div(
