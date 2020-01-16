@@ -1,0 +1,21 @@
+{
+    "scene": {
+        "Cylinders": {
+            "color": "#000000",
+            "radius": 0.15
+        },
+        "Lines": {
+            "color": "#000000",
+            "linewidth": 3.0
+        },
+        "Surfaces": {
+            "color": "#6495ed",
+            "opacity": 0.5,
+            "edge_width" : 0.2
+        },
+        "Spheres": {
+            "color": "#000000",
+            "radius": 0.5
+        }
+    }
+}

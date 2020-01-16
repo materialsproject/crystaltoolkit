@@ -50,3 +50,7 @@ pythreejs>=2.0.2
 
 # until type hints stabilize
 typing_extensions>=3.7.4
+
+# for isosurfaces
+scikit-image>=0.16.1
+
