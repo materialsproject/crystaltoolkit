@@ -17,60 +17,43 @@ from pythreejs import (
     LineSegmentsGeometry,
     LineBasicMaterial,
     LineMaterial,
-    LineDashedMaterial,
+    # LineDashedMaterial,
     Scene,
     AmbientLight,
     Renderer,
     OrbitControls,
     OrthographicCamera,
     DirectionalLight,
-    Box3,
+    # Box3,
 )
 from math import isnan
 from IPython.display import display
 from scipy.spatial.transform import Rotation as R
 from pymatgen import Structure, Molecule
+from pymatgen.analysis.graphs import StructureGraph
 
 import numpy as np
 import warnings
-import os
-import json
-from collections import defaultdict
-from crystal_toolkit.renderables import *
 from crystal_toolkit.core.scene import Scene as CrystalToolkitScene
 from crystal_toolkit.components.structure import StructureMoleculeComponent
+from crystal_toolkit.helpers.utils import update_object_args
 
 import logging
-import warnings
 
 logger = logging.getLogger('crystaltoolkit.pythreejs_renderer')
 
-# Populate the default values from the JSON file
-_DEFAULTS = defaultdict(lambda: None)
-default_js = os.path.join(os.path.join(os.path.dirname(
-    os.path.abspath(__file__))), "../core/", "defaults.json")
-with open(default_js) as handle:
-    _DEFAULTS.update(json.loads(handle.read()))
-
-def update_object_args(d_args, object_name, allowed_args):
-    # read the default values then ovewrite allowed arg values
-    obj_args = dict({
-        k: v
-        for k, v in (_DEFAULTS[object_name] or {}).items() if k in allowed_args
-    })
-    obj_args.update({
-        k: v
-        for k, v in (d_args or {}).items() if k in allowed_args and v != None
-    })
-    return obj_args
-
 
 def traverse_scene_object(scene_data, parent=None):
-    """
-    Recursivesly populate a scene object with tree of children 
-    :param scene_data:
-    :param parent:
-    :return:
+    """Recursivesly populate a nested Object3D object from pythreejs using the same tree structure from crystaltoolkit (CTK)
+
+    Arguments:
+        scene_data {CTK.core.scene} -- The content of the current branch of the CTK object
+
+    Keyword Arguments:
+        parent {Object3D} -- Reference to the parent in the Pythreejs tree (default: {None} means you are at the root)
+
+    Returns:
+        Object3D -- The current Pythreejs object with all the children fully populated
     """
 
     if parent is None:
@@ -79,7 +62,7 @@ def traverse_scene_object(scene_data, parent=None):
         parent = new_parent
 
     for sub_object in scene_data.contents:
-        if type(sub_object) == list:
+        if isinstance(sub_object, list):
             for iobj in sub_object:
                 traverse_scene_object(iobj, parent)
             continue
@@ -93,16 +76,21 @@ def traverse_scene_object(scene_data, parent=None):
 
 
 def convert_object_to_pythreejs(scene_obj):
+    """Convert different primitive geometries of CTK objects to PythreeJS geometry objects
+
+    Arguments:
+        scene_obj -- Object from crystalltoolkit
+
+    Returns:
+        List[Object3D] -- List of objects from pythreeJS
     """
-    Cases for the conversion
-    :return:
-    """
+
     obs = []
     if scene_obj.type == "spheres":
         obs.extend(_get_spheres(scene_obj))
     elif scene_obj.type == "surface":
         obj3d, edges = _get_surface_from_positions(scene_obj.positions,
-                                            scene_obj.__dict__)
+                                                   scene_obj.__dict__, draw_edges=scene_obj.show_edges)
         obs.append(obj3d)
         obs.append(edges)
     elif scene_obj.type == "cylinders":
@@ -111,7 +99,8 @@ def convert_object_to_pythreejs(scene_obj):
                 tuple(ipos[0]), tuple(ipos[1]), scene_obj.__dict__)
             obs.append(obj3d)
     elif scene_obj.type == "lines":
-        for ipos, jpos in zip(scene_obj.positions[::2], scene_obj.positions[1::2]):
+        for ipos, jpos in zip(
+                scene_obj.positions[::2], scene_obj.positions[1::2]):
             logger.debug(scene_obj.__dict__)
             obj3d = _get_line_from_vec(
                 tuple(ipos), tuple(jpos), scene_obj.__dict__)
@@ -123,89 +112,48 @@ def convert_object_to_pythreejs(scene_obj):
     return obs
 
 
-def view(molecule_or_structure, **kwargs):
-    """View a pymatgen Molecule or Structure object interactively in a
-    Jupyter notebook.
-    
-    Args:
-        molecule_or_structure: Molecule or structure to display
-        draw_image_atoms (bool):  Show periodic copies of atoms
-    """
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-
-        # Since the jupyter viewer is meant for quick peaks at the structure the default behaviour should be different
-        # ex. draw_image_atoms should be set to false:
-        if "draw_image_atoms" not in kwargs:
-            kwargs["draw_image_atoms"] = False
-        if "bonded_sites_outside_unit_cell" not in kwargs:
-            kwargs["bonded_sites_outside_unit_cell"] = False
-        if "hide_incomplete_edges" not in kwargs:
-            kwargs["hide_incomplete_edges"] = True
-        obj_or_scene = molecule_or_structure
-        if isinstance(obj_or_scene, CrystalToolkitScene):
-            scene = obj_or_scene
-        elif hasattr(obj_or_scene, "get_scene"):
-            scene = obj_or_scene.get_scene(**kwargs)
-        # TODO: next two elif statements are only here until Molecule and Structure have get_scene()
-        elif isinstance(obj_or_scene, Structure):
-            # TODO Temporary place holder for render structure until structure.get_scene() is implemented
-            struct_or_mol = obj_or_scene.copy()
-            smc = StructureMoleculeComponent(
-                struct_or_mol,
-                static=True,
-                hide_incomplete_bonds=kwargs['hide_incomplete_edges'],
-                draw_image_atoms=kwargs['draw_image_atoms'],
-                bonded_sites_outside_unit_cell=kwargs['bonded_sites_outside_unit_cell'],
-            )
-            origin = np.sum(obj_or_scene.lattice.matrix, axis=0)/2.
-            scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
-        elif isinstance(obj_or_scene, Molecule):
-            # TODO Temporary place holder for render molecules
-            kwargs.pop('draw_image_atoms')
-            kwargs.pop('hide_incomplete_edges')
-            kwargs.pop('bonded_sites_outside_unit_cell')
-            origin = obj_or_scene.center_of_mass
-            struct_or_mol = obj_or_scene.copy()
-            smc = StructureMoleculeComponent(
-                struct_or_mol,
-                static=True,
-                **kwargs)
-            scene = smc.initial_graph.get_scene(origin=origin, **kwargs)
-        else:
-            raise ValueError(
-                "Only Scene objects or objects with get_scene() methods "
-                "can be displayed."
-            )
-        display_scene(scene)
+def view(renderable_obj, **kwargs):
+    # convex types are not implemented in threejs
+    if isinstance(renderable_obj, Structure) or isinstance(
+            renderable_obj, StructureGraph):
+        kwargs['explicitly_calculate_polyhedra_hull'] = True
+    display_scene(renderable_obj.get_scene(**kwargs))
 
 
 def display_scene(scene):
-    """
-    :param smc: input structure structure molecule component
+    """Render the scene in the pythreeJS
+
+    Arguments:
+        scene {Object3D} -- Root node of the PythreeJS object we want to plot
     """
     obs = traverse_scene_object(scene)
+
     logger.debug(type(obs))
     scene2render = Scene(children=list(obs.children))
     logger.debug(len(scene2render.children))
     # cannot use the setFromObject function because the function call is asyncronous
     # https://github.com/jupyter-widgets/pythreejs/issues/282
     bounding_box = scene.bounding_box
-    extent = max([p[1]-p[0] for p in zip(*bounding_box)]) * 1.2
+    extent = max([p[1] - p[0] for p in zip(*bounding_box)]) * 1.2
     logger.debug(f"extent : {extent}")
     camera = OrthographicCamera(
-        -extent, extent, extent, -extent, -2000, 2000, position=(0, 0, 2)
+        -extent, +extent, extent, -extent, -2000, 2000, position=[0, 0, 10]
     )
+    cam_target = tuple(-i for i in scene.origin)
+    controls = OrbitControls(target=cam_target, controlling=camera)
+    camera.lookAt(cam_target)
+
     scene2render.children = scene2render.children + (
         AmbientLight(color="#cccccc", intensity=0.75),
         DirectionalLight(color="#ccaabb", position=[0, 20, 10], intensity=0.5),
+        camera
     )
     renderer = Renderer(
         camera=camera,
         background="white",
         background_opacity=1,
         scene=scene2render,
-        controls=[OrbitControls(controlling=camera)],
+        controls=[controls],
         width=500,
         height=500,
         antialias=True,
@@ -214,19 +162,19 @@ def display_scene(scene):
     display(renderer)
 
 
-def _get_line_from_vec(v0, v1, d_args):
-    """Draw the line given the two endpoints, some threejs functionalities still don't work well in pythreejs (unable to update linewidth and such) 
+def _get_line_from_vec(v0, v1, scene_args):
+    """Draw the line given the two endpoints, some threejs functionalities still don't work well in pythreejs (unable to update linewidth and such)
     LineSegments2 is the onlyone that has tested sucessfully but it cannot handle LineDashedMaterial
-    
+
     Args:
         v0 (list): one endpoint of line
         v1 (list): other endpoint of line
-        d_args (dict): properties of the line (line_width and color)
-    
+        scene_args (dict): properties of the line (line_width and color)
+
     Returns:
         LineSegments2: Pythreejs object that displays the line sement
     """
-    obj_args = update_object_args(d_args, "Lines", ['linewidth', 'color'])
+    obj_args = update_object_args(scene_args, "Lines", ['linewidth', 'color'])
     logger.debug(obj_args)
     line = LineSegments2(
         LineSegmentsGeometry(positions=[[v0, v1]]),
@@ -234,7 +182,8 @@ def _get_line_from_vec(v0, v1, d_args):
     )
     return line
 
-def _get_spheres(ctk_scene):
+
+def _get_spheres(ctk_scene, d_args=None):
     """
     render spheres
     """
@@ -256,10 +205,11 @@ def _get_spheres(ctk_scene):
         ) for ipos in ctk_scene.positions
     ]
 
-def _get_surface_from_positions(positions, draw_edges=False, d_args):
+
+def _get_surface_from_positions(positions, d_args, draw_edges=False):
     # get defaults
     obj_args = update_object_args(d_args, "Surfaces", ['color', 'opacity'])
-    num_triangle = len(positions)/3.
+    num_triangle = len(positions) / 3.
     assert(num_triangle.is_integer())
     # make decision on transparency
     if obj_args['opacity'] > 0.99:
@@ -267,10 +217,9 @@ def _get_surface_from_positions(positions, draw_edges=False, d_args):
     else:
         transparent = True
 
-
-
     num_triangle = int(num_triangle)
-    index_list = [[itr*3, itr*3+1, itr*3+2] for itr in range(num_triangle)]
+    index_list = [[itr * 3, itr * 3 + 1, itr * 3 + 2]
+                  for itr in range(num_triangle)]
     # Vertex ositions as a list of lists
     surf_vertices = BufferAttribute(
         array=positions,
@@ -289,12 +238,14 @@ def _get_surface_from_positions(positions, draw_edges=False, d_args):
                                                     side='DoubleSide',
                                                     transparent=transparent,
                                                     opacity=obj_args['opacity']))
-    if draw_edges: 
+    if draw_edges == True:
         edges = EdgesGeometry(geometry)
-        edges_lines = LineSegments(edges, LineBasicMaterial(color = obj_args['color']))
+        edges_lines = LineSegments(
+            edges, LineBasicMaterial(
+                color=obj_args['color']))
         return new_surface, edges_lines
     else:
-        return new_surface
+        return new_surface, None
 
 
 def _get_cube_from_pos(v0, **kwargs):
@@ -303,12 +254,12 @@ def _get_cube_from_pos(v0, **kwargs):
 
 def _get_cylinder_from_vec(v0, v1, d_args=None):
     """Draw the cylinder given the two endpoints.
-    
+
     Args:
         v0 (list): one endpoint of line
         v1 (list): other endpoint of line
         d_args (dict): properties of the line (line_width and color)
-    
+
     Returns:
         Mesh: Pythreejs object that displays the cylinders
     """
