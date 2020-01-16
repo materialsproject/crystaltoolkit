@@ -293,6 +293,9 @@ class MPComponent(ABC):
         or string), and register it so that it will be included in the
         Dash app automatically.
 
+        The initial data will be stored in a class attribute as
+        self._initial_data[name].
+
         Args:
             name: name for the store
             initial_data: initial data to include
