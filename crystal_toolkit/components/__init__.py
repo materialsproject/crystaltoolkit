@@ -3,6 +3,7 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 
 register_app = MPComponent.register_app
 register_cache = MPComponent.register_cache
+register_crystal_toolkit = MPComponent.register_crystal_toolkit
 crystal_toolkit_layout = MPComponent.crystal_toolkit_layout
 
 from crystal_toolkit.helpers.layouts import *
