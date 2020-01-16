@@ -11,12 +11,6 @@ from dash.exceptions import PreventUpdate
 from pymatgen import Structure, Lattice
 
 app = dash.Dash()
-ctc.register_app(app)
-
-# prevent static checking of your layout ahead-of-time
-# otherwise errors can be raised in certain instances
-# see discussion below
-app.config["suppress_callback_exceptions"] = True
 
 # now we give a list of structures to pick from
 structures = [
@@ -33,7 +27,7 @@ my_button = html.Button("Swap Structure", id="change_structure_button")
 # now we have two entries in our app layout,
 # the structure component's layout and the button
 my_layout = html.Div([structure_component.layout(), my_button])
-app.layout = ctc.crystal_toolkit_layout(my_layout)
+ctc.register_crystal_toolkit(app, my_layout, cache=None)
 
 # for the interactivity, we use a standard Dash callback
 @app.callback(
@@ -42,7 +36,7 @@ app.layout = ctc.crystal_toolkit_layout(my_layout)
 )
 def update_structure(n_clicks):
     # on load, n_clicks will be None, and no update is required
-    # after clicking on the button, n_clicks will be and int and incremented
+    # after clicking on the button, n_clicks will be an int and incremented
     if not n_clicks:
         raise PreventUpdate
     return structures[n_clicks % 2]
