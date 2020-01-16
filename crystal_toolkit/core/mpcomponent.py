@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from json import dumps, loads
 from time import mktime
+from uuid import uuid4
 from warnings import warn
 import dash
 
@@ -96,7 +97,6 @@ class MPComponent(ABC):
         """
         MPComponent.cache = cache
 
-    # TODO: move these to a Crystal Toolkit singleton (?)
     @staticmethod
     def crystal_toolkit_layout(layout: html.Div) -> html.Div:
 
@@ -122,6 +122,15 @@ class MPComponent(ABC):
                 MPComponent._callbacks_generated_for_ids.add(component.id())
 
         return layout
+
+    @staticmethod
+    def register_crystal_toolkit(app, layout, cache=None):
+
+        MPComponent.register_app(app)
+        if cache:
+            MPComponent.register_cache(cache)
+        app.config["suppress_callback_exceptions"] = True
+        app.layout = MPComponent.crystal_toolkit_layout(layout)
 
     @staticmethod
     def all_app_stores() -> html.Div:
@@ -201,18 +210,10 @@ class MPComponent(ABC):
         # ensure ids are unique
         # Note: shadowing Python built-in here, but only because Dash does it...
         if id is None:
-            counter = 0
-            test_id = f"{CT_NAMESPACE}{self.__class__.__name__}"
-            while test_id not in MPComponent._all_id_basenames:
-                if counter != 0:
-                    test_id = f"{CT_NAMESPACE}{self.__class__.__name__}_{counter}"
-                counter += 1
-                if test_id not in MPComponent._all_id_basenames:
-                    id = test_id
-                    MPComponent._all_id_basenames.add(test_id)
+            id = f"{CT_NAMESPACE}{self.__class__.__name__}{str(uuid4())[0:6]}"
         else:
             id = f"{CT_NAMESPACE}{id}"
-            MPComponent._all_id_basenames.add(id)
+        MPComponent._all_id_basenames.add(id)
 
         self._id = id
         self._all_ids = set()
@@ -292,6 +293,9 @@ class MPComponent(ABC):
         Generate a dcc.Store to hold something (MSONable object, Dict
         or string), and register it so that it will be included in the
         Dash app automatically.
+
+        The initial data will be stored in a class attribute as
+        self._initial_data[name].
 
         Args:
             name: name for the store
