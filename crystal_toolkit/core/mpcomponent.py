@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from json import dumps, loads
 from time import mktime
+from uuid import uuid4
 from warnings import warn
 import dash
 
@@ -201,18 +202,10 @@ class MPComponent(ABC):
         # ensure ids are unique
         # Note: shadowing Python built-in here, but only because Dash does it...
         if id is None:
-            counter = 0
-            test_id = f"{CT_NAMESPACE}{self.__class__.__name__}"
-            while test_id not in MPComponent._all_id_basenames:
-                if counter != 0:
-                    test_id = f"{CT_NAMESPACE}{self.__class__.__name__}_{counter}"
-                counter += 1
-                if test_id not in MPComponent._all_id_basenames:
-                    id = test_id
-                    MPComponent._all_id_basenames.add(test_id)
+            id = f"{CT_NAMESPACE}{self.__class__.__name__}{str(uuid4())[0:6]}"
         else:
             id = f"{CT_NAMESPACE}{id}"
-            MPComponent._all_id_basenames.add(id)
+        MPComponent._all_id_basenames.add(id)
 
         self._id = id
         self._all_ids = set()
