@@ -97,7 +97,6 @@ class MPComponent(ABC):
         """
         MPComponent.cache = cache
 
-    # TODO: move these to a Crystal Toolkit singleton (?)
     @staticmethod
     def crystal_toolkit_layout(layout: html.Div) -> html.Div:
 
@@ -123,6 +122,15 @@ class MPComponent(ABC):
                 MPComponent._callbacks_generated_for_ids.add(component.id())
 
         return layout
+
+    @staticmethod
+    def register_crystal_toolkit(app, layout, cache=None):
+
+        MPComponent.register_app(app)
+        if cache:
+            MPComponent.register_cache(cache)
+        app.config["suppress_callback_exceptions"] = True
+        app.layout = MPComponent.crystal_toolkit_layout(layout)
 
     @staticmethod
     def all_app_stores() -> html.Div:
