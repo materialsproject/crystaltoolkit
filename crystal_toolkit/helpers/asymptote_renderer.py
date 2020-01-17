@@ -8,8 +8,8 @@ TODO The code should also appends a set of special points at the end in case the
 """
 from itertools import chain
 from jinja2 import Environment
-# from crystal_toolkit.components.structure import StructureMoleculeComponent
-import crystal_toolkit.renderables.structure
+from pymatgen import Structure, Molecule
+from pymatgen.analysis.graphs import StructureGraph
 from crystal_toolkit.helpers.utils import update_object_args
 
 import logging
@@ -262,11 +262,6 @@ def asy_write_data(input_scene_comp, fstream):
 
     return
 
-    # TODO Leaving out polyhedra for now since asymptote
-    # does not have an easy way to generate convex polyhedra from the points
-    # Need to write a python conversion between Convex type and surfaces to
-    # make this work.
-
     # TODO we can make the line solide for the forground and dashed for the background
     # This will require use to modify the way the line objects are generated
     # at each vertex in the unit cell, we can evaluate the sum of all three lattice vectors from the point
@@ -300,7 +295,7 @@ def traverse_scene_object(scene_data, fstream):
             traverse_scene_object(sub_object, fstream)
 
 
-def write_asy_file(ctk_scene, file_name):
+def wite_ctk_scene_to_file(ctk_scene, file_name):
     """
     ctk_scene : Scene object from crystaltoolkit
     filename : Output asymptote file and location
@@ -313,8 +308,15 @@ def write_asy_file(ctk_scene, file_name):
     fstream.close()
 
 
-def view(renderable_object, file_name):
+def write_asy_file(renderable_object, file_name, **kwargs):
+    """
+    Generate the scene object and write it to file
+
+    Args:
+        renderable_object: Object to be rendered
+        file_name: name of file
+    """
     if isinstance(renderable_object, Structure) or isinstance(
-            renderable_obj, StructureGraph):
+            renderable_object, StructureGraph):
         kwargs['explicitly_calculate_polyhedra_hull'] = True
-    write_asy_file(renderable_object.get_scene(**kwargs), file_name)
+    wite_ctk_scene_to_file(renderable_object.get_scene(**kwargs), file_name)
