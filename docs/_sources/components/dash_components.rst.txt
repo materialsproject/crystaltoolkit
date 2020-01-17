@@ -15,18 +15,9 @@ The intent of this component is to provide easy three-dimensional rendering of
 Above all, this component is designed for *simple* use. It is not designed to
 compete with full scene graph implementations such as VTK or Three.js. If you
 want advanced usage, you should use these very powerful and well-documented
-libraries directly. Simple3DScene does use Three.js itself to power its
-functionality.
+libraries directly. Simple3DScene does use Three.js behind the scenes to power
+its functionality.
 
 Link to documentation for creating ``Scene`` objects inside Python.
 
 Link to ``Simple3DScene`` Dash component to render resulting ``Scene`` object.
-
-Example Usage
-^^^^^^^^^^^^^
-
-::
-
-	from crystaltoolkit.core.scene import Scene, Spheres
-
-    from
