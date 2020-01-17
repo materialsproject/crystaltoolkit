@@ -158,6 +158,7 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">dumps</span><span class="p">,</span> <span class="n">loads</span>
 <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">mktime</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">dash</span>
 
@@ -250,7 +251,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">MPComponent</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span></div>
 
-    <span class="c1"># TODO: move these to a Crystal Toolkit singleton (?)</span>
 <div class="viewcode-block" id="MPComponent.crystal_toolkit_layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent.crystal_toolkit_layout">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">crystal_toolkit_layout</span><span class="p">(</span><span class="n">layout</span><span class="p">:</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
 
@@ -276,6 +276,15 @@
                 <span class="n">MPComponent</span><span class="o">.</span><span class="n">_callbacks_generated_for_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">layout</span></div>
+
+<div class="viewcode-block" id="MPComponent.register_crystal_toolkit"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent.register_crystal_toolkit">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">register_crystal_toolkit</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">MPComponent</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="n">MPComponent</span><span class="o">.</span><span class="n">register_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;suppress_callback_exceptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">MPComponent</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MPComponent.all_app_stores"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent.all_app_stores">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">all_app_stores</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
@@ -355,18 +364,10 @@
         <span class="c1"># ensure ids are unique</span>
         <span class="c1"># Note: shadowing Python built-in here, but only because Dash does it...</span>
         <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">test_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{self.__class__.__name__}</span><span class="s2">&quot;</span>
-            <span class="k">while</span> <span class="n">test_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MPComponent</span><span class="o">.</span><span class="n">_all_id_basenames</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">counter</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">test_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{self.__class__.__name__}</span><span class="s2">_</span><span class="si">{counter}</span><span class="s2">&quot;</span>
-                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">test_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">MPComponent</span><span class="o">.</span><span class="n">_all_id_basenames</span><span class="p">:</span>
-                    <span class="nb">id</span> <span class="o">=</span> <span class="n">test_id</span>
-                    <span class="n">MPComponent</span><span class="o">.</span><span class="n">_all_id_basenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">test_id</span><span class="p">)</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{self.__class__.__name__}</span><span class="s2">{str(uuid4())[0:6]}&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{id}</span><span class="s2">&quot;</span>
-            <span class="n">MPComponent</span><span class="o">.</span><span class="n">_all_id_basenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">MPComponent</span><span class="o">.</span><span class="n">_all_id_basenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="nb">id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_all_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
