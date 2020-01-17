@@ -11,12 +11,13 @@ from crystal_toolkit import JSONViewComponent
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 
-def init_viewer():
+def _init_viewer():
 
     global crystal_toolkit_viewer
     global crystal_toolkit_app
 
-    crystal_toolkit_viewer = jupyterlab_dash.AppViewer(port=8095)
+    # let OS choose next available port
+    crystal_toolkit_viewer = jupyterlab_dash.AppViewer(port=0)
     crystal_toolkit_app = dash.Dash(__name__)
 
 
@@ -29,7 +30,7 @@ def view(struct_or_mol, **kwargs):
     """
 
     if "crystal_toolkit_app" not in globals():
-        init_viewer()
+        _init_viewer()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -37,17 +38,6 @@ def view(struct_or_mol, **kwargs):
 
     crystal_toolkit_app.title = struct_or_mol.composition.reduced_formula
     crystal_toolkit_app.layout = html.Div(
-        [component.standard_layout, component.screenshot_layout]
+        [component.layout(), component.screenshot_layout()]
     )
     crystal_toolkit_viewer.show(crystal_toolkit_app)
-
-
-def get_component(obj):
-
-    if not isinstance(obj, MSONable):
-        raise ValueError("Can only display MSONable types.")
-
-    if isinstance(obj, Structure) or isinstance(obj, Molecule):
-        return StructureMoleculeComponent
-
-    return JSONViewComponent(src=obj.to_json())
