@@ -32,6 +32,7 @@ DEFAULTS = {
     "bonded_sites_outside_unit_cell": False,
     "hide_incomplete_bonds": True,
     "show_compass": False,
+    "unit_cell_choice": "input",
 }
 
 
@@ -63,6 +64,7 @@ class StructureMoleculeComponent(MPComponent):
         color_scheme: str = DEFAULTS["color_scheme"],
         color_scale: Optional[str] = None,
         radius_strategy: str = DEFAULTS["radius_strategy"],
+        unit_cell_choice: str = DEFAULTS["unit_cell_choice"],
         draw_image_atoms: bool = DEFAULTS["draw_image_atoms"],
         bonded_sites_outside_unit_cell: bool = DEFAULTS[
             "bonded_sites_outside_unit_cell"
@@ -102,10 +104,18 @@ class StructureMoleculeComponent(MPComponent):
 
         self.create_store("scene_settings", initial_data=self.initial_scene_settings)
 
-        self.initial_graph_generation_options = {
-            "bonding_strategy": bonding_strategy,
-            "bonding_strategy_kwargs": bonding_strategy_kwargs,
-        }
+        # unit cell choice and bonding algorithms need to come from a settings
+        # object (in a dcc.Store) guaranteed to be present in layout, rather
+        # than from the controls themselves -- since these are optional and
+        # may not be present in the layout
+        self.create_store(
+            "graph_generation_options",
+            initial_data={
+                "bonding_strategy": bonding_strategy,
+                "bonding_strategy_kwargs": bonding_strategy_kwargs,
+                "unit_cell_choice": unit_cell_choice,
+            },
+        )
 
         self.create_store(
             "display_options",
@@ -163,23 +173,86 @@ class StructureMoleculeComponent(MPComponent):
         self._initial_data["scene"] = scene
 
     def generate_callbacks(self, app, cache):
-        @app.callback(
-            Output(self.id("graph"), "data"),
+
+        # a lot of the verbosity in this callback is to support custom bonding
+        # this is not the format CutOffDictNN expects (since that is not JSON
+        # serializable), so we store as a list of tuples instead
+        # TODO: make CutOffDictNN args JSON serializable
+        app.clientside_callback(
+            """
+            function (bonding_strategy, custom_cutoffs_rows, unit_cell_choice) {
+            
+                const bonding_strategy_kwargs = {}
+                if (bonding_strategy === 'CutOffDictNN') {
+                    const cut_off_dict = []
+                    custom_cutoffs_rows.forEach(function(row) {
+                        cut_off_dict.push([row['A'], row['B'], parseFloat(row['A—B'])])
+                    })
+                    bonding_strategy_kwargs.cut_off_dict = cut_off_dict
+                }
+            
+                return {
+                    bonding_strategy: bonding_strategy,
+                    bonding_strategy_kwargs: bonding_strategy_kwargs,
+                    unit_cell_choice: unit_cell_choice
+                }
+            }
+            """,
+            Output(self.id("graph_generation_options"), "data"),
             [
                 Input(self.id("bonding_algorithm"), "value"),
                 Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
                 Input(self.id("unit-cell-choice"), "value"),
+            ],
+        )
+
+        app.clientside_callback(
+            """
+            function (values, options) {
+                const visibility = {}
+                options.forEach(function (opt) {
+                    visibility[opt.value] = Boolean(values.includes(opt.value))
+                })
+                return visibility
+            }
+            """,
+            Output(self.id("scene"), "toggleVisibility"),
+            [Input(self.id("hide-show"), "value")],
+            [State(self.id("hide-show"), "options")],
+        )
+
+        app.clientside_callback(
+            """
+            function (colorScheme, radiusStrategy, drawOptions, displayOptions) {
+            
+                const newDisplayOptions = Object.assign({}, displayOptions);
+                newDisplayOptions.color_scheme = colorScheme
+                newDisplayOptions.radius_strategy = radiusStrategy
+                newDisplayOptions.draw_image_atoms = drawOptions.includes('draw_image_atoms')
+                newDisplayOptions.bonded_sites_outside_unit_cell =  drawOptions.includes('bonded_sites_outside_unit_cell')
+                newDisplayOptions.hide_incomplete_bonds = drawOptions.includes('hide_incomplete_bonds')
+
+                return newDisplayOptions
+            }
+            """,
+            Output(self.id("display_options"), "data"),
+            [
+                Input(self.id("color-scheme"), "value"),
+                Input(self.id("radius_strategy"), "value"),
+                Input(self.id("draw_options"), "value"),
+            ],
+            [State(self.id("display_options"), "data")],
+        )
+
+        @app.callback(
+            Output(self.id("graph"), "data"),
+            [
+                Input(self.id("graph_generation_options"), "data"),
                 Input(self.id(), "data"),
             ],
             [State(self.id("graph"), "data")],
         )
-        def update_graph(
-            bonding_algorithm,
-            custom_cutoffs_rows,
-            unit_cell_choice,
-            struct_or_mol,
-            current_graph,
-        ):
+        def update_graph(graph_generation_options, struct_or_mol, current_graph):
 
             if not struct_or_mol:
                 raise PreventUpdate
@@ -187,20 +260,12 @@ class StructureMoleculeComponent(MPComponent):
             struct_or_mol = self.from_data(struct_or_mol)
             current_graph = self.from_data(current_graph)
 
-            bonding_strategy_kwargs = None
-            if bonding_algorithm == "CutOffDictNN":
-                custom_cutoffs_rows = custom_cutoffs_rows or []
-                # this is not the format CutOffDictNN expects (since that is not JSON
-                # serializable), so we store as a list of tuples instead
-                # TODO: make CutOffDictNN args JSON serializable
-                custom_cutoffs = [
-                    (row["A"], row["B"], float(row["A—B"]))
-                    for row in custom_cutoffs_rows
-                ]
-                bonding_strategy_kwargs = {"cut_off_dict": custom_cutoffs}
+            bonding_strategy_kwargs = graph_generation_options[
+                "bonding_strategy_kwargs"
+            ]
 
             # TODO: add additional check here?
-
+            unit_cell_choice = graph_generation_options["unit_cell_choice"]
             if isinstance(struct_or_mol, Structure):
                 if unit_cell_choice != "input":
                     if unit_cell_choice == "primitive":
@@ -213,11 +278,15 @@ class StructureMoleculeComponent(MPComponent):
 
             graph = self._preprocess_input_to_graph(
                 struct_or_mol,
-                bonding_strategy=bonding_algorithm,
+                bonding_strategy=graph_generation_options["bonding_strategy"],
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
 
-            if current_graph and graph == current_graph:
+            if (
+                current_graph
+                and graph.structure == current_graph.structure
+                and graph == current_graph
+            ):
                 raise PreventUpdate
 
             return graph
@@ -263,44 +332,6 @@ class StructureMoleculeComponent(MPComponent):
             return scene, legend, color_options
 
         @app.callback(
-            Output(self.id("display_options"), "data"),
-            [
-                Input(self.id("color-scheme"), "value"),
-                Input(self.id("radius_strategy"), "value"),
-                Input(self.id("draw_options"), "value"),
-            ],
-            [State(self.id("display_options"), "data")],
-        )
-        def update_display_options(
-            color_scheme, radius_strategy, draw_options, display_options
-        ):
-
-            initial_display_options = display_options.copy()
-
-            display_options = self.from_data(display_options)
-            display_options.update({"color_scheme": color_scheme})
-            display_options.update({"radius_strategy": radius_strategy})
-            display_options.update(
-                {"draw_image_atoms": "draw_image_atoms" in draw_options}
-            )
-            display_options.update(
-                {
-                    "bonded_sites_outside_unit_cell": "bonded_sites_outside_unit_cell"
-                    in draw_options
-                }
-            )
-            display_options.update(
-                {"hide_incomplete_bonds": "hide_incomplete_bonds" in draw_options}
-            )
-
-            if display_options == initial_display_options:
-                raise PreventUpdate
-
-            self.logger.debug("Display options updated")
-
-            return display_options
-
-        @app.callback(
             Output(self.id("scene"), "downloadRequest"),
             [Input(self.id("screenshot_button"), "n_clicks")],
             [State(self.id("scene"), "downloadRequest"), State(self.id(), "data")],
@@ -325,17 +356,6 @@ class StructureMoleculeComponent(MPComponent):
                 "filename": request_filename,
                 "filetype": "png",
             }
-
-        @app.callback(
-            Output(self.id("scene"), "toggleVisibility"),
-            [Input(self.id("hide-show"), "value")],
-            [State(self.id("hide-show"), "options")],
-        )
-        def update_visibility(values, options):
-            # TODO: to make this callback more efficient,
-            # would need to be able to access current object visibility from Simple3DSceneComponent
-            visibility = {opt["value"]: (opt["value"] in values) for opt in options}
-            return visibility
 
         @app.callback(
             [
@@ -412,13 +432,13 @@ class StructureMoleculeComponent(MPComponent):
                     name, className="icon", style={"color": get_font_color(color)}
                 ),
                 kind="static",
-                style={"background-color": color},
+                style={"backgroundColor": color},
             )
             for color, name in legend_colors.items()
         ]
 
         return Field(
-            [Control(el, style={"margin-right": "0.2rem"}) for el in legend_elements],
+            [Control(el, style={"marginRight": "0.2rem"}) for el in legend_elements],
             id=self.id("legend"),
             grouped=True,
         )
@@ -493,7 +513,7 @@ class StructureMoleculeComponent(MPComponent):
                 )
             ],
             # TODO: change to "bottom" when dropdown included
-            style={"vertical-align": "top", "display": "inline-block"},
+            style={"verticalAlign": "top", "display": "inline-block"},
         )
 
         title_layout = html.Div(
@@ -518,7 +538,7 @@ class StructureMoleculeComponent(MPComponent):
 
         bonding_algorithm = dcc.Dropdown(
             options=[{"label": k, "value": v} for k, v in nn_mapping.items()],
-            value=self.initial_graph_generation_options["bonding_strategy"],
+            value=self.initial_data["graph_generation_options"]["bonding_strategy"],
             clearable=False,
             id=self.id("bonding_algorithm"),
             persistence=self.persistence,

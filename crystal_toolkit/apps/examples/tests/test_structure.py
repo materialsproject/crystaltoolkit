@@ -11,16 +11,12 @@ def test_structure(dash_duo):
     dash_duo.percy_snapshot("example_structure_on_load")
 
     # test changing radius
-    el = dash_duo.select_dcc_dropdown(
-        "#_ct_StructureMoleculeComponent_radius_strategy", index=0
-    )
+    el = dash_duo.select_dcc_dropdown("#_ct_my_structure_radius_strategy", index=0)
     time.sleep(1)
     dash_duo.percy_snapshot("example_structure_radius_index_0")
 
     # test changing radius again
-    el = dash_duo.select_dcc_dropdown(
-        "#_ct_StructureMoleculeComponent_radius_strategy", index=2
-    )
+    el = dash_duo.select_dcc_dropdown("#_ct_my_structure_radius_strategy", index=2)
     time.sleep(1)
     dash_duo.percy_snapshot("example_structure_primitive_radius_index_2")
 
