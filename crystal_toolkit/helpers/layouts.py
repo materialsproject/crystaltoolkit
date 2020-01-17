@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import warnings
 
-from typing import List
+from typing import List, Dict, Any, Union
 
 BULMA_CSS = {
     "external_url": "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"
@@ -15,6 +15,10 @@ FONT_AWESOME_CSS = {
 PRIMARY_COLOR = "hsl(171, 100%, 41%)"
 
 # TODO: change "kind" kwarg to list / group is- modifiers together
+
+"""
+Helper methods to make working with Bulma classes easier.
+"""
 
 
 class Section(html.Div):
@@ -281,33 +285,74 @@ class Field(html.Div):
 
 
 class Control(html.Div):
+    """
+    Control tag to wrap form elements,
+    see https://bulma.io/documentation/form/general/
+    """
+
     def __init__(self, *args, **kwargs):
-        kwargs["className"] = "control"
+        if "className" not in kwargs:
+            kwargs["className"] = "control"
+        else:
+            kwargs["className"] += " control"
         super().__init__(*args, **kwargs)
 
 
-def get_tooltip(tooltip, tooltip_text):
+class Level(html.Div):
+    """
+
+    """
+
+    def __init__(self):
+        ...
+
+
+def get_tooltip(tooltip: html.Div, tooltip_text: str) -> html.Div:
+    """
+    Add a tooltip, typically for help text.
+    :param tooltip: element to apply tooltip to
+    :param tooltip_text: text to show on hover
+    :return: html.Div
+    """
     return html.Div(
         [tooltip, html.Span(tooltip_text, className="tooltiptext")], className="tooltip"
     )
 
 
-def get_data_list(data):
+def get_data_list(data: Dict[str, str]):
+    """
+    Show a formatted table of data items.
+    :param data: dictionary of label, value pairs
+    :return: html.Div
+    """
     contents = []
     for title, value in data.items():
         contents.append(html.Tr([html.Td(Label(title)), html.Td(value)]))
     return html.Table([html.Tbody(contents)], className="table")
 
 
-def get_table(rows):
+def get_table(rows: List[List[Any]]) -> html.Table:
+    """
+    Create a HTML table from a list of elements.
+    :param rows: list of list of cell contents
+    :return: html.Table
+    """
     contents = []
     for row in rows:
         contents.append(html.Tr([html.Td(item) for item in row]))
     return html.Table([html.Tbody(contents)], className="table")
 
 
-def cite_me(doi=None, manual_ref=None, cite_text="Cite me"):
-
+def cite_me(
+    doi: str = None, manual_ref: str = None, cite_text: str = "Cite me"
+) -> html.Div:
+    """
+    Create a button to show users how to cite a particular resource.
+    :param doi: DOI
+    :param manual_ref: If DOI not available
+    :param cite_text: Text to show as button label
+    :return: A button
+    """
     if doi:
         tooltip_text = (
             f"If this analysis is useful, please cite the "
