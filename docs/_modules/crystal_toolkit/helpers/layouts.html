@@ -156,7 +156,7 @@
 <span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="n">BULMA_CSS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;external_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css&quot;</span>
@@ -169,6 +169,10 @@
 <span class="n">PRIMARY_COLOR</span> <span class="o">=</span> <span class="s2">&quot;hsl(171, 100%, 41%)&quot;</span>
 
 <span class="c1"># TODO: change &quot;kind&quot; kwarg to list / group is- modifiers together</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Helper methods to make working with Bulma classes easier.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="Section"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.Section">[docs]</a><span class="k">class</span> <span class="nc">Section</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
@@ -435,33 +439,65 @@
 
 
 <div class="viewcode-block" id="Control"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.Control">[docs]</a><span class="k">class</span> <span class="nc">Control</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Control tag to wrap form elements,</span>
+<span class="sd">    see https://bulma.io/documentation/form/general/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;control&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;className&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;control&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot; control&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_tooltip"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.get_tooltip">[docs]</a><span class="k">def</span> <span class="nf">get_tooltip</span><span class="p">(</span><span class="n">tooltip</span><span class="p">,</span> <span class="n">tooltip_text</span><span class="p">):</span>
+<div class="viewcode-block" id="get_tooltip"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.get_tooltip">[docs]</a><span class="k">def</span> <span class="nf">get_tooltip</span><span class="p">(</span><span class="n">tooltip</span><span class="p">:</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">,</span> <span class="n">tooltip_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a tooltip, typically for help text.</span>
+<span class="sd">    :param tooltip: element to apply tooltip to</span>
+<span class="sd">    :param tooltip_text: text to show on hover</span>
+<span class="sd">    :return: html.Div</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
         <span class="p">[</span><span class="n">tooltip</span><span class="p">,</span> <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span><span class="n">tooltip_text</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;tooltiptext&quot;</span><span class="p">)],</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;tooltip&quot;</span>
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_data_list"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.get_data_list">[docs]</a><span class="k">def</span> <span class="nf">get_data_list</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="get_data_list"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.get_data_list">[docs]</a><span class="k">def</span> <span class="nf">get_data_list</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Show a formatted table of data items.</span>
+<span class="sd">    :param data: dictionary of label, value pairs</span>
+<span class="sd">    :return: html.Div</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">title</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Tr</span><span class="p">([</span><span class="n">html</span><span class="o">.</span><span class="n">Td</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">title</span><span class="p">)),</span> <span class="n">html</span><span class="o">.</span><span class="n">Td</span><span class="p">(</span><span class="n">value</span><span class="p">)]))</span>
     <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Table</span><span class="p">([</span><span class="n">html</span><span class="o">.</span><span class="n">Tbody</span><span class="p">(</span><span class="n">contents</span><span class="p">)],</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;table&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_table"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.get_table">[docs]</a><span class="k">def</span> <span class="nf">get_table</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+<div class="viewcode-block" id="get_table"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.get_table">[docs]</a><span class="k">def</span> <span class="nf">get_table</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a HTML table from a list of elements.</span>
+<span class="sd">    :param rows: list of list of cell contents</span>
+<span class="sd">    :return: html.Table</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
         <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Tr</span><span class="p">([</span><span class="n">html</span><span class="o">.</span><span class="n">Td</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]))</span>
     <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Table</span><span class="p">([</span><span class="n">html</span><span class="o">.</span><span class="n">Tbody</span><span class="p">(</span><span class="n">contents</span><span class="p">)],</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;table&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="cite_me"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.cite_me">[docs]</a><span class="k">def</span> <span class="nf">cite_me</span><span class="p">(</span><span class="n">doi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">manual_ref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cite_text</span><span class="o">=</span><span class="s2">&quot;Cite me&quot;</span><span class="p">):</span>
-
+<div class="viewcode-block" id="cite_me"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.cite_me">[docs]</a><span class="k">def</span> <span class="nf">cite_me</span><span class="p">(</span>
+    <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">manual_ref</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cite_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Cite me&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a button to show users how to cite a particular resource.</span>
+<span class="sd">    :param doi: DOI</span>
+<span class="sd">    :param manual_ref: If DOI not available</span>
+<span class="sd">    :param cite_text: Text to show as button label</span>
+<span class="sd">    :return: A button</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">doi</span><span class="p">:</span>
         <span class="n">tooltip_text</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;If this analysis is useful, please cite the &quot;</span>
