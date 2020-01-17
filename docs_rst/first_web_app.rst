@@ -62,7 +62,8 @@ The important addition from an ``MPComponent`` is that they an ``id()`` method t
 ids of the component itself or of any sub-layouts inside that component. The canonical
 layout is a `dcc.Store() <https://dash.plot.ly/dash-core-components/store>`_ containing
 the serialized representation of your Python object, such as the crystallographic structure.
-By updating the contents of this store with a new object, the
+By updating the contents of this store with a new object, the visual state of the component
+will also be updated.
 
 This is best illustrated by example. We will add a button that shows a random crystal
 structure when clicked.
@@ -78,15 +79,9 @@ The two features here that make this slightly different from a regular Dash app 
 2. We can return the object directly (as a ``Structure`` object) via the callback,
    without needing to serialize or deserialize it.
 
-Finally, it is important to mention why we have set ``supress_callback_exceptions``
-to ``True``. In a Dash app, the layout is walked on first load to make sure that all
-interactive elements are actually in your app. This is to prevent common errors for
-first-time users, for example creating a callback to an ``id`` that doesn't exist.
-However, in Crystal Toolkit, many components have optional additional interactive
-elements. In the case of the structure component, this includes things like displaying
-a legend, or providing controls to modify the color scheme. Since we haven't included
-these optional elements in this example, callback exceptions would be raised if this
-setting wasn't enabled.
+Note that due to the dynamic nature of a Crystal Toolkit app, callback exceptions are
+suppressed on app load. For debugging of static layouts,
+you might want to re-enable callback exceptions.
 
 Caching
 ~~~~~~~
