@@ -5,7 +5,6 @@ import dash_core_components as dcc
 import crystal_toolkit.components as ctc
 
 app = dash.Dash()
-ctc.register_app(app)
 
 # create our crystal structure using pymatgen
 from pymatgen import Structure, Lattice
@@ -19,6 +18,6 @@ structure_component = ctc.StructureMoleculeComponent(structure)
 my_layout = html.Div([structure_component.layout()])
 
 # as explained in "preamble" section in documentation
-app.layout = ctc.crystal_toolkit_layout(my_layout)
+ctc.register_crystal_toolkit(app=app, layout=my_layout, cache=None)
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

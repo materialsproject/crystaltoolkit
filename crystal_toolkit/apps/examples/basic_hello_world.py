@@ -9,15 +9,11 @@ import crystal_toolkit.components as ctc
 # create Dash app as normal
 app = dash.Dash()
 
-# tell Crystal Toolkit about the app
-ctc.register_app(app)
-
 # create your layout
 my_layout = html.Div(["Hello scientist!"])
 
-# wrap your app.layout with crystal_toolkit_layout()
-# to ensure all necessary components are loaded into layout
-app.layout = ctc.crystal_toolkit_layout(my_layout)
+# tell Crystal Toolkit about the app and layout we want to display
+ctc.register_crystal_toolkit(app=app, layout=my_layout, cache=None)
 
 # allow app to be run using "python app.py"
 # in production, deploy behind gunicorn or similar

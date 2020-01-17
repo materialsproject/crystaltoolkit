@@ -25,7 +25,7 @@ ctc.register_app(app)
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
 # create the Crystal Toolkit component
-structure_component = ctc.StructureMoleculeComponent(structure)
+structure_component = ctc.StructureMoleculeComponent(structure, id="my_structure")
 
 # example layout to demonstrate capabilities of component
 my_layout = html.Div(

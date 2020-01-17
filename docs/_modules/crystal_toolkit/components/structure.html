@@ -186,6 +186,7 @@
     <span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="s2">&quot;hide_incomplete_bonds&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="s2">&quot;show_compass&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">&quot;unit_cell_choice&quot;</span><span class="p">:</span> <span class="s2">&quot;input&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -217,6 +218,7 @@
         <span class="n">color_scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;color_scheme&quot;</span><span class="p">],</span>
         <span class="n">color_scale</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">radius_strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">],</span>
+        <span class="n">unit_cell_choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;unit_cell_choice&quot;</span><span class="p">],</span>
         <span class="n">draw_image_atoms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="s2">&quot;draw_image_atoms&quot;</span><span class="p">],</span>
         <span class="n">bonded_sites_outside_unit_cell</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">DEFAULTS</span><span class="p">[</span>
             <span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span>
@@ -256,10 +258,18 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;scene_settings&quot;</span><span class="p">,</span> <span class="n">initial_data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_scene_settings</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">initial_graph_generation_options</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;bonding_strategy&quot;</span><span class="p">:</span> <span class="n">bonding_strategy</span><span class="p">,</span>
-            <span class="s2">&quot;bonding_strategy_kwargs&quot;</span><span class="p">:</span> <span class="n">bonding_strategy_kwargs</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="c1"># unit cell choice and bonding algorithms need to come from a settings</span>
+        <span class="c1"># object (in a dcc.Store) guaranteed to be present in layout, rather</span>
+        <span class="c1"># than from the controls themselves -- since these are optional and</span>
+        <span class="c1"># may not be present in the layout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span>
+            <span class="s2">&quot;graph_generation_options&quot;</span><span class="p">,</span>
+            <span class="n">initial_data</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;bonding_strategy&quot;</span><span class="p">:</span> <span class="n">bonding_strategy</span><span class="p">,</span>
+                <span class="s2">&quot;bonding_strategy_kwargs&quot;</span><span class="p">:</span> <span class="n">bonding_strategy_kwargs</span><span class="p">,</span>
+                <span class="s2">&quot;unit_cell_choice&quot;</span><span class="p">:</span> <span class="n">unit_cell_choice</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span>
             <span class="s2">&quot;display_options&quot;</span><span class="p">,</span>
@@ -317,23 +327,86 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_initial_data</span><span class="p">[</span><span class="s2">&quot;scene&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scene</span>
 
 <div class="viewcode-block" id="StructureMoleculeComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.structure.html#crystal_toolkit.components.structure.StructureMoleculeComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+
+        <span class="c1"># a lot of the verbosity in this callback is to support custom bonding</span>
+        <span class="c1"># this is not the format CutOffDictNN expects (since that is not JSON</span>
+        <span class="c1"># serializable), so we store as a list of tuples instead</span>
+        <span class="c1"># TODO: make CutOffDictNN args JSON serializable</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">clientside_callback</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            function (bonding_strategy, custom_cutoffs_rows, unit_cell_choice) {</span>
+<span class="sd">            </span>
+<span class="sd">                const bonding_strategy_kwargs = {}</span>
+<span class="sd">                if (bonding_strategy === &#39;CutOffDictNN&#39;) {</span>
+<span class="sd">                    const cut_off_dict = []</span>
+<span class="sd">                    custom_cutoffs_rows.forEach(function(row) {</span>
+<span class="sd">                        cut_off_dict.push([row[&#39;A&#39;], row[&#39;B&#39;], parseFloat(row[&#39;A—B&#39;])])</span>
+<span class="sd">                    })</span>
+<span class="sd">                    bonding_strategy_kwargs.cut_off_dict = cut_off_dict</span>
+<span class="sd">                }</span>
+<span class="sd">            </span>
+<span class="sd">                return {</span>
+<span class="sd">                    bonding_strategy: bonding_strategy,</span>
+<span class="sd">                    bonding_strategy_kwargs: bonding_strategy_kwargs,</span>
+<span class="sd">                    unit_cell_choice: unit_cell_choice</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph_generation_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
             <span class="p">[</span>
                 <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bonding_algorithm&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
                 <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bonding_algorithm_custom_cutoffs&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
                 <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;unit-cell-choice&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">app</span><span class="o">.</span><span class="n">clientside_callback</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            function (values, options) {</span>
+<span class="sd">                const visibility = {}</span>
+<span class="sd">                options.forEach(function (opt) {</span>
+<span class="sd">                    visibility[opt.value] = Boolean(values.includes(opt.value))</span>
+<span class="sd">                })</span>
+<span class="sd">                return visibility</span>
+<span class="sd">            }</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;scene&quot;</span><span class="p">),</span> <span class="s2">&quot;toggleVisibility&quot;</span><span class="p">),</span>
+            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;hide-show&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">)],</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;hide-show&quot;</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+
+        <span class="n">app</span><span class="o">.</span><span class="n">clientside_callback</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            function (colorScheme, radiusStrategy, drawOptions, displayOptions) {</span>
+<span class="sd">            </span>
+<span class="sd">                const newDisplayOptions = Object.assign({}, displayOptions);</span>
+<span class="sd">                newDisplayOptions.color_scheme = colorScheme</span>
+<span class="sd">                newDisplayOptions.radius_strategy = radiusStrategy</span>
+<span class="sd">                newDisplayOptions.draw_image_atoms = drawOptions.includes(&#39;draw_image_atoms&#39;)</span>
+<span class="sd">                newDisplayOptions.bonded_sites_outside_unit_cell =  drawOptions.includes(&#39;bonded_sites_outside_unit_cell&#39;)</span>
+<span class="sd">                newDisplayOptions.hide_incomplete_bonds = drawOptions.includes(&#39;hide_incomplete_bonds&#39;)</span>
+
+<span class="sd">                return newDisplayOptions</span>
+<span class="sd">            }</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;color-scheme&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;draw_options&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph_generation_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
                 <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
             <span class="p">],</span>
             <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
         <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span>
-            <span class="n">bonding_algorithm</span><span class="p">,</span>
-            <span class="n">custom_cutoffs_rows</span><span class="p">,</span>
-            <span class="n">unit_cell_choice</span><span class="p">,</span>
-            <span class="n">struct_or_mol</span><span class="p">,</span>
-            <span class="n">current_graph</span><span class="p">,</span>
-        <span class="p">):</span>
+        <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span><span class="n">graph_generation_options</span><span class="p">,</span> <span class="n">struct_or_mol</span><span class="p">,</span> <span class="n">current_graph</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">struct_or_mol</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
@@ -341,20 +414,12 @@
             <span class="n">struct_or_mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">struct_or_mol</span><span class="p">)</span>
             <span class="n">current_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">current_graph</span><span class="p">)</span>
 
-            <span class="n">bonding_strategy_kwargs</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">bonding_algorithm</span> <span class="o">==</span> <span class="s2">&quot;CutOffDictNN&quot;</span><span class="p">:</span>
-                <span class="n">custom_cutoffs_rows</span> <span class="o">=</span> <span class="n">custom_cutoffs_rows</span> <span class="ow">or</span> <span class="p">[]</span>
-                <span class="c1"># this is not the format CutOffDictNN expects (since that is not JSON</span>
-                <span class="c1"># serializable), so we store as a list of tuples instead</span>
-                <span class="c1"># TODO: make CutOffDictNN args JSON serializable</span>
-                <span class="n">custom_cutoffs</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;A—B&quot;</span><span class="p">]))</span>
-                    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">custom_cutoffs_rows</span>
-                <span class="p">]</span>
-                <span class="n">bonding_strategy_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cut_off_dict&quot;</span><span class="p">:</span> <span class="n">custom_cutoffs</span><span class="p">}</span>
+            <span class="n">bonding_strategy_kwargs</span> <span class="o">=</span> <span class="n">graph_generation_options</span><span class="p">[</span>
+                <span class="s2">&quot;bonding_strategy_kwargs&quot;</span>
+            <span class="p">]</span>
 
             <span class="c1"># TODO: add additional check here?</span>
-
+            <span class="n">unit_cell_choice</span> <span class="o">=</span> <span class="n">graph_generation_options</span><span class="p">[</span><span class="s2">&quot;unit_cell_choice&quot;</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">struct_or_mol</span><span class="p">,</span> <span class="n">Structure</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">unit_cell_choice</span> <span class="o">!=</span> <span class="s2">&quot;input&quot;</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">unit_cell_choice</span> <span class="o">==</span> <span class="s2">&quot;primitive&quot;</span><span class="p">:</span>
@@ -367,11 +432,15 @@
 
             <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_input_to_graph</span><span class="p">(</span>
                 <span class="n">struct_or_mol</span><span class="p">,</span>
-                <span class="n">bonding_strategy</span><span class="o">=</span><span class="n">bonding_algorithm</span><span class="p">,</span>
+                <span class="n">bonding_strategy</span><span class="o">=</span><span class="n">graph_generation_options</span><span class="p">[</span><span class="s2">&quot;bonding_strategy&quot;</span><span class="p">],</span>
                 <span class="n">bonding_strategy_kwargs</span><span class="o">=</span><span class="n">bonding_strategy_kwargs</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">current_graph</span> <span class="ow">and</span> <span class="n">graph</span> <span class="o">==</span> <span class="n">current_graph</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">current_graph</span>
+                <span class="ow">and</span> <span class="n">graph</span><span class="o">.</span><span class="n">structure</span> <span class="o">==</span> <span class="n">current_graph</span><span class="o">.</span><span class="n">structure</span>
+                <span class="ow">and</span> <span class="n">graph</span> <span class="o">==</span> <span class="n">current_graph</span>
+            <span class="p">):</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
 
             <span class="k">return</span> <span class="n">graph</span>
@@ -417,44 +486,6 @@
             <span class="k">return</span> <span class="n">scene</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">color_options</span>
 
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-            <span class="p">[</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;color-scheme&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;draw_options&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-            <span class="p">],</span>
-            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
-        <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">update_display_options</span><span class="p">(</span>
-            <span class="n">color_scheme</span><span class="p">,</span> <span class="n">radius_strategy</span><span class="p">,</span> <span class="n">draw_options</span><span class="p">,</span> <span class="n">display_options</span>
-        <span class="p">):</span>
-
-            <span class="n">initial_display_options</span> <span class="o">=</span> <span class="n">display_options</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-            <span class="n">display_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">display_options</span><span class="p">)</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;color_scheme&quot;</span><span class="p">:</span> <span class="n">color_scheme</span><span class="p">})</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">:</span> <span class="n">radius_strategy</span><span class="p">})</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;draw_image_atoms&quot;</span><span class="p">:</span> <span class="s2">&quot;draw_image_atoms&quot;</span> <span class="ow">in</span> <span class="n">draw_options</span><span class="p">}</span>
-            <span class="p">)</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span><span class="p">:</span> <span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span>
-                    <span class="ow">in</span> <span class="n">draw_options</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;hide_incomplete_bonds&quot;</span><span class="p">:</span> <span class="s2">&quot;hide_incomplete_bonds&quot;</span> <span class="ow">in</span> <span class="n">draw_options</span><span class="p">}</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">display_options</span> <span class="o">==</span> <span class="n">initial_display_options</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PreventUpdate</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Display options updated&quot;</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">display_options</span>
-
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;scene&quot;</span><span class="p">),</span> <span class="s2">&quot;downloadRequest&quot;</span><span class="p">),</span>
             <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;screenshot_button&quot;</span><span class="p">),</span> <span class="s2">&quot;n_clicks&quot;</span><span class="p">)],</span>
             <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;scene&quot;</span><span class="p">),</span> <span class="s2">&quot;downloadRequest&quot;</span><span class="p">),</span> <span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
@@ -479,17 +510,6 @@
                 <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">request_filename</span><span class="p">,</span>
                 <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span>
             <span class="p">}</span>
-
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;scene&quot;</span><span class="p">),</span> <span class="s2">&quot;toggleVisibility&quot;</span><span class="p">),</span>
-            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;hide-show&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">)],</span>
-            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;hide-show&quot;</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">)],</span>
-        <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">update_visibility</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-            <span class="c1"># TODO: to make this callback more efficient,</span>
-            <span class="c1"># would need to be able to access current object visibility from Simple3DSceneComponent</span>
-            <span class="n">visibility</span> <span class="o">=</span> <span class="p">{</span><span class="n">opt</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]:</span> <span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">options</span><span class="p">}</span>
-            <span class="k">return</span> <span class="n">visibility</span>
 
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
             <span class="p">[</span>
@@ -566,13 +586,13 @@
                     <span class="n">name</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;icon&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">get_font_color</span><span class="p">(</span><span class="n">color</span><span class="p">)}</span>
                 <span class="p">),</span>
                 <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">,</span>
-                <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;background-color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">},</span>
+                <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;backgroundColor&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">},</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">color</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">legend_colors</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">]</span>
 
         <span class="k">return</span> <span class="n">Field</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">Control</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;margin-right&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">})</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">legend_elements</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">Control</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;marginRight&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">})</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">legend_elements</span><span class="p">],</span>
             <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;legend&quot;</span><span class="p">),</span>
             <span class="n">grouped</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
@@ -647,7 +667,7 @@
                 <span class="p">)</span>
             <span class="p">],</span>
             <span class="c1"># TODO: change to &quot;bottom&quot; when dropdown included</span>
-            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;vertical-align&quot;</span><span class="p">:</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;verticalAlign&quot;</span><span class="p">:</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
         <span class="p">)</span>
 
         <span class="n">title_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
@@ -672,7 +692,7 @@
 
         <span class="n">bonding_algorithm</span> <span class="o">=</span> <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">nn_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
-            <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_graph_generation_options</span><span class="p">[</span><span class="s2">&quot;bonding_strategy&quot;</span><span class="p">],</span>
+            <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_data</span><span class="p">[</span><span class="s2">&quot;graph_generation_options&quot;</span><span class="p">][</span><span class="s2">&quot;bonding_strategy&quot;</span><span class="p">],</span>
             <span class="n">clearable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bonding_algorithm&quot;</span><span class="p">),</span>
             <span class="n">persistence</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">persistence</span><span class="p">,</span>
