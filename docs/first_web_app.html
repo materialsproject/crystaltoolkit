@@ -197,15 +197,11 @@ Otherwise, building an app is explained step-by-step below.</p>
 <span class="c1"># create Dash app as normal</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
 
-<span class="c1"># tell Crystal Toolkit about the app</span>
-<span class="n">ctc</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-
 <span class="c1"># create your layout</span>
 <span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="s2">&quot;Hello scientist!&quot;</span><span class="p">])</span>
 
-<span class="c1"># wrap your app.layout with crystal_toolkit_layout()</span>
-<span class="c1"># to ensure all necessary components are loaded into layout</span>
-<span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
+<span class="c1"># tell Crystal Toolkit about the app and layout we want to display</span>
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_crystal_toolkit</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">my_layout</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 <span class="c1"># allow app to be run using &quot;python app.py&quot;</span>
 <span class="c1"># in production, deploy behind gunicorn or similar</span>
@@ -230,7 +226,6 @@ crystal structure.</p>
 <span class="kn">import</span> <span class="nn">crystal_toolkit.components</span> <span class="k">as</span> <span class="nn">ctc</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
-<span class="n">ctc</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
 <span class="c1"># create our crystal structure using pymatgen</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
@@ -244,7 +239,7 @@ crystal structure.</p>
 <span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="n">structure_component</span><span class="o">.</span><span class="n">layout</span><span class="p">()])</span>
 
 <span class="c1"># as explained in &quot;preamble&quot; section in documentation</span>
-<span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_crystal_toolkit</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">my_layout</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run_server</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8050</span><span class="p">)</span>
 </pre></div>
@@ -284,12 +279,6 @@ structure when clicked.</p>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
-<span class="n">ctc</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-
-<span class="c1"># prevent static checking of your layout ahead-of-time</span>
-<span class="c1"># otherwise errors can be raised in certain instances</span>
-<span class="c1"># see discussion below</span>
-<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;suppress_callback_exceptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="c1"># now we give a list of structures to pick from</span>
 <span class="n">structures</span> <span class="o">=</span> <span class="p">[</span>
@@ -306,7 +295,8 @@ structure when clicked.</p>
 <span class="c1"># now we have two entries in our app layout,</span>
 <span class="c1"># the structure component&#39;s layout and the button</span>
 <span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="n">structure_component</span><span class="o">.</span><span class="n">layout</span><span class="p">(),</span> <span class="n">my_button</span><span class="p">])</span>
-<span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
+
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_crystal_toolkit</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">my_layout</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 <span class="c1"># for the interactivity, we use a standard Dash callback</span>
 <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
@@ -315,7 +305,7 @@ structure when clicked.</p>
 <span class="p">)</span>
 <span class="k">def</span> <span class="nf">update_structure</span><span class="p">(</span><span class="n">n_clicks</span><span class="p">):</span>
     <span class="c1"># on load, n_clicks will be None, and no update is required</span>
-    <span class="c1"># after clicking on the button, n_clicks will be and int and incremented</span>
+    <span class="c1"># after clicking on the button, n_clicks will be an int and incremented</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">n_clicks</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PreventUpdate</span>
     <span class="k">return</span> <span class="n">structures</span><span class="p">[</span><span class="n">n_clicks</span> <span class="o">%</span> <span class="mi">2</span><span class="p">]</span>

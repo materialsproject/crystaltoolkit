@@ -375,6 +375,29 @@
             <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;hide-show&quot;</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">)],</span>
         <span class="p">)</span>
 
+        <span class="n">app</span><span class="o">.</span><span class="n">clientside_callback</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            function (colorScheme, radiusStrategy, drawOptions, displayOptions) {</span>
+<span class="sd">            </span>
+<span class="sd">                const newDisplayOptions = Object.assign({}, displayOptions);</span>
+<span class="sd">                newDisplayOptions.color_scheme = colorScheme</span>
+<span class="sd">                newDisplayOptions.radius_strategy = radiusStrategy</span>
+<span class="sd">                newDisplayOptions.draw_image_atoms = drawOptions.includes(&#39;draw_image_atoms&#39;)</span>
+<span class="sd">                newDisplayOptions.bonded_sites_outside_unit_cell =  drawOptions.includes(&#39;bonded_sites_outside_unit_cell&#39;)</span>
+<span class="sd">                newDisplayOptions.hide_incomplete_bonds = drawOptions.includes(&#39;hide_incomplete_bonds&#39;)</span>
+
+<span class="sd">                return newDisplayOptions</span>
+<span class="sd">            }</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;color-scheme&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;draw_options&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
             <span class="p">[</span>
@@ -461,44 +484,6 @@
                         <span class="p">]</span>
 
             <span class="k">return</span> <span class="n">scene</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">color_options</span>
-
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-            <span class="p">[</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;color-scheme&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;draw_options&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-            <span class="p">],</span>
-            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
-        <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">update_display_options</span><span class="p">(</span>
-            <span class="n">color_scheme</span><span class="p">,</span> <span class="n">radius_strategy</span><span class="p">,</span> <span class="n">draw_options</span><span class="p">,</span> <span class="n">display_options</span>
-        <span class="p">):</span>
-
-            <span class="n">initial_display_options</span> <span class="o">=</span> <span class="n">display_options</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-            <span class="n">display_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">display_options</span><span class="p">)</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;color_scheme&quot;</span><span class="p">:</span> <span class="n">color_scheme</span><span class="p">})</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;radius_strategy&quot;</span><span class="p">:</span> <span class="n">radius_strategy</span><span class="p">})</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;draw_image_atoms&quot;</span><span class="p">:</span> <span class="s2">&quot;draw_image_atoms&quot;</span> <span class="ow">in</span> <span class="n">draw_options</span><span class="p">}</span>
-            <span class="p">)</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span><span class="p">:</span> <span class="s2">&quot;bonded_sites_outside_unit_cell&quot;</span>
-                    <span class="ow">in</span> <span class="n">draw_options</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-            <span class="n">display_options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;hide_incomplete_bonds&quot;</span><span class="p">:</span> <span class="s2">&quot;hide_incomplete_bonds&quot;</span> <span class="ow">in</span> <span class="n">draw_options</span><span class="p">}</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">display_options</span> <span class="o">==</span> <span class="n">initial_display_options</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PreventUpdate</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Display options updated&quot;</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">display_options</span>
 
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;scene&quot;</span><span class="p">),</span> <span class="s2">&quot;downloadRequest&quot;</span><span class="p">),</span>
@@ -601,13 +586,13 @@
                     <span class="n">name</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;icon&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">get_font_color</span><span class="p">(</span><span class="n">color</span><span class="p">)}</span>
                 <span class="p">),</span>
                 <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">,</span>
-                <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;background-color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">},</span>
+                <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;backgroundColor&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">},</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">color</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">legend_colors</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">]</span>
 
         <span class="k">return</span> <span class="n">Field</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">Control</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;margin-right&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">})</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">legend_elements</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">Control</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;marginRight&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">})</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">legend_elements</span><span class="p">],</span>
             <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;legend&quot;</span><span class="p">),</span>
             <span class="n">grouped</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
@@ -682,7 +667,7 @@
                 <span class="p">)</span>
             <span class="p">],</span>
             <span class="c1"># TODO: change to &quot;bottom&quot; when dropdown included</span>
-            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;vertical-align&quot;</span><span class="p">:</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;verticalAlign&quot;</span><span class="p">:</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
         <span class="p">)</span>
 
         <span class="n">title_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
