@@ -298,15 +298,6 @@ class Control(html.Div):
         super().__init__(*args, **kwargs)
 
 
-class Level(html.Div):
-    """
-
-    """
-
-    def __init__(self):
-        ...
-
-
 def get_tooltip(tooltip: html.Div, tooltip_text: str) -> html.Div:
     """
     Add a tooltip, typically for help text.
