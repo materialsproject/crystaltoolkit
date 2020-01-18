@@ -212,6 +212,8 @@
 <dt id="crystal_toolkit.helpers.layouts.Control">
 <em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Control</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Control"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Control" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
+<p>Control tag to wrap form elements,
+see <a class="reference external" href="https://bulma.io/documentation/form/general/">https://bulma.io/documentation/form/general/</a></p>
 </dd></dl>
 
 <dl class="class">
@@ -304,6 +306,12 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
 </dd></dl>
 
+<dl class="data">
+<dt id="crystal_toolkit.helpers.layouts.PRIMARY_COLOR">
+<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">PRIMARY_COLOR</code><em class="property"> = 'hsl(171, 100%, 41%)'</em><a class="headerlink" href="#crystal_toolkit.helpers.layouts.PRIMARY_COLOR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper methods to make working with Bulma classes easier.</p>
+</dd></dl>
+
 <dl class="class">
 <dt id="crystal_toolkit.helpers.layouts.Reveal">
 <em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Reveal</code><span class="sig-paren">(</span><em class="sig-param">children=None</em>, <em class="sig-param">id=None</em>, <em class="sig-param">title=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Reveal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Reveal" title="Permalink to this definition">¶</a></dt>
@@ -342,23 +350,38 @@
 
 <dl class="function">
 <dt id="crystal_toolkit.helpers.layouts.cite_me">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">cite_me</code><span class="sig-paren">(</span><em class="sig-param">doi=None</em>, <em class="sig-param">manual_ref=None</em>, <em class="sig-param">cite_text='Cite me'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#cite_me"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.cite_me" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">cite_me</code><span class="sig-paren">(</span><em class="sig-param">doi: str = None</em>, <em class="sig-param">manual_ref: str = None</em>, <em class="sig-param">cite_text: str = 'Cite me'</em><span class="sig-paren">)</span> &#x2192; dash_html_components.Div.Div<a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#cite_me"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.cite_me" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a button to show users how to cite a particular resource.
+:param doi: DOI
+:param manual_ref: If DOI not available
+:param cite_text: Text to show as button label
+:return: A button</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="crystal_toolkit.helpers.layouts.get_data_list">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_data_list</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_data_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_data_list" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_data_list</code><span class="sig-paren">(</span><em class="sig-param">data: Dict[str, str]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_data_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_data_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show a formatted table of data items.
+:param data: dictionary of label, value pairs
+:return: html.Div</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="crystal_toolkit.helpers.layouts.get_table">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_table</code><span class="sig-paren">(</span><em class="sig-param">rows</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_table" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_table</code><span class="sig-paren">(</span><em class="sig-param">rows: List[List[Any]]</em><span class="sig-paren">)</span> &#x2192; dash_html_components.Table.Table<a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a HTML table from a list of elements.
+:param rows: list of list of cell contents
+:return: html.Table</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="crystal_toolkit.helpers.layouts.get_tooltip">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_tooltip</code><span class="sig-paren">(</span><em class="sig-param">tooltip</em>, <em class="sig-param">tooltip_text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_tooltip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_tooltip" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_tooltip</code><span class="sig-paren">(</span><em class="sig-param">tooltip: dash_html_components.Div.Div</em>, <em class="sig-param">tooltip_text: str</em><span class="sig-paren">)</span> &#x2192; dash_html_components.Div.Div<a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_tooltip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_tooltip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a tooltip, typically for help text.
+:param tooltip: element to apply tooltip to
+:param tooltip_text: text to show on hover
+:return: html.Div</p>
+</dd></dl>
 
 </div>
 

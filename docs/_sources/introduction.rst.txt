@@ -7,10 +7,10 @@
 Introduction
 ============
 
-Crystal Toolkit is an interactive web app and its supporting framework
-from the `Materials Project <https://materialsproject.org>`_.
-The app allows you to import, view, analyze and transform crystal structures and molecules, while
-the framework that powers the app can be used for your own materials science applications.
+Crystal Toolkit is a web app framework from the `Materials Project <https://materialsproject.org>`_
+allowing Python developers to easily make an interactive web app display materials science information.
+As a showcase of the framework's capabilities, the Crystal Toolkit app allows you to import, view, analyze and
+transform crystal structures and molecules.
 
 Crystal Toolkit App
 -------------------
