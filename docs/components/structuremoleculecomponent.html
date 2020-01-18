@@ -193,15 +193,6 @@ documentation <a class="reference external" href="../source/crystal_toolkit.comp
 <span class="c1"># create Dash app as normal</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
 
-<span class="c1"># If callbacks created dynamically they cannot be statically checked at app startup.</span>
-<span class="c1"># For this simple example this is not a problem, but if creating a complicated,</span>
-<span class="c1"># nested layout this will need to be enabled -- consult Dash documentation</span>
-<span class="c1"># for more information.</span>
-<span class="c1"># app.config[&quot;suppress_callback_exceptions&quot;] = True</span>
-
-<span class="c1"># tell Crystal Toolkit about the app</span>
-<span class="n">ctc</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-
 <span class="c1"># create the Structure object</span>
 <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
 
@@ -228,10 +219,8 @@ documentation <a class="reference external" href="../source/crystal_toolkit.comp
     <span class="p">]</span>
 <span class="p">)</span>
 
-<span class="c1"># wrap your app.layout with crystal_toolkit_layout()</span>
-<span class="c1"># to ensure all necessary components are loaded into layout</span>
-<span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">my_layout</span><span class="p">)</span>
-
+<span class="c1"># tell crystal toolkit about your app and layout</span>
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_crystal_toolkit</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">my_layout</span><span class="p">)</span>
 
 <span class="c1"># allow app to be run using &quot;python structure.py&quot;</span>
 <span class="c1"># in production, deploy behind gunicorn or similar</span>
