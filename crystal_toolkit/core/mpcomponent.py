@@ -210,7 +210,7 @@ class MPComponent(ABC):
         # ensure ids are unique
         # Note: shadowing Python built-in here, but only because Dash does it...
         if id is None:
-            id = f"{CT_NAMESPACE}{self.__class__.__name__}{str(uuid4())[0:6]}"
+            id = f"{CT_NAMESPACE}{self.__class__.__name__}_{str(uuid4())[0:6]}"
         else:
             id = f"{CT_NAMESPACE}{id}"
         MPComponent._all_id_basenames.add(id)
