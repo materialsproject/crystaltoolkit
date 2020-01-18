@@ -1,0 +1,71 @@
+name: release
+
+on:
+  create:
+    tags:
+      - v*
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install firefox-geckodriver
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+    - name: Test with pytest
+      env:
+        PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      run: |
+        pytest --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
+    - name: Build new docs
+      run: |
+        git config --global user.name 'Matthew Horton'
+        git config --global user.email 'mkhorton@users.noreply.github.com'
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+        git checkout "${GITHUB_REF:11}"
+        cd docs_rst
+        make html
+    - name: Commit new docs
+      run: |
+        git add -A
+        git diff-index --quiet HEAD || git commit -m "Automated doc build"
+        git push
+      continue-on-error: true
+
+  deploy:
+  
+    runs-on: ubuntu-latest
+    needs:
+    - build
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install setuptools setuptools_scm wheel
+    - name: Build packages
+      run: |
+        python setup.py sdist bdist_wheel
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.PYPY_API_TOKEN }}
