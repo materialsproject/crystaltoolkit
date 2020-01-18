@@ -252,6 +252,7 @@ class StructureMoleculeComponent(MPComponent):
             ],
             [State(self.id("graph"), "data")],
         )
+        @cache.memoize()
         def update_graph(graph_generation_options, struct_or_mol, current_graph):
 
             if not struct_or_mol:
@@ -303,6 +304,7 @@ class StructureMoleculeComponent(MPComponent):
                 Input(self.id("scene_additions"), "data"),
             ],
         )
+        @cache.memoize()
         def update_scene_and_legend_and_colors(graph, display_options, scene_additions):
             if not graph or not display_options:
                 raise PreventUpdate
@@ -336,6 +338,7 @@ class StructureMoleculeComponent(MPComponent):
             [Input(self.id("screenshot_button"), "n_clicks")],
             [State(self.id("scene"), "downloadRequest"), State(self.id(), "data")],
         )
+        @cache.memoize()
         def trigger_screenshot(n_clicks, current_requests, struct_or_mol):
             if n_clicks is None:
                 raise PreventUpdate
@@ -364,6 +367,7 @@ class StructureMoleculeComponent(MPComponent):
             ],
             [Input(self.id("legend_data"), "data")],
         )
+        @cache.memoize()
         def update_legend_and_title(legend):
 
             if not legend:
@@ -384,6 +388,7 @@ class StructureMoleculeComponent(MPComponent):
                 State(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
             ],
         )
+        @cache.memoize()
         def update_custom_bond_options(bonding_algorithm, graph, current_style):
 
             if not graph:
