@@ -406,6 +406,7 @@
             <span class="p">],</span>
             <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
         <span class="p">)</span>
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
         <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span><span class="n">graph_generation_options</span><span class="p">,</span> <span class="n">struct_or_mol</span><span class="p">,</span> <span class="n">current_graph</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">struct_or_mol</span><span class="p">:</span>
@@ -457,6 +458,7 @@
                 <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;scene_additions&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span>
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
         <span class="k">def</span> <span class="nf">update_scene_and_legend_and_colors</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">display_options</span><span class="p">,</span> <span class="n">scene_additions</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">graph</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">display_options</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
@@ -490,6 +492,7 @@
             <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;screenshot_button&quot;</span><span class="p">),</span> <span class="s2">&quot;n_clicks&quot;</span><span class="p">)],</span>
             <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;scene&quot;</span><span class="p">),</span> <span class="s2">&quot;downloadRequest&quot;</span><span class="p">),</span> <span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
         <span class="p">)</span>
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
         <span class="k">def</span> <span class="nf">trigger_screenshot</span><span class="p">(</span><span class="n">n_clicks</span><span class="p">,</span> <span class="n">current_requests</span><span class="p">,</span> <span class="n">struct_or_mol</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">n_clicks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
@@ -518,6 +521,7 @@
             <span class="p">],</span>
             <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;legend_data&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
         <span class="p">)</span>
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
         <span class="k">def</span> <span class="nf">update_legend_and_title</span><span class="p">(</span><span class="n">legend</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">legend</span><span class="p">:</span>
@@ -538,6 +542,7 @@
                 <span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bonding_algorithm_custom_cutoffs_container&quot;</span><span class="p">),</span> <span class="s2">&quot;style&quot;</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span>
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
         <span class="k">def</span> <span class="nf">update_custom_bond_options</span><span class="p">(</span><span class="n">bonding_algorithm</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">current_style</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">graph</span><span class="p">:</span>

@@ -83,8 +83,13 @@ Note that due to the dynamic nature of a Crystal Toolkit app, callback exception
 suppressed on app load. For debugging of static layouts,
 you might want to re-enable callback exceptions.
 
-Caching
-~~~~~~~
+Linking Components Together
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ToDo
+
+Running in Production
+~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
    This section is optional for getting an app working.
@@ -92,23 +97,11 @@ Caching
 Long-running callbacks (> 0.1 ms) can make a web app feel slow and sluggish.
 Since callbacks do not rely on any external state, they are easy to cache.
 
-Caching is supported by many Crystal Toolkit components, but the cache
-backend has to be registered first. Any `Flask-Caching <https://pythonhosted.org/Flask-Caching/>`_
-backend is supported, but we recommend either:
+Caching is supported by many Crystal Toolkit components, but by default
+caching is in-memory only and not thread safe.
 
-1. ``SimpleCache`` for easy testing:
-
-::
-
-    # ... define your Dash "app" variable first
-
-    from flask_caching import Cache
-    cache = Cache(app.server, config={'CACHE_TYPE': 'simple'})
-
-    from crystal_toolkit.components import register_cache
-    register_cache(cache)
-
-2. ``RedisCache`` for production:
+Any `Flask-Caching <https://pythonhosted.org/Flask-Caching/>`_
+backend is supported, we recommend ``RedisCache``:
 
 ::
 
@@ -117,12 +110,18 @@ backend is supported, but we recommend either:
    from flask_caching import Cache
 
    cache = Cache(
-       crystal_toolkit_app.server,
+       app.server,
        config={
            "CACHE_TYPE": "redis",
            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "localhost:6379"),
        },
    )
 
-   from crystal_toolkit.components import register_cache
-   register_cache(cache)
+   # and tell crystal toolkit about the cache
+   ctc.register_crystal_toolkit(app, layout, cache=cache)
+
+Additionally, you should run the app using ``gunicorn`` rather than using ``python app.py``
+directly so that there are multiple workers available to handle callbacks --
+this will result in a huge performance improvement.
+
+All of the recommendations in the main `Dash documentation <https://dash.plot.ly>`_ also apply.
