@@ -364,7 +364,7 @@
         <span class="c1"># ensure ids are unique</span>
         <span class="c1"># Note: shadowing Python built-in here, but only because Dash does it...</span>
         <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{self.__class__.__name__}</span><span class="s2">{str(uuid4())[0:6]}&quot;</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{self.__class__.__name__}</span><span class="s2">_{str(uuid4())[0:6]}&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{id}</span><span class="s2">&quot;</span>
         <span class="n">MPComponent</span><span class="o">.</span><span class="n">_all_id_basenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
