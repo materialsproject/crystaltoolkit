@@ -43,7 +43,7 @@ class MPComponent(ABC):
     app = None
 
     # reference to Flask cache
-    cache = null_cache
+    cache = None
 
     # used to track all dcc.Stores required for all MPComponents to work
     # keyed by the MPComponent id
@@ -95,7 +95,12 @@ class MPComponent(ABC):
         Args:
             cache: a flask_caching Cache instance
         """
-        MPComponent.cache = cache
+        if cache:
+            MPComponent.cache = cache
+        else:
+            MPComponent.cache = Cache(
+                MPComponent.app.server, config={"CACHE_TYPE": "simple"}
+            )
 
     @staticmethod
     def crystal_toolkit_layout(layout: html.Div) -> html.Div:
@@ -127,8 +132,7 @@ class MPComponent(ABC):
     def register_crystal_toolkit(app, layout, cache=None):
 
         MPComponent.register_app(app)
-        if cache:
-            MPComponent.register_cache(cache)
+        MPComponent.register_cache(cache)
         app.config["suppress_callback_exceptions"] = True
         app.layout = MPComponent.crystal_toolkit_layout(layout)
 
