@@ -8,7 +8,7 @@ Introduction
 ============
 
 Crystal Toolkit is a web app framework from the `Materials Project <https://materialsproject.org>`_
-allowing Python developers to easily make an interactive web app display materials science information.
+allowing Python developers to easily make an interactive web app to display materials science information.
 As a showcase of the framework's capabilities, the Crystal Toolkit app allows you to import, view, analyze and
 transform crystal structures and molecules.
 
