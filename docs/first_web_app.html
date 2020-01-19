@@ -90,7 +90,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#preamble">Preamble</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#adding-an-mpcomponent">Adding an MPComponent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#interactivity">Interactivity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#caching">Caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linking-components-together">Linking Components Together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-in-production">Running in Production</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="first_component.html">Your First Component</a></li>
@@ -330,48 +331,42 @@ without needing to serialize or deserialize it.</p></li>
 suppressed on app load. For debugging of static layouts,
 you might want to re-enable callback exceptions.</p>
 </div>
-<div class="section" id="caching">
-<h2>Caching<a class="headerlink" href="#caching" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="linking-components-together">
+<h2>Linking Components Together<a class="headerlink" href="#linking-components-together" title="Permalink to this headline">¶</a></h2>
+<p># ToDo</p>
+</div>
+<div class="section" id="running-in-production">
+<h2>Running in Production<a class="headerlink" href="#running-in-production" title="Permalink to this headline">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This section is optional for getting an app working.</p>
 </div>
 <p>Long-running callbacks (&gt; 0.1 ms) can make a web app feel slow and sluggish.
 Since callbacks do not rely on any external state, they are easy to cache.</p>
-<p>Caching is supported by many Crystal Toolkit components, but the cache
-backend has to be registered first. Any <a class="reference external" href="https://pythonhosted.org/Flask-Caching/">Flask-Caching</a>
-backend is supported, but we recommend either:</p>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">SimpleCache</span></code> for easy testing:</p></li>
-</ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ... define your Dash &quot;app&quot; variable first</span>
-
-<span class="kn">from</span> <span class="nn">flask_caching</span> <span class="kn">import</span> <span class="n">Cache</span>
-<span class="n">cache</span> <span class="o">=</span> <span class="n">Cache</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;CACHE_TYPE&#39;</span><span class="p">:</span> <span class="s1">&#39;simple&#39;</span><span class="p">})</span>
-
-<span class="kn">from</span> <span class="nn">crystal_toolkit.components</span> <span class="kn">import</span> <span class="n">register_cache</span>
-<span class="n">register_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
-</pre></div>
-</div>
-<ol class="arabic simple" start="2">
-<li><p><code class="docutils literal notranslate"><span class="pre">RedisCache</span></code> for production:</p></li>
-</ol>
+<p>Caching is supported by many Crystal Toolkit components, but by default
+caching is in-memory only and not thread safe.</p>
+<p>Any <a class="reference external" href="https://pythonhosted.org/Flask-Caching/">Flask-Caching</a>
+backend is supported, we recommend <code class="docutils literal notranslate"><span class="pre">RedisCache</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ... define your Dash &quot;app&quot; variable first</span>
 
 <span class="kn">from</span> <span class="nn">flask_caching</span> <span class="kn">import</span> <span class="n">Cache</span>
 
 <span class="n">cache</span> <span class="o">=</span> <span class="n">Cache</span><span class="p">(</span>
-    <span class="n">crystal_toolkit_app</span><span class="o">.</span><span class="n">server</span><span class="p">,</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">server</span><span class="p">,</span>
     <span class="n">config</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">&quot;CACHE_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;redis&quot;</span><span class="p">,</span>
         <span class="s2">&quot;CACHE_REDIS_URL&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;localhost:6379&quot;</span><span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">crystal_toolkit.components</span> <span class="kn">import</span> <span class="n">register_cache</span>
-<span class="n">register_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+<span class="c1"># and tell crystal toolkit about the cache</span>
+<span class="n">ctc</span><span class="o">.</span><span class="n">register_crystal_toolkit</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Additionally, you should run the app using <code class="docutils literal notranslate"><span class="pre">gunicorn</span></code> rather than using <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">app.py</span></code>
+directly so that there are multiple workers available to handle callbacks –
+this will result in a huge performance improvement.</p>
+<p>All of the recommendations in the main <a class="reference external" href="https://dash.plot.ly">Dash documentation</a> also apply.</p>
 </div>
 </div>
 
