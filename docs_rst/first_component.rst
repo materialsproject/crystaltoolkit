@@ -19,16 +19,15 @@ The basic steps are to:
    that the component comes with a ``dcc.Store`` which contains the ``MSON``
    representation of whatever the component is intended to render.
 
-2. Implement its ``_sub_layouts`` method to return a dictionary with
-   values correponding to different Dash layouts you want in your component
-   (``html.Div`` elements etc). The use of ``_sub_layouts`` is mostly for
-   book-keeping if the component is complex.
-
-3. Implement its master ``layout()`` method to return the "default" layout
+2. Implement its master ``layout()`` method to return the "default" layout
    for your component. You may also add additional ``..._layout()``
    methods for optional layouts; for example, the ``StructureMoleculeComponent``
    has ``legend_layout()`` to return the legend for the structure or molecule
    being displayed.
+
+   The ``_sub_layouts`` method, which returns a dictionary with values corresponding
+   to different parts of your component, is available for book-keeping if your
+   component is complex.
 
 4. For interactivity, implement the ``generate_callbacks(app, cache)`` method.
    Inside this method you can define callbacks to be associated with the component.
