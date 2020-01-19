@@ -566,32 +566,14 @@
 <span class="s2">Sub-layouts:  </span><span class="se">\n</span><span class="si">{layouts}</span><span class="s2">&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_sub_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Layouts associated with this component.</span>
-
-<span class="sd">        All individual layout ids *must* be derived from main id followed by an</span>
-<span class="sd">        underscore, for example, for an input box layout a suitable id name</span>
-<span class="sd">        might be f&quot;{self.id}_input&quot;.</span>
-
-<span class="sd">        The underlying store (self._store) *must* be included in self.layouts.</span>
+<span class="sd">        Layouts associated with this component, available for book-keeping</span>
+<span class="sd">        if your component is complex, so that the layout() method is just</span>
+<span class="sd">        assembles individual sub-layouts.</span>
 
 <span class="sd">        :return: A dictionary with names of layouts as keys (str) and Dash</span>
-<span class="sd">        layouts as values. Preferred keys include:</span>
-<span class="sd">        &quot;main&quot; for the primary layout for this component,</span>
-<span class="sd">        &quot;label&quot; for a html.Label describing the component with className</span>
-<span class="sd">        &quot;mpc_label&quot;,</span>
-<span class="sd">        &quot;help&quot; for a dcc.Markdown component explaining how it works,</span>
-<span class="sd">        &quot;controls&quot; for controls to interact with the component (for example to</span>
-<span class="sd">        change how the data is displayed) with className &quot;mpc_help&quot;,</span>
-<span class="sd">        &quot;error&quot; for a component that will display any appropriate errors, this</span>
-<span class="sd">        should contain a html.Div with className &quot;mpc_error&quot;, and</span>
-<span class="sd">        &quot;warning&quot; for a component that will display any appropriate warnings,</span>
-<span class="sd">        this should contain a html.Div with className &quot;mpc_warning&quot;.</span>
-
-<span class="sd">        These layouts are not mandatory but are at the discretion of the</span>
-<span class="sd">        component author.</span>
+<span class="sd">        layouts (e.g. html.Div) as values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{}</span>
 
