@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install firefox-geckodriver
+        sudo apt-get install firefox-geckodriver jq
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
@@ -43,6 +43,7 @@ jobs:
         git push
     - name: Set new version
       run: |
+        cat package.json | jq '.version="'$(date '+%Y-%m-%d')'"' > package.json
         git add -A
         git diff-index --quiet HEAD || git commit -m "Set version"
         git push
