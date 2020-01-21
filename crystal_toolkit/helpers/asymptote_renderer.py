@@ -1,21 +1,22 @@
 """
 Export wrapper for asymptote (ASY)
 For creating publication quality plots
-Since ASY does not have the nested tree structure of threejs, we just have to traverse the tree and draw each material as we see them.
+Since ASY does not have the nested tree structure of threejs,
+we just have to traverse the tree and draw each material as we see them.
 
 TODO The code should also appends a set of special points at the end in case the user wants to add more "hand drawn" features to the plot
 
 """
+import logging
 from itertools import chain
+
 from jinja2 import Environment
+
 from pymatgen import Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph
 from crystal_toolkit.helpers.utils import update_object_args
 
-import logging
-from math import pi
-
-logger = logging.getLogger('crystaltoolkit - asymptote_renderer')
+logger = logging.getLogger(__name__)
 
 HEAD = """
 import settings;
@@ -131,19 +132,22 @@ def _get_lines(ctk_scene, d_args=None):
     Keyword Arguments:
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
-    assert(ctk_scene.type == 'lines')
+    assert ctk_scene.type == "lines"
     updated_defaults = update_object_args(
-        d_args, object_name='Lines', allowed_args=[
-            'linewidth', 'color'])
+        d_args, object_name="Lines", allowed_args=["linewidth", "color"]
+    )
     ipos = map(tuple, ctk_scene.positions[0::2])
     fpos = map(tuple, ctk_scene.positions[1::2])
     posPairs = [*zip(ipos, fpos)]
 
-    linewidth = ctk_scene.linewidth or updated_defaults['linewidth']
-    color = ctk_scene.color or updated_defaults['color']
+    linewidth = ctk_scene.linewidth or updated_defaults["linewidth"]
+    color = ctk_scene.color or updated_defaults["color"]
     color = color.replace("#", "")
-    return Environment().from_string(TEMP_LINE).render(
-        posPairs=posPairs, color=color, linewidth=linewidth)
+    return (
+        Environment()
+        .from_string(TEMP_LINE)
+        .render(posPairs=posPairs, color=color, linewidth=linewidth)
+    )
 
 
 def _get_spheres(ctk_scene, d_args=None):
@@ -155,14 +159,14 @@ def _get_spheres(ctk_scene, d_args=None):
     Keyword Arguments:
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
-    assert(ctk_scene.type == 'spheres')
+    assert ctk_scene.type == "spheres"
     updated_defaults = update_object_args(
-        d_args, object_name='Spheres', allowed_args=[
-            'radius', 'color'])
+        d_args, object_name="Spheres", allowed_args=["radius", "color"]
+    )
 
     positions = [tuple(pos) for pos in ctk_scene.positions]
-    radius = ctk_scene.radius or updated_defaults['radius']
-    color = ctk_scene.color or updated_defaults['color']
+    radius = ctk_scene.radius or updated_defaults["radius"]
+    color = ctk_scene.color or updated_defaults["color"]
     color = color.replace("#", "")
     if ctk_scene.phiStart or ctk_scene.phiEnd:
         raise NotImplementedError
@@ -170,10 +174,10 @@ def _get_spheres(ctk_scene, d_args=None):
     # phiStart = ctk_scene.phiStart or 0 # not yet implemented
     # phiEnd = ctk_scene.phiEnd or 2*pi
 
-    return Environment().from_string(TEMP_SPHERE).render(
-        positions=positions,
-        radius=radius,
-        color=color,
+    return (
+        Environment()
+        .from_string(TEMP_SPHERE)
+        .render(positions=positions, radius=radius, color=color)
     )
 
 
@@ -186,20 +190,20 @@ def _get_cylinders(ctk_scene, d_args=None):
     Keyword Arguments:
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
-    assert(ctk_scene.type == 'cylinders')
+    assert ctk_scene.type == "cylinders"
     updated_defaults = update_object_args(
-        d_args, object_name='Cylinders', allowed_args=[
-            'radius', 'color'])
+        d_args, object_name="Cylinders", allowed_args=["radius", "color"]
+    )
 
-    posPairs = [
-        [tuple(ipos), tuple(fpos)]
-        for ipos, fpos in ctk_scene.positionPairs
-    ]
-    radius = ctk_scene.radius or updated_defaults['radius']
-    color = ctk_scene.color or updated_defaults['color']
+    posPairs = [[tuple(ipos), tuple(fpos)] for ipos, fpos in ctk_scene.positionPairs]
+    radius = ctk_scene.radius or updated_defaults["radius"]
+    color = ctk_scene.color or updated_defaults["color"]
     color = color.replace("#", "")
-    return Environment().from_string(TEMP_CYLINDER).render(
-        posPairs=posPairs, color=color, radius=radius)
+    return (
+        Environment()
+        .from_string(TEMP_CYLINDER)
+        .render(posPairs=posPairs, color=color, radius=radius)
+    )
 
 
 def _get_surface(ctk_scene, d_args=None):
@@ -215,29 +219,39 @@ def _get_surface(ctk_scene, d_args=None):
     if len(ctk_scene.positions) == 0:
         return "" # print nothing
     updated_defaults = update_object_args(
-        d_args, object_name='Surfaces', allowed_args=[
-            'opacity', 'color', 'edge_width'])
-    color = ctk_scene.color or updated_defaults['color']
+        d_args, object_name="Surfaces", allowed_args=["opacity", "color", "edge_width"]
+    )
+    color = ctk_scene.color or updated_defaults["color"]
     color = color.replace("#", "")
-    opacity = ctk_scene.opacity or updated_defaults['opacity']
+    opacity = ctk_scene.opacity or updated_defaults["opacity"]
 
     positions = tuple(
-        map(lambda x: "{" + f"{x[0]}, {x[1]}, {x[2]}" + "}", ctk_scene.positions))
-    num_triangle = len(ctk_scene.positions) / 3.
+        map(lambda x: "{" + f"{x[0]}, {x[1]}, {x[2]}" + "}", ctk_scene.positions)
+    )
+    num_triangle = len(ctk_scene.positions) / 3.0
     # sanity check the mesh must be triangles
-    assert(num_triangle.is_integer())
+    assert num_triangle.is_integer()
 
     # # make decision on transparency
     # transparent = if obj_args['opacity'] < 0.99
     #
     # # asymptote just needs the xyz positions
     num_triangle = int(num_triangle)
-    pos_xyz = tuple(chain.from_iterable(
-        [(positions[itr * 3], positions[itr * 3 + 1], positions[itr * 3 + 2]) for itr in range(num_triangle)]))
+    pos_xyz = tuple(
+        chain.from_iterable(
+            [
+                (positions[itr * 3], positions[itr * 3 + 1], positions[itr * 3 + 2])
+                for itr in range(num_triangle)
+            ]
+        )
+    )
     #
     # # write the data array
-    data_array_asy = Environment().from_string(TEMP_SURF).render(
-        positions=pos_xyz, face_color=color, opac=opacity)
+    data_array_asy = (
+        Environment()
+        .from_string(TEMP_SURF)
+        .render(positions=pos_xyz, face_color=color, opac=opacity)
+    )
 
     return data_array_asy
 

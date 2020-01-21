@@ -62,7 +62,8 @@ The important addition from an ``MPComponent`` is that they an ``id()`` method t
 ids of the component itself or of any sub-layouts inside that component. The canonical
 layout is a `dcc.Store() <https://dash.plot.ly/dash-core-components/store>`_ containing
 the serialized representation of your Python object, such as the crystallographic structure.
-By updating the contents of this store with a new object, the
+By updating the contents of this store with a new object, the visual state of the component
+will also be updated.
 
 This is best illustrated by example. We will add a button that shows a random crystal
 structure when clicked.
@@ -78,18 +79,17 @@ The two features here that make this slightly different from a regular Dash app 
 2. We can return the object directly (as a ``Structure`` object) via the callback,
    without needing to serialize or deserialize it.
 
-Finally, it is important to mention why we have set ``supress_callback_exceptions``
-to ``True``. In a Dash app, the layout is walked on first load to make sure that all
-interactive elements are actually in your app. This is to prevent common errors for
-first-time users, for example creating a callback to an ``id`` that doesn't exist.
-However, in Crystal Toolkit, many components have optional additional interactive
-elements. In the case of the structure component, this includes things like displaying
-a legend, or providing controls to modify the color scheme. Since we haven't included
-these optional elements in this example, callback exceptions would be raised if this
-setting wasn't enabled.
+Note that due to the dynamic nature of a Crystal Toolkit app, callback exceptions are
+suppressed on app load. For debugging of static layouts,
+you might want to re-enable callback exceptions.
 
-Caching
-~~~~~~~
+Linking Components Together
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ToDo
+
+Running in Production
+~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
    This section is optional for getting an app working.
@@ -97,23 +97,11 @@ Caching
 Long-running callbacks (> 0.1 ms) can make a web app feel slow and sluggish.
 Since callbacks do not rely on any external state, they are easy to cache.
 
-Caching is supported by many Crystal Toolkit components, but the cache
-backend has to be registered first. Any `Flask-Caching <https://pythonhosted.org/Flask-Caching/>`_
-backend is supported, but we recommend either:
+Caching is supported by many Crystal Toolkit components, but by default
+caching is in-memory only and not thread safe.
 
-1. ``SimpleCache`` for easy testing:
-
-::
-
-    # ... define your Dash "app" variable first
-
-    from flask_caching import Cache
-    cache = Cache(app.server, config={'CACHE_TYPE': 'simple'})
-
-    from crystal_toolkit.components import register_cache
-    register_cache(cache)
-
-2. ``RedisCache`` for production:
+Any `Flask-Caching <https://pythonhosted.org/Flask-Caching/>`_
+backend is supported, we recommend ``RedisCache``:
 
 ::
 
@@ -122,12 +110,18 @@ backend is supported, but we recommend either:
    from flask_caching import Cache
 
    cache = Cache(
-       crystal_toolkit_app.server,
+       app.server,
        config={
            "CACHE_TYPE": "redis",
            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "localhost:6379"),
        },
    )
 
-   from crystal_toolkit.components import register_cache
-   register_cache(cache)
+   # and tell crystal toolkit about the cache
+   ctc.register_crystal_toolkit(app, layout, cache=cache)
+
+Additionally, you should run the app using ``gunicorn`` rather than using ``python app.py``
+directly so that there are multiple workers available to handle callbacks --
+this will result in a huge performance improvement.
+
+All of the recommendations in the main `Dash documentation <https://dash.plot.ly>`_ also apply.

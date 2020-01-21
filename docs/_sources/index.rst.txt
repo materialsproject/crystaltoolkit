@@ -6,6 +6,7 @@
    first_web_app
    first_component
    components
+   mp_app
    helpers
    jupyter
    API Docs<source/crystal_toolkit>
