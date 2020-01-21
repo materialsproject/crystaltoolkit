@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mp_app.html">A Materials Project App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../helpers.html">Helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
@@ -197,7 +198,7 @@
     <span class="n">app</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># reference to Flask cache</span>
-    <span class="n">cache</span> <span class="o">=</span> <span class="n">null_cache</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># used to track all dcc.Stores required for all MPComponents to work</span>
     <span class="c1"># keyed by the MPComponent id</span>
@@ -249,7 +250,12 @@
 <span class="sd">        Args:</span>
 <span class="sd">            cache: a flask_caching Cache instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">MPComponent</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span></div>
+        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="n">MPComponent</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">MPComponent</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">Cache</span><span class="p">(</span>
+                <span class="n">MPComponent</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CACHE_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;simple&quot;</span><span class="p">}</span>
+            <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MPComponent.crystal_toolkit_layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent.crystal_toolkit_layout">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">crystal_toolkit_layout</span><span class="p">(</span><span class="n">layout</span><span class="p">:</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
@@ -281,8 +287,7 @@
     <span class="k">def</span> <span class="nf">register_crystal_toolkit</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="n">MPComponent</span><span class="o">.</span><span class="n">register_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cache</span><span class="p">:</span>
-            <span class="n">MPComponent</span><span class="o">.</span><span class="n">register_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+        <span class="n">MPComponent</span><span class="o">.</span><span class="n">register_cache</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
         <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;suppress_callback_exceptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">MPComponent</span><span class="o">.</span><span class="n">crystal_toolkit_layout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span></div>
 
@@ -364,7 +369,7 @@
         <span class="c1"># ensure ids are unique</span>
         <span class="c1"># Note: shadowing Python built-in here, but only because Dash does it...</span>
         <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{self.__class__.__name__}</span><span class="s2">{str(uuid4())[0:6]}&quot;</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{self.__class__.__name__}</span><span class="s2">_{str(uuid4())[0:6]}&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{id}</span><span class="s2">&quot;</span>
         <span class="n">MPComponent</span><span class="o">.</span><span class="n">_all_id_basenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
@@ -561,32 +566,14 @@
 <span class="s2">Sub-layouts:  </span><span class="se">\n</span><span class="si">{layouts}</span><span class="s2">&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_sub_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Layouts associated with this component.</span>
-
-<span class="sd">        All individual layout ids *must* be derived from main id followed by an</span>
-<span class="sd">        underscore, for example, for an input box layout a suitable id name</span>
-<span class="sd">        might be f&quot;{self.id}_input&quot;.</span>
-
-<span class="sd">        The underlying store (self._store) *must* be included in self.layouts.</span>
+<span class="sd">        Layouts associated with this component, available for book-keeping</span>
+<span class="sd">        if your component is complex, so that the layout() method is just</span>
+<span class="sd">        assembles individual sub-layouts.</span>
 
 <span class="sd">        :return: A dictionary with names of layouts as keys (str) and Dash</span>
-<span class="sd">        layouts as values. Preferred keys include:</span>
-<span class="sd">        &quot;main&quot; for the primary layout for this component,</span>
-<span class="sd">        &quot;label&quot; for a html.Label describing the component with className</span>
-<span class="sd">        &quot;mpc_label&quot;,</span>
-<span class="sd">        &quot;help&quot; for a dcc.Markdown component explaining how it works,</span>
-<span class="sd">        &quot;controls&quot; for controls to interact with the component (for example to</span>
-<span class="sd">        change how the data is displayed) with className &quot;mpc_help&quot;,</span>
-<span class="sd">        &quot;error&quot; for a component that will display any appropriate errors, this</span>
-<span class="sd">        should contain a html.Div with className &quot;mpc_error&quot;, and</span>
-<span class="sd">        &quot;warning&quot; for a component that will display any appropriate warnings,</span>
-<span class="sd">        this should contain a html.Div with className &quot;mpc_warning&quot;.</span>
-
-<span class="sd">        These layouts are not mandatory but are at the discretion of the</span>
-<span class="sd">        component author.</span>
+<span class="sd">        layouts (e.g. html.Div) as values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{}</span>
 

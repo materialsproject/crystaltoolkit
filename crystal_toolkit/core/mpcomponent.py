@@ -43,7 +43,7 @@ class MPComponent(ABC):
     app = None
 
     # reference to Flask cache
-    cache = null_cache
+    cache = None
 
     # used to track all dcc.Stores required for all MPComponents to work
     # keyed by the MPComponent id
@@ -95,7 +95,12 @@ class MPComponent(ABC):
         Args:
             cache: a flask_caching Cache instance
         """
-        MPComponent.cache = cache
+        if cache:
+            MPComponent.cache = cache
+        else:
+            MPComponent.cache = Cache(
+                MPComponent.app.server, config={"CACHE_TYPE": "simple"}
+            )
 
     @staticmethod
     def crystal_toolkit_layout(layout: html.Div) -> html.Div:
@@ -127,8 +132,7 @@ class MPComponent(ABC):
     def register_crystal_toolkit(app, layout, cache=None):
 
         MPComponent.register_app(app)
-        if cache:
-            MPComponent.register_cache(cache)
+        MPComponent.register_cache(cache)
         app.config["suppress_callback_exceptions"] = True
         app.layout = MPComponent.crystal_toolkit_layout(layout)
 
@@ -210,7 +214,7 @@ class MPComponent(ABC):
         # ensure ids are unique
         # Note: shadowing Python built-in here, but only because Dash does it...
         if id is None:
-            id = f"{CT_NAMESPACE}{self.__class__.__name__}{str(uuid4())[0:6]}"
+            id = f"{CT_NAMESPACE}{self.__class__.__name__}_{str(uuid4())[0:6]}"
         else:
             id = f"{CT_NAMESPACE}{id}"
         MPComponent._all_id_basenames.add(id)
@@ -407,32 +411,14 @@ Stores:  \n{stores}  \n
 Sub-layouts:  \n{layouts}"""
 
     @property
-    @abstractmethod
     def _sub_layouts(self):
         """
-        Layouts associated with this component.
-
-        All individual layout ids *must* be derived from main id followed by an
-        underscore, for example, for an input box layout a suitable id name
-        might be f"{self.id}_input".
-
-        The underlying store (self._store) *must* be included in self.layouts.
+        Layouts associated with this component, available for book-keeping
+        if your component is complex, so that the layout() method is just
+        assembles individual sub-layouts.
 
         :return: A dictionary with names of layouts as keys (str) and Dash
-        layouts as values. Preferred keys include:
-        "main" for the primary layout for this component,
-        "label" for a html.Label describing the component with className
-        "mpc_label",
-        "help" for a dcc.Markdown component explaining how it works,
-        "controls" for controls to interact with the component (for example to
-        change how the data is displayed) with className "mpc_help",
-        "error" for a component that will display any appropriate errors, this
-        should contain a html.Div with className "mpc_error", and
-        "warning" for a component that will display any appropriate warnings,
-        this should contain a html.Div with className "mpc_warning".
-
-        These layouts are not mandatory but are at the discretion of the
-        component author.
+        layouts (e.g. html.Div) as values.
         """
         return {}
 
