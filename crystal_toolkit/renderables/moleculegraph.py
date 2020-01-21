@@ -13,7 +13,7 @@ from crystal_toolkit.core.legend import Legend
 
 
 def get_molecule_graph_scene(
-    self, origin=None, explicitly_calculate_polyhedra_hull=False, legend=None
+    self, origin=None, explicitly_calculate_polyhedra_hull=False, legend=None, draw_polyhedra=False
 ) -> Scene:
 
     legend = legend or Legend(self.molecule)
@@ -29,6 +29,7 @@ def get_molecule_graph_scene(
             origin=origin,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             legend=legend,
+            draw_polyhedra=draw_polyhedra,
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
@@ -36,7 +37,7 @@ def get_molecule_graph_scene(
     return Scene(
         name=self.molecule.composition.reduced_formula,
         contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
-        origin=origin,
+        origin=origin if origin else (0,0,0),
     )
 
 

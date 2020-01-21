@@ -6,7 +6,7 @@ Also includes some helper functions for draw addition objects using pythreejs
 import logging
 import warnings
 from math import isnan
-
+from crystal_toolkit.renderables import *
 import numpy as np
 from IPython.display import display
 from pymatgen import Structure
@@ -122,6 +122,10 @@ def view(renderable_obj, **kwargs):
     ):
         kwargs["explicitly_calculate_polyhedra_hull"] = True
 
+    if isinstance(renderable_obj, Molecule) or isinstance(
+            renderable_obj, MoleculeGraph
+    ):
+        kwargs["explicitly_calculate_polyhedra_hull"] = True
     display_scene(renderable_obj.get_scene(**kwargs))
 
 

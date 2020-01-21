@@ -771,7 +771,7 @@ class StructureMoleculeComponent(MPComponent):
                             )
                         else:
                             graph = MoleculeGraph.with_local_env_strategy(
-                                input, bonding_strategy
+                                input, bonding_strategy, reorder=False
                             )
                 except:
                     # for some reason computing bonds failed, so let's not have any bonds(!)

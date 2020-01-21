@@ -18,8 +18,12 @@ from math import pi
 logger = logging.getLogger('crystaltoolkit - asymptote_renderer')
 
 HEAD = """
-size(300);
+import settings;
 import solids;
+size(300);
+outformat="png";
+defaultshininess = 0.02;
+
 // Camera information
 currentprojection=orthographic (
 camera=(8,5,4),
@@ -208,6 +212,8 @@ def _get_surface(ctk_scene, d_args=None):
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
     assert (ctk_scene.type == 'surface')
+    if len(ctk_scene.positions) == 0:
+        return "" # print nothing
     updated_defaults = update_object_args(
         d_args, object_name='Surfaces', allowed_args=[
             'opacity', 'color', 'edge_width'])
@@ -295,7 +301,7 @@ def traverse_scene_object(scene_data, fstream):
             traverse_scene_object(sub_object, fstream)
 
 
-def wite_ctk_scene_to_file(ctk_scene, file_name):
+def write_ctk_scene_to_file(ctk_scene, file_name):
     """
     ctk_scene : Scene object from crystaltoolkit
     filename : Output asymptote file and location
@@ -319,4 +325,4 @@ def write_asy_file(renderable_object, file_name, **kwargs):
     if isinstance(renderable_object, Structure) or isinstance(
             renderable_object, StructureGraph):
         kwargs['explicitly_calculate_polyhedra_hull'] = True
-    wite_ctk_scene_to_file(renderable_object.get_scene(**kwargs), file_name)
+    write_ctk_scene_to_file(renderable_object.get_scene(**kwargs), file_name)
