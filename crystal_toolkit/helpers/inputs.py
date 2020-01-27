@@ -81,5 +81,68 @@ def get_bool_input(id):
     raise NotImplementedError
 
 
-def get_choice_input(choices):
-    raise NotImplementedError
+class NumericInput(html.Div):
+    """
+    id will generate ...
+
+    """
+
+
+class MatrixInput(html.Div):
+    """
+
+    """
+
+
+class BooleanInput(html.Div):
+    """
+
+    """
+
+
+class StringInput(html.Div):
+    """
+
+    """
+
+
+class DictInput(html.Div):
+    """
+
+    """
+
+
+class Dropdown(html.Div):
+    """
+    A helper that wraps dcc.Dropdown with some additional labels and styling.
+    """
+
+
+class RadioItems(html.Div):
+    """
+    A helper that wraps dcc.RadioItems with some additional labels and styling.
+    """
+
+    def __init__(self, label=None, help=None, **kwargs):
+        """
+        :param label:
+        :param help:
+        :param kwargs: as dcc.RadioItems
+        """
+
+        super().__init__(
+            children=[
+                Field(
+                    Control(
+                        [
+                            html.Label(label, className="mpc-label"),
+                            dcc.RadioItems(
+                                inputClassName="mpc-radio",
+                                labelClassName="mpc-radio-label",
+                                **kwargs,
+                            ),
+                        ]
+                    )
+                )
+            ]
+        )
