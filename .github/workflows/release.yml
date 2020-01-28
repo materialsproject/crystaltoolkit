@@ -33,7 +33,8 @@ jobs:
         git status
     - name: Set new version
       run: |
-        cat package.json | jq '.version="'$(date '+%Y-%m-%d')'"' > package.json
+        cat package.json | jq '.version="'$(date '+%Y.%m.%d')'"' > package.json
+        cat crystal_toolkit/package.json | jq '.version="'$(date '+%Y.%m.%d')'"' > crystal_toolkit/package.json
         git status
         git diff --quiet || git commit -am "Set version"
         git push
