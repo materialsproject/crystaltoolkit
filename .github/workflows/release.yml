@@ -12,6 +12,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: master
+        fetch-depth: 2
     - name: Set up Python 3.7
       uses: actions/setup-python@v1
       with:
@@ -28,8 +31,6 @@ jobs:
         git config --global user.name 'Matthew Horton'
         git config --global user.email 'mkhorton@users.noreply.github.com'
         git status
-        git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/crystaltoolkit
-        git checkout "${GITHUB_REF:11}"
     - name: Set new version
       run: |
         cat package.json | jq '.version="'$(date '+%Y-%m-%d')'"' > package.json
