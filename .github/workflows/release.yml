@@ -27,7 +27,7 @@ jobs:
       run: |
         git config --global user.name 'Matthew Horton'
         git config --global user.email 'mkhorton@users.noreply.github.com'
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+        git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/crystaltoolkit
         git status
         git checkout "${GITHUB_REF:11}"
     - name: Set new version
