@@ -26,7 +26,7 @@ setup(
     version=package["version"],
     author=package["author"],
     packages=find_packages(),
-    package_data={"crystal_toolkit": ["*.json", "*.js"]},
+    package_data={"crystal_toolkit": ["*.json", "*.js", "*.yaml"], "crystal_toolkit.core": ["*.json", "*.yaml"]},
     include_package_data=True,
     license=package["license"],
     description=package["description"] if "description" in package else package_name,
