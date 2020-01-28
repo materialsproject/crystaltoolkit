@@ -27,11 +27,11 @@ jobs:
       run: |
         git config --global user.name 'Matthew Horton'
         git config --global user.email 'mkhorton@users.noreply.github.com'
+        git checkout master
     - name: Set new version
       run: |
         cat package.json | jq '.version="'$(date '+%Y-%m-%d')'"' > package.json
-        git add -A
-        git commit -m "Set version"
+        git commit -am "Set version"
         git push
     - name: Build packages
       run: |
