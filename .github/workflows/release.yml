@@ -34,7 +34,8 @@ jobs:
     - name: Set new version
       run: |
         cat package.json | jq '.version="'$(date '+%Y-%m-%d')'"' > package.json
-        git diff-index --quiet HEAD || git commit -am "Set version"
+        git status
+        git diff --quiet || git commit -am "Set version"
         git push
     - name: Build packages
       run: |
