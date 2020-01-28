@@ -23,7 +23,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install firefox-geckodriver
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip wheel
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
     - name: Set up git
