@@ -123,7 +123,7 @@ class Footer(html.Footer):
 class Spinner(html.Button):
     def __init__(self, *args, **kwargs):
         kwargs["className"] = "button is-primary is-loading"
-        kwargs["style"] = {"width": "35px", "height": "35px", "border-radius": "35px"}
+        kwargs["style"] = {"width": "35px", "height": "35px", "borderRadius": "35px"}
         kwargs["aria-label"] = "Loading"
         super().__init__(*args, **kwargs)
 
@@ -230,18 +230,18 @@ class Reveal(html.Details):
             id = title
         if isinstance(title, str):
             title = H4(
-                title, style={"display": "inline-block", "vertical-align": "middle"}
+                title, style={"display": "inline-block", "verticalAlign": "middle"}
             )
         contents_id = f"{id}_contents" if id else None
         summary_id = f"{id}_summary" if id else None
-        kwargs["style"] = {"margin-bottom": "1rem"}
+        kwargs["style"] = {"marginBottom": "1rem"}
         super().__init__(
             [
                 html.Summary(title, id=summary_id),
                 html.Div(
                     children,
                     id=contents_id,
-                    style={"margin-top": "0.5rem", "margin-left": "1.1rem"},
+                    style={"marginTop": "0.5rem", "marginLeft": "1.1rem"},
                 ),
             ],
             id=id,
@@ -322,7 +322,7 @@ def get_tooltip(
     if underline:
         style = None
     else:
-        style = {"border-bottom": "0px"}
+        style = {"borderBottom": "0px"}
 
     return html.Div(
         [tooltip, html.Span(tooltip_text, className="tooltiptext")],

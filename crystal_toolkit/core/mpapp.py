@@ -103,8 +103,8 @@ class MPApp(MPComponent, ABC):
                     cite_me(doi=doi, cite_text="Cite this app"),
                     style={
                         "display": "inline-block",
-                        "vertical-align": "middle",
-                        "margin-left": "1rem",
+                        "verticalAlign": "middle",
+                        "marginLeft": "1rem",
                     },
                 )
                 for doi in self.dois
@@ -125,7 +125,7 @@ class MPApp(MPComponent, ABC):
                                             icon,
                                             html.Span(
                                                 self.name,
-                                                style={"vertical-align": "middle"},
+                                                style={"verticalAlign": "middle"},
                                             ),
                                         ],
                                         style={"display": "inline-block"},
@@ -139,7 +139,7 @@ class MPApp(MPComponent, ABC):
                                     html.Br(),
                                     dcc.Markdown(self.long_description),
                                 ],
-                                style={"margin-left": "4rem"},
+                                style={"marginLeft": "4rem"},
                             ),
                         ]
                     )

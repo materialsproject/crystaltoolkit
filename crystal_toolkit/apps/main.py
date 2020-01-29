@@ -355,13 +355,13 @@ master_layout = Container(
                                     style={
                                         "width": box_size,
                                         "height": box_size,
-                                        "min-width": "300px",
-                                        "min-height": "300px",
-                                        "max-width": "600px",
-                                        "max-height": "600px",
+                                        "minWidth": "300px",
+                                        "minHeight": "300px",
+                                        "maxWidth": "600px",
+                                        "maxHeight": "600px",
                                         "overflow": "hidden",
                                         "padding": "0.25rem",
-                                        "margin-bottom": "0.5rem",
+                                        "marginBottom": "0.5rem",
                                     },
                                 ),
                                 html.Div(
@@ -377,8 +377,8 @@ master_layout = Container(
                                     ],
                                     style={
                                         "width": box_size,
-                                        "min-width": "300px",
-                                        "margin-bottom": "40px",
+                                        "minWidth": "300px",
+                                        "marginBottom": "40px",
                                     },
                                 ),
                             ],
@@ -394,7 +394,7 @@ master_layout = Container(
                                     ],
                                     title="Load Crystal",
                                     open=True,
-                                    style={"line-height": "1"},
+                                    style={"lineHeight": "1"},
                                     id="load",
                                 ),
                                 Reveal(

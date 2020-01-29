@@ -126,7 +126,7 @@ class SearchComponent(MPComponent):
         search = Field(
             [Control(search_field), Control(search_button)],
             addons=True,
-            style={"margin-bottom": "0"},
+            style={"marginBottom": "0"},
         )
 
         return html.Div(
@@ -151,7 +151,7 @@ class SearchComponent(MPComponent):
 
         warning = html.Div(style={"display": "none"}, id=self.id("warning"))
 
-        search = html.Div([search, random_link], style={"margin-bottom": "0.75rem"})
+        search = html.Div([search, random_link], style={"marginBottom": "0.75rem"})
 
         search = html.Div([search, warning, dropdown_container])
 

@@ -307,7 +307,7 @@ class LiteratureComponent(PanelComponent):
                                 )
                             ],
                             className="mpc",
-                            style={"padding-left": "1rem", "margin-bottom": "1rem"},
+                            style={"paddingLeft": "1rem", "marginBottom": "1rem"},
                         )
                     )
 
