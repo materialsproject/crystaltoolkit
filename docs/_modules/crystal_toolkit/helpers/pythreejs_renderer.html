@@ -161,7 +161,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">isnan</span>
-
+<span class="kn">from</span> <span class="nn">crystal_toolkit.renderables</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
 <span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span>
@@ -277,6 +277,10 @@
     <span class="p">):</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;explicitly_calculate_polyhedra_hull&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_obj</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">renderable_obj</span><span class="p">,</span> <span class="n">MoleculeGraph</span>
+    <span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;explicitly_calculate_polyhedra_hull&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">display_scene</span><span class="p">(</span><span class="n">renderable_obj</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
 
 

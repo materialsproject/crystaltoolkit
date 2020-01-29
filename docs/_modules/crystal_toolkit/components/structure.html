@@ -931,7 +931,7 @@
                             <span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span>
-                                <span class="nb">input</span><span class="p">,</span> <span class="n">bonding_strategy</span>
+                                <span class="nb">input</span><span class="p">,</span> <span class="n">bonding_strategy</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span>
                             <span class="p">)</span>
                 <span class="k">except</span><span class="p">:</span>
                     <span class="c1"># for some reason computing bonds failed, so let&#39;s not have any bonds(!)</span>
