@@ -61,7 +61,7 @@ class FavoritesComponent(MPComponent):
                             href=favorite.mpid,
                         )
                     ],
-                    style={"margin-bottom": "0.2rem"},
+                    style={"marginBottom": "0.2rem"},
                 )
                 for favorite in favorites
             ],
@@ -94,7 +94,7 @@ class FavoritesComponent(MPComponent):
                     [self._make_links([])],
                     title=H6(
                         "Favorited Materials",
-                        style={"display": "inline-block", "vertical-align": "middle"},
+                        style={"display": "inline-block", "verticalAlign": "middle"},
                     ),
                     id=self.id("favorite-materials"),
                     open=True,

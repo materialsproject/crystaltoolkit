@@ -58,18 +58,12 @@ def to_plotly_json(self):
 
 MSONable.to_plotly_json = to_plotly_json
 
-import warnings
-
-warnings.warn(
-    "Master branch is in undefined state. Please wait for first "
-    "versioned release, at which point master branch will be protected."
-)
-
 
 # Populate the default values from the JSON file
 _DEFAULTS = defaultdict(lambda: None)
-default_js = _os.path.join(_os.path.join(_os.path.dirname(
-    _os.path.abspath(__file__))), "./", "defaults.json")
+default_js = _os.path.join(
+    _os.path.join(_os.path.dirname(_os.path.abspath(__file__))), "./", "defaults.json"
+)
 
 with open(default_js) as handle:
     _DEFAULTS.update(json.loads(handle.read()))

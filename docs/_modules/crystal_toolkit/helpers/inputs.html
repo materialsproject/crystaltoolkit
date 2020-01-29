@@ -184,10 +184,10 @@
         <span class="n">inputMode</span><span class="o">=</span><span class="s2">&quot;numeric&quot;</span><span class="p">,</span>
         <span class="n">className</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span>
         <span class="n">style</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;text-align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;textAlign&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
             <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;2rem&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;margin-right&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;margin-bottom&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;marginRight&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;marginBottom&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">value</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
     <span class="p">)</span>
@@ -211,10 +211,10 @@
             <span class="n">className</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">,</span>
             <span class="n">maxLength</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">style</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;text-align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;textAlign&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;2rem&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;margin-right&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;margin-bottom&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;marginRight&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;marginBottom&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2rem&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
         <span class="p">)</span>
@@ -236,8 +236,71 @@
     <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-<div class="viewcode-block" id="get_choice_input"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.inputs.html#crystal_toolkit.helpers.inputs.get_choice_input">[docs]</a><span class="k">def</span> <span class="nf">get_choice_input</span><span class="p">(</span><span class="n">choices</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="NumericInput"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.inputs.html#crystal_toolkit.helpers.inputs.NumericInput">[docs]</a><span class="k">class</span> <span class="nc">NumericInput</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    id will generate ...</span>
+
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="MatrixInput"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.inputs.html#crystal_toolkit.helpers.inputs.MatrixInput">[docs]</a><span class="k">class</span> <span class="nc">MatrixInput</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="BooleanInput"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.inputs.html#crystal_toolkit.helpers.inputs.BooleanInput">[docs]</a><span class="k">class</span> <span class="nc">BooleanInput</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="StringInput"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.inputs.html#crystal_toolkit.helpers.inputs.StringInput">[docs]</a><span class="k">class</span> <span class="nc">StringInput</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DictInput"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.inputs.html#crystal_toolkit.helpers.inputs.DictInput">[docs]</a><span class="k">class</span> <span class="nc">DictInput</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="Dropdown"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.inputs.html#crystal_toolkit.helpers.inputs.Dropdown">[docs]</a><span class="k">class</span> <span class="nc">Dropdown</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper that wraps dcc.Dropdown with some additional labels and styling.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="RadioItems"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.inputs.html#crystal_toolkit.helpers.inputs.RadioItems">[docs]</a><span class="k">class</span> <span class="nc">RadioItems</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper that wraps dcc.RadioItems with some additional labels and styling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param label:</span>
+<span class="sd">        :param help:</span>
+<span class="sd">        :param kwargs: as dcc.RadioItems</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">Field</span><span class="p">(</span>
+                    <span class="n">Control</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">html</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;mpc-label&quot;</span><span class="p">),</span>
+                            <span class="n">dcc</span><span class="o">.</span><span class="n">RadioItems</span><span class="p">(</span>
+                                <span class="n">inputClassName</span><span class="o">=</span><span class="s2">&quot;mpc-radio&quot;</span><span class="p">,</span>
+                                <span class="n">labelClassName</span><span class="o">=</span><span class="s2">&quot;mpc-radio-label&quot;</span><span class="p">,</span>
+                                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
 </pre></div>
 
            </div>

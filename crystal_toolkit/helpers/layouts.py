@@ -4,6 +4,8 @@ import warnings
 
 from typing import List, Dict, Any, Union
 
+from habanero import content_negotiation
+
 BULMA_CSS = {
     "external_url": "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"
 }
@@ -121,7 +123,7 @@ class Footer(html.Footer):
 class Spinner(html.Button):
     def __init__(self, *args, **kwargs):
         kwargs["className"] = "button is-primary is-loading"
-        kwargs["style"] = {"width": "35px", "height": "35px", "border-radius": "35px"}
+        kwargs["style"] = {"width": "35px", "height": "35px", "borderRadius": "35px"}
         kwargs["aria-label"] = "Loading"
         super().__init__(*args, **kwargs)
 
@@ -228,18 +230,18 @@ class Reveal(html.Details):
             id = title
         if isinstance(title, str):
             title = H4(
-                title, style={"display": "inline-block", "vertical-align": "middle"}
+                title, style={"display": "inline-block", "verticalAlign": "middle"}
             )
         contents_id = f"{id}_contents" if id else None
         summary_id = f"{id}_summary" if id else None
-        kwargs["style"] = {"margin-bottom": "1rem"}
+        kwargs["style"] = {"marginBottom": "1rem"}
         super().__init__(
             [
                 html.Summary(title, id=summary_id),
                 html.Div(
                     children,
                     id=contents_id,
-                    style={"margin-top": "0.5rem", "margin-left": "1.1rem"},
+                    style={"marginTop": "0.5rem", "marginLeft": "1.1rem"},
                 ),
             ],
             id=id,
@@ -298,15 +300,34 @@ class Control(html.Div):
         super().__init__(*args, **kwargs)
 
 
-def get_tooltip(tooltip: html.Div, tooltip_text: str) -> html.Div:
+class Level(html.Div):
+    """
+
+    """
+
+    def __init__(self):
+        ...
+
+
+def get_tooltip(
+    tooltip: html.Div, tooltip_text: str, underline: bool = True
+) -> html.Div:
     """
     Add a tooltip, typically for help text.
     :param tooltip: element to apply tooltip to
     :param tooltip_text: text to show on hover
+    :param underline: whether to show hint that element provides tooltip functionality
     :return: html.Div
     """
+    if underline:
+        style = None
+    else:
+        style = {"borderBottom": "0px"}
+
     return html.Div(
-        [tooltip, html.Span(tooltip_text, className="tooltiptext")], className="tooltip"
+        [tooltip, html.Span(tooltip_text, className="tooltiptext")],
+        className="tooltip",
+        style=style,
     )
 
 
@@ -345,10 +366,12 @@ def cite_me(
     :return: A button
     """
     if doi:
-        tooltip_text = (
-            f"If this analysis is useful, please cite the "
-            f"relevant publication at https://dx.doi.org/{doi}"
-        )
+        try:
+            ref = content_negotiation(ids=doi, format="text", style="ieee")[3:]
+        except Exception as exc:
+            print(doi, exc)
+            ref = f"DOI: {doi}"
+        tooltip_text = f"If this analysis is useful, please cite {ref}"
     elif manual_ref:
         warnings.warn("Please use the DOI if available.")
         tooltip_text = (
@@ -367,6 +390,6 @@ def cite_me(
         target="_blank",
     )
 
-    with_tooltip = get_tooltip(reference_button, tooltip_text)
+    with_tooltip = get_tooltip(reference_button, tooltip_text, underline=False)
 
     return with_tooltip

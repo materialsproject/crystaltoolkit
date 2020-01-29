@@ -26,5 +26,6 @@ jobs:
     - name: Test with pytest
       env:
         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+        PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
       run: |
         pytest --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
