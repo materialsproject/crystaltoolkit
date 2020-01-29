@@ -21,7 +21,7 @@ from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 
-from pymongo import MongoClient
+# from pymongo import MongoClient
 
 
 # Author: Jason Munro
@@ -87,7 +87,7 @@ class BandstructureAndDosComponent(MPComponent):
                 ),
             ],
             style={"max-width": "200"},
-            id=self.id("path-container")
+            id=self.id("path-container"),
         )
 
         # Equivalent labels across band structure conventions
@@ -105,7 +105,7 @@ class BandstructureAndDosComponent(MPComponent):
                 ),
             ],
             style={"max-width": "200"},
-            id=self.id("label-container")
+            id=self.id("label-container"),
         )
 
         # Density of states data selection
@@ -345,16 +345,16 @@ class BandstructureAndDosComponent(MPComponent):
                 raise PreventUpdate
             elif bandstructure_symm_line == None or density_of_states == None:
 
-                # -- 
+                # --
                 # -- BS and DOS from API
-                # -- 
+                # --
 
                 mpid = mpid["mpid"]
                 bs_data = {"ticks": {}}
 
-                client = MongoClient(
-                    "mongodb03.nersc.gov", username="jmunro_lbl.gov_readWrite", password="", authSource="fw_bs_prod",
-                )
+                # client = MongoClient(
+                #     "mongodb03.nersc.gov", username="jmunro_lbl.gov_readWrite", password="", authSource="fw_bs_prod",
+                # )
 
                 db = client.fw_bs_prod
 
@@ -471,7 +471,7 @@ class BandstructureAndDosComponent(MPComponent):
 
             else:
 
-                # -- 
+                # --
                 # -- BS and DOS passed manually
                 # --
 
@@ -516,7 +516,6 @@ class BandstructureAndDosComponent(MPComponent):
                         bs_data["energy"][0][str(Spin.up)][band_num][0] >= energy_window[0]
                     ):
                         bands.append(band_num)
-
 
                 # Generate traces for total BS data
                 for d in range(len(bs_data["distances"])):
