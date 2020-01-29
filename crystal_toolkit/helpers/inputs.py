@@ -29,10 +29,10 @@ def get_float_input(id, label=None, default=None, help=None):
         inputMode="numeric",
         className="input",
         style={
-            "text-align": "center",
+            "textAlign": "center",
             "width": "2rem",
-            "margin-right": "0.2rem",
-            "margin-bottom": "0.2rem",
+            "marginRight": "0.2rem",
+            "marginBottom": "0.2rem",
         },
         value=default,
     )
@@ -56,10 +56,10 @@ def get_matrix_input(
             className="input",
             maxLength=1,
             style={
-                "text-align": "center",
+                "textAlign": "center",
                 "width": "2rem",
-                "margin-right": "0.2rem",
-                "margin-bottom": "0.2rem",
+                "marginRight": "0.2rem",
+                "marginBottom": "0.2rem",
             },
             value=value,
         )
@@ -81,5 +81,68 @@ def get_bool_input(id):
     raise NotImplementedError
 
 
-def get_choice_input(choices):
-    raise NotImplementedError
+class NumericInput(html.Div):
+    """
+    id will generate ...
+
+    """
+
+
+class MatrixInput(html.Div):
+    """
+
+    """
+
+
+class BooleanInput(html.Div):
+    """
+
+    """
+
+
+class StringInput(html.Div):
+    """
+
+    """
+
+
+class DictInput(html.Div):
+    """
+
+    """
+
+
+class Dropdown(html.Div):
+    """
+    A helper that wraps dcc.Dropdown with some additional labels and styling.
+    """
+
+
+class RadioItems(html.Div):
+    """
+    A helper that wraps dcc.RadioItems with some additional labels and styling.
+    """
+
+    def __init__(self, label=None, help=None, **kwargs):
+        """
+        :param label:
+        :param help:
+        :param kwargs: as dcc.RadioItems
+        """
+
+        super().__init__(
+            children=[
+                Field(
+                    Control(
+                        [
+                            html.Label(label, className="mpc-label"),
+                            dcc.RadioItems(
+                                inputClassName="mpc-radio",
+                                labelClassName="mpc-radio-label",
+                                **kwargs,
+                            ),
+                        ]
+                    )
+                )
+            ]
+        )

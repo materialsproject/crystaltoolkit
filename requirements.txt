@@ -5,6 +5,7 @@ scipy
 dash==1.8.0
 dash-dangerously-set-inner-html==0.0.2
 dash-auth==1.3.2
+dash-table==4.6.0
 plotly>=4.0.0
 jupyterlab_dash
 

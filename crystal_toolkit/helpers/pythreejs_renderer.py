@@ -150,7 +150,8 @@ def display_scene(scene, size=500):
     camera = OrthographicCamera(
         -extent, +extent, extent, -extent, -2000, 2000, position=[0, 0, 10]
     )
-    cam_target = tuple(-i for i in scene.origin)
+    origin = scene.origin or (0, 0, 0)
+    cam_target = tuple(-i for i in origin)
     controls = OrbitControls(target=cam_target, controlling=camera)
     camera.lookAt(cam_target)
 

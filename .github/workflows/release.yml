@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        ref: master
+        fetch-depth: 2
     - name: Set up Python 3.7
       uses: actions/setup-python@v1
       with:
@@ -19,33 +22,21 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install firefox-geckodriver jq
-        python -m pip install --upgrade pip
+        sudo apt-get install firefox-geckodriver
+        python -m pip install --upgrade pip wheel
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    - name: Test with pytest
-      env:
-        PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-      run: |
-        pytest --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
-    - name: Build new docs
+    - name: Set up git
       run: |
         git config --global user.name 'Matthew Horton'
         git config --global user.email 'mkhorton@users.noreply.github.com'
-        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-        git checkout "${GITHUB_REF:11}"
-        cd docs_rst
-        make html
-    - name: Commit new docs
-      run: |
-        git add -A
-        git diff-index --quiet HEAD || git commit -m "Automated doc build"
-        git push
+        git status
     - name: Set new version
       run: |
-        cat package.json | jq '.version="'$(date '+%Y-%m-%d')'"' > package.json
-        git add -A
-        git diff-index --quiet HEAD || git commit -m "Set version"
+        cat package.json | jq '.version="'$(date '+%Y.%m.%d')'"' > package.json
+        cat crystal_toolkit/package.json | jq '.version="'$(date '+%Y.%m.%d')'"' > crystal_toolkit/package.json
+        git status
+        git diff --quiet || git commit -am "Set version"
         git push
     - name: Build packages
       run: |
@@ -54,4 +45,4 @@ jobs:
       uses: pypa/gh-action-pypi-publish@master
       with:
         user: __token__
-        password: ${{ secrets.PYPY_API_TOKEN }}
+        password: ${{ secrets.PYPI_API_TOKEN }}
