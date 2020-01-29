@@ -14,13 +14,13 @@ def get_mp_app_icon(shortname):
         [html.Span(className=f"icon-fontastic-{shortname}")],
         className="icon is-large",
         style={
-            "border-radius": "50%",
-            "font-size": "1.5rem",
+            "borderRadius": "50%",
+            "fontSize": "1.5rem",
             "color": "#4bbdb4",
-            "background-color": "#2c3e50",
-            "margin-right": "1rem",
-            "vertical-align": "middle",
-            "box-shadow": "0 2px 5px 0 rgba(0, 0, 0, 0.26)",
+            "backgroundColor": "#2c3e50",
+            "marginRight": "1rem",
+            "verticalAlign": "middle",
+            "boxShadow": "0 2px 5px 0 rgba(0, 0, 0, 0.26)",
         },
     )
 
