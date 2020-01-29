@@ -1,0 +1,7 @@
+crystal\_toolkit.renderables.molecule module
+============================================
+
+.. automodule:: crystal_toolkit.renderables.molecule
+   :members:
+   :undoc-members:
+   :show-inheritance:
