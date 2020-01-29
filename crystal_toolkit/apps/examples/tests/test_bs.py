@@ -1,6 +1,5 @@
-from crystal_toolkit.apps.examples.structure import app
+from crystal_toolkit.apps.examples.bs import app
 import time
-
 
 def test_bs(dash_duo):
 
@@ -11,13 +10,13 @@ def test_bs(dash_duo):
     dash_duo.percy_snapshot("example_bsdos_on_load")
 
     # test choosing elemental projection
-    el = dash_duo.select_dcc_dropdown("#_ct_BandstructureAndDosComponent_dos-select", index=1)
+    el = dash_duo.select_dcc_dropdown("#_ct_bs_dos_dos-select", index=1)
     
     time.sleep(3)
     dash_duo.percy_snapshot("example_bsdos_projection_index_1")
 
     # test selecting total orbital projection
-    el = dash_duo.select_dcc_dropdown("#_ct_BandstructureAndDosComponent_dos-select", index=2)
+    el = dash_duo.select_dcc_dropdown("#_ct_bs_dos_dos-select", index=2)
     
     time.sleep(3)
     dash_duo.percy_snapshot("example_bsdos_projection_index_2")
