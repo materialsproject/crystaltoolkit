@@ -12,7 +12,7 @@ from dash.exceptions import PreventUpdate
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import Element
 
-from pymatgen.electronic_structure.plotter import BSPlotter, BSPlotterProjected
+from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine as BSML
 from pymatgen.electronic_structure.dos import CompleteDos
