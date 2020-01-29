@@ -18,10 +18,6 @@ app = dash.Dash()
 # for more information.
 # app.config["suppress_callback_exceptions"] = True
 
-# tell Crystal Toolkit about the app
-ctc.register_app(app)
-
-
 mpid = {"mpid": "mp-149"}
 
 with MPRester() as m:
@@ -29,8 +25,8 @@ with MPRester() as m:
     density_of_states = m.get_dos_by_material_id(mpid["mpid"])
 
 # create the Crystal Toolkit component
-structure_component = ctc.BandstructureAndDosComponent(
-    bandstructure_symm_line=bandstructure_symm_line, density_of_states=density_of_states
+bsdos_component = ctc.BandstructureAndDosComponent(
+    bandstructure_symm_line=bandstructure_symm_line, density_of_states=density_of_states, id="bs_dos"
 )
 
 # example layout to demonstrate capabilities of component
@@ -38,15 +34,15 @@ my_layout = html.Div(
     [
         html.H1("Band Structure and Density of States Example"),
         html.H2("Standard Layout"),
-        structure_component.layout(),
+        bsdos_component.layout(),
         html.H2("Technical Details"),
-        dcc.Markdown(str(structure_component)),
+        dcc.Markdown(str(bsdos_component)),
     ]
 )
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
-app.layout = ctc.crystal_toolkit_layout(my_layout)
+ctc.register_crystal_toolkit(app, layout=my_layout)
 
 
 # allow app to be run using "python structure.py"
