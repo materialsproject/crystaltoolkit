@@ -151,7 +151,7 @@ class BandstructureAndDosComponent(MPComponent):
                 )
                 return search_error
 
-            if traces == None:
+            if traces is None:
                 raise PreventUpdate
 
             figure = tls.make_subplots(rows=1, cols=2, shared_yaxes=True, print_grid=False)
@@ -160,10 +160,10 @@ class BandstructureAndDosComponent(MPComponent):
 
             # -- Add trace data to plots
             for bstrace in bstraces:
-                figure.append_trace(bstrace, 1, 1)
+                figure.add_trace(bstrace, 1, 1)
 
             for dostrace in dostraces:
-                figure.append_trace(dostrace, 1, 2)
+                figure.add_trace(dostrace, 1, 2)
 
             xaxis_style = go.layout.XAxis(
                 title=dict(text="Wave Vector", font=dict(size=16)),
@@ -291,7 +291,7 @@ class BandstructureAndDosComponent(MPComponent):
             [Input(self.id("elements"), "data"), Input(self.id("mpid"), "data")],
         )
         def update_select(elements, mpid):
-            if elements == None:
+            if elements is None:
                 raise PreventUpdate
             elif not mpid or "mpid" not in mpid:
                 dos_options = (
@@ -339,11 +339,11 @@ class BandstructureAndDosComponent(MPComponent):
             ],
         )
         def bs_dos_data(mpid, path_convention, dos_select, label_select, bandstructure_symm_line, density_of_states):
-            if (not mpid or "mpid" not in mpid) and (bandstructure_symm_line == None or density_of_states == None):
+            if (not mpid or "mpid" not in mpid) and (bandstructure_symm_line is None or density_of_states is None):
                 raise PreventUpdate
             elif mpid:
                 raise PreventUpdate
-            elif bandstructure_symm_line == None or density_of_states == None:
+            elif bandstructure_symm_line is None or density_of_states is None:
 
                 # --
                 # -- BS and DOS from API
@@ -366,8 +366,6 @@ class BandstructureAndDosComponent(MPComponent):
                 )[0]
 
                 is_sp = len(bs_query["bandstructure"][path_convention]["total"]["traces"]) == 2
-
-                bs_tot_traces = bs_query["bandstructure"][path_convention]["total"]["traces"]
 
                 if is_sp:
                     bstraces = (

@@ -6,8 +6,10 @@ import dash_core_components as dcc
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 
-# MPRester to get bs and dos
-from pymatgen import MPRester
+# dos and bs data from local jsons
+from monty.serialization import loadfn
+import os
+
 
 # create Dash app as normal
 app = dash.Dash()
@@ -18,11 +20,9 @@ app = dash.Dash()
 # for more information.
 # app.config["suppress_callback_exceptions"] = True
 
-mpid = {"mpid": "mp-149"}
-
-with MPRester() as m:
-    bandstructure_symm_line = m.get_bandstructure_by_material_id(mpid["mpid"])
-    density_of_states = m.get_dos_by_material_id(mpid["mpid"])
+path = os.path.dirname(os.path.realpath(__file__))
+bandstructure_symm_line = loadfn(path+"/Si_bs.json")
+density_of_states = loadfn(path+"/Si_dos.json")
 
 # create the Crystal Toolkit component
 bsdos_component = ctc.BandstructureAndDosComponent(
