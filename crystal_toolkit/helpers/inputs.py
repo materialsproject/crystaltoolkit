@@ -29,10 +29,10 @@ def get_float_input(id, label=None, default=None, help=None):
         inputMode="numeric",
         className="input",
         style={
-            "text-align": "center",
+            "textAlign": "center",
             "width": "2rem",
-            "margin-right": "0.2rem",
-            "margin-bottom": "0.2rem",
+            "marginRight": "0.2rem",
+            "marginBottom": "0.2rem",
         },
         value=default,
     )
@@ -56,10 +56,10 @@ def get_matrix_input(
             className="input",
             maxLength=1,
             style={
-                "text-align": "center",
+                "textAlign": "center",
                 "width": "2rem",
-                "margin-right": "0.2rem",
-                "margin-bottom": "0.2rem",
+                "marginRight": "0.2rem",
+                "marginBottom": "0.2rem",
             },
             value=value,
         )
