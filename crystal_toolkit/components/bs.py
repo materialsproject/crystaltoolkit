@@ -37,16 +37,18 @@ class BandstructureAndDosComponent(MPComponent):
         id=None,
         origin_component=None,
         *args,
-        **kwargs
+        **kwargs,
     ):
 
         super().__init__(
-            id=id, default_data=mpid, origin_component=origin_component, **kwargs,
+            id=id, default_data=mpid, origin_component=origin_component, **kwargs
         )
 
         self.create_store("mpid", initial_data=mpid)
         self.create_store("traces")
-        self.create_store("bandstructure_symm_line", initial_data=bandstructure_symm_line)
+        self.create_store(
+            "bandstructure_symm_line", initial_data=bandstructure_symm_line
+        )
         self.create_store("density_of_states", initial_data=density_of_states)
         self.create_store("elements")
 
@@ -64,7 +66,9 @@ class BandstructureAndDosComponent(MPComponent):
         graph = html.Div(
             [
                 dcc.Graph(
-                    figure=go.Figure(layout=BandstructureAndDosComponent.empty_plot_style),
+                    figure=go.Figure(
+                        layout=BandstructureAndDosComponent.empty_plot_style
+                    ),
                     config={"displayModeBar": False},
                 )
             ],
@@ -97,7 +101,11 @@ class BandstructureAndDosComponent(MPComponent):
                 dcc.RadioItems(
                     id=self.id("label-select"),
                     options=[
-                        {"label": "Setyawan-Curtarolo", "value": "sc", "disabled": False},
+                        {
+                            "label": "Setyawan-Curtarolo",
+                            "value": "sc",
+                            "disabled": False,
+                        },
                         {"label": "Latimer-Munro", "value": "lm", "disabled": False},
                         {"label": "Hinuma et al.", "value": "hin", "disabled": False},
                     ],
@@ -122,7 +130,12 @@ class BandstructureAndDosComponent(MPComponent):
             style={"max-width": "200"},
         )
 
-        return {"graph": graph, "convention": convention, "dos-select": dos_select, "label-select": label_select}
+        return {
+            "graph": graph,
+            "convention": convention,
+            "dos-select": dos_select,
+            "label-select": label_select,
+        }
 
     def layout(self):
         return html.Div(
@@ -135,7 +148,9 @@ class BandstructureAndDosComponent(MPComponent):
         )
 
     def generate_callbacks(self, app, cache):
-        @app.callback(Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")])
+        @app.callback(
+            Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
+        )
         def update_graph(traces):
 
             if traces == "error":
@@ -143,7 +158,9 @@ class BandstructureAndDosComponent(MPComponent):
                     MessageContainer(
                         [
                             MessageBody(
-                                dcc.Markdown("Band structure and density of states not available for this selection.")
+                                dcc.Markdown(
+                                    "Band structure and density of states not available for this selection."
+                                )
                             )
                         ],
                         kind="warning",
@@ -154,7 +171,9 @@ class BandstructureAndDosComponent(MPComponent):
             if traces is None:
                 raise PreventUpdate
 
-            figure = tls.make_subplots(rows=1, cols=2, shared_yaxes=True, print_grid=False)
+            figure = tls.make_subplots(
+                rows=1, cols=2, shared_yaxes=True, print_grid=False
+            )
 
             bstraces, dostraces, bs_data = traces
 
@@ -235,7 +254,13 @@ class BandstructureAndDosComponent(MPComponent):
             figure["layout"].update(layout)
 
             legend = go.layout.Legend(
-                x=1.01, y=1.0, xanchor="left", yanchor="top", bordercolor="#333", borderwidth=1, traceorder="normal",
+                x=1.01,
+                y=1.0,
+                xanchor="left",
+                yanchor="top",
+                bordercolor="#333",
+                borderwidth=1,
+                traceorder="normal",
             )
 
             figure["layout"]["legend"] = legend
@@ -251,7 +276,10 @@ class BandstructureAndDosComponent(MPComponent):
                 Output(self.id("label-select"), "value"),
                 Output(self.id("label-container"), "style"),
             ],
-            [Input(self.id("mpid"), "data"), Input(self.id("path-convention"), "value")],
+            [
+                Input(self.id("mpid"), "data"),
+                Input(self.id("path-convention"), "value"),
+            ],
         )
         def update_label_select(mpid, path_convention):
             if not mpid or "mpid" not in mpid:
@@ -267,13 +295,21 @@ class BandstructureAndDosComponent(MPComponent):
                     {
                         "label": "Setyawan-Curtarolo",
                         "value": "sc",
-                        "disabled": not (path_convention == "lm" or path_convention == "sc"),
+                        "disabled": not (
+                            path_convention == "lm" or path_convention == "sc"
+                        ),
                     },
-                    {"label": "Latimer-Munro", "value": "lm", "disabled": not (path_convention == "lm")},
+                    {
+                        "label": "Latimer-Munro",
+                        "value": "lm",
+                        "disabled": not (path_convention == "lm"),
+                    },
                     {
                         "label": "Hinuma et al.",
                         "value": "hin",
-                        "disabled": not (path_convention == "lm" or path_convention == "hin"),
+                        "disabled": not (
+                            path_convention == "lm" or path_convention == "hin"
+                        ),
                     },
                 ]
 
@@ -298,7 +334,10 @@ class BandstructureAndDosComponent(MPComponent):
                     [{"label": "Element Projected", "value": "ap"}]
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
                     + [
-                        {"label": "Orbital Projected - " + str(ele_label), "value": "orb" + str(ele_label)}
+                        {
+                            "label": "Orbital Projected - " + str(ele_label),
+                            "value": "orb" + str(ele_label),
+                        }
                         for ele_label in elements
                     ]
                 )
@@ -312,7 +351,10 @@ class BandstructureAndDosComponent(MPComponent):
                     [{"label": "Element Projected", "value": "ap"}]
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
                     + [
-                        {"label": "Orbital Projected - " + str(ele_label), "value": "orb" + str(ele_label)}
+                        {
+                            "label": "Orbital Projected - " + str(ele_label),
+                            "value": "orb" + str(ele_label),
+                        }
                         for ele_label in elements
                     ]
                 )
@@ -338,8 +380,17 @@ class BandstructureAndDosComponent(MPComponent):
                 Input(self.id("density_of_states"), "data"),
             ],
         )
-        def bs_dos_data(mpid, path_convention, dos_select, label_select, bandstructure_symm_line, density_of_states):
-            if (not mpid or "mpid" not in mpid) and (bandstructure_symm_line is None or density_of_states is None):
+        def bs_dos_data(
+            mpid,
+            path_convention,
+            dos_select,
+            label_select,
+            bandstructure_symm_line,
+            density_of_states,
+        ):
+            if (not mpid or "mpid" not in mpid) and (
+                bandstructure_symm_line is None or density_of_states is None
+            ):
                 raise PreventUpdate
             elif mpid:
                 raise PreventUpdate
@@ -361,26 +412,42 @@ class BandstructureAndDosComponent(MPComponent):
                 # - BS traces from DB using task_id
                 bs_query = list(
                     db.electronic_structure.find(
-                        {"task_id": int(mpid)}, ["bandstructure.{}.total.traces".format(path_convention)]
+                        {"task_id": int(mpid)},
+                        ["bandstructure.{}.total.traces".format(path_convention)],
                     )
                 )[0]
 
-                is_sp = len(bs_query["bandstructure"][path_convention]["total"]["traces"]) == 2
+                is_sp = (
+                    len(bs_query["bandstructure"][path_convention]["total"]["traces"])
+                    == 2
+                )
 
                 if is_sp:
                     bstraces = (
-                        bs_query["bandstructure"][path_convention]["total"]["traces"]["1"]
-                        + bs_query["bandstructure"][path_convention]["total"]["traces"]["-1"]
+                        bs_query["bandstructure"][path_convention]["total"]["traces"][
+                            "1"
+                        ]
+                        + bs_query["bandstructure"][path_convention]["total"]["traces"][
+                            "-1"
+                        ]
                     )
                 else:
-                    bstraces = bs_query["bandstructure"][path_convention]["total"]["traces"]["1"]
+                    bstraces = bs_query["bandstructure"][path_convention]["total"][
+                        "traces"
+                    ]["1"]
 
-                bs_data["ticks"]["distance"] = bs_query["bandstructure"][path_convention]["total"]["traces"]["ticks"]
-                bs_data["ticks"]["label"] = bs_query["bandstructure"][path_convention]["total"]["traces"]["labels"]
+                bs_data["ticks"]["distance"] = bs_query["bandstructure"][
+                    path_convention
+                ]["total"]["traces"]["ticks"]
+                bs_data["ticks"]["label"] = bs_query["bandstructure"][path_convention][
+                    "total"
+                ]["traces"]["labels"]
 
                 # If LM convention, get equivalent labels
                 if path_convention == "lm" and label_select != "lm":
-                    bs_equiv_labels = bs_query["bandstructure"][path_convention]["total"]["traces"]["equiv_labels"]
+                    bs_equiv_labels = bs_query["bandstructure"][path_convention][
+                        "total"
+                    ]["traces"]["equiv_labels"]
 
                     alt_choice = label_select
 
@@ -401,7 +468,9 @@ class BandstructureAndDosComponent(MPComponent):
                                 + "$"
                             )
                         else:
-                            new_labels.append("$" + bs_equiv_labels[alt_choice][label_formatted] + "$")
+                            new_labels.append(
+                                "$" + bs_equiv_labels[alt_choice][label_formatted] + "$"
+                            )
 
                     bs_data["ticks"]["label"] = new_labels
 
@@ -421,15 +490,17 @@ class BandstructureAndDosComponent(MPComponent):
                 for entry_num in range(len(bs_data["ticks"]["label"])):
                     for key in str_replace.keys():
                         if key in bs_data["ticks"]["label"][entry_num]:
-                            bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][entry_num].replace(
-                                key, str_replace[key]
-                            )
+                            bs_data["ticks"]["label"][entry_num] = bs_data["ticks"][
+                                "label"
+                            ][entry_num].replace(key, str_replace[key])
 
                 # - DOS traces from DB using task_id
                 dostraces = []
 
                 dos_tot_ele_traces = list(
-                    db.electronic_structure.find({"task_id": int(mpid)}, ["dos.total.traces", "dos.elements"])
+                    db.electronic_structure.find(
+                        {"task_id": int(mpid)}, ["dos.total.traces", "dos.elements"]
+                    )
                 )[0]
 
                 dostraces = [
@@ -442,16 +513,26 @@ class BandstructureAndDosComponent(MPComponent):
                 if dos_select == "ap":
                     for ele_label in elements:
                         dostraces += [
-                            dos_tot_ele_traces["dos"]["elements"][ele_label]["total"]["traces"][spin]
-                            for spin in dos_tot_ele_traces["dos"]["elements"][ele_label]["total"]["traces"].keys()
+                            dos_tot_ele_traces["dos"]["elements"][ele_label]["total"][
+                                "traces"
+                            ][spin]
+                            for spin in dos_tot_ele_traces["dos"]["elements"][
+                                ele_label
+                            ]["total"]["traces"].keys()
                         ]
 
                 elif dos_select == "op":
-                    orb_tot_traces = list(db.electronic_structure.find({"task_id": int(mpid)}, ["dos.orbitals"]))[0]
+                    orb_tot_traces = list(
+                        db.electronic_structure.find(
+                            {"task_id": int(mpid)}, ["dos.orbitals"]
+                        )
+                    )[0]
                     for orbital in ["s", "p", "d"]:
                         dostraces += [
                             orb_tot_traces["dos"]["orbitals"][orbital]["traces"][spin]
-                            for spin in orb_tot_traces["dos"]["orbitals"]["s"]["traces"].keys()
+                            for spin in orb_tot_traces["dos"]["orbitals"]["s"][
+                                "traces"
+                            ].keys()
                         ]
 
                 elif "orb" in dos_select:
@@ -459,8 +540,12 @@ class BandstructureAndDosComponent(MPComponent):
 
                     for orbital in ["s", "p", "d"]:
                         dostraces += [
-                            dos_tot_ele_traces["dos"]["elements"][ele_label][orbital]["traces"][spin]
-                            for spin in dos_tot_ele_traces["dos"]["elements"][ele_label][orbital]["traces"].keys()
+                            dos_tot_ele_traces["dos"]["elements"][ele_label][orbital][
+                                "traces"
+                            ][spin]
+                            for spin in dos_tot_ele_traces["dos"]["elements"][
+                                ele_label
+                            ][orbital]["traces"].keys()
                         ]
 
                 traces = [bstraces, dostraces, bs_data]
@@ -474,8 +559,6 @@ class BandstructureAndDosComponent(MPComponent):
                 # --
 
                 # - BS Data
-
-                bstraces = []
 
                 if type(bandstructure_symm_line) != dict:
                     bandstructure_symm_line = bandstructure_symm_line.to_dict()
@@ -502,55 +585,70 @@ class BandstructureAndDosComponent(MPComponent):
                 for entry_num in range(len(bs_data["ticks"]["label"])):
                     for key in str_replace.keys():
                         if key in bs_data["ticks"]["label"][entry_num]:
-                            bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][entry_num].replace(
-                                key, str_replace[key]
-                            )
+                            bs_data["ticks"]["label"][entry_num] = bs_data["ticks"][
+                                "label"
+                            ][entry_num].replace(key, str_replace[key])
 
                 # Obtain bands to plot over:
                 energy_window = (-6.0, 10.0)
                 bands = []
                 for band_num in range(bs_reg_plot._nb_bands):
-                    if (bs_data["energy"][0][str(Spin.up)][band_num][0] <= energy_window[1]) and (
-                        bs_data["energy"][0][str(Spin.up)][band_num][0] >= energy_window[0]
+                    if (
+                        bs_data["energy"][0][str(Spin.up)][band_num][0]
+                        <= energy_window[1]
+                    ) and (
+                        bs_data["energy"][0][str(Spin.up)][band_num][0]
+                        >= energy_window[0]
                     ):
                         bands.append(band_num)
+
+                bstraces = []
 
                 # Generate traces for total BS data
                 for d in range(len(bs_data["distances"])):
                     dist_dat = bs_data["distances"][d]
                     energy_ind = [i for i in range(len(bs_data["distances"][d]))]
 
-                    for i in bands:
-                        bstraces.append(
-                            go.Scatter(
-                                x=dist_dat,
-                                y=[bs_data["energy"][d][str(Spin.up)][i][j] for j in energy_ind],
-                                mode="lines",
-                                line=dict(color=("#666666"), width=2),
-                                hoverinfo="skip",
-                                showlegend=False,
-                            )
-                        )
+                    traces_for_segment = [
+                        {
+                            "x": dist_dat,
+                            "y": [bs_data["energy"][d]["1"][i][j] for j in energy_ind],
+                            "mode": "lines",
+                            "line": {"color": "#666666"},
+                            "hoverinfo": "skip",
+                            "showlegend": False,
+                        }
+                        for i in bands
+                    ]
 
-                        if bs_reg_plot._bs.is_spin_polarized:
-                            bstraces.append(
-                                go.Scatter(
-                                    x=dist_dat,
-                                    y=[bs_data["energy"][d][str(Spin.down)][i][j] for j in energy_ind],
-                                    mode="lines",
-                                    line=dict(color=("#666666"), width=2, dash="dash"),
-                                    hoverinfo="skip",
-                                    showlegend=False,
-                                )
-                            )
+                    if bs_reg_plot._bs.is_spin_polarized:
+                        traces_for_segment += [
+                            {
+                                "x": dist_dat,
+                                "y": [
+                                    bs_data["energy"][d]["-1"][i][j] for j in energy_ind
+                                ],
+                                "mode": "lines",
+                                "line": {"color": "#666666"},
+                                "hoverinfo": "skip",
+                                "showlegend": False,
+                            }
+                            for i in bands
+                        ]
+
+                    bstraces += traces_for_segment
 
                 # - DOS Data
                 dostraces = []
 
                 dos = CompleteDos.from_dict(density_of_states)
 
-                dos_max = np.abs((dos.energies - dos.efermi - energy_window[1])).argmin()
-                dos_min = np.abs((dos.energies - dos.efermi - energy_window[0])).argmin()
+                dos_max = np.abs(
+                    (dos.energies - dos.efermi - energy_window[1])
+                ).argmin()
+                dos_min = np.abs(
+                    (dos.energies - dos.efermi - energy_window[0])
+                ).argmin()
 
                 if bs_reg_plot._bs.is_spin_polarized:
                     # Add second spin data if available
@@ -590,7 +688,9 @@ class BandstructureAndDosComponent(MPComponent):
                 elif dos_select == "op":
                     proj_data = dos.get_spd_dos()
                 elif "orb" in dos_select:
-                    proj_data = dos.get_element_spd_dos(Element(dos_select.replace("orb", "")))
+                    proj_data = dos.get_element_spd_dos(
+                        Element(dos_select.replace("orb", ""))
+                    )
                 else:
                     raise PreventUpdate
 
@@ -659,7 +759,12 @@ class BandstructureAndDosPanelComponent(PanelComponent):
 
     @property
     def initial_contents(self):
-        return html.Div([super().initial_contents, html.Div([self.bs.standard_layout], style={"display": "none"}),])
+        return html.Div(
+            [
+                super().initial_contents,
+                html.Div([self.bs.standard_layout], style={"display": "none"}),
+            ]
+        )
 
     def update_contents(self, new_store_contents, *args):
         return self.bs.standard_layout
