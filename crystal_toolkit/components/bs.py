@@ -5,12 +5,12 @@ import math
 import numpy as np
 from scipy.special import wofz
 import plotly.graph_objs as go
-import plotly.tools as tls
+import plotly.subplots as tls
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from pymatgen import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.core.periodic_table import Element
 
 from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.electronic_structure.core import Spin
@@ -21,17 +21,34 @@ from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 
+# from pymongo import MongoClient
+
+
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov
 
 
 class BandstructureAndDosComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.create_store("mpid")
+    def __init__(
+        self,
+        mpid=None,
+        bandstructure_symm_line=None,
+        density_of_states=None,
+        id=None,
+        origin_component=None,
+        *args,
+        **kwargs
+    ):
+
+        super().__init__(
+            id=id, default_data=mpid, origin_component=origin_component, **kwargs,
+        )
+
+        self.create_store("mpid", initial_data=mpid)
         self.create_store("traces")
-        self.create_store("bandStructureSymmLine")
-        self.create_store("densityOfStates")
+        self.create_store("bandstructure_symm_line", initial_data=bandstructure_symm_line)
+        self.create_store("density_of_states", initial_data=density_of_states)
+        self.create_store("elements")
 
     empty_plot_style = {
         "xaxis": {"visible": False},
@@ -47,25 +64,78 @@ class BandstructureAndDosComponent(MPComponent):
         graph = html.Div(
             [
                 dcc.Graph(
-                    figure=go.Figure(
-                        layout=BandstructureAndDosComponent.empty_plot_style
-                    ),
+                    figure=go.Figure(layout=BandstructureAndDosComponent.empty_plot_style),
                     config={"displayModeBar": False},
                 )
             ],
             id=self.id("bsdos-div"),
         )
 
-        return {"graph": graph}
+        # Convention selection for band structure
+        convention = html.Div(
+            [
+                html.P("Path Convention"),
+                dcc.Dropdown(
+                    id=self.id("path-convention"),
+                    options=[
+                        {"label": "Setyawan-Curtarolo", "value": "sc"},
+                        {"label": "Latimer-Munro", "value": "lm"},
+                        {"label": "Hinuma et al.", "value": "hin"},
+                    ],
+                    value="sc",
+                    clearable=False,
+                ),
+            ],
+            style={"max-width": "200"},
+            id=self.id("path-container"),
+        )
 
-    @property
+        # Equivalent labels across band structure conventions
+        label_select = html.Div(
+            [
+                html.P("Label Type"),
+                dcc.RadioItems(
+                    id=self.id("label-select"),
+                    options=[
+                        {"label": "Setyawan-Curtarolo", "value": "sc", "disabled": False},
+                        {"label": "Latimer-Munro", "value": "lm", "disabled": False},
+                        {"label": "Hinuma et al.", "value": "hin", "disabled": False},
+                    ],
+                    value="",
+                ),
+            ],
+            style={"max-width": "200"},
+            id=self.id("label-container"),
+        )
+
+        # Density of states data selection
+        dos_select = html.Div(
+            [
+                html.P("Density of States Data"),
+                dcc.Dropdown(
+                    id=self.id("dos-select"),
+                    options=[{"label": "Atom Projected", "value": "ap"}],
+                    value="ap",
+                    clearable=False,
+                ),
+            ],
+            style={"max-width": "200"},
+        )
+
+        return {"graph": graph, "convention": convention, "dos-select": dos_select, "label-select": label_select}
+
     def layout(self):
-        return html.Div([Column([self._sub_layouts["graph"]], size=8)])
+        return html.Div(
+            [
+                Column([self._sub_layouts["convention"]], size=2),
+                Column([self._sub_layouts["dos-select"]], size=2),
+                Column([self._sub_layouts["label-select"]], size=2),
+                Column([self._sub_layouts["graph"]], size=8),
+            ]
+        )
 
     def generate_callbacks(self, app, cache):
-        @app.callback(
-            Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
-        )
+        @app.callback(Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")])
         def update_graph(traces):
 
             if traces == "error":
@@ -73,9 +143,7 @@ class BandstructureAndDosComponent(MPComponent):
                     MessageContainer(
                         [
                             MessageBody(
-                                dcc.Markdown(
-                                    "Band structure and density of states not available for this selection."
-                                )
+                                dcc.Markdown("Band structure and density of states not available for this selection.")
                             )
                         ],
                         kind="warning",
@@ -83,21 +151,19 @@ class BandstructureAndDosComponent(MPComponent):
                 )
                 return search_error
 
-            if traces == None:
+            if traces is None:
                 raise PreventUpdate
 
-            figure = tls.make_subplots(
-                rows=1, cols=2, shared_yaxes=True, print_grid=False
-            )
+            figure = tls.make_subplots(rows=1, cols=2, shared_yaxes=True, print_grid=False)
 
             bstraces, dostraces, bs_data = traces
 
             # -- Add trace data to plots
             for bstrace in bstraces:
-                figure.append_trace(bstrace, 1, 1)
+                figure.add_trace(bstrace, 1, 1)
 
             for dostrace in dostraces:
-                figure.append_trace(dostrace, 1, 2)
+                figure.add_trace(dostrace, 1, 2)
 
             xaxis_style = go.layout.XAxis(
                 title=dict(text="Wave Vector", font=dict(size=16)),
@@ -124,7 +190,7 @@ class BandstructureAndDosComponent(MPComponent):
                 linewidth=2,
                 tickwidth=2,
                 zerolinewidth=2,
-                range=[-5, 5],
+                range=[-5, 9],
             )
 
             xaxis_style_dos = go.layout.XAxis(
@@ -138,11 +204,25 @@ class BandstructureAndDosComponent(MPComponent):
                 tickwidth=2,
             )
 
+            yaxis_style_dos = go.layout.YAxis(
+                tickfont=dict(size=16),
+                showgrid=True,
+                showline=True,
+                zeroline=True,
+                mirror="ticks",
+                ticks="inside",
+                linewidth=2,
+                tickwidth=2,
+                zerolinewidth=2,
+                range=[-5, 9],
+            )
+
             layout = go.Layout(
                 title="",
                 xaxis1=xaxis_style,
                 xaxis2=xaxis_style_dos,
                 yaxis=yaxis_style,
+                yaxis2=yaxis_style_dos,
                 showlegend=True,
                 height=500,
                 width=1500,
@@ -155,13 +235,7 @@ class BandstructureAndDosComponent(MPComponent):
             figure["layout"].update(layout)
 
             legend = go.layout.Legend(
-                x=1.0,
-                y=0.98,
-                xanchor="left",
-                yanchor="top",
-                bordercolor="#333",
-                borderwidth=1,
-                traceorder="normal",
+                x=1.01, y=1.0, xanchor="left", yanchor="top", bordercolor="#333", borderwidth=1, traceorder="normal",
             )
 
             figure["layout"]["legend"] = legend
@@ -172,183 +246,400 @@ class BandstructureAndDosComponent(MPComponent):
             return [dcc.Graph(figure=figure, config={"displayModeBar": False})]
 
         @app.callback(
-            Output(self.id("traces"), "data"),
             [
-                Input(self.id("bandStructureSymmLine"), "data"),
-                Input(self.id("densityOfStates"), "data"),
+                Output(self.id("label-select"), "options"),
+                Output(self.id("label-select"), "value"),
+                Output(self.id("label-container"), "style"),
+            ],
+            [Input(self.id("mpid"), "data"), Input(self.id("path-convention"), "value")],
+        )
+        def update_label_select(mpid, path_convention):
+            if not mpid or "mpid" not in mpid:
+
+                label_options = [{"label": "N/A", "value": ""}]
+                label_value = ""
+                label_style = {"max-width": "200", "display": "none"}
+
+                return [label_options, label_value, label_style]
+            else:
+
+                label_options = [
+                    {
+                        "label": "Setyawan-Curtarolo",
+                        "value": "sc",
+                        "disabled": not (path_convention == "lm" or path_convention == "sc"),
+                    },
+                    {"label": "Latimer-Munro", "value": "lm", "disabled": not (path_convention == "lm")},
+                    {
+                        "label": "Hinuma et al.",
+                        "value": "hin",
+                        "disabled": not (path_convention == "lm" or path_convention == "hin"),
+                    },
+                ]
+
+                label_value = path_convention
+                label_style = {"max-width": "200"}
+
+                return [label_options, label_value, label_style]
+
+        @app.callback(
+            [
+                Output(self.id("dos-select"), "options"),
+                Output(self.id("path-convention"), "options"),
+                Output(self.id("path-container"), "style"),
+            ],
+            [Input(self.id("elements"), "data"), Input(self.id("mpid"), "data")],
+        )
+        def update_select(elements, mpid):
+            if elements is None:
+                raise PreventUpdate
+            elif not mpid or "mpid" not in mpid:
+                dos_options = (
+                    [{"label": "Element Projected", "value": "ap"}]
+                    + [{"label": "Orbital Projected - Total", "value": "op"}]
+                    + [
+                        {"label": "Orbital Projected - " + str(ele_label), "value": "orb" + str(ele_label)}
+                        for ele_label in elements
+                    ]
+                )
+
+                path_options = [{"label": "N/A", "value": "sc"}]
+                path_style = {"max-width": "200", "display": "none"}
+
+                return [dos_options, path_options, path_style]
+            else:
+                dos_options = (
+                    [{"label": "Element Projected", "value": "ap"}]
+                    + [{"label": "Orbital Projected - Total", "value": "op"}]
+                    + [
+                        {"label": "Orbital Projected - " + str(ele_label), "value": "orb" + str(ele_label)}
+                        for ele_label in elements
+                    ]
+                )
+
+                path_options = [
+                    {"label": "Setyawan-Curtarolo", "value": "sc"},
+                    {"label": "Latimer-Munro", "value": "lm"},
+                    {"label": "Hinuma et al.", "value": "hin"},
+                ]
+
+                path_style = {"max-width": "200"}
+
+                return [dos_options, path_options, path_style]
+
+        @app.callback(
+            [Output(self.id("traces"), "data"), Output(self.id("elements"), "data")],
+            [
+                Input(self.id("mpid"), "data"),
+                Input(self.id("path-convention"), "value"),
+                Input(self.id("dos-select"), "value"),
+                Input(self.id("label-select"), "value"),
+                Input(self.id("bandstructure_symm_line"), "data"),
+                Input(self.id("density_of_states"), "data"),
             ],
         )
-        def bs_dos_traces(bandStructureSymmLine, densityOfStates):
-
-            if bandStructureSymmLine == "error" or densityOfStates == "error":
-                return "error"
-
-            if bandStructureSymmLine == None or densityOfStates == None:
+        def bs_dos_data(mpid, path_convention, dos_select, label_select, bandstructure_symm_line, density_of_states):
+            if (not mpid or "mpid" not in mpid) and (bandstructure_symm_line is None or density_of_states is None):
                 raise PreventUpdate
+            elif mpid:
+                raise PreventUpdate
+            elif bandstructure_symm_line is None or density_of_states is None:
 
-            # - BS Data
-            bstraces = []
+                # --
+                # -- BS and DOS from API
+                # --
 
-            bs_reg_plot = BSPlotter(BSML.from_dict(bandStructureSymmLine))
+                mpid = mpid["mpid"]
+                bs_data = {"ticks": {}}
 
-            bs_data = bs_reg_plot.bs_plot_data()
+                # client = MongoClient(
+                #     "mongodb03.nersc.gov", username="jmunro_lbl.gov_readWrite", password="", authSource="fw_bs_prod",
+                # )
 
-            # -- Strip latex math wrapping
-            str_replace = {
-                "$": "",
-                "\\mid": "|",
-                "\\Gamma": "Γ",
-                "\\Sigma": "Σ",
-                "_1": "₁",
-                "_2": "₂",
-                "_3": "₃",
-                "_4": "₄",
-            }
+                db = client.fw_bs_prod
 
-            for entry_num in range(len(bs_data["ticks"]["label"])):
-                for key in str_replace.keys():
-                    if key in bs_data["ticks"]["label"][entry_num]:
-                        bs_data["ticks"]["label"][entry_num] = bs_data["ticks"][
-                            "label"
-                        ][entry_num].replace(key, str_replace[key])
-
-            for d in range(len(bs_data["distances"])):
-                for i in range(bs_reg_plot._nb_bands):
-                    bstraces.append(
-                        go.Scatter(
-                            x=bs_data["distances"][d],
-                            y=[
-                                bs_data["energy"][d][str(Spin.up)][i][j]
-                                for j in range(len(bs_data["distances"][d]))
-                            ],
-                            mode="lines",
-                            line=dict(color=("#666666"), width=2),
-                            hoverinfo="skip",
-                            showlegend=False,
-                        )
+                # - BS traces from DB using task_id
+                bs_query = list(
+                    db.electronic_structure.find(
+                        {"task_id": int(mpid)}, ["bandstructure.{}.total.traces".format(path_convention)]
                     )
+                )[0]
 
-                    if bs_reg_plot._bs.is_spin_polarized:
+                is_sp = len(bs_query["bandstructure"][path_convention]["total"]["traces"]) == 2
+
+                if is_sp:
+                    bstraces = (
+                        bs_query["bandstructure"][path_convention]["total"]["traces"]["1"]
+                        + bs_query["bandstructure"][path_convention]["total"]["traces"]["-1"]
+                    )
+                else:
+                    bstraces = bs_query["bandstructure"][path_convention]["total"]["traces"]["1"]
+
+                bs_data["ticks"]["distance"] = bs_query["bandstructure"][path_convention]["total"]["traces"]["ticks"]
+                bs_data["ticks"]["label"] = bs_query["bandstructure"][path_convention]["total"]["traces"]["labels"]
+
+                # If LM convention, get equivalent labels
+                if path_convention == "lm" and label_select != "lm":
+                    bs_equiv_labels = bs_query["bandstructure"][path_convention]["total"]["traces"]["equiv_labels"]
+
+                    alt_choice = label_select
+
+                    if label_select == "hin":
+                        alt_choice = "h"
+
+                    new_labels = []
+                    for label in bs_data["ticks"]["label"]:
+                        label_formatted = label.replace("$", "")
+
+                        if "|" in label_formatted:
+                            f_label = label_formatted.split("|")
+                            new_labels.append(
+                                "$"
+                                + bs_equiv_labels[alt_choice][f_label[0]]
+                                + "|"
+                                + bs_equiv_labels[alt_choice][f_label[1]]
+                                + "$"
+                            )
+                        else:
+                            new_labels.append("$" + bs_equiv_labels[alt_choice][label_formatted] + "$")
+
+                    bs_data["ticks"]["label"] = new_labels
+
+                # Strip latex math wrapping
+                str_replace = {
+                    "$": "",
+                    "\\mid": "|",
+                    "\\Gamma": "Γ",
+                    "\\Sigma": "Σ",
+                    "GAMMA": "Γ",
+                    "_1": "₁",
+                    "_2": "₂",
+                    "_3": "₃",
+                    "_4": "₄",
+                }
+
+                for entry_num in range(len(bs_data["ticks"]["label"])):
+                    for key in str_replace.keys():
+                        if key in bs_data["ticks"]["label"][entry_num]:
+                            bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][entry_num].replace(
+                                key, str_replace[key]
+                            )
+
+                # - DOS traces from DB using task_id
+                dostraces = []
+
+                dos_tot_ele_traces = list(
+                    db.electronic_structure.find({"task_id": int(mpid)}, ["dos.total.traces", "dos.elements"])
+                )[0]
+
+                dostraces = [
+                    dos_tot_ele_traces["dos"]["total"]["traces"][spin]
+                    for spin in dos_tot_ele_traces["dos"]["total"]["traces"].keys()
+                ]
+
+                elements = [ele for ele in dos_tot_ele_traces["dos"]["elements"].keys()]
+
+                if dos_select == "ap":
+                    for ele_label in elements:
+                        dostraces += [
+                            dos_tot_ele_traces["dos"]["elements"][ele_label]["total"]["traces"][spin]
+                            for spin in dos_tot_ele_traces["dos"]["elements"][ele_label]["total"]["traces"].keys()
+                        ]
+
+                elif dos_select == "op":
+                    orb_tot_traces = list(db.electronic_structure.find({"task_id": int(mpid)}, ["dos.orbitals"]))[0]
+                    for orbital in ["s", "p", "d"]:
+                        dostraces += [
+                            orb_tot_traces["dos"]["orbitals"][orbital]["traces"][spin]
+                            for spin in orb_tot_traces["dos"]["orbitals"]["s"]["traces"].keys()
+                        ]
+
+                elif "orb" in dos_select:
+                    ele_label = dos_select.replace("orb", "")
+
+                    for orbital in ["s", "p", "d"]:
+                        dostraces += [
+                            dos_tot_ele_traces["dos"]["elements"][ele_label][orbital]["traces"][spin]
+                            for spin in dos_tot_ele_traces["dos"]["elements"][ele_label][orbital]["traces"].keys()
+                        ]
+
+                traces = [bstraces, dostraces, bs_data]
+
+                return (traces, elements)
+
+            else:
+
+                # --
+                # -- BS and DOS passed manually
+                # --
+
+                # - BS Data
+
+                bstraces = []
+
+                if type(bandstructure_symm_line) != dict:
+                    bandstructure_symm_line = bandstructure_symm_line.to_dict()
+
+                if type(density_of_states) != dict:
+                    density_of_states = density_of_states.to_dict()
+
+                bs_reg_plot = BSPlotter(BSML.from_dict(bandstructure_symm_line))
+                bs_data = bs_reg_plot.bs_plot_data()
+
+                # - Strip latex math wrapping
+                str_replace = {
+                    "$": "",
+                    "\\mid": "|",
+                    "\\Gamma": "Γ",
+                    "\\Sigma": "Σ",
+                    "GAMMA": "Γ",
+                    "_1": "₁",
+                    "_2": "₂",
+                    "_3": "₃",
+                    "_4": "₄",
+                }
+
+                for entry_num in range(len(bs_data["ticks"]["label"])):
+                    for key in str_replace.keys():
+                        if key in bs_data["ticks"]["label"][entry_num]:
+                            bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][entry_num].replace(
+                                key, str_replace[key]
+                            )
+
+                # Obtain bands to plot over:
+                energy_window = (-6.0, 10.0)
+                bands = []
+                for band_num in range(bs_reg_plot._nb_bands):
+                    if (bs_data["energy"][0][str(Spin.up)][band_num][0] <= energy_window[1]) and (
+                        bs_data["energy"][0][str(Spin.up)][band_num][0] >= energy_window[0]
+                    ):
+                        bands.append(band_num)
+
+                # Generate traces for total BS data
+                for d in range(len(bs_data["distances"])):
+                    dist_dat = bs_data["distances"][d]
+                    energy_ind = [i for i in range(len(bs_data["distances"][d]))]
+
+                    for i in bands:
                         bstraces.append(
                             go.Scatter(
-                                x=bs_data["distances"][d],
-                                y=[
-                                    bs_data["energy"][d][str(Spin.down)][i][j]
-                                    for j in range(len(bs_data["distances"][d]))
-                                ],
+                                x=dist_dat,
+                                y=[bs_data["energy"][d][str(Spin.up)][i][j] for j in energy_ind],
                                 mode="lines",
-                                line=dict(color=("#666666"), width=2, dash="dash"),
+                                line=dict(color=("#666666"), width=2),
                                 hoverinfo="skip",
                                 showlegend=False,
                             )
                         )
 
-            # -- DOS Data
-            dostraces = []
+                        if bs_reg_plot._bs.is_spin_polarized:
+                            bstraces.append(
+                                go.Scatter(
+                                    x=dist_dat,
+                                    y=[bs_data["energy"][d][str(Spin.down)][i][j] for j in energy_ind],
+                                    mode="lines",
+                                    line=dict(color=("#666666"), width=2, dash="dash"),
+                                    hoverinfo="skip",
+                                    showlegend=False,
+                                )
+                            )
 
-            dos = CompleteDos.from_dict(densityOfStates)
+                # - DOS Data
+                dostraces = []
 
-            if Spin.down in dos.densities:
-                # Add second spin data if available
+                dos = CompleteDos.from_dict(density_of_states)
+
+                dos_max = np.abs((dos.energies - dos.efermi - energy_window[1])).argmin()
+                dos_min = np.abs((dos.energies - dos.efermi - energy_window[0])).argmin()
+
+                if bs_reg_plot._bs.is_spin_polarized:
+                    # Add second spin data if available
+                    trace_tdos = go.Scatter(
+                        x=dos.densities[Spin.down][dos_min:dos_max],
+                        y=dos.energies[dos_min:dos_max] - dos.efermi,
+                        mode="lines",
+                        name="Total DOS (spin ↓)",
+                        line=go.scatter.Line(color="#444444", dash="dash"),
+                        fill="tozerox",
+                    )
+
+                    dostraces.append(trace_tdos)
+
+                    tdos_label = "Total DOS (spin ↑)"
+                else:
+                    tdos_label = "Total DOS"
+
+                # Total DOS
                 trace_tdos = go.Scatter(
-                    x=dos.densities[Spin.down],
-                    y=dos.energies - dos.efermi,
+                    x=dos.densities[Spin.up][dos_min:dos_max],
+                    y=dos.energies[dos_min:dos_max] - dos.efermi,
                     mode="lines",
-                    name="Total DOS (spin ↓)",
-                    line=go.scatter.Line(color="#444444", dash="dash"),
-                    fill="tozeroy",
+                    name=tdos_label,
+                    line=go.scatter.Line(color="#444444"),
+                    fill="tozerox",
+                    legendgroup="spinup",
                 )
 
                 dostraces.append(trace_tdos)
 
-                tdos_label = "Total DOS (spin ↑)"
-            else:
-                tdos_label = "Total DOS"
+                ele_dos = dos.get_element_dos()
+                elements = [str(entry) for entry in ele_dos.keys()]
 
-            # Total DOS
-            trace_tdos = go.Scatter(
-                x=dos.densities[Spin.up],
-                y=dos.energies - dos.efermi,
-                mode="lines",
-                name=tdos_label,
-                line=go.scatter.Line(color="#444444"),
-                fill="tozeroy",
-                legendgroup="spinup",
-            )
+                if dos_select == "ap":
+                    proj_data = ele_dos
+                elif dos_select == "op":
+                    proj_data = dos.get_spd_dos()
+                elif "orb" in dos_select:
+                    proj_data = dos.get_element_spd_dos(Element(dos_select.replace("orb", "")))
+                else:
+                    raise PreventUpdate
 
-            dostraces.append(trace_tdos)
+                # Projected DOS
+                count = 0
+                colors = [
+                    "#1f77b4",  # muted blue
+                    "#ff7f0e",  # safety orange
+                    "#2ca02c",  # cooked asparagus green
+                    "#9467bd",  # muted purple
+                    "#e377c2",  # raspberry yogurt pink
+                    "#d62728",  # brick red
+                    "#8c564b",  # chestnut brown
+                    "#bcbd22",  # curry yellow-green
+                    "#17becf",  # blue-teal
+                ]
 
-            p_ele_dos = dos.get_element_dos()
+                for label in proj_data.keys():
 
-            # Projected DOS
-            count = 0
-            colors = [
-                "#1f77b4",  # muted blue
-                "#ff7f0e",  # safety orange
-                "#2ca02c",  # cooked asparagus green
-                "#d62728",  # brick red
-                "#9467bd",  # muted purple
-                "#8c564b",  # chestnut brown
-                "#e377c2",  # raspberry yogurt pink
-                "#bcbd22",  # curry yellow-green
-                "#17becf",  # blue-teal
-            ]
+                    if bs_reg_plot._bs.is_spin_polarized:
+                        trace = go.Scatter(
+                            x=proj_data[label].densities[Spin.down][dos_min:dos_max],
+                            y=dos.energies[dos_min:dos_max] - dos.efermi,
+                            mode="lines",
+                            name=str(label) + " (spin ↓)",
+                            line=dict(width=3, color=colors[count], dash="dash"),
+                        )
 
-            for ele in p_ele_dos.keys():
+                        dostraces.append(trace)
+                        spin_up_label = str(label) + " (spin ↑)"
 
-                if bs_reg_plot._bs.is_spin_polarized:
+                    else:
+                        spin_up_label = str(label)
+
                     trace = go.Scatter(
-                        x=p_ele_dos[ele].densities[Spin.down],
-                        y=dos.energies - dos.efermi,
+                        x=proj_data[label].densities[Spin.up][dos_min:dos_max],
+                        y=dos.energies[dos_min:dos_max] - dos.efermi,
                         mode="lines",
-                        name=ele.symbol + " (spin ↓)",
-                        line=dict(width=3, color=colors[count], dash="dash"),
+                        name=spin_up_label,
+                        line=dict(width=3, color=colors[count]),
                     )
 
                     dostraces.append(trace)
-                    spin_up_label = ele.symbol + " (spin ↑)"
 
-                else:
-                    spin_up_label = ele.symbol
+                    count += 1
 
-                trace = go.Scatter(
-                    x=p_ele_dos[ele].densities[Spin.up],
-                    y=dos.energies - dos.efermi,
-                    mode="lines",
-                    name=spin_up_label,
-                    line=dict(width=3, color=colors[count]),
-                )
+                traces = [bstraces, dostraces, bs_data]
 
-                dostraces.append(trace)
-
-                count += 1
-
-            traces = [bstraces, dostraces, bs_data]
-
-            return traces
-
-        @app.callback(
-            [
-                Output(self.id("bandStructureSymmLine"), "data"),
-                Output(self.id("densityOfStates"), "data"),
-            ],
-            [Input(self.id("mpid"), "data")],
-        )
-        def bs_dos_data(mpid):
-
-            if not mpid or "mpid" not in mpid:
-                raise PreventUpdate
-
-            mpid = mpid["mpid"]
-
-            with MPRester() as m:
-                bandStructureSymmLine = m.get_bandstructure_by_material_id(mpid)
-                densityOfStates = m.get_dos_by_material_id(mpid)
-
-            if bandStructureSymmLine == None or densityOfStates == None:
-                return "error", "error"
-            else:
-                return bandStructureSymmLine.as_dict(), densityOfStates.as_dict()
+                return (traces, elements)
 
 
 class BandstructureAndDosPanelComponent(PanelComponent):
@@ -368,12 +659,7 @@ class BandstructureAndDosPanelComponent(PanelComponent):
 
     @property
     def initial_contents(self):
-        return html.Div(
-            [
-                super().initial_contents,
-                html.Div([self.bs.layout], style={"display": "none"}),
-            ]
-        )
+        return html.Div([super().initial_contents, html.Div([self.bs.standard_layout], style={"display": "none"}),])
 
     def update_contents(self, new_store_contents, *args):
-        return self.bs.layout
+        return self.bs.standard_layout
