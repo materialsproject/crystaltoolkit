@@ -1,25 +1,19 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-import math
 import numpy as np
-from scipy.special import wofz
+import numpy as np
 import plotly.graph_objs as go
 import plotly.subplots as tls
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import Element
-
-from pymatgen.electronic_structure.plotter import BSPlotter
-from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine as BSML
+from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import CompleteDos
+from pymatgen.electronic_structure.plotter import BSPlotter
 
-from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.helpers.layouts import *
+
 
 # from pymongo import MongoClient
 
