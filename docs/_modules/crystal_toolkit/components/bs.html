@@ -153,28 +153,22 @@
            <div itemprop="articleBody">
             
   <h1>Source code for crystal_toolkit.components.bs</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">dash</span>
-<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
-<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">wofz</span>
 <span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
 <span class="kn">import</span> <span class="nn">plotly.subplots</span> <span class="k">as</span> <span class="nn">tls</span>
-<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span>
 <span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="kn">import</span> <span class="n">BSPlotter</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="kn">import</span> <span class="n">BandStructureSymmLine</span> <span class="k">as</span> <span class="n">BSML</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">CompleteDos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="kn">import</span> <span class="n">BSPlotter</span>
 
-<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.panelcomponent</span> <span class="kn">import</span> <span class="n">PanelComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="o">*</span>
+
 
 <span class="c1"># from pymongo import MongoClient</span>
 
@@ -192,16 +186,18 @@
         <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">origin_component</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">default_data</span><span class="o">=</span><span class="n">mpid</span><span class="p">,</span> <span class="n">origin_component</span><span class="o">=</span><span class="n">origin_component</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">default_data</span><span class="o">=</span><span class="n">mpid</span><span class="p">,</span> <span class="n">origin_component</span><span class="o">=</span><span class="n">origin_component</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">,</span> <span class="n">initial_data</span><span class="o">=</span><span class="n">mpid</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;traces&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;bandstructure_symm_line&quot;</span><span class="p">,</span> <span class="n">initial_data</span><span class="o">=</span><span class="n">bandstructure_symm_line</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span>
+            <span class="s2">&quot;bandstructure_symm_line&quot;</span><span class="p">,</span> <span class="n">initial_data</span><span class="o">=</span><span class="n">bandstructure_symm_line</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;density_of_states&quot;</span><span class="p">,</span> <span class="n">initial_data</span><span class="o">=</span><span class="n">density_of_states</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;elements&quot;</span><span class="p">)</span>
 
@@ -219,7 +215,9 @@
         <span class="n">graph</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
-                    <span class="n">figure</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">empty_plot_style</span><span class="p">),</span>
+                    <span class="n">figure</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span>
+                        <span class="n">layout</span><span class="o">=</span><span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">empty_plot_style</span>
+                    <span class="p">),</span>
                     <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
                 <span class="p">)</span>
             <span class="p">],</span>
@@ -252,7 +250,11 @@
                 <span class="n">dcc</span><span class="o">.</span><span class="n">RadioItems</span><span class="p">(</span>
                     <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;label-select&quot;</span><span class="p">),</span>
                     <span class="n">options</span><span class="o">=</span><span class="p">[</span>
-                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,</span> <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="p">},</span>
                         <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Latimer-Munro&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">,</span> <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
                         <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Hinuma et al.&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;hin&quot;</span><span class="p">,</span> <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
                     <span class="p">],</span>
@@ -277,7 +279,12 @@
             <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max-width&quot;</span><span class="p">:</span> <span class="s2">&quot;200&quot;</span><span class="p">},</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;convention&quot;</span><span class="p">:</span> <span class="n">convention</span><span class="p">,</span> <span class="s2">&quot;dos-select&quot;</span><span class="p">:</span> <span class="n">dos_select</span><span class="p">,</span> <span class="s2">&quot;label-select&quot;</span><span class="p">:</span> <span class="n">label_select</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">graph</span><span class="p">,</span>
+            <span class="s2">&quot;convention&quot;</span><span class="p">:</span> <span class="n">convention</span><span class="p">,</span>
+            <span class="s2">&quot;dos-select&quot;</span><span class="p">:</span> <span class="n">dos_select</span><span class="p">,</span>
+            <span class="s2">&quot;label-select&quot;</span><span class="p">:</span> <span class="n">label_select</span><span class="p">,</span>
+        <span class="p">}</span>
 
 <div class="viewcode-block" id="BandstructureAndDosComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bs.html#crystal_toolkit.components.bs.BandstructureAndDosComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
@@ -290,7 +297,9 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="BandstructureAndDosComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bs.html#crystal_toolkit.components.bs.BandstructureAndDosComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bsdos-div&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span> <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;traces&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)])</span>
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bsdos-div&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span> <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;traces&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)]</span>
+        <span class="p">)</span>
         <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span><span class="n">traces</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="n">traces</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
@@ -298,7 +307,9 @@
                     <span class="n">MessageContainer</span><span class="p">(</span>
                         <span class="p">[</span>
                             <span class="n">MessageBody</span><span class="p">(</span>
-                                <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="s2">&quot;Band structure and density of states not available for this selection.&quot;</span><span class="p">)</span>
+                                <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span>
+                                    <span class="s2">&quot;Band structure and density of states not available for this selection.&quot;</span>
+                                <span class="p">)</span>
                             <span class="p">)</span>
                         <span class="p">],</span>
                         <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
@@ -309,7 +320,9 @@
             <span class="k">if</span> <span class="n">traces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
 
-            <span class="n">figure</span> <span class="o">=</span> <span class="n">tls</span><span class="o">.</span><span class="n">make_subplots</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">shared_yaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_grid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">figure</span> <span class="o">=</span> <span class="n">tls</span><span class="o">.</span><span class="n">make_subplots</span><span class="p">(</span>
+                <span class="n">rows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">shared_yaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_grid</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
 
             <span class="n">bstraces</span><span class="p">,</span> <span class="n">dostraces</span><span class="p">,</span> <span class="n">bs_data</span> <span class="o">=</span> <span class="n">traces</span>
 
@@ -390,7 +403,13 @@
             <span class="n">figure</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
 
             <span class="n">legend</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Legend</span><span class="p">(</span>
-                <span class="n">x</span><span class="o">=</span><span class="mf">1.01</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">xanchor</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">yanchor</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="n">bordercolor</span><span class="o">=</span><span class="s2">&quot;#333&quot;</span><span class="p">,</span> <span class="n">borderwidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">traceorder</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+                <span class="n">x</span><span class="o">=</span><span class="mf">1.01</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">xanchor</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+                <span class="n">yanchor</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+                <span class="n">bordercolor</span><span class="o">=</span><span class="s2">&quot;#333&quot;</span><span class="p">,</span>
+                <span class="n">borderwidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">traceorder</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="n">figure</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;legend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">legend</span>
@@ -406,7 +425,10 @@
                 <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;label-select&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
                 <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;label-container&quot;</span><span class="p">),</span> <span class="s2">&quot;style&quot;</span><span class="p">),</span>
             <span class="p">],</span>
-            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;path-convention&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">)],</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;path-convention&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
         <span class="p">)</span>
         <span class="k">def</span> <span class="nf">update_label_select</span><span class="p">(</span><span class="n">mpid</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">mpid</span> <span class="ow">or</span> <span class="s2">&quot;mpid&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mpid</span><span class="p">:</span>
@@ -422,13 +444,21 @@
                     <span class="p">{</span>
                         <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="p">(</span><span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span> <span class="ow">or</span> <span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;sc&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="p">(</span>
+                            <span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span> <span class="ow">or</span> <span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;sc&quot;</span>
+                        <span class="p">),</span>
                     <span class="p">},</span>
-                    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Latimer-Munro&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">,</span> <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="p">(</span><span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span><span class="p">)},</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Latimer-Munro&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="p">(</span><span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span><span class="p">),</span>
+                    <span class="p">},</span>
                     <span class="p">{</span>
                         <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Hinuma et al.&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;hin&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="p">(</span><span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span> <span class="ow">or</span> <span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;hin&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;disabled&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="p">(</span>
+                            <span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span> <span class="ow">or</span> <span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;hin&quot;</span>
+                        <span class="p">),</span>
                     <span class="p">},</span>
                 <span class="p">]</span>
 
@@ -453,7 +483,10 @@
                     <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Element Projected&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;ap&quot;</span><span class="p">}]</span>
                     <span class="o">+</span> <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - Total&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">}]</span>
                     <span class="o">+</span> <span class="p">[</span>
-                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;orb&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">)}</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;orb&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                        <span class="p">}</span>
                         <span class="k">for</span> <span class="n">ele_label</span> <span class="ow">in</span> <span class="n">elements</span>
                     <span class="p">]</span>
                 <span class="p">)</span>
@@ -467,7 +500,10 @@
                     <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Element Projected&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;ap&quot;</span><span class="p">}]</span>
                     <span class="o">+</span> <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - Total&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">}]</span>
                     <span class="o">+</span> <span class="p">[</span>
-                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;orb&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">)}</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;orb&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                        <span class="p">}</span>
                         <span class="k">for</span> <span class="n">ele_label</span> <span class="ow">in</span> <span class="n">elements</span>
                     <span class="p">]</span>
                 <span class="p">)</span>
@@ -493,8 +529,17 @@
                 <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;density_of_states&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">bs_dos_data</span><span class="p">(</span><span class="n">mpid</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">,</span> <span class="n">dos_select</span><span class="p">,</span> <span class="n">label_select</span><span class="p">,</span> <span class="n">bandstructure_symm_line</span><span class="p">,</span> <span class="n">density_of_states</span><span class="p">):</span>
-            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">mpid</span> <span class="ow">or</span> <span class="s2">&quot;mpid&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mpid</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">bandstructure_symm_line</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">density_of_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">bs_dos_data</span><span class="p">(</span>
+            <span class="n">mpid</span><span class="p">,</span>
+            <span class="n">path_convention</span><span class="p">,</span>
+            <span class="n">dos_select</span><span class="p">,</span>
+            <span class="n">label_select</span><span class="p">,</span>
+            <span class="n">bandstructure_symm_line</span><span class="p">,</span>
+            <span class="n">density_of_states</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">mpid</span> <span class="ow">or</span> <span class="s2">&quot;mpid&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mpid</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">bandstructure_symm_line</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">density_of_states</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="p">):</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
             <span class="k">elif</span> <span class="n">mpid</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
@@ -516,26 +561,42 @@
                 <span class="c1"># - BS traces from DB using task_id</span>
                 <span class="n">bs_query</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
                     <span class="n">db</span><span class="o">.</span><span class="n">electronic_structure</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
-                        <span class="p">{</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">mpid</span><span class="p">)},</span> <span class="p">[</span><span class="s2">&quot;bandstructure.</span><span class="si">{}</span><span class="s2">.total.traces&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_convention</span><span class="p">)]</span>
+                        <span class="p">{</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">mpid</span><span class="p">)},</span>
+                        <span class="p">[</span><span class="s2">&quot;bandstructure.</span><span class="si">{}</span><span class="s2">.total.traces&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_convention</span><span class="p">)],</span>
                     <span class="p">)</span>
                 <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-                <span class="n">is_sp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="n">is_sp</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">])</span>
+                    <span class="o">==</span> <span class="mi">2</span>
+                <span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">is_sp</span><span class="p">:</span>
                     <span class="n">bstraces</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;1&quot;</span><span class="p">]</span>
-                        <span class="o">+</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;-1&quot;</span><span class="p">]</span>
+                        <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span>
+                            <span class="s2">&quot;1&quot;</span>
+                        <span class="p">]</span>
+                        <span class="o">+</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span>
+                            <span class="s2">&quot;-1&quot;</span>
+                        <span class="p">]</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">bstraces</span> <span class="o">=</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;1&quot;</span><span class="p">]</span>
+                    <span class="n">bstraces</span> <span class="o">=</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span>
+                        <span class="s2">&quot;traces&quot;</span>
+                    <span class="p">][</span><span class="s2">&quot;1&quot;</span><span class="p">]</span>
 
-                <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;ticks&quot;</span><span class="p">]</span>
-                <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span>
+                <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span>
+                    <span class="n">path_convention</span>
+                <span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;ticks&quot;</span><span class="p">]</span>
+                <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span>
+                    <span class="s2">&quot;total&quot;</span>
+                <span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span>
 
                 <span class="c1"># If LM convention, get equivalent labels</span>
                 <span class="k">if</span> <span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span> <span class="ow">and</span> <span class="n">label_select</span> <span class="o">!=</span> <span class="s2">&quot;lm&quot;</span><span class="p">:</span>
-                    <span class="n">bs_equiv_labels</span> <span class="o">=</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;equiv_labels&quot;</span><span class="p">]</span>
+                    <span class="n">bs_equiv_labels</span> <span class="o">=</span> <span class="n">bs_query</span><span class="p">[</span><span class="s2">&quot;bandstructure&quot;</span><span class="p">][</span><span class="n">path_convention</span><span class="p">][</span>
+                        <span class="s2">&quot;total&quot;</span>
+                    <span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="s2">&quot;equiv_labels&quot;</span><span class="p">]</span>
 
                     <span class="n">alt_choice</span> <span class="o">=</span> <span class="n">label_select</span>
 
@@ -556,7 +617,9 @@
                                 <span class="o">+</span> <span class="s2">&quot;$&quot;</span>
                             <span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">new_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;$&quot;</span> <span class="o">+</span> <span class="n">bs_equiv_labels</span><span class="p">[</span><span class="n">alt_choice</span><span class="p">][</span><span class="n">label_formatted</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;$&quot;</span><span class="p">)</span>
+                            <span class="n">new_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="s2">&quot;$&quot;</span> <span class="o">+</span> <span class="n">bs_equiv_labels</span><span class="p">[</span><span class="n">alt_choice</span><span class="p">][</span><span class="n">label_formatted</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;$&quot;</span>
+                            <span class="p">)</span>
 
                     <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_labels</span>
 
@@ -576,15 +639,17 @@
                 <span class="k">for</span> <span class="n">entry_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">])):</span>
                     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">str_replace</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]:</span>
-                            <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                                <span class="n">key</span><span class="p">,</span> <span class="n">str_replace</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-                            <span class="p">)</span>
+                            <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span>
+                                <span class="s2">&quot;label&quot;</span>
+                            <span class="p">][</span><span class="n">entry_num</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">str_replace</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
 
                 <span class="c1"># - DOS traces from DB using task_id</span>
                 <span class="n">dostraces</span> <span class="o">=</span> <span class="p">[]</span>
 
                 <span class="n">dos_tot_ele_traces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                    <span class="n">db</span><span class="o">.</span><span class="n">electronic_structure</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">mpid</span><span class="p">)},</span> <span class="p">[</span><span class="s2">&quot;dos.total.traces&quot;</span><span class="p">,</span> <span class="s2">&quot;dos.elements&quot;</span><span class="p">])</span>
+                    <span class="n">db</span><span class="o">.</span><span class="n">electronic_structure</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                        <span class="p">{</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">mpid</span><span class="p">)},</span> <span class="p">[</span><span class="s2">&quot;dos.total.traces&quot;</span><span class="p">,</span> <span class="s2">&quot;dos.elements&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
                 <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
                 <span class="n">dostraces</span> <span class="o">=</span> <span class="p">[</span>
@@ -597,16 +662,26 @@
                 <span class="k">if</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;ap&quot;</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">ele_label</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
                         <span class="n">dostraces</span> <span class="o">+=</span> <span class="p">[</span>
-                            <span class="n">dos_tot_ele_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span><span class="n">ele_label</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="n">spin</span><span class="p">]</span>
-                            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">dos_tot_ele_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span><span class="n">ele_label</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="n">dos_tot_ele_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span><span class="n">ele_label</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span>
+                                <span class="s2">&quot;traces&quot;</span>
+                            <span class="p">][</span><span class="n">spin</span><span class="p">]</span>
+                            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">dos_tot_ele_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span>
+                                <span class="n">ele_label</span>
+                            <span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                         <span class="p">]</span>
 
                 <span class="k">elif</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;op&quot;</span><span class="p">:</span>
-                    <span class="n">orb_tot_traces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">electronic_structure</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">mpid</span><span class="p">)},</span> <span class="p">[</span><span class="s2">&quot;dos.orbitals&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">orb_tot_traces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                        <span class="n">db</span><span class="o">.</span><span class="n">electronic_structure</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+                            <span class="p">{</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">mpid</span><span class="p">)},</span> <span class="p">[</span><span class="s2">&quot;dos.orbitals&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">orbital</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">]:</span>
                         <span class="n">dostraces</span> <span class="o">+=</span> <span class="p">[</span>
                             <span class="n">orb_tot_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;orbitals&quot;</span><span class="p">][</span><span class="n">orbital</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="n">spin</span><span class="p">]</span>
-                            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">orb_tot_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;orbitals&quot;</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">orb_tot_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;orbitals&quot;</span><span class="p">][</span><span class="s2">&quot;s&quot;</span><span class="p">][</span>
+                                <span class="s2">&quot;traces&quot;</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                         <span class="p">]</span>
 
                 <span class="k">elif</span> <span class="s2">&quot;orb&quot;</span> <span class="ow">in</span> <span class="n">dos_select</span><span class="p">:</span>
@@ -614,8 +689,12 @@
 
                     <span class="k">for</span> <span class="n">orbital</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">]:</span>
                         <span class="n">dostraces</span> <span class="o">+=</span> <span class="p">[</span>
-                            <span class="n">dos_tot_ele_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span><span class="n">ele_label</span><span class="p">][</span><span class="n">orbital</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">][</span><span class="n">spin</span><span class="p">]</span>
-                            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">dos_tot_ele_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span><span class="n">ele_label</span><span class="p">][</span><span class="n">orbital</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="n">dos_tot_ele_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span><span class="n">ele_label</span><span class="p">][</span><span class="n">orbital</span><span class="p">][</span>
+                                <span class="s2">&quot;traces&quot;</span>
+                            <span class="p">][</span><span class="n">spin</span><span class="p">]</span>
+                            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="n">dos_tot_ele_traces</span><span class="p">[</span><span class="s2">&quot;dos&quot;</span><span class="p">][</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span>
+                                <span class="n">ele_label</span>
+                            <span class="p">][</span><span class="n">orbital</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                         <span class="p">]</span>
 
                 <span class="n">traces</span> <span class="o">=</span> <span class="p">[</span><span class="n">bstraces</span><span class="p">,</span> <span class="n">dostraces</span><span class="p">,</span> <span class="n">bs_data</span><span class="p">]</span>
@@ -629,8 +708,6 @@
                 <span class="c1"># --</span>
 
                 <span class="c1"># - BS Data</span>
-
-                <span class="n">bstraces</span> <span class="o">=</span> <span class="p">[]</span>
 
                 <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">bandstructure_symm_line</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">dict</span><span class="p">:</span>
                     <span class="n">bandstructure_symm_line</span> <span class="o">=</span> <span class="n">bandstructure_symm_line</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
@@ -657,55 +734,70 @@
                 <span class="k">for</span> <span class="n">entry_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">])):</span>
                     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">str_replace</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]:</span>
-                            <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                                <span class="n">key</span><span class="p">,</span> <span class="n">str_replace</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-                            <span class="p">)</span>
+                            <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span>
+                                <span class="s2">&quot;label&quot;</span>
+                            <span class="p">][</span><span class="n">entry_num</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">str_replace</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
 
                 <span class="c1"># Obtain bands to plot over:</span>
                 <span class="n">energy_window</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
                 <span class="n">bands</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">band_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bs_reg_plot</span><span class="o">.</span><span class="n">_nb_bands</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">band_num</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span>
-                        <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">band_num</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">band_num</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="o">&lt;=</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                        <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">band_num</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="o">&gt;=</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="p">):</span>
                         <span class="n">bands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">band_num</span><span class="p">)</span>
+
+                <span class="n">bstraces</span> <span class="o">=</span> <span class="p">[]</span>
 
                 <span class="c1"># Generate traces for total BS data</span>
                 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">])):</span>
                     <span class="n">dist_dat</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">]</span>
                     <span class="n">energy_ind</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">]))]</span>
 
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bands</span><span class="p">:</span>
-                        <span class="n">bstraces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
-                                <span class="n">x</span><span class="o">=</span><span class="n">dist_dat</span><span class="p">,</span>
-                                <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">energy_ind</span><span class="p">],</span>
-                                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
-                                <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;#666666&quot;</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
-                                <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span>
-                                <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                            <span class="p">)</span>
-                        <span class="p">)</span>
+                    <span class="n">traces_for_segment</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">dist_dat</span><span class="p">,</span>
+                            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="s2">&quot;1&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">energy_ind</span><span class="p">],</span>
+                            <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#666666&quot;</span><span class="p">},</span>
+                            <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="p">}</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bands</span>
+                    <span class="p">]</span>
 
-                        <span class="k">if</span> <span class="n">bs_reg_plot</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
-                            <span class="n">bstraces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
-                                    <span class="n">x</span><span class="o">=</span><span class="n">dist_dat</span><span class="p">,</span>
-                                    <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">energy_ind</span><span class="p">],</span>
-                                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
-                                    <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;#666666&quot;</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">dash</span><span class="o">=</span><span class="s2">&quot;dash&quot;</span><span class="p">),</span>
-                                    <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span>
-                                    <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="p">)</span>
-                            <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">bs_reg_plot</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
+                        <span class="n">traces_for_segment</span> <span class="o">+=</span> <span class="p">[</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">dist_dat</span><span class="p">,</span>
+                                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span>
+                                    <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="s2">&quot;-1&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">energy_ind</span>
+                                <span class="p">],</span>
+                                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#666666&quot;</span><span class="p">},</span>
+                                <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                            <span class="p">}</span>
+                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bands</span>
+                        <span class="p">]</span>
+
+                    <span class="n">bstraces</span> <span class="o">+=</span> <span class="n">traces_for_segment</span>
 
                 <span class="c1"># - DOS Data</span>
                 <span class="n">dostraces</span> <span class="o">=</span> <span class="p">[]</span>
 
                 <span class="n">dos</span> <span class="o">=</span> <span class="n">CompleteDos</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">density_of_states</span><span class="p">)</span>
 
-                <span class="n">dos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-                <span class="n">dos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+                <span class="n">dos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+                <span class="n">dos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
 
                 <span class="k">if</span> <span class="n">bs_reg_plot</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
                     <span class="c1"># Add second spin data if available</span>
@@ -745,7 +837,9 @@
                 <span class="k">elif</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;op&quot;</span><span class="p">:</span>
                     <span class="n">proj_data</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_spd_dos</span><span class="p">()</span>
                 <span class="k">elif</span> <span class="s2">&quot;orb&quot;</span> <span class="ow">in</span> <span class="n">dos_select</span><span class="p">:</span>
-                    <span class="n">proj_data</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_spd_dos</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">dos_select</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;orb&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)))</span>
+                    <span class="n">proj_data</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_spd_dos</span><span class="p">(</span>
+                        <span class="n">Element</span><span class="p">(</span><span class="n">dos_select</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;orb&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">PreventUpdate</span>
 
@@ -814,7 +908,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">initial_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initial_contents</span><span class="p">,</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">standard_layout</span><span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">}),])</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initial_contents</span><span class="p">,</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">standard_layout</span><span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">}),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="BandstructureAndDosPanelComponent.update_contents"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bs.html#crystal_toolkit.components.bs.BandstructureAndDosPanelComponent.update_contents">[docs]</a>    <span class="k">def</span> <span class="nf">update_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_store_contents</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">standard_layout</span></div></div>
