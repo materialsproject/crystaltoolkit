@@ -69,6 +69,7 @@ with open(default_js) as handle:
     _DEFAULTS.update(json.loads(handle.read()))
 
 try:
+    # convenience import for Jupyter users
     import pythreejs
     from crystal_toolkit.helpers.pythreejs_renderer import view
     from crystal_toolkit.renderables import *
