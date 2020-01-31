@@ -33,7 +33,7 @@ one example of using these components.
 Installation
 ------------
 
-You can ``pip install crystaltoolkit``.
+You can ``pip install crystal-toolkit``.
 
 For Jupyter integration, please see the `additional installation steps <jupyter>`_.
 
