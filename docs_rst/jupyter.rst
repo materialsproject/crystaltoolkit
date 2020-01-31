@@ -17,7 +17,7 @@ There are two steps to using Crystal Toolkit inside Jupyter:
 2. Ensure Crystal Toolkit is installed as normal, ``pip install crystal-toolkit --upgrade``
 
 3. Install `pythreejs <https://github.com/jupyter-widgets/pythreejs>`_ following their instructions.
-   The most reliable way to do this seems to be ``conda install -c conda-forge pythreejs` for people
+   The most reliable way to do this seems to be ``conda install -c conda-forge pythreejs`` for people
    who use the conda package manager.
 
 4. Restart Jupyter Lab from the terminal. You may be asked to perform a "build," click OK and this
