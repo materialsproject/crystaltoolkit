@@ -1,6 +1,6 @@
 {
   "name": "crystal_toolkit",
-  "version": "2020.01.31",
+  "version": "2020.02.05",
   "description": "Crystal Toolkit is an interactive web app that allows you to import, view, analyze and transform crystal structures and molecules. It is also a suite of ready-made UI components to render Materials Project data using the Dash framework from Plotly.",
   "main": "build/index.js",
   "scripts": {
