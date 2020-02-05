@@ -561,7 +561,7 @@ class StructureMoleculeComponent(MPComponent):
                     ],
                     editable=True,
                     data=self._make_bonding_algorithm_custom_cuffoff_data(
-                        self.initial_data["default"]
+                        self.initial_data.get("default")
                     ),
                     id=self.id("bonding_algorithm_custom_cutoffs"),
                 ),
