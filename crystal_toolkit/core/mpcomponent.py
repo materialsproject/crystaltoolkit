@@ -111,11 +111,12 @@ class MPComponent(ABC):
                 "using register_app()."
             )
 
-        layout_str = str(layout)
+        # layout_str = str(layout)
         stores_to_add = []
         for basename in MPComponent._all_id_basenames:
-            if basename in layout_str:
-                stores_to_add += MPComponent._app_stores_dict[basename]
+            # can use "if basename in layout_str:" to restrict to components present in initial layout
+            # this would cause bugs for components displayed dynamically
+            stores_to_add += MPComponent._app_stores_dict[basename]
         layout.children += stores_to_add
 
         # set app.layout to layout so that callbacks can be validated
@@ -214,7 +215,8 @@ class MPComponent(ABC):
         # ensure ids are unique
         # Note: shadowing Python built-in here, but only because Dash does it...
         if id is None:
-            id = f"{CT_NAMESPACE}{self.__class__.__name__}_{str(uuid4())[0:6]}"
+            # TODO: replace
+            id = f"{CT_NAMESPACE}{self.__class__.__name__}_1"
         else:
             id = f"{CT_NAMESPACE}{id}"
         MPComponent._all_id_basenames.add(id)
@@ -225,27 +227,6 @@ class MPComponent(ABC):
         self._initial_data = {}
 
         self.links = links or {}
-
-        if self.links and not MPComponent.app:
-            raise ValueError(
-                "Can only link stores if an app is registered. Either register the "
-                "global Dash app variable with Crystal Toolkit, or remove links and "
-                "run with disable_callbacks=True."
-            )
-
-        if MPComponent.app is None:
-            warn(
-                f"No app defined for component {self._id}, "
-                f"callbacks cannot be created. Please register app using "
-                f"MPComponent.register_app(app)."
-            )
-
-        if MPComponent.cache is null_cache:
-            warn(
-                f"No cache is defined for component {self._id}, "
-                f"performance of app may be degraded. Please register cache "
-                f"using MPComponent.register_cache(cache)."
-            )
 
         if origin_component is None:
             self.create_store(
