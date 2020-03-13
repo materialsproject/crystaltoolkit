@@ -30,7 +30,7 @@ integers.
     def transformation(self):
         return SupercellTransformation
 
-    def options_layout(self, inital_args_kwargs):
+    def options_layout(self):
 
         options = get_matrix_input(self.id(), label="Scaling matrix")
 
@@ -40,7 +40,19 @@ integers.
 
         super().generate_callbacks(app, cache)
 
-        @app.callback(
+        app.clientside_callback(
+            """
+            function (m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+            
+                const scaling_matrix = [
+                    [parseInt(m11), parseInt(m12), parseInt(m13)],
+                    [parseInt(m21), parseInt(m22), parseInt(m23)],
+                    [parseInt(m31), parseInt(m32), parseInt(m33)]
+                ]
+                
+                return {args: [], kwargs: {scaling_matrix: scaling_matrix}}
+            }
+            """,
             Output(self.id("transformation_args_kwargs"), "data"),
             [
                 Input(self.id(f"m{e1}{e2}"), "value")
@@ -48,8 +60,3 @@ integers.
                 for e2 in range(3)
             ],
         )
-        def update_transformation_kwargs(*args):
-
-            scaling_matrix = [args[0:3], args[3:6], args[6:9]]
-
-            return {"args": [], "kwargs": {"scaling_matrix": scaling_matrix}}
