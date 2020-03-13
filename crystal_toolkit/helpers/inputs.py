@@ -4,8 +4,10 @@ import dash_html_components as html
 import numpy as np
 
 from crystal_toolkit.helpers.layouts import *
-
+from crystal_toolkit.core.mpcomponent import MPComponent
 from collections import namedtuple
+
+from typing import List, Union, Optional
 
 
 def _add_label_help(input, label, help):
@@ -41,20 +43,43 @@ def get_float_input(id, label=None, default=None, help=None):
 
 
 def get_matrix_input(
-    id, label=None, default=((1, 0, 0), (0, 1, 0), (0, 0, 1)), help=None
+    component: MPComponent,
+    for_arg_kwarg_label: Union[str, int],
+    state: Optional[dict] = None,
+    label: Optional[str] = None,
+    help: str = None,
 ):
+    """
+    For Python classes which take matrices as inputs, this will generate
+    a corresponding Dash input layout.
+
+    :param component: The MPComponent this input will be used in.
+    :param for_arg_kwarg_label: The name of the corresponding Python input,
+    if arg set as the arg index (int), if a kwarg set as the kwarg name (str).
+    This is used to name the component.
+    :param label: A description for this input.
+    :param state: Used to set state for this input, dict with arg name or kwarg name as key
+    :param help: Text for a tooltip when hovering over label.
+    :return: a Dash layout
+    """
+
+    default = state.get(for_arg_kwarg_label) or ((1, 0, 0), (0, 1, 0), (0, 0, 1))
+    ids = []
 
     shape = np.array(default).shape
 
+    if isinstance(for_arg_kwarg_label, int):
+        for_arg_kwarg_label = f"arg_{for_arg_kwarg_label}"
+    elif isinstance(for_arg_kwarg_label, str):
+        for_arg_kwarg_label = f"kwarg_{for_arg_kwarg_label}"
+
     def matrix_element(element, value=0):
+        mid = f"{component.id(for_arg_kwarg_label)}_m{element}"
+        ids.append(mid)
         return dcc.Input(
-            id=f"{id}_m{element}",
+            id=mid,
             inputMode="numeric",
-            min=0,
-            max=9,
-            step=1,
             className="input",
-            maxLength=1,
             style={
                 "textAlign": "center",
                 "width": "2rem",
@@ -73,6 +98,8 @@ def get_matrix_input(
         matrix_contents.append(html.Div(row))
 
     matrix = html.Div(matrix_contents)
+
+    component._option_ids[for_arg_kwarg_label] = ids
 
     return _add_label_help(matrix, label, help)
 
