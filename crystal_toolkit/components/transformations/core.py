@@ -14,17 +14,27 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
 
 from typing import List
+from itertools import chain
 
 import flask
 
 
 class TransformationComponent(MPComponent):
     def __init__(self, input_structure: MPComponent, *args, **kwargs):
+
+        if self.__class__.__name__ != f"{self.transformation.__name__}Component":
+            # sanity check, enforcing conventions
+            raise NameError(
+                f"Class has to be named corresponding to the underlying "
+                f"transformation name: {self.transformation.__name__}Component"
+            )
+
         super().__init__(*args, **kwargs)
         self.input_structure = input_structure
         self.create_store(
             "transformation_args_kwargs", initial_data={"args": [], "kwargs": {}}
         )
+        self._option_ids = {}
 
     @property
     def _sub_layouts(self):
@@ -44,15 +54,34 @@ class TransformationComponent(MPComponent):
 
         preview = html.Div(id=self.id("preview"))
 
+        return {
+            "options": options,
+            "description": description,
+            "enable": enable,
+            "message": message,
+            "preview": preview,
+        }
+
+    def container_layout(self, state=None) -> html.Div:
+        """
+        :return: Layout defining transformation and its options.
+        """
+
         container = MessageContainer(
             [
-                MessageHeader([self.title, enable]),
+                MessageHeader([self.title, self._sub_layouts["enable"]]),
                 MessageBody(
                     Columns(
                         [
-                            Column([options], narrow=True),
+                            Column([self.options_layout(state=state)], narrow=True),
                             Column(
-                                [description, html.Br(), message, html.Br(), preview]
+                                [
+                                    self._sub_layouts["description"],
+                                    html.Br(),
+                                    self._sub_layouts["message"],
+                                    html.Br(),
+                                    self._sub_layouts["preview"],
+                                ]
                             ),
                         ]
                     )
@@ -62,21 +91,20 @@ class TransformationComponent(MPComponent):
             id=self.id("container"),
         )
 
-        return {
-            "options": options,
-            "description": description,
-            "enable": enable,
-            "message": message,
-            "container": container,
-        }
+        return container
 
-    def container_layout(self) -> html.Div:
+    def options_layout(self, state=None):
         """
-        :return: Layout defining transformation and its options.
-        """
-        return self._sub_layouts["container"]
+        Return a layout to change the transformation options (that is,
+        that controls the args and kwargs that will be passed to pymatgen).
 
-    def options_layout(self):
+        The "state" option is so that the controls can be populated appropriately
+        using existing args and kwargs, e.g. when restoring the control panel
+        from a previous state.
+
+        :param state: existing state in format {"args": [], "kwargs": {}}
+        :return:
+        """
         return html.Div()
 
     @property
@@ -91,13 +119,55 @@ class TransformationComponent(MPComponent):
     def description(self):
         raise NotImplementedError
 
+    @property
+    def option_ids(self) -> List[str]:
+        """
+        If set, these controls will have their user inputs disabled
+        when the transformation is enabled, essentially "freezing"
+        the transformation options. This can help prevent latency
+        due to users changing transformation options while transformations
+        are updating.
+
+        :return: List of names of option controls
+        """
+        return list(chain.from_iterable(self._option_ids.values()))
+
     def generate_callbacks(self, app, cache):
+
+        # TODO: multiple outputs may not be supported by clientside callbacks yet(?)
+        # TODO: re-evaluate this callback
+        # if self.option_ids:
+        # app.clientside_callback(
+        #     f"""
+        #     function (enabled) {{
+        #         console.log("enabled", enabled);
+        #         const controlState = [];
+        #         const numberOfControls = {len(self.option_ids)};
+        #         if (enabled.includes("enable")) {{
+        #             for (var i = 0; i < numberOfControls; i++) {{
+        #                 controlState.push(true);
+        #             }}
+        #         }} else {{
+        #         if (enabled.includes("enable")) {{
+        #             for (var i = 0; i < numberOfControls; i++) {{
+        #                 controlState.push(false);
+        #             }}
+        #         }}
+        #         console.log("controlState", controlState);
+        #         return controlState;
+        #     }}
+        #     """,
+        #     [Output(option, "disabled") for option in self.option_ids],
+        #     [Input(self.id("enable_transformation"), "value")]
+        # )
+
         @app.callback(
             [
                 Output(self.id(), "data"),
                 Output(self.id("container"), "className"),
                 Output(self.id("message"), "children"),
-            ],
+            ]
+            + [Output(option, "disabled") for option in self.option_ids],
             [
                 Input(self.id("transformation_args_kwargs"), "data"),
                 Input(self.id("enable_transformation"), "value"),
@@ -107,12 +177,21 @@ class TransformationComponent(MPComponent):
             timeout=60 * 60 * 24,
             make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
         )
-        def update_transformation(args_kwargs, enabled):
+        def update_transformation(args_kwargs, enabled, *args):
 
-            # TODO: move callback inside AllTransformationsComponent for efficiency
+            # TODO: pull args_kwargs directly from input state
+            #             [
+            #                 State(option_id, "value") for option_id in self._option_ids
+            #             ]
+            print("state", dash.callback_context.states)
+
+            # TODO: move callback inside AllTransformationsComponent for efficiency?
 
             if "enable" not in enabled:
-                return None, "message is-dark", html.Div()
+                input_state = (False,) * len(self.option_ids)
+                return (None, "message is-dark", html.Div(), *input_state)
+            else:
+                input_state = (True,) * len(self.option_ids)
 
             try:
                 trans = self.transformation(
@@ -125,11 +204,16 @@ class TransformationComponent(MPComponent):
 
             if error:
 
-                return trans, "message is-warning", html.Strong(f"Error: {error}")
+                return (
+                    trans,
+                    "message is-warning",
+                    html.Strong(f"Error: {error}"),
+                    *input_state,
+                )
 
             else:
 
-                return trans, "message is-success", html.Div()
+                return (trans, "message is-success", html.Div(), *input_state)
 
 
 class AllTransformationsComponent(MPComponent):
@@ -219,13 +303,17 @@ class AllTransformationsComponent(MPComponent):
         @app.callback(
             Output(self.id("transformation_options"), "children"),
             [Input(self.id("choices"), "value")],
+            [State(t.id(), "data") for t in self.transformations.values()],
         )
-        def show_transformation_options(values):
+        def show_transformation_options(values, *args):
 
             values = values or []
 
             transformation_options = html.Div(
-                [self.transformations[name].container_layout() for name in values]
+                [
+                    self.transformations[name].container_layout(state=state)
+                    for name, state in zip(values, args)
+                ]
             )
 
             return [transformation_options]

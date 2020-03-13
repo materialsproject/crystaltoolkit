@@ -30,15 +30,24 @@ integers.
     def transformation(self):
         return SupercellTransformation
 
-    def options_layout(self):
+    def options_layout(self, state=None):
 
-        options = get_matrix_input(self.id(), label="Scaling matrix")
+        state = state or {}
+
+        options = get_matrix_input(
+            self,
+            label="Scaling matrix",
+            for_arg_kwarg_label="scaling_matrix",
+            state=state,
+        )
 
         return options
 
     def generate_callbacks(self, app, cache):
 
         super().generate_callbacks(app, cache)
+
+        print("option", self.option_ids)
 
         app.clientside_callback(
             """
@@ -54,9 +63,5 @@ integers.
             }
             """,
             Output(self.id("transformation_args_kwargs"), "data"),
-            [
-                Input(self.id(f"m{e1}{e2}"), "value")
-                for e1 in range(3)
-                for e2 in range(3)
-            ],
+            [Input(option_id, "value") for option_id in self.option_ids],
         )
