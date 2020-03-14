@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_daq as daq
 
 import traceback
 
@@ -42,12 +43,7 @@ class TransformationComponent(MPComponent):
     @property
     def _sub_layouts(self):
 
-        enable = dcc.Checklist(
-            options=[{"label": "Enable transformation", "value": "enable"}],
-            value=["enable"],
-            inputClassName="mpc-radio",
-            id=self.id("enable_transformation"),
-        )
+        enable = daq.BooleanSwitch(id=self.id("enable_transformation"))
 
         message = html.Div(id=self.id("message"))
 
@@ -135,6 +131,18 @@ class TransformationComponent(MPComponent):
         """
         return list(chain.from_iterable(self._option_ids.values()))
 
+    def get_preview_layout(self, struct_in, struct_out):
+        """
+        Override this method to give a layout that previews the transformation.
+        Has beneficial side effect of priming the transformation cache when
+        entire transformation pipeline is enabled.
+
+        :param struct_in: input Structure
+        :param struct_out: transformed Structure
+        :return:
+        """
+        return html.Div()
+
     def generate_callbacks(self, app, cache):
         @app.callback(
             [
@@ -143,7 +151,7 @@ class TransformationComponent(MPComponent):
                 Output(self.id("message"), "children"),
             ]
             + [Output(option, "disabled") for option in self.option_ids],
-            [Input(self.id("enable_transformation"), "value")],
+            [Input(self.id("enable_transformation"), "on")],
             [State(option_id, "value") for option_id in self.option_ids],
         )
         @cache.memoize(
@@ -173,7 +181,7 @@ class TransformationComponent(MPComponent):
 
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 
-            if "enable" not in enabled:
+            if not enabled:
                 input_state = (False,) * len(self.option_ids)
                 return (None, "message is-dark", html.Div(), *input_state)
             else:
