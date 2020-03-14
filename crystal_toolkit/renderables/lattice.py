@@ -5,7 +5,7 @@ from crystal_toolkit.core.scene import Scene, Lines, Arrows, Spheres
 from pymatgen import Lattice
 
 
-def _axes_from_lattice(self, origin=None, scale=1, offset=0, **kwargs):
+def _axes_from_lattice(self, origin=None, scale=1, offset=0, normalize=True, **kwargs):
     """
     Get the display components of the compass
     :param lattice: the pymatgen Lattice object that contains the primitive

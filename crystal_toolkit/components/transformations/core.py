@@ -51,7 +51,7 @@ class TransformationComponent(MPComponent):
 
         options = html.Div(self.options_layout(), id=self.id("options"))
 
-        preview = html.Div(id=self.id("preview"))
+        preview = html.Div(["Preview", dcc.Loading(id=self.id("preview"))])
 
         return {
             "options": options,
@@ -144,6 +144,45 @@ class TransformationComponent(MPComponent):
         return html.Div()
 
     def generate_callbacks(self, app, cache):
+        @cache.memoize()
+        def apply_transformation(transformation_data, struct):
+
+            transformation = self.from_data(transformation_data)
+            error = None
+
+            try:
+                struct = transformation.apply_transformation(struct)
+            except Exception as exc:
+                error_title = (
+                    f'Failed to apply "{transformation.__class__.__name__}" '
+                    f"transformation: {exc}"
+                )
+                traceback_info = Reveal(
+                    title=html.B("Traceback"),
+                    children=[dcc.Markdown(traceback.format_exc())],
+                )
+                error = [error_title, traceback_info]
+
+            return struct, error
+
+        @app.callback(
+            Output(self.id("preview"), "children"),
+            [Input(self.id(), "data"), Input(self.input_structure.id(), "data")],
+        )
+        def update_preview(transformation_data, input_structure):
+            if (not transformation_data) or (not input_structure):
+                return html.Div()
+            input_structure = self.from_data(input_structure)
+            output_structure, error = apply_transformation(
+                transformation_data, input_structure
+            )
+            if len(output_structure) > 64:
+                warning = html.Span(
+                    f"The transformed crystal structure has {len(output_structure)} atoms "
+                    f"and might take a moment to display."
+                )
+            return self.get_preview_layout(input_structure, output_structure)
+
         @app.callback(
             [
                 Output(self.id(), "data"),
