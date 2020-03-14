@@ -6,6 +6,9 @@ from dash.dependencies import Input, Output, State
 from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.helpers.inputs import *
 from crystal_toolkit.components.transformations.core import TransformationComponent
+from crystal_toolkit import Simple3DSceneComponent
+
+from crystal_toolkit.core.scene import Scene
 
 from pymatgen.transformations.standard_transformations import SupercellTransformation
 
@@ -32,10 +35,25 @@ integers.
 
     def options_layout(self, state=None):
 
-        state = state or {}
+        state = state or {"scaling_matrix": ((1, 0, 0), (0, 1, 0), (0, 0, 1))}
 
         options = get_matrix_input(
             self, label="Scaling matrix", kwarg_label="scaling_matrix", state=state
         )
 
         return options
+
+    def get_preview_layout(self, struct_in, struct_out):
+
+        if struct_in.lattice == struct_out.lattice:
+            return html.Div()
+
+        lattice_in = struct_in.lattice.get_scene()
+        lattice_out = struct_out.lattice.get_scene(color="red")
+
+        scene = Scene("lattices", contents=[lattice_in, lattice_out])
+
+        return html.Div(
+            [Simple3DSceneComponent(data=scene.to_json())],
+            style={"width": "100px", "height": "100px"},
+        )
