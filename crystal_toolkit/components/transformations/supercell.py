@@ -42,3 +42,18 @@ integers.
         )
 
         return options
+
+    def get_preview_layout(self, struct_in, struct_out):
+
+        if struct_in.lattice == struct_out.lattice:
+            return html.Div()
+
+        lattice_in = struct_in.lattice.get_scene()
+        lattice_out = struct_out.lattice.get_scene(color="red")
+
+        scene = Scene("lattices", contents=[lattice_in, lattice_out])
+
+        return html.Div(
+            [Simple3DSceneComponent(data=scene.to_json())],
+            style={"width": "100px", "height": "100px"},
+        )
