@@ -58,7 +58,7 @@ class TransformationComponent(MPComponent):
             "message": message,
         }
 
-    def container_layout(self, state=None) -> html.Div:
+    def container_layout(self, state=None, structure=None) -> html.Div:
         """
         :return: Layout defining transformation and its options.
         """
@@ -299,15 +299,20 @@ class AllTransformationsComponent(MPComponent):
         @app.callback(
             Output(self.id("transformation_options"), "children"),
             [Input(self.id("choices"), "value")],
-            [State(t.id(), "data") for t in self.transformations.values()],
+            [State(self.input_structure.id(), "data")]
+            + [State(t.id(), "data") for t in self.transformations.values()],
         )
-        def show_transformation_options(values, *args):
+        def show_transformation_options(values, structure, *args):
 
             values = values or []
 
+            structure = self.from_data(structure)
+
             transformation_options = html.Div(
                 [
-                    self.transformations[name].container_layout(state=state)
+                    self.transformations[name].container_layout(
+                        state=state, structure=structure
+                    )
                     for name, state in zip(values, args)
                 ]
             )

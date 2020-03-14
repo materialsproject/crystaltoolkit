@@ -33,7 +33,7 @@ integers.
     def transformation(self):
         return SupercellTransformation
 
-    def options_layout(self, state=None):
+    def options_layout(self, state=None, stucture=None):
 
         state = state or {"scaling_matrix": ((1, 0, 0), (0, 1, 0), (0, 0, 1))}
 
