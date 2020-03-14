@@ -16,7 +16,10 @@ from crystal_toolkit.helpers.layouts import *
 from typing import List
 from itertools import chain
 
+from ast import literal_eval
+
 import flask
+import numpy as np
 
 
 class TransformationComponent(MPComponent):
@@ -168,22 +171,54 @@ class TransformationComponent(MPComponent):
                 Output(self.id("message"), "children"),
             ]
             + [Output(option, "disabled") for option in self.option_ids],
-            [
-                Input(self.id("transformation_args_kwargs"), "data"),
-                Input(self.id("enable_transformation"), "value"),
-            ],
+            [Input(self.id("enable_transformation"), "value")],
+            [State(option_id, "value") for option_id in self.option_ids],
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
             make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
         )
-        def update_transformation(args_kwargs, enabled, *args):
+        def update_transformation(enabled, *args):
 
-            # TODO: pull args_kwargs directly from input state
-            #             [
-            #                 State(option_id, "value") for option_id in self._option_ids
-            #             ]
-            print("state", dash.callback_context.states)
+            state = dash.callback_context.states
+            args_kwargs = {"args": {}, "kwargs": {}}
+            for k, v in state.items():
+                # examples of strings being parsed:
+                # ...kwarg_supercell_matrix_00
+                # ...arg_1_bool_1
+                # ...arg_1_bool_0
+                kwarg_name = None
+                arg_idx = None
+                if "kwarg" in k:
+                    k = k.split("kwarg")[1]
+                    k = k.split("-")[1:]
+                    kwarg_name = k[0]
+                elif "arg" in k:
+                    k = k.split("arg")[1]
+                    k = k.split("-")
+                    arg_idx = int(k[0])
+                k_type = k[1]
+                if k_type == "matrix":
+                    i = int(k[2][0])
+                    j = int(k[2][1])
+                    if kwarg_name and (kwarg_name not in args_kwargs["kwargs"]):
+                        args_kwargs["kwargs"][kwarg_name] = np.empty((3, 3)).tolist()
+                    elif arg_idx and (arg_idx not in args_kwargs["args"]):
+                        args_kwargs["args"][arg_idx] = [[0] * 3] * 3
+                    if kwarg_name:
+                        args_kwargs["kwargs"][kwarg_name][i][j] = v
+                    elif arg_idx:
+                        args_kwargs["args"][arg_idx][i][j] = v
+                elif k_type == "bool":
+                    if kwarg_name:
+                        args_kwargs["kwargs"][kwarg_name] = bool(v)
+                    elif arg_idx:
+                        args_kwargs["args"][arg_idx] = bool(v)
+
+            # convert args dict into a list of arguments in the correct order
+            args_kwargs["args"] = [
+                x[1] for x in sorted(args_kwargs["args"].items(), key=lambda x: x[0])
+            ]
 
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 

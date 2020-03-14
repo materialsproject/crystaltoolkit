@@ -69,12 +69,12 @@ def get_matrix_input(
     shape = np.array(default).shape
 
     if isinstance(for_arg_kwarg_label, int):
-        for_arg_kwarg_label = f"arg_{for_arg_kwarg_label}"
+        for_arg_kwarg_label = f"arg-{for_arg_kwarg_label}"
     elif isinstance(for_arg_kwarg_label, str):
-        for_arg_kwarg_label = f"kwarg_{for_arg_kwarg_label}"
+        for_arg_kwarg_label = f"kwarg-{for_arg_kwarg_label}"
 
     def matrix_element(element, value=0):
-        mid = f"{component.id(for_arg_kwarg_label)}_m{element}"
+        mid = f"{component.id(for_arg_kwarg_label)}-matrix-{element}"
         ids.append(mid)
         return dcc.Input(
             id=mid,
