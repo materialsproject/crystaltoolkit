@@ -43,25 +43,26 @@ integers.
 
         return options
 
-    def generate_callbacks(self, app, cache):
-
-        super().generate_callbacks(app, cache)
-
-        print("option", self.option_ids)
-
-        app.clientside_callback(
-            """
-            function (m11, m12, m13, m21, m22, m23, m31, m32, m33) {
-            
-                const scaling_matrix = [
-                    [parseInt(m11), parseInt(m12), parseInt(m13)],
-                    [parseInt(m21), parseInt(m22), parseInt(m23)],
-                    [parseInt(m31), parseInt(m32), parseInt(m33)]
-                ]
-                
-                return {args: [], kwargs: {scaling_matrix: scaling_matrix}}
-            }
-            """,
-            Output(self.id("transformation_args_kwargs"), "data"),
-            [Input(option_id, "value") for option_id in self.option_ids],
-        )
+    #
+    # def generate_callbacks(self, app, cache):
+    #
+    #     super().generate_callbacks(app, cache)
+    #
+    #     print("option", self.option_ids)
+    #
+    #     app.clientside_callback(
+    #         """
+    #         function (m11, m12, m13, m21, m22, m23, m31, m32, m33) {
+    #
+    #             const scaling_matrix = [
+    #                 [parseInt(m11), parseInt(m12), parseInt(m13)],
+    #                 [parseInt(m21), parseInt(m22), parseInt(m23)],
+    #                 [parseInt(m31), parseInt(m32), parseInt(m33)]
+    #             ]
+    #
+    #             return {args: [], kwargs: {scaling_matrix: scaling_matrix}}
+    #         }
+    #         """,
+    #         Output(self.id("transformation_args_kwargs"), "data"),
+    #         [Input(option_id, "value") for option_id in self.option_ids],
+    #     )
