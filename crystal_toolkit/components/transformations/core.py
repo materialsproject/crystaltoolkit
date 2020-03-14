@@ -136,34 +136,6 @@ class TransformationComponent(MPComponent):
         return list(chain.from_iterable(self._option_ids.values()))
 
     def generate_callbacks(self, app, cache):
-
-        # TODO: multiple outputs may not be supported by clientside callbacks yet(?)
-        # TODO: re-evaluate this callback
-        # if self.option_ids:
-        # app.clientside_callback(
-        #     f"""
-        #     function (enabled) {{
-        #         console.log("enabled", enabled);
-        #         const controlState = [];
-        #         const numberOfControls = {len(self.option_ids)};
-        #         if (enabled.includes("enable")) {{
-        #             for (var i = 0; i < numberOfControls; i++) {{
-        #                 controlState.push(true);
-        #             }}
-        #         }} else {{
-        #         if (enabled.includes("enable")) {{
-        #             for (var i = 0; i < numberOfControls; i++) {{
-        #                 controlState.push(false);
-        #             }}
-        #         }}
-        #         console.log("controlState", controlState);
-        #         return controlState;
-        #     }}
-        #     """,
-        #     [Output(option, "disabled") for option in self.option_ids],
-        #     [Input(self.id("enable_transformation"), "value")]
-        # )
-
         @app.callback(
             [
                 Output(self.id(), "data"),
@@ -181,44 +153,23 @@ class TransformationComponent(MPComponent):
         def update_transformation(enabled, *args):
 
             state = dash.callback_context.states
-            args_kwargs = {"args": {}, "kwargs": {}}
+            kwargs = {}
             for k, v in state.items():
                 # examples of strings being parsed:
-                # ...kwarg_supercell_matrix_00
-                # ...arg_1_bool_1
-                # ...arg_1_bool_0
-                kwarg_name = None
-                arg_idx = None
-                if "kwarg" in k:
-                    k = k.split("kwarg")[1]
-                    k = k.split("-")[1:]
-                    kwarg_name = k[0]
-                elif "arg" in k:
-                    k = k.split("arg")[1]
-                    k = k.split("-")
-                    arg_idx = int(k[0])
+                # ...kwarg-supercell-matrix-00
+                # ...kwarg-some_option-bool-0
+                k = k.split("kwarg")[1]
+                k = k.split("-")[1:]
+                kwarg_name = k[0]
                 k_type = k[1]
                 if k_type == "matrix":
                     i = int(k[2][0])
                     j = int(k[2][1])
-                    if kwarg_name and (kwarg_name not in args_kwargs["kwargs"]):
-                        args_kwargs["kwargs"][kwarg_name] = np.empty((3, 3)).tolist()
-                    elif arg_idx and (arg_idx not in args_kwargs["args"]):
-                        args_kwargs["args"][arg_idx] = [[0] * 3] * 3
-                    if kwarg_name:
-                        args_kwargs["kwargs"][kwarg_name][i][j] = v
-                    elif arg_idx:
-                        args_kwargs["args"][arg_idx][i][j] = v
+                    if kwarg_name not in kwargs:
+                        kwargs[kwarg_name] = np.empty((3, 3)).tolist()
+                    kwargs[kwarg_name][i][j] = v
                 elif k_type == "bool":
-                    if kwarg_name:
-                        args_kwargs["kwargs"][kwarg_name] = bool(v)
-                    elif arg_idx:
-                        args_kwargs["args"][arg_idx] = bool(v)
-
-            # convert args dict into a list of arguments in the correct order
-            args_kwargs["args"] = [
-                x[1] for x in sorted(args_kwargs["args"].items(), key=lambda x: x[0])
-            ]
+                    kwargs[kwarg_name] = bool(v)
 
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 
@@ -229,9 +180,7 @@ class TransformationComponent(MPComponent):
                 input_state = (True,) * len(self.option_ids)
 
             try:
-                trans = self.transformation(
-                    *args_kwargs["args"], **args_kwargs["kwargs"]
-                )
+                trans = self.transformation(**kwargs)
                 error = None
             except Exception as exception:
                 trans = None
