@@ -7,7 +7,7 @@ from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.core.mpcomponent import MPComponent
 from collections import namedtuple
 
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Tuple
 
 
 def _add_label_help(input, label, help):
@@ -48,6 +48,7 @@ def get_matrix_input(
     state: Optional[dict] = None,
     label: Optional[str] = None,
     help: str = None,
+    shape: Tuple[int, int] = (3, 3),
 ):
     """
     For Python classes which take matrices as inputs, this will generate
@@ -62,10 +63,9 @@ def get_matrix_input(
     :return: a Dash layout
     """
 
-    default = state.get(kwarg_label) or ((1, 0, 0), (0, 1, 0), (0, 0, 1))
+    default = state.get(kwarg_label) or np.empty(shape)
+    default = np.reshape(default, shape)
     ids = []
-
-    shape = np.array(default).shape
 
     kwarg_label = f"kwarg-{kwarg_label}"
 
@@ -83,6 +83,7 @@ def get_matrix_input(
                 "marginBottom": "0.2rem",
             },
             value=value,
+            persistence=True,
         )
 
     matrix_contents = []
