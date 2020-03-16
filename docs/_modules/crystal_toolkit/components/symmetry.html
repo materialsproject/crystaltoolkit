@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -192,7 +192,7 @@
             <span class="n">x_str</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">fraction</span><span class="p">)):</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-            <span class="n">x_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{x:.3g}</span><span class="s2">&quot;</span>
+            <span class="n">x_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fraction</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">x_str</span></div>
@@ -256,7 +256,7 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Failed to calculate symmetry with this combination of &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;symmetry-finding (</span><span class="si">{symprec}</span><span class="s2">) and angle tolerances (</span><span class="si">{angle_tolerance}</span><span class="s2">).&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;symmetry-finding (</span><span class="si">{</span><span class="n">symprec</span><span class="si">}</span><span class="s2">) and angle tolerances (</span><span class="si">{</span><span class="n">angle_tolerance</span><span class="si">}</span><span class="s2">).&quot;</span>
             <span class="p">)</span>
 
         <span class="n">datalist</span> <span class="o">=</span> <span class="n">get_data_list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -271,7 +271,7 @@
         <span class="k">for</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">equiv_sites</span> <span class="ow">in</span> <span class="n">wyckoff_data</span><span class="p">:</span>
             <span class="n">wyckoff_contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">html</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{symbol}</span><span class="s2">, {unicodeify_species(equiv_sites[0].species_string)}&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">symbol</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">unicodeify_species</span><span class="p">(</span><span class="n">equiv_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="n">className</span><span class="o">=</span><span class="s2">&quot;mpc-label&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>

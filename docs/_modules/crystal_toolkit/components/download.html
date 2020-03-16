@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -217,12 +217,12 @@
 
             <span class="n">base64</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">contents</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
 
-            <span class="n">href</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;data:text/plain;charset=utf-8;base64,</span><span class="si">{base64}</span><span class="s2">&quot;</span>
+            <span class="n">href</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;data:text/plain;charset=utf-8;base64,</span><span class="si">{</span><span class="n">base64</span><span class="si">}</span><span class="s2">&quot;</span>
 
             <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">A</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Download File&quot;</span><span class="p">,</span>
                 <span class="n">href</span><span class="o">=</span><span class="n">href</span><span class="p">,</span>
-                <span class="n">download</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{structure.composition.reduced_formula}</span><span class="s2">.</span><span class="si">{fmt}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">download</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">target</span><span class="o">=</span><span class="s2">&quot;_blank&quot;</span><span class="p">,</span>
             <span class="p">)</span></div></div>
 </pre></div>
