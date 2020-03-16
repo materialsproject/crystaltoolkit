@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -233,7 +233,7 @@
         <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">meta_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;generator&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Crystal Toolkit </span><span class="si">{ct_version}</span><span class="s2"> (Materials Project)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Crystal Toolkit </span><span class="si">{</span><span class="n">ct_version</span><span class="si">}</span><span class="s2"> (Materials Project)&quot;</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span></div>
 
@@ -369,9 +369,9 @@
         <span class="c1"># ensure ids are unique</span>
         <span class="c1"># Note: shadowing Python built-in here, but only because Dash does it...</span>
         <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{self.__class__.__name__}</span><span class="s2">_{str(uuid4())[0:6]}&quot;</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">CT_NAMESPACE</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())[</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{CT_NAMESPACE}{id}</span><span class="s2">&quot;</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">CT_NAMESPACE</span><span class="si">}{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">MPComponent</span><span class="o">.</span><span class="n">_all_id_basenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="nb">id</span>
@@ -390,14 +390,14 @@
 
         <span class="k">if</span> <span class="n">MPComponent</span><span class="o">.</span><span class="n">app</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No app defined for component </span><span class="si">{self._id}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;No app defined for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;callbacks cannot be created. Please register app using &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;MPComponent.register_app(app).&quot;</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">MPComponent</span><span class="o">.</span><span class="n">cache</span> <span class="ow">is</span> <span class="n">null_cache</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No cache is defined for component </span><span class="si">{self._id}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;No cache is defined for component </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;performance of app may be degraded. Please register cache &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;using MPComponent.register_cache(cache).&quot;</span>
             <span class="p">)</span>
@@ -436,9 +436,9 @@
         <span class="c1"># otherwise create a new id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_all_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self._id}</span><span class="s2">_</span><span class="si">{name}</span><span class="s2">&quot;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self._id}</span><span class="s2">&quot;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">name</span></div>
 
 <div class="viewcode-block" id="MPComponent.create_store"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent.create_store">[docs]</a>    <span class="k">def</span> <span class="nf">create_store</span><span class="p">(</span>
@@ -519,7 +519,7 @@
         <span class="n">dest_store_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="n">this_store_name</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Linking the output of </span><span class="si">{origin_store_id}</span><span class="s2"> to </span><span class="si">{dest_store_id}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Linking the output of </span><span class="si">{</span><span class="n">origin_store_id</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest_store_id</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
 
         <span class="nd">@MPComponent</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
@@ -553,17 +553,17 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ids</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{component_id}</span><span class="s2">  &quot;</span> <span class="k">for</span> <span class="n">component_id</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_ids</span><span class="p">)]</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{</span><span class="n">component_id</span><span class="si">}</span><span class="s2">  &quot;</span> <span class="k">for</span> <span class="n">component_id</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_ids</span><span class="p">)]</span>
         <span class="p">)</span>
-        <span class="n">stores</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{store}</span><span class="s2">  &quot;</span> <span class="k">for</span> <span class="n">store</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_stores</span><span class="p">)])</span>
+        <span class="n">stores</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{</span><span class="n">store</span><span class="si">}</span><span class="s2">  &quot;</span> <span class="k">for</span> <span class="n">store</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_stores</span><span class="p">)])</span>
         <span class="n">layouts</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{layout}</span><span class="s2">  &quot;</span> <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{</span><span class="n">layout</span><span class="si">}</span><span class="s2">  &quot;</span> <span class="k">for</span> <span class="n">layout</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;{self.id()}&lt;</span><span class="si">{self.__class__.__name__}</span><span class="s2">&gt;  </span><span class="se">\n</span><span class="s2"></span>
-<span class="s2">IDs:  </span><span class="se">\n</span><span class="si">{ids}</span><span class="s2">  </span><span class="se">\n</span><span class="s2"></span>
-<span class="s2">Stores:  </span><span class="se">\n</span><span class="si">{stores}</span><span class="s2">  </span><span class="se">\n</span><span class="s2"></span>
-<span class="s2">Sub-layouts:  </span><span class="se">\n</span><span class="si">{layouts}</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()</span><span class="si">}</span><span class="s2">&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&gt;  </span><span class="se">\n</span><span class="s2"></span>
+<span class="s2">IDs:  </span><span class="se">\n</span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">  </span><span class="se">\n</span><span class="s2"></span>
+<span class="s2">Stores:  </span><span class="se">\n</span><span class="si">{</span><span class="n">stores</span><span class="si">}</span><span class="s2">  </span><span class="se">\n</span><span class="s2"></span>
+<span class="s2">Sub-layouts:  </span><span class="se">\n</span><span class="si">{</span><span class="n">layouts</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_sub_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -367,7 +367,7 @@
                 <span class="p">}</span>
 
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">lse</span><span class="o">.</span><span class="n">neighbors_sets</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
-                    <span class="n">unknown_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{struct[index].species_string}</span><span class="s2"> (</span><span class="si">{wyckoff}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                    <span class="n">unknown_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">struct</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">wyckoff</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
                     <span class="k">continue</span>
 
                 <span class="c1"># represent the local environment as a molecule</span>
@@ -384,7 +384,7 @@
                         <span class="n">StructureMoleculeComponent</span><span class="p">(</span>
                             <span class="n">struct_or_mol</span><span class="o">=</span><span class="n">mg</span><span class="p">,</span>
                             <span class="n">static</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                            <span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{struct.composition.reduced_formula}</span><span class="s2">_site_</span><span class="si">{index}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">struct</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="si">}</span><span class="s2">_site_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                             <span class="n">scene_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;enableZoom&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;defaultZoom&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">},</span>
                         <span class="p">)</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;struct&quot;</span><span class="p">]</span>
                     <span class="p">],</span>
@@ -395,7 +395,7 @@
                 <span class="n">co</span> <span class="o">=</span> <span class="n">all_ce</span><span class="o">.</span><span class="n">get_geometry_from_mp_symbol</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;ce_symbol&quot;</span><span class="p">])</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">co</span><span class="o">.</span><span class="n">name</span>
                 <span class="k">if</span> <span class="n">co</span><span class="o">.</span><span class="n">alternative_names</span><span class="p">:</span>
-                    <span class="n">name</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (also known as {&#39;, &#39;.join(co.alternative_names)})&quot;</span>
+                    <span class="n">name</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (also known as </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">co</span><span class="o">.</span><span class="n">alternative_names</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
 
                 <span class="n">datalist</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                     <span class="p">{</span>
@@ -409,7 +409,7 @@
                             <span class="s2">&quot;coordination environment that is exactly identical to the ideal one. A &quot;</span>
                             <span class="s2">&quot;CSM larger than 5.0 already indicates a relatively strong distortion of &quot;</span>
                             <span class="s2">&quot;the investigated coordination environment.&quot;</span><span class="p">,</span>
-                        <span class="p">):</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{env[0][&#39;csm&#39;]:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="p">):</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">env</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;csm&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;Interactive View&quot;</span><span class="p">:</span> <span class="n">view</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
@@ -426,7 +426,7 @@
 
             <span class="k">if</span> <span class="n">unknown_sites</span><span class="p">:</span>
                 <span class="n">unknown_sites</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Strong</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The following sites were not identified: {&#39;, &#39;.join(unknown_sites)}. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;The following sites were not identified: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unknown_sites</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Please try changing the distance or angle cut-offs to identify these sites, &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;or try an alternative algorithm such as LocalEnv.&quot;</span>
                 <span class="p">)</span>

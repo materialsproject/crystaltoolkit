@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -203,7 +203,7 @@
 
     <span class="k">def</span> <span class="nf">matrix_element</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">dcc</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span>
-            <span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{id}</span><span class="s2">_m</span><span class="si">{element}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">_m</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">inputMode</span><span class="o">=</span><span class="s2">&quot;numeric&quot;</span><span class="p">,</span>
             <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="nb">max</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
@@ -224,7 +224,7 @@
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
         <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix_element</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{i}{j}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">default</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix_element</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">default</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
         <span class="n">matrix_contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
 
     <span class="n">matrix</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">matrix_contents</span><span class="p">)</span>
