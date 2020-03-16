@@ -68,6 +68,14 @@ void Draw(guide3 g,pen p=currentpen, real cylR=0.2){
   );
 }
 
+// Draw a cylinder without light
+void Draw_nolight(guide3 g,pen p=currentpen, real cylR=0.2){
+  material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);
+  revolution s_rev = cylinder(point(g,0),cylR,arclength(g),point(g,1)-point(g,0));
+  surface s_surf = surface(s_rev);
+  draw(s_surf, nlpen);
+  draw(s_rev.silhouette(100), black+linewidth(3));
+}
 """
 
 TEMP_SPHERE = """
