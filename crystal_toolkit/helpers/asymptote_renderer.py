@@ -23,7 +23,8 @@ import settings;
 import solids;
 size(300);
 outformat="png";
-defaultshininess = 0.02;
+defaultshininess = 0.8;
+currentlight = light(0,0,400);
 
 // Camera information
 currentprojection=orthographic (
@@ -32,6 +33,7 @@ up=(0,0,1),
 target={{target}},
 zoom=0.5
 );
+
 // Basic function for drawing spheres
 void drawSpheres(triple[] C, real R, pen p=currentpen){
   for(int i=0;i<C.length;++i){
@@ -39,6 +41,17 @@ void drawSpheres(triple[] C, real R, pen p=currentpen){
                         new pen(int i, real j){return p;}
                         )
     );
+  }
+}
+
+// Draw a sphere without light
+void drawSpheres_nolight(triple[] C, real R, pen p=currentpen){
+  material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);
+  for(int i=0;i<C.length;++i){
+    revolution s_rev = sphere(C[i],R);
+    surface s_surf = surface(s_rev);
+    draw(s_surf, nlpen);
+    draw(s_rev.silhouette(100), black+linewidth(3));
   }
 }
 
@@ -70,6 +83,22 @@ sphere{{loop.index}}
 };
 drawSpheres(spheres, {{radius}}, rgb('{{color}}'));
 """
+
+TEMP_SPHERE_NOLIGHT = """
+{% for val in positions %}
+triple sphere{{loop.index}}={{val}};
+{% endfor %}
+
+triple[] spheres = {
+{%- for val in positions -%}
+sphere{{loop.index}}
+{%- if not loop.last %},{% endif %}
+{%- endfor -%}
+};
+drawSpheres_nolight(spheres, {{radius}}, rgb('{{color}}'));
+"""
+
+
 
 TEMP_CYLINDER = """
 pen connectPen=rgb('{{color}}');
@@ -107,6 +136,26 @@ real[][] A = {
 A = transpose(A);
 
 material m = rgb('{{face_color}}') + opacity({{opac}});
+triple a,b,c;
+for(int i=0; i < A[0].length/3; ++i) {
+  a=(A[0][i*3],A[1][i*3],A[2][i*3]);
+  b=(A[0][i*3+1],A[1][i*3+1],A[2][i*3+1]);
+  c=(A[0][i*3+2],A[1][i*3+2],A[2][i*3+2]);
+  draw(surface(a--b--c--cycle),surfacepen = m);        // draw i-th triangle
+}
+path3 no_show = path3(scale(0) * box((-1,-1),(1,1)));
+draw(surface(no_show), surfacepen=m);        // draw i-th triangle
+"""
+
+TEMP_SURF_NOLIGHT = """
+real[][] A = {
+{% for ipos in positions -%}
+    {{ipos}},
+{% endfor %}
+};
+A = transpose(A);
+
+material m = material(diffusepen=opacity({{opac}}), emissivepen=rgb("{{face_color}}"), shininess=0);
 triple a,b,c;
 for(int i=0; i < A[0].length/3; ++i) {
   a=(A[0][i*3],A[1][i*3],A[2][i*3]);
