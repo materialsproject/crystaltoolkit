@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -178,7 +178,8 @@
 <span class="s2">import solids;</span>
 <span class="s2">size(300);</span>
 <span class="s2">outformat=&quot;png&quot;;</span>
-<span class="s2">defaultshininess = 0.02;</span>
+<span class="s2">defaultshininess = 0.8;</span>
+<span class="s2">currentlight = light(0,0,400);</span>
 
 <span class="s2">// Camera information</span>
 <span class="s2">currentprojection=orthographic (</span>
@@ -187,6 +188,7 @@
 <span class="s2">target={{target}},</span>
 <span class="s2">zoom=0.5</span>
 <span class="s2">);</span>
+
 <span class="s2">// Basic function for drawing spheres</span>
 <span class="s2">void drawSpheres(triple[] C, real R, pen p=currentpen){</span>
 <span class="s2">  for(int i=0;i&lt;C.length;++i){</span>
@@ -194,6 +196,17 @@
 <span class="s2">                        new pen(int i, real j){return p;}</span>
 <span class="s2">                        )</span>
 <span class="s2">    );</span>
+<span class="s2">  }</span>
+<span class="s2">}</span>
+
+<span class="s2">// Draw a sphere without light</span>
+<span class="s2">void drawSpheres_nolight(triple[] C, real R, pen p=currentpen){</span>
+<span class="s2">  material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);</span>
+<span class="s2">  for(int i=0;i&lt;C.length;++i){</span>
+<span class="s2">    revolution s_rev = sphere(C[i],R);</span>
+<span class="s2">    surface s_surf = surface(s_rev);</span>
+<span class="s2">    draw(s_surf, nlpen);</span>
+<span class="s2">    draw(s_rev.silhouette(100), black+linewidth(3));</span>
 <span class="s2">  }</span>
 <span class="s2">}</span>
 
@@ -225,6 +238,22 @@
 <span class="s2">};</span>
 <span class="s2">drawSpheres(spheres, {{radius}}, rgb(&#39;{{color}}&#39;));</span>
 <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_SPHERE_NOLIGHT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or val in positions %}</span>
+<span class="s2">triple sphere{{loop.index}}={{val}};</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+
+<span class="s2">triple[] spheres = {</span>
+<span class="s2">{</span><span class="si">%- f</span><span class="s2">or val in positions -%}</span>
+<span class="s2">sphere{{loop.index}}</span>
+<span class="s2">{</span><span class="si">%- i</span><span class="s2">f not loop.last %},{</span><span class="si">% e</span><span class="s2">ndif %}</span>
+<span class="s2">{</span><span class="si">%- e</span><span class="s2">ndfor -%}</span>
+<span class="s2">};</span>
+<span class="s2">drawSpheres_nolight(spheres, {{radius}}, rgb(&#39;{{color}}&#39;));</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
 
 <span class="n">TEMP_CYLINDER</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">pen connectPen=rgb(&#39;{{color}}&#39;);</span>
@@ -262,6 +291,26 @@
 <span class="s2">A = transpose(A);</span>
 
 <span class="s2">material m = rgb(&#39;{{face_color}}&#39;) + opacity({{opac}});</span>
+<span class="s2">triple a,b,c;</span>
+<span class="s2">for(int i=0; i &lt; A[0].length/3; ++i) {</span>
+<span class="s2">  a=(A[0][i*3],A[1][i*3],A[2][i*3]);</span>
+<span class="s2">  b=(A[0][i*3+1],A[1][i*3+1],A[2][i*3+1]);</span>
+<span class="s2">  c=(A[0][i*3+2],A[1][i*3+2],A[2][i*3+2]);</span>
+<span class="s2">  draw(surface(a--b--c--cycle),surfacepen = m);        // draw i-th triangle</span>
+<span class="s2">}</span>
+<span class="s2">path3 no_show = path3(scale(0) * box((-1,-1),(1,1)));</span>
+<span class="s2">draw(surface(no_show), surfacepen=m);        // draw i-th triangle</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_SURF_NOLIGHT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">real[][] A = {</span>
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos in positions -%}</span>
+<span class="s2">    {{ipos}},</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+<span class="s2">};</span>
+<span class="s2">A = transpose(A);</span>
+
+<span class="s2">material m = material(diffusepen=opacity({{opac}}), emissivepen=rgb(&quot;{{face_color}}&quot;), shininess=0);</span>
 <span class="s2">triple a,b,c;</span>
 <span class="s2">for(int i=0; i &lt; A[0].length/3; ++i) {</span>
 <span class="s2">  a=(A[0][i*3],A[1][i*3],A[2][i*3]);</span>
@@ -381,7 +430,7 @@
     <span class="n">opacity</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">opacity</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s2">&quot;opacity&quot;</span><span class="p">]</span>
 
     <span class="n">positions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-        <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{x[0]}</span><span class="s2">, </span><span class="si">{x[1]}</span><span class="s2">, </span><span class="si">{x[2]}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">,</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
+        <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">,</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">num_triangle</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
     <span class="c1"># sanity check the mesh must be triangles</span>

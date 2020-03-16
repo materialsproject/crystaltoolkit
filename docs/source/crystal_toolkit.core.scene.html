@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -201,22 +201,22 @@ and trigger and event</p>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.color">
-<code class="sig-name descname">color</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.headLength">
-<code class="sig-name descname">headLength</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.headLength" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">headLength</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.headLength" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.headWidth">
-<code class="sig-name descname">headWidth</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.headWidth" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">headWidth</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.headWidth" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -230,23 +230,28 @@ and trigger and event</p>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Arrows.positionPairs">
+<code class="sig-name descname">positionPairs</code><em class="property">: List[List[List[float]]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.positionPairs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.radius">
-<code class="sig-name descname">radius</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">radius</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.radius" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.type">
-<code class="sig-name descname">type</code><em class="property"> = 'arrows'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'arrows'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -267,32 +272,37 @@ objects very well.</p>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Convex.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Convex.color">
-<code class="sig-name descname">color</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Convex.opacity">
-<code class="sig-name descname">opacity</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.opacity" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">opacity</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.opacity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Convex.positions">
+<code class="sig-name descname">positions</code><em class="property">: List[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Convex.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Convex.type">
-<code class="sig-name descname">type</code><em class="property"> = 'convex'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'convex'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Convex.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -312,12 +322,12 @@ positions of the cubes.
 and trigger and event</p>
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.color">
-<code class="sig-name descname">color</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -331,23 +341,28 @@ and trigger and event</p>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Cubes.positions">
+<code class="sig-name descname">positions</code><em class="property">: List[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.positions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.type">
-<code class="sig-name descname">type</code><em class="property"> = 'cubes'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'cubes'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.width">
-<code class="sig-name descname">width</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.width" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">width</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -373,12 +388,12 @@ and trigger and event</p>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.color">
-<code class="sig-name descname">color</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -392,23 +407,28 @@ and trigger and event</p>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Cylinders.positionPairs">
+<code class="sig-name descname">positionPairs</code><em class="property">: List[List[List[float]]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.positionPairs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.radius">
-<code class="sig-name descname">radius</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">radius</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.radius" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.type">
-<code class="sig-name descname">type</code><em class="property"> = 'cylinders'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'cylinders'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -434,12 +454,12 @@ ellipsoid, defaults to 2*pi
 and trigger and event</p>
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.color">
-<code class="sig-name descname">color</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -454,27 +474,42 @@ and trigger and event</p>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.phiEnd">
-<code class="sig-name descname">phiEnd</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.phiEnd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">phiEnd</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.phiEnd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.phiStart">
-<code class="sig-name descname">phiStart</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.phiStart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">phiStart</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.phiStart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Ellipsoids.positions">
+<code class="sig-name descname">positions</code><em class="property">: List[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.reference" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Ellipsoids.rotate_to">
+<code class="sig-name descname">rotate_to</code><em class="property">: List[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.rotate_to" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Ellipsoids.scale">
+<code class="sig-name descname">scale</code><em class="property">: List[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.scale" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.type">
-<code class="sig-name descname">type</code><em class="property"> = 'ellipsoids'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'ellipsoids'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -486,32 +521,37 @@ and trigger and event</p>
 <p>Add a label to an object.</p>
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Label.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.clickable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Label.label">
+<code class="sig-name descname">label</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.label" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Label.labelHover">
-<code class="sig-name descname">labelHover</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.labelHover" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">labelHover</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.labelHover" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Label.position">
-<code class="sig-name descname">position</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.position" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">position</code><em class="property">: List[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.position" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Label.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Label.type">
-<code class="sig-name descname">type</code><em class="property"> = 'labels'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'labels'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Label.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -537,22 +577,22 @@ together).
 and trigger and event</p>
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.color">
-<code class="sig-name descname">color</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.dashSize">
-<code class="sig-name descname">dashSize</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.dashSize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dashSize</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.dashSize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.gapSize">
-<code class="sig-name descname">gapSize</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.gapSize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">gapSize</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.gapSize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -562,7 +602,7 @@ and trigger and event</p>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.linewidth">
-<code class="sig-name descname">linewidth</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.linewidth" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">linewidth</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.linewidth" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -571,23 +611,28 @@ and trigger and event</p>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Lines.positions">
+<code class="sig-name descname">positions</code><em class="property">: List[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.positions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.scale">
-<code class="sig-name descname">scale</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.scale" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scale</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.scale" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.type">
-<code class="sig-name descname">type</code><em class="property"> = 'lines'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'lines'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Lines.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -668,6 +713,11 @@ and its contents (a list of geometric primitives or other Scenes).</p>
 <dd><p>Returns the boundinx box coordinates</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Scene.contents">
+<code class="sig-name descname">contents</code><em class="property">: list</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.contents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="crystal_toolkit.core.scene.Scene.merge_primitives">
 <em class="property">static </em><code class="sig-name descname">merge_primitives</code><span class="sig-paren">(</span><em class="sig-param">primitives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.merge_primitives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.merge_primitives" title="Permalink to this definition">¶</a></dt>
@@ -678,8 +728,13 @@ are merged together. This is a small optimization, has not been benchmarked.
 </dd></dl>
 
 <dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Scene.name">
+<code class="sig-name descname">name</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Scene.origin">
-<code class="sig-name descname">origin</code><em class="property"> = (0, 0, 0)</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.origin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">origin</code><em class="property">: List[float]</em><em class="property"> = (0, 0, 0)</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.origin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -709,7 +764,7 @@ encoder.</p>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Scene.visible">
-<code class="sig-name descname">visible</code><em class="property"> = True</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = True</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -734,12 +789,12 @@ sphere, defaults to 2*pi
 and trigger and event</p>
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.color">
-<code class="sig-name descname">color</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -754,32 +809,37 @@ and trigger and event</p>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.phiEnd">
-<code class="sig-name descname">phiEnd</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.phiEnd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">phiEnd</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.phiEnd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.phiStart">
-<code class="sig-name descname">phiStart</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.phiStart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">phiStart</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.phiStart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Spheres.positions">
+<code class="sig-name descname">positions</code><em class="property">: List[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.radius">
-<code class="sig-name descname">radius</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">radius</code><em class="property">: Optional[float]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.radius" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.type">
-<code class="sig-name descname">type</code><em class="property"> = 'spheres'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'spheres'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -798,42 +858,47 @@ Three.js renderer doesn’t support nested transparent objects very well.</p>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.clickable">
-<code class="sig-name descname">clickable</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.color">
-<code class="sig-name descname">color</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">color</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.normals">
-<code class="sig-name descname">normals</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.normals" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normals</code><em class="property">: Optional[List[List[float]]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.normals" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.opacity">
-<code class="sig-name descname">opacity</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.opacity" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">opacity</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.opacity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="crystal_toolkit.core.scene.Surface.positions">
+<code class="sig-name descname">positions</code><em class="property">: List[List[float]]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.reference">
-<code class="sig-name descname">reference</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reference</code><em class="property">: Optional[str]</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.show_edges">
-<code class="sig-name descname">show_edges</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.show_edges" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">show_edges</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.show_edges" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.type">
-<code class="sig-name descname">type</code><em class="property"> = 'surface'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'surface'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="crystal_toolkit.core.scene.Surface.visible">
-<code class="sig-name descname">visible</code><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
