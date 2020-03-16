@@ -58,7 +58,7 @@ def get_volumetric_scene(self,
 
     Args:
         data_key (str, optional): Use the volumetric data from self.data[data_key]. Defaults to 'total'.
-        isolvl (float, optional): The cuoff for the isosurface to using the same units as VESTA so e/bhor and kept grid size independent
+        isolvl (float, optional): The cutoff for the isosurface to using the same units as VESTA so e/bhor and kept grid size independent
         step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.
         iso_kwargs_dict ([type], optional): additional kwargs to pass to the get_isosurface_scene. Defaults to None.
         struct_kwargs: kwarges for the Structure.get_scene function
@@ -69,7 +69,7 @@ def get_volumetric_scene(self,
 
     iso_kwags = iso_kwargs_dict or {}
     struct_scene = self.structure.get_scene(**struct_kwargs)
-    iso_scene = self.get_isosurface_scene(data_key='total',
+    iso_scene = self.get_isosurface_scene(data_key=data_key,
                                           isolvl=isolvl,
                                           step_size=step_size,
                                           origin=struct_scene.origin,
