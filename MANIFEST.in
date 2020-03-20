@@ -1,6 +1,0 @@
-include crystal_toolkit/crystal_toolkit.min.js
-include crystal_toolkit/crystal_toolkit.dev.js
-include crystal_toolkit/metadata.json
-include crystal_toolkit/package.json
-include crystal_toolkit/core/defaults.json
-include README.md
