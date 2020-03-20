@@ -20,6 +20,8 @@ from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.helpers.mprester import MPRester
 
+from crystal_toolkit.settings import SETTINGS
+
 # choose a default structure on load
 path = os.path.join(os.path.dirname(module_path), "apps/assets/task_ids_on_load.json")
 DEFAULT_MPIDS = loadfn(path)
@@ -37,23 +39,17 @@ meta_tags = [  # TODO: add og-image, etc., title
     }
 ]
 
-DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
-
-assets_folder = os.environ.get("CRYSTAL_TOOLKIT_ASSETS", "assets")
-if not os.environ.get("CRYSTAL_TOOLKIT_ASSETS"):
+if not SETTINGS.ASSETS_PATH:
     warnings.warn(
         "Set CRYSTAL_TOOLKIT_ASSETS environment variable or app will be unstyled."
     )
 
-app = dash.Dash(__name__, meta_tags=meta_tags, assets_folder=assets_folder)
+app = dash.Dash(__name__, meta_tags=meta_tags, assets_folder=SETTINGS.ASSETS_PATH)
 app.title = "Crystal Toolkit"
 app.scripts.config.serve_locally = True
 
 # Materials Project embed mode
-MP_EMBED_MODE = literal_eval(
-    os.environ.get("CRYSTAL_TOOLKIT_MP_EMBED_MODE", "False").title()
-)
-if not MP_EMBED_MODE:
+if not SETTINGS.MP_EMBED_MODE:
     app.config["assets_ignore"] = r".*\.mpembed\..*"
     box_size = "65vmin"
 else:
@@ -74,7 +70,7 @@ server = app.server
 # region SET UP CACHE
 ################################################################################
 
-if DEBUG_MODE:
+if SETTINGS.DEBUG_MODE:
     # disable cache in debug
     cache = Cache(app.server, config={"CACHE_TYPE": "null"})
 else:
@@ -82,7 +78,7 @@ else:
         app.server,
         config={
             "CACHE_TYPE": "redis",
-            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "redis://localhost:6379"),
+            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", SETTINGS.REDIS_URL),
         },
     )
 
@@ -102,14 +98,9 @@ logger = logging.getLogger(app.title)
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
-supercell = ctc.SupercellTransformationComponent()
-# grain_boundary = ctc.GrainBoundaryTransformationComponent()
-# oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
-# slab = ctc.SlabTransformationComponent()
-# substitution = ctc.SubstitutionTransformationComponent()
 
 transformation_component = ctc.AllTransformationsComponent(
-    transformations=[supercell]  # , slab, grain_boundary, oxi_state, substitution],
+    transformations=["SupercellTransformation"], input_structure=...
 )
 
 struct_component = ctc.StructureMoleculeComponent(
@@ -210,7 +201,7 @@ STRUCT_VIEWER_SOURCE = transformation_component.id()
 
 
 banner = html.Div(id="banner")
-if DEBUG_MODE:
+if SETTINGS.DEBUG_MODE:
     banner = html.Div(
         [
             html.Br(),
@@ -555,4 +546,4 @@ def master_update_structure(search_mpid: Optional[str], upload_data: Optional[st
 
 
 if __name__ == "__main__":
-    app.run_server(debug=DEBUG_MODE, port=8050)
+    app.run_server(debug=SETTINGS.DEBUG_MODE, port=8050)
