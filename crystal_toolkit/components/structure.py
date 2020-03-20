@@ -16,7 +16,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from crystal_toolkit import Simple3DSceneComponent
+from dash_mp_components import Simple3DScene
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
@@ -46,7 +46,7 @@ class StructureMoleculeComponent(MPComponent):
         subclass.__name__: subclass for subclass in NearNeighbors.__subclasses__()
     }
 
-    default_scene_settings = {}
+    default_scene_settings = {"extractAxis": True}
 
     # whether to persist options such as atomic radii etc.
     persistence = False
@@ -496,10 +496,13 @@ class StructureMoleculeComponent(MPComponent):
     def _sub_layouts(self):
 
         struct_layout = html.Div(
-            Simple3DSceneComponent(
+            Simple3DScene(
                 id=self.id("scene"),
                 data=self.initial_data["scene"],
                 settings=self.initial_scene_settings,
+                # axisView="SW",
+                # sceneSize=500,
+                # debug=True
             ),
             style={
                 "width": "100%",
@@ -702,7 +705,7 @@ class StructureMoleculeComponent(MPComponent):
             "legend": legend_layout,
         }
 
-    def layout(self, size: str = "400px") -> html.Div:
+    def layout(self, size: str = "500px") -> html.Div:
         """
         :param size: a CSS string specifying width/height of Div
         :return: A html.Div containing the 3D structure or molecule
