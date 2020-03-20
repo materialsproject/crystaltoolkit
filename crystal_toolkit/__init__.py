@@ -1,20 +1,10 @@
 from __future__ import print_function as _
 
 import os as _os
-import sys as _sys
 import json
 from collections import defaultdict
 
-import dash as _dash
-
-
-_basepath = _os.path.dirname(__file__)
-_filepath = _os.path.abspath(_os.path.join(_basepath, "package.json"))
-with open(_filepath) as f:
-    package = json.load(f)
-
-package_name = package["name"].replace(" ", "_").replace("-", "_")
-__version__ = package["version"]
+__version__ = "2020.03.20"
 
 # pleasant hack to support MSONable objects in Dash callbacks natively
 from monty.json import MSONable
