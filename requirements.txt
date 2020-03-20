@@ -20,12 +20,14 @@ mongomock>=3.14.0  # database fallback
 
 # additional Dash components
 dash-katex>=0.0.1
+dash_mp_components>=0.0.8
 
 # for everything
 pymatgen>=2019.9.8
 networkx>=2.0
 scikit-learn>=0.20.2
 webcolors>=1.10
+pydantic>=1.4
 
 # for favorites
 toml==0.10.0
