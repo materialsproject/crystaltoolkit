@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "crystal_toolkit"
+version = "2020.03.20"
+description = ""
+authors = ["Matthew Horton <mkhorton@lbl.gov>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+dash = "^1.9.1"
+dash-table = "^4.6.1"
+plotly = "^4.5.4"
+dash-daq = "^0.4.0"
+gunicorn = "^20.0.4"
+redis = "^3.4.1"
+Flask-Caching = "^1.8.0"
+gevent = "^1.4.0"
+dash_mp_components = "^0.0.8"
+pymatgen = "^2020.3.13"
+scikit-learn = "^0.22.2"
+webcolors = "^1.11.1"
+pydantic = "^1.4"
+
+[tool.poetry.dev-dependencies]
+black = "^19.10b0"
+pre-commit = "^2.2.0"
+dash = {extras = ["testing"], version = "^1.9.1"}
+pytest = "^5.4.1"
+sphinx = "^2.4.4"
+sphinx_rtd_theme = "^0.4.3"
+recommonmark = "^0.6.0"
+dephell = "^0.8.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
