@@ -14,7 +14,9 @@ from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
 
-from typing import List
+from crystal_toolkit.settings import SETTINGS
+
+from typing import List, Optional
 from itertools import chain
 
 from ast import literal_eval
@@ -24,7 +26,9 @@ import numpy as np
 
 
 class TransformationComponent(MPComponent):
-    def __init__(self, input_structure: MPComponent, *args, **kwargs):
+    def __init__(
+        self, input_structure_component: Optional[MPComponent] = None, *args, **kwargs
+    ):
 
         if self.__class__.__name__ != f"{self.transformation.__name__}Component":
             # sanity check, enforcing conventions
@@ -34,11 +38,24 @@ class TransformationComponent(MPComponent):
             )
 
         super().__init__(*args, **kwargs)
-        self.input_structure = input_structure
+        if input_structure_component:
+            self.links["input_structure"] = input_structure_component.id()
+
+        self.create_store("input_structure")
         self.create_store(
             "transformation_args_kwargs", initial_data={"args": [], "kwargs": {}}
         )
         self._option_ids = {}
+
+    @property
+    def is_one_to_many(self) -> bool:
+        """
+        This should reflect the underlying transformation.
+        """
+        # need to initialize transformation to access property, which isn't
+        # possible in all cases without necessary kwargs, which is why
+        # we duplicate the property here
+        return False
 
     @property
     def _sub_layouts(self):
@@ -53,12 +70,23 @@ class TransformationComponent(MPComponent):
 
         preview = html.Div(["Preview", dcc.Loading(id=self.id("preview"))])
 
+        if self.is_one_to_many:
+            ranked_list = daq.NumericInput(
+                value=1, min=1, max=10, id=self.id("ranked_list")
+            )
+        else:
+            # if not 1-to-many, we don't need the control, we keep
+            # an empty container here to make the callbacks simpler
+            # since "ranked_list" will then always be present in layout
+            ranked_list = html.Div(id=self.id("ranked_list"))
+
         return {
             "options": options,
             "description": description,
             "enable": enable,
             "message": message,
             "preview": preview,
+            "ranked_list": ranked_list,
         }
 
     def container_layout(self, state=None, structure=None) -> html.Div:
@@ -165,23 +193,25 @@ class TransformationComponent(MPComponent):
 
             return struct, error
 
-        @app.callback(
-            Output(self.id("preview"), "children"),
-            [Input(self.id(), "data"), Input(self.input_structure.id(), "data")],
-        )
-        def update_preview(transformation_data, input_structure):
-            if (not transformation_data) or (not input_structure):
-                return html.Div()
-            input_structure = self.from_data(input_structure)
-            output_structure, error = apply_transformation(
-                transformation_data, input_structure
+        if SETTINGS.TRANSFORMATION_PREVIEWS:
+
+            @app.callback(
+                Output(self.id("preview"), "children"),
+                [Input(self.id(), "data"), Input(self.id("input_structure"), "data")],
             )
-            if len(output_structure) > 64:
-                warning = html.Span(
-                    f"The transformed crystal structure has {len(output_structure)} atoms "
-                    f"and might take a moment to display."
+            def update_preview(transformation_data, input_structure):
+                if (not transformation_data) or (not input_structure):
+                    return html.Div()
+                input_structure = self.from_data(input_structure)
+                output_structure, error = apply_transformation(
+                    transformation_data, input_structure
                 )
-            return self.get_preview_layout(input_structure, output_structure)
+                if len(output_structure) > 64:
+                    warning = html.Span(
+                        f"The transformed crystal structure has {len(output_structure)} atoms "
+                        f"and might take a moment to display."
+                    )
+                return self.get_preview_layout(input_structure, output_structure)
 
         @app.callback(
             [
@@ -249,7 +279,11 @@ class TransformationComponent(MPComponent):
 
 class AllTransformationsComponent(MPComponent):
     def __init__(
-        self, transformations: List[str], input_structure: MPComponent, *args, **kwargs
+        self,
+        transformations: List[str],
+        input_structure_component: Optional[MPComponent] = None,
+        *args,
+        **kwargs,
     ):
 
         subclasses = TransformationComponent.__subclasses__()
@@ -261,11 +295,15 @@ class AllTransformationsComponent(MPComponent):
                 )
 
         transformations = [t for t in subclasses if t.__name__ in transformations]
-        transformations = [t(input_structure=input_structure) for t in transformations]
 
-        self.transformations = {t.__class__.__name__: t for t in transformations}
-        self.input_structure = input_structure
         super().__init__(*args, **kwargs)
+
+        if input_structure_component:
+            self.links["input_structure"] = input_structure_component.id()
+        self.create_store("input_structure")
+
+        transformations = [t(input_structure_component=self) for t in transformations]
+        self.transformations = {t.__class__.__name__: t for t in transformations}
 
     @property
     def _sub_layouts(self):
@@ -334,7 +372,7 @@ class AllTransformationsComponent(MPComponent):
         @app.callback(
             Output(self.id("transformation_options"), "children"),
             [Input(self.id("choices"), "value")],
-            [State(self.input_structure.id(), "data")]
+            [State(self.id("input_structure"), "data")]
             + [State(t.id(), "data") for t in self.transformations.values()],
         )
         def show_transformation_options(values, structure, *args):
@@ -358,7 +396,7 @@ class AllTransformationsComponent(MPComponent):
             [Output(self.id(), "data"), Output(self.id("error"), "children")],
             [Input(t.id(), "data") for t in self.transformations.values()]
             + [
-                Input(self.input_structure.id(), "data"),
+                Input(self.id("input_structure"), "data"),
                 Input(self.id("choices"), "value"),
             ],
         )
