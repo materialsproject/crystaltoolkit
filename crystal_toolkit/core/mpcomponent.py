@@ -53,9 +53,6 @@ class MPComponent(ABC):
     # by this MPComponent
     _all_id_basenames: Set[str] = set()
 
-    # used to track what callbacks have been generated
-    _callbacks_generated_for_ids: Set[str] = set()
-
     # used to defer generation of callbacks until app.layout defined
     # can be helpful to callback exceptions retained
     _callbacks_to_generate: Set["MPComponent"] = set()
@@ -123,9 +120,7 @@ class MPComponent(ABC):
         MPComponent.app.layout = layout
 
         for component in MPComponent._callbacks_to_generate:
-            if component.id() not in MPComponent._callbacks_generated_for_ids:
-                component.generate_callbacks(MPComponent.app, MPComponent.cache)
-                MPComponent._callbacks_generated_for_ids.add(component.id())
+            component.generate_callbacks(MPComponent.app, MPComponent.cache)
 
         return layout
 
