@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import warnings
 from collections import OrderedDict
 from itertools import combinations_with_replacement, chain
@@ -94,6 +95,14 @@ class StructureMoleculeComponent(MPComponent):
         """
 
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
+
+        if "pytest" in sys.modules:
+            # For visual diff testing, we change the renderer
+            # to SVG since this WebGL support is more difficult
+            # in headless browsers / CI.
+            self.default_scene_settings["renderer"] = "svg"
+        else:
+            self.default_scene_settings["renderer"] = "webgl"
 
         # what to show for the title_layout if structure/molecule not loaded
         self.default_title = "Crystal Toolkit"
