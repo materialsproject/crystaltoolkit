@@ -43,6 +43,7 @@ if not SETTINGS.ASSETS_PATH:
     warnings.warn(
         "Set CRYSTAL_TOOLKIT_ASSETS environment variable or app will be unstyled."
     )
+print("ASSETS", SETTINGS.ASSETS_PATH)
 
 app = dash.Dash(__name__, meta_tags=meta_tags, assets_folder=SETTINGS.ASSETS_PATH)
 app.title = "Crystal Toolkit"
@@ -98,14 +99,6 @@ logger = logging.getLogger(app.title)
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
-
-transformation_component = ctc.AllTransformationsComponent(
-    transformations=["SupercellTransformation"], input_structure=...
-)
-
-struct_component = ctc.StructureMoleculeComponent(
-    links={"default": transformation_component.id("out")}
-)
 # struct_component.attach_from(transformation_component, origin_store_name="out")
 
 # TODO: change to link to struct_or_mol instead of graph ?
@@ -113,6 +106,15 @@ struct_component = ctc.StructureMoleculeComponent(
 
 search_component = ctc.SearchComponent()
 upload_component = ctc.StructureMoleculeUploadComponent()
+
+
+transformation_component = ctc.AllTransformationsComponent(
+    transformations=["SupercellTransformationComponent"]
+)
+
+struct_component = ctc.StructureMoleculeComponent(
+    links={"default": transformation_component.id()}
+)
 
 # robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
 # magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
@@ -137,7 +139,7 @@ upload_component = ctc.StructureMoleculeUploadComponent()
 # favorites_component = ctc.FavoritesComponent()
 # favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
-if MP_EMBED_MODE:
+if SETTINGS.MP_EMBED_MODE:
     action_div = html.Div([])
     # submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
     # action_div = html.Div(
@@ -156,7 +158,7 @@ else:
 
 panels = []
 
-if MP_EMBED_MODE:
+if SETTINGS.MP_EMBED_MODE:
     mp_section = (html.Div(),)
 else:
 
@@ -197,7 +199,7 @@ body_layout = [
     *mp_section,
 ]
 
-STRUCT_VIEWER_SOURCE = transformation_component.id()
+STRUCT_VIEWER_SOURCE = transformation_component.id("input_structure")
 
 
 banner = html.Div(id="banner")
