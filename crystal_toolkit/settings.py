@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     MP_EMBED_MODE: bool = False
     TRANSFORMATION_PREVIEWS: bool = True
     REDIS_URL: str = "redis://localhost:6379"
-    ASSETS_PATH: str = None
+    ASSETS_PATH: str = "assets"
 
     class Config:
         env_prefix = "CT_"
