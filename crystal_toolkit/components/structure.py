@@ -15,6 +15,7 @@ from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from dash_mp_components import Simple3DScene
@@ -22,6 +23,7 @@ from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.settings import SETTINGS
 
 # TODO: make dangling bonds "stubs"? (fixed length)
 
@@ -49,9 +51,8 @@ class StructureMoleculeComponent(MPComponent):
 
     default_scene_settings = {"extractAxis": True}
 
-    # whether to persist options such as atomic radii etc.
-    persistence = False
-    persistence_type = "local"
+    # what to show for the title_layout if structure/molecule not loaded
+    default_title = "Crystal Toolkit"
 
     def __init__(
         self,
@@ -103,9 +104,6 @@ class StructureMoleculeComponent(MPComponent):
             self.default_scene_settings["renderer"] = "svg"
         else:
             self.default_scene_settings["renderer"] = "webgl"
-
-        # what to show for the title_layout if structure/molecule not loaded
-        self.default_title = "Crystal Toolkit"
 
         self.initial_scene_settings = self.default_scene_settings.copy()
         if scene_settings:
@@ -283,8 +281,14 @@ class StructureMoleculeComponent(MPComponent):
                     elif unit_cell_choice == "conventional":
                         sga = SpacegroupAnalyzer(struct_or_mol)
                         struct_or_mol = sga.get_conventional_standard_structure()
-                    elif unit_cell_choice == "reduced":
-                        struct_or_mol = struct_or_mol.get_reduced_structure()
+                    elif unit_cell_choice == "reduced_niggli":
+                        struct_or_mol = struct_or_mol.get_reduced_structure(
+                            reduction_algo="niggli"
+                        )
+                    elif unit_cell_choice == "reduced_lll":
+                        struct_or_mol = struct_or_mol.get_reduced_structure(
+                            reduction_algo="LLL"
+                        )
 
             graph = self._preprocess_input_to_graph(
                 struct_or_mol,
@@ -366,7 +370,7 @@ class StructureMoleculeComponent(MPComponent):
             return {
                 "n_requests": n_requests,
                 "filename": request_filename,
-                "filetype": "png",
+                "fileType": "png",
             }
 
         @app.callback(
@@ -465,9 +469,19 @@ class StructureMoleculeComponent(MPComponent):
         composition = legend["composition"]
         if isinstance(composition, dict):
 
-            # TODO: make Composition handle DummySpecie for title
             try:
                 composition = Composition.from_dict(composition)
+
+                # strip DummySpecie if present (TODO: should be method in pymatgen)
+                composition = Composition(
+                    {
+                        el: amt
+                        for el, amt in composition.items()
+                        if not isinstance(el, DummySpecie)
+                    }
+                )
+                # IUPAC formula doesn't get reduced composition first, so ensure we have this
+                composition = composition.get_reduced_composition_and_factor()[0]
                 formula = composition.iupac_formula
                 formula_parts = re.findall(r"[^\d_]+|\d+", formula)
                 formula_components = [
@@ -475,7 +489,7 @@ class StructureMoleculeComponent(MPComponent):
                     for part in formula_parts
                 ]
             except:
-                formula_components = list(composition.keys())
+                formula_components = list(map(str, composition.keys()))
 
         return H1(
             formula_components, id=self.id("title"), style={"display": "inline-block"}
@@ -509,9 +523,7 @@ class StructureMoleculeComponent(MPComponent):
                 id=self.id("scene"),
                 data=self.initial_data["scene"],
                 settings=self.initial_scene_settings,
-                # axisView="SW",
-                # sceneSize=500,
-                # debug=True
+                sceneSize="100%",
             ),
             style={
                 "width": "100%",
@@ -558,8 +570,8 @@ class StructureMoleculeComponent(MPComponent):
             value=self.initial_data["graph_generation_options"]["bonding_strategy"],
             clearable=False,
             id=self.id("bonding_algorithm"),
-            persistence=self.persistence,
-            persistence_type=self.persistence_type,
+            persistence=SETTINGS.PERSISTENCE,
+            persistence_type=SETTINGS.PERSISTENCE_TYPE,
         )
 
         bonding_algorithm_custom_cutoffs = html.Div(
@@ -593,13 +605,17 @@ class StructureMoleculeComponent(MPComponent):
                             {"label": "Input cell", "value": "input"},
                             {"label": "Primitive cell", "value": "primitive"},
                             {"label": "Conventional cell", "value": "conventional"},
-                            {"label": "Reduced cell", "value": "reduced"},
+                            {
+                                "label": "Reduced cell (Niggli)",
+                                "value": "reduced_niggli",
+                            },
+                            {"label": "Reduced cell (LLL)", "value": "reduced_lll"},
                         ],
                         value="input",
                         clearable=False,
                         id=self.id("unit-cell-choice"),
-                        persistence=self.persistence,
-                        persistence_type=self.persistence_type,
+                        persistence=SETTINGS.PERSISTENCE,
+                        persistence_type=SETTINGS.PERSISTENCE_TYPE,
                     ),
                     className="mpc-control",
                 ),
@@ -620,8 +636,8 @@ class StructureMoleculeComponent(MPComponent):
                         ],
                         value=self.initial_data["display_options"]["color_scheme"],
                         clearable=False,
-                        persistence=self.persistence,
-                        persistence_type=self.persistence_type,
+                        persistence=SETTINGS.PERSISTENCE,
+                        persistence_type=SETTINGS.PERSISTENCE_TYPE,
                         id=self.id("color-scheme"),
                     ),
                     className="mpc-control",
@@ -640,8 +656,8 @@ class StructureMoleculeComponent(MPComponent):
                         ],
                         value=self.initial_data["display_options"]["radius_strategy"],
                         clearable=False,
-                        persistence=self.persistence,
-                        persistence_type=self.persistence_type,
+                        persistence=SETTINGS.PERSISTENCE,
+                        persistence_type=SETTINGS.PERSISTENCE_TYPE,
                         id=self.id("radius_strategy"),
                     ),
                     className="mpc-control",
@@ -677,8 +693,8 @@ class StructureMoleculeComponent(MPComponent):
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("draw_options"),
-                            persistence=self.persistence,
-                            persistence_type=self.persistence_type,
+                            persistence=SETTINGS.PERSISTENCE,
+                            persistence_type=SETTINGS.PERSISTENCE_TYPE,
                         )
                     ]
                 ),
@@ -697,8 +713,8 @@ class StructureMoleculeComponent(MPComponent):
                             labelStyle={"display": "block"},
                             inputClassName="mpc-radio",
                             id=self.id("hide-show"),
-                            persistence=self.persistence,
-                            persistence_type=self.persistence_type,
+                            persistence=SETTINGS.PERSISTENCE,
+                            persistence_type=SETTINGS.PERSISTENCE_TYPE,
                         )
                     ],
                     className="mpc-control",
@@ -827,9 +843,7 @@ class StructureMoleculeComponent(MPComponent):
         show_compass=DEFAULTS["show_compass"],
     ) -> Tuple[Scene, Dict[str, str]]:
 
-        # default scene name will be name of component, "_ct_..."
-        # strip leading _ since this will cause problems in JavaScript land
-        scene = Scene(name=name[1:])
+        scene = Scene(name="StructureMoleculeComponentScene")
 
         if graph is None:
             return scene, {}
@@ -855,7 +869,7 @@ class StructureMoleculeComponent(MPComponent):
         elif isinstance(graph, MoleculeGraph):
             scene = graph.get_scene(legend=legend)
 
-        scene.name = name
+        scene.name = "StructureMoleculeComponentScene"
 
         if hasattr(struct_or_mol, "lattice"):
             axes = struct_or_mol.lattice._axes_from_lattice()
