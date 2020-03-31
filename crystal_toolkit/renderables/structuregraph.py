@@ -180,8 +180,8 @@ def get_structure_graph_scene(
     primitives["unit_cell"].append(self.structure.lattice.get_scene())
 
     return Scene(
-        name=self.structure.composition.reduced_formula,
-        origin= origin,
+        name="StructureGraph",
+        origin=origin,
         contents=[
             Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
         ],

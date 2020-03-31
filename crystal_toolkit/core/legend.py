@@ -109,7 +109,13 @@ class Legend(MSONable):
         # maximum values for color scheme, will default to be symmetric
         # about zero
         if color_scheme in site_prop_types.get("scalar", []) and not cmap_range:
-            props = np.array(site_collection.site_properties[color_scheme])
+            props = np.array(
+                [
+                    p
+                    for p in site_collection.site_properties[color_scheme]
+                    if p is not None
+                ]
+            )
             prop_max = max([abs(min(props)), max(props)])
             prop_min = -prop_max
             cmap_range = (prop_min, prop_max)
@@ -293,14 +299,21 @@ class Legend(MSONable):
 
             prop = site.properties[self.color_scheme]
 
-            cmap = get_cmap(self.cmap)
+            if prop:
 
-            # normalize in [0, 1] range, as expected by cmap
-            prop_min = self.cmap_range[0]
-            prop_max = self.cmap_range[1]
-            prop_normed = (prop - prop_min) / (prop_max - prop_min)
+                cmap = get_cmap(self.cmap)
 
-            color = [int(c * 255) for c in cmap(prop_normed)[0:3]]
+                # normalize in [0, 1] range, as expected by cmap
+                prop_min = self.cmap_range[0]
+                prop_max = self.cmap_range[1]
+                prop_normed = (prop - prop_min) / (prop_max - prop_min)
+
+                color = [int(c * 255) for c in cmap(prop_normed)[0:3]]
+
+            else:
+
+                # fallback if site prop is None
+                color = self.default_color
 
         elif self.color_scheme in self.site_prop_types.get("categorical", []):
 
