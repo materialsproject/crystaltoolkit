@@ -31,7 +31,6 @@ setup(
         "crystal_toolkit.helpers",
         "crystal_toolkit.renderables",
     ],
-    package_dir={"": "src"},
     package_data={
         "crystal_toolkit": ["*.json"],
         "crystal_toolkit.apps": ["assets/*.ico", "assets/*.json", "assets/*.png"],
