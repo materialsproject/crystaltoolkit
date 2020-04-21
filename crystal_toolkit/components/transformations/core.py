@@ -11,8 +11,8 @@ from dash import no_update
 
 from crystal_toolkit.components import StructureMoleculeComponent
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
+
 
 from crystal_toolkit.settings import SETTINGS
 
@@ -65,7 +65,10 @@ class TransformationComponent(MPComponent):
     @property
     def _sub_layouts(self):
 
-        enable = daq.BooleanSwitch(id=self.id("enable_transformation"))
+        enable = daq.BooleanSwitch(
+            id=self.id("enable_transformation"),
+            style={"display": "inline-block", "vertical-align": "middle"},
+        )
 
         message = html.Div(id=self.id("message"))
 
@@ -101,7 +104,20 @@ class TransformationComponent(MPComponent):
 
         container = MessageContainer(
             [
-                MessageHeader([self.title, self._sub_layouts["enable"]]),
+                MessageHeader(
+                    html.Div(
+                        [
+                            self._sub_layouts["enable"],
+                            html.Span(
+                                self.title,
+                                style={
+                                    "vertical-align": "middle",
+                                    "margin-left": "1rem",
+                                },
+                            ),
+                        ]
+                    )
+                ),
                 MessageBody(
                     [
                         Columns(
@@ -117,8 +133,6 @@ class TransformationComponent(MPComponent):
                                         ),
                                         html.Br(),
                                         self._sub_layouts["message"],
-                                        html.Br(),
-                                        self._sub_layouts["preview"],
                                     ]
                                 )
                             ]
@@ -199,7 +213,7 @@ class TransformationComponent(MPComponent):
         to name the component.
         :param label: A description for this input.
         :param state: Used to set state for this input, dict with arg name or kwarg name as key
-        :param help: Text for a tooltip when hovering over label.
+        :param help_str: Text for a tooltip when hovering over label.
         :param shape: Shape for matrix, can be vector e.g. (3, 1)
         :return: a Dash layout
         """
@@ -239,7 +253,7 @@ class TransformationComponent(MPComponent):
 
         self._option_ids[kwarg_label] = ids
 
-        return add_label_help(matrix, label, help)
+        return add_label_help(matrix, label, help_str)
 
     def get_bool_input(
         self,
@@ -304,6 +318,11 @@ class TransformationComponent(MPComponent):
             return struct, error
 
         if SETTINGS.TRANSFORMATION_PREVIEWS:
+
+            # Transformation previews need to be included in layout too (see preview sublayout)
+            # Transformation previews need a full transformation pipeline replica (I/O heavy)
+            # Might abandon.
+            warnings.warn("Transformation previews under active development.")
 
             @app.callback(
                 Output(self.id("preview"), "children"),
