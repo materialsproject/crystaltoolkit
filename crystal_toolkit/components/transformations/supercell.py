@@ -42,8 +42,8 @@ integers."""
             label="Scaling matrix",
             kwarg_label="scaling_matrix",
             state=state,
-            help_str="""Scaling matrix that transforms
-input lattice vectors a, b and c into transformed lattice vectors a', b' and c'.""",
+            help_str="""Scaling matrix that transforms 
+            input lattice vectors a, b and c into transformed lattice vectors a', b' and c'.""",
         )
 
         return [options]
