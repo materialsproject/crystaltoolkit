@@ -199,9 +199,6 @@ body_layout = [
     *mp_section,
 ]
 
-STRUCT_VIEWER_SOURCE = transformation_component.id("input_structure")
-
-
 banner = html.Div(id="banner")
 if SETTINGS.DEBUG_MODE:
     banner = html.Div(
@@ -488,7 +485,7 @@ def update_url_pathname_from_search_term(mpid: Optional[str]) -> str:
 
 
 @app.callback(
-    Output(STRUCT_VIEWER_SOURCE, "data"),
+    Output(transformation_component.id("input_structure"), "data"),
     [Input(search_component.id(), "data"), Input(upload_component.id(), "data")],
 )
 def master_update_structure(search_mpid: Optional[str], upload_data: Optional[str]):
