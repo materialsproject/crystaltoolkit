@@ -16,7 +16,7 @@ from crystal_toolkit.helpers.layouts import *
 
 from crystal_toolkit.settings import SETTINGS
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from itertools import chain
 
 from ast import literal_eval
@@ -37,6 +37,12 @@ class TransformationComponent(MPComponent):
                 f"transformation name: {self.transformation.__name__}Component"
             )
 
+        # used to keep track of ids for user input components
+        # corresponding to specific kwargs, used primarily in
+        # transformation component
+        # _option_ids are set by methods get_..._input()
+        self._option_ids = {}
+
         super().__init__(*args, **kwargs)
         if input_structure_component:
             self.links["input_structure"] = input_structure_component.id()
@@ -45,7 +51,6 @@ class TransformationComponent(MPComponent):
         self.create_store(
             "transformation_args_kwargs", initial_data={"args": [], "kwargs": {}}
         )
-        self._option_ids = {}
 
     @property
     def is_one_to_many(self) -> bool:
@@ -66,9 +71,9 @@ class TransformationComponent(MPComponent):
 
         description = dcc.Markdown(self.description)
 
-        options = html.Div(self.options_layout(), id=self.id("options"))
+        options = html.Div(self.options_layouts(), id=self.id("options"))
 
-        preview = html.Div(["Preview", dcc.Loading(id=self.id("preview"))])
+        preview = dcc.Loading(id=self.id("preview"))
 
         if self.is_one_to_many:
             ranked_list = daq.NumericInput(
@@ -98,20 +103,27 @@ class TransformationComponent(MPComponent):
             [
                 MessageHeader([self.title, self._sub_layouts["enable"]]),
                 MessageBody(
-                    Columns(
-                        [
-                            Column([self.options_layout(state=state)], narrow=True),
-                            Column(
-                                [
-                                    self._sub_layouts["description"],
-                                    html.Br(),
-                                    self._sub_layouts["message"],
-                                    html.Br(),
-                                    self._sub_layouts["preview"],
-                                ]
-                            ),
-                        ]
-                    )
+                    [
+                        Columns(
+                            [
+                                Column(
+                                    [
+                                        self._sub_layouts["description"],
+                                        html.Br(),
+                                        html.Div(
+                                            self.options_layouts(
+                                                state=state, structure=structure
+                                            )
+                                        ),
+                                        html.Br(),
+                                        self._sub_layouts["message"],
+                                        html.Br(),
+                                        self._sub_layouts["preview"],
+                                    ]
+                                )
+                            ]
+                        )
+                    ]
                 ),
             ],
             kind="dark",
@@ -120,7 +132,7 @@ class TransformationComponent(MPComponent):
 
         return container
 
-    def options_layout(self, state=None):
+    def options_layouts(self, state=None, structure=None) -> List[html.Div]:
         """
         Return a layout to change the transformation options (that is,
         that controls the args and kwargs that will be passed to pymatgen).
@@ -132,7 +144,7 @@ class TransformationComponent(MPComponent):
         :param state: existing state in format {"args": [], "kwargs": {}}
         :return:
         """
-        return html.Div()
+        return [html.Div()]
 
     @property
     def transformation(self):
@@ -170,6 +182,104 @@ class TransformationComponent(MPComponent):
         :return:
         """
         return html.Div()
+
+    def get_matrix_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+        shape: Tuple[int, int] = (3, 3),
+    ):
+        """
+        For Python classes which take matrices as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help: Text for a tooltip when hovering over label.
+        :param shape: Shape for matrix, can be vector e.g. (3, 1)
+        :return: a Dash layout
+        """
+
+        default = state.get(kwarg_label) or np.empty(shape)
+        default = np.reshape(default, shape)
+        ids = []
+
+        kwarg_label = f"kwarg-{kwarg_label}"
+
+        def matrix_element(element, value=0):
+            mid = f"{self.id(kwarg_label)}-matrix-{element}"
+            ids.append(mid)
+            return dcc.Input(
+                id=mid,
+                inputMode="numeric",
+                className="input",
+                style={
+                    "textAlign": "center",
+                    "width": "2.5rem",
+                    "marginRight": "0.2rem",
+                    "marginBottom": "0.2rem",
+                },
+                value=value,
+                persistence=True,
+            )
+
+        matrix_contents = []
+
+        for i in range(shape[0]):
+            row = []
+            for j in range(shape[1]):
+                row.append(matrix_element(f"{i}{j}", value=default[i][j]))
+            matrix_contents.append(html.Div(row))
+
+        matrix = html.Div(matrix_contents)
+
+        self._option_ids[kwarg_label] = ids
+
+        return add_label_help(matrix, label, help)
+
+    def get_bool_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+    ):
+        """
+        For Python classes which take matrices as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help: Text for a tooltip when hovering over label.
+        :return: a Dash layout
+        """
+
+        default = state.get(kwarg_label) or {}
+
+        bool_input = dcc.Checklist()
+
+        kwarg_label = f"kwarg-{kwarg_label}-bool"
+
+        self._option_ids[kwarg_label] = self.id(kwarg_label)
+
+        return add_label_help(bool_input, label, help)
+
+    def get_dict_input(
+        self,
+        kwarg_label: str,
+        key_name: str,
+        value_name: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+    ):
+        ...
 
     def generate_callbacks(self, app, cache):
         @cache.memoize()
@@ -326,6 +436,7 @@ class AllTransformationsComponent(MPComponent):
             placeholder="Select one or more transformations...",
             id=self.id("choices"),
             style={"max-width": "65vmin"},
+            persistence=True,
         )
 
         layouts.update({"all_transformations": all_transformations, "choices": choices})

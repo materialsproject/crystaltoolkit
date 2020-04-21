@@ -10,20 +10,6 @@ from collections import namedtuple
 from typing import List, Union, Optional, Tuple
 
 
-def _add_label_help(input, label, help):
-
-    contents = []
-    if label and not help:
-        contents.append(html.Label(label, className="mpc-label"))
-    if label and help:
-        contents.append(get_tooltip(html.Label(label, className="mpc-label"), help))
-    contents.append(input)
-
-    return html.Div(
-        contents, style={"display": "inline-block", "padding-right": "1rem"}
-    )
-
-
 def get_float_input(id, label=None, default=None, help=None):
 
     input = dcc.Input(
@@ -40,65 +26,6 @@ def get_float_input(id, label=None, default=None, help=None):
     )
 
     return _add_label_help(input, label, help)
-
-
-def get_matrix_input(
-    component: MPComponent,
-    kwarg_label: str,
-    state: Optional[dict] = None,
-    label: Optional[str] = None,
-    help: str = None,
-    shape: Tuple[int, int] = (3, 3),
-):
-    """
-    For Python classes which take matrices as inputs, this will generate
-    a corresponding Dash input layout.
-
-    :param component: The MPComponent this input will be used in.
-    :param kwarg_label: The name of the corresponding Python input, this is used
-    to name the component.
-    :param label: A description for this input.
-    :param state: Used to set state for this input, dict with arg name or kwarg name as key
-    :param help: Text for a tooltip when hovering over label.
-    :return: a Dash layout
-    """
-
-    default = state.get(kwarg_label) or np.empty(shape)
-    default = np.reshape(default, shape)
-    ids = []
-
-    kwarg_label = f"kwarg-{kwarg_label}"
-
-    def matrix_element(element, value=0):
-        mid = f"{component.id(kwarg_label)}-matrix-{element}"
-        ids.append(mid)
-        return dcc.Input(
-            id=mid,
-            inputMode="numeric",
-            className="input",
-            style={
-                "textAlign": "center",
-                "width": "2rem",
-                "marginRight": "0.2rem",
-                "marginBottom": "0.2rem",
-            },
-            value=value,
-            persistence=True,
-        )
-
-    matrix_contents = []
-
-    for i in range(shape[0]):
-        row = []
-        for j in range(shape[1]):
-            row.append(matrix_element(f"{i}{j}", value=default[i][j]))
-        matrix_contents.append(html.Div(row))
-
-    matrix = html.Div(matrix_contents)
-
-    component._option_ids[kwarg_label] = ids
-
-    return _add_label_help(matrix, label, help)
 
 
 def get_bool_input(id):
