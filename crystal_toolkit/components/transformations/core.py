@@ -218,6 +218,10 @@ class TransformationComponent(MPComponent):
         :return: a Dash layout
         """
 
+        if shape != (3, 3):
+            # TODO: have to implicitly encode shape into mid below
+            raise NotImplementedError
+
         default = state.get(kwarg_label) or np.empty(shape)
         default = np.reshape(default, shape)
         ids = []
@@ -263,14 +267,14 @@ class TransformationComponent(MPComponent):
         help_str: str = None,
     ):
         """
-        For Python classes which take matrices as inputs, this will generate
+        For Python classes which take boolean values as inputs, this will generate
         a corresponding Dash input layout.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
         :param label: A description for this input.
         :param state: Used to set state for this input, dict with arg name or kwarg name as key
-        :param help: Text for a tooltip when hovering over label.
+        :param help_str: Text for a tooltip when hovering over label.
         :return: a Dash layout
         """
 
@@ -282,7 +286,43 @@ class TransformationComponent(MPComponent):
 
         self._option_ids[kwarg_label] = self.id(kwarg_label)
 
-        return add_label_help(bool_input, label, help)
+        return add_label_help(bool_input, label, help_str)
+
+    def get_float_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+    ):
+        """
+        For Python classes which take floats as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help_str: Text for a tooltip when hovering over label.
+        :return: a Dash layout
+        """
+
+        default = state.get(kwarg_label) or {}
+
+        kwarg_label = f"kwarg-{kwarg_label}-float"
+
+        float_input = dcc.Input(
+            id=self.id(kwarg_label),
+            inputMode="numeric",
+            className="input",
+            style={"width": "4rem"},
+            value=default,
+            persistence=True,
+        )
+
+        self._option_ids[kwarg_label] = [self.id(kwarg_label)]
+
+        return add_label_help(float_input, label, help_str)
 
     def get_dict_input(
         self,

@@ -109,7 +109,10 @@ upload_component = ctc.StructureMoleculeUploadComponent()
 
 
 transformation_component = ctc.AllTransformationsComponent(
-    transformations=["SupercellTransformationComponent"]
+    transformations=[
+        "SupercellTransformationComponent",
+        "AutoOxiStateDecorationTransformationComponent",
+    ]
 )
 
 struct_component = ctc.StructureMoleculeComponent(
