@@ -34,7 +34,7 @@ DEFAULTS = {
     "draw_image_atoms": True,
     "bonded_sites_outside_unit_cell": False,
     "hide_incomplete_bonds": True,
-    "show_compass": False,
+    "show_compass": True,
     "unit_cell_choice": "input",
 }
 
@@ -49,7 +49,13 @@ class StructureMoleculeComponent(MPComponent):
         subclass.__name__: subclass for subclass in NearNeighbors.__subclasses__()
     }
 
-    default_scene_settings = {"extractAxis": True}
+    default_scene_settings = {
+        "extractAxis": True,
+        # For visual diff testing, we change the renderer
+        # to SVG since this WebGL support is more difficult
+        # in headless browsers / CI.
+        "renderer": "svg" if SETTINGS.TEST_MODE else "webgl",
+    }
 
     # what to show for the title_layout if structure/molecule not loaded
     default_title = "Crystal Toolkit"
@@ -96,14 +102,6 @@ class StructureMoleculeComponent(MPComponent):
         """
 
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
-
-        if "pytest" in sys.modules:
-            # For visual diff testing, we change the renderer
-            # to SVG since this WebGL support is more difficult
-            # in headless browsers / CI.
-            self.default_scene_settings["renderer"] = "svg"
-        else:
-            self.default_scene_settings["renderer"] = "webgl"
 
         self.initial_scene_settings = self.default_scene_settings.copy()
         if scene_settings:
@@ -156,7 +154,6 @@ class StructureMoleculeComponent(MPComponent):
             )
             scene, legend = self.get_scene_and_legend(
                 graph,
-                name=self.id(),
                 scene_additions=self.initial_data["scene_additions"],
                 **self.initial_data["display_options"],
             )
@@ -168,7 +165,6 @@ class StructureMoleculeComponent(MPComponent):
             graph = None
             scene, legend = self.get_scene_and_legend(
                 None,
-                name=self.id(),
                 scene_additions=self.initial_data["scene_additions"],
                 **self.initial_data["display_options"],
             )
@@ -324,10 +320,7 @@ class StructureMoleculeComponent(MPComponent):
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
             scene, legend = self.get_scene_and_legend(
-                graph,
-                name=self.id(),
-                **display_options,
-                scene_additions=scene_additions,
+                graph, **display_options, scene_additions=scene_additions
             )
 
             color_options = [
@@ -485,7 +478,9 @@ class StructureMoleculeComponent(MPComponent):
                 formula = composition.iupac_formula
                 formula_parts = re.findall(r"[^\d_]+|\d+", formula)
                 formula_components = [
-                    html.Sub(part) if part.isnumeric() else html.Span(part)
+                    html.Sub(part.strip())
+                    if part.isnumeric()
+                    else html.Span(part.strip())
                     for part in formula_parts
                 ]
             except:
@@ -831,7 +826,6 @@ class StructureMoleculeComponent(MPComponent):
     @staticmethod
     def get_scene_and_legend(
         graph: Optional[Union[StructureGraph, MoleculeGraph]],
-        name,
         color_scheme=DEFAULTS["color_scheme"],
         color_scale=None,
         radius_strategy=DEFAULTS["radius_strategy"],
@@ -873,7 +867,6 @@ class StructureMoleculeComponent(MPComponent):
 
         if hasattr(struct_or_mol, "lattice"):
             axes = struct_or_mol.lattice._axes_from_lattice()
-            # TODO: fix pop-in ?
             axes.visible = show_compass
             scene.contents.append(axes)
 
