@@ -4,6 +4,7 @@ from itertools import combinations
 import numpy as np
 from pymatgen import PeriodicSite
 from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.core.legend import Legend
@@ -90,6 +91,7 @@ def get_structure_graph_scene(
     edge_weight_color_scale="coolwarm",
     explicitly_calculate_polyhedra_hull=False,
     legend: Optional[Legend] = None,
+    group_by_symmetry: bool = True,
 ) -> Scene:
 
     origin = origin or list(
@@ -128,6 +130,16 @@ def get_structure_graph_scene(
                 )
 
             color_edges = True
+
+    idx_to_wyckoff = {}
+    if group_by_symmetry:
+        sga = SpacegroupAnalyzer(self.structure)
+        struct_sym = sga.get_symmetrized_structure()
+        for equiv_idxs, wyckoff in zip(
+            struct_sym.equivalent_indices, struct_sym.wyckoff_symbols
+        ):
+            for idx in equiv_idxs:
+                idx_to_wyckoff[idx] = wyckoff
 
     for (idx, jimage) in sites_to_draw:
 
@@ -175,6 +187,9 @@ def get_structure_graph_scene(
             legend=legend,
         )
         for scene in site_scene.contents:
+            if group_by_symmetry and scene.name == "atoms" and idx in idx_to_wyckoff:
+                # will rename to e.g. atoms_N_4e
+                scene.name = f"atoms_{site_scene.name}_{idx_to_wyckoff[idx]}"
             primitives[scene.name] += scene.contents
 
     primitives["unit_cell"].append(self.structure.lattice.get_scene())
