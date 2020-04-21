@@ -16,6 +16,7 @@
 The [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors) includes:
 
 * [Matthew Horton](https://github.com/mkhorton), lead
+* [François Chabbey](<https://github.com/chabb>) for React components
 * [Jimmy Shen](https://github.com/jmmshn) contributed pythreejs support, surface plotting, initial arrows/axes support, and various bug fixes
 * [Joey Montoya](https://github.com/JosephMontoya-TRI) contributed Pourbaix component
 * [Shyam Dwaraknath](https://github.com/shyamd) for planned contributions for ellipsoid support and architectural design
