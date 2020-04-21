@@ -6,6 +6,8 @@ class Settings(BaseSettings):
 
     DEBUG_MODE: bool = False
     MP_EMBED_MODE: bool = False
+    TEST_MODE: bool = False
+
     TRANSFORMATION_PREVIEWS: bool = False
     REDIS_URL: str = "redis://localhost:6379"
     ASSETS_PATH: str = "assets"
