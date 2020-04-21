@@ -473,9 +473,8 @@ class StructureMoleculeComponent(MPComponent):
                         if not isinstance(el, DummySpecie)
                     }
                 )
-                # IUPAC formula doesn't get reduced composition first, so ensure we have this
                 composition = composition.get_reduced_composition_and_factor()[0]
-                formula = composition.iupac_formula
+                formula = composition.reduced_formula
                 formula_parts = re.findall(r"[^\d_]+|\d+", formula)
                 formula_components = [
                     html.Sub(part.strip())
