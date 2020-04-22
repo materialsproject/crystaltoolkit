@@ -21,9 +21,8 @@ a way that forces the matrix to be nonsingular. From the supercell
 resulting from this transformation matrix, vector projections are used to
 determine the side length of the largest cube that can fit inside the
 supercell. The algorithm will iteratively increase the size of the supercell
-until the largest inscribed cube's side length is at least `min_length`
-and the number of atoms in the supercell, n, falls in the range
-`min_atoms` < n < `max_atoms`.
+until the largest inscribed cube's side length is at least the minimum length
+and the number of atoms in the supercell falls in the range specified.
         """
 
     @property
