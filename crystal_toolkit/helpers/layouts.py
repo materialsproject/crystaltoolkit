@@ -405,5 +405,10 @@ def add_label_help(input, label, help):
     contents.append(input)
 
     return html.Div(
-        contents, style={"display": "inline-block", "padding-right": "1rem"}
+        contents,
+        style={
+            "display": "inline-block",
+            "padding-right": "1rem",
+            "vertical-align": "top",
+        },
     )
