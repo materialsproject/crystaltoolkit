@@ -112,6 +112,7 @@ transformation_component = ctc.AllTransformationsComponent(
     transformations=[
         "SupercellTransformationComponent",
         "AutoOxiStateDecorationTransformationComponent",
+        "CubicSupercellTransformationComponent",
     ]
 )
 

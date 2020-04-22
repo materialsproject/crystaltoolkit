@@ -278,13 +278,19 @@ class TransformationComponent(MPComponent):
         :return: a Dash layout
         """
 
-        default = state.get(kwarg_label) or {}
-
-        bool_input = dcc.Checklist()
+        default = state.get(kwarg_label) or False
 
         kwarg_label = f"kwarg-{kwarg_label}-bool"
 
-        self._option_ids[kwarg_label] = self.id(kwarg_label)
+        bool_input = dcc.Checklist(
+            id=self.id(kwarg_label),
+            style={"width": "5rem"},
+            options=[{"label": label, "value": "enabled"}],
+            value=["enabled"] if default else [],
+            persistence=True,
+        )
+
+        self._option_ids[kwarg_label] = [self.id(kwarg_label)]
 
         return add_label_help(bool_input, label, help_str)
 
@@ -307,7 +313,7 @@ class TransformationComponent(MPComponent):
         :return: a Dash layout
         """
 
-        default = state.get(kwarg_label) or {}
+        default = state.get(kwarg_label)
 
         kwarg_label = f"kwarg-{kwarg_label}-float"
 
@@ -315,7 +321,7 @@ class TransformationComponent(MPComponent):
             id=self.id(kwarg_label),
             inputMode="numeric",
             className="input",
-            style={"width": "4rem"},
+            style={"width": "5rem"},
             value=default,
             persistence=True,
         )
@@ -415,7 +421,7 @@ class TransformationComponent(MPComponent):
                         kwargs[kwarg_name] = np.empty((3, 3)).tolist()
                     kwargs[kwarg_name][i][j] = v
                 elif k_type == "bool":
-                    kwargs[kwarg_name] = bool(v)
+                    kwargs[kwarg_name] = bool("enabled" in v)
 
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 
