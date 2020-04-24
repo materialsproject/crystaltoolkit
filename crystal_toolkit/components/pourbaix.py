@@ -34,9 +34,7 @@ class PourbaixDiagramComponent(MPComponent):
 
         # stores that trigger a new Pourbaix diagram
         self.create_store("mpid")  # e.g. "mp-123"
-        self.create_store(
-            "chemsys"
-        )  # e.g. "Fe-O", sorted dash-delimited string of elements
+        self.create_store("chemsys")  # e.g. ["Fe", "O"], list of element strings
         self.create_store("struct")  # pymatgen.core.structure.Structure
 
         # filled from the input stores
