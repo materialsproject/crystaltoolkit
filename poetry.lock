@@ -287,7 +287,7 @@ description = "Dash components for the Materials Project"
 name = "dash-mp-components"
 optional = false
 python-versions = "*"
-version = "0.0.18"
+version = "0.0.20"
 
 [[package]]
 category = "main"
@@ -1571,7 +1571,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "71ef90a27514f20c33ca152fde6d9f0331f53fc0777d361d7b641c45ed0e9d62"
+content-hash = "20dbf458a147e989313de1b37c6f265a67ab4fd6f5bd77f9ac5b3c5608e910f4"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1696,7 +1696,7 @@ dash-html-components = [
     {file = "dash_html_components-1.0.2.tar.gz", hash = "sha256:8992097a044f5add21f86ccbe0caef8c499394a04d5f2b6cc4458a42f37cca98"},
 ]
 dash-mp-components = [
-    {file = "dash_mp_components-0.0.18.tar.gz", hash = "sha256:42211eb7bd679e11ecfe1e91230d97096fc4b021dfb55b46b76e0ae7c3a608a0"},
+    {file = "dash_mp_components-0.0.20.tar.gz", hash = "sha256:67528c776da97916329e99c2084e64f37a2bfeeaa9ffb9e9a2238975133fe02a"},
 ]
 dash-renderer = [
     {file = "dash_renderer-1.2.4.tar.gz", hash = "sha256:74aab93b6332290d9bff5f81060a5c4cbf0c393f8ccff85b2edb1ae976bdd5f0"},
