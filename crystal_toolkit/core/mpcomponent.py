@@ -6,6 +6,7 @@ from json import dumps, loads
 from time import mktime
 from uuid import uuid4
 from warnings import warn
+import numpy as np
 import dash
 
 import dash_core_components as dcc
@@ -20,8 +21,10 @@ from flask_caching import Cache
 from collections import defaultdict
 from itertools import chain
 
-from typing import Optional, Union, Dict, List, Set
+from typing import Optional, Union, Dict, List, Set, Tuple
 from typing_extensions import Literal
+
+from crystal_toolkit.helpers.layouts import add_label_help
 
 from functools import wraps
 
@@ -209,9 +212,9 @@ class MPComponent(ABC):
 
         # ensure ids are unique
         # Note: shadowing Python built-in here, but only because Dash does it...
+        # TODO: do something else here
         if id is None:
-            # TODO: replace
-            id = f"{CT_NAMESPACE}{self.__class__.__name__}_1"
+            id = f"{CT_NAMESPACE}{self.__class__.__name__}"
         else:
             id = f"{CT_NAMESPACE}{id}"
         MPComponent._all_id_basenames.add(id)
