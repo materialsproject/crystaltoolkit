@@ -190,6 +190,9 @@ def get_structure_graph_scene(
             if group_by_symmetry and scene.name == "atoms" and idx in idx_to_wyckoff:
                 # will rename to e.g. atoms_N_4e
                 scene.name = f"atoms_{site_scene.name}_{idx_to_wyckoff[idx]}"
+                # this is a proof-of-concept to demonstrate hover labels, could create label
+                # automatically from site properties instead
+                scene.contents[0].tooltip = f"{site_scene.name} ({idx_to_wyckoff[idx]})"
             primitives[scene.name] += scene.contents
 
     primitives["unit_cell"].append(self.structure.lattice.get_scene())
