@@ -6,8 +6,7 @@ authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-dash = "^1.9.1"
-dash-table = "^4.6.1"
+dash = "^1.11.0"
 plotly = "^4.5.4"
 dash-daq = "^0.4.0"
 gunicorn = "^20.0.4"
@@ -23,8 +22,8 @@ pydantic = "^1.4"
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
 pre-commit = "^2.2.0"
-dash = {extras = ["testing"], version = "^1.9.1"}
-pytest = "^5.4.1"
+dash = {extras = ["testing"], version = "^1.11.0"}
+pytest = "^5.3.5"
 sphinx = "^2.4.4"
 sphinx_rtd_theme = "^0.4.3"
 recommonmark = "^0.6.0"
