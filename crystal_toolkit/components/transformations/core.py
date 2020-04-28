@@ -19,6 +19,13 @@ from crystal_toolkit.settings import SETTINGS
 from typing import List, Optional, Tuple
 from itertools import chain
 
+from frozendict import frozendict
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 from ast import literal_eval
 
 import flask
@@ -183,6 +190,7 @@ class TransformationComponent(MPComponent):
 
         :return: List of names of option controls
         """
+        # TODO: this maybe can be replaced due to pattern-matching callbacks
         return list(chain.from_iterable(self._option_ids.values()))
 
     def get_preview_layout(self, struct_in, struct_out):
@@ -203,7 +211,9 @@ class TransformationComponent(MPComponent):
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
+        is_int: bool = False,
         shape: Tuple[int, int] = (3, 3),
+        **kwargs,
     ):
         """
         For Python classes which take matrices as inputs, this will generate
@@ -214,13 +224,10 @@ class TransformationComponent(MPComponent):
         :param label: A description for this input.
         :param state: Used to set state for this input, dict with arg name or kwarg name as key
         :param help_str: Text for a tooltip when hovering over label.
-        :param shape: Shape for matrix, can be vector e.g. (3, 1)
+        :param is_int: if True, will use a numeric input
+        :param shape: (3, 3) for matrix, (1, 3) for vector, (1, 1) for scalar
         :return: a Dash layout
         """
-
-        if shape != (3, 3):
-            # TODO: have to implicitly encode shape into mid below
-            raise NotImplementedError
 
         default = state.get(kwarg_label) or np.empty(shape)
         default = np.reshape(default, shape)
@@ -228,22 +235,30 @@ class TransformationComponent(MPComponent):
 
         kwarg_label = f"kwarg-{kwarg_label}"
 
-        def matrix_element(element, value=0):
-            mid = f"{self.id(kwarg_label)}-matrix-{element}"
+        def matrix_element(element, value=0, kwarg_label=kwarg_label):
+            element_label = f"{kwarg_label}-matrix-{shape[0]}-{shape[1]}-{element}"
+            mid = self.id(element_label)
             ids.append(mid)
-            return dcc.Input(
-                id=mid,
-                inputMode="numeric",
-                className="input",
-                style={
-                    "textAlign": "center",
-                    "width": "2.5rem",
-                    "marginRight": "0.2rem",
-                    "marginBottom": "0.2rem",
-                },
-                value=value,
-                persistence=True,
-            )
+            if not is_int:
+                return dcc.Input(
+                    id=mid,
+                    inputMode="numeric",
+                    className="input",
+                    style={
+                        "textAlign": "center",
+                        # shorter default width if matrix or vector
+                        "width": "2.5rem"
+                        if (shape == (3, 3)) or (shape == (1, 3))
+                        else "5rem",
+                        "marginRight": "0.2rem",
+                        "marginBottom": "0.2rem",
+                    },
+                    value=value,
+                    persistence=True,
+                    **kwargs,
+                )
+            else:
+                return daq.NumericInput(id=mid, value=value, **kwargs)
 
         matrix_contents = []
 
@@ -285,7 +300,7 @@ class TransformationComponent(MPComponent):
         bool_input = dcc.Checklist(
             id=self.id(kwarg_label),
             style={"width": "5rem"},
-            options=[{"label": label, "value": "enabled"}],
+            options=[{"label": "", "value": "enabled"}],
             value=["enabled"] if default else [],
             persistence=True,
         )
@@ -294,12 +309,13 @@ class TransformationComponent(MPComponent):
 
         return add_label_help(bool_input, label, help_str)
 
-    def get_float_input(
+    def get_choice_input(
         self,
         kwarg_label: str,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
+        options: Optional[List[Dict]] = None,
     ):
         """
         For Python classes which take floats as inputs, this will generate
@@ -310,25 +326,25 @@ class TransformationComponent(MPComponent):
         :param label: A description for this input.
         :param state: Used to set state for this input, dict with arg name or kwarg name as key
         :param help_str: Text for a tooltip when hovering over label.
+        :param options: Options to choose from, as per dcc.Dropdown
         :return: a Dash layout
         """
 
         default = state.get(kwarg_label)
 
-        kwarg_label = f"kwarg-{kwarg_label}-float"
+        kwarg_label = f"kwarg-{kwarg_label}-literal"
 
-        float_input = dcc.Input(
+        option_input = dcc.Dropdown(
             id=self.id(kwarg_label),
-            inputMode="numeric",
-            className="input",
-            style={"width": "5rem"},
+            style={"width": "10rem"},
+            options=options if options else [],
             value=default,
             persistence=True,
         )
 
         self._option_ids[kwarg_label] = [self.id(kwarg_label)]
 
-        return add_label_help(float_input, label, help_str)
+        return add_label_help(option_input, label, help_str)
 
     def get_dict_input(
         self,
@@ -415,13 +431,20 @@ class TransformationComponent(MPComponent):
                 kwarg_name = k[0]
                 k_type = k[1]
                 if k_type == "matrix":
-                    i = int(k[2][0])
-                    j = int(k[2][1])
+                    shape = (int(k[2]), int(k[3]))
+                    i = int(k[4][0])
+                    j = int(k[4][1])
                     if kwarg_name not in kwargs:
-                        kwargs[kwarg_name] = np.empty((3, 3)).tolist()
-                    kwargs[kwarg_name][i][j] = v
+                        kwargs[kwarg_name] = np.empty(shape).tolist()
+                    kwargs[kwarg_name][i][j] = literal_eval(str(v))
+                    if shape == (1, 1):
+                        kwargs[kwarg_name] = kwargs[kwarg_name][0][0]
+                elif k_type == "literal":
+                    kwargs[kwarg_name] = literal_eval(str(v))
                 elif k_type == "bool":
                     kwargs[kwarg_name] = bool("enabled" in v)
+                elif k_type == "dict":
+                    raise NotImplementedError
 
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 
@@ -430,6 +453,8 @@ class TransformationComponent(MPComponent):
                 return (None, "message is-dark", html.Div(), *input_state)
             else:
                 input_state = (True,) * len(self.option_ids)
+
+            print("kwargs", kwargs)
 
             try:
                 trans = self.transformation(**kwargs)
@@ -547,9 +572,11 @@ class AllTransformationsComponent(MPComponent):
 
         @app.callback(
             Output(self.id("transformation_options"), "children"),
-            [Input(self.id("choices"), "value")],
-            [State(self.id("input_structure"), "data")]
-            + [State(t.id(), "data") for t in self.transformations.values()],
+            [
+                Input(self.id("choices"), "value"),
+                Input(self.id("input_structure"), "data"),
+            ],
+            [State(t.id(), "data") for t in self.transformations.values()],
         )
         def show_transformation_options(values, structure, *args):
 
