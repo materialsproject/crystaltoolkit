@@ -5,7 +5,7 @@ import dash_daq as daq
 
 import traceback
 
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ALL
 from dash.exceptions import PreventUpdate
 from dash import no_update
 
@@ -18,6 +18,8 @@ from crystal_toolkit.settings import SETTINGS
 
 from typing import List, Optional, Tuple
 from itertools import chain
+
+from json import loads
 
 from frozendict import frozendict
 
@@ -44,11 +46,7 @@ class TransformationComponent(MPComponent):
                 f"transformation name: {self.transformation.__name__}Component"
             )
 
-        # used to keep track of ids for user input components
-        # corresponding to specific kwargs, used primarily in
-        # transformation component
-        # _option_ids are set by methods get_..._input()
-        self._option_ids = {}
+        self._kwarg_type_hints = {}
 
         super().__init__(*args, **kwargs)
         if input_structure_component:
@@ -103,6 +101,13 @@ class TransformationComponent(MPComponent):
             "preview": preview,
             "ranked_list": ranked_list,
         }
+
+    def id(self, name: str = "default", is_kwarg=False) -> Union[Dict, str]:
+
+        if not is_kwarg:
+            return super().id(name=name)
+
+        return {"component_id": self._id, "kwarg_label": name}
 
     def container_layout(self, state=None, structure=None) -> html.Div:
         """
@@ -172,26 +177,26 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     @property
+    def kwarg_type_hints(self) -> Dict:
+        """
+        Valid keys are a tuple for a numpy array of that shape, e.g. (3, 3) for a 3x3 matrix,
+        (1, 3) for a vector, or "literal" to parse kwarg value using ast.literal_eval, or "bool"
+        to parse a boolean value.
+
+        In future iterations, we may be able to replace this with native Python type hints. The
+        problem here is being able to specify array shape where appropriate.
+
+        :return: e.g. {"scaling_matrix": (3, 3)} or {"sym_tol": "literal"}
+        """
+        return self._kwarg_type_hints
+
+    @property
     def title(self):
         raise NotImplementedError
 
     @property
     def description(self):
         raise NotImplementedError
-
-    @property
-    def option_ids(self) -> List[str]:
-        """
-        If set, these controls will have their user inputs disabled
-        when the transformation is enabled, essentially "freezing"
-        the transformation options. This can help prevent latency
-        due to users changing transformation options while transformations
-        are updating.
-
-        :return: List of names of option controls
-        """
-        # TODO: this maybe can be replaced due to pattern-matching callbacks
-        return list(chain.from_iterable(self._option_ids.values()))
 
     def get_preview_layout(self, struct_in, struct_out):
         """
@@ -233,11 +238,11 @@ class TransformationComponent(MPComponent):
         default = np.reshape(default, shape)
         ids = []
 
-        kwarg_label = f"kwarg-{kwarg_label}"
+        self._kwarg_type_hints[kwarg_label] = shape
 
-        def matrix_element(element, value=0, kwarg_label=kwarg_label):
-            element_label = f"{kwarg_label}-matrix-{shape[0]}-{shape[1]}-{element}"
-            mid = self.id(element_label)
+        def matrix_element(element, value=0):
+            # TODO: maybe move element out of the name
+            mid = self.id(f"{kwarg_label}-{element}", is_kwarg=True)
             ids.append(mid)
             if not is_int:
                 return dcc.Input(
@@ -265,12 +270,10 @@ class TransformationComponent(MPComponent):
         for i in range(shape[0]):
             row = []
             for j in range(shape[1]):
-                row.append(matrix_element(f"{i}{j}", value=default[i][j]))
+                row.append(matrix_element(f"{i}-{j}", value=default[i][j]))
             matrix_contents.append(html.Div(row))
 
         matrix = html.Div(matrix_contents)
-
-        self._option_ids[kwarg_label] = ids
 
         return add_label_help(matrix, label, help_str)
 
@@ -295,17 +298,15 @@ class TransformationComponent(MPComponent):
 
         default = state.get(kwarg_label) or False
 
-        kwarg_label = f"kwarg-{kwarg_label}-bool"
+        self._kwarg_type_hints[kwarg_label] = "bool"
 
         bool_input = dcc.Checklist(
-            id=self.id(kwarg_label),
+            id=self.id(kwarg_label, is_kwarg=True),
             style={"width": "5rem"},
             options=[{"label": "", "value": "enabled"}],
             value=["enabled"] if default else [],
             persistence=True,
         )
-
-        self._option_ids[kwarg_label] = [self.id(kwarg_label)]
 
         return add_label_help(bool_input, label, help_str)
 
@@ -332,7 +333,7 @@ class TransformationComponent(MPComponent):
 
         default = state.get(kwarg_label)
 
-        kwarg_label = f"kwarg-{kwarg_label}-literal"
+        self._kwarg_type_hints[kwarg_label] = "literal"
 
         option_input = dcc.Dropdown(
             id=self.id(kwarg_label),
@@ -341,8 +342,6 @@ class TransformationComponent(MPComponent):
             value=default,
             persistence=True,
         )
-
-        self._option_ids[kwarg_label] = [self.id(kwarg_label)]
 
         return add_label_help(option_input, label, help_str)
 
@@ -409,52 +408,59 @@ class TransformationComponent(MPComponent):
                 Output(self.id(), "data"),
                 Output(self.id("container"), "className"),
                 Output(self.id("message"), "children"),
-            ]
-            + [Output(option, "disabled") for option in self.option_ids],
+                Output({"component_id": self._id, "kwarg_label": ALL}, "disabled"),
+            ],
             [Input(self.id("enable_transformation"), "on")],
-            [State(option_id, "value") for option_id in self.option_ids],
+            [State({"component_id": self._id, "kwarg_label": ALL}, "value")],
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
             make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
         )
-        def update_transformation(enabled, *args):
+        def update_transformation(enabled, states):
 
-            state = dash.callback_context.states
             kwargs = {}
-            for k, v in state.items():
-                # examples of strings being parsed:
-                # ...kwarg-supercell-matrix-00
-                # ...kwarg-some_option-bool-0
-                k = k.split("kwarg")[1]
-                k = k.split("-")[1:]
-                kwarg_name = k[0]
-                k_type = k[1]
-                if k_type == "matrix":
-                    shape = (int(k[2]), int(k[3]))
-                    i = int(k[4][0])
-                    j = int(k[4][1])
-                    if kwarg_name not in kwargs:
-                        kwargs[kwarg_name] = np.empty(shape).tolist()
-                    kwargs[kwarg_name][i][j] = literal_eval(str(v))
-                    if shape == (1, 1):
-                        kwargs[kwarg_name] = kwargs[kwarg_name][0][0]
+            for k, v in dash.callback_context.states.items():
+
+                # TODO: hopefully this will be less hacky in future Dash versions
+                # remove trailing ".value" and convert back into dictionary
+                # need to sort k somehow ...
+
+                d = loads(k[: -len(".value")])
+                kwarg_label = d["kwarg_label"]
+
+                # combine kwarg_label with element indixes, delimited by -
+                # since we need multiple inputs for a single kwarg
+                # TODO: remove this, explicitly store element index in id
+                k_type = self.kwarg_type_hints[d["kwarg_label"].split("-")[0]]
+
+                if isinstance(k_type, tuple):
+                    # matrix or vector
+                    kwarg_label, i, j = kwarg_label.split("-")
+                    i = int(i)
+                    j = int(j)
+                    if kwarg_label not in kwargs:
+                        kwargs[kwarg_label] = np.empty(k_type).tolist()
+                    kwargs[kwarg_label][i][j] = literal_eval(str(v))
+                    if k_type == (1, 1):
+                        kwargs[kwarg_label] = kwargs[kwarg_label][0][0]
+
                 elif k_type == "literal":
-                    kwargs[kwarg_name] = literal_eval(str(v))
+                    kwargs[kwarg_label] = literal_eval(str(v))
+
                 elif k_type == "bool":
-                    kwargs[kwarg_name] = bool("enabled" in v)
+                    kwargs[kwarg_label] = bool("enabled" in v)
+
                 elif k_type == "dict":
                     raise NotImplementedError
 
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 
             if not enabled:
-                input_state = (False,) * len(self.option_ids)
-                return (None, "message is-dark", html.Div(), *input_state)
+                input_state = (False,) * len(states)
+                return None, "message is-dark", html.Div(), input_state
             else:
-                input_state = (True,) * len(self.option_ids)
-
-            print("kwargs", kwargs)
+                input_state = (True,) * len(states)
 
             try:
                 trans = self.transformation(**kwargs)
@@ -469,12 +475,12 @@ class TransformationComponent(MPComponent):
                     trans,
                     "message is-warning",
                     html.Strong(f"Error: {error}"),
-                    *input_state,
+                    input_state,
                 )
 
             else:
 
-                return (trans, "message is-success", html.Div(), *input_state)
+                return trans, "message is-success", html.Div(), input_state
 
 
 class AllTransformationsComponent(MPComponent):
