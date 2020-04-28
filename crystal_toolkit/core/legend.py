@@ -1,6 +1,7 @@
 from pymatgen import Specie, Element, Molecule
 from pymatgen.core.structure import SiteCollection, Site
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
+from pymatgen.util.string import unicodeify_species
 
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -411,7 +412,7 @@ class Legend(MSONable):
         """
         # TODO: add roman numerals for oxidation state for ease of readability
         # and then move this to pymatgen string utils ...
-        return str(sp)
+        return unicodeify_species(str(sp))
 
     def get_legend(self) -> Dict[str, str]:
 
