@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -102,12 +104,12 @@ class TransformationComponent(MPComponent):
             "ranked_list": ranked_list,
         }
 
-    def id(self, name: str = "default", is_kwarg=False) -> Union[Dict, str]:
+    def id(self, name: str = "default", is_kwarg=False, idx=False) -> Union[Dict, str]:
 
         if not is_kwarg:
             return super().id(name=name)
 
-        return {"component_id": self._id, "kwarg_label": name}
+        return {"component_id": self._id, "kwarg_label": name, "idx": str(idx)}
 
     def container_layout(self, state=None, structure=None) -> html.Div:
         """
@@ -217,7 +219,7 @@ class TransformationComponent(MPComponent):
         label: Optional[str] = None,
         help_str: str = None,
         is_int: bool = False,
-        shape: Tuple[int, int] = (3, 3),
+        shape: Tuple[int, ...] = (3, 3),
         **kwargs,
     ):
         """
@@ -234,16 +236,14 @@ class TransformationComponent(MPComponent):
         :return: a Dash layout
         """
 
-        default = state.get(kwarg_label) or np.empty(shape)
+        default = state.get(kwarg_label) or np.full(shape, None)
         default = np.reshape(default, shape)
-        ids = []
 
         self._kwarg_type_hints[kwarg_label] = shape
 
-        def matrix_element(element, value=0):
+        def matrix_element(idx, value=0):
             # TODO: maybe move element out of the name
-            mid = self.id(f"{kwarg_label}-{element}", is_kwarg=True)
-            ids.append(mid)
+            mid = self.id(kwarg_label, is_kwarg=True, idx=idx)
             if not is_int:
                 return dcc.Input(
                     id=mid,
@@ -253,7 +253,7 @@ class TransformationComponent(MPComponent):
                         "textAlign": "center",
                         # shorter default width if matrix or vector
                         "width": "2.5rem"
-                        if (shape == (3, 3)) or (shape == (1, 3))
+                        if (shape == (3, 3)) or (shape == (3,))
                         else "5rem",
                         "marginRight": "0.2rem",
                         "marginBottom": "0.2rem",
@@ -265,15 +265,27 @@ class TransformationComponent(MPComponent):
             else:
                 return daq.NumericInput(id=mid, value=value, **kwargs)
 
-        matrix_contents = []
+        # dict of row indices, column indices to element
+        matrix_contents = defaultdict(dict)
 
-        for i in range(shape[0]):
+        # note that shape = () for floats, shape = (3,) for vectors
+        # but we may also need to accept input for e.g. (3, 1)
+        it = np.nditer(default, flags=["multi_index", "refs_ok"])
+        while not it.finished:
+            idx = it.multi_index
+            row = (idx[1] if len(idx) > 1 else 0,)
+            column = idx[0] if len(idx) > 0 else 0
+            matrix_contents[row][column] = matrix_element(idx, value=it[0])
+            it.iternext()
+
+        matrix_div_contents = []
+        for row_idx, columns in sorted(matrix_contents.items()):
             row = []
-            for j in range(shape[1]):
-                row.append(matrix_element(f"{i}-{j}", value=default[i][j]))
-            matrix_contents.append(html.Div(row))
+            for column_idx, element in sorted(columns.items()):
+                row.append(element)
+            matrix_div_contents.append(html.Div(row))
 
-        matrix = html.Div(matrix_contents)
+        matrix = html.Div(matrix_div_contents)
 
         return add_label_help(matrix, label, help_str)
 
@@ -408,10 +420,17 @@ class TransformationComponent(MPComponent):
                 Output(self.id(), "data"),
                 Output(self.id("container"), "className"),
                 Output(self.id("message"), "children"),
-                Output({"component_id": self._id, "kwarg_label": ALL}, "disabled"),
+                Output(
+                    {"component_id": self._id, "kwarg_label": ALL, "idx": ALL},
+                    "disabled",
+                ),
             ],
             [Input(self.id("enable_transformation"), "on")],
-            [State({"component_id": self._id, "kwarg_label": ALL}, "value")],
+            [
+                State(
+                    {"component_id": self._id, "kwarg_label": ALL, "idx": ALL}, "value"
+                )
+            ],
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
@@ -429,21 +448,20 @@ class TransformationComponent(MPComponent):
                 d = loads(k[: -len(".value")])
                 kwarg_label = d["kwarg_label"]
 
-                # combine kwarg_label with element indixes, delimited by -
-                # since we need multiple inputs for a single kwarg
-                # TODO: remove this, explicitly store element index in id
-                k_type = self.kwarg_type_hints[d["kwarg_label"].split("-")[0]]
+                k_type = self.kwarg_type_hints[d["kwarg_label"]]
+                idx = literal_eval(d["idx"])
 
                 if isinstance(k_type, tuple):
                     # matrix or vector
-                    kwarg_label, i, j = kwarg_label.split("-")
-                    i = int(i)
-                    j = int(j)
                     if kwarg_label not in kwargs:
-                        kwargs[kwarg_label] = np.empty(k_type).tolist()
-                    kwargs[kwarg_label][i][j] = literal_eval(str(v))
-                    if k_type == (1, 1):
-                        kwargs[kwarg_label] = kwargs[kwarg_label][0][0]
+                        kwargs[kwarg_label] = np.empty(k_type)
+                    v = literal_eval(str(v))
+                    if v is not None and kwargs[kwarg_label] is not None:
+                        kwargs[kwarg_label][idx] = literal_eval(str(v))
+                    else:
+                        # require all elements to have value, otherwise set
+                        # entire kwarg to None
+                        kwargs[kwarg_label] = None
 
                 elif k_type == "literal":
                     kwargs[kwarg_label] = literal_eval(str(v))
@@ -455,6 +473,8 @@ class TransformationComponent(MPComponent):
                     raise NotImplementedError
 
             # TODO: move callback inside AllTransformationsComponent for efficiency?
+
+            print(self.__class__.__name__, kwargs)
 
             if not enabled:
                 input_state = (False,) * len(states)
