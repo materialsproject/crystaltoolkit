@@ -1,45 +1,37 @@
+import traceback
+import warnings
+from ast import literal_eval
 from collections import defaultdict
+from json import JSONDecodeError, loads
+from typing import Dict, List, Optional, Tuple, Union
 
 import dash
 import dash_core_components as dcc
-import dash_html_components as html
 import dash_daq as daq
-
-import traceback
-
-from dash.dependencies import Input, Output, State, ALL
+import dash_html_components as html
+import numpy as np
+from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash import no_update
 
-from crystal_toolkit.components import StructureMoleculeComponent
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import *
-
-
+from crystal_toolkit.helpers.layouts import (
+    Column,
+    Columns,
+    MessageBody,
+    MessageContainer,
+    MessageHeader,
+    add_label_help,
+)
 from crystal_toolkit.settings import SETTINGS
-
-from typing import List, Optional, Tuple
-from itertools import chain
-
-from json import loads
-
-from frozendict import frozendict
 
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
 
-from ast import literal_eval
-
-import flask
-import numpy as np
-
 
 class TransformationComponent(MPComponent):
-    def __init__(
-        self, input_structure_component: Optional[MPComponent] = None, *args, **kwargs
-    ):
+    def __init__(self, input_structure_component_id: str, *args, **kwargs):
 
         if self.__class__.__name__ != f"{self.transformation.__name__}Component":
             # sanity check, enforcing conventions
@@ -49,12 +41,10 @@ class TransformationComponent(MPComponent):
             )
 
         self._kwarg_type_hints = {}
+        super().__init__(
+            *args, links={"input_structure": input_structure_component_id}, **kwargs
+        )
 
-        super().__init__(*args, **kwargs)
-        if input_structure_component:
-            self.links["input_structure"] = input_structure_component.id()
-
-        self.create_store("input_structure")
         self.create_store(
             "transformation_args_kwargs", initial_data={"args": [], "kwargs": {}}
         )
@@ -192,6 +182,72 @@ class TransformationComponent(MPComponent):
         """
         return self._kwarg_type_hints
 
+    def get_kwarg_id(self, kwarg_name) -> Dict:
+        """
+
+        :param kwarg_name:
+        :return:
+        """
+        return {"component_id": self._id, "kwarg_label": kwarg_name, "idx": ALL}
+
+    def get_all_kwargs_id(self) -> Dict:
+        """
+
+        :return:
+        """
+        return {"component_id": self._id, "kwarg_label": ALL, "idx": ALL}
+
+    def reconstruct_kwarg_from_state(self, state, kwarg_name):
+        return self.reconstruct_kwargs_from_state(state)[kwarg_name]
+
+    def reconstruct_kwargs_from_state(self, state) -> Dict:
+
+        kwargs = {}
+        for k, v in state.items():
+
+            # TODO: hopefully this will be less hacky in future Dash versions
+            # remove trailing ".value" and convert back into dictionary
+            # need to sort k somehow ...
+
+            try:
+                d = loads(k[: -len(".value")])
+            except JSONDecodeError:
+                continue
+
+            kwarg_label = d["kwarg_label"]
+
+            k_type = self.kwarg_type_hints[d["kwarg_label"]]
+            idx = literal_eval(d["idx"])
+
+            if isinstance(k_type, tuple):
+                # matrix or vector
+                if kwarg_label not in kwargs:
+                    kwargs[kwarg_label] = np.empty(k_type)
+                v = literal_eval(str(v))
+                if v is not None and kwargs[kwarg_label] is not None:
+                    kwargs[kwarg_label][idx] = literal_eval(str(v))
+                else:
+                    # require all elements to have value, otherwise set
+                    # entire kwarg to None
+                    kwargs[kwarg_label] = None
+
+            elif k_type == "literal":
+                kwargs[kwarg_label] = literal_eval(str(v))
+
+            elif k_type == "bool":
+                kwargs[kwarg_label] = bool("enabled" in v)
+
+            elif k_type == "dict":
+                raise NotImplementedError
+
+        for k, v in kwargs.items():
+            if isinstance(v, np.ndarray):
+                kwargs[k] = v.tolist()
+
+        # print("kwargs", kwargs)
+
+        return kwargs
+
     @property
     def title(self):
         raise NotImplementedError
@@ -236,7 +292,7 @@ class TransformationComponent(MPComponent):
         :return: a Dash layout
         """
 
-        default = state.get(kwarg_label) or np.full(shape, None)
+        default = np.full(shape, state.get(kwarg_label))
         default = np.reshape(default, shape)
 
         self._kwarg_type_hints[kwarg_label] = shape
@@ -268,6 +324,7 @@ class TransformationComponent(MPComponent):
         # dict of row indices, column indices to element
         matrix_contents = defaultdict(dict)
 
+        # determine what individual input boxes we need
         # note that shape = () for floats, shape = (3,) for vectors
         # but we may also need to accept input for e.g. (3, 1)
         it = np.nditer(default, flags=["multi_index", "refs_ok"])
@@ -278,6 +335,7 @@ class TransformationComponent(MPComponent):
             matrix_contents[row][column] = matrix_element(idx, value=it[0])
             it.iternext()
 
+        # arrange the input boxes in two dimensions (rows, columns)
         matrix_div_contents = []
         for row_idx, columns in sorted(matrix_contents.items()):
             row = []
@@ -348,7 +406,7 @@ class TransformationComponent(MPComponent):
         self._kwarg_type_hints[kwarg_label] = "literal"
 
         option_input = dcc.Dropdown(
-            id=self.id(kwarg_label),
+            id=self.id(kwarg_label, is_kwarg=True),
             style={"width": "10rem"},
             options=options if options else [],
             value=default,
@@ -420,17 +478,10 @@ class TransformationComponent(MPComponent):
                 Output(self.id(), "data"),
                 Output(self.id("container"), "className"),
                 Output(self.id("message"), "children"),
-                Output(
-                    {"component_id": self._id, "kwarg_label": ALL, "idx": ALL},
-                    "disabled",
-                ),
+                Output(self.get_all_kwargs_id(), "disabled",),
             ],
             [Input(self.id("enable_transformation"), "on")],
-            [
-                State(
-                    {"component_id": self._id, "kwarg_label": ALL, "idx": ALL}, "value"
-                )
-            ],
+            [State(self.get_all_kwargs_id(), "value")],
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
@@ -438,43 +489,9 @@ class TransformationComponent(MPComponent):
         )
         def update_transformation(enabled, states):
 
-            kwargs = {}
-            for k, v in dash.callback_context.states.items():
-
-                # TODO: hopefully this will be less hacky in future Dash versions
-                # remove trailing ".value" and convert back into dictionary
-                # need to sort k somehow ...
-
-                d = loads(k[: -len(".value")])
-                kwarg_label = d["kwarg_label"]
-
-                k_type = self.kwarg_type_hints[d["kwarg_label"]]
-                idx = literal_eval(d["idx"])
-
-                if isinstance(k_type, tuple):
-                    # matrix or vector
-                    if kwarg_label not in kwargs:
-                        kwargs[kwarg_label] = np.empty(k_type)
-                    v = literal_eval(str(v))
-                    if v is not None and kwargs[kwarg_label] is not None:
-                        kwargs[kwarg_label][idx] = literal_eval(str(v))
-                    else:
-                        # require all elements to have value, otherwise set
-                        # entire kwarg to None
-                        kwargs[kwarg_label] = None
-
-                elif k_type == "literal":
-                    kwargs[kwarg_label] = literal_eval(str(v))
-
-                elif k_type == "bool":
-                    kwargs[kwarg_label] = bool("enabled" in v)
-
-                elif k_type == "dict":
-                    raise NotImplementedError
-
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 
-            print(self.__class__.__name__, kwargs)
+            kwargs = self.reconstruct_kwargs_from_state(dash.callback_context.states)
 
             if not enabled:
                 input_state = (False,) * len(states)
@@ -528,7 +545,10 @@ class AllTransformationsComponent(MPComponent):
             self.links["input_structure"] = input_structure_component.id()
         self.create_store("input_structure")
 
-        transformations = [t(input_structure_component=self) for t in transformations]
+        transformations = [
+            t(input_structure_component_id=self.id("input_structure"))
+            for t in transformations
+        ]
         self.transformations = {t.__class__.__name__: t for t in transformations}
 
     @property
