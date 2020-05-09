@@ -230,7 +230,7 @@ def _get_surface_from_positions(positions, d_args, draw_edges=False):
 
     num_triangle = int(num_triangle)
     index_list = [[itr * 3, itr * 3 + 1, itr * 3 + 2] for itr in range(num_triangle)]
-    # Vertex ositions as a list of lists
+    # Vertex positions as a list of lists
     surf_vertices = BufferAttribute(array=positions, normalized=False)
     # Indices
     surf_indices = BufferAttribute(

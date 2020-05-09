@@ -58,6 +58,9 @@ from crystal_toolkit.components.transformations.slab import SlabTransformationCo
 from crystal_toolkit.components.transformations.substitution import (
     SubstitutionTransformationComponent,
 )
+from crystal_toolkit.components.transformations.rattle import (
+    MonteCarloRattleTransformationComponent,
+)
 from crystal_toolkit.components.transformations.cubic import (
-    CubicTransformationComponent,
+    CubicSupercellTransformation,
 )
