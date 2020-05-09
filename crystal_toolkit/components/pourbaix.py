@@ -31,10 +31,16 @@ WIDTH = 700  # in px
 class PourbaixDiagramComponent(MPComponent):
     def __init__(self, pourbaix_diagram=None, **kwargs):
         super().__init__(**kwargs)
-        self.create_store("mpid")
-        self.create_store("struct")
-        self.create_store("figure")
+
+        # stores that trigger a new Pourbaix diagram
+        self.create_store("mpid")  # e.g. "mp-123"
+        self.create_store("chemsys")  # e.g. ["Fe", "O"], list of element strings
+        self.create_store("struct")  # pymatgen.core.structure.Structure
+
+        # filled from the input stores
         self.create_store("pourbaix_entries")
+
+        self.create_store("figure")
         self.create_store("pourbaix_diagram_options")
         self.create_store("pourbaix_display_options")
         for index in range(SUPPORTED_N_ELEMENTS):
@@ -496,12 +502,15 @@ class PourbaixDiagramComponent(MPComponent):
             self.logger.debug("Generated pourbaix diagram")
             return pourbaix_diagram
 
-        # Add arbitrary chemsys?
         @app.callback(
             Output(self.id("pourbaix_entries"), "data"),
-            [Input(self.id("mpid"), "data"), Input(self.id("struct"), "data")],
+            [
+                Input(self.id("mpid"), "data"),
+                Input(self.id("struct"), "data"),
+                Input(self.id("chemsys"), "data"),
+            ],
         )
-        def get_chemsys_from_struct_mpid(mpid, struct):
+        def get_chemsys_from_struct_mpid(mpid, struct, chemsys):
             ctx = dash.callback_context
 
             if ctx is None or not ctx.triggered:
@@ -520,10 +529,11 @@ class PourbaixDiagramComponent(MPComponent):
                 chemsys = [str(elem) for elem in entry.composition.elements]
 
             # struct trigger
-            if trigger["prop_id"] == self.id("struct") + ".data":
+            elif trigger["prop_id"] == self.id("struct") + ".data":
                 chemsys = [
                     str(elem) for elem in self.from_data(struct).composition.elements
                 ]
+
             if len(set(chemsys) - {"O", "H"}) > SUPPORTED_N_ELEMENTS:
                 return "too_many_elements"
 

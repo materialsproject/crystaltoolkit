@@ -1,14 +1,27 @@
 FROM python:3.7
 LABEL maintainer="mkhorton@lbl.gov"
 
-RUN apt update && apt install vim povray asymptote -y
+RUN apt-get update && apt-get install vim gfortran povray asymptote -y
 
-RUN mkdir -p /home/project/dash_app
-WORKDIR /home/project/dash_app
+WORKDIR /home/build
+
+# install critic2
+RUN git clone https://github.com/aoterodelaroza/critic2.git && \
+    cd critic2 && git checkout 84da382 && autoreconf && ./configure && \
+    make && make install
+
+# install enumlib
+ENV F90 gfortran
+RUN git clone --recursive https://github.com/msg-byu/enumlib.git && \
+    cd enumlib && git checkout 165c917 && cd symlib/src/ && make && \
+    cd ../../src && make enum.x && make makestr.x && \
+    cp enum.x makestr.x /usr/local/bin
+
+WORKDIR /home/app
 
 RUN pip install --no-cache-dir numpy scipy
 
-ADD requirements.txt /home/project/dash_app/requirements.txt
+ADD requirements.txt /home/app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # whether to embed in materialsproject.org or not
@@ -25,7 +38,7 @@ ENV PMG_MAPI_KEY=YOUR_MP_API_KEY_HERE
 # whether to run the server in debug mode or not
 ENV CRYSTAL_TOOLKIT_DEBUG_MODE=False
 
-ADD . /home/project/dash_app
+ADD . /home/app
 
 EXPOSE 8000
-CMD gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 crystal_toolkit.apps.main_app:server
+CMD gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 crystal_toolkit.apps.main:server

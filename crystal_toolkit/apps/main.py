@@ -20,6 +20,8 @@ from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.helpers.mprester import MPRester
 
+from crystal_toolkit.settings import SETTINGS
+
 # choose a default structure on load
 path = os.path.join(os.path.dirname(module_path), "apps/assets/task_ids_on_load.json")
 DEFAULT_MPIDS = loadfn(path)
@@ -37,23 +39,18 @@ meta_tags = [  # TODO: add og-image, etc., title
     }
 ]
 
-DEBUG_MODE = literal_eval(os.environ.get("CRYSTAL_TOOLKIT_DEBUG_MODE", "False").title())
-
-assets_folder = os.environ.get("CRYSTAL_TOOLKIT_ASSETS", "assets")
-if not os.environ.get("CRYSTAL_TOOLKIT_ASSETS"):
+if not SETTINGS.ASSETS_PATH:
     warnings.warn(
         "Set CRYSTAL_TOOLKIT_ASSETS environment variable or app will be unstyled."
     )
+print("ASSETS", SETTINGS.ASSETS_PATH)
 
-app = dash.Dash(__name__, meta_tags=meta_tags, assets_folder=assets_folder)
+app = dash.Dash(__name__, meta_tags=meta_tags, assets_folder=SETTINGS.ASSETS_PATH)
 app.title = "Crystal Toolkit"
 app.scripts.config.serve_locally = True
 
 # Materials Project embed mode
-MP_EMBED_MODE = literal_eval(
-    os.environ.get("CRYSTAL_TOOLKIT_MP_EMBED_MODE", "False").title()
-)
-if not MP_EMBED_MODE:
+if not SETTINGS.MP_EMBED_MODE:
     app.config["assets_ignore"] = r".*\.mpembed\..*"
     box_size = "65vmin"
 else:
@@ -74,7 +71,7 @@ server = app.server
 # region SET UP CACHE
 ################################################################################
 
-if DEBUG_MODE:
+if SETTINGS.DEBUG_MODE:
     # disable cache in debug
     cache = Cache(app.server, config={"CACHE_TYPE": "null"})
 else:
@@ -82,7 +79,7 @@ else:
         app.server,
         config={
             "CACHE_TYPE": "redis",
-            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "redis://localhost:6379"),
+            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", SETTINGS.REDIS_URL),
         },
     )
 
@@ -102,19 +99,6 @@ logger = logging.getLogger(app.title)
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
-supercell = ctc.SupercellTransformationComponent()
-# grain_boundary = ctc.GrainBoundaryTransformationComponent()
-# oxi_state = ctc.AutoOxiStateDecorationTransformationComponent()
-# slab = ctc.SlabTransformationComponent()
-# substitution = ctc.SubstitutionTransformationComponent()
-
-transformation_component = ctc.AllTransformationsComponent(
-    transformations=[supercell]  # , slab, grain_boundary, oxi_state, substitution],
-)
-
-struct_component = ctc.StructureMoleculeComponent(
-    links={"default": transformation_component.id("out")}
-)
 # struct_component.attach_from(transformation_component, origin_store_name="out")
 
 # TODO: change to link to struct_or_mol instead of graph ?
@@ -122,6 +106,19 @@ struct_component = ctc.StructureMoleculeComponent(
 
 search_component = ctc.SearchComponent()
 upload_component = ctc.StructureMoleculeUploadComponent()
+
+
+transformation_component = ctc.AllTransformationsComponent(
+    transformations=[
+        "SupercellTransformationComponent",
+        "AutoOxiStateDecorationTransformationComponent",
+        "CubicSupercellTransformationComponent",
+    ]
+)
+
+struct_component = ctc.StructureMoleculeComponent(
+    links={"default": transformation_component.id()}
+)
 
 # robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
 # magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
@@ -146,7 +143,7 @@ upload_component = ctc.StructureMoleculeUploadComponent()
 # favorites_component = ctc.FavoritesComponent()
 # favorites_component.attach_from(search_component, this_store_name="current-mpid")
 
-if MP_EMBED_MODE:
+if SETTINGS.MP_EMBED_MODE:
     action_div = html.Div([])
     # submit_snl_panel = ctc.SubmitSNLPanel(origin_component=struct_component)
     # action_div = html.Div(
@@ -165,7 +162,7 @@ else:
 
 panels = []
 
-if MP_EMBED_MODE:
+if SETTINGS.MP_EMBED_MODE:
     mp_section = (html.Div(),)
 else:
 
@@ -206,11 +203,8 @@ body_layout = [
     *mp_section,
 ]
 
-STRUCT_VIEWER_SOURCE = transformation_component.id()
-
-
 banner = html.Div(id="banner")
-if DEBUG_MODE:
+if SETTINGS.DEBUG_MODE:
     banner = html.Div(
         [
             html.Br(),
@@ -495,7 +489,7 @@ def update_url_pathname_from_search_term(mpid: Optional[str]) -> str:
 
 
 @app.callback(
-    Output(STRUCT_VIEWER_SOURCE, "data"),
+    Output(transformation_component.id("input_structure"), "data"),
     [Input(search_component.id(), "data"), Input(upload_component.id(), "data")],
 )
 def master_update_structure(search_mpid: Optional[str], upload_data: Optional[str]):
@@ -555,4 +549,4 @@ def master_update_structure(search_mpid: Optional[str], upload_data: Optional[st
 
 
 if __name__ == "__main__":
-    app.run_server(debug=DEBUG_MODE, port=8050)
+    app.run_server(debug=SETTINGS.DEBUG_MODE, port=8050)

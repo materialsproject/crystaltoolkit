@@ -15,6 +15,8 @@ from typing import List, Optional
 def get_site_scene(
     self,
     connected_sites: List[ConnectedSite] = None,
+    # connected_site_metadata: None,
+    # connected_sites_to_draw,
     connected_sites_not_drawn: List[ConnectedSite] = None,
     hide_incomplete_edges: bool = False,
     incomplete_edge_length_scale: Optional[float] = 1.0,
@@ -93,6 +95,7 @@ def get_site_scene(
                 phiStart=phiStart,
                 phiEnd=phiEnd,
                 clickable=True,
+                tooltip=self.species_string,
             )
             atoms.append(sphere)
 
@@ -188,11 +191,7 @@ def get_site_scene(
                     all_positions[idx] for idx in chain.from_iterable(vertices_indices)
                 ]
 
-                polyhedron = [
-                    Surface(
-                        positions=vertices, color=site_color
-                    )
-                ]
+                polyhedron = [Surface(positions=vertices, color=site_color)]
 
             else:
 

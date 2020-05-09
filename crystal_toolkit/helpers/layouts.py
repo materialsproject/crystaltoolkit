@@ -393,3 +393,22 @@ def cite_me(
     with_tooltip = get_tooltip(reference_button, tooltip_text, underline=False)
 
     return with_tooltip
+
+
+def add_label_help(input, label, help):
+
+    contents = []
+    if label and not help:
+        contents.append(html.Label(label, className="mpc-label"))
+    if label and help:
+        contents.append(get_tooltip(html.Label(label, className="mpc-label"), help))
+    contents.append(input)
+
+    return html.Div(
+        contents,
+        style={
+            "display": "inline-block",
+            "padding-right": "1rem",
+            "vertical-align": "top",
+        },
+    )

@@ -20,10 +20,11 @@ def _axes_from_lattice(self, origin=None, scale=1, offset=0, **kwargs):
     :return: Scene object
     """
 
-    # TODO: add along lattice
+    origin = origin or [0, 0, 0]
 
-    o = -self.get_cartesian_coords([0.5, 0.5, 0.5])
-    o = o - offset * (self.matrix[0] + self.matrix[1] + self.matrix[2])
+    o = np.array(origin)
+    # o = -self.get_cartesian_coords([0.5, 0.5, 0.5])
+    # o = o - offset * (self.matrix[0] + self.matrix[1] + self.matrix[2])
     a = self.matrix[0] / np.linalg.norm(self.matrix[0]) * scale
     b = self.matrix[1] / np.linalg.norm(self.matrix[1]) * scale
     c = self.matrix[2] / np.linalg.norm(self.matrix[2]) * scale
@@ -35,7 +36,7 @@ def _axes_from_lattice(self, origin=None, scale=1, offset=0, **kwargs):
     head_scale = 0.24
     head_width = 0.14
 
-    o_sphere = Spheres(positions=[o], color="white", radius=radius_scale * scale / 4)
+    o_sphere = Spheres(positions=[o], color="white", radius=2 * radius_scale * scale)
 
     return Scene(
         name="axes",
@@ -110,7 +111,7 @@ def get_lattice_scene(self, origin=None, show_axes=False, **kwargs):
     contents = [Lines(line_pairs, **kwargs)]
 
     if show_axes:
-        contents.append(self._axes_from_lattice())
+        contents.append(self._axes_from_lattice(origin=origin))
 
     return Scene(name, contents, origin=origin)
 

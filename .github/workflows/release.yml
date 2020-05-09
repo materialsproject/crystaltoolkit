@@ -33,8 +33,10 @@ jobs:
         git status
     - name: Set new version
       run: |
-        cat package.json | jq '.version="'$(date '+%Y.%m.%d')'"' > package.json
-        cat crystal_toolkit/package.json | jq '.version="'$(date '+%Y.%m.%d')'"' > crystal_toolkit/package.json
+        export VERSION=$(date '+%Y.%m.%d')
+        sed -i "s/__version__.*/__version__ = \"$(VERSION)\"/g" crystal_toolkit/__init__.py
+        sed -i "s/^version.*/version = \"$(VERSION)\"/g" pyproject.toml
+        sed -i "s/version.*/version=\"$(VERSION)\",/g" setup.py 
         git status
         git diff --quiet || git commit -am "Set version"
         git push

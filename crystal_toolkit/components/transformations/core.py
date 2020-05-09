@@ -1,85 +1,196 @@
+from collections import defaultdict
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_daq as daq
 
 import traceback
 
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ALL
 from dash.exceptions import PreventUpdate
+from dash import no_update
 
 from crystal_toolkit.components import StructureMoleculeComponent
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
 
-from typing import List
+
+from crystal_toolkit.settings import SETTINGS
+
+from typing import List, Optional, Tuple
+from itertools import chain
+
+from json import loads
+
+from frozendict import frozendict
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
+from ast import literal_eval
 
 import flask
+import numpy as np
 
 
 class TransformationComponent(MPComponent):
-    def __init__(self, *args, initial_args_kwargs=None, **kwargs):
+    def __init__(
+        self, input_structure_component: Optional[MPComponent] = None, *args, **kwargs
+    ):
+
+        if self.__class__.__name__ != f"{self.transformation.__name__}Component":
+            # sanity check, enforcing conventions
+            raise NameError(
+                f"Class has to be named corresponding to the underlying "
+                f"transformation name: {self.transformation.__name__}Component"
+            )
+
+        self._kwarg_type_hints = {}
+
         super().__init__(*args, **kwargs)
-        self.initial_args_kwargs = initial_args_kwargs or {"args": [], "kwargs": {}}
+        if input_structure_component:
+            self.links["input_structure"] = input_structure_component.id()
+
+        self.create_store("input_structure")
         self.create_store(
-            "transformation_args_kwargs", initial_data=self.initial_args_kwargs
+            "transformation_args_kwargs", initial_data={"args": [], "kwargs": {}}
         )
-        self.enabled = False
+
+    @property
+    def is_one_to_many(self) -> bool:
+        """
+        This should reflect the underlying transformation.
+        """
+        # need to initialize transformation to access property, which isn't
+        # possible in all cases without necessary kwargs, which is why
+        # we duplicate the property here
+        return False
 
     @property
     def _sub_layouts(self):
 
-        enable = dcc.Checklist(
-            options=[{"label": "Enable transformation", "value": "enable"}],
-            value=["enable"] if self.enabled else [],
-            inputClassName="mpc-radio",
+        enable = daq.BooleanSwitch(
             id=self.id("enable_transformation"),
+            style={"display": "inline-block", "vertical-align": "middle"},
         )
 
         message = html.Div(id=self.id("message"))
 
         description = dcc.Markdown(self.description)
 
-        options = html.Div(
-            self.options_layout(self.initial_args_kwargs), id=self.id("options")
-        )
+        options = html.Div(self.options_layouts(), id=self.id("options"))
 
-        container = MessageContainer(
-            [
-                MessageHeader([self.title, enable]),
-                MessageBody(
-                    Columns(
-                        [
-                            Column([options], narrow=True),
-                            Column([description, html.Br(), message]),
-                        ]
-                    )
-                ),
-            ],
-            kind="dark",
-            id=self.id("container"),
-        )
+        preview = dcc.Loading(id=self.id("preview"))
+
+        if self.is_one_to_many:
+            ranked_list = daq.NumericInput(
+                value=1, min=1, max=10, id=self.id("ranked_list")
+            )
+        else:
+            # if not 1-to-many, we don't need the control, we keep
+            # an empty container here to make the callbacks simpler
+            # since "ranked_list" will then always be present in layout
+            ranked_list = html.Div(id=self.id("ranked_list"))
 
         return {
             "options": options,
             "description": description,
             "enable": enable,
             "message": message,
-            "container": container,
+            "preview": preview,
+            "ranked_list": ranked_list,
         }
 
-    def container_layout(self) -> html.Div:
+    def id(self, name: str = "default", is_kwarg=False, idx=False) -> Union[Dict, str]:
+
+        if not is_kwarg:
+            return super().id(name=name)
+
+        return {"component_id": self._id, "kwarg_label": name, "idx": str(idx)}
+
+    def container_layout(self, state=None, structure=None) -> html.Div:
         """
         :return: Layout defining transformation and its options.
         """
-        return self._sub_layouts["container"]
 
-    def options_layout(self, initial_args_kwargs):
-        raise NotImplementedError
+        container = MessageContainer(
+            [
+                MessageHeader(
+                    html.Div(
+                        [
+                            self._sub_layouts["enable"],
+                            html.Span(
+                                self.title,
+                                style={
+                                    "vertical-align": "middle",
+                                    "margin-left": "1rem",
+                                },
+                            ),
+                        ]
+                    )
+                ),
+                MessageBody(
+                    [
+                        Columns(
+                            [
+                                Column(
+                                    [
+                                        self._sub_layouts["description"],
+                                        html.Br(),
+                                        html.Div(
+                                            self.options_layouts(
+                                                state=state, structure=structure
+                                            )
+                                        ),
+                                        html.Br(),
+                                        self._sub_layouts["message"],
+                                    ]
+                                )
+                            ]
+                        )
+                    ]
+                ),
+            ],
+            kind="dark",
+            id=self.id("container"),
+        )
+
+        return container
+
+    def options_layouts(self, state=None, structure=None) -> List[html.Div]:
+        """
+        Return a layout to change the transformation options (that is,
+        that controls the args and kwargs that will be passed to pymatgen).
+
+        The "state" option is so that the controls can be populated appropriately
+        using existing args and kwargs, e.g. when restoring the control panel
+        from a previous state.
+
+        :param state: existing state in format {"args": [], "kwargs": {}}
+        :return:
+        """
+        return [html.Div()]
 
     @property
     def transformation(self):
         raise NotImplementedError
+
+    @property
+    def kwarg_type_hints(self) -> Dict:
+        """
+        Valid keys are a tuple for a numpy array of that shape, e.g. (3, 3) for a 3x3 matrix,
+        (1, 3) for a vector, or "literal" to parse kwarg value using ast.literal_eval, or "bool"
+        to parse a boolean value.
+
+        In future iterations, we may be able to replace this with native Python type hints. The
+        problem here is being able to specify array shape where appropriate.
+
+        :return: e.g. {"scaling_matrix": (3, 3)} or {"sym_tol": "literal"}
+        """
+        return self._kwarg_type_hints
 
     @property
     def title(self):
@@ -89,66 +200,336 @@ class TransformationComponent(MPComponent):
     def description(self):
         raise NotImplementedError
 
+    def get_preview_layout(self, struct_in, struct_out):
+        """
+        Override this method to give a layout that previews the transformation.
+        Has beneficial side effect of priming the transformation cache when
+        entire transformation pipeline is enabled.
+
+        :param struct_in: input Structure
+        :param struct_out: transformed Structure
+        :return:
+        """
+        return html.Div()
+
+    def get_matrix_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+        is_int: bool = False,
+        shape: Tuple[int, ...] = (3, 3),
+        **kwargs,
+    ):
+        """
+        For Python classes which take matrices as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help_str: Text for a tooltip when hovering over label.
+        :param is_int: if True, will use a numeric input
+        :param shape: (3, 3) for matrix, (1, 3) for vector, (1, 1) for scalar
+        :return: a Dash layout
+        """
+
+        default = state.get(kwarg_label) or np.full(shape, None)
+        default = np.reshape(default, shape)
+
+        self._kwarg_type_hints[kwarg_label] = shape
+
+        def matrix_element(idx, value=0):
+            # TODO: maybe move element out of the name
+            mid = self.id(kwarg_label, is_kwarg=True, idx=idx)
+            if not is_int:
+                return dcc.Input(
+                    id=mid,
+                    inputMode="numeric",
+                    className="input",
+                    style={
+                        "textAlign": "center",
+                        # shorter default width if matrix or vector
+                        "width": "2.5rem"
+                        if (shape == (3, 3)) or (shape == (3,))
+                        else "5rem",
+                        "marginRight": "0.2rem",
+                        "marginBottom": "0.2rem",
+                    },
+                    value=value,
+                    persistence=True,
+                    **kwargs,
+                )
+            else:
+                return daq.NumericInput(id=mid, value=value, **kwargs)
+
+        # dict of row indices, column indices to element
+        matrix_contents = defaultdict(dict)
+
+        # note that shape = () for floats, shape = (3,) for vectors
+        # but we may also need to accept input for e.g. (3, 1)
+        it = np.nditer(default, flags=["multi_index", "refs_ok"])
+        while not it.finished:
+            idx = it.multi_index
+            row = (idx[1] if len(idx) > 1 else 0,)
+            column = idx[0] if len(idx) > 0 else 0
+            matrix_contents[row][column] = matrix_element(idx, value=it[0])
+            it.iternext()
+
+        matrix_div_contents = []
+        for row_idx, columns in sorted(matrix_contents.items()):
+            row = []
+            for column_idx, element in sorted(columns.items()):
+                row.append(element)
+            matrix_div_contents.append(html.Div(row))
+
+        matrix = html.Div(matrix_div_contents)
+
+        return add_label_help(matrix, label, help_str)
+
+    def get_bool_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+    ):
+        """
+        For Python classes which take boolean values as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help_str: Text for a tooltip when hovering over label.
+        :return: a Dash layout
+        """
+
+        default = state.get(kwarg_label) or False
+
+        self._kwarg_type_hints[kwarg_label] = "bool"
+
+        bool_input = dcc.Checklist(
+            id=self.id(kwarg_label, is_kwarg=True),
+            style={"width": "5rem"},
+            options=[{"label": "", "value": "enabled"}],
+            value=["enabled"] if default else [],
+            persistence=True,
+        )
+
+        return add_label_help(bool_input, label, help_str)
+
+    def get_choice_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+        options: Optional[List[Dict]] = None,
+    ):
+        """
+        For Python classes which take floats as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help_str: Text for a tooltip when hovering over label.
+        :param options: Options to choose from, as per dcc.Dropdown
+        :return: a Dash layout
+        """
+
+        default = state.get(kwarg_label)
+
+        self._kwarg_type_hints[kwarg_label] = "literal"
+
+        option_input = dcc.Dropdown(
+            id=self.id(kwarg_label),
+            style={"width": "10rem"},
+            options=options if options else [],
+            value=default,
+            persistence=True,
+        )
+
+        return add_label_help(option_input, label, help_str)
+
+    def get_dict_input(
+        self,
+        kwarg_label: str,
+        key_name: str,
+        value_name: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+    ):
+        ...
+
     def generate_callbacks(self, app, cache):
+        @cache.memoize()
+        def apply_transformation(transformation_data, struct):
+
+            transformation = self.from_data(transformation_data)
+            error = None
+
+            try:
+                struct = transformation.apply_transformation(struct)
+            except Exception as exc:
+                error_title = (
+                    f'Failed to apply "{transformation.__class__.__name__}" '
+                    f"transformation: {exc}"
+                )
+                traceback_info = Reveal(
+                    title=html.B("Traceback"),
+                    children=[dcc.Markdown(traceback.format_exc())],
+                )
+                error = [error_title, traceback_info]
+
+            return struct, error
+
+        if SETTINGS.TRANSFORMATION_PREVIEWS:
+
+            # Transformation previews need to be included in layout too (see preview sublayout)
+            # Transformation previews need a full transformation pipeline replica (I/O heavy)
+            # Might abandon.
+            warnings.warn("Transformation previews under active development.")
+
+            @app.callback(
+                Output(self.id("preview"), "children"),
+                [Input(self.id(), "data"), Input(self.id("input_structure"), "data")],
+            )
+            def update_preview(transformation_data, input_structure):
+                if (not transformation_data) or (not input_structure):
+                    return html.Div()
+                input_structure = self.from_data(input_structure)
+                output_structure, error = apply_transformation(
+                    transformation_data, input_structure
+                )
+                if len(output_structure) > 64:
+                    warning = html.Span(
+                        f"The transformed crystal structure has {len(output_structure)} atoms "
+                        f"and might take a moment to display."
+                    )
+                return self.get_preview_layout(input_structure, output_structure)
+
         @app.callback(
-            Output(self.id(), "data"),
             [
-                Input(self.id("transformation_args_kwargs"), "data"),
-                Input(self.id("enable_transformation"), "value"),
+                Output(self.id(), "data"),
+                Output(self.id("container"), "className"),
+                Output(self.id("message"), "children"),
+                Output(
+                    {"component_id": self._id, "kwarg_label": ALL, "idx": ALL},
+                    "disabled",
+                ),
+            ],
+            [Input(self.id("enable_transformation"), "on")],
+            [
+                State(
+                    {"component_id": self._id, "kwarg_label": ALL, "idx": ALL}, "value"
+                )
             ],
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
             make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
         )
-        def update_transformation(args_kwargs, enabled):
+        def update_transformation(enabled, states):
 
-            if "enable" not in enabled:
-                return None
+            kwargs = {}
+            for k, v in dash.callback_context.states.items():
 
-            # TODO: this is madness
-            if not isinstance(args_kwargs, dict):
-                args_kwargs = self.from_data(args_kwargs)
-            args = args_kwargs["args"]
-            kwargs = args_kwargs["kwargs"]
+                # TODO: hopefully this will be less hacky in future Dash versions
+                # remove trailing ".value" and convert back into dictionary
+                # need to sort k somehow ...
+
+                d = loads(k[: -len(".value")])
+                kwarg_label = d["kwarg_label"]
+
+                k_type = self.kwarg_type_hints[d["kwarg_label"]]
+                idx = literal_eval(d["idx"])
+
+                if isinstance(k_type, tuple):
+                    # matrix or vector
+                    if kwarg_label not in kwargs:
+                        kwargs[kwarg_label] = np.empty(k_type)
+                    v = literal_eval(str(v))
+                    if v is not None and kwargs[kwarg_label] is not None:
+                        kwargs[kwarg_label][idx] = literal_eval(str(v))
+                    else:
+                        # require all elements to have value, otherwise set
+                        # entire kwarg to None
+                        kwargs[kwarg_label] = None
+
+                elif k_type == "literal":
+                    kwargs[kwarg_label] = literal_eval(str(v))
+
+                elif k_type == "bool":
+                    kwargs[kwarg_label] = bool("enabled" in v)
+
+                elif k_type == "dict":
+                    raise NotImplementedError
+
+            # TODO: move callback inside AllTransformationsComponent for efficiency?
+
+            print(self.__class__.__name__, kwargs)
+
+            if not enabled:
+                input_state = (False,) * len(states)
+                return None, "message is-dark", html.Div(), input_state
+            else:
+                input_state = (True,) * len(states)
 
             try:
-                trans = self.transformation(*args, **kwargs)
+                trans = self.transformation(**kwargs)
                 error = None
             except Exception as exception:
+                trans = None
                 error = str(exception)
 
-            return {"data": trans, "error": error}
+            if error:
 
-        @app.callback(
-            [
-                Output(self.id("container"), "className"),
-                Output(self.id("message"), "children"),
-            ],
-            [Input(self.id(), "data")],
-        )
-        def update_transformation_style(transformation):
+                return (
+                    trans,
+                    "message is-warning",
+                    html.Strong(f"Error: {error}"),
+                    input_state,
+                )
 
-            if not transformation:
-                message_style = "message is-dark"
-            elif transformation["error"]:
-                message_style = "message is-warning"
             else:
-                message_style = "message is-success"
 
-            if not transformation or not transformation["error"]:
-                error_message = html.Div()
-            else:
-                error_message = html.Strong(f'Error: {transformation["error"]}')
-
-            return message_style, error_message
+                return trans, "message is-success", html.Div(), input_state
 
 
 class AllTransformationsComponent(MPComponent):
-    def __init__(self, transformations: List[TransformationComponent], *args, **kwargs):
-        self.transformations = {t.__class__.__name__: t for t in transformations}
+    def __init__(
+        self,
+        transformations: List[str],
+        input_structure_component: Optional[MPComponent] = None,
+        *args,
+        **kwargs,
+    ):
+
+        subclasses = TransformationComponent.__subclasses__()
+        subclass_names = [s.__name__ for s in subclasses]
+        for name in transformations:
+            if name not in subclass_names:
+                warnings.warn(
+                    f'Unknown transformation "{name}", choose from: {", ".join(subclass_names)}'
+                )
+
+        transformations = [t for t in subclasses if t.__name__ in transformations]
+
         super().__init__(*args, **kwargs)
-        self.create_store("out")
+
+        if input_structure_component:
+            self.links["input_structure"] = input_structure_component.id()
+        self.create_store("input_structure")
+
+        transformations = [t(input_structure_component=self) for t in transformations]
+        self.transformations = {t.__class__.__name__: t for t in transformations}
 
     @property
     def _sub_layouts(self):
@@ -171,6 +552,7 @@ class AllTransformationsComponent(MPComponent):
             placeholder="Select one or more transformations...",
             id=self.id("choices"),
             style={"max-width": "65vmin"},
+            persistence=True,
         )
 
         layouts.update({"all_transformations": all_transformations, "choices": choices})
@@ -194,10 +576,9 @@ class AllTransformationsComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @cache.memoize()
-        def apply_transformation(transformation_data, structure_data):
+        def apply_transformation(transformation_data, struct):
 
             transformation = self.from_data(transformation_data)
-            struct = self.from_data(structure_data)
             error = None
 
             try:
@@ -217,47 +598,70 @@ class AllTransformationsComponent(MPComponent):
 
         @app.callback(
             Output(self.id("transformation_options"), "children"),
-            [Input(self.id("choices"), "value")],
+            [
+                Input(self.id("choices"), "value"),
+                Input(self.id("input_structure"), "data"),
+            ],
+            [State(t.id(), "data") for t in self.transformations.values()],
         )
-        def show_transformation_options(values):
+        def show_transformation_options(values, structure, *args):
 
             values = values or []
 
+            structure = self.from_data(structure)
+
             transformation_options = html.Div(
-                [self.transformations[name].container_layout() for name in values]
+                [
+                    self.transformations[name].container_layout(
+                        state=state, structure=structure
+                    )
+                    for name, state in zip(values, args)
+                ]
             )
 
             return [transformation_options]
 
         @app.callback(
-            [Output(self.id("out"), "data"), Output(self.id("error"), "children")],
+            [Output(self.id(), "data"), Output(self.id("error"), "children")],
             [Input(t.id(), "data") for t in self.transformations.values()]
-            + [Input(self.id(), "data")],
+            + [
+                Input(self.id("input_structure"), "data"),
+                Input(self.id("choices"), "value"),
+            ],
         )
         def run_transformations(*args):
 
             # do not update if we don't have a Structure to transform
-            if not args[-1]:
+            if not args[-2]:
                 raise PreventUpdate
 
-            struct = self.from_data(args[-1])
+            user_visible_transformations = args[-1]
+            struct = self.from_data(args[-2])
 
             errors = []
 
             transformations = []
-            for transformation in args[:-1]:
-                if transformation and transformation["data"]:
-                    transformations.append(transformation["data"])
+            for transformation in args[:-2]:
+                if transformation:
+                    transformations.append(transformation)
 
             if not transformations:
                 return struct, html.Div()
 
             for transformation_data in transformations:
 
-                struct, error = apply_transformation(transformation_data, struct)
+                # following our naming convention, only apply transformations
+                # that are user visible
+                # TODO: this should be changed
+                if (
+                    f"{transformation_data['@class']}Component"
+                    in user_visible_transformations
+                ):
 
-                if error:
-                    errors += error
+                    struct, error = apply_transformation(transformation_data, struct)
+
+                    if error:
+                        errors += error
 
             if not errors:
                 error_msg = html.Div()
