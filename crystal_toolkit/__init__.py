@@ -1,7 +1,5 @@
-from __future__ import print_function as _
-
-import os as _os
 import json
+import os as _os
 from collections import defaultdict
 
 __version__ = "2020.03.20"
@@ -26,10 +24,6 @@ default_js = _os.path.join(
 with open(default_js) as handle:
     _DEFAULTS.update(json.loads(handle.read()))
 
-try:
-    # convenience import for Jupyter users
-    import pythreejs
-    from crystal_toolkit.helpers.pythreejs_renderer import view
-    from crystal_toolkit.renderables import *
-except ImportError:
-    pass
+
+# monkey-patching to add get_scene() methods to common objects
+from crystal_toolkit.renderables import *
