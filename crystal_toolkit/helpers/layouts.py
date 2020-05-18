@@ -2,6 +2,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import warnings
 
+from crystal_toolkit.settings import SETTINGS
+
 from typing import List, Dict, Any, Union
 
 from habanero import content_negotiation
@@ -401,7 +403,9 @@ def add_label_help(input, label, help):
     if label and not help:
         contents.append(html.Label(label, className="mpc-label"))
     if label and help:
-        contents.append(get_tooltip(html.Label(label, className="mpc-label"), help))
+        contents.append(
+            get_tooltip(html.Label(label, className="mpc-label"), dcc.Markdown(help))
+        )
     contents.append(input)
 
     return html.Div(
@@ -412,3 +416,11 @@ def add_label_help(input, label, help):
             "vertical-align": "top",
         },
     )
+
+
+class Loading(dcc.Loading):
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(
+            *args, color=PRIMARY_COLOR, type="dot", debug=SETTINGS.DEBUG_MODE, **kwargs
+        )
