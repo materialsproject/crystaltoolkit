@@ -1,3 +1,4 @@
+Warning: The lock file is not up to date with the latest changes in pyproject.toml. You may be getting outdated dependencies. Run update to update them.
 brotli==1.0.7
 certifi==2020.4.5.1
 cffi==1.14.0
@@ -19,6 +20,7 @@ future==0.18.2
 gevent==1.5.0
 greenlet==0.4.15; platform_python_implementation == "CPython"
 gunicorn==20.0.4
+habanero==0.7.2
 idna==2.8
 itsdangerous==1.1.0
 jinja2==2.11.2
@@ -33,7 +35,7 @@ numpy==1.18.4
 palettable==3.3.0
 pandas==1.0.3
 plotly==4.6.0
-pycparser==2.20; platform_python_implementation == "CPython" and sys_platform == "win32"
+pycparser==2.20
 pydantic==1.5.1
 pymatgen==2020.4.29
 pyparsing==2.4.7
@@ -50,6 +52,7 @@ six==1.14.0
 spglib==1.15.1
 sympy==1.5.1
 tabulate==0.8.7
+tqdm==4.46.0
 urllib3==1.24.3
 webcolors==1.11.1
 werkzeug==1.0.1
