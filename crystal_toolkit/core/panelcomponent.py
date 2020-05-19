@@ -18,11 +18,6 @@ class PanelComponent(MPComponent):
     callbacks necessary to fill it.
     """
 
-    def __init__(self, open_by_default=False, *args, **kwargs):
-
-        self.open_by_default = open_by_default
-        super().__init__(*args, **kwargs)
-
     @property
     def title(self):
         return "Untitled Panel"
@@ -35,7 +30,7 @@ class PanelComponent(MPComponent):
     def loading_text(self):
         return "Loading"
 
-    def panel_layout(self):
+    def panel_layout(self, open_by_default=False):
 
         message = html.Div(id=self.id("message"))
 
@@ -45,30 +40,14 @@ class PanelComponent(MPComponent):
             className="mpc-panel-description",
         )
 
-        if self.open_by_default:
+        initial_contents = html.Div(id=self.id("contents"))
 
-            initial_contents = dcc.Loading(
-                [html.Div(id=self.id("inner_contents"))],
-                id=self.id("contents"),
-                color=PRIMARY_COLOR,
-            )
-
-            panel = Reveal(
-                title=self.title,
-                children=[message, description, initial_contents],
-                id=self.id("panel"),
-                open=True,
-            )
-
-        else:
-
-            initial_contents = html.Div(id=self.id("contents"))
-
-            panel = Reveal(
-                title=self.title,
-                children=[message, description, html.Br(), initial_contents],
-                id=self.id("panel"),
-            )
+        panel = Reveal(
+            title=self.title,
+            children=[message, description, html.Br(), initial_contents],
+            id=self.id("panel"),
+            open=open_by_default,
+        )
 
         return panel
 
