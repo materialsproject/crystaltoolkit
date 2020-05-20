@@ -7,15 +7,14 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from monty.serialization import loadfn, dumpfn
-from fuzzywuzzy import process
 from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify
+from pymatgen.ext.matproj import MPRester
 
 
 from pymatgen.util.string import unicodeify_spacegroup
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
-from crystal_toolkit.helpers.mprester import MPRester
 from crystal_toolkit import __file__ as module_path
 
 import numpy as np
@@ -29,42 +28,6 @@ class SearchComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("results")
-
-    def _get_tag_cache(self):
-
-        path = os.path.join(os.path.dirname(module_path), "tag_cache.json")
-
-        def _process_tag(tag):
-            # remove information that is typically not helpful
-            return tag.split(" (")[0]
-
-        if os.path.isfile(path):
-            tag_cache = loadfn(path)
-        else:
-            with MPRester() as mpr:
-                entries = mpr.query(
-                    {},
-                    [
-                        "exp.tags",
-                        "task_id",
-                        "e_above_hull",
-                        "pretty_formula",
-                        "spacegroup.symbol",
-                    ],
-                    chunk_size=0,
-                    mp_decode=False,
-                )
-            tags = [
-                [(_process_tag(tag), entry) for tag in entry["exp.tags"]]
-                for entry in entries
-            ]
-            tag_cache = defaultdict(list)
-            for tag, entry in chain.from_iterable(tags):
-                tag_cache[tag].append(entry)
-            dumpfn(tag_cache, path)
-
-        self.tag_cache = tag_cache
-        self.tag_cache_keys = list(tag_cache.keys())
 
     def _get_mpid_cache(self):
 
@@ -88,26 +51,6 @@ class SearchComponent(MPComponent):
             dumpfn(mpid_cache, path)
 
         self.mpid_cache = mpid_cache
-
-    def search_tags(self, search_term):
-
-        self.logger.info(f"Tag search: {search_term}")
-
-        # TODO: this is slow, replace with something more sensible
-        fuzzy_search_results = process.extract(
-            search_term, self.tag_cache_keys, limit=5
-        )
-
-        score_cutoff = 80
-        fuzzy_search_results = [
-            result for result in fuzzy_search_results if result[1] >= score_cutoff
-        ]
-
-        tags = [item[0] for item in fuzzy_search_results]
-
-        entries = [self.tag_cache[tag] for tag in tags]
-
-        return list(chain.from_iterable(entries)), tags
 
     def _make_search_box(self, search_term=None):
 
@@ -162,7 +105,6 @@ class SearchComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
 
-        self._get_tag_cache()
         self._get_mpid_cache()
 
         @cache.memoize(timeout=0)
