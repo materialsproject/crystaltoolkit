@@ -18,7 +18,7 @@ import crystal_toolkit.components as ctc
 from crystal_toolkit import __file__ as module_path
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
-from crystal_toolkit.helpers.mprester import MPRester
+from pymatgen.ext.matproj import MPRester
 
 from crystal_toolkit.settings import SETTINGS
 
@@ -45,7 +45,20 @@ if not SETTINGS.ASSETS_PATH:
     )
 print("ASSETS", SETTINGS.ASSETS_PATH)
 
-app = dash.Dash(__name__, meta_tags=meta_tags, assets_folder=SETTINGS.ASSETS_PATH)
+external_scripts = []
+if not SETTINGS.DEBUG_MODE:
+    # MathJax support
+    external_scripts.append(
+        "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML"
+    )
+
+app = dash.Dash(
+    __name__,
+    meta_tags=meta_tags,
+    assets_folder=SETTINGS.ASSETS_PATH,
+    external_scripts=external_scripts,
+    prevent_initial_callbacks=False,
+)
 app.title = "Crystal Toolkit"
 app.scripts.config.serve_locally = True
 
@@ -113,6 +126,10 @@ transformation_component = ctc.AllTransformationsComponent(
         "SupercellTransformationComponent",
         "AutoOxiStateDecorationTransformationComponent",
         "CubicSupercellTransformationComponent",
+        "GrainBoundaryTransformationComponent",
+        "MonteCarloRattleTransformationComponent",
+        "SlabTransformationComponent",
+        "SubstitutionTransformationComponent",
     ]
 )
 
@@ -125,8 +142,8 @@ struct_component = ctc.StructureMoleculeComponent(
 # xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
 # pbx_component = ctc.PourbaixDiagramPanelComponent(origin_component=struct_component)
 #
-# symmetry_component = ctc.SymmetryComponent(origin_component=struct_component)
-# localenv_component = ctc.LocalEnvironmentPanel()
+symmetry_component = ctc.SymmetryPanel(links={"default": struct_component.id()})
+localenv_component = ctc.LocalEnvironmentPanel(links={"default": struct_component.id()})
 # localenv_component.attach_from(
 #     origin_component=struct_component, origin_store_name="graph"
 # )
@@ -152,15 +169,14 @@ if SETTINGS.MP_EMBED_MODE:
 else:
     action_div = html.Div([])  # html.Div([download_component.panel_layout])
 
-# panels = [
-#     symmetry_component,
-#     bonding_graph_component,
-#     localenv_component,
-#     xrd_component,
-#     robocrys_component,
-# ]
+panels = [
+    symmetry_component,
+    #     bonding_graph_component,
+    localenv_component,
+    #     xrd_component,
+    #     robocrys_component,
+]
 
-panels = []
 
 if SETTINGS.MP_EMBED_MODE:
     mp_section = (html.Div(),)
@@ -188,7 +204,7 @@ else:
 
     mp_section = (
         H3("Materials Project"),
-        html.Div([panel.panel_layout for panel in mp_panels], id="mp_panels"),
+        html.Div([panel.panel_layout() for panel in mp_panels], id="mp_panels"),
     )
 
 
@@ -198,7 +214,7 @@ body_layout = [
     html.Div([transformation_component.layout()]),
     html.Br(),
     H3("Analyze"),
-    html.Div([panel.panel_layout for panel in panels], id="panels"),
+    html.Div([panel.panel_layout() for panel in panels], id="panels"),
     html.Br(),
     *mp_section,
 ]
@@ -506,15 +522,18 @@ def master_update_structure(search_mpid: Optional[str], upload_data: Optional[st
     Returns: an encoded Structure
     """
 
-    print("master_update_structure", search_mpid, upload_data)
-
     if not search_mpid and not upload_data:
         raise PreventUpdate
 
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
-    if dash.callback_context.triggered[0]["prop_id"] == search_component.id() + ".data":
+    if len(dash.callback_context.triggered) > 1:
+        # triggered by both on initial load
+        load_by = "mpid"
+    elif (
+        dash.callback_context.triggered[0]["prop_id"] == search_component.id() + ".data"
+    ):
         load_by = "mpid"
     else:
         load_by = "uploaded"
