@@ -1,3 +1,4 @@
+ase==3.19.1
 attrs==19.3.0
 brotli==1.0.7
 certifi==2020.4.5.1
@@ -20,7 +21,9 @@ future==0.18.2
 gevent==1.5.0
 greenlet==0.4.15; platform_python_implementation == "CPython"
 gunicorn==20.0.4
+h5py==2.10.0
 habanero==0.7.2
+hiphive==0.7
 idna==2.9
 imagecodecs==2020.2.18
 imageio==2.8.0
@@ -32,12 +35,14 @@ joblib==0.15.1
 jsonschema==3.2.0
 kiwisolver==1.2.0
 latexcodec==2.0.0
+llvmlite==0.32.1
 markupsafe==1.1.1
 matminer==0.6.3
 matplotlib==3.2.1
 monty==3.0.2
 mpmath==1.1.0
 networkx==2.4
+numba==0.49.1
 numpy==1.18.4
 palettable==3.3.0
 pandas==1.0.3

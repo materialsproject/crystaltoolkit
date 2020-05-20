@@ -22,6 +22,7 @@ robocrys = "^0.2.1"
 typing-extensions = { version = "^3.7", python = "~3.7" }
 scikit-image = "^0.17.2"
 habanero = "^0.7.2"
+hiphive = "^0.7"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
