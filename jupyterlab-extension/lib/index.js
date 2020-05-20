@@ -19,7 +19,7 @@ export class SceneRenderer extends Widget {
         super();
         this.addClass(CLASS_NAME);
         this.sceneContainer = document.createElement('div');
-        this.sceneContainer.setAttribute('style', 'height: 600px; width: 600px');
+        this.sceneContainer.setAttribute('style', 'height: 400px; width: 400px');
         this.node.appendChild(this.sceneContainer);
     }
     /**
