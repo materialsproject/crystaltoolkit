@@ -1,10 +1,11 @@
 import dash_core_components as dcc
 import dash_html_components as html
+from dash import callback_context
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import (
     MessageContainer,
     MessageBody,
@@ -15,9 +16,8 @@ from crystal_toolkit.helpers.layouts import (
     Column,
     get_tooltip,
     cite_me,
-    PRIMARY_COLOR,
+    Loading,
 )
-from crystal_toolkit.helpers.inputs import get_float_input
 
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
@@ -34,6 +34,7 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
 )
+from pymatgen.analysis.graphs import StructureGraph
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Molecule
@@ -41,7 +42,11 @@ from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.util.string import unicodeify_species
 
 
-class LocalEnvironmentPanel(PanelComponent2):
+class LocalEnvironmentPanel(PanelComponent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.create_store("graph_generation_options")
+
     @property
     def title(self):
         return "Local Environments"
@@ -54,77 +59,68 @@ class LocalEnvironmentPanel(PanelComponent2):
     def loading_text(self):
         return "Analyzing environments"
 
+    def contents_layout(self) -> html.Div:
+
+        algorithm_choices = self.get_choice_input(
+            label="Analysis method",
+            kwarg_label="algorithm",
+            state={"algorithm": "chemenv"},
+            options=[
+                {"label": "ChemEnv", "value": "chemenv"},
+                {"label": "LocalEnv", "value": "localenv"},
+                {"label": "Bonding Graph", "value": "bondinggraph"},
+            ],
+            help_str="Choose an analysis method to examine the local chemical environment. "
+            "Several methods exist and there is no guaranteed correct answer, so try multiple!",
+        )
+
+        analysis = html.Div(id=self.id("analysis"))
+
+        return html.Div([algorithm_choices, html.Br(), analysis, html.Br()])
+
     def generate_callbacks(self, app, cache):
 
         super().generate_callbacks(app, cache)
 
         @app.callback(
-            Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
+            Output(self.id("analysis"), "children"),
+            [Input(self.get_kwarg_id("algorithm"), "value")],
         )
-        def add_initial_layout(data):
+        def run_algorithm(algorithm):
 
-            algorithm_choices = html.Div(
-                [
-                    Label("Algorithm:"),
-                    dcc.RadioItems(
-                        id=self.id("algorithm"),
-                        options=[
-                            {"label": "Chemenv Analysis", "value": "chemenv"},
-                            {"label": "LocalEnv Analysis", "value": "localenv"},
-                            {"label": "Bonding Graph", "value": "bondinggraph"},
-                        ],
-                        inputClassName="mpc-radio",
-                        labelClassName="mpc-radio",
-                        value="chemenv",
-                    ),
-                ]
+            algorithm = self.reconstruct_kwarg_from_state(
+                callback_context.inputs, "algorithm"
             )
 
-            analysis = html.Div(id=self.id("analysis"))
-
-            return html.Div([algorithm_choices, html.Br(), analysis, html.Br()])
-
-        @app.callback(
-            Output(self.id("analysis"), "children"),
-            [Input(self.id("algorithm"), "value")],
-            [State(self.id(), "data")],
-        )
-        def run_algorithm(algorithm, struct):
-
-            if not struct:
-                raise PreventUpdate
-
-            if algorithm != "chemenv":
-                return html.Div(
-                    "Not available on the web yet, use the pymatgen code to run this analysis."
-                )
-
-            struct = self.from_data(struct)
-
             if algorithm == "chemenv":
+
+                state = {"distance_cutoff": 1.4, "angle_cutoff": 0.3}
 
                 description = (
                     "The Chemenv algorithm is developed by David Waroquiers et al. to analyze "
                     'local chemical environments. In this interactive app, the "SimplestChemenvStrategy" '
                     'and "LightStructureEnvironments" are used. For more powerful analysis, please use '
-                    "the *pymatgen* code."
+                    "the *pymatgen* code directly. Note that this analysis determines its own bonds independent "
+                    "of those shown in the main crystal visualizer."
                 )
 
-                distance_cutoff = get_float_input(
-                    id=self.id("distance_cutoff"),
-                    default=1.4,
+                distance_cutoff = self.get_numerical_input(
                     label="Distance cut-off",
-                    help="Defines search radius by considering any atom within a radius "
+                    kwarg_label="distance_cutoff",
+                    state=state,
+                    help_str="Defines search radius by considering any atom within a radius "
                     "of the minimum nearest neighbor distance multiplied by the distance "
                     "cut-off.",
+                    shape=(),
                 )
-                angle_cutoff = get_float_input(
-                    id=self.id("angle_cutoff"),
-                    default=0.3,
+                angle_cutoff = self.get_numerical_input(
                     label="Angle cut-off",
-                    help="Defines a tolerance whereby a neighbor atom is excluded if the solid angle "
+                    kwarg_label="angle_cutoff",
+                    state=state,
+                    help_str="Defines a tolerance whereby a neighbor atom is excluded if the solid angle "
                     "circumscribed by its Voronoi face is smaller than the angle tolerance "
                     "multiplied by the largest solid angle present in the crystal.",
+                    shape=(),
                 )
 
                 return html.Div(
@@ -132,32 +128,65 @@ class LocalEnvironmentPanel(PanelComponent2):
                         dcc.Markdown(description),
                         html.Br(),
                         cite_me(
-                            manual_ref="Chemenv: A fast and robust coordination environment identification tool, "
-                            "David Waroquiers et al. (2019)",
-                            cite_text="Cite Chemenv Analysis",
+                            cite_text="How to cite ChemEnv",
+                            doi="10.26434/chemrxiv.11294480.v1",
                         ),
                         html.Br(),
                         distance_cutoff,
                         angle_cutoff,
                         html.Br(),
-                        dcc.Loading(
-                            id=self.id("chemenv_analysis"), color=PRIMARY_COLOR
+                        Loading(id=self.id("chemenv_analysis")),
+                    ]
+                )
+
+            elif algorithm == "localenv":
+
+                description = (
+                    "For each of the bonds shown in the visualizer, an 'order parameter' is calculated "
+                    "that determined  "
+                )
+
+                return html.Div(
+                    [
+                        dcc.Markdown(description),
+                        html.Br(),
+                        cite_me(
+                            cite_text="How to cite LocalEnv",
+                            doi="10.3389/fmats.2017.00034",
                         ),
+                        html.Br(),
+                        Loading(id=self.id("localenv_analysis")),
+                    ]
+                )
+
+            elif algorithm == "bondinggraph":
+
+                description = "..."
+
+                return html.Div(
+                    [
+                        dcc.Markdown(description),
+                        html.Br(),
+                        Loading(id=self.id("bondinggraph_analysis")),
                     ]
                 )
 
         @app.callback(
-            Output(self.id("localenv_analysis"), "children"), [Input(self.id(), "data")]
+            Output(self.id("localenv_analysis"), "children"),
+            [
+                Input(self.id(), "data"),
+                Input(self.id("graph_generation_options"), "data"),
+            ],
         )
-        def update_localenv_analysis(data):
+        def update_localenv_analysis(data, graph_generation_options):
             ...
 
         @app.callback(
             Output(self.id("chemenv_analysis"), "children"),
             [
                 Input(self.id(), "data"),
-                Input(self.id("distance_cutoff"), "value"),
-                Input(self.id("angle_cutoff"), "value"),
+                Input(self.get_kwarg_id("distance_cutoff"), "value"),
+                Input(self.get_kwarg_id("angle_cutoff"), "value"),
             ],
         )
         def get_chemenv_analysis(struct, distance_cutoff, angle_cutoff):
@@ -165,9 +194,14 @@ class LocalEnvironmentPanel(PanelComponent2):
             if not struct:
                 raise PreventUpdate
 
-            struct = self.from_data(struct).structure
-            distance_cutoff = float(distance_cutoff)
-            angle_cutoff = float(angle_cutoff)
+            struct = self.from_data(struct)
+            kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
+            distance_cutoff = kwargs["distance_cutoff"]
+            angle_cutoff = kwargs["angle_cutoff"]
+
+            # TODO: remove these brittle guard statements, figure out more robust way to handle multiple input types
+            if isinstance(struct, StructureGraph):
+                struct = struct.structure
 
             def get_valences(struct):
                 valences = [getattr(site.specie, "oxi_state", None) for site in struct]
@@ -228,9 +262,9 @@ class LocalEnvironmentPanel(PanelComponent2):
                     [
                         StructureMoleculeComponent(
                             struct_or_mol=mg,
-                            static=True,
+                            disable_callbacks=True,
                             id=f"{struct.composition.reduced_formula}_site_{index}",
-                            scene_settings={"enableZoom": False, "defaultZoom": 0.6},
+                            scene_settings={"enableZoom": False, "defaultZoom": 0.6,},
                         )._sub_layouts["struct"]
                     ],
                     style={"width": "300px", "height": "300px"},
