@@ -31,29 +31,32 @@ structures.
             "distance_scale_factor": 1.015,
         }
 
-        symm_tol = self.get_float_input(
+        symm_tol = self.get_numerical_input(
             label="Symmetry tolerance",
             kwarg_label="symm_tol",
             state=state,
             help_str="""Symmetry tolerance used to determine which sites are 
             symmetrically equivalent. Set to 0 to turn off symmetry.""",
+            shape=(),
         )
 
-        max_radius = self.get_float_input(
+        max_radius = self.get_numerical_input(
             label="Maximum radius /Å",
             kwarg_label="max_radius",
             state=state,
             help_str="""Maximum radius in Ångstroms used to find nearest neighbors.""",
+            shape=(),
         )
 
-        max_permutations = self.get_float_input(
+        max_permutations = self.get_numerical_input(
             label="Maximum number of permutations",
             kwarg_label="max_permutations",
             state=state,
             help_str="""Maximum number of permutations of oxidation states to test.""",
+            shape=(),
         )
 
-        distance_scale_factor = self.get_float_input(
+        distance_scale_factor = self.get_numerical_input(
             label="Distance scale factor",
             kwarg_label="distance_scale_factor",
             state=state,
@@ -62,6 +65,7 @@ structures.
             calculation-relaxed structures, which may tend to under (GGA) or 
             over bind (LDA). The default of 1.015 works for GGA. For 
             experimental structure, set this to 1.""",
+            shape=(),
         )
 
         return [symm_tol, max_radius, max_permutations, distance_scale_factor]

@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output, State
 from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
-from pymatgen import Specie, Element
+from pymatgen import Specie, Element, Structure
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
 from ast import literal_eval
@@ -31,45 +31,52 @@ and copper). Please consult the pymatgen documentation for more information.
     def transformation(self):
         return SubstitutionTransformation
 
-    def options_layout(self, inital_args_kwargs):
+    def options_layouts(self, state=None, structure=None):
 
-        options = html.Div(
-            [
-                dt.DataTable(
-                    id=self.id("species_mapping"),
-                    columns=[
-                        {"id": "prev", "name": "Previous Species"},
-                        {"id": "new", "name": "New Species"},
-                    ],
-                    data=[{"prev": None, "new": None} for i in range(4)],
-                    editable=True,
-                )
-            ]
+        if structure and structure.is_ordered:
+            species_mapping = {
+                el: None for el in [str(el) for el in structure.types_of_specie]
+            }
+        else:
+            species_mapping = None
+
+        state = state or {"species_mapping": species_mapping}
+
+        species_mapping = self.get_dict_input(
+            label="Species Mapping",
+            kwarg_label="species_mapping",
+            state=state,
+            help_str="A mapping from an original species (element or element with oxidation state, e.g. O or O2-) "
+            "to a new species (element, element with oxidation state, or a composition, e.g. O or O2- or "
+            '{"Au": 0.5, "Cu": 0.5}). In pymatgen, these are Element, Specie and Composition classes '
+            "respectively.",
+            key_name="Original Species",
+            value_name="New Species",
         )
 
-        return options
+        return [species_mapping]
 
     def generate_callbacks(self, app, cache):
         super().generate_callbacks(app, cache)
-
-        @app.callback(
-            Output(self.id("transformation_args_kwargs"), "data"),
-            [Input(self.id("species_mapping"), "data")],
-        )
-        def update_transformation_kwargs(rows):
-            def get_el_occu(string):
-                try:
-                    el_occu = literal_eval(string)
-                except ValueError:
-                    el_occu = string
-                return el_occu
-
-            species_map = {
-                get_el_occu(row["prev"]): get_el_occu(row["new"])
-                for row in rows
-                if (row["prev"] and row["new"])
-            }
-
-            print(species_map)
-
-            return {"args": [species_map], "kwargs": {}}
+        #
+        # @app.callback(
+        #     Output(self.id("transformation_args_kwargs"), "data"),
+        #     [Input(self.id("species_mapping"), "data")],
+        # )
+        # def update_transformation_kwargs(rows):
+        #     def get_el_occu(string):
+        #         try:
+        #             el_occu = literal_eval(string)
+        #         except ValueError:
+        #             el_occu = string
+        #         return el_occu
+        #
+        #     species_map = {
+        #         get_el_occu(row["prev"]): get_el_occu(row["new"])
+        #         for row in rows
+        #         if (row["prev"] and row["new"])
+        #     }
+        #
+        #     print(species_map)
+        #
+        #     return {"args": [species_map], "kwargs": {}}
