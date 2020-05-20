@@ -83,10 +83,10 @@ def get_site_scene(
                 phiStart = phi_frac_start * np.pi * 2
                 phiEnd = phi_frac_end * np.pi * 2
 
-            # TODO: add names for labels
-            # name = "{}".format(sp)
-            # if occu != 1.0:
-            #    name += " ({}% occupancy)".format(occu)
+            name = str(sp)
+            if occu != 1.0:
+                name += " ({}% occupancy)".format(occu)
+            name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
 
             sphere = Spheres(
                 positions=[position],
@@ -95,7 +95,7 @@ def get_site_scene(
                 phiStart=phiStart,
                 phiEnd=phiEnd,
                 clickable=True,
-                tooltip=self.species_string,
+                tooltip=name,
             )
             atoms.append(sphere)
 
@@ -167,6 +167,8 @@ def get_site_scene(
             lambda x: (x.site.specie < self.specie) or (x.site.specie == self.specie),
             connected_sites,
         )
+
+        all_positions = [list(p) for p in all_positions]
 
         if (
             draw_polyhedra
