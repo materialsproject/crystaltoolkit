@@ -175,6 +175,14 @@ class StructureMoleculeComponent(MPComponent):
         # this is used by a Simple3DScene component, not a dcc.Store
         self._initial_data["scene"] = scene
 
+        # hide axes inset for molecules
+        if isinstance(struct_or_mol, Molecule) or isinstance(
+            struct_or_mol, MoleculeGraph
+        ):
+            self.scene_kwargs = {"axisView": "HIDDEN"}
+        else:
+            self.scene_kwargs = {}
+
     def generate_callbacks(self, app, cache):
 
         # a lot of the verbosity in this callback is to support custom bonding
@@ -518,6 +526,7 @@ class StructureMoleculeComponent(MPComponent):
                 data=self.initial_data["scene"],
                 settings=self.initial_scene_settings,
                 sceneSize="100%",
+                **self.scene_kwargs,
             ),
             style={
                 "width": "100%",
