@@ -19,13 +19,11 @@ class GrainBoundaryTransformationComponent(TransformationComponent):
 
     @property
     def description(self):
-        return """Create a grain boundary within a periodic supercell from a 
-body-centered cubic or face-centered cubic crystal structure. The transformation 
-may work with other crystal structures too but the results have not been 
-verified.
-        
-**When using this transformation a new site property is added which can be used 
-to colour-code the top and bottom grains.**"""
+        return """Create a grain boundary within a periodic supercell. This transformation 
+requires sensible inputs, and will be slow to run in certain cases.
+
+When using this transformation a new site property is added which can be used 
+to colour-code the top and bottom grains."""
 
     @property
     def transformation(self):
@@ -48,7 +46,7 @@ to colour-code the top and bottom grains.**"""
             "quick_gen": False,
         }
 
-        rotation_axis = self.get_matrix_input(
+        rotation_axis = self.get_numerical_input(
             label="Rotation axis",
             kwarg_label="rotation_axis",
             state=state,
@@ -82,7 +80,7 @@ to colour-code the top and bottom grains.**"""
             "input unit cell is denoted by sigma.",
         )
 
-        expand_times = self.get_matrix_input(
+        expand_times = self.get_numerical_input(
             label="Expand times",
             kwarg_label="expand_times",
             state=state,
@@ -94,7 +92,7 @@ to colour-code the top and bottom grains.**"""
             max=6,
         )
 
-        vacuum_thickness = self.get_matrix_input(
+        vacuum_thickness = self.get_numerical_input(
             label="Vacuum thickness /Å",
             kwarg_label="vacuum_thickness",
             state=state,
@@ -102,7 +100,7 @@ to colour-code the top and bottom grains.**"""
             shape=(),
         )
 
-        ab_shift = self.get_matrix_input(
+        ab_shift = self.get_numerical_input(
             label="In-plane shift",
             kwarg_label="ab_shift",
             state=state,
@@ -118,7 +116,7 @@ to colour-code the top and bottom grains.**"""
             help_str="Enable to require the **c** axis of the top grain to be perpendicular to the surface.",
         )
 
-        plane = self.get_matrix_input(
+        plane = self.get_numerical_input(
             label="Grain boundary plane",
             kwarg_label="plane",
             state=state,
@@ -128,7 +126,7 @@ to colour-code the top and bottom grains.**"""
             shape=(3,),
         )
 
-        tol_coi = self.get_matrix_input(
+        tol_coi = self.get_numerical_input(
             label="Coincidence Site Tolerance",
             kwarg_label="tol_coi",
             state=state,
@@ -138,7 +136,7 @@ to colour-code the top and bottom grains.**"""
             shape=(),
         )
 
-        rm_ratio = self.get_matrix_input(
+        rm_ratio = self.get_numerical_input(
             label="Site Merging Tolerance",
             kwarg_label="rm_ratio",
             state=state,
@@ -278,22 +276,23 @@ to colour-code the top and bottom grains.**"""
             options = []
             for rotation_angle in sorted(rotation_angles):
                 options.append(
-                    {
-                        "label": "{:.2f}º".format(rotation_angle),
-                        "value": rotation_angle,
-                    }
+                    {"label": "{:.2f}º".format(rotation_angle), "value": rotation_angle}
                 )
 
             return options
 
         # TODO: make client-side callback
         @app.callback(
-            Output(self.id("sigma"), "value"), [Input(self.id("sigma"), "options")],
+            [Output(self.id("sigma"), "value"), Output(self.id("sigma"), "disabled")],
+            [
+                Input(self.id("sigma"), "options"),
+                Input(self.id("enable_transformation"), "on"),
+            ],
         )
-        def update_default_value(options):
+        def update_default_value(options, enabled):
             if options is None:
                 raise PreventUpdate
-            return options[0]["value"]
+            return options[0]["value"], enabled
 
         # TODO: make client-side callback, or just combine all callbacks here
         @app.callback(
