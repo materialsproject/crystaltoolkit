@@ -11,8 +11,13 @@ import dash
 
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Output, Input, State
+import dash_daq as daq
+import dash_table as dt
+
+from json import JSONDecodeError
+from dash.dependencies import Output, Input, State, ALL
 from monty.json import MontyEncoder, MontyDecoder, MSONable
+from ast import literal_eval
 
 from crystal_toolkit import __version__ as ct_version
 
@@ -154,7 +159,6 @@ class MPComponent(ABC):
         default_data: Optional[MSONable] = None,
         id: Optional[str] = None,
         links: Optional[Dict[str, str]] = None,
-        origin_component: Optional["MPComponent"] = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
     ):
@@ -198,9 +202,6 @@ class MPComponent(ABC):
             component's default store contents from the other component's default store,
             or {"graph": my_other_component.id("graph")} to fill this component's
             "graph" store from another component's "graph" store
-            origin_component: if set, will fill contents using the contents
-            of the origin_component, can be useful to chain together multiple
-            components without creating unnecessary duplication of contents
             storage_type: whether to persist contents of component through
             browser refresh or browser sessions, use with caution, defaults
             to "memory" so component store will be emptied on refresh, see
@@ -223,17 +224,14 @@ class MPComponent(ABC):
         self._all_ids = set()
         self._stores = {}
         self._initial_data = {}
+        self._kwarg_type_hints = {}
 
         self.links = links or {}
 
-        if origin_component is None:
-            self.create_store(
-                name="default", initial_data=default_data, storage_type=storage_type
-            )
-            self.links["default"] = self.id()
-        else:
-            print("origin component deprecated", self.id())
-            self.links["default"] = origin_component.links["default"]
+        self.create_store(
+            name="default", initial_data=default_data, storage_type=storage_type
+        )
+        self.links["default"] = self.id()
 
         if not disable_callbacks:
             # callbacks generated as final step by crystal_toolkit_layout()
@@ -241,7 +239,7 @@ class MPComponent(ABC):
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def id(self, name: str = "default") -> str:
+    def id(self, name: str = "default", is_kwarg: bool = False, idx=False) -> str:
         """
         Generate an id from a name combined with the
         base id of the MPComponent itself, useful for generating
@@ -252,6 +250,9 @@ class MPComponent(ABC):
 
         Returns: e.g. "MPComponent_default"
         """
+
+        if is_kwarg:
+            return {"component_id": self._id, "kwarg_label": name, "idx": str(idx)}
 
         # if we're linking to another component, return that id
         if name in self.links:
@@ -417,3 +418,260 @@ Sub-layouts:  \n{layouts}"""
         times, but it's important the callbacks are defined on the server.
         """
         raise NotImplementedError
+
+    def get_matrix_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+        is_int: bool = False,
+        shape: Tuple[int, ...] = (3, 3),
+        **kwargs,
+    ):
+        """
+        For Python classes which take matrices as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help_str: Text for a tooltip when hovering over label.
+        :param is_int: if True, will use a numeric input
+        :param shape: (3, 3) for matrix, (1, 3) for vector, (1, 1) for scalar
+        :return: a Dash layout
+        """
+
+        default = np.full(shape, state.get(kwarg_label))
+        default = np.reshape(default, shape)
+
+        self._kwarg_type_hints[kwarg_label] = shape
+
+        def matrix_element(idx, value=0):
+            # TODO: maybe move element out of the name
+            mid = self.id(kwarg_label, is_kwarg=True, idx=idx)
+            if not is_int:
+                return dcc.Input(
+                    id=mid,
+                    inputMode="numeric",
+                    className="input",
+                    style={
+                        "textAlign": "center",
+                        # shorter default width if matrix or vector
+                        "width": "2.5rem"
+                        if (shape == (3, 3)) or (shape == (3,))
+                        else "5rem",
+                        "marginRight": "0.2rem",
+                        "marginBottom": "0.2rem",
+                        "height": "1.5rem",
+                    },
+                    value=value,
+                    persistence=True,
+                    **kwargs,
+                )
+            else:
+                return daq.NumericInput(id=mid, value=value, **kwargs)
+
+        # dict of row indices, column indices to element
+        matrix_contents = defaultdict(dict)
+
+        # determine what individual input boxes we need
+        # note that shape = () for floats, shape = (3,) for vectors
+        # but we may also need to accept input for e.g. (3, 1)
+        it = np.nditer(default, flags=["multi_index", "refs_ok"])
+        while not it.finished:
+            idx = it.multi_index
+            row = (idx[1] if len(idx) > 1 else 0,)
+            column = idx[0] if len(idx) > 0 else 0
+            matrix_contents[row][column] = matrix_element(idx, value=it[0])
+            it.iternext()
+
+        # arrange the input boxes in two dimensions (rows, columns)
+        matrix_div_contents = []
+        for row_idx, columns in sorted(matrix_contents.items()):
+            row = []
+            for column_idx, element in sorted(columns.items()):
+                row.append(element)
+            matrix_div_contents.append(html.Div(row))
+
+        matrix = html.Div(matrix_div_contents)
+
+        return add_label_help(matrix, label, help_str)
+
+    def get_bool_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+    ):
+        """
+        For Python classes which take boolean values as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help_str: Text for a tooltip when hovering over label.
+        :return: a Dash layout
+        """
+
+        default = state.get(kwarg_label) or False
+
+        self._kwarg_type_hints[kwarg_label] = "bool"
+
+        bool_input = dcc.Checklist(
+            id=self.id(kwarg_label, is_kwarg=True),
+            style={"width": "5rem"},
+            options=[{"label": "", "value": "enabled"}],
+            value=["enabled"] if default else [],
+            persistence=True,
+        )
+
+        return add_label_help(bool_input, label, help_str)
+
+    def get_choice_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+        options: Optional[List[Dict]] = None,
+    ):
+        """
+        For Python classes which take floats as inputs, this will generate
+        a corresponding Dash input layout.
+
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param help_str: Text for a tooltip when hovering over label.
+        :param options: Options to choose from, as per dcc.Dropdown
+        :return: a Dash layout
+        """
+
+        default = state.get(kwarg_label)
+
+        self._kwarg_type_hints[kwarg_label] = "literal"
+
+        option_input = dcc.Dropdown(
+            id=self.id(kwarg_label, is_kwarg=True),
+            style={"width": "10rem"},
+            options=options if options else [],
+            value=default,
+            persistence=True,
+        )
+
+        return add_label_help(option_input, label, help_str)
+
+    def get_dict_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+        key_name: str = "key",
+        value_name: str = "value",
+    ):
+
+        default = state.get(kwarg_label) or {}
+
+        self._kwarg_type_hints[kwarg_label] = "dict"
+
+        dict_input = dt.DataTable(
+            id=self.id(kwarg_label),
+            columns=[
+                {"id": "key", "name": key_name},
+                {"id": "value", "name": value_name},
+            ],
+            data=[{"key": k, "value": v} for k, v in default.items()],
+            editable=True,
+            persistence=True,
+        )
+
+        return add_label_help(dict_input, label, help_str)
+
+    @property
+    def kwarg_type_hints(self) -> Dict:
+        """
+        Valid keys are a tuple for a numpy array of that shape, e.g. (3, 3) for a 3x3 matrix,
+        (1, 3) for a vector, or "literal" to parse kwarg value using ast.literal_eval, or "bool"
+        to parse a boolean value.
+
+        In future iterations, we may be able to replace this with native Python type hints. The
+        problem here is being able to specify array shape where appropriate.
+
+        :return: e.g. {"scaling_matrix": (3, 3)} or {"sym_tol": "literal"}
+        """
+        return self._kwarg_type_hints
+
+    def get_kwarg_id(self, kwarg_name) -> Dict:
+        """
+
+        :param kwarg_name:
+        :return:
+        """
+        return {"component_id": self._id, "kwarg_label": kwarg_name, "idx": ALL}
+
+    def get_all_kwargs_id(self) -> Dict:
+        """
+
+        :return:
+        """
+        return {"component_id": self._id, "kwarg_label": ALL, "idx": ALL}
+
+    def reconstruct_kwarg_from_state(self, state, kwarg_name):
+        return self.reconstruct_kwargs_from_state(state)[kwarg_name]
+
+    def reconstruct_kwargs_from_state(self, state) -> Dict:
+
+        kwargs = {}
+        for k, v in state.items():
+
+            # TODO: hopefully this will be less hacky in future Dash versions
+            # remove trailing ".value" and convert back into dictionary
+            # need to sort k somehow ...
+
+            try:
+                d = loads(k[: -len(".value")])
+            except JSONDecodeError:
+                continue
+
+            kwarg_label = d["kwarg_label"]
+
+            k_type = self.kwarg_type_hints[d["kwarg_label"]]
+            idx = literal_eval(d["idx"])
+
+            # print(kwarg_label, k_type, idx, v)
+
+            if isinstance(k_type, tuple):
+                # matrix or vector
+                if kwarg_label not in kwargs:
+                    kwargs[kwarg_label] = np.empty(k_type)
+                v = literal_eval(str(v))
+                if v is not None and kwargs[kwarg_label] is not None:
+                    kwargs[kwarg_label][idx] = literal_eval(str(v))
+                else:
+                    # require all elements to have value, otherwise set
+                    # entire kwarg to None
+                    kwargs[kwarg_label] = None
+
+            elif k_type == "literal":
+                kwargs[kwarg_label] = literal_eval(str(v))
+
+            elif k_type == "bool":
+                kwargs[kwarg_label] = bool("enabled" in v)
+
+            elif k_type == "dict":
+                pass
+
+        for k, v in kwargs.items():
+            if isinstance(v, np.ndarray):
+                kwargs[k] = v.tolist()
+
+        print(self.__class__.__name__, "kwargs", kwargs)
+
+        return kwargs
