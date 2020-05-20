@@ -140,7 +140,7 @@ class Legend(MSONable):
 
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(
-        site_collection: SiteCollection
+        site_collection: SiteCollection,
     ) -> Dict[str, Dict[str, Tuple[int, int, int]]]:
         """
         e.g. for a color scheme more appropriate for people with color blindness
@@ -239,6 +239,7 @@ class Legend(MSONable):
         for site_prop_name in site_prop_types.get("categorical", []):
 
             props = np.array(site_collection.site_properties[site_prop_name])
+            props[props == None] = "None"
 
             le = LabelEncoder()
             le.fit(props)

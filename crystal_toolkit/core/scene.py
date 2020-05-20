@@ -48,6 +48,15 @@ class Scene:
     visible: bool = True
     _meta: Any = None
 
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        """
+        Render Scenes using crystaltoolkit-extension for Jupyter Lab.
+        """
+        return {
+            "application/vnd.mp.v1+json": self.to_json(),
+            "text/plain": self.__repr__(),
+        }
+
     def to_json(self):
         """
         Convert a Scene into JSON. It will implicitly assume all None values means
