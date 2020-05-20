@@ -1,5 +1,9 @@
 from pydantic import BaseSettings
-from typing_extensions import Literal
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 
 class Settings(BaseSettings):
@@ -14,6 +18,8 @@ class Settings(BaseSettings):
 
     PERSISTENCE: bool = True
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"
+
+    JUPYTER_LAB_PRINT_REPR: bool = True
 
     class Config:
         env_prefix = "CT_"

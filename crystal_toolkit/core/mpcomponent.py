@@ -1,37 +1,29 @@
 import logging
-import sys
 from abc import ABC, abstractmethod
-from datetime import datetime
-from json import dumps, loads
-from time import mktime
-from uuid import uuid4
-from warnings import warn
-import numpy as np
-import dash
-
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_daq as daq
-import dash_table as dt
-
-from json import JSONDecodeError
-from dash.dependencies import Output, Input, State, ALL
-from monty.json import MontyEncoder, MontyDecoder, MSONable
 from ast import literal_eval
-
-from crystal_toolkit import __version__ as ct_version
-
-from flask_caching import Cache
-
 from collections import defaultdict
 from itertools import chain
-
+from json import JSONDecodeError
+from json import dumps, loads
 from typing import Optional, Union, Dict, List, Set, Tuple
-from typing_extensions import Literal
 
+import dash
+import dash_core_components as dcc
+import dash_daq as daq
+import dash_html_components as html
+import dash_table as dt
+import numpy as np
+from dash.dependencies import ALL
+from flask_caching import Cache
+from monty.json import MontyDecoder, MSONable
+
+from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.helpers.layouts import add_label_help
 
-from functools import wraps
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 # fallback cache if Redis etc. isn't set up
 null_cache = Cache(config={"CACHE_TYPE": "null"})
@@ -320,42 +312,6 @@ class MPComponent(ABC):
         """
         return loads(dumps(data), cls=MontyDecoder)
 
-    def attach_from(
-        self, origin_component, origin_store_name="default", this_store_name="default"
-    ):
-        """
-        Link two MPComponents together.
-
-        :param origin_component: An MPComponent
-        :param origin_store_name: The suffix for the Store layout in the
-        origin component, e.g. "structure" or "mpid", if None will link to
-        the component's default Store
-        :param this_store_name: The suffix for the Store layout in this
-        component to be linked to, this is usually equal to the
-        origin_store_suffix
-        :return:
-        """
-        print("attach_from deprecated", self.id())
-
-        if MPComponent.app is None:
-            raise AttributeError("No app defined, callbacks cannot be created.")
-
-        origin_store_id = origin_component.id(origin_store_name)
-        dest_store_id = self.id(this_store_name)
-
-        self.logger.debug(
-            f"Linking the output of {origin_store_id} to {dest_store_id}."
-        )
-
-        @MPComponent.app.callback(
-            Output(dest_store_id, "data"),
-            [Input(origin_store_id, "modified_timestamp")],
-            [State(origin_store_id, "data")],
-        )
-        def update_store(modified_timestamp, data):
-            # TODO: make clientside callback!
-            return data
-
     @property
     def all_stores(self) -> List[str]:
         """
@@ -419,14 +375,14 @@ Sub-layouts:  \n{layouts}"""
         """
         raise NotImplementedError
 
-    def get_matrix_input(
+    def get_numerical_input(
         self,
         kwarg_label: str,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
         is_int: bool = False,
-        shape: Tuple[int, ...] = (3, 3),
+        shape: Tuple[int, ...] = (),
         **kwargs,
     ):
         """
@@ -660,7 +616,11 @@ Sub-layouts:  \n{layouts}"""
                     kwargs[kwarg_label] = None
 
             elif k_type == "literal":
-                kwargs[kwarg_label] = literal_eval(str(v))
+
+                try:
+                    kwargs[kwarg_label] = literal_eval(str(v))
+                except ValueError:
+                    kwargs[kwarg_label] = str(v)
 
             elif k_type == "bool":
                 kwargs[kwarg_label] = bool("enabled" in v)
