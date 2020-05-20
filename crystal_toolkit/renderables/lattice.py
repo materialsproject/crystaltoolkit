@@ -20,7 +20,7 @@ def _axes_from_lattice(self, origin=None, scale=1, offset=0, **kwargs):
     :return: Scene object
     """
 
-    origin = origin or [0, 0, 0]
+    origin = origin or list([0, 0, 0])
 
     o = np.array(origin)
     # o = -self.get_cartesian_coords([0.5, 0.5, 0.5])
