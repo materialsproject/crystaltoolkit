@@ -10,10 +10,11 @@ from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 from crystal_toolkit.components.robocrys import RobocrysComponent
 
-# from crystal_toolkit.components.xrd import (
-#     XRayDiffractionComponent,
-#     XRayDiffractionPanelComponent,
-# )
+from crystal_toolkit.components.xrd import (
+    XRayDiffractionComponent,
+    XRayDiffractionPanelComponent,
+)
+
 # from crystal_toolkit.components.xas import XASComponent, XASPanelComponent
 from crystal_toolkit.components.download import DownloadPanelComponent
 from crystal_toolkit.components.submit_snl import SubmitSNLPanel
