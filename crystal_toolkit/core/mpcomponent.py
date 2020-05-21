@@ -515,7 +515,7 @@ Sub-layouts:  \n{layouts}"""
 
         option_input = dcc.Dropdown(
             id=self.id(kwarg_label, is_kwarg=True),
-            style={"width": "10rem"},
+            style={"width": "12rem"},
             options=options if options else [],
             value=default,
             persistence=True,
