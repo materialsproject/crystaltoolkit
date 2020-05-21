@@ -575,3 +575,19 @@ class Label:
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
+
+
+@dataclass
+class Bezier:
+    """
+    A tube shaped by Bézier control points.
+    """
+
+    controlPoints: List[List[List[float]]] = None
+    color: List[str] = None
+    radius: List[float] = None
+    type: str = field(default="bezier", init=False)  # private field
+    visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
+    _meta: Any = None
