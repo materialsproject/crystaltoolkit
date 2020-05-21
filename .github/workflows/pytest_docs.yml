@@ -30,8 +30,8 @@ jobs:
           poetry-${{ hashFiles('**/poetry.lock') }}
     - name: Set poetry configuration
       run: |
-        poetry config settings.virtualenvs.in-project false
-        poetry config settings.virtualenvs.path ~/.virtualenvs
+        poetry config virtualenvs.in-project false
+        poetry config virtualenvs.path ~/.virtualenvs
     - name: Install dependencies
       run: poetry install
       if: steps.cache.outputs.cache-hit != 'true'
@@ -39,7 +39,7 @@ jobs:
       env:
         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       run: |
-        poetry run pytest --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
+        poetry run pytest --color=yes --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
     - name: Build new docs
       run: |
         git config --global user.name 'Matthew Horton'
