@@ -193,7 +193,7 @@ class Spheres(Primitive):
     """
 
     positions: List[List[float]]
-    animate: Optional[List[List[float]]] = None
+    _animate: Optional[List[List[float]]] = None
     color: Optional[str] = None
     radius: Optional[float] = None
     phiStart: Optional[float] = None
@@ -214,14 +214,14 @@ class Spheres(Primitive):
         new_positions = list(
             chain.from_iterable([sphere.positions for sphere in sphere_list])
         )
-        new_animate = list(
+        new__animate = list(
             chain.from_iterable(
-                [sphere.animate for sphere in sphere_list if sphere.animate]
+                [sphere._animate for sphere in sphere_list if sphere._animate]
             )
         )
         return cls(
             positions=new_positions,
-            animate=new_animate,
+            _animate=new__animate,
             color=sphere_list[0].color,
             radius=sphere_list[0].radius,
             phiStart=sphere_list[0].phiStart,
@@ -255,7 +255,7 @@ class Ellipsoids(Primitive):
     scale: List[float]
     positions: List[List[float]]
     rotate_to: List[List[float]]
-    animate: Optional[List[List[float]]] = None
+    _animate: Optional[List[List[float]]] = None
     color: Optional[str] = None
     phiStart: Optional[float] = None
     phiEnd: Optional[float] = None
@@ -277,16 +277,20 @@ class Ellipsoids(Primitive):
         rotate_to = list(
             chain.from_iterable([ellipsoid.rotate_to for ellipsoid in ellipsoid_list])
         )
-        new_animate = list(
+        new__animate = list(
             chain.from_iterable(
-                [ellipsoid.animate for ellipsoid in ellipsoid_list if ellipsoid.animate]
+                [
+                    ellipsoid._animate
+                    for ellipsoid in ellipsoid_list
+                    if ellipsoid._animate
+                ]
             )
         )
 
         return cls(
             positions=new_positions,
             rotate_to=rotate_to,
-            animate=new_animate,
+            _animate=new__animate,
             scale=ellipsoid_list[0].scale,
             color=ellipsoid_list[0].color,
             phiStart=ellipsoid_list[0].phiStart,
@@ -311,7 +315,7 @@ class Cylinders(Primitive):
     """
 
     positionPairs: List[List[List[float]]]
-    animate: Optional[List[List[List[float]]]] = None
+    _animate: Optional[List[List[List[float]]]] = None
     color: Optional[str] = None
     radius: Optional[float] = None
     type: str = field(default="cylinders", init=False)  # private field
@@ -330,15 +334,15 @@ class Cylinders(Primitive):
         new_positionPairs = list(
             chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
         )
-        new_animate = list(
+        new__animate = list(
             chain.from_iterable(
-                [cylinder.animate for cylinder in cylinder_list if cylinder.animate]
+                [cylinder._animate for cylinder in cylinder_list if cylinder._animate]
             )
         )
 
         return cls(
             positionPairs=new_positionPairs,
-            animate=new_animate,
+            _animate=new__animate,
             color=cylinder_list[0].color,
             radius=cylinder_list[0].radius,
             visible=cylinder_list[0].visible,
@@ -365,7 +369,7 @@ class Cubes(Primitive):
     """
 
     positions: List[List[float]]
-    animate: Optional[List[List[float]]] = None
+    _animate: Optional[List[List[float]]] = None
     color: Optional[str] = None
     width: Optional[float] = None
     type: str = field(default="cubes", init=False)  # private field
@@ -383,12 +387,12 @@ class Cubes(Primitive):
         new_positions = list(
             chain.from_iterable([cube.positions for cube in cube_list])
         )
-        new_animate = list(
-            chain.from_iterable([cube.animate for cube in cube_list if cube.animate])
+        new__animate = list(
+            chain.from_iterable([cube._animate for cube in cube_list if cube._animate])
         )
         return cls(
             positions=new_positions,
-            new_animate=new_animate,
+            new__animate=new__animate,
             color=cube_list[0].color,
             width=cube_list[0].width,
             visible=cube_list[0].visible,
@@ -416,7 +420,7 @@ class Lines(Primitive):
     """
 
     positions: List[List[float]]
-    animate: Optional[List[List[float]]] = None
+    _animate: Optional[List[List[float]]] = None
     color: str = None
     linewidth: float = None
     scale: float = None
@@ -437,12 +441,12 @@ class Lines(Primitive):
         new_positions = list(
             chain.from_iterable([line.positions for line in line_list])
         )
-        new_animate = list(
-            chain.from_iterable([line.animate for line in line_list if line.animate])
+        new__animate = list(
+            chain.from_iterable([line._animate for line in line_list if line._animate])
         )
         return cls(
             positions=new_positions,
-            animate=new_animate,
+            _animate=new__animate,
             color=line_list[0].color,
             linewidth=line_list[0].linewidth,
             scale=line_list[0].scale,
@@ -461,7 +465,7 @@ class Surface:
     """
 
     positions: List[List[float]]
-    animate: Optional[List[List[float]]] = None
+    _animate: Optional[List[List[float]]] = None
     normals: Optional[List[List[float]]] = None
     color: str = None
     opacity: float = None
@@ -489,7 +493,7 @@ class Convex:
     """
 
     positions: List[List[float]]
-    animate: Optional[List[List[float]]] = None
+    _animate: Optional[List[List[float]]] = None
     color: str = None
     opacity: float = None
     type: str = field(default="convex", init=False)  # private field
@@ -520,7 +524,7 @@ class Arrows(Primitive):
     """
 
     positionPairs: List[List[List[float]]]
-    animate: Optional[List[List[List[float]]]] = None
+    _animate: Optional[List[List[List[float]]]] = None
     color: Optional[str] = None
     radius: Optional[float] = None
     headLength: Optional[float] = None
@@ -540,14 +544,14 @@ class Arrows(Primitive):
         new_positionPairs = list(
             chain.from_iterable([arrow.positionPairs for arrow in arrow_list])
         )
-        new_animate = list(
+        new__animate = list(
             chain.from_iterable(
-                [arrow.animate for arrow in arrow_list if arrow.animate]
+                [arrow._animate for arrow in arrow_list if arrow._animate]
             )
         )
         return cls(
             positionPairs=new_positionPairs,
-            animate=new_animate,
+            _animate=new__animate,
             color=arrow_list[0].color,
             radius=arrow_list[0].radius,
             headLength=arrow_list[0].headLength,
