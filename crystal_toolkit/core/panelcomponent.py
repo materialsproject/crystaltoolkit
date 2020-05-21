@@ -26,10 +26,6 @@ class PanelComponent(MPComponent):
     def description(self):
         return None
 
-    @property
-    def loading_text(self):
-        return "Loading"
-
     def panel_layout(self, open_by_default=False):
 
         message = html.Div(id=self.id("message"))
