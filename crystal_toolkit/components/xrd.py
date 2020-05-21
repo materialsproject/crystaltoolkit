@@ -123,12 +123,13 @@ class XRayDiffractionComponent(MPComponent):
     def _sub_layouts(self):
 
         # Main plot
-        graph = html.Div(
+        graph = Loading(
             [
                 dcc.Graph(
                     figure=go.Figure(layout=XRayDiffractionComponent.empty_plot_style),
                     id=self.id("xrd-plot"),
                     config={"displayModeBar": False},
+                    responsive=True,
                 )
             ]
         )
@@ -369,4 +370,4 @@ class XRayDiffractionPanelComponent(PanelComponent):
         return "Display the powder X-ray diffraction pattern for this structure."
 
     def contents_layout(self) -> html.Div:
-        return Loading([self.xrd.layout()])
+        return self.xrd.layout()
