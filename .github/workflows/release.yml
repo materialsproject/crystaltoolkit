@@ -43,9 +43,9 @@ jobs:
     - name: Set new version
       run: |
         export VERSION=$(date '+%Y.%m.%d')
-        sed -i "s/__version__.*/__version__ = \"$(VERSION)\"/g" crystal_toolkit/__init__.py
-        sed -i "s/^version.*/version = \"$(VERSION)\"/g" pyproject.toml
-        sed -i "s/version.*/version=\"$(VERSION)\",/g" setup.py 
+        sed -i "s/__version__.*/__version__ = \"$VERSION\"/g" crystal_toolkit/__init__.py
+        sed -i "s/^version.*/version = \"$VERSION\"/g" pyproject.toml
+        sed -i "s/version.*/version=\"$VERSION\",/g" setup.py 
         git status
         git diff --quiet || git commit -am "Set version"
         git push
