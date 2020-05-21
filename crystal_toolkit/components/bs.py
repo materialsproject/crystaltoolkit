@@ -29,14 +29,10 @@ class BandstructureAndDosComponent(MPComponent):
         bandstructure_symm_line=None,
         density_of_states=None,
         id=None,
-        origin_component=None,
-        *args,
         **kwargs,
     ):
 
-        super().__init__(
-            id=id, default_data=mpid, origin_component=origin_component, **kwargs
-        )
+        super().__init__(id=id, default_data=mpid, **kwargs)
 
         self.create_store("mpid", initial_data=mpid)
         self.create_store("traces")
@@ -57,13 +53,14 @@ class BandstructureAndDosComponent(MPComponent):
     def _sub_layouts(self):
 
         # Main plot
-        graph = html.Div(
+        graph = Loading(
             [
                 dcc.Graph(
                     figure=go.Figure(
                         layout=BandstructureAndDosComponent.empty_plot_style
                     ),
                     config={"displayModeBar": False},
+                    responsive=True,
                 )
             ],
             id=self.id("bsdos-div"),
@@ -262,7 +259,11 @@ class BandstructureAndDosComponent(MPComponent):
             figure["layout"]["xaxis1"]["domain"] = [0.0, 0.6]
             figure["layout"]["xaxis2"]["domain"] = [0.65, 1.0]
 
-            return [dcc.Graph(figure=figure, config={"displayModeBar": False})]
+            return [
+                dcc.Graph(
+                    figure=figure, config={"displayModeBar": False}, responsive=True
+                )
+            ]
 
         @app.callback(
             [
