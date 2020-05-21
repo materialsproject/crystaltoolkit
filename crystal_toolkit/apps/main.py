@@ -39,11 +39,14 @@ meta_tags = [  # TODO: add og-image, etc., title
     }
 ]
 
+print("SETTINGS")
+for setting, value in SETTINGS:
+    print(f"{setting}: {value}")
+
 if not SETTINGS.ASSETS_PATH:
     warnings.warn(
         "Set CRYSTAL_TOOLKIT_ASSETS environment variable or app will be unstyled."
     )
-print("ASSETS", SETTINGS.ASSETS_PATH)
 
 external_scripts = []
 if not SETTINGS.DEBUG_MODE:
@@ -137,28 +140,20 @@ struct_component = ctc.StructureMoleculeComponent(
     links={"default": transformation_component.id()}
 )
 
-# robocrys_component = ctc.RobocrysComponent(origin_component=struct_component)
-# magnetism_component = ctc.MagnetismComponent(origin_component=struct_component)
-# xrd_component = ctc.XRayDiffractionPanelComponent(origin_component=struct_component)
+robocrys_panel = ctc.RobocrysComponent(links={"default": transformation_component.id()})
+xrd_panel = ctc.XRayDiffractionPanelComponent(
+    links={"default": transformation_component.id()}
+)
 # pbx_component = ctc.PourbaixDiagramPanelComponent(origin_component=struct_component)
 #
-symmetry_component = ctc.SymmetryPanel(links={"default": struct_component.id()})
-localenv_component = ctc.LocalEnvironmentPanel(links={"default": struct_component.id()})
-# localenv_component.attach_from(
-#     origin_component=struct_component, origin_store_name="graph"
-# )
-#
-# bonding_graph_component = ctc.BondingGraphComponent()
-# bonding_graph_component.attach_from(struct_component, origin_store_name="graph")
-# # link bonding graph color scheme to parent color scheme
-# bonding_graph_component.attach_from(
-#     struct_component,
-#     this_store_name="display_options",
-#     origin_store_name="display_options",
-# )
-
-# favorites_component = ctc.FavoritesComponent()
-# favorites_component.attach_from(search_component, this_store_name="current-mpid")
+symmetry_panel = ctc.SymmetryPanel(links={"default": struct_component.id()})
+localenv_panel = ctc.LocalEnvironmentPanel(
+    links={
+        "default": struct_component.id(),
+        "graph": struct_component.id("graph"),
+        "display_options": struct_component.id("display_options"),
+    }
+)
 
 if SETTINGS.MP_EMBED_MODE:
     action_div = html.Div([])
@@ -170,11 +165,10 @@ else:
     action_div = html.Div([])  # html.Div([download_component.panel_layout])
 
 panels = [
-    symmetry_component,
-    #     bonding_graph_component,
-    localenv_component,
-    #     xrd_component,
-    #     robocrys_component,
+    symmetry_panel,
+    localenv_panel,
+    xrd_panel,
+    robocrys_panel,
 ]
 
 
@@ -277,7 +271,7 @@ if api_offline:
 ################################################################################
 
 
-footer = ctc.Footer(
+footer = Footer(
     html.Div(
         [
             # html.Iframe(
