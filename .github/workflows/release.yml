@@ -19,13 +19,22 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Install dependencies
+    - name: Install poetry
       run: |
-        sudo apt-get update
-        sudo apt-get install firefox-geckodriver
-        python -m pip install --upgrade pip wheel
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
+        pip install --upgrade pip && pip install --no-cache-dir poetry
+        poetry config virtualenvs.in-project false
+        poetry config virtualenvs.path ~/.virtualenvs
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      id: cache
+      with:
+        path: ~/.virtualenvs
+        key: poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          poetry-${{ hashFiles('**/poetry.lock') }}
+    - name: Install dependencies
+      run: poetry install
+      if: steps.cache.outputs.cache-hit != 'true'
     - name: Set up git
       run: |
         git config --global user.name 'Matthew Horton'
@@ -40,11 +49,8 @@ jobs:
         git status
         git diff --quiet || git commit -am "Set version"
         git push
-    - name: Build packages
+    - name: Build and publish
       run: |
-        python setup.py sdist bdist_wheel
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        poetry build
+        poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+        poetry publish
