@@ -21,6 +21,7 @@ def get_mp_app_icon(shortname):
             "marginRight": "1rem",
             "verticalAlign": "middle",
             "boxShadow": "0 2px 5px 0 rgba(0, 0, 0, 0.26)",
+            "padding": "6%",
         },
     )
 
@@ -84,6 +85,16 @@ class MPApp(MPComponent, ABC):
         https://materialsproject.org/your_app_name/
         """
         raise NotImplementedError
+
+    def get_title(self, payload=None) -> str:
+        """
+        Set the HTML title for your app page.
+
+        :param payload: anything in the URL after
+        https://materialsproject.org/your_app_name/
+        :return:
+        """
+        return self.name
 
     def get_mp_layout(self, payload=None):
         """
