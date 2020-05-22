@@ -259,7 +259,7 @@ description = "Dash components for the Materials Project"
 name = "dash-mp-components"
 optional = false
 python-versions = "*"
-version = "0.0.21"
+version = "0.0.23"
 
 [[package]]
 category = "main"
@@ -649,7 +649,7 @@ description = "File identification library for Python"
 name = "identify"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
-version = "1.4.15"
+version = "1.4.16"
 
 [package.extras]
 license = ["editdistance"]
@@ -1478,7 +1478,7 @@ description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "1.14.0"
+version = "1.15.0"
 
 [[package]]
 category = "dev"
@@ -1790,7 +1790,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "9fe4075003db52878958fe20fc88dbd2b90bfb8ca9d46cfe9546540bab276e16"
+content-hash = "c853c2a3c6bc2d626a0f39e2f04a2ffbf5c85ecca925b59c1a51a3306a784dbf"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1949,7 +1949,7 @@ dash-html-components = [
     {file = "dash_html_components-1.0.3.tar.gz", hash = "sha256:dafb54ae8ab601fffe50c74d72b32783dec2beea65fd1c7e7dd6a66e20e545ba"},
 ]
 dash-mp-components = [
-    {file = "dash_mp_components-0.0.21.tar.gz", hash = "sha256:05734896ab122349260666945c8d62af79afc088b659b60543c32f1ea442c9fb"},
+    {file = "dash_mp_components-0.0.23.tar.gz", hash = "sha256:bafce8d5f78c54b30edef868180d1f01fa81d567d4398d1843f047c2c2363576"},
 ]
 dash-renderer = [
     {file = "dash_renderer-1.4.1.tar.gz", hash = "sha256:bbb23ba60014924225cb7385d73619843050c363d96486a3cb14ea6fca39d485"},
@@ -2132,8 +2132,8 @@ hiphive = [
     {file = "hiphive-0.7.tar.gz", hash = "sha256:5c8f92ae85195d00afdece5a121dda99fad9cdd66eac1b9d28f26bdeabf167e3"},
 ]
 identify = [
-    {file = "identify-1.4.15-py2.py3-none-any.whl", hash = "sha256:88ed90632023e52a6495749c6732e61e08ec9f4f04e95484a5c37b9caf40283c"},
-    {file = "identify-1.4.15.tar.gz", hash = "sha256:23c18d97bb50e05be1a54917ee45cc61d57cb96aedc06aabb2b02331edf0dbf0"},
+    {file = "identify-1.4.16-py2.py3-none-any.whl", hash = "sha256:0f3c3aac62b51b86fea6ff52fe8ff9e06f57f10411502443809064d23e16f1c2"},
+    {file = "identify-1.4.16.tar.gz", hash = "sha256:f9ad3d41f01e98eb066b6e05c5b184fd1e925fadec48eb165b4e01c72a1ef3a7"},
 ]
 idna = [
     {file = "idna-2.9-py2.py3-none-any.whl", hash = "sha256:a068a21ceac8a4d63dbfd964670474107f541babbd2250d61922f029858365fa"},
@@ -2745,8 +2745,8 @@ shellingham = [
     {file = "shellingham-1.3.2.tar.gz", hash = "sha256:576c1982bea0ba82fb46c36feb951319d7f42214a82634233f58b40d858a751e"},
 ]
 six = [
-    {file = "six-1.14.0-py2.py3-none-any.whl", hash = "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"},
-    {file = "six-1.14.0.tar.gz", hash = "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"},
+    {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
+    {file = "six-1.15.0.tar.gz", hash = "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"},
 ]
 snowballstemmer = [
     {file = "snowballstemmer-2.0.0-py2.py3-none-any.whl", hash = "sha256:209f257d7533fdb3cb73bdbd24f436239ca3b2fa67d56f6ff88e86be08cc5ef0"},
