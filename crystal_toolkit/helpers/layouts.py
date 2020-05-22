@@ -1,8 +1,13 @@
+import os
+
 import dash_core_components as dcc
 import dash_html_components as html
 import warnings
 
+from monty.serialization import loadfn, dumpfn
+
 from crystal_toolkit.settings import SETTINGS
+from crystal_toolkit import MODULE_PATH
 
 from typing import List, Dict, Any, Union
 
@@ -357,6 +362,9 @@ def get_table(rows: List[List[Any]]) -> html.Table:
     return html.Table([html.Tbody(contents)], className="table")
 
 
+DOI_CACHE = loadfn(MODULE_PATH / "apps/assets/doi_cache.json")
+
+
 def cite_me(
     doi: str = None, manual_ref: str = None, cite_text: str = "Cite me"
 ) -> html.Div:
@@ -368,11 +376,16 @@ def cite_me(
     :return: A button
     """
     if doi:
-        try:
-            ref = content_negotiation(ids=doi, format="text", style="ieee")[3:]
-        except Exception as exc:
-            print(doi, exc)
-            ref = f"DOI: {doi}"
+        if doi in DOI_CACHE:
+            ref = DOI_CACHE[doi]
+        else:
+            try:
+                ref = content_negotiation(ids=doi, format="text", style="ieee")[3:]
+                DOI_CACHE[doi] = ref
+                dumpfn(DOI_CACHE, MODULE_PATH / "apps/assets/doi_cache.json")
+            except Exception as exc:
+                print("Error retrieving DOI", doi, exc)
+                ref = f"DOI: {doi}"
         tooltip_text = f"If this analysis is useful, please cite {ref}"
     elif manual_ref:
         warnings.warn("Please use the DOI if available.")
@@ -387,7 +400,14 @@ def cite_me(
         )
 
     reference_button = html.A(
-        [Button([Icon(kind="book"), html.Span(cite_text)], size="small", kind="link")],
+        [
+            Button(
+                [Icon(kind="book"), html.Span(cite_text)],
+                size="small",
+                kind="link",
+                style={"height": "1.5rem"},
+            )
+        ],
         href=f"https://dx.doi.org/{doi}",
         target="_blank",
     )

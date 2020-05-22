@@ -1,6 +1,7 @@
 aiohttp==3.6.2
 alabaster==0.7.12
 appdirs==1.4.4
+ase==3.19.1
 async-timeout==3.0.1
 atomicwrites==1.4.0; sys_platform == "win32"
 attrs==19.3.0
@@ -48,8 +49,13 @@ future==0.18.2
 gevent==1.5.0
 greenlet==0.4.15; platform_python_implementation == "CPython"
 gunicorn==20.0.4
+h5py==2.10.0
+habanero==0.7.2
+hiphive==0.7
 identify==1.4.15
 idna==2.9
+imagecodecs==2020.2.18
+imageio==2.8.0
 imagesize==1.2.0
 importlib-metadata==1.6.0; python_version < "3.8"
 inflect==4.1.0
@@ -59,6 +65,7 @@ joblib==0.15.1
 jsonschema==3.2.0
 kiwisolver==1.2.0
 latexcodec==2.0.0
+llvmlite==0.32.1
 m2r==0.2.1
 markupsafe==1.1.1
 matminer==0.6.3
@@ -70,12 +77,14 @@ mpmath==1.1.0
 multidict==4.7.6
 networkx==2.4
 nodeenv==1.3.5
+numba==0.49.1
 numpy==1.18.4
 packaging==20.4
 palettable==3.3.0
 pandas==1.0.3
 pathspec==0.8.0
 pexpect==4.8.0
+pillow==7.1.2
 pint==0.11
 plotly==4.7.1
 pluggy==0.13.1
@@ -94,6 +103,7 @@ pyrsistent==0.16.0
 pytest==5.4.2
 python-dateutil==2.8.1
 pytz==2020.1
+pywavelets==1.1.1
 pyyaml==5.3.1
 recommonmark==0.6.0
 redis==3.5.2
@@ -103,6 +113,7 @@ retrying==1.3.3
 robocrys==0.2.1
 ruamel.yaml==0.16.10
 ruamel.yaml.clib==0.2.0; platform_python_implementation == "CPython" and python_version < "3.9"
+scikit-image==0.17.2
 scikit-learn==0.22.2.post1
 scipy==1.4.1
 shellingham==1.3.2
@@ -119,12 +130,14 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.4
 sympy==1.5.1
 tabulate==0.8.7
+tifffile==2020.5.11
 toml==0.10.1
 tomlkit==0.6.0
 tqdm==4.46.0
 typed-ast==1.4.1
+typing-extensions==3.7.4.2; python_version >= "3.7" and python_version < "3.8"
 urllib3==1.25.9
-virtualenv==20.0.20
+virtualenv==20.0.21
 wcwidth==0.1.9
 webcolors==1.11.1
 werkzeug==1.0.1

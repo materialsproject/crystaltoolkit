@@ -38,25 +38,28 @@ and the number of atoms in the supercell falls in the range specified.
             "force_diagonal": False,
         }
 
-        max_atoms = self.get_float_input(
+        max_atoms = self.get_numerical_input(
             label="Maximum number of atoms",
             kwarg_label="max_atoms",
             state=state,
             help_str="""Maximum number of atoms allowed in the supercell.""",
+            shape=(),
         )
 
-        min_atoms = self.get_float_input(
+        min_atoms = self.get_numerical_input(
             label="Minimum number of atoms",
             kwarg_label="min_atoms",
             state=state,
             help_str="""Minimum number of atoms allowed in the supercell.""",
+            shape=(),
         )
 
-        min_length = self.get_float_input(
+        min_length = self.get_numerical_input(
             label="Minimum length /Å",
             kwarg_label="min_length",
             state=state,
             help_str="""Minimum length of the smallest supercell lattice vector.""",
+            shape=(),
         )
 
         force_diagonal = self.get_bool_input(

@@ -45,7 +45,7 @@ class SymmetryPanel(PanelComponent):
 
         state = {"symprec": 0.01, "angle_tolerance": 5}
 
-        symprec = self.get_matrix_input(
+        symprec = self.get_numerical_input(
             label="Symmetry-finding tolerance",
             kwarg_label="symprec",
             state=state,
@@ -55,7 +55,7 @@ class SymmetryPanel(PanelComponent):
             "compared with this distance tolerance.",
             shape=(),
         )
-        angle_tolerance = self.get_matrix_input(
+        angle_tolerance = self.get_numerical_input(
             label="Angle tolerance",
             kwarg_label="angle_tolerance",
             state=state,
@@ -90,9 +90,9 @@ class SymmetryPanel(PanelComponent):
             if not data:
                 return html.Div()
 
-            try:
-                struct = Structure.from_dict(data)
-            except Exception:
+            struct = self.from_data(data)
+
+            if not isinstance(struct, Structure):
                 return html.Div(
                     "Can only analyze symmetry of crystal structures at present."
                 )

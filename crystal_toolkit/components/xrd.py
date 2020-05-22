@@ -15,7 +15,7 @@ from pymatgen.analysis.diffraction.xrd import XRDCalculator, WAVELENGTHS
 
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
+from crystal_toolkit.core.panelcomponent import PanelComponent
 
 
 # Author: Matthew McDermott
@@ -88,7 +88,7 @@ class XRayDiffractionComponent(MPComponent):
         return (
             np.sqrt(np.log(2) / np.pi)
             / alpha
-            * np.exp(-((x - c) / alpha) ** 2 * np.log(2))
+            * np.exp(-(((x - c) / alpha) ** 2) * np.log(2))
         )
 
     @staticmethod
@@ -123,12 +123,13 @@ class XRayDiffractionComponent(MPComponent):
     def _sub_layouts(self):
 
         # Main plot
-        graph = html.Div(
+        graph = Loading(
             [
                 dcc.Graph(
                     figure=go.Figure(layout=XRayDiffractionComponent.empty_plot_style),
                     id=self.id("xrd-plot"),
                     config={"displayModeBar": False},
+                    responsive=True,
                 )
             ]
         )
@@ -210,7 +211,6 @@ class XRayDiffractionComponent(MPComponent):
             "crystallite_size": crystallite_size,
         }
 
-    @property
     def layout(self):
         return html.Div(
             [
@@ -356,11 +356,10 @@ class XRayDiffractionComponent(MPComponent):
             return html.P("Selected: {} nm".format(round(10 ** value, 3)))
 
 
-class XRayDiffractionPanelComponent(PanelComponent2):
+class XRayDiffractionPanelComponent(PanelComponent):
     def __init__(self, *args, **kwargs):
-        self.xrd = XRayDiffractionComponent()
         super().__init__(*args, **kwargs)
-        self.xrd.attach_from(self, this_store_name="struct")
+        self.xrd = XRayDiffractionComponent(links={"struct": self.id()})
 
     @property
     def title(self):
@@ -370,15 +369,5 @@ class XRayDiffractionPanelComponent(PanelComponent2):
     def description(self):
         return "Display the powder X-ray diffraction pattern for this structure."
 
-    def update_contents(self, new_store_contents, *args):
-        return self.xrd.layout
-
-    def generate_callbacks(self, app, cache):
-
-        super().generate_callbacks(app, cache)
-
-        @app.callback(
-            Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
-        )
-        def create_xrd_layout(new_store_contents):
-            return self.xrd.layout
+    def contents_layout(self) -> html.Div:
+        return self.xrd.layout()
