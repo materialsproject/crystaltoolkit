@@ -4,7 +4,6 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
 from crystal_toolkit.helpers.layouts import Label
-from crystal_toolkit.helpers.inputs import *
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
 from pymatgen.transformations.advanced_transformations import SlabTransformation
@@ -26,78 +25,106 @@ vacuum inserted so that the properties of the crystal surface can be studied.
     def transformation(self):
         return SlabTransformation
 
-    def options_layout(self, inital_args_kwargs):
+    def options_layouts(self, state=None, structure=None):
 
-        miller_index = get_matrix_input(
-            self.id(),
+        state = state or {
+            "miller_index": (0, 0, 1),
+            "min_slab_size": 4,
+            "min_vacuum_size": 10,
+            "lll_reduce": True,
+            "center_slab": True,
+            "in_unit_planes": False,
+            "primitive": True,
+            "max_normal_search": None,
+            "shift": 0,
+            "tol": 0.1,
+        }
+
+        miller_index = self.get_numerical_input(
             label="Miller index",
-            default=((1, 0, 0),),
-            help="The surface plane defined by its Miller index (h, k, l)",
+            kwarg_label="miller_index",
+            state=state,
+            help_str="The surface plane defined by its Miller index (h, k, l)",
+            shape=(3,),
         )
 
-        min_slab_size = dcc.Input(id=self.id("min_slab_size"), value=6)
-        min_vacuum_size = dcc.Input(id=self.id("min_vacuum_size"), value=10)
-        lll_reduce = dcc.Checklist(
-            id=self.id("lll_reduce"),
-            options=[{"label": " ", "value": "lll_reduce"}],
-            value=["lll_reduce"],
+        min_slab_size = self.get_numerical_input(
+            label="Minimum slab size /Å",
+            kwarg_label="min_slab_size",
+            state=state,
+            help_str="Minimum slab size in Ångstroms (or number of planes of atoms if "
+            '"Use plane units" enabled)',
+            shape=(3,),
         )
-        center_slab = dcc.Checklist(
-            id=self.id("center_slab"),
-            options=[{"label": " ", "value": "center_slab"}],
-            value=["center_slab"],
-        )
-        # in_unit_planes = ...
-        # primitive = ...
-        # max_normal_search = ...
-        # shift = ...
-        # tol = ...
 
-        # get_layout(name, display_name, type)
-        # get_inputs(name, type)
-        # get_value(type, inputs)
+        min_vacuum_size = self.get_numerical_input(
+            label="Minimum vacuum size /Å",
+            kwarg_label="min_vacuum_size",
+            state=state,
+            help_str="Minimum vacuum size in Ångstroms (or number of planes of atoms if "
+            '"Use plane units" enabled)',
+            shape=(),
+        )
+
+        lll_reduce = self.get_bool_input(
+            label="Enable LLL reduction",
+            kwarg_label="lll_reduce",
+            state=state,
+            help_str="Whether or not to apply an LLL lattice reduction",
+        )
+
+        in_unit_planes = self.get_bool_input(
+            label="Use Plane Units",
+            kwarg_label="in_unit_planes",
+            state=state,
+            help_str="Change units of vacuum size and slab size to be in terms of "
+            "number of planes of atoms instead of Ångstroms.",
+        )
+
+        primitive = self.get_bool_input(
+            label="Make primitive",
+            kwarg_label="primitive",
+            state=state,
+            help_str="Reduce the slab to most primitive cell.",
+        )
+
+        max_normal_search = self.get_numerical_input(
+            "max_normal_search",
+            state=state,
+            label="Maximum normal search index",
+            help_str="Maximum index to include in linear combinations of indices "
+            "to find **c** lattice vector orthogonal to slab surface.",
+            is_int=True,
+        )
+
+        shift = self.get_numerical_input(
+            label="Shift /Å",
+            kwarg_label="shift",
+            state=state,
+            help_str="Shift to change termination.",
+            shape=(),
+        )
+
+        tol = self.get_numerical_input(
+            label="Tolerance",
+            kwarg_label="tol",
+            state=state,
+            help_str="Tolerance to find primitive cell.",
+            shape=(),
+        )
 
         options = html.Div(
             [
                 miller_index,
-                Label("Min slab size:"),
                 min_slab_size,
-                Label("Min vacuum size:"),
                 min_vacuum_size,
-                Label("Center slab:"),
-                center_slab,
-                Label("Reduce slab (LLL):"),
                 lll_reduce,
+                in_unit_planes,
+                primitive,
+                max_normal_search,
+                shift,
+                tol,
             ]
         )
 
         return options
-
-    def generate_callbacks(self, app, cache):
-
-        super().generate_callbacks(app, cache)
-
-        @app.callback(
-            Output(self.id("transformation_args_kwargs"), "data"),
-            [Input(self.id(f"m0{e}"), "value") for e in range(3)]
-            + [
-                Input(self.id("min_slab_size"), "value"),
-                Input(self.id("min_vacuum_size"), "value"),
-                Input(self.id("center_slab"), "value"),
-                Input(self.id("lll_reduce"), "value"),
-            ],
-        )
-        def update_transformation_kwargs(
-            m1, m2, m3, min_slab_size, min_vacuum_size, center_slab, lll_reduce
-        ):
-
-            miller_index = list(map(int, [m1, m2, m3]))
-            min_slab_size = float(min_slab_size)
-            min_vacuum_size = float(min_vacuum_size)
-            center_slab = "center_slab" in center_slab
-            lll_reduce = "lll_reduce" in lll_reduce
-
-            return {
-                "args": [miller_index, min_slab_size, min_vacuum_size],
-                "kwargs": {"center_slab": center_slab, "lll_reduce": lll_reduce},
-            }

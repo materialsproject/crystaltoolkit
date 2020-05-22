@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod, abstractproperty
-from dataclasses import dataclass, field, asdict
-from typing import List, Optional, Dict, Any
-from itertools import chain
 from collections import defaultdict
-from warnings import warn
-
+from dataclasses import dataclass, field, asdict
+from itertools import chain
+from json import dump
+from typing import List, Optional, Dict, Any
 
 """
 This module gives a Python interface to generate JSON for the
@@ -46,14 +45,31 @@ class Scene:
     contents: list = field(default_factory=list)
     origin: List[float] = field(default=(0, 0, 0))
     visible: bool = True
-    _meta: Any = None
+    _meta: Dict = None
+
+    def __add__(self, other):
+        """
+        For convenience to combine multiple scenes.
+
+        No good way to decide what origin to set for the new scene.
+
+        :param other: another Scene
+        :return:
+        """
+        return Scene(
+            name=self.name + "_" + other.name,
+            contents=self.contents + other.contents,
+            origin=self.origin,
+            visible=self.visible,
+            _meta={self.name: self._meta, other.name: other._meta},
+        )
 
     def _repr_mimebundle_(self, include=None, exclude=None):
         """
         Render Scenes using crystaltoolkit-extension for Jupyter Lab.
         """
         return {
-            "application/vnd.mp.v1+json": self.to_json(),
+            "application/vnd.mp.ctk+json": self.to_json(),
             "text/plain": self.__repr__(),
         }
 
@@ -61,7 +77,7 @@ class Scene:
         """
         Convert a Scene into JSON. It will implicitly assume all None values means
         that that attribute uses its default value, and so will be removed from
-        the JSON to reduce the filesize size of the resulting JSON.
+        the JSON to reduce the file size of the resulting JSON.
 
         Note that this function actually returns a Python dict, but in a format
         that can be converted to a JSON string using the standard library JSON
@@ -103,10 +119,25 @@ class Scene:
         """
         return self.to_json()
 
+    def to(self, filename):
+        """
+        Write a Scene to a file. Can be opened by Jupyter Lab if
+        Crystal Toolkit extension installed.
+
+        :param filename: The filename (can include path),
+        an extension will be set if not supplied.
+        :return:
+        """
+        # TODO: find a way to keep the original MSONable object + scene generation options alongside
+        if not filename.endswith(".ctk.json"):
+            filename += ".ctk.json"
+        with open(filename, "w") as f:
+            dump(self.to_json(), f)
+
     @property
     def bounding_box(self) -> List[List[float]]:
         """
-        Returns the boundinx box coordinates 
+        Returns the bounding box coordinates
         """
         if len(self.contents) > 0:
             min_list, max_list = zip(*[p.bounding_box for p in self.contents])
@@ -162,33 +193,42 @@ class Spheres(Primitive):
     """
 
     positions: List[List[float]]
+    _animate: Optional[List[List[float]]] = None
     color: Optional[str] = None
     radius: Optional[float] = None
     phiStart: Optional[float] = None
     phiEnd: Optional[float] = None
     type: str = field(default="spheres", init=False)  # private field
     visible: bool = None
+    tooltip: str = None
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
 
     @property
     def key(self):
-        return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}_{self.clickable}"
+        return f"sphere_{self.color}_{self.radius}_{self.phiStart}_{self.phiEnd}_{self.clickable}_{self.tooltip}"
 
     @classmethod
     def merge(cls, sphere_list):
         new_positions = list(
             chain.from_iterable([sphere.positions for sphere in sphere_list])
         )
+        new__animate = list(
+            chain.from_iterable(
+                [sphere._animate for sphere in sphere_list if sphere._animate]
+            )
+        )
         return cls(
             positions=new_positions,
+            _animate=new__animate,
             color=sphere_list[0].color,
             radius=sphere_list[0].radius,
             phiStart=sphere_list[0].phiStart,
             phiEnd=sphere_list[0].phiEnd,
             visible=sphere_list[0].visible,
             clickable=sphere_list[0].clickable,
+            tooltip=sphere_list[0].tooltip,
         )
 
 
@@ -215,6 +255,7 @@ class Ellipsoids(Primitive):
     scale: List[float]
     positions: List[List[float]]
     rotate_to: List[List[float]]
+    _animate: Optional[List[List[float]]] = None
     color: Optional[str] = None
     phiStart: Optional[float] = None
     phiEnd: Optional[float] = None
@@ -236,10 +277,20 @@ class Ellipsoids(Primitive):
         rotate_to = list(
             chain.from_iterable([ellipsoid.rotate_to for ellipsoid in ellipsoid_list])
         )
+        new__animate = list(
+            chain.from_iterable(
+                [
+                    ellipsoid._animate
+                    for ellipsoid in ellipsoid_list
+                    if ellipsoid._animate
+                ]
+            )
+        )
 
         return cls(
             positions=new_positions,
             rotate_to=rotate_to,
+            _animate=new__animate,
             scale=ellipsoid_list[0].scale,
             color=ellipsoid_list[0].color,
             phiStart=ellipsoid_list[0].phiStart,
@@ -264,6 +315,7 @@ class Cylinders(Primitive):
     """
 
     positionPairs: List[List[List[float]]]
+    _animate: Optional[List[List[List[float]]]] = None
     color: Optional[str] = None
     radius: Optional[float] = None
     type: str = field(default="cylinders", init=False)  # private field
@@ -274,7 +326,7 @@ class Cylinders(Primitive):
 
     @property
     def key(self):
-        return f"cyclinder_{self.color}_{self.radius}_{self.reference}"
+        return f"cylinder_{self.color}_{self.radius}_{self.reference}"
 
     @classmethod
     def merge(cls, cylinder_list):
@@ -282,8 +334,15 @@ class Cylinders(Primitive):
         new_positionPairs = list(
             chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
         )
+        new__animate = list(
+            chain.from_iterable(
+                [cylinder._animate for cylinder in cylinder_list if cylinder._animate]
+            )
+        )
+
         return cls(
             positionPairs=new_positionPairs,
+            _animate=new__animate,
             color=cylinder_list[0].color,
             radius=cylinder_list[0].radius,
             visible=cylinder_list[0].visible,
@@ -310,6 +369,7 @@ class Cubes(Primitive):
     """
 
     positions: List[List[float]]
+    _animate: Optional[List[List[float]]] = None
     color: Optional[str] = None
     width: Optional[float] = None
     type: str = field(default="cubes", init=False)  # private field
@@ -327,8 +387,12 @@ class Cubes(Primitive):
         new_positions = list(
             chain.from_iterable([cube.positions for cube in cube_list])
         )
+        new__animate = list(
+            chain.from_iterable([cube._animate for cube in cube_list if cube._animate])
+        )
         return cls(
             positions=new_positions,
+            new__animate=new__animate,
             color=cube_list[0].color,
             width=cube_list[0].width,
             visible=cube_list[0].visible,
@@ -356,6 +420,7 @@ class Lines(Primitive):
     """
 
     positions: List[List[float]]
+    _animate: Optional[List[List[float]]] = None
     color: str = None
     linewidth: float = None
     scale: float = None
@@ -376,8 +441,12 @@ class Lines(Primitive):
         new_positions = list(
             chain.from_iterable([line.positions for line in line_list])
         )
+        new__animate = list(
+            chain.from_iterable([line._animate for line in line_list if line._animate])
+        )
         return cls(
             positions=new_positions,
+            _animate=new__animate,
             color=line_list[0].color,
             linewidth=line_list[0].linewidth,
             scale=line_list[0].scale,
@@ -396,6 +465,7 @@ class Surface:
     """
 
     positions: List[List[float]]
+    _animate: Optional[List[List[float]]] = None
     normals: Optional[List[List[float]]] = None
     color: str = None
     opacity: float = None
@@ -423,6 +493,7 @@ class Convex:
     """
 
     positions: List[List[float]]
+    _animate: Optional[List[List[float]]] = None
     color: str = None
     opacity: float = None
     type: str = field(default="convex", init=False)  # private field
@@ -453,6 +524,7 @@ class Arrows(Primitive):
     """
 
     positionPairs: List[List[List[float]]]
+    _animate: Optional[List[List[List[float]]]] = None
     color: Optional[str] = None
     radius: Optional[float] = None
     headLength: Optional[float] = None
@@ -472,8 +544,14 @@ class Arrows(Primitive):
         new_positionPairs = list(
             chain.from_iterable([arrow.positionPairs for arrow in arrow_list])
         )
+        new__animate = list(
+            chain.from_iterable(
+                [arrow._animate for arrow in arrow_list if arrow._animate]
+            )
+        )
         return cls(
             positionPairs=new_positionPairs,
+            _animate=new__animate,
             color=arrow_list[0].color,
             radius=arrow_list[0].radius,
             headLength=arrow_list[0].headLength,
@@ -503,45 +581,17 @@ class Label:
     _meta: Any = None
 
 
-class Plottable3D(ABC):
+@dataclass
+class Bezier:
     """
-    A Mixin class that shows that an object can output a 3D scene.
+    A tube shaped by Bézier control points.
     """
 
-    @abstractmethod
-    def get_scene(self, **kwargs) -> Scene:
-        """
-        This method provides a Scene object, which is a
-        lightweight way of describing a 3D scene.
-
-        This can be rendered by an appropriate renderer,
-        current options include the Material Project's
-        Simple3DScene (an ES6/AMD JavaScript library
-        using Three.js), Asymptote (an option for TeX),
-        and Plotly (for quick, basic viewing) and
-        pythreejs (a standalone option for Jupyter).
-        """
-        raise NotImplementedError
-
-    def get_scene_plotly(self, **kwargs):
-        """
-        This method synthesizes a Plotly plot using
-        the get_scene() method on this class. Any keyword
-        args will be passed along to get_scene().
-
-        This is useful for quick and easy plotting of
-        a 3D scene, but for higher-quality publication
-        quality plots we recommend other options.
-        """
-        scene = self.get_scene(**kwargs)
-
-    def get_scene_asymptote(self, **kwargs):
-        """
-        This method synthesizes the input for Asymptote
-        using the get_scene() method on this class. Any
-        keyword args will be passed along to get_scene().
-
-        Asymptote is an option for rendering a scene
-        inside TeX for creating publication-quality plots.
-        """
-        scene = self.get_scene(**kwargs)
+    controlPoints: List[List[List[float]]] = None
+    color: List[str] = None
+    radius: List[float] = None
+    type: str = field(default="bezier", init=False)  # private field
+    visible: bool = None
+    clickable: bool = False
+    reference: Optional[str] = None
+    _meta: Any = None

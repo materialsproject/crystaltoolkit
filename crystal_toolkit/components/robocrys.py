@@ -1,17 +1,13 @@
-import dash_core_components as dcc
 import dash_html_components as html
-
-from dash.dependencies import Input, Output, State
-
-
-from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
-from crystal_toolkit.helpers.layouts import MessageContainer, MessageBody
-
+from dash.dependencies import Input, Output
 from robocrys import StructureCondenser, StructureDescriber
 from robocrys import __version__ as robocrys_version
 
+from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.helpers.layouts import MessageContainer, MessageBody, Loading
 
-class RobocrysComponent(PanelComponent2):
+
+class RobocrysComponent(PanelComponent):
     @property
     def title(self):
         return "Description"
@@ -23,30 +19,26 @@ class RobocrysComponent(PanelComponent2):
             "like a human crystallographer would."
         )
 
-    @property
-    def loading_text(self):
-        return (
-            "Robocrystallographer is analyzing your structure, "
-            "this can take up to a minute"
-        )
+    def contents_layout(self) -> html.Div:
+
+        return Loading(id=self.id("robocrys"))
 
     def generate_callbacks(self, app, cache):
 
         super().generate_callbacks(app, cache)
 
         @app.callback(
-            Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
+            Output(self.id("robocrys"), "children"), [Input(self.id(), "data")]
         )
+        @cache.memoize()
         def run_robocrys_analysis(new_store_contents):
-
-            print("Robocrys callback fired")
 
             struct = self.from_data(new_store_contents)
 
             try:
 
                 condenser = StructureCondenser()
-                describer = StructureDescriber()
+                describer = StructureDescriber(fmt="unicode")
 
                 condensed_structure = condenser.condense_structure(struct)
 

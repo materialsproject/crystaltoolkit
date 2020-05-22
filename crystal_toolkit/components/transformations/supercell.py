@@ -4,7 +4,6 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 
 from crystal_toolkit.helpers.layouts import Label
-from crystal_toolkit.helpers.inputs import *
 from crystal_toolkit.components.transformations.core import TransformationComponent
 from dash_mp_components import Simple3DScene
 
@@ -38,12 +37,13 @@ integers."""
 
         state = state or {"scaling_matrix": ((1, 0, 0), (0, 1, 0), (0, 0, 1))}
 
-        options = self.get_matrix_input(
+        options = self.get_numerical_input(
             label="Scaling matrix",
             kwarg_label="scaling_matrix",
             state=state,
             help_str="""Scaling matrix that transforms 
             input lattice vectors a, b and c into transformed lattice vectors a', b' and c'.""",
+            shape=(3, 3),
         )
 
         return [options]

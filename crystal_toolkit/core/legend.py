@@ -247,7 +247,7 @@ class Legend(MSONable):
 
             # if we have more categories than availiable colors,
             # arbitrarily group some categories together
-            if len(props) > len(palette):
+            if len(set(props)) > len(palette):
                 warnings.warn(
                     "Too many categories for a complete categorical color scheme."
                 )
@@ -420,9 +420,9 @@ class Legend(MSONable):
         # decide what we want the labels to be
         if self.color_scheme in ("Jmol", "VESTA", "accessible"):
             label = lambda site, sp: self.get_species_str(sp)
-        elif self.color_scheme in self.site_prop_types["scalar"]:
+        elif self.color_scheme in self.site_prop_types.get("scalar", {}):
             label = lambda site, sp: f"{site.properties[self.color_scheme]:.2f}"
-        elif self.color_scheme in self.site_prop_types["categorical"]:
+        elif self.color_scheme in self.site_prop_types.get("categorical", {}):
             label = lambda site, sp: f"{site.properties[self.color_scheme]}"
         else:
             raise ValueError(f"Color scheme {self.color_scheme} not known.")
