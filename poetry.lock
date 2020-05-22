@@ -261,6 +261,10 @@ optional = false
 python-versions = "*"
 version = "0.0.23"
 
+[package.source]
+reference = "7818ec36d8317594c288c0e6597ea7818fb842cd"
+type = "git"
+url = "https://github.com/materialsproject/dash-mp-components.git"
 [[package]]
 category = "main"
 description = "Front-end component renderer for Dash"
@@ -1790,7 +1794,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "c853c2a3c6bc2d626a0f39e2f04a2ffbf5c85ecca925b59c1a51a3306a784dbf"
+content-hash = "468d76a9802d46aa5c0f52ac944a65d2017784414a78728016ae61a222dd0e9b"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1948,9 +1952,7 @@ dash-daq = [
 dash-html-components = [
     {file = "dash_html_components-1.0.3.tar.gz", hash = "sha256:dafb54ae8ab601fffe50c74d72b32783dec2beea65fd1c7e7dd6a66e20e545ba"},
 ]
-dash-mp-components = [
-    {file = "dash_mp_components-0.0.23.tar.gz", hash = "sha256:bafce8d5f78c54b30edef868180d1f01fa81d567d4398d1843f047c2c2363576"},
-]
+dash-mp-components = []
 dash-renderer = [
     {file = "dash_renderer-1.4.1.tar.gz", hash = "sha256:bbb23ba60014924225cb7385d73619843050c363d96486a3cb14ea6fca39d485"},
 ]

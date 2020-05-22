@@ -13,7 +13,7 @@ gunicorn = "^20.0.4"
 redis = "^3.4.1"
 Flask-Caching = "^1.8.0"
 gevent = "^1.4.0"
-dash_mp_components = ">=0.0.23"
+dash_mp_components = {git = "https://github.com/materialsproject/dash-mp-components.git"}
 pymatgen = "^2020.4.29"
 scikit-learn = "^0.22.2"
 webcolors = "^1.11.1"
