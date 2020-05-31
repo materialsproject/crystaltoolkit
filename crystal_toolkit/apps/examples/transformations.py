@@ -18,7 +18,6 @@ app = dash.Dash()
 # create the Structure object
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-
 from pymatgen import MPRester
 
 # create an input structure as an example
@@ -32,15 +31,7 @@ structure_component_transformed = ctc.StructureMoleculeComponent(
 
 # and the transformation component itself
 transformation_component = ctc.AllTransformationsComponent(
-    transformations=[
-        "AutoOxiStateDecorationTransformationComponent",
-        "SupercellTransformationComponent",
-        # "SlabTransformationComponent",
-        # "SubstitutionTransformationComponent",
-        "CubicSupercellTransformationComponent",
-        # "GrainBoundaryTransformationComponent"
-    ],
-    input_structure=structure_component,
+    input_structure_component=structure_component,
 )
 
 # example layout to demonstrate capabilities of component
