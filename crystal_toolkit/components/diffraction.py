@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import math
 import numpy as np
+from dash import callback_context
 from scipy.special import wofz
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
@@ -22,24 +23,23 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 # Contact: mcdermott@lbl.gov
 
 
+class SpectrumComponent(MPComponent):
+    """
+    Component to draw any Spectrum object. Will add a download button.
+    """
+
+    pass
+
+
 class XRayDiffractionComponent(MPComponent):
     def __init__(self, *args, initial_structure=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("struct", initial_data=initial_structure)
 
-        self.initial_xrdcalculator_kwargs = {
-            "wavelength": "CuKa",
-            "symprec": 0,
-            "debye_waller_factors": None,
-        }
-        self.create_store(
-            "xrdcalculator_kwargs", initial_data=self.initial_xrdcalculator_kwargs
-        )
-
     # Default XRD plot style settings
     default_xrd_plot_style = dict(
         xaxis={
-            "title": "2θ (deg)",
+            "title": "2θ / º",
             "anchor": "y",
             "mirror": "ticks",
             "nticks": 8,
@@ -53,7 +53,7 @@ class XRayDiffractionComponent(MPComponent):
             "zeroline": False,
         },
         yaxis={
-            "title": "Intensity (a.u.)",
+            "title": "Intensity / arb. units",
             "anchor": "x",
             "mirror": "ticks",
             "nticks": 7,
@@ -73,6 +73,7 @@ class XRayDiffractionComponent(MPComponent):
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=60, b=50, t=50, pad=0, r=30),
+        title="X-ray Diffraction Pattern",
     )
 
     empty_plot_style = {
@@ -106,6 +107,18 @@ class XRayDiffractionComponent(MPComponent):
             sigma * np.sqrt(2 * np.pi)
         )
 
+    @staticmethod
+    def twotheta_to_q(twotheta, xray_wavelength):
+        """
+        Convert twotheta to Q.
+
+        :param twotheta: in degrees
+        :param xray_wavelength: in Ångstroms
+        :return:
+        """
+        # thanks @rwoodsrobinson
+        return (4 * np.pi / xray_wavelength) * np.sin(np.array(twotheta) * np.pi / 360)
+
     def grain_to_hwhm(self, tau, two_theta, K=0.9, wavelength="CuKa"):
         """
         :param tau: grain size in nm
@@ -122,88 +135,130 @@ class XRayDiffractionComponent(MPComponent):
     @property
     def _sub_layouts(self):
 
+        state = {
+            "mode": "powder",
+            "peak_profile": "G",
+            "shape_factor": 0.94,
+            "rad_source": "CuKa",
+            "x_axis": "twotheta",
+            "crystallite_size": 0.1,
+        }
+
+        # mode selector
+        mode = self.get_choice_input(
+            kwarg_label="mode",
+            state=state,
+            label="Mode",
+            help_str="""Select whether to generate a powder diffraction pattern 
+(a pattern averaged over all orientations of a polycrystalline material) 
+or a single crystal diffraction pattern (a diffraction pattern generated 
+from a single crystal structure.""",
+            options=[
+                {"value": "powder", "label": "Powder"},
+                {"value": "single", "label": "Single Crystal"},
+            ],
+        )
+
+        # download
+
         # Main plot
         graph = Loading(
             [
                 dcc.Graph(
                     figure=go.Figure(layout=XRayDiffractionComponent.empty_plot_style),
                     id=self.id("xrd-plot"),
-                    config={"displayModeBar": False},
+                    config={
+                        "displayModeBar": False,  # or "hover",
+                        "plotGlPixelRatio": 2,
+                        "displaylogo": False,
+                        # "modeBarButtons": [["toImage"]],  # to only add an image download button
+                        "toImageButtonOptions": {
+                            "format": "png",
+                            "filename": "xrd",
+                            "scale": 4,
+                            "width": 600,
+                            "height": 400,
+                        },
+                        "editable": True,
+                    },
                     responsive=True,
+                    animate=False,
                 )
             ]
         )
 
+        # Broaden peaks
+        broadening_toggle = ...
+
         # Radiation source selector
-        rad_source = html.Div(
-            [
-                html.P("Radiation Source"),
-                dcc.Dropdown(
-                    id=self.id("rad-source"),
-                    options=[{"label": i, "value": i} for i in WAVELENGTHS.keys()],
-                    value=self.initial_xrdcalculator_kwargs["wavelength"],
-                    placeholder="Select a source...",
-                    clearable=False,
-                ),
+        rad_source = self.get_choice_input(
+            kwarg_label="rad_source",
+            state=state,
+            label="Radiation source",
+            help_str="...",
+            options=[
+                {"label": wav.replace("a", "α").replace("b", "β"), "value": wav}
+                for wav in WAVELENGTHS.keys()
             ],
-            style={"max-width": "200"},
         )
 
         # Shape factor input
-        shape_factor = html.Div(
-            [
-                html.P("Shape Factor, K "),
-                dcc.Input(
-                    id=self.id("shape-factor"),
-                    placeholder="0.94",
-                    type="text",
-                    value="0.94",
-                ),
-            ],
-            style={"max-width": "200"},
+        shape_factor = self.get_numerical_input(
+            kwarg_label="shape_factor",
+            state=state,
+            label="Shape Factor",
+            help_str="""The peak profile determines what distribute characterizes the broadening of an XRD pattern. 
+Two extremes are Gaussian distributions, which are useful for peaks with more rounded tops (typically due to strain 
+broadening) and Lorentzian distributions, which are useful for peaks with sharper top (typically due to size 
+distributions and dislocations). In reality, peak shapes usually follow a Voigt distribution, which is a convolution of 
+Gaussian and Lorentzian peak shapes, with the contribution to both Gaussian and Lorentzian components sample and instrument 
+dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
         )
+
         # Peak profile selector (Gaussian, Lorentzian, Voigt)
-        peak_profile = html.Div(
-            [
-                html.P("Peak Profile"),
-                dcc.Dropdown(
-                    id=self.id("peak-profile"),
-                    options=[
-                        {"label": "Gaussian", "value": "G"},
-                        {"label": "Lorentzian", "value": "L"},
-                        {"label": "Voigt", "value": "V"},
-                    ],
-                    value="G",
-                    clearable=False,
-                ),
+        peak_profile = self.get_choice_input(
+            kwarg_label="peak_profile",
+            state=state,
+            label="Peak Profile",
+            help_str="""The shape factor K, also known as the “Scherrer constant” is a dimensionless 
+        quantity to obtain an actual particle size from an apparent particle size determined from XRD. The discrepancy is 
+        because the shape of an individual crystallite will change the resulting diffraction broadening. Commonly, a value 
+        of 0.94 for isotropic crystals in a spherical shape is used. However, in practice K can vary from 0.62 to 2.08.""",
+            options=[
+                {"label": "Gaussian", "value": "G"},
+                {"label": "Lorentzian", "value": "L"},
+                {"label": "Voigt", "value": "V"},
             ],
-            style={"max-width": "200"},
+        )
+
+        # 2Theta or Q for x-axis
+        x_axis_choice = self.get_choice_input(
+            kwarg_label="x_axis",
+            state=state,
+            label="Choice of 𝑥 axis",
+            help_str="Can choose between 2Θ or Q, where Q is the magnitude of the reciprocal lattice and "
+            "independent of radiation source.",  # TODO: improve
+            options=[
+                {"label": "2Θ", "value": "twotheta"},
+                {"label": "Q", "value": "Q"},
+            ],
         )
 
         # Crystallite size selector (via Scherrer Equation)
-        crystallite_size = html.Div(
-            [
-                html.P("Scherrer Crystallite Size (nm)"),
-                html.Div(
-                    [
-                        dcc.Slider(
-                            id=self.id("crystallite-slider"),
-                            marks={i: "{}".format(10 ** i) for i in range(-1, 3)},
-                            min=-1,
-                            max=2,
-                            value=0,
-                            step=0.01,
-                        )
-                    ],
-                    style={"max-width": "500"},
-                ),
-                html.Div(
-                    [], id=self.id("crystallite-input"), style={"padding-top": "20px"}
-                ),
-            ]
+        crystallite_size = self.get_slider_input(
+            kwarg_label="crystallite_size",
+            label="Scherrer crystallite size / nm",
+            state=state,
+            help_str="...",
+            marks={i: "{}".format(10 ** i) for i in range(-1, 3)},
+            min=-1,
+            max=2,
+            step=0.01,
         )
 
         return {
+            "mode": mode,
+            "x_axis": x_axis_choice,
             "graph": graph,
             "rad_source": rad_source,
             "peak_profile": peak_profile,
@@ -214,11 +269,13 @@ class XRayDiffractionComponent(MPComponent):
     def layout(self):
         return html.Div(
             [
+                Columns(Column(self._sub_layouts["mode"])),
                 Columns(
                     [
                         Column([self._sub_layouts["graph"]], size=8),
                         Column(
                             [
+                                self._sub_layouts["x_axis"],
                                 self._sub_layouts["rad_source"],
                                 self._sub_layouts["shape_factor"],
                                 self._sub_layouts["peak_profile"],
@@ -226,8 +283,9 @@ class XRayDiffractionComponent(MPComponent):
                             ],
                             size=4,
                         ),
-                    ]
-                )
+                    ],
+                    id=self.id("inner-contents"),
+                ),
             ]
         )
 
@@ -236,16 +294,23 @@ class XRayDiffractionComponent(MPComponent):
             Output(self.id("xrd-plot"), "figure"),
             [
                 Input(self.id(), "data"),
-                Input(self.id("crystallite-slider"), "value"),
-                Input(self.id("rad-source"), "value"),
-                Input(self.id("peak-profile"), "value"),
-                Input(self.id("shape-factor"), "value"),
+                Input(self.get_kwarg_id("crystallite_size"), "value"),
+                Input(self.get_kwarg_id("rad_source"), "value"),
+                Input(self.get_kwarg_id("peak_profile"), "value"),
+                Input(self.get_kwarg_id("shape_factor"), "value"),
+                Input(self.get_kwarg_id("x_axis"), "value"),
             ],
         )
-        def update_graph(data, logsize, rad_source, peak_profile, K):
+        def update_graph(data, logsize, rad_source, peak_profile, K, x_axis):
 
             if not data:
                 raise PreventUpdate
+
+            kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
+            peak_profile = kwargs["peak_profile"]
+            K = kwargs["shape_factor"]
+            rad_source = kwargs["rad_source"]
+            logsize = kwargs["crystallite_size"]
 
             x_peak = data["x"]
             y_peak = data["y"]
@@ -265,7 +330,6 @@ class XRayDiffractionComponent(MPComponent):
             first = x_peak[0]
             last = x_peak[-1]
             domain = last - first  # find total domain of angles in pattern
-            bar_width = 0.003 * domain  # set width of bars to 0.5% of the domain
             length = len(x_peak)
 
             num_sigma = {"G": 5, "L": 12, "V": 12}[peak_profile]
@@ -298,6 +362,19 @@ class XRayDiffractionComponent(MPComponent):
                 for i, j in zip(range(lb, ub), range(lb, ub)):
                     y[j] += yp * getattr(self, peak_profile)(x[i], xp, alpha) / G0
 
+            layout = self.default_xrd_plot_style
+
+            if kwargs["x_axis"] == "Q":
+                x_peak = self.twotheta_to_q(x_peak, WAVELENGTHS[rad_source])
+                x = self.twotheta_to_q(x, WAVELENGTHS[rad_source])
+                layout["xaxis"]["title"] = "Q / Å⁻¹"
+            else:
+                layout["xaxis"]["title"] = "2θ / º"
+            layout["xaxis"]["range"] = [min(x), max(x)]
+            bar_width = 0.003 * (
+                max(x) - min(x)
+            )  # set width of bars to 0.5% of the domain
+
             plotdata = [
                 go.Bar(
                     x=x_peak,
@@ -305,11 +382,11 @@ class XRayDiffractionComponent(MPComponent):
                     width=[bar_width] * length,
                     hoverinfo="text",
                     text=annotations,
-                    opacity=0.2,
+                    opacity=0.8,
                 ),
                 go.Scatter(x=x, y=y, hoverinfo="none"),
             ]
-            plot = go.Figure(data=plotdata, layout=self.default_xrd_plot_style)
+            plot = go.Figure(data=plotdata, layout=layout)
 
             return plot
 
@@ -317,43 +394,30 @@ class XRayDiffractionComponent(MPComponent):
             Output(self.id(), "data"),
             [
                 Input(self.id("struct"), "data"),
-                Input(self.id("xrdcalculator_kwargs"), "data"),
+                Input(self.get_kwarg_id("rad_source"), "value"),
             ],
         )
-        def pattern_from_struct(struct, xrdcalculator_kwargs):
+        def pattern_from_struct(struct, rad_source):
 
             if struct is None:
                 raise PreventUpdate
 
             struct = self.from_data(struct)
-            xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
+            rad_source = self.reconstruct_kwarg_from_state(
+                callback_context.inputs, "rad_source"
+            )
 
             sga = SpacegroupAnalyzer(struct)
             struct = (
                 sga.get_conventional_standard_structure()
             )  # always get conventional structure
 
-            xrdc = XRDCalculator(**xrdcalculator_kwargs)
+            xrdc = XRDCalculator(
+                wavelength=WAVELENGTHS[rad_source], symprec=0, debye_waller_factors=None
+            )
             data = xrdc.get_pattern(struct, two_theta_range=None)
 
             return data.as_dict()
-
-        @app.callback(
-            Output(self.id("xrdcalculator_kwargs"), "data"),
-            [Input(self.id("rad-source"), "value")],
-            [State(self.id("xrdcalculator_kwargs"), "data")],
-        )
-        def update_kwargs(rad_source, xrdcalculator_kwargs):
-            xrdcalculator_kwargs = self.from_data(xrdcalculator_kwargs)
-            xrdcalculator_kwargs["wavelength"] = rad_source
-            return xrdcalculator_kwargs
-
-        @app.callback(
-            Output(self.id("crystallite-input"), "children"),
-            [Input(self.id("crystallite-slider"), "value")],
-        )
-        def update_slider_output(value):
-            return html.P("Selected: {} nm".format(round(10 ** value, 3)))
 
 
 class XRayDiffractionPanelComponent(PanelComponent):

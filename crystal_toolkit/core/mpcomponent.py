@@ -455,6 +455,39 @@ Sub-layouts:  \n{layouts}"""
 
         return add_label_help(matrix, label, help_str)
 
+    def get_slider_input(
+        self,
+        kwarg_label: str,
+        state: Optional[dict] = None,
+        label: Optional[str] = None,
+        help_str: str = None,
+        multiple: bool = False,
+        **kwargs,
+    ):
+
+        default = state.get(kwarg_label) or False
+
+        self._kwarg_type_hints[kwarg_label] = "slider"
+
+        if multiple:
+            slider_input = dcc.RangeSlider(
+                id=self.id(kwarg_label, is_kwarg=True),
+                tooltip={"placement": "bottom"},
+                value=default,
+                persistence=True,
+                **kwargs,
+            )
+        else:
+            slider_input = dcc.Slider(
+                id=self.id(kwarg_label, is_kwarg=True),
+                tooltip={"placement": "bottom"},
+                value=default,
+                persistence=True,
+                **kwargs,
+            )
+
+        return add_label_help(slider_input, label, help_str)
+
     def get_bool_input(
         self,
         kwarg_label: str,
@@ -495,6 +528,7 @@ Sub-layouts:  \n{layouts}"""
         label: Optional[str] = None,
         help_str: str = None,
         options: Optional[List[Dict]] = None,
+        **kwargs,
     ):
         """
         For Python classes which take floats as inputs, this will generate
@@ -519,6 +553,8 @@ Sub-layouts:  \n{layouts}"""
             options=options if options else [],
             value=default,
             persistence=True,
+            clearable=False,
+            **kwargs,
         )
 
         return add_label_help(option_input, label, help_str)
@@ -583,6 +619,7 @@ Sub-layouts:  \n{layouts}"""
         return self.reconstruct_kwargs_from_state(state)[kwarg_name]
 
     def reconstruct_kwargs_from_state(self, state) -> Dict:
+        # TODO: change to take callback_context directly
 
         kwargs = {}
         for k, v in state.items():
@@ -624,6 +661,9 @@ Sub-layouts:  \n{layouts}"""
 
             elif k_type == "bool":
                 kwargs[kwarg_label] = bool("enabled" in v)
+
+            elif k_type == "slider":
+                kwargs[kwarg_label] = v
 
             elif k_type == "dict":
                 pass
