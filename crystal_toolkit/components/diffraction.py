@@ -23,14 +23,6 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 # Contact: mcdermott@lbl.gov
 
 
-class SpectrumComponent(MPComponent):
-    """
-    Component to draw any Spectrum object. Will add a download button.
-    """
-
-    pass
-
-
 class XRayDiffractionComponent(MPComponent):
     def __init__(self, *args, initial_structure=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -122,14 +114,15 @@ class XRayDiffractionComponent(MPComponent):
     def grain_to_hwhm(self, tau, two_theta, K=0.9, wavelength="CuKa"):
         """
         :param tau: grain size in nm
-        :param theta: angle (in 2-theta)
+        :param two_theta: angle (in 2-theta)
         :param K: shape factor (default 0.9)
         :param wavelength: wavelength radiation in nm
         :return: half-width half-max (alpha or gamma), for line profile
         """
         wavelength = WAVELENGTHS[wavelength]
+        print(tau, two_theta, K, wavelength)
         return (
-            0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
+            0.5 * K * wavelength / (tau * abs(np.cos(two_theta / 2)))
         )  # Scherrer equation for half-width half max
 
     @property
