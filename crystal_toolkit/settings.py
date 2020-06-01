@@ -5,6 +5,8 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
+from crystal_toolkit import MODULE_PATH
+
 
 class Settings(BaseSettings):
 
@@ -14,7 +16,7 @@ class Settings(BaseSettings):
 
     TRANSFORMATION_PREVIEWS: bool = False
     REDIS_URL: str = "redis://localhost:6379"
-    ASSETS_PATH: str = "assets"
+    ASSETS_PATH: str = str(MODULE_PATH / "apps" / "assets")
 
     PERSISTENCE: bool = True
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"
