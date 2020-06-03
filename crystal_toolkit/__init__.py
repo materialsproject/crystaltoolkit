@@ -3,7 +3,7 @@ import os as _os
 from collections import defaultdict
 from pathlib import Path
 
-__version__ = "2020.05.21"
+__version__ = "2020.06.03"
 
 MODULE_PATH = Path(__file__).parents[0]
 
