@@ -54,7 +54,7 @@ habanero==0.7.2
 hiphive==0.7
 identify==1.4.15
 idna==2.9
-imagecodecs==2020.2.18
+imagecodecs==2020.5.30
 imageio==2.8.0
 imagesize==1.2.0
 importlib-metadata==1.6.0; python_version < "3.8"
