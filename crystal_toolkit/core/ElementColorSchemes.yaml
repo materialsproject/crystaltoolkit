@@ -219,6 +219,7 @@ VESTA:
   Zn: [143, 143, 129]
   Zr: [0, 255, 0]
 Extras:  # for custom element types
-  bcp: [0, 0, 255]  # bond critical point
-  rcp: [255, 0, 0]  # ring critical point
-  ccp: [255, 255, 0]  # cage critical point
+  Xbcp: [0, 0, 255]  # bond critical point
+  Xrcp: [255, 0, 0]  # ring critical point
+  Xccp: [255, 255, 0]  # cage critical point
+  Xncp: [0, 255, 255]  # non-nuclear attractor
