@@ -10,7 +10,7 @@ from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 from crystal_toolkit.components.robocrys import RobocrysComponent
 
-from crystal_toolkit.components.xrd import (
+from crystal_toolkit.components.diffraction import (
     XRayDiffractionComponent,
     XRayDiffractionPanelComponent,
 )

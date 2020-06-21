@@ -221,7 +221,6 @@ class Spheres(Primitive):
         )
         return cls(
             positions=new_positions,
-            _animate=new__animate,
             color=sphere_list[0].color,
             radius=sphere_list[0].radius,
             phiStart=sphere_list[0].phiStart,
@@ -342,7 +341,6 @@ class Cylinders(Primitive):
 
         return cls(
             positionPairs=new_positionPairs,
-            _animate=new__animate,
             color=cylinder_list[0].color,
             radius=cylinder_list[0].radius,
             visible=cylinder_list[0].visible,
@@ -392,7 +390,6 @@ class Cubes(Primitive):
         )
         return cls(
             positions=new_positions,
-            new__animate=new__animate,
             color=cube_list[0].color,
             width=cube_list[0].width,
             visible=cube_list[0].visible,
@@ -446,7 +443,6 @@ class Lines(Primitive):
         )
         return cls(
             positions=new_positions,
-            _animate=new__animate,
             color=line_list[0].color,
             linewidth=line_list[0].linewidth,
             scale=line_list[0].scale,
@@ -551,7 +547,6 @@ class Arrows(Primitive):
         )
         return cls(
             positionPairs=new_positionPairs,
-            _animate=new__animate,
             color=arrow_list[0].color,
             radius=arrow_list[0].radius,
             headLength=arrow_list[0].headLength,
