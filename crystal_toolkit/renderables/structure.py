@@ -59,31 +59,42 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
 
 
 def get_structure_scene(
-    self, draw_image_atoms=True, legend: Optional[Legend] = None, origin=None,
+        self,
+        origin=None,
+        legend: Optional[Legend] = None,
+        draw_image_atoms=True,
 ) -> Scene:
 
-    origin = origin or list(-self.lattice.get_cartesian_coords([0.5, 0.5, 0.5]))
+    origin = origin or list(
+        -self.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
+    )
 
     legend = legend or Legend(self)
 
     primitives = defaultdict(list)
 
-    sites_to_draw = self._get_sites_to_draw(draw_image_atoms=draw_image_atoms)
+    sites_to_draw = self._get_sites_to_draw(
+        draw_image_atoms=draw_image_atoms,
+    )
 
     for (idx, jimage) in sites_to_draw:
 
-        site_scene = self[idx].get_scene(origin=origin, legend=legend)
+        site = self[idx]
+        site_scene = site.get_scene(
+            legend=legend,
+        )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
 
-    primitives["unit_cell"].append(self.lattice.get_scene(origin=origin))
+    primitives["unit_cell"].append(self.lattice.get_scene())
 
     return Scene(
-        name=self.composition.reduced_formula,
-        contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
+        name="Structure",
         origin=origin,
+        contents=[
+            Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
+        ],
     )
-
 
 Structure._get_sites_to_draw = _get_sites_to_draw
 Structure.get_scene = get_structure_scene
