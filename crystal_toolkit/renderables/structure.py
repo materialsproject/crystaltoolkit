@@ -1,13 +1,12 @@
 from collections import defaultdict
 from itertools import combinations
+from typing import List, Optional
 
 import numpy as np
 from pymatgen.core.structure import Structure
 
-from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.core.legend import Legend
-
-from typing import Optional
+from crystal_toolkit.core.scene import Scene
 
 
 def _get_sites_to_draw(self, draw_image_atoms=True):
@@ -29,8 +28,8 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
 
             coord_permutations = [
                 x
-                for l in range(1, len(zero_elements) + 1)
-                for x in combinations(zero_elements, l)
+                for tmp_ in range(1, len(zero_elements) + 1)
+                for x in combinations(zero_elements, tmp_)
             ]
 
             for perm in coord_permutations:
@@ -46,8 +45,8 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
 
             coord_permutations = [
                 x
-                for l in range(1, len(one_elements) + 1)
-                for x in combinations(one_elements, l)
+                for tmp_ in range(1, len(one_elements) + 1)
+                for x in combinations(one_elements, tmp_)
             ]
 
             for perm in coord_permutations:
@@ -59,30 +58,36 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
 
 
 def get_structure_scene(
-        self,
-        origin=None,
-        legend: Optional[Legend] = None,
-        draw_image_atoms=True,
+    self,
+    origin: List[float] = None,
+    legend: Optional[Legend] = None,
+    draw_image_atoms: bool = True,
 ) -> Scene:
+    """
+    Create CTK objects for the lattice and sties
+    Args:
+        self:  Structure object
+        origin: fractional coordinate of the origin
+        legend: Legend for the sites
+        draw_image_atoms: If true draw image atoms that are just outside the
+        periodic boundary
 
-    origin = origin or list(
-        -self.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
-    )
+    Returns:
+        CTK scene object to be rendered
+    """
+
+    origin = origin or list(-self.lattice.get_cartesian_coords([0.5, 0.5, 0.5]))
 
     legend = legend or Legend(self)
 
     primitives = defaultdict(list)
 
-    sites_to_draw = self._get_sites_to_draw(
-        draw_image_atoms=draw_image_atoms,
-    )
+    sites_to_draw = self._get_sites_to_draw(draw_image_atoms=draw_image_atoms,)
 
     for (idx, jimage) in sites_to_draw:
 
         site = self[idx]
-        site_scene = site.get_scene(
-            legend=legend,
-        )
+        site_scene = site.get_scene(legend=legend,)
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
 
@@ -95,6 +100,7 @@ def get_structure_scene(
             Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
         ],
     )
+
 
 Structure._get_sites_to_draw = _get_sites_to_draw
 Structure.get_scene = get_structure_scene
