@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -213,7 +213,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        data_key (str, optional): Use the volumetric data from self.data[data_key]. Defaults to &#39;total&#39;.</span>
-<span class="sd">        isolvl (float, optional): The cutoff for the isosurface to using the same units as VESTA so e/bhor and kept grid size independent</span>
+<span class="sd">        isolvl (float, optional): The cuoff for the isosurface to using the same units as VESTA so e/bhor and kept grid size independent</span>
 <span class="sd">        step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.</span>
 <span class="sd">        iso_kwargs_dict ([type], optional): additional kwargs to pass to the get_isosurface_scene. Defaults to None.</span>
 <span class="sd">        struct_kwargs: kwarges for the Structure.get_scene function</span>
@@ -224,7 +224,7 @@
 
     <span class="n">iso_kwags</span> <span class="o">=</span> <span class="n">iso_kwargs_dict</span> <span class="ow">or</span> <span class="p">{}</span>
     <span class="n">struct_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">struct_kwargs</span><span class="p">)</span>
-    <span class="n">iso_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_isosurface_scene</span><span class="p">(</span><span class="n">data_key</span><span class="o">=</span><span class="n">data_key</span><span class="p">,</span>
+    <span class="n">iso_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_isosurface_scene</span><span class="p">(</span><span class="n">data_key</span><span class="o">=</span><span class="s1">&#39;total&#39;</span><span class="p">,</span>
                                           <span class="n">isolvl</span><span class="o">=</span><span class="n">isolvl</span><span class="p">,</span>
                                           <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span>
                                           <span class="n">origin</span><span class="o">=</span><span class="n">struct_scene</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span>

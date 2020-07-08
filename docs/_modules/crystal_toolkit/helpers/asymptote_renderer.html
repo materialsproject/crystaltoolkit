@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -167,20 +167,13 @@
 
 <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">StructureGraph</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.utils</span> <span class="kn">import</span> <span class="n">update_object_args</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">HEAD</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">import settings;</span>
-<span class="s2">import solids;</span>
 <span class="s2">size(300);</span>
-<span class="s2">outformat=&quot;png&quot;;</span>
-<span class="s2">defaultshininess = 0.8;</span>
-<span class="s2">currentlight = light(0,0,400);</span>
-
+<span class="s2">import solids;</span>
 <span class="s2">// Camera information</span>
 <span class="s2">currentprojection=orthographic (</span>
 <span class="s2">camera=(8,5,4),</span>
@@ -188,7 +181,6 @@
 <span class="s2">target={{target}},</span>
 <span class="s2">zoom=0.5</span>
 <span class="s2">);</span>
-
 <span class="s2">// Basic function for drawing spheres</span>
 <span class="s2">void drawSpheres(triple[] C, real R, pen p=currentpen){</span>
 <span class="s2">  for(int i=0;i&lt;C.length;++i){</span>
@@ -196,17 +188,6 @@
 <span class="s2">                        new pen(int i, real j){return p;}</span>
 <span class="s2">                        )</span>
 <span class="s2">    );</span>
-<span class="s2">  }</span>
-<span class="s2">}</span>
-
-<span class="s2">// Draw a sphere without light</span>
-<span class="s2">void drawSpheres_nolight(triple[] C, real R, pen p=currentpen){</span>
-<span class="s2">  material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);</span>
-<span class="s2">  for(int i=0;i&lt;C.length;++i){</span>
-<span class="s2">    revolution s_rev = sphere(C[i],R);</span>
-<span class="s2">    surface s_surf = surface(s_rev);</span>
-<span class="s2">    draw(s_surf, nlpen);</span>
-<span class="s2">    draw(s_rev.silhouette(100), black+linewidth(3));</span>
 <span class="s2">  }</span>
 <span class="s2">}</span>
 
@@ -223,14 +204,6 @@
 <span class="s2">  );</span>
 <span class="s2">}</span>
 
-<span class="s2">// Draw a cylinder without light</span>
-<span class="s2">void Draw_nolight(guide3 g,pen p=currentpen, real cylR=0.2){</span>
-<span class="s2">  material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);</span>
-<span class="s2">  revolution s_rev = cylinder(point(g,0),cylR,arclength(g),point(g,1)-point(g,0));</span>
-<span class="s2">  surface s_surf = surface(s_rev);</span>
-<span class="s2">  draw(s_surf, nlpen);</span>
-<span class="s2">  draw(s_rev.silhouette(100), black+linewidth(3));</span>
-<span class="s2">}</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
 <span class="n">TEMP_SPHERE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -246,22 +219,6 @@
 <span class="s2">};</span>
 <span class="s2">drawSpheres(spheres, {{radius}}, rgb(&#39;{{color}}&#39;));</span>
 <span class="s2">&quot;&quot;&quot;</span>
-
-<span class="n">TEMP_SPHERE_NOLIGHT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">{</span><span class="si">% f</span><span class="s2">or val in positions %}</span>
-<span class="s2">triple sphere{{loop.index}}={{val}};</span>
-<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
-
-<span class="s2">triple[] spheres = {</span>
-<span class="s2">{</span><span class="si">%- f</span><span class="s2">or val in positions -%}</span>
-<span class="s2">sphere{{loop.index}}</span>
-<span class="s2">{</span><span class="si">%- i</span><span class="s2">f not loop.last %},{</span><span class="si">% e</span><span class="s2">ndif %}</span>
-<span class="s2">{</span><span class="si">%- e</span><span class="s2">ndfor -%}</span>
-<span class="s2">};</span>
-<span class="s2">drawSpheres_nolight(spheres, {{radius}}, rgb(&#39;{{color}}&#39;));</span>
-<span class="s2">&quot;&quot;&quot;</span>
-
-
 
 <span class="n">TEMP_CYLINDER</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">pen connectPen=rgb(&#39;{{color}}&#39;);</span>
@@ -299,26 +256,6 @@
 <span class="s2">A = transpose(A);</span>
 
 <span class="s2">material m = rgb(&#39;{{face_color}}&#39;) + opacity({{opac}});</span>
-<span class="s2">triple a,b,c;</span>
-<span class="s2">for(int i=0; i &lt; A[0].length/3; ++i) {</span>
-<span class="s2">  a=(A[0][i*3],A[1][i*3],A[2][i*3]);</span>
-<span class="s2">  b=(A[0][i*3+1],A[1][i*3+1],A[2][i*3+1]);</span>
-<span class="s2">  c=(A[0][i*3+2],A[1][i*3+2],A[2][i*3+2]);</span>
-<span class="s2">  draw(surface(a--b--c--cycle),surfacepen = m);        // draw i-th triangle</span>
-<span class="s2">}</span>
-<span class="s2">path3 no_show = path3(scale(0) * box((-1,-1),(1,1)));</span>
-<span class="s2">draw(surface(no_show), surfacepen=m);        // draw i-th triangle</span>
-<span class="s2">&quot;&quot;&quot;</span>
-
-<span class="n">TEMP_SURF_NOLIGHT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">real[][] A = {</span>
-<span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos in positions -%}</span>
-<span class="s2">    {{ipos}},</span>
-<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
-<span class="s2">};</span>
-<span class="s2">A = transpose(A);</span>
-
-<span class="s2">material m = material(diffusepen=opacity({{opac}}), emissivepen=rgb(&quot;{{face_color}}&quot;), shininess=0);</span>
 <span class="s2">triple a,b,c;</span>
 <span class="s2">for(int i=0; i &lt; A[0].length/3; ++i) {</span>
 <span class="s2">  a=(A[0][i*3],A[1][i*3],A[2][i*3]);</span>
@@ -427,9 +364,7 @@
 <span class="sd">    Keyword Arguments:</span>
 <span class="sd">        d_args {dict} -- User defined defaults of the plot (default: {None})</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;surface&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="c1"># print nothing</span>
+    <span class="k">assert</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;surface&quot;</span>
     <span class="n">updated_defaults</span> <span class="o">=</span> <span class="n">update_object_args</span><span class="p">(</span>
         <span class="n">d_args</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="s2">&quot;Surfaces&quot;</span><span class="p">,</span> <span class="n">allowed_args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;opacity&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="s2">&quot;edge_width&quot;</span><span class="p">]</span>
     <span class="p">)</span>
@@ -438,7 +373,7 @@
     <span class="n">opacity</span> <span class="o">=</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">opacity</span> <span class="ow">or</span> <span class="n">updated_defaults</span><span class="p">[</span><span class="s2">&quot;opacity&quot;</span><span class="p">]</span>
 
     <span class="n">positions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-        <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">,</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
+        <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{x[0]}</span><span class="s2">, </span><span class="si">{x[1]}</span><span class="s2">, </span><span class="si">{x[2]}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">,</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">num_triangle</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
     <span class="c1"># sanity check the mesh must be triangles</span>
@@ -494,6 +429,11 @@
 
     <span class="k">return</span></div>
 
+    <span class="c1"># TODO Leaving out polyhedra for now since asymptote</span>
+    <span class="c1"># does not have an easy way to generate convex polyhedra from the points</span>
+    <span class="c1"># Need to write a python conversion between Convex type and surfaces to</span>
+    <span class="c1"># make this work.</span>
+
     <span class="c1"># TODO we can make the line solide for the forground and dashed for the background</span>
     <span class="c1"># This will require use to modify the way the line objects are generated</span>
     <span class="c1"># at each vertex in the unit cell, we can evaluate the sum of all three lattice vectors from the point</span>
@@ -527,7 +467,7 @@
             <span class="n">traverse_scene_object</span><span class="p">(</span><span class="n">sub_object</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="write_ctk_scene_to_file"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.write_ctk_scene_to_file">[docs]</a><span class="k">def</span> <span class="nf">write_ctk_scene_to_file</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+<div class="viewcode-block" id="write_asy_file"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.write_asy_file">[docs]</a><span class="k">def</span> <span class="nf">write_asy_file</span><span class="p">(</span><span class="n">ctk_scene</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ctk_scene : Scene object from crystaltoolkit</span>
 <span class="sd">    filename : Output asymptote file and location</span>
@@ -540,18 +480,12 @@
     <span class="n">fstream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="write_asy_file"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.write_asy_file">[docs]</a><span class="k">def</span> <span class="nf">write_asy_file</span><span class="p">(</span><span class="n">renderable_object</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate the scene object and write it to file</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        renderable_object: Object to be rendered</span>
-<span class="sd">        file_name: name of file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="view"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.asymptote_renderer.html#crystal_toolkit.helpers.asymptote_renderer.view">[docs]</a><span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="n">renderable_object</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_object</span><span class="p">,</span> <span class="n">Structure</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
-            <span class="n">renderable_object</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;explicitly_calculate_polyhedra_hull&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">write_ctk_scene_to_file</span><span class="p">(</span><span class="n">renderable_object</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">file_name</span><span class="p">)</span></div>
+        <span class="n">renderable_obj</span><span class="p">,</span> <span class="n">StructureGraph</span>
+    <span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;explicitly_calculate_polyhedra_hull&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">write_asy_file</span><span class="p">(</span><span class="n">renderable_object</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">file_name</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

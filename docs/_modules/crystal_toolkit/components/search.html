@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -246,7 +246,7 @@
 
 <div class="viewcode-block" id="SearchComponent.search_tags"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.search.html#crystal_toolkit.components.search.SearchComponent.search_tags">[docs]</a>    <span class="k">def</span> <span class="nf">search_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_term</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tag search: </span><span class="si">{</span><span class="n">search_term</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tag search: </span><span class="si">{search_term}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># TODO: this is slow, replace with something more sensible</span>
         <span class="n">fuzzy_search_results</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span>
@@ -325,9 +325,9 @@
 
             <span class="c1"># common confusables</span>
             <span class="k">if</span> <span class="n">search_term</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">search_term</span><span class="p">))</span> <span class="o">==</span> <span class="n">search_term</span><span class="p">:</span>
-                <span class="n">search_term</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mp-</span><span class="si">{</span><span class="n">search_term</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">search_term</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mp-</span><span class="si">{search_term}</span><span class="s2">&quot;</span>
             <span class="k">if</span> <span class="n">search_term</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mp&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;-&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">search_term</span><span class="p">:</span>
-                <span class="n">search_term</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mp-</span><span class="si">{</span><span class="n">search_term</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;mp&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">search_term</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mp-{search_term.split(&#39;mp&#39;)[1]}&quot;</span>
 
             <span class="k">if</span> <span class="n">search_term</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mp-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">search_term</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mvc-&quot;</span><span class="p">):</span>
                 <span class="c1"># no need to actually search, support multiple mp-ids (space separated)</span>
@@ -358,8 +358,8 @@
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search: no results for </span><span class="si">{</span><span class="n">search_term</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;No results found for </span><span class="si">{</span><span class="n">search_term</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search: no results for </span><span class="si">{search_term}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;No results found for </span><span class="si">{search_term}</span><span class="s2">.&quot;</span><span class="p">}</span>
 
             <span class="c1"># sort by e_above_hull if a normal query, or by Levenshtein distance</span>
             <span class="c1"># if fuzzy matching (order of mpids list if present matches Levenshtein distance)</span>
@@ -373,15 +373,15 @@
                 <span class="k">if</span> <span class="n">e_hull</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull_human&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;predicted stable phase&quot;</span>
                 <span class="k">elif</span> <span class="n">e_hull</span> <span class="o">&gt;=</span> <span class="mf">0.01</span><span class="p">:</span>
-                    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull_human&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">e_hull</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> eV/atom&quot;</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull_human&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{e_hull:.2f}</span><span class="s2"> eV/atom&quot;</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">e_hull_str</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">format_float_scientific</span><span class="p">(</span><span class="n">e_hull</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-                    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull_human&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">e_hull_str</span><span class="si">}</span><span class="s2"> eV/atom&quot;</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull_human&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{e_hull_str}</span><span class="s2"> eV/atom&quot;</span>
 
             <span class="n">human_readable_results</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unicodeify</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;pretty_formula&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">unicodeify_spacegroup</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;spacegroup.symbol&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">) &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;e_above_hull_human&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]:</span> <span class="sa">f</span><span class="s2">&quot;{unicodeify(entry[&#39;pretty_formula&#39;])} &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;({unicodeify_spacegroup(entry[&#39;spacegroup.symbol&#39;])}) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{entry[&#39;e_above_hull_human&#39;]}</span><span class="s2">&quot;</span>
                 <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span>
             <span class="p">}</span>
 
@@ -397,11 +397,11 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">search_term</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search: </span><span class="si">{</span><span class="n">search_term</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search: </span><span class="si">{search_term}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="n">results</span> <span class="o">=</span> <span class="n">get_human_readable_results_from_search_term</span><span class="p">(</span><span class="n">search_term</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search results: </span><span class="si">{</span><span class="n">results</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search results: </span><span class="si">{results}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">results</span>
 

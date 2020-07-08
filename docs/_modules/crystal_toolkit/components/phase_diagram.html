@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -424,7 +424,7 @@
 
             <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
                 <span class="n">z_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_formula</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">mpid</span><span class="si">}</span><span class="s2">)&lt;br&gt; </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
+            <span class="n">text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{clean_formula}</span><span class="s2"> (</span><span class="si">{mpid}</span><span class="s2">)&lt;br&gt; {str(energy)} eV&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="n">marker_plot</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
@@ -485,7 +485,7 @@
 
             <span class="n">energy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">get_form_energy_per_atom</span><span class="p">(</span><span class="n">unstable_entry</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">text_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_formula</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">mpid</span><span class="si">}</span><span class="s2">)&lt;br&gt;&quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">energy</span><span class="si">}</span><span class="s2"> eV (+</span><span class="si">{</span><span class="n">e_above_hull</span><span class="si">}</span><span class="s2"> eV)&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{clean_formula}</span><span class="s2"> (</span><span class="si">{mpid}</span><span class="s2">)&lt;br&gt;&quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{energy}</span><span class="s2"> eV (+</span><span class="si">{e_above_hull}</span><span class="s2"> eV)&quot;</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
@@ -551,7 +551,7 @@
         <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">formula</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;sub&gt;</span><span class="si">{</span><span class="n">char</span><span class="si">}</span><span class="s2">&lt;/sub&gt;&quot;</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;sub&gt;</span><span class="si">{char}</span><span class="s2">&lt;/sub&gt;&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
 
