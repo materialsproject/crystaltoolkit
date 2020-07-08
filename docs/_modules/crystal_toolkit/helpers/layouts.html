@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -216,9 +216,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">narrow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;column&quot;</span>
         <span class="k">if</span> <span class="n">size</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; is-</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; is-</span><span class="si">{size}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="n">offset</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -is-offset-</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -is-offset-</span><span class="si">{size}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="n">narrow</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot; is-narrow&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -226,9 +226,9 @@
 
 <div class="viewcode-block" id="Button"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.Button">[docs]</a><span class="k">class</span> <span class="nc">Button</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;button is-</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;button is-</span><span class="si">{size}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="n">kind</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; is-</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; is-</span><span class="si">{kind}</span><span class="s2">&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -241,9 +241,9 @@
 <div class="viewcode-block" id="MessageContainer"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.MessageContainer">[docs]</a><span class="k">class</span> <span class="nc">MessageContainer</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Article</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">kind</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;message is-</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> is-</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;message is-</span><span class="si">{kind}</span><span class="s2"> is-</span><span class="si">{size}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;message is-</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;message is-</span><span class="si">{size}</span><span class="s2">&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -266,7 +266,7 @@
 <span class="sd">        &quot;question-circle&quot;, &quot;book&quot;, &quot;code&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;icon&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">I</span><span class="p">(</span><span class="n">className</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;fa</span><span class="si">{</span><span class="n">fill</span><span class="si">}</span><span class="s2"> fa-</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">I</span><span class="p">(</span><span class="n">className</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;fa</span><span class="si">{fill}</span><span class="s2"> fa-</span><span class="si">{kind}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Footer"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.Footer">[docs]</a><span class="k">class</span> <span class="nc">Footer</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Footer</span><span class="p">):</span>
@@ -355,10 +355,10 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;tags&quot;</span>
-        <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;tag is-</span><span class="si">{</span><span class="n">tag_type</span><span class="si">}</span><span class="s2"> is-</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)]</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;tag is-</span><span class="si">{tag_type}</span><span class="s2"> is-</span><span class="si">{size}</span><span class="s2">&quot;</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">tag_addon</span><span class="p">:</span>
             <span class="n">tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span><span class="n">tag_addon</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;tag is-</span><span class="si">{</span><span class="n">tag_addon_type</span><span class="si">}</span><span class="s2"> is-</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span><span class="n">tag_addon</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;tag is-</span><span class="si">{tag_addon_type}</span><span class="s2"> is-</span><span class="si">{size}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;className&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot; has-addons&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -387,8 +387,8 @@
             <span class="n">title</span> <span class="o">=</span> <span class="n">H4</span><span class="p">(</span>
                 <span class="n">title</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">,</span> <span class="s2">&quot;verticalAlign&quot;</span><span class="p">:</span> <span class="s2">&quot;middle&quot;</span><span class="p">}</span>
             <span class="p">)</span>
-        <span class="n">contents_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">_contents&quot;</span> <span class="k">if</span> <span class="nb">id</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">summary_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">_summary&quot;</span> <span class="k">if</span> <span class="nb">id</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">contents_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{id}</span><span class="s2">_contents&quot;</span> <span class="k">if</span> <span class="nb">id</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">summary_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{id}</span><span class="s2">_summary&quot;</span> <span class="k">if</span> <span class="nb">id</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;style&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;marginBottom&quot;</span><span class="p">:</span> <span class="s2">&quot;1rem&quot;</span><span class="p">}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="p">[</span>
@@ -419,9 +419,9 @@
             <span class="p">[</span>
                 <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">className</span><span class="o">=</span><span class="s2">&quot;modal-background&quot;</span><span class="p">),</span>
                 <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                    <span class="n">children</span><span class="o">=</span><span class="n">children</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">_contents&quot;</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;modal-contents&quot;</span>
+                    <span class="n">children</span><span class="o">=</span><span class="n">children</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{id}</span><span class="s2">_contents&quot;</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;modal-contents&quot;</span>
                 <span class="p">),</span>
-                <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">_close&quot;</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;modal-close is-large&quot;</span><span class="p">),</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{id}</span><span class="s2">_close&quot;</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;modal-close is-large&quot;</span><span class="p">),</span>
             <span class="p">],</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
@@ -525,13 +525,13 @@
             <span class="n">ref</span> <span class="o">=</span> <span class="n">content_negotiation</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">doi</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;ieee&quot;</span><span class="p">)[</span><span class="mi">3</span><span class="p">:]</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">doi</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;DOI: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">tooltip_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;If this analysis is useful, please cite </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;DOI: </span><span class="si">{doi}</span><span class="s2">&quot;</span>
+        <span class="n">tooltip_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;If this analysis is useful, please cite </span><span class="si">{ref}</span><span class="s2">&quot;</span>
     <span class="k">elif</span> <span class="n">manual_ref</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Please use the DOI if available.&quot;</span><span class="p">)</span>
         <span class="n">tooltip_text</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;If this analysis is useful, please cite the &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;relevant publication: </span><span class="si">{</span><span class="n">manual_ref</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;relevant publication: </span><span class="si">{manual_ref}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">tooltip_text</span> <span class="o">=</span> <span class="p">(</span>
@@ -541,7 +541,7 @@
 
     <span class="n">reference_button</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">A</span><span class="p">(</span>
         <span class="p">[</span><span class="n">Button</span><span class="p">([</span><span class="n">Icon</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;book&quot;</span><span class="p">),</span> <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span><span class="n">cite_text</span><span class="p">)],</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;link&quot;</span><span class="p">)],</span>
-        <span class="n">href</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;https://dx.doi.org/</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">href</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;https://dx.doi.org/</span><span class="si">{doi}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">target</span><span class="o">=</span><span class="s2">&quot;_blank&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 

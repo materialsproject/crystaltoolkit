@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -212,10 +212,10 @@
             <span class="n">table_data</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">{</span>
                     <span class="s2">&quot;Sigma&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;Rotation Axis&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;rotation_axis&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Rotation Angle / º&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;rotation_angle&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Grain Boundary Plane&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;gb_plane&#39;</span><span class="p">]))</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Grain Boundary Energy / Jm⁻²&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;gb_energy&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Rotation Axis&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{d[&#39;rotation_axis&#39;]}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Rotation Angle / º&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{d[&#39;rotation_angle&#39;]:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Grain Boundary Plane&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;({&#39; &#39;.join(map(str, d[&#39;gb_plane&#39;]))})&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Grain Boundary Energy / Jm⁻²&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{d[&#39;gb_energy&#39;]:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
                 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span>
             <span class="p">]</span>

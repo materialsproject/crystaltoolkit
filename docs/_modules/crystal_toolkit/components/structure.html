@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -483,7 +483,7 @@
                 <span class="k">if</span> <span class="n">site_prop_type</span> <span class="ow">in</span> <span class="n">site_props</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">site_props</span><span class="p">[</span><span class="n">site_prop_type</span><span class="p">]:</span>
                         <span class="n">color_options</span> <span class="o">+=</span> <span class="p">[</span>
-                            <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Site property: </span><span class="si">{</span><span class="n">prop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">prop</span><span class="p">}</span>
+                            <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Site property: </span><span class="si">{prop}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">prop</span><span class="p">}</span>
                         <span class="p">]</span>
 
             <span class="k">return</span> <span class="n">scene</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">color_options</span>
@@ -777,7 +777,7 @@
                             <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Covalent&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;covalent&quot;</span><span class="p">},</span>
                             <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Van der Waals&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;van_der_waals&quot;</span><span class="p">},</span>
                             <span class="p">{</span>
-                                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Uniform (</span><span class="si">{</span><span class="n">Legend</span><span class="o">.</span><span class="n">uniform_radius</span><span class="si">}</span><span class="s2">Å)&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Uniform (</span><span class="si">{Legend.uniform_radius}</span><span class="s2">Å)&quot;</span><span class="p">,</span>
                                 <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
                             <span class="p">},</span>
                         <span class="p">],</span>
@@ -931,7 +931,7 @@
                             <span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">graph</span> <span class="o">=</span> <span class="n">MoleculeGraph</span><span class="o">.</span><span class="n">with_local_env_strategy</span><span class="p">(</span>
-                                <span class="nb">input</span><span class="p">,</span> <span class="n">bonding_strategy</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span>
+                                <span class="nb">input</span><span class="p">,</span> <span class="n">bonding_strategy</span>
                             <span class="p">)</span>
                 <span class="k">except</span><span class="p">:</span>
                     <span class="c1"># for some reason computing bonds failed, so let&#39;s not have any bonds(!)</span>

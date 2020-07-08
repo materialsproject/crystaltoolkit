@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -320,7 +320,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;sphere_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phiStart</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phiEnd</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">clickable</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;sphere_</span><span class="si">{self.color}</span><span class="s2">_</span><span class="si">{self.radius}</span><span class="s2">_</span><span class="si">{self.phiStart}</span><span class="s2">_</span><span class="si">{self.phiEnd}</span><span class="s2">_</span><span class="si">{self.clickable}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Spheres.merge"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Spheres.merge">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sphere_list</span><span class="p">):</span>
@@ -372,7 +372,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ellipsoid_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phiStart</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phiEnd</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ellipsoid_</span><span class="si">{self.color}</span><span class="s2">_</span><span class="si">{self.scale}</span><span class="s2">_</span><span class="si">{self.phiStart}</span><span class="s2">_</span><span class="si">{self.phiEnd}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Ellipsoids.merge"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Ellipsoids.merge">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ellipsoid_list</span><span class="p">):</span>
@@ -420,7 +420,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;cyclinder_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reference</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;cyclinder_</span><span class="si">{self.color}</span><span class="s2">_</span><span class="si">{self.radius}</span><span class="s2">_</span><span class="si">{self.reference}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Cylinders.merge"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Cylinders.merge">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cylinder_list</span><span class="p">):</span>
@@ -466,7 +466,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;cube_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reference</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;cube_</span><span class="si">{self.color}</span><span class="s2">_</span><span class="si">{self.width}</span><span class="s2">_</span><span class="si">{self.reference}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Cubes.merge"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Cubes.merge">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cube_list</span><span class="p">):</span>
@@ -515,7 +515,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;line_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">linewidth</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dashSize</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gapSize</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reference</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;line_</span><span class="si">{self.color}</span><span class="s2">_</span><span class="si">{self.linewidth}</span><span class="s2">_</span><span class="si">{self.dashSize}</span><span class="s2">_</span><span class="si">{self.gapSize}</span><span class="s2">_</span><span class="si">{self.reference}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Lines.merge"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Lines.merge">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">line_list</span><span class="p">):</span>
@@ -611,7 +611,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;arrow_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">headLength</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">headWidth</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reference</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;arrow_</span><span class="si">{self.color}</span><span class="s2">_</span><span class="si">{self.radius}</span><span class="s2">_</span><span class="si">{self.headLength}</span><span class="s2">_</span><span class="si">{self.headWidth}</span><span class="s2">_</span><span class="si">{self.reference}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Arrows.merge"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Arrows.merge">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">arrow_list</span><span class="p">):</span>
