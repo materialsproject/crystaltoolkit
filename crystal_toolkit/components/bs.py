@@ -299,7 +299,7 @@ class BandstructureAndDosComponent(MPComponent):
             ],
         )
         def update_label_select(mpid, path_convention):
-            if not mpid or "mpid" not in mpid:
+            if not mpid:
                 raise PreventUpdate
             else:
 
@@ -319,7 +319,7 @@ class BandstructureAndDosComponent(MPComponent):
         def update_select(elements, mpid):
             if elements is None:
                 raise PreventUpdate
-            elif not mpid or "mpid" not in mpid:
+            elif not mpid:
                 dos_options = (
                     [{"label": "Element Projected", "value": "ap"}]
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
@@ -378,7 +378,7 @@ class BandstructureAndDosComponent(MPComponent):
             bandstructure_symm_line,
             density_of_states,
         ):
-            if (not mpid or "mpid" not in mpid) and (
+            if not mpid and (
                 bandstructure_symm_line is None or density_of_states is None
             ):
                 raise PreventUpdate
@@ -388,10 +388,9 @@ class BandstructureAndDosComponent(MPComponent):
                     raise PreventUpdate
 
                 # --
-                # -- BS and DOS from API
+                # -- BS and DOS from API or DB
                 # --
 
-                mpid = mpid["mpid"]
                 bs_data = {"ticks": {}}
 
                 bs_store = GridFSStore(
@@ -508,6 +507,7 @@ class BandstructureAndDosComponent(MPComponent):
 
                 kpath_labels = [pair[0] for pair in kpath_euler]
                 kpath_labels.append(kpath_euler[-1][1])
+
             else:
                 distance_map = [(i, False) for i in range(len(bs_data["distances"]))]
                 kpath_labels = []
@@ -537,7 +537,13 @@ class BandstructureAndDosComponent(MPComponent):
             pmin = 0.0
             tick_vals = [0.0]
 
-            for (d, rev) in distance_map:
+            cbm = bsml.get_cbm()
+            vbm = bsml.get_vbm()
+
+            cbm_new = bs_data["cbm"]
+            vbm_new = bs_data["vbm"]
+
+            for dnum, (d, rev) in enumerate(distance_map):
 
                 x_dat = [
                     dval - bs_data["distances"][d][0] + pmin
@@ -559,7 +565,9 @@ class BandstructureAndDosComponent(MPComponent):
                             "mode": "lines",
                             "line": {"color": "#1f77b4"},
                             "hoverinfo": "skip",
-                            "name": "spin ↑",
+                            "name": "spin ↑"
+                            if bs_reg_plot._bs.is_spin_polarized
+                            else "Total",
                             "hovertemplate": "%{y:.2f} eV",
                             "showlegend": False,
                             "xaxis": "x",
@@ -578,7 +586,9 @@ class BandstructureAndDosComponent(MPComponent):
                             "mode": "lines",
                             "line": {"color": "#1f77b4"},
                             "hoverinfo": "skip",
-                            "name": "spin ↑",
+                            "name": "spin ↑"
+                            if bs_reg_plot._bs.is_spin_polarized
+                            else "Total",
                             "hovertemplate": "%{y:.2f} eV",
                             "showlegend": False,
                             "xaxis": "x",
@@ -632,6 +642,44 @@ class BandstructureAndDosComponent(MPComponent):
 
                 bstraces += traces_for_segment
 
+                # - Get proper cbm and vbm coords for lm
+                if path_convention == "lm":
+                    for (x_point, y_point) in bs_data["cbm"]:
+                        if x_point in bs_data["distances"][d]:
+                            xind = bs_data["distances"][d].index(x_point)
+                            if not rev:
+                                x_point_new = x_dat[xind]
+                            else:
+                                x_point_new = x_dat[len(x_dat) - xind - 1]
+
+                            new_label = bs_data["ticks"]["label"][
+                                tick_vals.index(x_point_new)
+                            ]
+
+                            if (
+                                cbm["kpoint"].label is None
+                                or cbm["kpoint"].label in new_label
+                            ):
+                                cbm_new.append((x_point_new, y_point))
+
+                    for (x_point, y_point) in bs_data["vbm"]:
+                        if x_point in bs_data["distances"][d]:
+                            xind = bs_data["distances"][d].index(x_point)
+                            if not rev:
+                                x_point_new = x_dat[xind]
+                            else:
+                                x_point_new = x_dat[len(x_dat) - xind - 1]
+
+                            new_label = bs_data["ticks"]["label"][
+                                tick_vals.index(x_point_new)
+                            ]
+
+                            if (
+                                vbm["kpoint"].label is None
+                                or vbm["kpoint"].label in new_label
+                            ):
+                                vbm_new.append((x_point_new, y_point))
+
             bs_data["ticks"]["distance"] = tick_vals
 
             # - Strip latex math wrapping for labels
@@ -680,8 +728,6 @@ class BandstructureAndDosComponent(MPComponent):
             bstraces += vert_traces
 
             # Dots for cbm and vbm
-            cbm = bsml.get_cbm()
-            vbm = bsml.get_vbm()
 
             dot_traces = [
                 {
@@ -702,7 +748,7 @@ class BandstructureAndDosComponent(MPComponent):
                     "xaxis": "x",
                     "yaxis": "y",
                 }
-                for (x_point, y_point) in set(bs_data["cbm"])
+                for (x_point, y_point) in set(cbm_new)
             ] + [
                 {
                     "x": [x_point],
@@ -722,7 +768,7 @@ class BandstructureAndDosComponent(MPComponent):
                     "xaxis": "x",
                     "yaxis": "y",
                 }
-                for (x_point, y_point) in set(bs_data["vbm"])
+                for (x_point, y_point) in set(vbm_new)
             ]
 
             bstraces += dot_traces
