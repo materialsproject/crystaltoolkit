@@ -1,3 +1,4 @@
+import itertools
 from multiprocessing import cpu_count
 
 import dash_core_components as dcc
@@ -447,7 +448,7 @@ class LocalEnvironmentPanel(PanelComponent):
                         rbf,
                         crossover,
                         average,
-                        html.Br(),
+                        html.Br(),  # TODO: remove all html.Br(), add appropriate styles instead
                         html.Br(),
                         html.Div(id=self.id("soap_analysis")),
                         html.Br(),
@@ -458,6 +459,7 @@ class LocalEnvironmentPanel(PanelComponent):
                             "Materials Project in the same chemical system. Note that for large chemical "
                             "systems this step can take several minutes."
                         ),
+                        html.Br(),
                         alpha,
                         threshold,
                         metric,
@@ -547,10 +549,15 @@ class LocalEnvironmentPanel(PanelComponent):
             structs = {"input": self.from_data(struct)}
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
 
+            elements = [str(el) for el in structs["input"].composition.elements]
+            all_chemsyses = []
+            for i in range(len(elements)):
+                for els in itertools.combinations(elements, i + 1):
+                    all_chemsyses.append("-".join(sorted(els)))
+
             with MPRester() as mpr:
                 docs = mpr.query(
-                    {"chemsys": structs["input"].composition.chemical_system},
-                    ["task_id", "structure"],
+                    {"chemsys": {"$in": all_chemsyses}}, ["task_id", "structure"],
                 )
             structs.update({d["task_id"]: d["structure"] for d in docs})
 
