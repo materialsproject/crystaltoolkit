@@ -6,7 +6,7 @@ authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pymatgen = "^2020.4.29"
+pymatgen = "^2020.7.10"
 typing-extensions = { version = "^3.7", python = "~3.7" }
 pydantic = "^1.4"
 plotly = "^4.5.4"
