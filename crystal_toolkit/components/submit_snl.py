@@ -1,22 +1,14 @@
-import dash_core_components as dcc
-import dash_html_components as html
-
-import os
-import requests
-
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
-
 from urllib import parse
 
+import requests
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
+from pymatgen import MPRester, Structure
+from pymatgen.util.provenance import StructureNL
+
 from crystal_toolkit import __version__ as ct_version
-from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
-
-from pymatgen.util.provenance import StructureNL
-from pymatgen import MPRester, Structure
-
 
 # ask Donny Winston
 MP_CLIENT_KEY = os.environ.get("MP_CLIENT_KEY")
@@ -45,8 +37,7 @@ class SubmitSNLPanel(PanelComponent):
             "MPComplete where we will add your structure to our calculation queue."
         )
 
-    @property
-    def initial_contents(self):
+    def contents_layout(self) -> html.Div:
         return html.Div(
             [
                 dcc.Input(
@@ -61,9 +52,6 @@ class SubmitSNLPanel(PanelComponent):
                 html.Div(id=self.id("confirmation")),
             ]
         )
-
-    def update_contents(self, new_store_contents, *args):
-        return self.initial_contents
 
     def generate_callbacks(self, app, cache):
 
