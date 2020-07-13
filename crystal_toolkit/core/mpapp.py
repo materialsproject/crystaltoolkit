@@ -58,7 +58,7 @@ class MPApp(MPComponent, ABC):
     @property
     def long_description(self):
         """
-        Extended text giving an explanation of your app. Formatted sa Markdown.
+        Extended text giving an explanation of your app. Formatted as Markdown.
         """
         return ""
 
@@ -68,9 +68,6 @@ class MPApp(MPComponent, ABC):
         :return: A list of DOI(s) to cite when using this app
         """
         return []
-
-    def _sub_layouts(self):
-        raise {}
 
     def generate_callbacks(self, app, cache):
         pass
@@ -94,7 +91,17 @@ class MPApp(MPComponent, ABC):
         https://materialsproject.org/your_app_name/
         :return:
         """
-        return self.name
+        return self.name + " - " + self.get_subtitle(payload=payload)
+
+    def get_subtitle(self, payload=None) -> str:
+        """
+        Set the subtitle below your app name.
+
+        :param payload: anything in the URL after
+        https://materialsproject.org/your_app_name/
+        :return:
+        """
+        return ""
 
     def get_mp_layout(self, payload=None):
         """
@@ -141,7 +148,12 @@ class MPApp(MPComponent, ABC):
                                         ],
                                         style={"display": "inline-block"},
                                     ),
-                                    *citation,
+                                    H4(
+                                        self.get_subtitle(payload=payload),
+                                        id="subtitle",
+                                        style={"padding-left": "4rem"},
+                                    )
+                                    * citation,
                                 ]
                             ),
                             html.Div(
