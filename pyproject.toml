@@ -10,6 +10,7 @@ pymatgen = "^2020.7.10"
 typing-extensions = { version = "^3.7", python = "~3.7" }
 pydantic = "^1.4"
 plotly = "^4.5.4"
+webcolors = { version = "^1.11.1" }
 
 dash = { version = "^1.13.4", optional = true }
 dash-daq = { version = "^0.4.0", optional = true }
@@ -19,7 +20,6 @@ Flask-Caching = { version = "^1.8.0", optional = true }
 gevent = { version = "^1.4.0", optional = true }
 dash-mp-components = { version = ">=0.0.24", optional = true }
 scikit-learn = { version = "^0.22.2", optional = true }
-webcolors = { version = "^1.11.1", optional = true }
 robocrys = { version = "^0.2.1", optional = true }
 scikit-image = { version = "^0.17.2", optional = true }
 habanero = { version = "^0.7.2", optional = true }
@@ -28,9 +28,9 @@ dscribe = "^0.3.5"
 
 [tool.poetry.extras]
 server = [
-    "dash", "plotly", "dash-daq", "gunicorn", "redis",
+    "dash", "dash-daq", "gunicorn", "redis",
     "Flask-Caching", "gevent", "dash-mp-components", "scikit-learn",
-    "habanero", "hiphive"
+    "robocrys", "scikit-image", "habanero", "hiphive", "dscribe"
 ]
 
 [tool.poetry.dev-dependencies]

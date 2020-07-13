@@ -1754,7 +1754,7 @@ version = "0.2.5"
 category = "main"
 description = "A library for working with color names and color values formats defined by HTML and CSS."
 name = "webcolors"
-optional = true
+optional = false
 python-versions = ">=3.5,"
 version = "1.11.1"
 
@@ -1804,10 +1804,10 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [extras]
-server = ["dash", "plotly", "dash-daq", "gunicorn", "redis", "Flask-Caching", "gevent", "dash-mp-components", "scikit-learn", "habanero", "hiphive"]
+server = ["dash", "dash-daq", "gunicorn", "redis", "Flask-Caching", "gevent", "dash-mp-components", "scikit-learn", "robocrys", "scikit-image", "habanero", "hiphive", "dscribe"]
 
 [metadata]
-content-hash = "8416e7c9ceaec642dd7f0bd715d2524567ae44bcc14792684cf4a74c84a0c835"
+content-hash = "e333568cf5a2e058996911b55be84b8ac3782b8895176845029846a8ed6dee37"
 python-versions = "^3.7"
 
 [metadata.files]
