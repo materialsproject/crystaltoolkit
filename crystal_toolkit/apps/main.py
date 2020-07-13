@@ -115,11 +115,6 @@ logger = logging.getLogger(app.title)
 # region INSTANTIATE CORE COMPONENTS
 ################################################################################
 
-# struct_component.attach_from(transformation_component, origin_store_name="out")
-
-# TODO: change to link to struct_or_mol instead of graph ?
-# download_component = ctc.DownloadPanelComponent(links={"default": struct_component.id()})
-
 search_component = ctc.SearchComponent()
 upload_component = ctc.StructureMoleculeUploadComponent()
 
@@ -140,8 +135,12 @@ struct_component = ctc.StructureMoleculeComponent(
     links={"default": transformation_component.id()}
 )
 
+download_component = ctc.DownloadPanelComponent(
+    links={"default": struct_component.id()}
+)
+
 robocrys_panel = ctc.RobocrysComponent(links={"default": transformation_component.id()})
-xrd_panel = ctc.XRayDiffractionPanelComponent(
+xrd_panel = ctc.DiffractionPanelComponent(
     links={"default": transformation_component.id()}
 )
 # pbx_component = ctc.PourbaixDiagramPanelComponent(origin_component=struct_component)
@@ -162,7 +161,7 @@ if SETTINGS.MP_EMBED_MODE:
     #     [submit_snl_panel.panel_layout, download_component.panel_layout]
     # )
 else:
-    action_div = html.Div([])  # html.Div([download_component.panel_layout])
+    action_div = html.Div([download_component.panel_layout()])
 
 panels = [
     symmetry_panel,
@@ -209,8 +208,8 @@ body_layout = [
     html.Br(),
     H3("Analyze"),
     html.Div([panel.panel_layout() for panel in panels], id="panels"),
-    html.Br(),
-    *mp_section,
+    # html.Br(),
+    # *mp_section,
 ]
 
 banner = html.Div(id="banner")
@@ -274,16 +273,6 @@ if api_offline:
 footer = Footer(
     html.Div(
         [
-            # html.Iframe(
-            #    src="https://ghbtns.com/github-btn.html?user=materialsproject&repo=crystaltoolkit&type=star&count=true",
-            #    style={
-            #        "frameborder": False,
-            #        "scrolling": False,#
-            #        "width": "72px",
-            #        "height": "20px",
-            #    },
-            # ),
-            # html.Br(), Button([Icon(kind="cog", fill="r"), html.Span("Customize")], kind="light", size='small'),
             dcc.Markdown(
                 f"App created by [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors).  \n"
                 f"Bug reports and feature requests gratefully accepted, please send them to [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
@@ -335,16 +324,7 @@ master_layout = Container(
                         Column(
                             [
                                 struct_component.title_layout(),
-                                html.Div(
-                                    # [
-                                    #    html.A(
-                                    #        "Documentation",
-                                    #        href="https://docs.crystaltoolkit.org",
-                                    #    )
-                                    # ],
-                                    # [favorites_component.button_layout],
-                                    style={"float": "right"}
-                                ),
+                                html.Div(style={"float": "right"}),
                             ]
                         )
                     ]
@@ -354,19 +334,21 @@ master_layout = Container(
                         Column(
                             [
                                 # TODO: test responsiveness of layout on phone
-                                Box(
-                                    struct_component.layout(size="100%"),
-                                    style={
-                                        "width": box_size,
-                                        "height": box_size,
-                                        "minWidth": "300px",
-                                        "minHeight": "300px",
-                                        "maxWidth": "600px",
-                                        "maxHeight": "600px",
-                                        "overflow": "hidden",
-                                        "padding": "0.25rem",
-                                        "marginBottom": "0.5rem",
-                                    },
+                                Loading(
+                                    Box(
+                                        struct_component.layout(size="100%"),
+                                        style={
+                                            "width": box_size,
+                                            "height": box_size,
+                                            "minWidth": "300px",
+                                            "minHeight": "300px",
+                                            "maxWidth": "600px",
+                                            "maxHeight": "600px",
+                                            "overflow": "hidden",
+                                            "padding": "0.25rem",
+                                            "marginBottom": "0.5rem",
+                                        },
+                                    )
                                 ),
                                 html.Div(
                                     [
@@ -394,7 +376,6 @@ master_layout = Container(
                                     [
                                         search_component.layout(),
                                         upload_component.layout(),
-                                        # favorites_component.favorite_materials_layout,
                                     ],
                                     title="Load Crystal",
                                     open=True,
@@ -407,7 +388,6 @@ master_layout = Container(
                                     id="display-options",
                                 ),
                                 action_div,
-                                # favorites_component.notes_layout,
                             ],
                             style={"width": box_size, "max-width": box_size},
                         ),
@@ -562,4 +542,4 @@ def master_update_structure(search_mpid: Optional[str], upload_data: Optional[st
 
 
 if __name__ == "__main__":
-    app.run_server(debug=SETTINGS.DEBUG_MODE, port=8050)
+    app.run_server(debug=SETTINGS.DEBUG_MODE, port=8051)
