@@ -1,9 +1,15 @@
+from multiprocessing import cpu_count
+
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.express as px
 from dash import callback_context
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from dash_mp_components import GraphComponent
+from dscribe.descriptors import SOAP
+from dscribe.kernels import REMatchKernel
+from pymatgen import MPRester
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
@@ -20,12 +26,14 @@ from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import cn_opt_params, LocalStructOrderParams
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.string import unicodeify_species
+from pymatgen.util.string import unicodeify_species, unicodeify
+from sklearn.preprocessing import normalize
 
 from crystal_toolkit.components.structure import StructureMoleculeComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.legend import Legend
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import (
     get_data_list,
     Columns,
@@ -33,6 +41,8 @@ from crystal_toolkit.helpers.layouts import (
     get_tooltip,
     cite_me,
     Loading,
+    H5,
+    Label,
 )
 
 
@@ -115,6 +125,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 {"label": "ChemEnv", "value": "chemenv"},
                 {"label": "LocalEnv", "value": "localenv"},
                 {"label": "Bonding Graph", "value": "bondinggraph"},
+                {"label": "SOAP", "value": "soap"},
             ],
             help_str="Choose an analysis method to examine the local chemical environment. "
             "Several methods exist and there is no guaranteed correct answer, so try multiple!",
@@ -279,6 +290,323 @@ class LocalEnvironmentPanel(PanelComponent):
                         Loading(id=self.id("bondinggraph_analysis")),
                     ]
                 )
+
+            elif algorithm == "soap":
+
+                state = {
+                    "rcut": 5.0,
+                    "nmax": 2,
+                    "lmax": 2,
+                    "sigma": 0.2,
+                    "crossover": True,
+                    "rbf": "gto",
+                    "alpha": 0.1,
+                    "threshold": 1e-4,
+                    "metric": "linear",
+                    "normalize_kernel": True,
+                }
+
+                description = (
+                    'The "Smooth Overlap of Atomic Positions" (SOAP) descriptor provides information on the local '
+                    "atomic environment by encoding that environment as a power spectrum derived from the "
+                    "spherical harmonics of atom-centered gaussian densities. The SOAP formalism is complex but is "
+                    "described well in [Bartók et al.](https://doi.org/10.1103/PhysRevB.87.184115) "
+                    "and the REMatch similarity kernel in [De et al.](https://doi.org/10.1039/c6cp00415f) "
+                    "The implementation of SOAP in this "
+                    "web app is provided by [DScribe](https://doi.org/10.1016/j.cpc.2019.106949).  "
+                    ""
+                    "SOAP kernels are commonly used in machine learning applications. This interface is provided to "
+                    "help gain intuition and exploration of the behavior of SOAP kernels."
+                )
+
+                rcut = self.get_numerical_input(
+                    label="Radial cut-off /Å",
+                    kwarg_label="rcut",
+                    state=state,
+                    help_str="The radial cut-off that defines the local region being considered",
+                    shape=(),
+                    min=1.0001,
+                )
+
+                nmax = self.get_numerical_input(
+                    label="N max.",
+                    kwarg_label="nmax",
+                    state=state,
+                    help_str="Number of radial basis functions",
+                    shape=(),
+                    is_int=True,
+                    min=1,
+                    max=9,
+                )
+
+                lmax = self.get_numerical_input(
+                    label="L max.",
+                    kwarg_label="lmax",
+                    state=state,
+                    help_str="Maximum degree of spherical harmonics",
+                    shape=(),
+                    is_int=True,
+                    min=1,
+                    max=9,
+                )
+
+                sigma = self.get_numerical_input(
+                    label="Sigma",
+                    kwarg_label="sigma",
+                    state=state,
+                    help_str="The standard deviation of gaussians used to build atomic density",
+                    shape=(),
+                    min=0.00001,
+                )
+
+                rbf = self.get_choice_input(
+                    label="Radial basis function",
+                    kwarg_label="rbf",
+                    state=state,
+                    help_str="Polynomial basis is faster, spherical gaussian based was used in original formulation",
+                    options=[
+                        {"label": "Spherical gaussian basis", "value": "gto"},
+                        {"label": "Polynomial basis", "value": "polynomial"},
+                    ],
+                    style={"width": "16rem"},  # TODO: remove in-line style
+                )
+
+                crossover = self.get_bool_input(
+                    label="Crossover",
+                    kwarg_label="crossover",
+                    state=state,
+                    help_str="If enabled, the power spectrum will include all combinations of elements present.",
+                )
+
+                alpha = self.get_numerical_input(
+                    label="Alpha",
+                    kwarg_label="alpha",
+                    state=state,
+                    help_str="Determines the entropic penalty in the REMatch kernel. As alpha goes to infinity, the "
+                    "behavior of the REMatch kernel matches the behavior of the kernel where SOAP vectors "
+                    "are averaged across all sites. As alpha goes to zero, the kernel matches the best match "
+                    "kernel.",
+                    shape=(),
+                    min=0.00001,
+                )
+
+                threshold = self.get_numerical_input(
+                    label="Sinkhorn threshold",
+                    kwarg_label="threshold",
+                    state=state,
+                    help_str="Convergence threshold for the Sinkhorn algorithm. If values are too small, convergence "
+                    "may not be possible, and calculation time will increase.",
+                    shape=(),
+                )
+
+                metric = self.get_choice_input(
+                    label="Metric",
+                    kwarg_label="metric",
+                    state=state,
+                    help_str="...",
+                    options=[
+                        # {"label": "Additive χ2", "value": "additive_chi2"},  # these seem to be unstable
+                        # {"label": "Exponential χ2", "value": "chi2"},
+                        {"label": "Linear", "value": "linear"},
+                        {"label": "Polynomial", "value": "polynomial"},
+                        {"label": "Radial basis function", "value": "rbf"},
+                        {"label": "Laplacian", "value": "laplacian"},
+                        {"label": "Sigmoid", "value": "sigmoid"},
+                        {"label": "Cosine", "value": "cosine"},
+                    ],
+                    style={"width": "16rem"},  # TODO: remove in-line style
+                )
+
+                normalize_kernel = self.get_bool_input(
+                    label="Normalize",
+                    kwarg_label="normalize_kernel",
+                    state=state,
+                    help_str="Whether or not to normalize the resulting similarity kernel.",
+                )
+
+                # metric_kwargs = self.get_dict_input()
+
+                return html.Div(
+                    [
+                        dcc.Markdown(description),
+                        html.Br(),
+                        H5("SOAP parameters"),
+                        rcut,
+                        nmax,
+                        lmax,
+                        sigma,
+                        rbf,
+                        crossover,
+                        html.Br(),
+                        html.Br(),
+                        html.Div(id=self.id("soap_analysis")),
+                        html.Br(),
+                        html.Br(),
+                        H5("Similarity metric parameters"),
+                        html.Span(
+                            "This will calculate structural similarity scores from materials in the "
+                            "Materials Project in the same chemical system. Note that for large chemical "
+                            "systems this step can take several minutes."
+                        ),
+                        alpha,
+                        threshold,
+                        metric,
+                        normalize_kernel,
+                        html.Br(),
+                        html.Br(),
+                        Loading(id=self.id("soap_similarities")),
+                    ]
+                )
+
+        def _get_soap_graph(feature, label):
+
+            spectrum = px.imshow(
+                feature, aspect="equal", color_continuous_scale="plasma"
+            )
+
+            coloraxis = spectrum.layout.coloraxis
+            coloraxis["showscale"] = False
+
+            layout = {
+                "xaxis": {"visible": False},
+                "yaxis": {"visible": False},
+                "paper_bgcolor": "rgba(0,0,0,0)",
+                "plot_bgcolor": "rgba(0,0,0,0)",
+                "coloraxis": coloraxis,
+                "margin": {"l": 0, "b": 0, "t": 0, "r": 0, "pad": 0},
+                # "height": 20*feature.shape[0],  # for fixed size plots
+                # "width": 20*feature.shape[1]
+            }
+
+            spectrum.layout = layout
+
+            return Columns(
+                [
+                    Column(Label(label), size="1"),
+                    Column(
+                        dcc.Graph(
+                            figure=spectrum,
+                            config={"displayModeBar": False},
+                            responsive=True,
+                            style={"height": "60px"},
+                        )
+                    ),
+                ]
+            )
+
+        @app.callback(
+            Output(self.id("soap_analysis"), "children"),
+            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
+        )
+        def update_soap_analysis(struct, all_kwargs):
+
+            if not struct:
+                raise PreventUpdate
+
+            struct = self.from_data(struct)
+            kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
+
+            # TODO: make sure is_int kwarg information is enforced so that int() conversion is unnecessary
+            desc = SOAP(
+                species=[e.number for e in struct.composition.elements],
+                sigma=kwargs["sigma"],
+                rcut=kwargs["rcut"],
+                nmax=int(kwargs["nmax"]),
+                lmax=int(kwargs["lmax"]),
+                periodic=True,
+                crossover=kwargs["crossover"],
+                sparse=False,
+                average=False,
+            )
+
+            adaptor = AseAtomsAdaptor()
+            atoms = adaptor.get_atoms(struct)
+            feature = normalize(desc.create(atoms, n_jobs=cpu_count()))
+
+            return _get_soap_graph(feature, "SOAP vector for this material")
+
+        @app.callback(
+            Output(self.id("soap_similarities"), "children"),
+            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
+        )
+        def update_soap_similarities(struct, all_kwargs):
+
+            if not struct:
+                raise PreventUpdate
+
+            structs = {"input": self.from_data(struct)}
+            kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
+
+            with MPRester() as mpr:
+                docs = mpr.query(
+                    {"chemsys": structs["input"].composition.chemical_system},
+                    ["task_id", "structure"],
+                )
+            structs.update({d["task_id"]: d["structure"] for d in docs})
+
+            if not structs:
+                raise PreventUpdate
+
+            elements = {
+                elem for s in structs.values() for elem in s.composition.elements
+            }
+            # TODO: make sure is_int kwarg information is enforced so that int() conversion is unnecessary
+            desc = SOAP(
+                species=[e.number for e in elements],
+                sigma=kwargs["sigma"],
+                rcut=kwargs["rcut"],
+                nmax=int(kwargs["nmax"]),
+                lmax=int(kwargs["lmax"]),
+                periodic=True,
+                crossover=kwargs["crossover"],
+                sparse=False,
+                average=False,
+            )
+
+            adaptor = AseAtomsAdaptor()
+            atomss = {
+                mpid: adaptor.get_atoms(struct) for mpid, struct in structs.items()
+            }
+
+            print(f"Calculating {len(atomss)} SOAP vectors")
+            features = {
+                mpid: normalize(desc.create(atoms, n_jobs=cpu_count()))
+                for mpid, atoms in atomss.items()
+            }
+
+            re = REMatchKernel(
+                metric=kwargs["metric"],
+                alpha=kwargs["alpha"],
+                threshold=kwargs["threshold"],
+                normalize_kernel=kwargs["normalize_kernel"],
+            )
+
+            print(f"Calculating similarity kernel")
+            re_kernel = re.create(list(features.values()))
+
+            similarities = {
+                mpid: score
+                for mpid, score in zip(features.keys(), re_kernel[0])
+                if mpid != "input"
+            }
+
+            sorted_mpids = sorted(similarities.keys(), key=lambda x: -similarities[x])
+
+            all_graphs = [
+                _get_soap_graph(
+                    features[mpid],
+                    [
+                        html.Span(
+                            f"{unicodeify(structs[mpid].composition.reduced_formula)}"
+                        ),
+                        dcc.Markdown(f"[{mpid}](https://materialsproject.org/{mpid})"),
+                        html.Span(f"{similarities[mpid]:.5f}"),
+                    ],
+                )
+                for mpid in sorted_mpids
+            ]
+
+            return html.Div(all_graphs)
 
         @app.callback(
             Output(self.id("localenv_analysis"), "children"),
