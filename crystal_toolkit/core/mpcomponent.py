@@ -415,19 +415,35 @@ Sub-layouts:  \n{layouts}"""
                     style={
                         "textAlign": "center",
                         # shorter default width if matrix or vector
-                        "width": "2.5rem"
-                        if (shape == (3, 3)) or (shape == (3,))
-                        else "5rem",
+                        "width": "5rem",
                         "marginRight": "0.2rem",
                         "marginBottom": "0.2rem",
                         "height": "1.5rem",
                     },
                     value=value,
                     persistence=True,
+                    type="number",
                     **kwargs,
                 )
             else:
-                return daq.NumericInput(id=mid, value=value, **kwargs)
+                return dcc.Input(
+                    id=mid,
+                    inputMode="numeric",
+                    className="input",
+                    style={
+                        "textAlign": "center",
+                        # shorter default width if matrix or vector
+                        "width": "5rem",
+                        "marginRight": "0.2rem",
+                        "marginBottom": "0.2rem",
+                        "height": "1.5rem",
+                    },
+                    value=value,
+                    persistence=True,
+                    type="number",
+                    step=1,
+                    **kwargs,
+                )
 
         # dict of row indices, column indices to element
         matrix_contents = defaultdict(dict)
@@ -549,7 +565,6 @@ Sub-layouts:  \n{layouts}"""
 
         option_input = dcc.Dropdown(
             id=self.id(kwarg_label, is_kwarg=True),
-            style={"width": "12rem"},
             options=options if options else [],
             value=default,
             persistence=True,
@@ -639,6 +654,8 @@ Sub-layouts:  \n{layouts}"""
             idx = literal_eval(d["idx"])
 
             # print(kwarg_label, k_type, idx, v)
+
+            # TODO: catch Exceptions here, and display validation error to user if incorrect kwargs supplied
 
             if isinstance(k_type, tuple):
                 # matrix or vector
