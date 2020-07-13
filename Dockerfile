@@ -1,7 +1,7 @@
 FROM python:3.7
 LABEL maintainer="mkhorton@lbl.gov"
 
-RUN apt-get update && apt-get install vim gfortran povray asymptote -y
+RUN apt-get update && apt-get install vim gfortran povray -y
 
 WORKDIR /home/build
 
