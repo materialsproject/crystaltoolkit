@@ -299,6 +299,7 @@ class LocalEnvironmentPanel(PanelComponent):
                     "lmax": 2,
                     "sigma": 0.2,
                     "crossover": True,
+                    "average": False,
                     "rbf": "gto",
                     "alpha": 0.1,
                     "threshold": 1e-4,
@@ -378,6 +379,13 @@ class LocalEnvironmentPanel(PanelComponent):
                     help_str="If enabled, the power spectrum will include all combinations of elements present.",
                 )
 
+                average = self.get_bool_input(
+                    label="Average",
+                    kwarg_label="average",
+                    state=state,
+                    help_str="If enabled, the SOAP vector will be averaged across all sites.",
+                )
+
                 alpha = self.get_numerical_input(
                     label="Alpha",
                     kwarg_label="alpha",
@@ -403,7 +411,8 @@ class LocalEnvironmentPanel(PanelComponent):
                     label="Metric",
                     kwarg_label="metric",
                     state=state,
-                    help_str="...",
+                    help_str='See scikit-learn\'s documentation on "Pairwise metrics, Affinities and Kernels" '
+                    "for an explanation of available metrics.",
                     options=[
                         # {"label": "Additive χ2", "value": "additive_chi2"},  # these seem to be unstable
                         # {"label": "Exponential χ2", "value": "chi2"},
@@ -437,13 +446,14 @@ class LocalEnvironmentPanel(PanelComponent):
                         sigma,
                         rbf,
                         crossover,
+                        average,
                         html.Br(),
                         html.Br(),
                         html.Div(id=self.id("soap_analysis")),
                         html.Br(),
                         html.Br(),
                         H5("Similarity metric parameters"),
-                        html.Span(
+                        html.Div(
                             "This will calculate structural similarity scores from materials in the "
                             "Materials Project in the same chemical system. Note that for large chemical "
                             "systems this step can take several minutes."
@@ -516,7 +526,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 periodic=True,
                 crossover=kwargs["crossover"],
                 sparse=False,
-                average=False,
+                average=kwargs["average"],
             )
 
             adaptor = AseAtomsAdaptor()
@@ -560,7 +570,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 periodic=True,
                 crossover=kwargs["crossover"],
                 sparse=False,
-                average=False,
+                average=kwargs["average"],
             )
 
             adaptor = AseAtomsAdaptor()
