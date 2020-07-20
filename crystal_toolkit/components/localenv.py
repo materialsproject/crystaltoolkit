@@ -472,25 +472,41 @@ class LocalEnvironmentPanel(PanelComponent):
 
         def _get_soap_graph(feature, label):
 
-            spectrum = px.imshow(
-                feature, aspect="equal", color_continuous_scale="plasma"
-            )
+            spectrum = {
+                "data": [
+                    {
+                        "coloraxis": "coloraxis",
+                        #'hovertemplate': 'x: %{x}<br>y: %{y}<br>color: %{z}<extra></extra>',
+                        "type": "heatmap",
+                        "z": feature.tolist(),
+                    }
+                ]
+            }
 
-            coloraxis = spectrum.layout.coloraxis
-            coloraxis["showscale"] = False
-
-            layout = {
+            spectrum["layout"] = {
                 "xaxis": {"visible": False},
                 "yaxis": {"visible": False},
                 "paper_bgcolor": "rgba(0,0,0,0)",
                 "plot_bgcolor": "rgba(0,0,0,0)",
-                "coloraxis": coloraxis,
+                "coloraxis": {
+                    "colorscale": [
+                        [0.0, "#0d0887"],
+                        [0.1111111111111111, "#46039f"],
+                        [0.2222222222222222, "#7201a8"],
+                        [0.3333333333333333, "#9c179e"],
+                        [0.4444444444444444, "#bd3786"],
+                        [0.5555555555555556, "#d8576b"],
+                        [0.6666666666666666, "#ed7953"],
+                        [0.7777777777777778, "#fb9f3a"],
+                        [0.8888888888888888, "#fdca26"],
+                        [1.0, "#f0f921"],
+                    ],
+                    "showscale": False,
+                },
                 "margin": {"l": 0, "b": 0, "t": 0, "r": 0, "pad": 0},
                 # "height": 20*feature.shape[0],  # for fixed size plots
                 # "width": 20*feature.shape[1]
             }
-
-            spectrum.layout = layout
 
             return Columns(
                 [
@@ -537,6 +553,21 @@ class LocalEnvironmentPanel(PanelComponent):
 
             return _get_soap_graph(feature, "SOAP vector for this material")
 
+        @cache.memoize(timeout=360)
+        def _get_all_structs_from_elements(elements):
+            structs = {}
+            all_chemsyses = []
+            for i in range(len(elements)):
+                for els in itertools.combinations(elements, i + 1):
+                    all_chemsyses.append("-".join(sorted(els)))
+
+            with MPRester() as mpr:
+                docs = mpr.query(
+                    {"chemsys": {"$in": all_chemsyses}}, ["task_id", "structure"],
+                )
+            structs.update({d["task_id"]: d["structure"] for d in docs})
+            return structs
+
         @app.callback(
             Output(self.id("soap_similarities"), "children"),
             [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
@@ -550,16 +581,7 @@ class LocalEnvironmentPanel(PanelComponent):
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
 
             elements = [str(el) for el in structs["input"].composition.elements]
-            all_chemsyses = []
-            for i in range(len(elements)):
-                for els in itertools.combinations(elements, i + 1):
-                    all_chemsyses.append("-".join(sorted(els)))
-
-            with MPRester() as mpr:
-                docs = mpr.query(
-                    {"chemsys": {"$in": all_chemsyses}}, ["task_id", "structure"],
-                )
-            structs.update({d["task_id"]: d["structure"] for d in docs})
+            structs.update(_get_all_structs_from_elements(elements))
 
             if not structs:
                 raise PreventUpdate
@@ -610,6 +632,7 @@ class LocalEnvironmentPanel(PanelComponent):
             sorted_mpids = sorted(similarities.keys(), key=lambda x: -similarities[x])
 
             print("Generating similarity graphs")
+            # TODO: was much slower using px.imshow (see prev commit)
             all_graphs = [
                 _get_soap_graph(
                     features[mpid],
