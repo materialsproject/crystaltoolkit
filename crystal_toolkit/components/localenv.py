@@ -598,17 +598,18 @@ class LocalEnvironmentPanel(PanelComponent):
                 normalize_kernel=kwargs["normalize_kernel"],
             )
 
-            print(f"Calculating similarity kernel")
-            re_kernel = re.create(list(features.values()))
-
+            print("Calculating similarity kernel")
             similarities = {
-                mpid: score
-                for mpid, score in zip(features.keys(), re_kernel[0])
+                mpid: re.get_global_similarity(
+                    re.get_pairwise_matrix(features["input"], feature)
+                )
+                for mpid, feature in features.items()
                 if mpid != "input"
             }
 
             sorted_mpids = sorted(similarities.keys(), key=lambda x: -similarities[x])
 
+            print("Generating similarity graphs")
             all_graphs = [
                 _get_soap_graph(
                     features[mpid],
@@ -623,6 +624,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 for mpid in sorted_mpids
             ]
 
+            print("Returning similarity graphs")
             return html.Div(all_graphs)
 
         @app.callback(
