@@ -463,7 +463,7 @@ class LocalEnvironmentPanel(PanelComponent):
                         alpha,
                         threshold,
                         metric,
-                        normalize_kernel,
+                        # normalize_kernel,
                         html.Br(),
                         html.Br(),
                         Loading(id=self.id("soap_similarities")),
@@ -617,7 +617,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 metric=kwargs["metric"],
                 alpha=kwargs["alpha"],
                 threshold=kwargs["threshold"],
-                normalize_kernel=kwargs["normalize_kernel"],
+                # normalize_kernel=kwargs["normalize_kernel"],
             )
 
             print("Calculating similarity kernel")
