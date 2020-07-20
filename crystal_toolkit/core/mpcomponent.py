@@ -216,7 +216,6 @@ class MPComponent(ABC):
         self._all_ids = set()
         self._stores = {}
         self._initial_data = {}
-        self._kwarg_type_hints = {}
 
         self.links = links or {}
 
@@ -231,11 +230,24 @@ class MPComponent(ABC):
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def id(self, name: str = "default", is_kwarg: bool = False, idx=False) -> str:
+    def id(
+        self, name: str = "default", is_kwarg: bool = False, idx=False, hint=None
+    ) -> Union[str, Dict[str, str]]:
         """
         Generate an id from a name combined with the
         base id of the MPComponent itself, useful for generating
         ids of individual components in the layout.
+
+        In the special case of the id of an element that is used to re-construct
+        a keyword argument for a specific class, it will store information necessary
+        to reconstruct that keyword argument (e.g. its type hint and, in the case of
+        a vector or matrix, the corresponding index).
+
+        A hint could be a tuple for a numpy array of that shape, e.g. (3, 3) for a 3x3 matrix,
+        (1, 3) for a vector, or "literal" to parse kwarg value using ast.literal_eval, or "bool"
+        to parse a boolean value. In future iterations, we may be able to replace this with native
+        Python type hints. The problem here is being able to specify array shape where appropriate.
+
 
         Args:
             name: e.g. "default"
@@ -244,7 +256,12 @@ class MPComponent(ABC):
         """
 
         if is_kwarg:
-            return {"component_id": self._id, "kwarg_label": name, "idx": str(idx)}
+            return {
+                "component_id": self._id,
+                "kwarg_label": name,
+                "idx": str(idx),
+                "hint": str(hint),
+            }
 
         # if we're linking to another component, return that id
         if name in self.links:
@@ -402,11 +419,9 @@ Sub-layouts:  \n{layouts}"""
         default = np.full(shape, state.get(kwarg_label))
         default = np.reshape(default, shape)
 
-        self._kwarg_type_hints[kwarg_label] = shape
-
         def matrix_element(idx, value=0):
             # TODO: maybe move element out of the name
-            mid = self.id(kwarg_label, is_kwarg=True, idx=idx)
+            mid = self.id(kwarg_label, is_kwarg=True, idx=idx, hint=shape)
             if not is_int:
                 return dcc.Input(
                     id=mid,
@@ -483,11 +498,9 @@ Sub-layouts:  \n{layouts}"""
 
         default = state.get(kwarg_label) or False
 
-        self._kwarg_type_hints[kwarg_label] = "slider"
-
         if multiple:
             slider_input = dcc.RangeSlider(
-                id=self.id(kwarg_label, is_kwarg=True),
+                id=self.id(kwarg_label, is_kwarg=True, hint="slider"),
                 tooltip={"placement": "bottom"},
                 value=default,
                 persistence=True,
@@ -495,7 +508,7 @@ Sub-layouts:  \n{layouts}"""
             )
         else:
             slider_input = dcc.Slider(
-                id=self.id(kwarg_label, is_kwarg=True),
+                id=self.id(kwarg_label, is_kwarg=True, hint="slider"),
                 tooltip={"placement": "bottom"},
                 value=default,
                 persistence=True,
@@ -525,10 +538,8 @@ Sub-layouts:  \n{layouts}"""
 
         default = state.get(kwarg_label) or False
 
-        self._kwarg_type_hints[kwarg_label] = "bool"
-
         bool_input = dcc.Checklist(
-            id=self.id(kwarg_label, is_kwarg=True),
+            id=self.id(kwarg_label, is_kwarg=True, hint="bool"),
             style={"width": "5rem"},
             options=[{"label": "", "value": "enabled"}],
             value=["enabled"] if default else [],
@@ -561,10 +572,8 @@ Sub-layouts:  \n{layouts}"""
 
         default = state.get(kwarg_label)
 
-        self._kwarg_type_hints[kwarg_label] = "literal"
-
         option_input = dcc.Dropdown(
-            id=self.id(kwarg_label, is_kwarg=True),
+            id=self.id(kwarg_label, is_kwarg=True, hint="literal"),
             options=options if options else [],
             value=default,
             persistence=True,
@@ -586,10 +595,8 @@ Sub-layouts:  \n{layouts}"""
 
         default = state.get(kwarg_label) or {}
 
-        self._kwarg_type_hints[kwarg_label] = "dict"
-
         dict_input = dt.DataTable(
-            id=self.id(kwarg_label),
+            id=self.id(kwarg_label, is_kwarg=True, hint="dict"),
             columns=[
                 {"id": "key", "name": key_name},
                 {"id": "value", "name": value_name},
@@ -601,34 +608,25 @@ Sub-layouts:  \n{layouts}"""
 
         return add_label_help(dict_input, label, help_str)
 
-    @property
-    def kwarg_type_hints(self) -> Dict:
-        """
-        Valid keys are a tuple for a numpy array of that shape, e.g. (3, 3) for a 3x3 matrix,
-        (1, 3) for a vector, or "literal" to parse kwarg value using ast.literal_eval, or "bool"
-        to parse a boolean value.
-
-        In future iterations, we may be able to replace this with native Python type hints. The
-        problem here is being able to specify array shape where appropriate.
-
-        :return: e.g. {"scaling_matrix": (3, 3)} or {"sym_tol": "literal"}
-        """
-        return self._kwarg_type_hints
-
     def get_kwarg_id(self, kwarg_name) -> Dict:
         """
 
         :param kwarg_name:
         :return:
         """
-        return {"component_id": self._id, "kwarg_label": kwarg_name, "idx": ALL}
+        return {
+            "component_id": self._id,
+            "kwarg_label": kwarg_name,
+            "idx": ALL,
+            "hint": ALL,
+        }
 
     def get_all_kwargs_id(self) -> Dict:
         """
 
         :return:
         """
-        return {"component_id": self._id, "kwarg_label": ALL, "idx": ALL}
+        return {"component_id": self._id, "kwarg_label": ALL, "idx": ALL, "hint": ALL}
 
     def reconstruct_kwarg_from_state(self, state, kwarg_name):
         return self.reconstruct_kwargs_from_state(state)[kwarg_name]
@@ -650,7 +648,11 @@ Sub-layouts:  \n{layouts}"""
 
             kwarg_label = d["kwarg_label"]
 
-            k_type = self.kwarg_type_hints[d["kwarg_label"]]
+            try:
+                k_type = literal_eval(d["hint"])
+            except ValueError:
+                k_type = d["hint"]
+
             idx = literal_eval(d["idx"])
 
             # print(kwarg_label, k_type, idx, v)
