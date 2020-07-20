@@ -24,9 +24,5 @@ There are two steps to using Crystal Toolkit inside Jupyter:
 Usage
 -----
 
-To use, simply ``import crystal_toolkit` and use ``pymatgen`` as normal for crystal structures
+To use, simply ``import crystal_toolkit`` and use ``pymatgen`` as normal for crystal structures
 to be shown using Crystal Toolkit.
-
-.. image:: images/jupyter-demo.gif
-  :align: center
-  :alt: Demo of Jupyter functionality
