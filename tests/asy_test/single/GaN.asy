@@ -1,6 +1,9 @@
 
 size(300);
 import solids;
+settings.render=6;
+settings.prc=false;
+
 // Camera information
 currentprojection=orthographic (
 camera=(8,5,4),

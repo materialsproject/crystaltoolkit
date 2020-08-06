@@ -12,13 +12,20 @@ from itertools import chain
 
 from jinja2 import Environment
 
+from pymatgen import Structure, Molecule
+from pymatgen.analysis.graphs import StructureGraph
 from crystal_toolkit.helpers.utils import update_object_args
 
 logger = logging.getLogger(__name__)
 
 HEAD = """
-size(300);
+import settings;
 import solids;
+size(300);
+outformat="png";
+defaultshininess = 0.8;
+currentlight = light(0,0,400);
+
 // Camera information
 currentprojection=orthographic (
 camera=(8,5,4),
@@ -26,6 +33,7 @@ up=(0,0,1),
 target={{target}},
 zoom=0.5
 );
+
 // Basic function for drawing spheres
 void drawSpheres(triple[] C, real R, pen p=currentpen){
   for(int i=0;i<C.length;++i){
@@ -33,6 +41,17 @@ void drawSpheres(triple[] C, real R, pen p=currentpen){
                         new pen(int i, real j){return p;}
                         )
     );
+  }
+}
+
+// Draw a sphere without light
+void drawSpheres_nolight(triple[] C, real R, pen p=currentpen){
+  material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);
+  for(int i=0;i<C.length;++i){
+    revolution s_rev = sphere(C[i],R);
+    surface s_surf = surface(s_rev);
+    draw(s_surf, nlpen);
+    draw(s_rev.silhouette(100), black+linewidth(3));
   }
 }
 
@@ -49,6 +68,14 @@ void Draw(guide3 g,pen p=currentpen, real cylR=0.2){
   );
 }
 
+// Draw a cylinder without light
+void Draw_nolight(guide3 g,pen p=currentpen, real cylR=0.2){
+  material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);
+  revolution s_rev = cylinder(point(g,0),cylR,arclength(g),point(g,1)-point(g,0));
+  surface s_surf = surface(s_rev);
+  draw(s_surf, nlpen);
+  draw(s_rev.silhouette(100), black+linewidth(3));
+}
 """
 
 TEMP_SPHERE = """
@@ -64,6 +91,22 @@ sphere{{loop.index}}
 };
 drawSpheres(spheres, {{radius}}, rgb('{{color}}'));
 """
+
+TEMP_SPHERE_NOLIGHT = """
+{% for val in positions %}
+triple sphere{{loop.index}}={{val}};
+{% endfor %}
+
+triple[] spheres = {
+{%- for val in positions -%}
+sphere{{loop.index}}
+{%- if not loop.last %},{% endif %}
+{%- endfor -%}
+};
+drawSpheres_nolight(spheres, {{radius}}, rgb('{{color}}'));
+"""
+
+
 
 TEMP_CYLINDER = """
 pen connectPen=rgb('{{color}}');
@@ -101,6 +144,26 @@ real[][] A = {
 A = transpose(A);
 
 material m = rgb('{{face_color}}') + opacity({{opac}});
+triple a,b,c;
+for(int i=0; i < A[0].length/3; ++i) {
+  a=(A[0][i*3],A[1][i*3],A[2][i*3]);
+  b=(A[0][i*3+1],A[1][i*3+1],A[2][i*3+1]);
+  c=(A[0][i*3+2],A[1][i*3+2],A[2][i*3+2]);
+  draw(surface(a--b--c--cycle),surfacepen = m);        // draw i-th triangle
+}
+path3 no_show = path3(scale(0) * box((-1,-1),(1,1)));
+draw(surface(no_show), surfacepen=m);        // draw i-th triangle
+"""
+
+TEMP_SURF_NOLIGHT = """
+real[][] A = {
+{% for ipos in positions -%}
+    {{ipos}},
+{% endfor %}
+};
+A = transpose(A);
+
+material m = material(diffusepen=opacity({{opac}}), emissivepen=rgb("{{face_color}}"), shininess=0);
 triple a,b,c;
 for(int i=0; i < A[0].length/3; ++i) {
   a=(A[0][i*3],A[1][i*3],A[2][i*3]);
@@ -209,7 +272,9 @@ def _get_surface(ctk_scene, d_args=None):
     Keyword Arguments:
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
-    assert ctk_scene.type == "surface"
+    assert (ctk_scene.type == 'surface')
+    if len(ctk_scene.positions) == 0:
+        return "" # print nothing
     updated_defaults = update_object_args(
         d_args, object_name="Surfaces", allowed_args=["opacity", "color", "edge_width"]
     )
@@ -274,11 +339,6 @@ def asy_write_data(input_scene_comp, fstream):
 
     return
 
-    # TODO Leaving out polyhedra for now since asymptote
-    # does not have an easy way to generate convex polyhedra from the points
-    # Need to write a python conversion between Convex type and surfaces to
-    # make this work.
-
     # TODO we can make the line solide for the forground and dashed for the background
     # This will require use to modify the way the line objects are generated
     # at each vertex in the unit cell, we can evaluate the sum of all three lattice vectors from the point
@@ -312,7 +372,7 @@ def traverse_scene_object(scene_data, fstream):
             traverse_scene_object(sub_object, fstream)
 
 
-def write_asy_file(ctk_scene, file_name):
+def write_ctk_scene_to_file(ctk_scene, file_name):
     """
     ctk_scene : Scene object from crystaltoolkit
     filename : Output asymptote file and location
@@ -325,9 +385,15 @@ def write_asy_file(ctk_scene, file_name):
     fstream.close()
 
 
-def view(renderable_object, file_name):
+def write_asy_file(renderable_object, file_name, **kwargs):
+    """
+    Generate the scene object and write it to file
+
+    Args:
+        renderable_object: Object to be rendered
+        file_name: name of file
+    """
     if isinstance(renderable_object, Structure) or isinstance(
-        renderable_obj, StructureGraph
-    ):
-        kwargs["explicitly_calculate_polyhedra_hull"] = True
-    write_asy_file(renderable_object.get_scene(**kwargs), file_name)
+            renderable_object, StructureGraph):
+        kwargs['explicitly_calculate_polyhedra_hull'] = True
+    write_ctk_scene_to_file(renderable_object.get_scene(**kwargs), file_name)
