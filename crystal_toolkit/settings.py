@@ -1,11 +1,11 @@
 from pydantic import BaseSettings
 
+from crystal_toolkit import MODULE_PATH
+
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal
-
-from crystal_toolkit import MODULE_PATH
 
 
 class Settings(BaseSettings):
@@ -20,8 +20,6 @@ class Settings(BaseSettings):
 
     PERSISTENCE: bool = True
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"
-
-    JUPYTER_LAB_PRINT_REPR: bool = True
 
     class Config:
         env_prefix = "CT_"
