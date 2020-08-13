@@ -3,9 +3,8 @@ from abc import ABC, abstractmethod
 from ast import literal_eval
 from collections import defaultdict
 from itertools import chain
-from json import JSONDecodeError
-from json import dumps, loads
-from typing import Optional, Union, Dict, List, Set, Tuple
+from json import JSONDecodeError, dumps, loads
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import dash
 import dash_core_components as dcc
@@ -426,6 +425,7 @@ Sub-layouts:  \n{layouts}"""
                 return dcc.Input(
                     id=mid,
                     inputMode="numeric",
+                    debounce=True,
                     className="input",
                     style={
                         "textAlign": "center",
@@ -444,6 +444,7 @@ Sub-layouts:  \n{layouts}"""
                 return dcc.Input(
                     id=mid,
                     inputMode="numeric",
+                    debounce=True,
                     className="input",
                     style={
                         "textAlign": "center",
