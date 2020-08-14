@@ -7,7 +7,6 @@ from pathlib import Path
 from monty.json import MSONable
 
 from crystal_toolkit.renderables import *
-from crystal_toolkit.settings import SETTINGS as _SETTINGS
 
 __version__ = "2020.06.04"
 
