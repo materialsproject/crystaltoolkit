@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -96,7 +96,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -105,7 +105,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -178,109 +178,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.components.pourbaix">
-<span id="crystal-toolkit-components-pourbaix-module"></span><h1>crystal_toolkit.components.pourbaix module<a class="headerlink" href="#module-crystal_toolkit.components.pourbaix" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.pourbaix.</code><code class="sig-name descname">PourbaixDiagramComponent</code><span class="sig-paren">(</span><em class="sig-param">pourbaix_diagram=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/pourbaix.html#PourbaixDiagramComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
-<dl class="method">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.clean_formula">
-<em class="property">static </em><code class="sig-name descname">clean_formula</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/pourbaix.html#PourbaixDiagramComponent.clean_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.clean_formula" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.colorscale">
-<code class="sig-name descname">colorscale</code><em class="property"> = 'magma'</em><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.colorscale" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.colorscale_classic">
-<code class="sig-name descname">colorscale_classic</code><em class="property"> = [[0.0, '#4728fa'], [0.33, '#f9f273'], [0.66, '#e5211b'], [1.0, '#ffffff']]</em><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.colorscale_classic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.default_plot_style">
-<code class="sig-name descname">default_plot_style</code><em class="property"> = {'height': 550, 'hovermode': 'closest', 'legend': {'orientation': 'h', 'tracegroupgap': 5, 'traceorder': 'reversed', 'x': 1.0, 'xanchor': 'right', 'y': 1.08}, 'margin': {'b': 70, 'l': 80, 'r': 20, 't': 10}, 'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)', 'showlegend': False, 'width': 700, 'xaxis': {'anchor': 'y', 'mirror': 'ticks', 'range': [-2, 16], 'showgrid': False, 'showline': True, 'side': 'bottom', 'tickfont': {'size': 16.0}, 'ticks': 'inside', 'title': 'pH', 'titlefont': {'color': '#000000', 'size': 24.0}, 'type': 'linear', 'zeroline': False}, 'yaxis': {'anchor': 'x', 'mirror': 'ticks', 'range': [-2, 4], 'showgrid': False, 'showline': True, 'side': 'left', 'tickfont': {'size': 16.0}, 'ticks': 'inside', 'title': 'Applied Potential (V vs. SHE)', 'titlefont': {'color': '#000000', 'size': 24.0}, 'type': 'linear', 'zeroline': False}}</em><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.default_plot_style" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.default_table_params">
-<code class="sig-name descname">default_table_params</code><em class="property"> = [{'col': 'Material ID', 'edit': False}, {'col': 'Formula', 'edit': True}, {'col': 'Formation Energy (eV/atom)', 'edit': True}, {'col': 'Energy Above Hull (eV/atom)', 'edit': False}, {'col': 'Predicted Stable?', 'edit': False}]</em><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.default_table_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.empty_plot_style">
-<code class="sig-name descname">empty_plot_style</code><em class="property"> = {'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)', 'xaxis': {'visible': False}, 'yaxis': {'visible': False}}</em><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.empty_plot_style" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.empty_row">
-<code class="sig-name descname">empty_row</code><em class="property"> = {'Energy Above Hull (eV/atom)': None, 'Formation Energy (eV/atom)': 'INSERT', 'Formula': 'INSERT', 'Material ID': None, 'Predicted Stable': None}</em><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.empty_row" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.generate_callbacks">
-<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/pourbaix.html#PourbaixDiagramComponent.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.get_figure">
-<em class="property">static </em><code class="sig-name descname">get_figure</code><span class="sig-paren">(</span><em class="sig-param">pourbaix_diagram</em>, <em class="sig-param">heatmap_entry=None</em>, <em class="sig-param">heatmap_as_contour=True</em>, <em class="sig-param">show_labels=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/pourbaix.html#PourbaixDiagramComponent.get_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.get_figure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Static method for getting plotly figure from a pourbaix diagram</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pourbaix_diagram</strong> (<em>PourbaixDiagram</em>) – pourbaix diagram to plot</p></li>
-<li><p><strong>heatmap_entry</strong> (<em>PourbaixEntry</em>) – id for the heatmap generation</p></li>
-<li><p><strong>heatmap_as_contour</strong> (<em>bool</em>) – if True, display contours, if False heatmap as grid</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>(dict) figure layout</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.layout">
-<em class="property">property </em><code class="sig-name descname">layout</code><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>A Dash layout for the full component. Basic implementation
-provided, but should in general be overridden.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>return</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.pourbaix.</code><code class="sig-name descname">PourbaixDiagramPanelComponent</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/pourbaix.html#PourbaixDiagramPanelComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.panelcomponent.html#crystal_toolkit.core.panelcomponent.PanelComponent" title="crystal_toolkit.core.panelcomponent.PanelComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.panelcomponent.PanelComponent</span></code></a></p>
-<dl class="method">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.description">
-<em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.title">
-<em class="property">property </em><code class="sig-name descname">title</code><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.title" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.update_contents">
-<code class="sig-name descname">update_contents</code><span class="sig-paren">(</span><em class="sig-param">new_store_contents</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/pourbaix.html#PourbaixDiagramPanelComponent.update_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.update_contents" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-components-pourbaix-module">
+<h1>crystal_toolkit.components.pourbaix module<a class="headerlink" href="#crystal-toolkit-components-pourbaix-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

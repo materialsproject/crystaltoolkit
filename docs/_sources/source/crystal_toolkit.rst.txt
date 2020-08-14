@@ -16,9 +16,7 @@ Submodules
 
 .. toctree::
 
-   crystal_toolkit.GraphComponent
-   crystal_toolkit.JSONViewComponent
-   crystal_toolkit.Simple3DSceneComponent
+   crystal_toolkit.settings
 
 Module contents
 ---------------

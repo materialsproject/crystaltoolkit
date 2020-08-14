@@ -10,6 +10,7 @@ Submodules
    crystal_toolkit.components.transformations.core
    crystal_toolkit.components.transformations.cubic
    crystal_toolkit.components.transformations.grainboundary
+   crystal_toolkit.components.transformations.rattle
    crystal_toolkit.components.transformations.slab
    crystal_toolkit.components.transformations.substitution
    crystal_toolkit.components.transformations.supercell

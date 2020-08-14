@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -96,7 +96,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -105,7 +105,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -180,79 +180,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.components.transformations.core">
-<span id="crystal-toolkit-components-transformations-core-module"></span><h1>crystal_toolkit.components.transformations.core module<a class="headerlink" href="#module-crystal_toolkit.components.transformations.core" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="crystal_toolkit.components.transformations.core.AllTransformationsComponent">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.transformations.core.</code><code class="sig-name descname">AllTransformationsComponent</code><span class="sig-paren">(</span><em class="sig-param">transformations: List[crystal_toolkit.components.transformations.core.TransformationComponent], *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/core.html#AllTransformationsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.core.AllTransformationsComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.core.AllTransformationsComponent.generate_callbacks">
-<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/core.html#AllTransformationsComponent.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.core.AllTransformationsComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.core.AllTransformationsComponent.layout">
-<code class="sig-name descname">layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/core.html#AllTransformationsComponent.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.core.AllTransformationsComponent.layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A Dash layout for the full component. Basic implementation</p>
-</dd>
-</dl>
-<p>provided, but should in general be overridden.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.components.transformations.core.TransformationComponent">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.transformations.core.</code><code class="sig-name descname">TransformationComponent</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">initial_args_kwargs=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/core.html#TransformationComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.core.TransformationComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.core.TransformationComponent.container_layout">
-<code class="sig-name descname">container_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dash_html_components.Div.Div<a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/core.html#TransformationComponent.container_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.core.TransformationComponent.container_layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Layout defining transformation and its options.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.core.TransformationComponent.description">
-<em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#crystal_toolkit.components.transformations.core.TransformationComponent.description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.core.TransformationComponent.generate_callbacks">
-<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/core.html#TransformationComponent.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.core.TransformationComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.core.TransformationComponent.options_layout">
-<code class="sig-name descname">options_layout</code><span class="sig-paren">(</span><em class="sig-param">initial_args_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/core.html#TransformationComponent.options_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.core.TransformationComponent.options_layout" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.core.TransformationComponent.title">
-<em class="property">property </em><code class="sig-name descname">title</code><a class="headerlink" href="#crystal_toolkit.components.transformations.core.TransformationComponent.title" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.core.TransformationComponent.transformation">
-<em class="property">property </em><code class="sig-name descname">transformation</code><a class="headerlink" href="#crystal_toolkit.components.transformations.core.TransformationComponent.transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-components-transformations-core-module">
+<h1>crystal_toolkit.components.transformations.core module<a class="headerlink" href="#crystal-toolkit-components-transformations-core-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

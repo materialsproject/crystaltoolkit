@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="crystal_toolkit.components.transformations.slab module" href="crystal_toolkit.components.transformations.slab.html" />
+    <link rel="next" title="crystal_toolkit.components.transformations.rattle module" href="crystal_toolkit.components.transformations.rattle.html" />
     <link rel="prev" title="crystal_toolkit.components.transformations.cubic module" href="crystal_toolkit.components.transformations.cubic.html" /> 
 </head>
 
@@ -96,7 +96,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -105,7 +105,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -180,48 +180,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.components.transformations.grainboundary">
-<span id="crystal-toolkit-components-transformations-grainboundary-module"></span><h1>crystal_toolkit.components.transformations.grainboundary module<a class="headerlink" href="#module-crystal_toolkit.components.transformations.grainboundary" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.transformations.grainboundary.</code><code class="sig-name descname">GrainBoundaryTransformationComponent</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">initial_args_kwargs=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/grainboundary.html#GrainBoundaryTransformationComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent" title="crystal_toolkit.components.transformations.core.TransformationComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.components.transformations.core.TransformationComponent</span></code></a></p>
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.default_transformation">
-<em class="property">property </em><code class="sig-name descname">default_transformation</code><a class="headerlink" href="#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.default_transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.description">
-<em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.generate_callbacks">
-<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/grainboundary.html#GrainBoundaryTransformationComponent.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.options_layout">
-<code class="sig-name descname">options_layout</code><span class="sig-paren">(</span><em class="sig-param">inital_args_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/grainboundary.html#GrainBoundaryTransformationComponent.options_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.options_layout" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.title">
-<em class="property">property </em><code class="sig-name descname">title</code><a class="headerlink" href="#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.title" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.transformation">
-<em class="property">property </em><code class="sig-name descname">transformation</code><a class="headerlink" href="#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.transformation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-components-transformations-grainboundary-module">
+<h1>crystal_toolkit.components.transformations.grainboundary module<a class="headerlink" href="#crystal-toolkit-components-transformations-grainboundary-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

@@ -1,7 +1,0 @@
-crystal\_toolkit.helpers.mprester module
-========================================
-
-.. automodule:: crystal_toolkit.helpers.mprester
-   :members:
-   :undoc-members:
-   :show-inheritance:

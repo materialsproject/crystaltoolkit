@@ -1,7 +1,0 @@
-crystal\_toolkit.components.grainboundary module
-================================================
-
-.. automodule:: crystal_toolkit.components.grainboundary
-   :members:
-   :undoc-members:
-   :show-inheritance:

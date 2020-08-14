@@ -1,0 +1,7 @@
+crystal\_toolkit.settings module
+================================
+
+.. automodule:: crystal_toolkit.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:

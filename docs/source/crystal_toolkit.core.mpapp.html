@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -105,7 +105,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -178,100 +178,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.core.mpapp">
-<span id="crystal-toolkit-core-mpapp-module"></span><h1>crystal_toolkit.core.mpapp module<a class="headerlink" href="#module-crystal_toolkit.core.mpapp" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="crystal_toolkit.core.mpapp.MPApp">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.mpapp.</code><code class="sig-name descname">MPApp</code><span class="sig-paren">(</span><em class="sig-param">default_data: Optional[monty.json.MSONable] = None</em>, <em class="sig-param">id: Optional[str] = None</em>, <em class="sig-param">links: Optional[Dict[str</em>, <em class="sig-param">str]] = None</em>, <em class="sig-param">origin_component: Optional[MPComponent] = None</em>, <em class="sig-param">storage_type: typing_extensions.Literal['memory'</em>, <em class="sig-param">'local'</em>, <em class="sig-param">'session'][memory</em>, <em class="sig-param">local</em>, <em class="sig-param">session] = 'memory'</em>, <em class="sig-param">disable_callbacks: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/mpapp.html#MPApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Class to make an app for the Materials Project website.</p>
-<dl class="method">
-<dt id="crystal_toolkit.core.mpapp.MPApp.description">
-<em class="property">abstract property </em><code class="sig-name descname">description</code><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.description" title="Permalink to this definition">¶</a></dt>
-<dd><p>Short description of app (max 140 characters).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.core.mpapp.MPApp.dois">
-<em class="property">property </em><code class="sig-name descname">dois</code><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.dois" title="Permalink to this definition">¶</a></dt>
-<dd><p>A list of DOI(s) to cite when using this app</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>return</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.core.mpapp.MPApp.generate_callbacks">
-<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/mpapp.html#MPApp.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.core.mpapp.MPApp.get_layout">
-<code class="sig-name descname">get_layout</code><span class="sig-paren">(</span><em class="sig-param">payload=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/mpapp.html#MPApp.get_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.get_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a Dash layout for the app. If the app requires any
-global set-up before a layout can be generated, put this in
-the app’s initializer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>payload</strong> – anything in the URL after</p>
-</dd>
-</dl>
-<p><a class="reference external" href="https://materialsproject.org/your_app_name/">https://materialsproject.org/your_app_name/</a></p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.core.mpapp.MPApp.get_mp_layout">
-<code class="sig-name descname">get_mp_layout</code><span class="sig-paren">(</span><em class="sig-param">payload=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/mpapp.html#MPApp.get_mp_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.get_mp_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns your layout with added Materials Project styling.
-Do not override this method.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>payload</strong> – anything in the URL after</p>
-</dd>
-</dl>
-<p><a class="reference external" href="https://materialsproject.org/your_app_name/">https://materialsproject.org/your_app_name/</a>
-:return:</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.core.mpapp.MPApp.long_description">
-<em class="property">property </em><code class="sig-name descname">long_description</code><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.long_description" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extended text giving an explanation of your app. Formatted sa Markdown.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.core.mpapp.MPApp.name">
-<em class="property">abstract property </em><code class="sig-name descname">name</code><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Name of your app, will be included in navigation menu</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.core.mpapp.MPApp.url">
-<em class="property">abstract property </em><code class="sig-name descname">url</code><a class="headerlink" href="#crystal_toolkit.core.mpapp.MPApp.url" title="Permalink to this definition">¶</a></dt>
-<dd><p>//materialsproject.org/{url}</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>URL of your app, will set its url as https</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.core.mpapp.get_mp_app_icon">
-<code class="sig-prename descclassname">crystal_toolkit.core.mpapp.</code><code class="sig-name descname">get_mp_app_icon</code><span class="sig-paren">(</span><em class="sig-param">shortname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/mpapp.html#get_mp_app_icon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.mpapp.get_mp_app_icon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get an MP app icon, using the MP fontastic font.
-:param shortname: the name used for the app url, e.g. “xas”
-:return:</p>
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-core-mpapp-module">
+<h1>crystal_toolkit.core.mpapp module<a class="headerlink" href="#crystal-toolkit-core-mpapp-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

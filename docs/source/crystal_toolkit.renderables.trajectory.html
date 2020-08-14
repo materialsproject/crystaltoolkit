@@ -8,14 +8,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>crystal_toolkit.helpers.pythreejs_renderer module &mdash; Crystal Toolkit  documentation</title>
+  <title>crystal_toolkit.renderables.trajectory module &mdash; Crystal Toolkit  documentation</title>
   
 
   
   
   
   
-    <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.helpers.pythreejs_renderer.html"/>
+    <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.renderables.trajectory.html"/>
   
 
   
@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="crystal_toolkit.helpers.utils module" href="crystal_toolkit.helpers.utils.html" />
-    <link rel="prev" title="crystal_toolkit.helpers.povray_renderer module" href="crystal_toolkit.helpers.povray_renderer.html" /> 
+    <link rel="next" title="crystal_toolkit.renderables.volumetric module" href="crystal_toolkit.renderables.volumetric.html" />
+    <link rel="prev" title="crystal_toolkit.renderables.structuregraph module" href="crystal_toolkit.renderables.structuregraph.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,16 +95,16 @@
 <li class="toctree-l2 current"><a class="reference internal" href="crystal_toolkit.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.helpers.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.helpers.html#module-crystal_toolkit.helpers">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.renderables.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.renderables.html#module-contents">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -154,16 +154,16 @@
         
           <li><a href="crystal_toolkit.html">crystal_toolkit package</a> &raquo;</li>
         
-          <li><a href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a> &raquo;</li>
+          <li><a href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a> &raquo;</li>
         
-      <li>crystal_toolkit.helpers.pythreejs_renderer module</li>
+      <li>crystal_toolkit.renderables.trajectory module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
             
-              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.helpers.pythreejs_renderer.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.renderables.trajectory.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -177,36 +177,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.helpers.pythreejs_renderer">
-<span id="crystal-toolkit-helpers-pythreejs-renderer-module"></span><h1>crystal_toolkit.helpers.pythreejs_renderer module<a class="headerlink" href="#module-crystal_toolkit.helpers.pythreejs_renderer" title="Permalink to this headline">¶</a></h1>
-<p>Link up the StructureMoleculeComponent objects to pythreejs
-Also includes some helper functions for draw addition objects using pythreejs</p>
-<dl class="function">
-<dt id="crystal_toolkit.helpers.pythreejs_renderer.display_scene">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">display_scene</code><span class="sig-paren">(</span><em class="sig-param">scene</em>, <em class="sig-param">size=500</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#display_scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.display_scene" title="Permalink to this definition">¶</a></dt>
-<dd><p>Render a Scene object with pythreejs.
-:param scene: Scene object
-:param size: Display size
-:return:</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.helpers.pythreejs_renderer.view">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.pythreejs_renderer.</code><code class="sig-name descname">view</code><span class="sig-paren">(</span><em class="sig-param">renderable_obj</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/pythreejs_renderer.html#view"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.pythreejs_renderer.view" title="Permalink to this definition">¶</a></dt>
-<dd><p>View a renderable object such as Structure, Molecule, etc.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>renderable_obj</strong> – Any Object with a get_scene method</p></li>
-<li><p><strong>kwargs</strong> – keyword args to pass to the get_scene method</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-renderables-trajectory-module">
+<h1>crystal_toolkit.renderables.trajectory module<a class="headerlink" href="#crystal-toolkit-renderables-trajectory-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

@@ -1,7 +1,0 @@
-crystal\_toolkit.components.literature module
-=============================================
-
-.. automodule:: crystal_toolkit.components.literature
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -156,6 +156,7 @@
 <span></span><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Molecule</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">SiteCollection</span><span class="p">,</span> <span class="n">Site</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.molecule_structure_comparator</span> <span class="kn">import</span> <span class="n">CovalentRadius</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify_species</span>
 
 <span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
@@ -255,8 +256,8 @@
 
         <span class="k">if</span> <span class="n">color_scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_color_schemes</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Color scheme </span><span class="si">{color_scheme}</span><span class="s2"> not available, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;falling back to </span><span class="si">{self.default_color_scheme}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Color scheme </span><span class="si">{</span><span class="n">color_scheme</span><span class="si">}</span><span class="s2"> not available, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;falling back to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default_color_scheme</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
             <span class="n">color_scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_color_scheme</span>
 
@@ -264,7 +265,13 @@
         <span class="c1"># maximum values for color scheme, will default to be symmetric</span>
         <span class="c1"># about zero</span>
         <span class="k">if</span> <span class="n">color_scheme</span> <span class="ow">in</span> <span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cmap_range</span><span class="p">:</span>
-            <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">site_collection</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">color_scheme</span><span class="p">])</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">p</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">site_collection</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">color_scheme</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
             <span class="n">prop_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">props</span><span class="p">)),</span> <span class="nb">max</span><span class="p">(</span><span class="n">props</span><span class="p">)])</span>
             <span class="n">prop_min</span> <span class="o">=</span> <span class="o">-</span><span class="n">prop_max</span>
             <span class="n">cmap_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">prop_min</span><span class="p">,</span> <span class="n">prop_max</span><span class="p">)</span>
@@ -288,7 +295,7 @@
 
 <div class="viewcode-block" id="Legend.generate_accessible_color_scheme_on_the_fly"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.generate_accessible_color_scheme_on_the_fly">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">generate_accessible_color_scheme_on_the_fly</span><span class="p">(</span>
-        <span class="n">site_collection</span><span class="p">:</span> <span class="n">SiteCollection</span>
+        <span class="n">site_collection</span><span class="p">:</span> <span class="n">SiteCollection</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        e.g. for a color scheme more appropriate for people with color blindness</span>
@@ -387,6 +394,7 @@
         <span class="k">for</span> <span class="n">site_prop_name</span> <span class="ow">in</span> <span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="p">[]):</span>
 
             <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">site_collection</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">site_prop_name</span><span class="p">])</span>
+            <span class="n">props</span><span class="p">[</span><span class="n">props</span> <span class="o">==</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
 
             <span class="n">le</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
             <span class="n">le</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
@@ -394,7 +402,7 @@
 
             <span class="c1"># if we have more categories than availiable colors,</span>
             <span class="c1"># arbitrarily group some categories together</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">props</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">props</span><span class="p">))</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="s2">&quot;Too many categories for a complete categorical color scheme.&quot;</span>
                 <span class="p">)</span>
@@ -448,14 +456,21 @@
 
             <span class="n">prop</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span>
 
-            <span class="n">cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prop</span><span class="p">:</span>
 
-            <span class="c1"># normalize in [0, 1] range, as expected by cmap</span>
-            <span class="n">prop_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">prop_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">prop_normed</span> <span class="o">=</span> <span class="p">(</span><span class="n">prop</span> <span class="o">-</span> <span class="n">prop_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">prop_max</span> <span class="o">-</span> <span class="n">prop_min</span><span class="p">)</span>
+                <span class="n">cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">)</span>
 
-            <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cmap</span><span class="p">(</span><span class="n">prop_normed</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]]</span>
+                <span class="c1"># normalize in [0, 1] range, as expected by cmap</span>
+                <span class="n">prop_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">prop_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">prop_normed</span> <span class="o">=</span> <span class="p">(</span><span class="n">prop</span> <span class="o">-</span> <span class="n">prop_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">prop_max</span> <span class="o">-</span> <span class="n">prop_min</span><span class="p">)</span>
+
+                <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cmap</span><span class="p">(</span><span class="n">prop_normed</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># fallback if site prop is None</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_color</span>
 
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="p">[]):</span>
 
@@ -474,7 +489,7 @@
         <span class="k">else</span><span class="p">:</span>
 
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Unknown color for </span><span class="si">{sp}</span><span class="s2"> and color scheme </span><span class="si">{self.color_scheme}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown color for </span><span class="si">{</span><span class="n">sp</span><span class="si">}</span><span class="s2"> and color scheme </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">html5_serialize_simple_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span></div>
@@ -489,8 +504,8 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_radius_schemes</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Unknown radius scheme </span><span class="si">{self.radius_scheme}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;choose from: </span><span class="si">{self.allowed_radius_schemes}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown radius scheme </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;choose from: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">allowed_radius_schemes</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
 
         <span class="n">radius</span> <span class="o">=</span> <span class="kc">None</span>
@@ -553,19 +568,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: add roman numerals for oxidation state for ease of readability</span>
         <span class="c1"># and then move this to pymatgen string utils ...</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">unicodeify_species</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Legend.get_legend"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.get_legend">[docs]</a>    <span class="k">def</span> <span class="nf">get_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 
         <span class="c1"># decide what we want the labels to be</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Jmol&quot;</span><span class="p">,</span> <span class="s2">&quot;VESTA&quot;</span><span class="p">,</span> <span class="s2">&quot;accessible&quot;</span><span class="p">):</span>
             <span class="n">label</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_species_str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="p">[</span><span class="s2">&quot;scalar&quot;</span><span class="p">]:</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{site.properties[self.color_scheme]:.2f}</span><span class="s2">&quot;</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="p">[</span><span class="s2">&quot;categorical&quot;</span><span class="p">]:</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{site.properties[self.color_scheme]}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span> <span class="p">{}):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="p">{}):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Color scheme </span><span class="si">{self.color_scheme}</span><span class="s2"> not known.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Color scheme </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="si">}</span><span class="s2"> not known.&quot;</span><span class="p">)</span>
 
         <span class="n">legend</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
