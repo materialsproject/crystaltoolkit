@@ -1,7 +1,0 @@
-crystal\_toolkit.helpers.pythreejs\_renderer module
-===================================================
-
-.. automodule:: crystal_toolkit.helpers.pythreejs_renderer
-   :members:
-   :undoc-members:
-   :show-inheritance:

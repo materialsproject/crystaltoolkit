@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -96,7 +96,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -105,7 +105,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -178,103 +178,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.components.structure">
-<span id="crystal-toolkit-components-structure-module"></span><h1>crystal_toolkit.components.structure module<a class="headerlink" href="#module-crystal_toolkit.components.structure" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.structure.</code><code class="sig-name descname">StructureMoleculeComponent</code><span class="sig-paren">(</span><em class="sig-param">struct_or_mol: Union[pymatgen.core.structure.Structure</em>, <em class="sig-param">pymatgen.analysis.graphs.StructureGraph</em>, <em class="sig-param">pymatgen.core.structure.Molecule</em>, <em class="sig-param">pymatgen.analysis.graphs.MoleculeGraph</em>, <em class="sig-param">None] = None</em>, <em class="sig-param">id: str = None</em>, <em class="sig-param">scene_additions: Optional[crystal_toolkit.core.scene.Scene] = None</em>, <em class="sig-param">bonding_strategy: str = 'CrystalNN'</em>, <em class="sig-param">bonding_strategy_kwargs: Optional[dict] = None</em>, <em class="sig-param">color_scheme: str = 'VESTA'</em>, <em class="sig-param">color_scale: Optional[str] = None</em>, <em class="sig-param">radius_strategy: str = 'uniform'</em>, <em class="sig-param">unit_cell_choice: str = 'input'</em>, <em class="sig-param">draw_image_atoms: bool = True</em>, <em class="sig-param">bonded_sites_outside_unit_cell: bool = False</em>, <em class="sig-param">hide_incomplete_bonds: bool = True</em>, <em class="sig-param">show_compass: bool = False</em>, <em class="sig-param">scene_settings: Optional[Dict] = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
-<p>A component to display pymatgen Structure, Molecule, StructureGraph
-and MoleculeGraph objects.</p>
-<dl class="attribute">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.available_bonding_strategies">
-<code class="sig-name descname">available_bonding_strategies</code><em class="property"> = {'BrunnerNN_real': &lt;class 'pymatgen.analysis.local_env.BrunnerNN_real'&gt;, 'BrunnerNN_reciprocal': &lt;class 'pymatgen.analysis.local_env.BrunnerNN_reciprocal'&gt;, 'BrunnerNN_relative': &lt;class 'pymatgen.analysis.local_env.BrunnerNN_relative'&gt;, 'CovalentBondNN': &lt;class 'pymatgen.analysis.local_env.CovalentBondNN'&gt;, 'Critic2NN': &lt;class 'pymatgen.analysis.local_env.Critic2NN'&gt;, 'CrystalNN': &lt;class 'pymatgen.analysis.local_env.CrystalNN'&gt;, 'CutOffDictNN': &lt;class 'pymatgen.analysis.local_env.CutOffDictNN'&gt;, 'EconNN': &lt;class 'pymatgen.analysis.local_env.EconNN'&gt;, 'JmolNN': &lt;class 'pymatgen.analysis.local_env.JmolNN'&gt;, 'MinimumDistanceNN': &lt;class 'pymatgen.analysis.local_env.MinimumDistanceNN'&gt;, 'MinimumOKeeffeNN': &lt;class 'pymatgen.analysis.local_env.MinimumOKeeffeNN'&gt;, 'MinimumVIRENN': &lt;class 'pymatgen.analysis.local_env.MinimumVIRENN'&gt;, 'OpenBabelNN': &lt;class 'pymatgen.analysis.local_env.OpenBabelNN'&gt;, 'VoronoiNN': &lt;class 'pymatgen.analysis.local_env.VoronoiNN'&gt;}</em><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.available_bonding_strategies" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.default_scene_settings">
-<code class="sig-name descname">default_scene_settings</code><em class="property"> = {}</em><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.default_scene_settings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.generate_callbacks">
-<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.get_scene_and_legend">
-<em class="property">static </em><code class="sig-name descname">get_scene_and_legend</code><span class="sig-paren">(</span><em class="sig-param">graph: Union[pymatgen.analysis.graphs.StructureGraph, pymatgen.analysis.graphs.MoleculeGraph, None], name, color_scheme='VESTA', color_scale=None, radius_strategy='uniform', draw_image_atoms=True, bonded_sites_outside_unit_cell=False, hide_incomplete_bonds=True, explicitly_calculate_polyhedra_hull=False, scene_additions=None, show_compass=False</em><span class="sig-paren">)</span> &#x2192; Tuple[crystal_toolkit.core.scene.Scene, Dict[str, str]]<a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.get_scene_and_legend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.get_scene_and_legend" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.layout">
-<code class="sig-name descname">layout</code><span class="sig-paren">(</span><em class="sig-param">size: str = '400px'</em><span class="sig-paren">)</span> &#x2192; dash_html_components.Div.Div<a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>size</strong> – a CSS string specifying width/height of Div</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A html.Div containing the 3D structure or molecule</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.legend_layout">
-<code class="sig-name descname">legend_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.legend_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.legend_layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A layout including a legend for the structure/molecule.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.options_layout">
-<code class="sig-name descname">options_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.options_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.options_layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A layout including options to change the appearance, bonding, etc.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.persistence">
-<code class="sig-name descname">persistence</code><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.persistence" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.persistence_type">
-<code class="sig-name descname">persistence_type</code><em class="property"> = 'local'</em><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.persistence_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.screenshot_layout">
-<code class="sig-name descname">screenshot_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.screenshot_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.screenshot_layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A layout including a button to trigger a screenshot download.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.title_layout">
-<code class="sig-name descname">title_layout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.title_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.title_layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A layout including the composition of the structure/molecule as a title.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-components-structure-module">
+<h1>crystal_toolkit.components.structure module<a class="headerlink" href="#crystal-toolkit-components-structure-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

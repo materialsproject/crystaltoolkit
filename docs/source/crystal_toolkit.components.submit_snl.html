@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="crystal_toolkit.components.summary module" href="crystal_toolkit.components.summary.html" />
+    <link rel="next" title="crystal_toolkit.components.symmetry module" href="crystal_toolkit.components.symmetry.html" />
     <link rel="prev" title="crystal_toolkit.components.structure module" href="crystal_toolkit.components.structure.html" /> 
 </head>
 
@@ -96,7 +96,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -105,7 +105,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -178,47 +178,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.components.submit_snl">
-<span id="crystal-toolkit-components-submit-snl-module"></span><h1>crystal_toolkit.components.submit_snl module<a class="headerlink" href="#module-crystal_toolkit.components.submit_snl" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="crystal_toolkit.components.submit_snl.SubmitSNLPanel">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.submit_snl.</code><code class="sig-name descname">SubmitSNLPanel</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">url_id=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/submit_snl.html#SubmitSNLPanel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.submit_snl.SubmitSNLPanel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.panelcomponent.html#crystal_toolkit.core.panelcomponent.PanelComponent" title="crystal_toolkit.core.panelcomponent.PanelComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.panelcomponent.PanelComponent</span></code></a></p>
-<p>This component is designed solely for use in the Materials Project
-infrastructure. It requires a component “url.search” in the app
-layout to work, from which a token will be extracted, and also requires
-a “SearchComponent_search_container” component.</p>
-<dl class="method">
-<dt id="crystal_toolkit.components.submit_snl.SubmitSNLPanel.description">
-<em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#crystal_toolkit.components.submit_snl.SubmitSNLPanel.description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.submit_snl.SubmitSNLPanel.generate_callbacks">
-<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/submit_snl.html#SubmitSNLPanel.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.submit_snl.SubmitSNLPanel.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.submit_snl.SubmitSNLPanel.initial_contents">
-<em class="property">property </em><code class="sig-name descname">initial_contents</code><a class="headerlink" href="#crystal_toolkit.components.submit_snl.SubmitSNLPanel.initial_contents" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.submit_snl.SubmitSNLPanel.title">
-<em class="property">property </em><code class="sig-name descname">title</code><a class="headerlink" href="#crystal_toolkit.components.submit_snl.SubmitSNLPanel.title" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.submit_snl.SubmitSNLPanel.update_contents">
-<code class="sig-name descname">update_contents</code><span class="sig-paren">(</span><em class="sig-param">new_store_contents</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/submit_snl.html#SubmitSNLPanel.update_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.submit_snl.SubmitSNLPanel.update_contents" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-components-submit-snl-module">
+<h1>crystal_toolkit.components.submit_snl module<a class="headerlink" href="#crystal-toolkit-components-submit-snl-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

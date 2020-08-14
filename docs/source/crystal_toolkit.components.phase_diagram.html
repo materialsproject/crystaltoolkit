@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="crystal_toolkit.components.pourbaix module" href="crystal_toolkit.components.pourbaix.html" />
-    <link rel="prev" title="crystal_toolkit.components.magnetism module" href="crystal_toolkit.components.magnetism.html" /> 
+    <link rel="prev" title="crystal_toolkit.components.localenv module" href="crystal_toolkit.components.localenv.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -96,7 +96,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -105,7 +105,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -178,133 +178,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.components.phase_diagram">
-<span id="crystal-toolkit-components-phase-diagram-module"></span><h1>crystal_toolkit.components.phase_diagram module<a class="headerlink" href="#module-crystal_toolkit.components.phase_diagram" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.phase_diagram.</code><code class="sig-name descname">PhaseDiagramComponent</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.clean_formula">
-<em class="property">static </em><code class="sig-name descname">clean_formula</code><span class="sig-paren">(</span><em class="sig-param">formula</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramComponent.clean_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.clean_formula" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.colorscale">
-<code class="sig-name descname">colorscale</code><em class="property"> = [[0.0, '#008d00'], [0.1111111111111111, '#4b9f3f'], [0.2222222222222222, '#73b255'], [0.3333333333333333, '#97c65b'], [0.4444444444444444, '#b9db53'], [0.5555555555555556, '#ffdcdf'], [0.6666666666666666, '#ffb8bf'], [0.7777777777777778, '#fd92a0'], [0.8888888888888888, '#f46b86'], [1.0, '#e24377']]</em><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.colorscale" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_markers">
-<code class="sig-name descname">create_markers</code><span class="sig-paren">(</span><em class="sig-param">plotter</em>, <em class="sig-param">pd</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramComponent.create_markers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_markers" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_table_content">
-<em class="property">static </em><code class="sig-name descname">create_table_content</code><span class="sig-paren">(</span><em class="sig-param">pd</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramComponent.create_table_content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_table_content" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_unstable_markers">
-<code class="sig-name descname">create_unstable_markers</code><span class="sig-paren">(</span><em class="sig-param">plotter</em>, <em class="sig-param">pd</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramComponent.create_unstable_markers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_unstable_markers" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_3d_axis">
-<code class="sig-name descname">default_3d_axis</code><em class="property"> = {'autorange': True, 'showaxeslabels': False, 'showgrid': False, 'showline': False, 'showspikes': False, 'showticklabels': False, 'ticks': '', 'title': None, 'visible': False, 'zeroline': False}</em><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_3d_axis" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_binary_plot_style">
-<code class="sig-name descname">default_binary_plot_style</code><em class="property"> = {'height': 550, 'hovermode': 'closest', 'legend': {'orientation': 'h', 'tracegroupgap': 5, 'traceorder': 'reversed', 'x': 1.0, 'xanchor': 'right', 'y': 1.08}, 'margin': {'b': 70, 'l': 80, 'r': 20, 't': 10}, 'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)', 'showlegend': True, 'width': 500, 'xaxis': {'anchor': 'y', 'mirror': 'ticks', 'nticks': 8, 'showgrid': False, 'showline': True, 'side': 'bottom', 'tickfont': {'size': 16.0}, 'ticks': 'inside', 'title': 'Fraction', 'titlefont': {'color': '#000000', 'size': 24.0}, 'type': 'linear', 'zeroline': False}, 'yaxis': {'anchor': 'x', 'mirror': 'ticks', 'nticks': 7, 'showgrid': False, 'showline': True, 'side': 'left', 'tickfont': {'size': 16.0}, 'ticks': 'inside', 'title': 'Formation energy (eV/fu)', 'titlefont': {'color': '#000000', 'size': 24.0}, 'type': 'linear', 'zeroline': False}}</em><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_binary_plot_style" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_quaternary_plot_style">
-<code class="sig-name descname">default_quaternary_plot_style</code><em class="property"> = {'autosize': True, 'height': 450, 'hovermode': 'closest', 'legend': {'orientation': 'h', 'tracegroupgap': 5, 'traceorder': 'reversed', 'x': 1.0, 'xanchor': 'right', 'y': 1.08}, 'margin': {'b': 30, 'l': 30, 'pad': 0, 'r': 20, 't': 0}, 'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)', 'scene': {'xaxis': {'autorange': True, 'showaxeslabels': False, 'showgrid': False, 'showline': False, 'showspikes': False, 'showticklabels': False, 'ticks': '', 'title': None, 'visible': False, 'zeroline': False}, 'yaxis': {'autorange': True, 'showaxeslabels': False, 'showgrid': False, 'showline': False, 'showspikes': False, 'showticklabels': False, 'ticks': '', 'title': None, 'visible': False, 'zeroline': False}, 'zaxis': {'autorange': True, 'showaxeslabels': False, 'showgrid': False, 'showline': False, 'showspikes': False, 'showticklabels': False, 'ticks': '', 'title': None, 'visible': False, 'zeroline': False}}, 'showlegend': True}</em><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_quaternary_plot_style" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_table_params">
-<code class="sig-name descname">default_table_params</code><em class="property"> = [{'col': 'Material ID', 'edit': False}, {'col': 'Formula', 'edit': True}, {'col': 'Formation Energy (eV/atom)', 'edit': True}, {'col': 'Energy Above Hull (eV/atom)', 'edit': False}, {'col': 'Predicted Stable?', 'edit': False}]</em><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_table_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_ternary_plot_style">
-<code class="sig-name descname">default_ternary_plot_style</code><em class="property"> = {'autosize': True, 'height': 450, 'hovermode': 'closest', 'legend': {'orientation': 'h', 'tracegroupgap': 5, 'traceorder': 'reversed', 'x': 1.0, 'xanchor': 'right', 'y': 1.08}, 'margin': {'b': 30, 'l': 30, 'pad': 0, 'r': 20, 't': 0}, 'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)', 'showlegend': True, 'width': 500, 'xaxis': {'autorange': True, 'showgrid': False, 'showline': False, 'showticklabels': False, 'ticks': '', 'title': None, 'zeroline': False}, 'yaxis': {'autorange': True, 'showgrid': False, 'showline': False, 'showticklabels': False, 'ticks': '', 'title': None, 'zeroline': False}}</em><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_ternary_plot_style" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.empty_plot_style">
-<code class="sig-name descname">empty_plot_style</code><em class="property"> = {'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)', 'xaxis': {'visible': False}, 'yaxis': {'visible': False}}</em><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.empty_plot_style" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.empty_row">
-<code class="sig-name descname">empty_row</code><em class="property"> = {'Energy Above Hull (eV/atom)': None, 'Formation Energy (eV/atom)': 'INSERT', 'Formula': 'INSERT', 'Material ID': None, 'Predicted Stable': None}</em><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.empty_row" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.figure_layout">
-<code class="sig-name descname">figure_layout</code><span class="sig-paren">(</span><em class="sig-param">plotter</em>, <em class="sig-param">pd</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramComponent.figure_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.figure_layout" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.generate_callbacks">
-<code class="sig-name descname">generate_callbacks</code><span class="sig-paren">(</span><em class="sig-param">app</em>, <em class="sig-param">cache</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramComponent.generate_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.layout">
-<em class="property">property </em><code class="sig-name descname">layout</code><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>A Dash layout for the full component. Basic implementation
-provided, but should in general be overridden.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>return</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.ternary_plot">
-<em class="property">static </em><code class="sig-name descname">ternary_plot</code><span class="sig-paren">(</span><em class="sig-param">plot_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramComponent.ternary_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.ternary_plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a ternary phase diagram in a two-dimensional plot.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>plot_data</strong> – plot data from PDPlotter</p>
-</dd>
-</dl>
-<p>Returns: go.Figure</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.components.phase_diagram.</code><code class="sig-name descname">PhaseDiagramPanelComponent</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramPanelComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.panelcomponent.html#crystal_toolkit.core.panelcomponent.PanelComponent" title="crystal_toolkit.core.panelcomponent.PanelComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.panelcomponent.PanelComponent</span></code></a></p>
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.description">
-<em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.title">
-<em class="property">property </em><code class="sig-name descname">title</code><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.title" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.update_contents">
-<code class="sig-name descname">update_contents</code><span class="sig-paren">(</span><em class="sig-param">new_store_contents</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/phase_diagram.html#PhaseDiagramPanelComponent.update_contents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.update_contents" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-components-phase-diagram-module">
+<h1>crystal_toolkit.components.phase_diagram module<a class="headerlink" href="#crystal-toolkit-components-phase-diagram-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

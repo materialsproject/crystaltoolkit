@@ -1,7 +1,7 @@
-crystal\_toolkit.helpers.dash\_renderer module
+crystal\_toolkit.components.diffraction module
 ==============================================
 
-.. automodule:: crystal_toolkit.helpers.dash_renderer
+.. automodule:: crystal_toolkit.components.diffraction
    :members:
    :undoc-members:
    :show-inheritance:
