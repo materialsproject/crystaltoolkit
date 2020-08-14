@@ -33,11 +33,6 @@ jobs:
     - name: Install dependencies
       run: poetry install
       if: steps.cache.outputs.cache-hit != 'true'
-    - name: Test with pytest
-      env:
-        PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-      run: |
-        poetry run pytest --color=yes --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
     - name: Build new docs
       run: |
         git config --global user.name 'Matthew Horton'
@@ -52,4 +47,9 @@ jobs:
         git diff-index --quiet HEAD || git commit -m "Automated doc build"
         git push
       continue-on-error: true
+    - name: Test with pytest
+      env:
+        PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      run: |
+        poetry run pytest --color=yes --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
 
