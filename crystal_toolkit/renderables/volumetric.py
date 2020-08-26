@@ -1,15 +1,14 @@
 import numpy as np
-
-from crystal_toolkit.core.scene import Scene, Surface
-
 from pymatgen.io.vasp import VolumetricData
 from skimage import measure
+
+from crystal_toolkit.core.scene import Scene, Surface
 
 _ANGS2_TO_BOHR3 = 1.88973 ** 3
 
 
 def get_isosurface_scene(
-    self, data_key="total", isolvl=0.5, step_size=3, origin=(0.0, 0.0, 0.0), **kwargs
+    self, data_key="total", isolvl=0.05, step_size=4, origin=None, **kwargs
 ):
     """Get the isosurface from a VolumetricData object
 
@@ -22,6 +21,9 @@ def get_isosurface_scene(
     Returns:
         [type]: [description]
     """
+    origin = origin or list(
+        -self.structure.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
+    )
     vol_data = np.copy(self.data[data_key])
     vol = self.structure.volume
     vol_data = vol_data / vol / _ANGS2_TO_BOHR3
@@ -60,11 +62,8 @@ def get_volumetric_scene(self, data_key="total", isolvl=0.5, step_size=3, **kwar
         step_size=step_size,
         origin=struct_scene.origin,
     )
-    return Scene(
-        name=self.structure.composition.reduced_formula,
-        origin=struct_scene.origin,
-        contents=[struct_scene, iso_scene],
-    )
+    struct_scene.contents.append(iso_scene)
+    return struct_scene
 
 
 # todo: re-think origin, shift globally at end (scene.origin)
