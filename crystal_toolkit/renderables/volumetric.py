@@ -57,7 +57,10 @@ def get_volumetric_scene(self, data_key="total", isolvl=0.5, step_size=3, **kwar
 
     struct_scene = self.structure.get_scene(**kwargs)
     iso_scene = self.get_isosurface_scene(
-        data_key=data_key, isolvl=isolvl, step_size=step_size,
+        data_key=data_key,
+        isolvl=isolvl,
+        step_size=step_size,
+        origin=struct_scene.origin,
     )
     struct_scene.contents.append(iso_scene)
     return struct_scene
