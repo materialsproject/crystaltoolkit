@@ -8,7 +8,7 @@ _ANGS2_TO_BOHR3 = 1.88973 ** 3
 
 
 def get_isosurface_scene(
-    self, data_key="total", isolvl=0.5, step_size=3, origin=None, **kwargs
+    self, data_key="total", isolvl=0.05, step_size=4, origin=None, **kwargs
 ):
     """Get the isosurface from a VolumetricData object
 
