@@ -539,7 +539,7 @@ class StructureMoleculeComponent(MPComponent):
         screenshot_layout = html.Div(
             [
                 Button(
-                    [Icon(), html.Span(), "Download Image"],
+                    [Icon(kind="download"), html.Span(), "Download Image"],
                     kind="primary",
                     id=self.id("screenshot_button"),
                 )

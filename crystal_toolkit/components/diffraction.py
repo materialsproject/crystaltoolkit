@@ -11,6 +11,17 @@ from dash.exceptions import PreventUpdate
 
 from pymatgen import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.diffraction.tem import TEMCalculator
+
+
+# Scherrer equation:
+# Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years: a survey and some new results in the determination of crystallite size." Journal of applied crystallography 11.2 (1978): 102-113.
+# https://doi.org/10.1107/S0021889878012844
+
+
+#    def __init__(self, symprec: float = None, voltage: float = 200,
+#                beam_direction: Tuple[int, int, int] = (0, 0, 1), camera_length: int = 160,
+#                debye_waller_factors: Dict[str, float] = None, cs: float = 1) -> None:
 
 from pymatgen.analysis.diffraction.xrd import XRDCalculator, WAVELENGTHS
 
@@ -23,7 +34,32 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 # Contact: mcdermott@lbl.gov
 
 
+class TEMDiffractionComponent(MPComponent):
+    def layout(self):
+        return Columns(
+            [
+                Column([self._sub_layouts["graph"]], size=8),
+                Column(
+                    [
+                        self._sub_layouts["x_axis"],
+                        self._sub_layouts["rad_source"],
+                        self._sub_layouts["shape_factor"],
+                        self._sub_layouts["peak_profile"],
+                        self._sub_layouts["crystallite_size"],
+                    ],
+                    size=4,
+                ),
+            ],
+            id=self.id("inner-contents"),
+        )
+
+    def generate_callbacks(self, app, cache):
+        pass
+
+
 class XRayDiffractionComponent(MPComponent):
+    # TODO: add pole figures for a given single peak for help quantifying texture
+
     def __init__(self, *args, initial_structure=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("struct", initial_data=initial_structure)
@@ -31,7 +67,7 @@ class XRayDiffractionComponent(MPComponent):
     # Default XRD plot style settings
     default_xrd_plot_style = dict(
         xaxis={
-            "title": "2θ / º",
+            "title": "2𝜃 / º",
             "anchor": "y",
             "mirror": "ticks",
             "nticks": 8,
@@ -109,7 +145,7 @@ class XRayDiffractionComponent(MPComponent):
         :return:
         """
         # thanks @rwoodsrobinson
-        return (4 * np.pi / xray_wavelength) * np.sin(np.array(twotheta) * np.pi / 360)
+        return (4 * np.pi / xray_wavelength) * np.sin(np.deg2rad(twotheta))
 
     def grain_to_hwhm(self, tau, two_theta, K=0.9, wavelength="CuKa"):
         """
@@ -120,37 +156,21 @@ class XRayDiffractionComponent(MPComponent):
         :return: half-width half-max (alpha or gamma), for line profile
         """
         wavelength = WAVELENGTHS[wavelength]
-        print(tau, two_theta, K, wavelength)
+        # factor of 0.1 to convert wavelength to nm
         return (
-            0.5 * K * wavelength / (tau * abs(np.cos(two_theta / 2)))
+            0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
         )  # Scherrer equation for half-width half max
 
     @property
     def _sub_layouts(self):
 
         state = {
-            "mode": "powder",
             "peak_profile": "G",
             "shape_factor": 0.94,
             "rad_source": "CuKa",
             "x_axis": "twotheta",
             "crystallite_size": 0.1,
         }
-
-        # mode selector
-        mode = self.get_choice_input(
-            kwarg_label="mode",
-            state=state,
-            label="Mode",
-            help_str="""Select whether to generate a powder diffraction pattern 
-(a pattern averaged over all orientations of a polycrystalline material) 
-or a single crystal diffraction pattern (a diffraction pattern generated 
-from a single crystal structure.""",
-            options=[
-                {"value": "powder", "label": "Powder"},
-                {"value": "single", "label": "Single Crystal"},
-            ],
-        )
 
         # download
 
@@ -229,10 +249,10 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             kwarg_label="x_axis",
             state=state,
             label="Choice of 𝑥 axis",
-            help_str="Can choose between 2Θ or Q, where Q is the magnitude of the reciprocal lattice and "
+            help_str="Can choose between 2𝜃 or Q, where Q is the magnitude of the reciprocal lattice and "
             "independent of radiation source.",  # TODO: improve
             options=[
-                {"label": "2Θ", "value": "twotheta"},
+                {"label": "2𝜃", "value": "twotheta"},
                 {"label": "Q", "value": "Q"},
             ],
         )
@@ -250,7 +270,6 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
         )
 
         return {
-            "mode": mode,
             "x_axis": x_axis_choice,
             "graph": graph,
             "rad_source": rad_source,
@@ -260,24 +279,18 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
         }
 
     def layout(self):
-        return html.Div(
+        return Columns(
             [
-                Columns(Column(self._sub_layouts["mode"])),
-                Columns(
+                Column([self._sub_layouts["graph"]], size=8, style={"height": "600px"}),
+                Column(
                     [
-                        Column([self._sub_layouts["graph"]], size=8),
-                        Column(
-                            [
-                                self._sub_layouts["x_axis"],
-                                self._sub_layouts["rad_source"],
-                                self._sub_layouts["shape_factor"],
-                                self._sub_layouts["peak_profile"],
-                                self._sub_layouts["crystallite_size"],
-                            ],
-                            size=4,
-                        ),
+                        self._sub_layouts["x_axis"],
+                        self._sub_layouts["rad_source"],
+                        self._sub_layouts["shape_factor"],
+                        self._sub_layouts["peak_profile"],
+                        self._sub_layouts["crystallite_size"],
                     ],
-                    id=self.id("inner-contents"),
+                    size=4,
                 ),
             ]
         )
@@ -300,6 +313,10 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
                 raise PreventUpdate
 
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
+
+            if not kwargs:
+                raise PreventUpdate
+
             peak_profile = kwargs["peak_profile"]
             K = kwargs["shape_factor"]
             rad_source = kwargs["rad_source"]
@@ -316,7 +333,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             ]  # convert to (h k l) format
 
             annotations = [
-                f"2Θ: {round(peak_x,3)}<br>Intensity: {round(peak_y,3)}<br>{hkl} <br>d: {round(d, 3)}"
+                f"2𝜃: {round(peak_x,3)}<br>Intensity: {round(peak_y,3)}<br>{hkl} <br>d: {round(d, 3)}"
                 for peak_x, peak_y, hkl, d in zip(x_peak, y_peak, hkls, d_hkls)
             ]  # text boxes
 
@@ -362,7 +379,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
                 x = self.twotheta_to_q(x, WAVELENGTHS[rad_source])
                 layout["xaxis"]["title"] = "Q / Å⁻¹"
             else:
-                layout["xaxis"]["title"] = "2θ / º"
+                layout["xaxis"]["title"] = "2𝜃 / º"
             layout["xaxis"]["range"] = [min(x), max(x)]
             bar_width = 0.003 * (
                 max(x) - min(x)
@@ -376,6 +393,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
                     hoverinfo="text",
                     text=annotations,
                     opacity=0.8,
+                    marker={"color": "black"},
                 ),
                 go.Scatter(x=x, y=y, hoverinfo="none"),
             ]
@@ -392,7 +410,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
         )
         def pattern_from_struct(struct, rad_source):
 
-            if struct is None:
+            if struct is None or not rad_source:
                 raise PreventUpdate
 
             struct = self.from_data(struct)
@@ -413,10 +431,11 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             return data.as_dict()
 
 
-class XRayDiffractionPanelComponent(PanelComponent):
+class DiffractionPanelComponent(PanelComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.xrd = XRayDiffractionComponent(links={"struct": self.id()})
+        self.tem = TEMDiffractionComponent(links={"default": self.id()})
 
     @property
     def title(self):
@@ -424,7 +443,27 @@ class XRayDiffractionPanelComponent(PanelComponent):
 
     @property
     def description(self):
-        return "Display the powder X-ray diffraction pattern for this structure."
+        return (
+            "Display powder or single crystal diffraction patterns for this structure."
+        )
 
     def contents_layout(self) -> html.Div:
-        return self.xrd.layout()
+
+        state = {"mode": "powder"}
+
+        # mode selector
+        mode = self.get_choice_input(
+            kwarg_label="mode",
+            state=state,
+            label="Mode",
+            help_str="""Select whether to generate a powder diffraction pattern 
+        (a pattern averaged over all orientations of a polycrystalline material) 
+        or a single crystal diffraction pattern (a diffraction pattern generated 
+        from a single crystal structure.""",
+            options=[
+                {"value": "powder", "label": "Powder"},
+                {"value": "single", "label": "Single Crystal"},
+            ],
+        )
+
+        return html.Div([Columns(Column(mode)), self.xrd.layout()])

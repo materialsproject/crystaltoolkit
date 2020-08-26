@@ -1,7 +1,0 @@
-crystal\_toolkit.components.bonding\_graph module
-=================================================
-
-.. automodule:: crystal_toolkit.components.bonding_graph
-   :members:
-   :undoc-members:
-   :show-inheritance:

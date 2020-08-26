@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="crystal_toolkit.renderables.structuregraph module" href="crystal_toolkit.renderables.structuregraph.html" />
-    <link rel="prev" title="crystal_toolkit.renderables.sitecollection module" href="crystal_toolkit.renderables.sitecollection.html" /> 
+    <link rel="prev" title="crystal_toolkit.renderables.site module" href="crystal_toolkit.renderables.site.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -98,13 +98,13 @@
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.renderables.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.renderables.html#module-crystal_toolkit.renderables">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.renderables.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -180,9 +180,20 @@
   <div class="section" id="module-crystal_toolkit.renderables.structure">
 <span id="crystal-toolkit-renderables-structure-module"></span><h1>crystal_toolkit.renderables.structure module<a class="headerlink" href="#module-crystal_toolkit.renderables.structure" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="crystal_toolkit.renderables.structure.get_scene_from_structure">
-<code class="sig-prename descclassname">crystal_toolkit.renderables.structure.</code><code class="sig-name descname">get_scene_from_structure</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">bonding_strategy='CrystalNN'</em>, <em class="sig-param">bonding_strategy_kwargs=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/renderables/structure.html#get_scene_from_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.renderables.structure.get_scene_from_structure" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="crystal_toolkit.renderables.structure.get_structure_scene">
+<code class="sig-prename descclassname">crystal_toolkit.renderables.structure.</code><code class="sig-name descname">get_structure_scene</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">origin: List[float] = None</em>, <em class="sig-param">legend: Optional[crystal_toolkit.core.legend.Legend] = None</em>, <em class="sig-param">draw_image_atoms: bool = True</em><span class="sig-paren">)</span> &#x2192; crystal_toolkit.core.scene.Scene<a class="reference internal" href="../_modules/crystal_toolkit/renderables/structure.html#get_structure_scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.renderables.structure.get_structure_scene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create CTK objects for the lattice and sties
+:param self: Structure object
+:param origin: fractional coordinate of the origin
+:param legend: Legend for the sites
+:param draw_image_atoms: If true draw image atoms that are just outside the
+:param periodic boundary:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>CTK scene object to be rendered</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 

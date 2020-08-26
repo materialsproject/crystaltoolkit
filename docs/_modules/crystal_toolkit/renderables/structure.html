@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -153,24 +153,112 @@
            <div itemprop="articleBody">
             
   <h1>Source code for crystal_toolkit.renderables.structure</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">crystal_toolkit.core.scene</span> <span class="kn">import</span> <span class="n">Scene</span>
-<span class="kn">from</span> <span class="nn">crystal_toolkit.components.structure</span> <span class="kn">import</span> <span class="n">StructureMoleculeComponent</span> <span class="k">as</span> <span class="n">SMC</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span>
-<span class="kn">import</span> <span class="nn">crystal_toolkit.renderables.structuregraph</span>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.legend</span> <span class="kn">import</span> <span class="n">Legend</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.scene</span> <span class="kn">import</span> <span class="n">Scene</span>
 
 
-<div class="viewcode-block" id="get_scene_from_structure"><a class="viewcode-back" href="../../../source/crystal_toolkit.renderables.structure.html#crystal_toolkit.renderables.structure.get_scene_from_structure">[docs]</a><span class="k">def</span> <span class="nf">get_scene_from_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                             <span class="n">bonding_strategy</span><span class="o">=</span><span class="s2">&quot;CrystalNN&quot;</span><span class="p">,</span>
-                             <span class="n">bonding_strategy_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                             <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">sgraph</span> <span class="o">=</span> <span class="n">SMC</span><span class="o">.</span><span class="n">_preprocess_input_to_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                                            <span class="n">bonding_strategy</span><span class="o">=</span><span class="n">bonding_strategy</span><span class="p">,</span>
-                                            <span class="n">bonding_strategy_kwargs</span><span class="o">=</span><span class="n">bonding_strategy_kwargs</span><span class="p">,</span>
-                                            <span class="p">)</span>
-    <span class="k">return</span> <span class="n">sgraph</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+<span class="k">def</span> <span class="nf">_get_sites_to_draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draw_image_atoms</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of site indices and image vectors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sites_to_draw</span> <span class="o">=</span> <span class="p">[(</span><span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))]</span>
+
+    <span class="k">if</span> <span class="n">draw_image_atoms</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">zero_elements</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">idx</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="n">coord_permutations</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">x</span>
+                <span class="k">for</span> <span class="n">tmp_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">zero_elements</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="n">zero_elements</span><span class="p">,</span> <span class="n">tmp_</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">perm</span> <span class="ow">in</span> <span class="n">coord_permutations</span><span class="p">:</span>
+                <span class="n">sites_to_draw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">0</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">)))</span>
+                <span class="p">)</span>
+
+            <span class="n">one_elements</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">idx</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="n">coord_permutations</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">x</span>
+                <span class="k">for</span> <span class="n">tmp_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">one_elements</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="n">one_elements</span><span class="p">,</span> <span class="n">tmp_</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">perm</span> <span class="ow">in</span> <span class="n">coord_permutations</span><span class="p">:</span>
+                <span class="n">sites_to_draw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="mi">0</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">),</span> <span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">),</span> <span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="mi">2</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">)))</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">sites_to_draw</span><span class="p">)</span>
 
 
-<span class="n">Structure</span><span class="o">.</span><span class="n">get_scene</span> <span class="o">=</span> <span class="n">get_scene_from_structure</span>
+<div class="viewcode-block" id="get_structure_scene"><a class="viewcode-back" href="../../../source/crystal_toolkit.renderables.structure.html#crystal_toolkit.renderables.structure.get_structure_scene">[docs]</a><span class="k">def</span> <span class="nf">get_structure_scene</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">origin</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">legend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Legend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">draw_image_atoms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scene</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create CTK objects for the lattice and sties</span>
+<span class="sd">    Args:</span>
+<span class="sd">        self:  Structure object</span>
+<span class="sd">        origin: fractional coordinate of the origin</span>
+<span class="sd">        legend: Legend for the sites</span>
+<span class="sd">        draw_image_atoms: If true draw image atoms that are just outside the</span>
+<span class="sd">        periodic boundary</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        CTK scene object to be rendered</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">origin</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]))</span>
+
+    <span class="n">legend</span> <span class="o">=</span> <span class="n">legend</span> <span class="ow">or</span> <span class="n">Legend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="n">primitives</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="n">sites_to_draw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sites_to_draw</span><span class="p">(</span><span class="n">draw_image_atoms</span><span class="o">=</span><span class="n">draw_image_atoms</span><span class="p">,)</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">jimage</span><span class="p">)</span> <span class="ow">in</span> <span class="n">sites_to_draw</span><span class="p">:</span>
+
+        <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">site_scene</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,)</span>
+        <span class="k">for</span> <span class="n">scene</span> <span class="ow">in</span> <span class="n">site_scene</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
+            <span class="n">primitives</span><span class="p">[</span><span class="n">scene</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scene</span><span class="o">.</span><span class="n">contents</span>
+
+    <span class="n">primitives</span><span class="p">[</span><span class="s2">&quot;unit_cell&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_scene</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">Scene</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Structure&quot;</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">,</span>
+        <span class="n">contents</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">Scene</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="n">v</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">primitives</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">],</span>
+    <span class="p">)</span></div>
+
+
+<span class="n">Structure</span><span class="o">.</span><span class="n">_get_sites_to_draw</span> <span class="o">=</span> <span class="n">_get_sites_to_draw</span>
+<span class="n">Structure</span><span class="o">.</span><span class="n">get_scene</span> <span class="o">=</span> <span class="n">get_structure_scene</span>
 </pre></div>
 
            </div>

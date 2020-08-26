@@ -6,6 +6,7 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine as BSML
+from pymatgen.symmetry.bandstructure import HighSymmKpath as HSKP
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import BSPlotter
@@ -14,8 +15,8 @@ from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
 
-
-# from pymongo import MongoClient
+# -- Temp fake API
+from maggma.stores import MongoStore, GridFSStore, JSONStore
 
 
 # Author: Jason Munro
@@ -162,20 +163,20 @@ class BandstructureAndDosComponent(MPComponent):
             if traces is None:
                 raise PreventUpdate
 
-            figure = tls.make_subplots(
-                rows=1, cols=2, shared_yaxes=True, print_grid=False
-            )
-
             bstraces, dostraces, bs_data = traces
 
+            rmax = max(
+                [
+                    max(dostraces[0]["x"]),
+                    abs(min(dostraces[0]["x"])),
+                    max(dostraces[1]["x"]),
+                    abs(min(dostraces[1]["x"])),
+                ]
+            )
+
             # -- Add trace data to plots
-            for bstrace in bstraces:
-                figure.add_trace(bstrace, 1, 1)
 
-            for dostrace in dostraces:
-                figure.add_trace(dostrace, 1, 2)
-
-            xaxis_style = go.layout.XAxis(
+            xaxis_style = dict(
                 title=dict(text="Wave Vector", font=dict(size=16)),
                 tickmode="array",
                 tickvals=bs_data["ticks"]["distance"],
@@ -183,16 +184,20 @@ class BandstructureAndDosComponent(MPComponent):
                 tickfont=dict(size=16),
                 ticks="inside",
                 tickwidth=2,
-                showgrid=True,
+                showgrid=False,
                 showline=True,
+                zeroline=False,
                 linewidth=2,
                 mirror=True,
+                range=[0, bs_data["ticks"]["distance"][-1]],
+                linecolor="rgb(71,71,71)",
+                gridcolor="white",
             )
 
-            yaxis_style = go.layout.YAxis(
-                title=dict(text="E-Efermi (eV)", font=dict(size=16)),
+            yaxis_style = dict(
+                title=dict(text="E−E<sub>fermi</sub> (eV)", font=dict(size=16)),
                 tickfont=dict(size=16),
-                showgrid=True,
+                showgrid=False,
                 showline=True,
                 zeroline=True,
                 mirror="ticks",
@@ -201,33 +206,51 @@ class BandstructureAndDosComponent(MPComponent):
                 tickwidth=2,
                 zerolinewidth=2,
                 range=[-5, 9],
+                linecolor="rgb(71,71,71)",
+                gridcolor="white",
+                zerolinecolor="white",
             )
 
-            xaxis_style_dos = go.layout.XAxis(
+            xaxis_style_dos = dict(
                 title=dict(text="Density of States", font=dict(size=16)),
                 tickfont=dict(size=16),
-                showgrid=True,
+                showgrid=False,
                 showline=True,
+                zeroline=False,
                 mirror=True,
                 ticks="inside",
                 linewidth=2,
                 tickwidth=2,
+                range=[
+                    -rmax * 1.1 * int(len(bs_data["energy"][0].keys()) == 2),
+                    rmax * 1.1,
+                ],
+                linecolor="rgb(71,71,71)",
+                gridcolor="white",
+                zerolinecolor="white",
+                zerolinewidth=2,
             )
 
-            yaxis_style_dos = go.layout.YAxis(
+            yaxis_style_dos = dict(
                 tickfont=dict(size=16),
-                showgrid=True,
+                showgrid=False,
                 showline=True,
                 zeroline=True,
+                showticklabels=False,
                 mirror="ticks",
                 ticks="inside",
                 linewidth=2,
                 tickwidth=2,
                 zerolinewidth=2,
                 range=[-5, 9],
+                linecolor="rgb(71,71,71)",
+                gridcolor="white",
+                zerolinecolor="white",
+                matches="y",
+                anchor="x2",
             )
 
-            layout = go.Layout(
+            layout = dict(
                 title="",
                 xaxis1=xaxis_style,
                 xaxis2=xaxis_style_dos,
@@ -235,29 +258,29 @@ class BandstructureAndDosComponent(MPComponent):
                 yaxis2=yaxis_style_dos,
                 showlegend=True,
                 height=500,
-                width=1500,
-                hovermode="x",
+                width=1000,
+                hovermode="closest",
                 paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(230,230,230,230)",
                 margin=dict(l=60, b=50, t=50, pad=0, r=30),
             )
 
-            figure["layout"].update(layout)
+            figure = {"data": bstraces + dostraces, "layout": layout}
 
-            legend = go.layout.Legend(
-                x=1.01,
-                y=1.0,
+            legend = dict(
+                x=1.02,
+                y=1.005,
                 xanchor="left",
                 yanchor="top",
                 bordercolor="#333",
-                borderwidth=1,
+                borderwidth=2,
                 traceorder="normal",
             )
 
             figure["layout"]["legend"] = legend
 
-            figure["layout"]["xaxis1"]["domain"] = [0.0, 0.6]
-            figure["layout"]["xaxis2"]["domain"] = [0.65, 1.0]
+            figure["layout"]["xaxis1"]["domain"] = [0.0, 0.7]
+            figure["layout"]["xaxis2"]["domain"] = [0.73, 1.0]
 
             return [
                 dcc.Graph(
@@ -267,7 +290,6 @@ class BandstructureAndDosComponent(MPComponent):
 
         @app.callback(
             [
-                Output(self.id("label-select"), "options"),
                 Output(self.id("label-select"), "value"),
                 Output(self.id("label-container"), "style"),
             ],
@@ -277,41 +299,14 @@ class BandstructureAndDosComponent(MPComponent):
             ],
         )
         def update_label_select(mpid, path_convention):
-            if not mpid or "mpid" not in mpid:
-
-                label_options = [{"label": "N/A", "value": ""}]
-                label_value = ""
-                label_style = {"max-width": "200", "display": "none"}
-
-                return [label_options, label_value, label_style]
+            if not mpid:
+                raise PreventUpdate
             else:
-
-                label_options = [
-                    {
-                        "label": "Setyawan-Curtarolo",
-                        "value": "sc",
-                        "disabled": not (
-                            path_convention == "lm" or path_convention == "sc"
-                        ),
-                    },
-                    {
-                        "label": "Latimer-Munro",
-                        "value": "lm",
-                        "disabled": not (path_convention == "lm"),
-                    },
-                    {
-                        "label": "Hinuma et al.",
-                        "value": "hin",
-                        "disabled": not (
-                            path_convention == "lm" or path_convention == "hin"
-                        ),
-                    },
-                ]
 
                 label_value = path_convention
                 label_style = {"max-width": "200"}
 
-                return [label_options, label_value, label_style]
+                return [label_value, label_style]
 
         @app.callback(
             [
@@ -324,7 +319,7 @@ class BandstructureAndDosComponent(MPComponent):
         def update_select(elements, mpid):
             if elements is None:
                 raise PreventUpdate
-            elif not mpid or "mpid" not in mpid:
+            elif not mpid:
                 dos_options = (
                     [{"label": "Element Projected", "value": "ap"}]
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
@@ -383,358 +378,507 @@ class BandstructureAndDosComponent(MPComponent):
             bandstructure_symm_line,
             density_of_states,
         ):
-            if (not mpid or "mpid" not in mpid) and (
+            if not mpid and (
                 bandstructure_symm_line is None or density_of_states is None
             ):
                 raise PreventUpdate
-            elif mpid:
-                raise PreventUpdate
+
             elif bandstructure_symm_line is None or density_of_states is None:
+                if label_select == "":
+                    raise PreventUpdate
 
                 # --
-                # -- BS and DOS from API
+                # -- BS and DOS from API or DB
                 # --
 
-                mpid = mpid["mpid"]
                 bs_data = {"ticks": {}}
 
-                # client = MongoClient(
-                #     "mongodb03.nersc.gov", username="jmunro_lbl.gov_readWrite", password="", authSource="fw_bs_prod",
-                # )
-
-                db = client.fw_bs_prod
-
-                # - BS traces from DB using task_id
-                bs_query = list(
-                    db.electronic_structure.find(
-                        {"task_id": int(mpid)},
-                        ["bandstructure.{}.total.traces".format(path_convention)],
-                    )
-                )[0]
-
-                is_sp = (
-                    len(bs_query["bandstructure"][path_convention]["total"]["traces"])
-                    == 2
+                bs_store = GridFSStore(
+                    database="fw_bs_prod",
+                    collection_name="bandstructure_fs",
+                    host="mongodb03.nersc.gov",
+                    port=27017,
+                    username="jmunro_lbl.gov_readWrite",
+                    password="",
                 )
 
-                if is_sp:
-                    bstraces = (
-                        bs_query["bandstructure"][path_convention]["total"]["traces"][
-                            "1"
-                        ]
-                        + bs_query["bandstructure"][path_convention]["total"]["traces"][
-                            "-1"
-                        ]
-                    )
-                else:
-                    bstraces = bs_query["bandstructure"][path_convention]["total"][
-                        "traces"
-                    ]["1"]
+                dos_store = GridFSStore(
+                    database="fw_bs_prod",
+                    collection_name="dos_fs",
+                    host="mongodb03.nersc.gov",
+                    port=27017,
+                    username="jmunro_lbl.gov_readWrite",
+                    password="",
+                )
 
-                bs_data["ticks"]["distance"] = bs_query["bandstructure"][
-                    path_convention
-                ]["total"]["traces"]["ticks"]
-                bs_data["ticks"]["label"] = bs_query["bandstructure"][path_convention][
-                    "total"
-                ]["traces"]["labels"]
+                es_store = MongoStore(
+                    database="fw_bs_prod",
+                    collection_name="electronic_structure",
+                    host="mongodb03.nersc.gov",
+                    port=27017,
+                    username="jmunro_lbl.gov_readWrite",
+                    password="",
+                    key="task_id",
+                )
+
+                # - BS traces from DB using task_id
+                es_store.connect()
+                bs_query = es_store.query_one(
+                    criteria={"task_id": int(mpid)},
+                    properties=[
+                        "bandstructure.{}.task_id".format(path_convention),
+                        "bandstructure.{}.total.equiv_labels".format(path_convention),
+                    ],
+                )
+
+                es_store.close()
+
+                bs_store.connect()
+                bandstructure_symm_line = bs_store.query_one(
+                    criteria={
+                        "metadata.task_id": int(
+                            bs_query["bandstructure"][path_convention]["task_id"]
+                        )
+                    },
+                )
 
                 # If LM convention, get equivalent labels
-                if path_convention == "lm" and label_select != "lm":
+                if path_convention != label_select:
                     bs_equiv_labels = bs_query["bandstructure"][path_convention][
                         "total"
-                    ]["traces"]["equiv_labels"]
+                    ]["equiv_labels"]
 
-                    alt_choice = label_select
+                    new_labels_dict = {}
+                    for label in bandstructure_symm_line["labels_dict"].keys():
 
-                    if label_select == "hin":
-                        alt_choice = "h"
-
-                    new_labels = []
-                    for label in bs_data["ticks"]["label"]:
                         label_formatted = label.replace("$", "")
 
                         if "|" in label_formatted:
                             f_label = label_formatted.split("|")
                             new_labels.append(
                                 "$"
-                                + bs_equiv_labels[alt_choice][f_label[0]]
+                                + bs_equiv_labels[label_select][f_label[0]]
                                 + "|"
-                                + bs_equiv_labels[alt_choice][f_label[1]]
+                                + bs_equiv_labels[label_select][f_label[1]]
                                 + "$"
                             )
                         else:
-                            new_labels.append(
-                                "$" + bs_equiv_labels[alt_choice][label_formatted] + "$"
-                            )
+                            new_labels_dict[
+                                "$"
+                                + bs_equiv_labels[label_select][label_formatted]
+                                + "$"
+                            ] = bandstructure_symm_line["labels_dict"][label]
 
-                    bs_data["ticks"]["label"] = new_labels
-
-                # Strip latex math wrapping
-                str_replace = {
-                    "$": "",
-                    "\\mid": "|",
-                    "\\Gamma": "Γ",
-                    "\\Sigma": "Σ",
-                    "GAMMA": "Γ",
-                    "_1": "₁",
-                    "_2": "₂",
-                    "_3": "₃",
-                    "_4": "₄",
-                }
-
-                for entry_num in range(len(bs_data["ticks"]["label"])):
-                    for key in str_replace.keys():
-                        if key in bs_data["ticks"]["label"][entry_num]:
-                            bs_data["ticks"]["label"][entry_num] = bs_data["ticks"][
-                                "label"
-                            ][entry_num].replace(key, str_replace[key])
+                    bandstructure_symm_line["labels_dict"] = new_labels_dict
 
                 # - DOS traces from DB using task_id
-                dostraces = []
+                es_store.connect()
+                dos_query = es_store.query_one(
+                    criteria={"task_id": int(mpid)}, properties=["dos.task_id"],
+                )
+                es_store.close()
 
-                dos_tot_ele_traces = list(
-                    db.electronic_structure.find(
-                        {"task_id": int(mpid)}, ["dos.total.traces", "dos.elements"]
-                    )
-                )[0]
+                dos_store.connect()
+                density_of_states = dos_store.query_one(
+                    criteria={"task_id": int(dos_query["dos"]["task_id"])},
+                )
 
-                dostraces = [
-                    dos_tot_ele_traces["dos"]["total"]["traces"][spin]
-                    for spin in dos_tot_ele_traces["dos"]["total"]["traces"].keys()
-                ]
+            # - BS Data
+            if (
+                type(bandstructure_symm_line) != dict
+                and bandstructure_symm_line is not None
+            ):
+                bandstructure_symm_line = bandstructure_symm_line.to_dict()
 
-                elements = [ele for ele in dos_tot_ele_traces["dos"]["elements"].keys()]
+            if type(density_of_states) != dict and density_of_states is not None:
+                density_of_states = density_of_states.to_dict()
 
-                if dos_select == "ap":
-                    for ele_label in elements:
-                        dostraces += [
-                            dos_tot_ele_traces["dos"]["elements"][ele_label]["total"][
-                                "traces"
-                            ][spin]
-                            for spin in dos_tot_ele_traces["dos"]["elements"][
-                                ele_label
-                            ]["total"]["traces"].keys()
-                        ]
+            bsml = BSML.from_dict(bandstructure_symm_line)
 
-                elif dos_select == "op":
-                    orb_tot_traces = list(
-                        db.electronic_structure.find(
-                            {"task_id": int(mpid)}, ["dos.orbitals"]
-                        )
-                    )[0]
-                    for orbital in ["s", "p", "d"]:
-                        dostraces += [
-                            orb_tot_traces["dos"]["orbitals"][orbital]["traces"][spin]
-                            for spin in orb_tot_traces["dos"]["orbitals"]["s"][
-                                "traces"
-                            ].keys()
-                        ]
+            bs_reg_plot = BSPlotter(bsml)
 
-                elif "orb" in dos_select:
-                    ele_label = dos_select.replace("orb", "")
+            bs_data = bs_reg_plot.bs_plot_data()
 
-                    for orbital in ["s", "p", "d"]:
-                        dostraces += [
-                            dos_tot_ele_traces["dos"]["elements"][ele_label][orbital][
-                                "traces"
-                            ][spin]
-                            for spin in dos_tot_ele_traces["dos"]["elements"][
-                                ele_label
-                            ][orbital]["traces"].keys()
-                        ]
+            # Make plot continous for lm
+            if path_convention == "lm":
+                distance_map, kpath_euler = HSKP(bsml.structure).get_continuous_path(
+                    bsml
+                )
 
-                traces = [bstraces, dostraces, bs_data]
-
-                return (traces, elements)
+                kpath_labels = [pair[0] for pair in kpath_euler]
+                kpath_labels.append(kpath_euler[-1][1])
 
             else:
-
-                # --
-                # -- BS and DOS passed manually
-                # --
-
-                # - BS Data
-
-                if type(bandstructure_symm_line) != dict:
-                    bandstructure_symm_line = bandstructure_symm_line.to_dict()
-
-                if type(density_of_states) != dict:
-                    density_of_states = density_of_states.to_dict()
-
-                bs_reg_plot = BSPlotter(BSML.from_dict(bandstructure_symm_line))
-                bs_data = bs_reg_plot.bs_plot_data()
-
-                # - Strip latex math wrapping
-                str_replace = {
-                    "$": "",
-                    "\\mid": "|",
-                    "\\Gamma": "Γ",
-                    "\\Sigma": "Σ",
-                    "GAMMA": "Γ",
-                    "_1": "₁",
-                    "_2": "₂",
-                    "_3": "₃",
-                    "_4": "₄",
-                }
-
-                for entry_num in range(len(bs_data["ticks"]["label"])):
-                    for key in str_replace.keys():
-                        if key in bs_data["ticks"]["label"][entry_num]:
-                            bs_data["ticks"]["label"][entry_num] = bs_data["ticks"][
-                                "label"
-                            ][entry_num].replace(key, str_replace[key])
-
-                # Obtain bands to plot over:
-                energy_window = (-6.0, 10.0)
-                bands = []
-                for band_num in range(bs_reg_plot._nb_bands):
+                distance_map = [(i, False) for i in range(len(bs_data["distances"]))]
+                kpath_labels = []
+                for label_ind in range(len(bs_data["ticks"]["label"]) - 1):
                     if (
-                        bs_data["energy"][0][str(Spin.up)][band_num][0]
-                        <= energy_window[1]
-                    ) and (
-                        bs_data["energy"][0][str(Spin.up)][band_num][0]
-                        >= energy_window[0]
+                        bs_data["ticks"]["label"][label_ind]
+                        != bs_data["ticks"]["label"][label_ind + 1]
                     ):
-                        bands.append(band_num)
+                        kpath_labels.append(bs_data["ticks"]["label"][label_ind])
+                kpath_labels.append(bs_data["ticks"]["label"][-1])
 
-                bstraces = []
+            bs_data["ticks"]["label"] = kpath_labels
 
-                # Generate traces for total BS data
-                for d in range(len(bs_data["distances"])):
-                    dist_dat = bs_data["distances"][d]
-                    energy_ind = [i for i in range(len(bs_data["distances"][d]))]
+            # Obtain bands to plot over and generate traces for bs data:
+            energy_window = (-6.0, 10.0)
+            bands = []
+            for band_num in range(bs_reg_plot._nb_bands):
+                if (
+                    bs_data["energy"][0][str(Spin.up)][band_num][0] <= energy_window[1]
+                ) and (
+                    bs_data["energy"][0][str(Spin.up)][band_num][0] >= energy_window[0]
+                ):
+                    bands.append(band_num)
 
+            bstraces = []
+
+            pmin = 0.0
+            tick_vals = [0.0]
+
+            cbm = bsml.get_cbm()
+            vbm = bsml.get_vbm()
+
+            cbm_new = bs_data["cbm"]
+            vbm_new = bs_data["vbm"]
+
+            for dnum, (d, rev) in enumerate(distance_map):
+
+                x_dat = [
+                    dval - bs_data["distances"][d][0] + pmin
+                    for dval in bs_data["distances"][d]
+                ]
+
+                pmin = x_dat[-1]
+
+                tick_vals.append(pmin)
+
+                if not rev:
                     traces_for_segment = [
                         {
-                            "x": dist_dat,
-                            "y": [bs_data["energy"][d]["1"][i][j] for j in energy_ind],
+                            "x": x_dat,
+                            "y": [
+                                bs_data["energy"][d][str(Spin.up)][i][j]
+                                for j in range(len(bs_data["distances"][d]))
+                            ],
                             "mode": "lines",
-                            "line": {"color": "#666666"},
+                            "line": {"color": "#1f77b4"},
                             "hoverinfo": "skip",
+                            "name": "spin ↑"
+                            if bs_reg_plot._bs.is_spin_polarized
+                            else "Total",
+                            "hovertemplate": "%{y:.2f} eV",
                             "showlegend": False,
+                            "xaxis": "x",
+                            "yaxis": "y",
+                        }
+                        for i in bands
+                    ]
+                elif rev:
+                    traces_for_segment = [
+                        {
+                            "x": x_dat,
+                            "y": [
+                                bs_data["energy"][d][str(Spin.up)][i][j]
+                                for j in reversed(range(len(bs_data["distances"][d])))
+                            ],
+                            "mode": "lines",
+                            "line": {"color": "#1f77b4"},
+                            "hoverinfo": "skip",
+                            "name": "spin ↑"
+                            if bs_reg_plot._bs.is_spin_polarized
+                            else "Total",
+                            "hovertemplate": "%{y:.2f} eV",
+                            "showlegend": False,
+                            "xaxis": "x",
+                            "yaxis": "y",
                         }
                         for i in bands
                     ]
 
-                    if bs_reg_plot._bs.is_spin_polarized:
+                if bs_reg_plot._bs.is_spin_polarized:
+
+                    if not rev:
                         traces_for_segment += [
                             {
-                                "x": dist_dat,
+                                "x": x_dat,
                                 "y": [
-                                    bs_data["energy"][d]["-1"][i][j] for j in energy_ind
+                                    bs_data["energy"][d][str(Spin.down)][i][j]
+                                    for j in range(len(bs_data["distances"][d]))
                                 ],
                                 "mode": "lines",
-                                "line": {"color": "#666666"},
+                                "line": {"color": "#ff7f0e", "dash": "dot"},
                                 "hoverinfo": "skip",
                                 "showlegend": False,
+                                "name": "spin ↓",
+                                "hovertemplate": "%{y:.2f} eV",
+                                "xaxis": "x",
+                                "yaxis": "y",
+                            }
+                            for i in bands
+                        ]
+                    elif rev:
+                        traces_for_segment += [
+                            {
+                                "x": x_dat,
+                                "y": [
+                                    bs_data["energy"][d][str(Spin.down)][i][j]
+                                    for j in reversed(
+                                        range(len(bs_data["distances"][d]))
+                                    )
+                                ],
+                                "mode": "lines",
+                                "line": {"color": "#ff7f0e", "dash": "dot"},
+                                "hoverinfo": "skip",
+                                "showlegend": False,
+                                "name": "spin ↓",
+                                "hovertemplate": "%{y:.2f} eV",
+                                "xaxis": "x",
+                                "yaxis": "y",
                             }
                             for i in bands
                         ]
 
-                    bstraces += traces_for_segment
+                bstraces += traces_for_segment
 
-                # - DOS Data
-                dostraces = []
+                # - Get proper cbm and vbm coords for lm
+                if path_convention == "lm":
+                    for (x_point, y_point) in bs_data["cbm"]:
+                        if x_point in bs_data["distances"][d]:
+                            xind = bs_data["distances"][d].index(x_point)
+                            if not rev:
+                                x_point_new = x_dat[xind]
+                            else:
+                                x_point_new = x_dat[len(x_dat) - xind - 1]
 
-                dos = CompleteDos.from_dict(density_of_states)
+                            new_label = bs_data["ticks"]["label"][
+                                tick_vals.index(x_point_new)
+                            ]
 
-                dos_max = np.abs(
-                    (dos.energies - dos.efermi - energy_window[1])
-                ).argmin()
-                dos_min = np.abs(
-                    (dos.energies - dos.efermi - energy_window[0])
-                ).argmin()
+                            if (
+                                cbm["kpoint"].label is None
+                                or cbm["kpoint"].label in new_label
+                            ):
+                                cbm_new.append((x_point_new, y_point))
 
-                if bs_reg_plot._bs.is_spin_polarized:
-                    # Add second spin data if available
-                    trace_tdos = go.Scatter(
-                        x=dos.densities[Spin.down][dos_min:dos_max],
-                        y=dos.energies[dos_min:dos_max] - dos.efermi,
-                        mode="lines",
-                        name="Total DOS (spin ↓)",
-                        line=go.scatter.Line(color="#444444", dash="dash"),
-                        fill="tozerox",
-                    )
+                    for (x_point, y_point) in bs_data["vbm"]:
+                        if x_point in bs_data["distances"][d]:
+                            xind = bs_data["distances"][d].index(x_point)
+                            if not rev:
+                                x_point_new = x_dat[xind]
+                            else:
+                                x_point_new = x_dat[len(x_dat) - xind - 1]
 
-                    dostraces.append(trace_tdos)
+                            new_label = bs_data["ticks"]["label"][
+                                tick_vals.index(x_point_new)
+                            ]
 
-                    tdos_label = "Total DOS (spin ↑)"
-                else:
-                    tdos_label = "Total DOS"
+                            if (
+                                vbm["kpoint"].label is None
+                                or vbm["kpoint"].label in new_label
+                            ):
+                                vbm_new.append((x_point_new, y_point))
 
-                # Total DOS
-                trace_tdos = go.Scatter(
-                    x=dos.densities[Spin.up][dos_min:dos_max],
-                    y=dos.energies[dos_min:dos_max] - dos.efermi,
-                    mode="lines",
-                    name=tdos_label,
-                    line=go.scatter.Line(color="#444444"),
-                    fill="tozerox",
-                    legendgroup="spinup",
-                )
+            bs_data["ticks"]["distance"] = tick_vals
+
+            # - Strip latex math wrapping for labels
+            str_replace = {
+                "$": "",
+                "\\mid": "|",
+                "\\Gamma": "Γ",
+                "\\Sigma": "Σ",
+                "GAMMA": "Γ",
+                "_1": "₁",
+                "_2": "₂",
+                "_3": "₃",
+                "_4": "₄",
+                "_{1}": "₁",
+                "_{2}": "₂",
+                "_{3}": "₃",
+                "_{4}": "₄",
+                "^{*}": "*",
+            }
+
+            bar_loc = []
+            for entry_num in range(len(bs_data["ticks"]["label"])):
+                for key in str_replace.keys():
+                    if key in bs_data["ticks"]["label"][entry_num]:
+                        bs_data["ticks"]["label"][entry_num] = bs_data["ticks"][
+                            "label"
+                        ][entry_num].replace(key, str_replace[key])
+                        if key == "\\mid":
+                            bar_loc.append(bs_data["ticks"]["distance"][entry_num])
+
+            # Vertical lines for disjointed segments
+            vert_traces = [
+                {
+                    "x": [x_point, x_point],
+                    "y": energy_window,
+                    "mode": "lines",
+                    "marker": {"color": "white"},
+                    "hoverinfo": "skip",
+                    "showlegend": False,
+                    "xaxis": "x",
+                    "yaxis": "y",
+                }
+                for x_point in bar_loc
+            ]
+
+            bstraces += vert_traces
+
+            # Dots for cbm and vbm
+
+            dot_traces = [
+                {
+                    "x": [x_point],
+                    "y": [y_point],
+                    "mode": "markers",
+                    "marker": {
+                        "color": "#7E259B",
+                        "size": 16,
+                        "line": {"color": "white", "width": 2},
+                    },
+                    "showlegend": False,
+                    "hoverinfo": "text",
+                    "name": "",
+                    "hovertemplate": "CBM: k = {}, {} eV".format(
+                        list(cbm["kpoint"].frac_coords), cbm["energy"]
+                    ),
+                    "xaxis": "x",
+                    "yaxis": "y",
+                }
+                for (x_point, y_point) in set(cbm_new)
+            ] + [
+                {
+                    "x": [x_point],
+                    "y": [y_point],
+                    "mode": "marker",
+                    "marker": {
+                        "color": "#7E259B",
+                        "size": 16,
+                        "line": {"color": "white", "width": 2},
+                    },
+                    "showlegend": False,
+                    "hoverinfo": "text",
+                    "name": "",
+                    "hovertemplate": "VBM: k = {}, {} eV".format(
+                        list(vbm["kpoint"].frac_coords), vbm["energy"]
+                    ),
+                    "xaxis": "x",
+                    "yaxis": "y",
+                }
+                for (x_point, y_point) in set(vbm_new)
+            ]
+
+            bstraces += dot_traces
+
+            # - DOS Data
+            dostraces = []
+
+            dos = CompleteDos.from_dict(density_of_states)
+
+            dos_max = np.abs((dos.energies - dos.efermi - energy_window[1])).argmin()
+            dos_min = np.abs((dos.energies - dos.efermi - energy_window[0])).argmin()
+
+            if bs_reg_plot._bs.is_spin_polarized:
+                # Add second spin data if available
+                trace_tdos = {
+                    "x": -1.0 * dos.densities[Spin.down][dos_min:dos_max],
+                    "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                    "mode": "lines",
+                    "name": "Total DOS (spin ↓)",
+                    "line": go.scatter.Line(color="#444444", dash="dot"),
+                    "fill": "tozerox",
+                    "fillcolor": "#C4C4C4",
+                    "xaxis": "x2",
+                    "yaxis": "y2",
+                }
 
                 dostraces.append(trace_tdos)
 
-                ele_dos = dos.get_element_dos()
-                elements = [str(entry) for entry in ele_dos.keys()]
+                tdos_label = "Total DOS (spin ↑)"
+            else:
+                tdos_label = "Total DOS"
 
-                if dos_select == "ap":
-                    proj_data = ele_dos
-                elif dos_select == "op":
-                    proj_data = dos.get_spd_dos()
-                elif "orb" in dos_select:
-                    proj_data = dos.get_element_spd_dos(
-                        Element(dos_select.replace("orb", ""))
-                    )
-                else:
-                    raise PreventUpdate
+            # Total DOS
+            trace_tdos = {
+                "x": dos.densities[Spin.up][dos_min:dos_max],
+                "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                "mode": "lines",
+                "name": tdos_label,
+                "line": go.scatter.Line(color="#444444"),
+                "fill": "tozerox",
+                "fillcolor": "#C4C4C4",
+                "legendgroup": "spinup",
+                "xaxis": "x2",
+                "yaxis": "y2",
+            }
 
-                # Projected DOS
-                count = 0
-                colors = [
-                    "#1f77b4",  # muted blue
-                    "#ff7f0e",  # safety orange
-                    "#2ca02c",  # cooked asparagus green
-                    "#9467bd",  # muted purple
-                    "#e377c2",  # raspberry yogurt pink
-                    "#d62728",  # brick red
-                    "#8c564b",  # chestnut brown
-                    "#bcbd22",  # curry yellow-green
-                    "#17becf",  # blue-teal
-                ]
+            dostraces.append(trace_tdos)
 
-                for label in proj_data.keys():
+            ele_dos = dos.get_element_dos()
+            elements = [str(entry) for entry in ele_dos.keys()]
 
-                    if bs_reg_plot._bs.is_spin_polarized:
-                        trace = go.Scatter(
-                            x=proj_data[label].densities[Spin.down][dos_min:dos_max],
-                            y=dos.energies[dos_min:dos_max] - dos.efermi,
-                            mode="lines",
-                            name=str(label) + " (spin ↓)",
-                            line=dict(width=3, color=colors[count], dash="dash"),
-                        )
+            if dos_select == "ap":
+                proj_data = ele_dos
+            elif dos_select == "op":
+                proj_data = dos.get_spd_dos()
+            elif "orb" in dos_select:
+                proj_data = dos.get_element_spd_dos(
+                    Element(dos_select.replace("orb", ""))
+                )
+            else:
+                raise PreventUpdate
 
-                        dostraces.append(trace)
-                        spin_up_label = str(label) + " (spin ↑)"
+            # Projected DOS
+            count = 0
+            colors = [
+                "#d62728",  # brick red
+                "#2ca02c",  # cooked asparagus green
+                "#17becf",  # blue-teal
+                "#bcbd22",  # curry yellow-green
+                "#9467bd",  # muted purple
+                "#8c564b",  # chestnut brown
+                "#e377c2",  # raspberry yogurt pink
+            ]
 
-                    else:
-                        spin_up_label = str(label)
+            for label in proj_data.keys():
 
-                    trace = go.Scatter(
-                        x=proj_data[label].densities[Spin.up][dos_min:dos_max],
-                        y=dos.energies[dos_min:dos_max] - dos.efermi,
-                        mode="lines",
-                        name=spin_up_label,
-                        line=dict(width=3, color=colors[count]),
-                    )
+                if bs_reg_plot._bs.is_spin_polarized:
+                    trace = {
+                        "x": -1.0
+                        * proj_data[label].densities[Spin.down][dos_min:dos_max],
+                        "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                        "mode": "lines",
+                        "name": str(label) + " (spin ↓)",
+                        "line": dict(width=3, color=colors[count], dash="dot"),
+                        "xaxis": "x2",
+                        "yaxis": "y2",
+                    }
 
                     dostraces.append(trace)
+                    spin_up_label = str(label) + " (spin ↑)"
 
-                    count += 1
+                else:
+                    spin_up_label = str(label)
 
-                traces = [bstraces, dostraces, bs_data]
+                trace = {
+                    "x": proj_data[label].densities[Spin.up][dos_min:dos_max],
+                    "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                    "mode": "lines",
+                    "name": spin_up_label,
+                    "line": dict(width=2, color=colors[count]),
+                    "xaxis": "x2",
+                    "yaxis": "y2",
+                }
 
-                return (traces, elements)
+                dostraces.append(trace)
+
+                count += 1
+            traces = [bstraces, dostraces, bs_data]
+
+            return (traces, elements)
 
 
 class BandstructureAndDosPanelComponent(PanelComponent):

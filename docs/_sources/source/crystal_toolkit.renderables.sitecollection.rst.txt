@@ -1,7 +1,0 @@
-crystal\_toolkit.renderables.sitecollection module
-==================================================
-
-.. automodule:: crystal_toolkit.renderables.sitecollection
-   :members:
-   :undoc-members:
-   :show-inheritance:

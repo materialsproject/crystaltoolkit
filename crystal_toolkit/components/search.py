@@ -134,16 +134,6 @@ class SearchComponent(MPComponent):
                 except CompositionError:
                     entries = []
 
-            mpids, tags = None, None
-            if len(entries) == 0 and not (
-                search_term.startswith("mp-") or search_term.startswith("mvc-")
-            ):
-                mpids, tags = self.search_tags(search_term)
-                entries = mpr.query(
-                    {"task_id": {"$in": mpids}},
-                    ["task_id", "pretty_formula", "e_above_hull", "spacegroup.symbol"],
-                )
-
             if len(entries) == 0:
                 self.logger.info(f"Search: no results for {search_term}")
                 return {"error": f"No results found for {search_term}."}

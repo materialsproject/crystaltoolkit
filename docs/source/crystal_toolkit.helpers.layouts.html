@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="crystal_toolkit.helpers.mprester module" href="crystal_toolkit.helpers.mprester.html" />
-    <link rel="prev" title="crystal_toolkit.helpers.inputs module" href="crystal_toolkit.helpers.inputs.html" /> 
+    <link rel="next" title="crystal_toolkit.helpers.povray_renderer module" href="crystal_toolkit.helpers.povray_renderer.html" />
+    <link rel="prev" title="crystal_toolkit.helpers.asymptote_renderer module" href="crystal_toolkit.helpers.asymptote_renderer.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -97,14 +97,14 @@
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.helpers.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.helpers.html#module-crystal_toolkit.helpers">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.helpers.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -177,220 +177,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.helpers.layouts">
-<span id="crystal-toolkit-helpers-layouts-module"></span><h1>crystal_toolkit.helpers.layouts module<a class="headerlink" href="#module-crystal_toolkit.helpers.layouts" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Box">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Box</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Box" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Button">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Button</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">kind=None</em>, <em class="sig-param">size='normal'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Button"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Button" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Button.Button</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Column">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Column</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">size=None</em>, <em class="sig-param">offset=None</em>, <em class="sig-param">narrow=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Column" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Columns">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Columns</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">desktop_only=False</em>, <em class="sig-param">centered=False</em>, <em class="sig-param">gapless=False</em>, <em class="sig-param">multiline=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Columns" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Container">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Container</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Container"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Container" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Control">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Control</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Control"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Control" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-<p>Control tag to wrap form elements,
-see <a class="reference external" href="https://bulma.io/documentation/form/general/">https://bulma.io/documentation/form/general/</a></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Error">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Error</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Field">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Field</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">addons=False</em>, <em class="sig-param">grouped=False</em>, <em class="sig-param">grouped_multiline=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Field" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Footer">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Footer</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Footer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Footer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Footer.Footer</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.H1">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">H1</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">subtitle=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#H1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.H1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.H1.H1</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.H2">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">H2</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">subtitle=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#H2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.H2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.H2.H2</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.H3">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">H3</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">subtitle=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#H3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.H3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.H3.H3</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.H4">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">H4</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">subtitle=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#H4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.H4" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.H4.H4</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.H5">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">H5</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">subtitle=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#H5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.H5" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.H5.H5</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.H6">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">H6</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">subtitle=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#H6"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.H6" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.H6.H6</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Icon">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Icon</code><span class="sig-paren">(</span><em class="sig-param">kind='download'</em>, <em class="sig-param">fill='s'</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Icon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Icon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Span.Span</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Label">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Label</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Label" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Label.Label</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Level">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Level</code><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Level" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.MessageBody">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">MessageBody</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#MessageBody"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.MessageBody" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.MessageContainer">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">MessageContainer</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">kind='warning'</em>, <em class="sig-param">size='normal'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#MessageContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.MessageContainer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Article.Article</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.MessageHeader">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">MessageHeader</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#MessageHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.MessageHeader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Modal">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Modal</code><span class="sig-paren">(</span><em class="sig-param">children=None</em>, <em class="sig-param">id=None</em>, <em class="sig-param">active=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Modal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Modal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="data">
-<dt id="crystal_toolkit.helpers.layouts.PRIMARY_COLOR">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">PRIMARY_COLOR</code><em class="property"> = 'hsl(171, 100%, 41%)'</em><a class="headerlink" href="#crystal_toolkit.helpers.layouts.PRIMARY_COLOR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper methods to make working with Bulma classes easier.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Reveal">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Reveal</code><span class="sig-paren">(</span><em class="sig-param">children=None</em>, <em class="sig-param">id=None</em>, <em class="sig-param">title=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Reveal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Reveal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Details.Details</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Section">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Section</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Section" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Spinner">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Spinner</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Spinner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Spinner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Button.Button</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Tag">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Tag</code><span class="sig-paren">(</span><em class="sig-param">tag</em>, <em class="sig-param">tag_type='primary'</em>, <em class="sig-param">tag_addon=None</em>, <em class="sig-param">tag_addon_type='primary'</em>, <em class="sig-param">size='normal'</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Tag" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.TagContainer">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">TagContainer</code><span class="sig-paren">(</span><em class="sig-param">tags: List[crystal_toolkit.helpers.layouts.Tag], *args, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#TagContainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.TagContainer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Div.Div</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="crystal_toolkit.helpers.layouts.Textarea">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">Textarea</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#Textarea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.Textarea" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dash_html_components.Textarea.Textarea</span></code></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.helpers.layouts.cite_me">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">cite_me</code><span class="sig-paren">(</span><em class="sig-param">doi: str = None</em>, <em class="sig-param">manual_ref: str = None</em>, <em class="sig-param">cite_text: str = 'Cite me'</em><span class="sig-paren">)</span> &#x2192; dash_html_components.Div.Div<a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#cite_me"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.cite_me" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a button to show users how to cite a particular resource.
-:param doi: DOI
-:param manual_ref: If DOI not available
-:param cite_text: Text to show as button label
-:return: A button</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.helpers.layouts.get_data_list">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_data_list</code><span class="sig-paren">(</span><em class="sig-param">data: Dict[str, str]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_data_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_data_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Show a formatted table of data items.
-:param data: dictionary of label, value pairs
-:return: html.Div</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.helpers.layouts.get_table">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_table</code><span class="sig-paren">(</span><em class="sig-param">rows: List[List[Any]]</em><span class="sig-paren">)</span> &#x2192; dash_html_components.Table.Table<a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a HTML table from a list of elements.
-:param rows: list of list of cell contents
-:return: html.Table</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="crystal_toolkit.helpers.layouts.get_tooltip">
-<code class="sig-prename descclassname">crystal_toolkit.helpers.layouts.</code><code class="sig-name descname">get_tooltip</code><span class="sig-paren">(</span><em class="sig-param">tooltip: dash_html_components.Div.Div</em>, <em class="sig-param">tooltip_text: str</em>, <em class="sig-param">underline: bool = True</em><span class="sig-paren">)</span> &#x2192; dash_html_components.Div.Div<a class="reference internal" href="../_modules/crystal_toolkit/helpers/layouts.html#get_tooltip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.helpers.layouts.get_tooltip" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a tooltip, typically for help text.
-:param tooltip: element to apply tooltip to
-:param tooltip_text: text to show on hover
-:param underline: whether to show hint that element provides tooltip functionality
-:return: html.Div</p>
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-helpers-layouts-module">
+<h1>crystal_toolkit.helpers.layouts module<a class="headerlink" href="#crystal-toolkit-helpers-layouts-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

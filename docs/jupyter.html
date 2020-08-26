@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -171,20 +171,20 @@ data interactively.</p>
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>There are two steps to using Crystal Toolkit inside Jupyter:</p>
 <ol class="arabic simple">
-<li><p>Make sure Jupyter Lab is installed and run using <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>. Crystal Toolkit is
-not supported in the older Jupyter notebooks.</p></li>
+<li><p>Make sure Jupyter Lab is installed and run using <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>, version 2.x.
+Crystal Toolkit is not supported in the older Jupyter notebooks or older versions
+of Jupyter Lab.</p></li>
 <li><p>Ensure Crystal Toolkit is installed as normal, <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">crystal-toolkit</span> <span class="pre">--upgrade</span></code></p></li>
-<li><p>Install <a class="reference external" href="https://github.com/jupyter-widgets/pythreejs">pythreejs</a> following their instructions.
-The most reliable way to do this seems to be <a href="#id1"><span class="problematic" id="id2">``</span></a>conda install -c conda-forge pythreejs` for people
-who use the conda package manager.</p></li>
-<li><p>Restart Jupyter Lab from the terminal. You may be asked to perform a “build,” click OK and this
-may take a minute. After this it’s ready to use!</p></li>
+<li><p>Install the Crystal Toolkit extension in the same environment you run <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code> from using
+<code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">labextension</span> <span class="pre">install</span> <span class="pre">crystaltoolkit-extension</span></code></p></li>
+<li><p>Restart Jupyter Lab completely. You be asked to perform a “build,” click OK and it’s normal
+for this to take a minute. After this it’s ready to use!</p></li>
 </ol>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>To use, simply <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">crystal_toolkit</span> <span class="pre">import</span> <span class="pre">view</span></code> and use <code class="docutils literal notranslate"><span class="pre">view(your_struct)</span></code> for any structure.</p>
-<img alt="Demo of Jupyter functionality" class="align-center" src="_images/jupyter-demo.gif" />
+<p>To use, simply <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">crystal_toolkit</span></code> and use <code class="docutils literal notranslate"><span class="pre">pymatgen</span></code> as normal for crystal structures
+to be shown using Crystal Toolkit.</p>
 </div>
 </div>
 

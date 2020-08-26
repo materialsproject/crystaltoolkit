@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -168,7 +168,7 @@
 
 
 <div class="viewcode-block" id="get_molecule_graph_scene"><a class="viewcode-back" href="../../../source/crystal_toolkit.renderables.moleculegraph.html#crystal_toolkit.renderables.moleculegraph.get_molecule_graph_scene">[docs]</a><span class="k">def</span> <span class="nf">get_molecule_graph_scene</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">explicitly_calculate_polyhedra_hull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">None</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">explicitly_calculate_polyhedra_hull</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">draw_polyhedra</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scene</span><span class="p">:</span>
 
     <span class="n">legend</span> <span class="o">=</span> <span class="n">legend</span> <span class="ow">or</span> <span class="n">Legend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="p">)</span>
@@ -184,6 +184,7 @@
             <span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">,</span>
             <span class="n">explicitly_calculate_polyhedra_hull</span><span class="o">=</span><span class="n">explicitly_calculate_polyhedra_hull</span><span class="p">,</span>
             <span class="n">legend</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span>
+            <span class="n">draw_polyhedra</span><span class="o">=</span><span class="n">draw_polyhedra</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">scene</span> <span class="ow">in</span> <span class="n">site_scene</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
             <span class="n">primitives</span><span class="p">[</span><span class="n">scene</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scene</span><span class="o">.</span><span class="n">contents</span>
@@ -191,7 +192,7 @@
     <span class="k">return</span> <span class="n">Scene</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">,</span>
         <span class="n">contents</span><span class="o">=</span><span class="p">[</span><span class="n">Scene</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">primitives</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
-        <span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="n">origin</span> <span class="k">if</span> <span class="n">origin</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
     <span class="p">)</span></div>
 
 

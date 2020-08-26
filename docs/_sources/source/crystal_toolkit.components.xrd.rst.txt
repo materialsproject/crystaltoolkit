@@ -1,7 +1,0 @@
-crystal\_toolkit.components.xrd module
-======================================
-
-.. automodule:: crystal_toolkit.components.xrd
-   :members:
-   :undoc-members:
-   :show-inheritance:

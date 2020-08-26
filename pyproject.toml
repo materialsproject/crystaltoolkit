@@ -6,23 +6,32 @@ authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-dash = "^1.12.0"
-plotly = "^4.5.4"
-dash-daq = "^0.4.0"
-gunicorn = "^20.0.4"
-redis = "^3.4.1"
-Flask-Caching = "^1.8.0"
-gevent = "^1.4.0"
-dash-mp-components = ">=0.0.24"
-pymatgen = "^2020.4.29"
-scikit-learn = "^0.22.2"
-webcolors = "^1.11.1"
-pydantic = "^1.4"
-robocrys = "^0.2.1"
+pymatgen = "^2020.7.10"
 typing-extensions = { version = "^3.7", python = "~3.7" }
-scikit-image = "^0.17.2"
-habanero = "^0.7.2"
-hiphive = "^0.7"
+pydantic = "^1.4"
+plotly = "^4.5.4"
+webcolors = { version = "^1.11.1" }
+
+dash = { version = "^1.13.4", optional = true }
+dash-daq = { version = "^0.4.0", optional = true }
+gunicorn = { version = "^20.0.4", optional = true }
+redis = { version = "^3.4.1", optional = true }
+Flask-Caching = { version = "^1.8.0", optional = true }
+gevent = { version = "^1.4.0", optional = true }
+dash-mp-components = { version = ">=0.0.24", optional = true }
+scikit-learn = { version = "^0.22.2", optional = true }
+robocrys = { version = "^0.2.1", optional = true }
+scikit-image = { version = "^0.17.2", optional = true }
+habanero = { version = "^0.7.2", optional = true }
+hiphive = { version = "^0.7", optional = true }
+dscribe = "^0.3.5"
+
+[tool.poetry.extras]
+server = [
+    "dash", "dash-daq", "gunicorn", "redis",
+    "Flask-Caching", "gevent", "dash-mp-components", "scikit-learn",
+    "robocrys", "scikit-image", "habanero", "hiphive", "dscribe"
+]
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"

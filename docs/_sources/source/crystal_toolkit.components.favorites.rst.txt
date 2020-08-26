@@ -1,7 +1,0 @@
-crystal\_toolkit.components.favorites module
-============================================
-
-.. automodule:: crystal_toolkit.components.favorites
-   :members:
-   :undoc-members:
-   :show-inheritance:
