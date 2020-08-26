@@ -1,7 +1,7 @@
-crystal\_toolkit.Simple3DSceneComponent module
+crystal\_toolkit.renderables.trajectory module
 ==============================================
 
-.. automodule:: crystal_toolkit.Simple3DSceneComponent
+.. automodule:: crystal_toolkit.renderables.trajectory
    :members:
    :undoc-members:
    :show-inheritance:

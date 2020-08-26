@@ -419,6 +419,9 @@ def cite_me(
 
 def add_label_help(input, label, help):
 
+    if (not label) and (not help):
+        return input
+
     contents = []
     if label and not help:
         contents.append(html.Label(label, className="mpc-label"))

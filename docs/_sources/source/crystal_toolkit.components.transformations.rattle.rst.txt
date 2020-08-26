@@ -1,0 +1,7 @@
+crystal\_toolkit.components.transformations.rattle module
+=========================================================
+
+.. automodule:: crystal_toolkit.components.transformations.rattle
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -13,26 +13,19 @@ Submodules
 
 .. toctree::
 
-   crystal_toolkit.components.bonding_graph
    crystal_toolkit.components.bs
+   crystal_toolkit.components.diffraction
    crystal_toolkit.components.download
-   crystal_toolkit.components.favorites
-   crystal_toolkit.components.grainboundary
-   crystal_toolkit.components.json
-   crystal_toolkit.components.literature
    crystal_toolkit.components.localenv
-   crystal_toolkit.components.magnetism
    crystal_toolkit.components.phase_diagram
    crystal_toolkit.components.pourbaix
    crystal_toolkit.components.robocrys
    crystal_toolkit.components.search
    crystal_toolkit.components.structure
    crystal_toolkit.components.submit_snl
-   crystal_toolkit.components.summary
    crystal_toolkit.components.symmetry
    crystal_toolkit.components.upload
    crystal_toolkit.components.xas
-   crystal_toolkit.components.xrd
 
 Module contents
 ---------------

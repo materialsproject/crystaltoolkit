@@ -12,21 +12,19 @@ Installation
 There are two steps to using Crystal Toolkit inside Jupyter:
 
 1. Make sure Jupyter Lab is installed and run using ``jupyter lab``, version 2.x.
-   Crystal Toolkit is not supported in the older Jupyter notebooks.
+   Crystal Toolkit is not supported in the older Jupyter notebooks or older versions 
+   of Jupyter Lab.
 
 2. Ensure Crystal Toolkit is installed as normal, ``pip install crystal-toolkit --upgrade``
 
-3. Install the Crystal Toolkit extension, ``jupyter labextension install crystaltoolkit-extension``
+3. Install the Crystal Toolkit extension in the same environment you run ``jupyter lab`` from using
+   ``jupyter labextension install crystaltoolkit-extension``
 
-4. Restart Jupyter Lab completely. You may be asked to perform a "build," click OK and this
-   may take a minute. After this it's ready to use!
+4. Restart Jupyter Lab completely. You be asked to perform a "build," click OK and it's normal 
+   for this to take a minute. After this it's ready to use!
 
 Usage
 -----
 
-To use, simply ``import crystal_toolkit` and use ``pymatgen`` as normal for crystal structures
+To use, simply ``import crystal_toolkit`` and use ``pymatgen`` as normal for crystal structures
 to be shown using Crystal Toolkit.
-
-.. image:: images/jupyter-demo.gif
-  :align: center
-  :alt: Demo of Jupyter functionality

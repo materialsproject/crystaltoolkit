@@ -1,7 +1,7 @@
 FROM python:3.7
 LABEL maintainer="mkhorton@lbl.gov"
 
-RUN apt-get update && apt-get install vim gfortran povray asymptote -y
+RUN apt-get update && apt-get install vim gfortran povray -y
 
 WORKDIR /home/build
 
@@ -19,10 +19,11 @@ RUN git clone --recursive https://github.com/msg-byu/enumlib.git && \
 
 WORKDIR /home/app
 
-RUN pip install --no-cache-dir numpy scipy
+RUN pip install --upgrade --no-cache-dir pip && \
+    pip install --no-cache-dir poetry
 
-ADD requirements.txt /home/app/requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+ADD poetry.lock pyproject.toml /home/app/
+RUN poetry install -E server && poetry update
 
 # whether to embed in materialsproject.org or not
 ENV CRYSTAL_TOOLKIT_MP_EMBED_MODE=False
@@ -41,4 +42,4 @@ ENV CRYSTAL_TOOLKIT_DEBUG_MODE=False
 ADD . /home/app
 
 EXPOSE 8000
-CMD gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 crystal_toolkit.apps.main:server
+CMD poetry run gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 crystal_toolkit.apps.main:server

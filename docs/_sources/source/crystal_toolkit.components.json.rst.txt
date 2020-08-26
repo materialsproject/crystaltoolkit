@@ -1,7 +1,0 @@
-crystal\_toolkit.components.json module
-=======================================
-
-.. automodule:: crystal_toolkit.components.json
-   :members:
-   :undoc-members:
-   :show-inheritance:
