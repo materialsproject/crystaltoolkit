@@ -1,10 +1,10 @@
-from crystal_toolkit.apps.main_app import crystal_toolkit_app
+from crystal_toolkit.apps.main import app
 import time
 
 
 def test_main_app_startup(dash_duo):
 
-    dash_duo.start_server(crystal_toolkit_app)
+    dash_duo.start_server(app)
     # dash_duo.clear_storage()
 
     dash_duo.wait_for_element("#StructureMoleculeComponent_title", timeout=4)
