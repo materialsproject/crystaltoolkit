@@ -169,7 +169,7 @@
 <span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">get_cmap</span>
 <span class="kn">from</span> <span class="nn">webcolors</span> <span class="kn">import</span> <span class="n">html5_parse_legacy_color</span><span class="p">,</span> <span class="n">html5_serialize_simple_color</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -570,7 +570,7 @@
         <span class="c1"># and then move this to pymatgen string utils ...</span>
         <span class="k">return</span> <span class="n">unicodeify_species</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Legend.get_legend"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.get_legend">[docs]</a>    <span class="k">def</span> <span class="nf">get_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="Legend.get_legend"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.get_legend">[docs]</a>    <span class="k">def</span> <span class="nf">get_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 
         <span class="c1"># decide what we want the labels to be</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Jmol&quot;</span><span class="p">,</span> <span class="s2">&quot;VESTA&quot;</span><span class="p">,</span> <span class="s2">&quot;accessible&quot;</span><span class="p">):</span>
@@ -591,9 +591,16 @@
 
         <span class="n">legend</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">))))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">legend</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
+        <span class="n">color_options</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site_prop_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span> <span class="s2">&quot;categorical&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">site_prop_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="p">[</span><span class="n">site_prop_type</span><span class="p">]:</span>
+                    <span class="n">color_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;composition&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_collection</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
             <span class="s2">&quot;colors&quot;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s2">&quot;available_color_schemes&quot;</span><span class="p">:</span> <span class="n">color_options</span><span class="p">,</span>
         <span class="p">}</span></div></div>
 </pre></div>
 
