@@ -23,7 +23,7 @@ RUN pip install --upgrade --no-cache-dir pip && \
     pip install --no-cache-dir poetry
 
 ADD poetry.lock pyproject.toml /home/app/
-RUN poetry install -E server && poetry update
+RUN mkdir /home/.cache && poetry config virtualenvs.path /home/.cache/ && poetry install -E server && poetry update
 
 # whether to embed in materialsproject.org or not
 ENV CRYSTAL_TOOLKIT_MP_EMBED_MODE=False
