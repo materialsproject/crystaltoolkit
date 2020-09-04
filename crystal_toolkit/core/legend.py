@@ -415,7 +415,7 @@ class Legend(MSONable):
         # and then move this to pymatgen string utils ...
         return unicodeify_species(str(sp))
 
-    def get_legend(self) -> Dict[str, str]:
+    def get_legend(self) -> Dict[str, Any]:
 
         # decide what we want the labels to be
         if self.color_scheme in ("Jmol", "VESTA", "accessible"):
@@ -436,7 +436,14 @@ class Legend(MSONable):
 
         legend = {k: ", ".join(sorted(list(set(v)))) for k, v in legend.items()}
 
+        color_options = []
+        for site_prop_type in ("scalar", "categorical"):
+            if site_prop_type in self.site_prop_types:
+                for prop in self.site_prop_types[site_prop_type]:
+                    color_options.append(prop)
+
         return {
             "composition": self.site_collection.composition.as_dict(),
             "colors": legend,
+            "available_color_schemes": color_options,
         }
