@@ -1,17 +1,14 @@
 import os
+import warnings
+from typing import Any, Dict, List, Optional, Union
 
 import dash_core_components as dcc
 import dash_html_components as html
-import warnings
-
-from monty.serialization import loadfn, dumpfn
-
-from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit import MODULE_PATH
-
-from typing import List, Dict, Any, Union
-
 from habanero import content_negotiation
+from monty.serialization import dumpfn, loadfn
+
+from crystal_toolkit import MODULE_PATH
+from crystal_toolkit.settings import SETTINGS
 
 BULMA_CSS = {
     "external_url": "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"
@@ -118,7 +115,12 @@ class Icon(html.Span):
         "question-circle", "book", "code".
         """
         kwargs["className"] = "icon"
-        super().__init__(html.I(className=f"fa{fill} fa-{kind}"), *args, **kwargs)
+        if "fontastic" not in kind:
+            # fontawesome styles (pre-distributed icons, e.g. download)
+            super().__init__(html.I(className=f"fa{fill} fa-{kind}"), *args, **kwargs)
+        else:
+            # fontastic styles (custom icons, e.g. the MP app icons)
+            super().__init__(html.I(className=kind), *args, **kwargs)
 
 
 class Footer(html.Footer):
@@ -230,7 +232,7 @@ class Textarea(html.Textarea):
 
 
 class Reveal(html.Details):
-    def __init__(self, children=None, id=None, title=None, **kwargs):
+    def __init__(self, children=None, id=None, summary_id=None, title=None, **kwargs):
         if children is None:
             children = ["Loading..."]
         if id is None and isinstance(title, str):
@@ -240,7 +242,7 @@ class Reveal(html.Details):
                 title, style={"display": "inline-block", "verticalAlign": "middle"}
             )
         contents_id = f"{id}_contents" if id else None
-        summary_id = f"{id}_summary" if id else None
+        summary_id = summary_id or f"{id}_summary"
         kwargs["style"] = {"marginBottom": "1rem"}
         super().__init__(
             [
@@ -350,7 +352,7 @@ def get_data_list(data: Dict[str, str]):
     return html.Table([html.Tbody(contents)], className="table")
 
 
-def get_table(rows: List[List[Any]]) -> html.Table:
+def get_table(rows: List[List[Any]], header: Optional[List[str]] = None) -> html.Table:
     """
     Create a HTML table from a list of elements.
     :param rows: list of list of cell contents
@@ -359,7 +361,11 @@ def get_table(rows: List[List[Any]]) -> html.Table:
     contents = []
     for row in rows:
         contents.append(html.Tr([html.Td(item) for item in row]))
-    return html.Table([html.Tbody(contents)], className="table")
+    if not header:
+        return html.Table([html.Tbody(contents)], className="table")
+    else:
+        header = html.Thead([html.Tr([html.Th(item) for item in header])])
+        return html.Table([header, html.Tbody(contents)], className="table")
 
 
 DOI_CACHE = loadfn(MODULE_PATH / "apps/assets/doi_cache.json")
@@ -447,3 +453,24 @@ class Loading(dcc.Loading):
         super().__init__(
             *args, color=PRIMARY_COLOR, type="dot", debug=SETTINGS.DEBUG_MODE, **kwargs
         )
+
+
+def get_breadcrumb(parts):
+
+    if not parts:
+        return html.Div()
+
+    breadcrumbs = html.Nav(
+        html.Ul(
+            [
+                html.Li(
+                    html.A(name, href=link),
+                    className=(None if idx != len(parts) - 1 else "is-active"),
+                )
+                for idx, (name, link) in enumerate(parts.items())
+            ]
+        ),
+        className="breadcrumb",
+    )
+
+    return breadcrumbs
