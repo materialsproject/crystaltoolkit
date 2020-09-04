@@ -12,7 +12,7 @@ pydantic = "^1.4"
 plotly = "^4.5.4"
 webcolors = { version = "^1.11.1" }
 
-dash = { version = "^1.13.4", optional = true }
+dash = { version = "^1.16", optional = true }
 dash-daq = { version = "^0.4.0", optional = true }
 gunicorn = { version = "^20.0.4", optional = true }
 redis = { version = "^3.4.1", optional = true }
@@ -25,6 +25,7 @@ scikit-image = { version = "^0.17.2", optional = true }
 habanero = { version = "^0.7.2", optional = true }
 hiphive = { version = "^0.7", optional = true }
 dscribe = "^0.3.5"
+dash-extensions = "^0.0.31"
 
 [tool.poetry.extras]
 server = [
