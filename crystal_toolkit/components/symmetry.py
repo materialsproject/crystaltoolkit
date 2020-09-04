@@ -10,12 +10,12 @@ from pymatgen.util.string import unicodeify_spacegroup, unicodeify_species
 
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import (
+    H5,
+    Column,
+    Columns,
     Loading,
     get_data_list,
     get_table,
-    Columns,
-    Column,
-    H5,
 )
 
 
@@ -54,6 +54,7 @@ class SymmetryPanel(PanelComponent):
             "The angle distortion between lattice vectors is converted to a length and "
             "compared with this distance tolerance.",
             shape=(),
+            min=0,
         )
         angle_tolerance = self.get_numerical_input(
             label="Angle tolerance",
@@ -100,6 +101,11 @@ class SymmetryPanel(PanelComponent):
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
             symprec = kwargs["symprec"]
             angle_tolerance = kwargs["angle_tolerance"]
+
+            if symprec <= 0:
+                return html.Span(
+                    f"Please use a positive symmetry-finding tolerance (currently {symprec})."
+                )
 
             sga = SpacegroupAnalyzer(
                 struct, symprec=symprec, angle_tolerance=angle_tolerance
