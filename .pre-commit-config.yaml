@@ -5,11 +5,11 @@ repos:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
-  - repo: https://github.com/timothycrosley/isort
-    rev: 4.3.20
-    hooks:
-    -   id: isort
   - repo: https://github.com/ambv/black
     rev: stable
     hooks:
     - id: black
+  - repo: https://github.com/timothycrosley/isort
+    rev: 4.3.20
+    hooks:
+    -   id: isort
