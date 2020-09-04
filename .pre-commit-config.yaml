@@ -4,6 +4,6 @@ repos:
     hooks:
     - id: black
   - repo: https://github.com/timothycrosley/isort
-    rev: 4.3.20
+    rev: 5.5.0
     hooks:
-    -   id: isort
+    - id: isort

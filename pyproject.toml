@@ -46,3 +46,7 @@ dephell = "^0.8.2"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.isort]
+profile = "black"
+known_third_party = IPython,bibtexparser,dash,dash_core_components,dash_daq,dash_html_components,dash_mp_components,dash_table,flask,flask_caching,fuzzywuzzy,habanero,jinja2,jupyterlab_dash,latexcodec,matplotlib,monty,numpy,palettable,pandas,plotly,pybtex,pydantic,pymatgen,pytest_dash,pythreejs,requests,robocrys,scipy,skimage,sklearn,toml,typing_extensions,webcolors
