@@ -33,20 +33,6 @@ jobs:
     - name: Install dependencies
       run: poetry install
       if: steps.cache.outputs.cache-hit != 'true'
-    - name: Set up git
-      run: |
-        git config --global user.name 'Matthew Horton'
-        git config --global user.email 'mkhorton@users.noreply.github.com'
-        git status
-    - name: Set new version
-      run: |
-        export VERSION=$(date '+%Y.%m.%d')
-        sed -i "s/__version__.*/__version__ = \"$VERSION\"/g" crystal_toolkit/__init__.py
-        sed -i "s/^version.*/version = \"$VERSION\"/g" pyproject.toml
-        sed -i "s/version.*/version=\"$VERSION\",/g" setup.py 
-        git status
-        git diff --quiet || git commit -am "Set version"
-        git push
     - name: Build and publish
       run: |
         poetry build
