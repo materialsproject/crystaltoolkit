@@ -14,7 +14,7 @@ from sklearn.preprocessing import LabelEncoder
 from matplotlib.cm import get_cmap
 from webcolors import html5_parse_legacy_color, html5_serialize_simple_color
 
-from typing import Union, Optional, Tuple, Dict, List
+from typing import Union, Optional, Tuple, Dict, List, Any
 
 import warnings
 import numpy as np
