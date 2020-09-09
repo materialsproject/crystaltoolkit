@@ -21,8 +21,8 @@ app = dash.Dash()
 # app.config["suppress_callback_exceptions"] = True
 
 path = os.path.dirname(os.path.realpath(__file__))
-bandstructure_symm_line = loadfn(path + "/Si_bs.json")
-density_of_states = loadfn(path + "/Si_dos.json")
+bandstructure_symm_line = loadfn(path + "/GaN_bs.json")
+density_of_states = loadfn(path + "/GaN_dos.json")
 
 # # create the Crystal Toolkit component
 bsdos_component = ctc.BandstructureAndDosComponent(
