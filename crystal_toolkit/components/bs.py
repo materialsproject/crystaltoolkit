@@ -11,14 +11,11 @@ from dash_mp_components import Simple3DScene
 from maggma.stores import GridFSStore, JSONStore, MongoStore
 from pymatgen import MPRester
 from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.bandstructure import (
-    BandStructureSymmLine as BSML,
-    BandStructureSymmLine,
-)
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import BSPlotter, fold_point
-from pymatgen.symmetry.bandstructure import HighSymmKpath as HSKP
+from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from crystal_toolkit.core.scene import Scene, Lines, Spheres, Convex, Cylinders
 from crystal_toolkit.core.mpcomponent import MPComponent
@@ -70,7 +67,7 @@ class BandstructureAndDosComponent(MPComponent):
 
         # Brillouin zone
         zone_scene = self.get_brillouin_zone_scene(bs)
-        zone = Simple3DScene(data=zone_scene.to_json())
+        zone = Simple3DScene(data=zone_scene.to_json(), sceneSize="500px")
 
         # Hide by default if not loaded by mpid, switching between k-paths
         # on-the-fly only supported for bandstructures retrieved from MP
@@ -91,7 +88,7 @@ class BandstructureAndDosComponent(MPComponent):
                     ],
                 )
             ],
-            style={"max-width": "200"}
+            style={"width": "200px"}
             if show_path_options
             else {"max-width": "200", "display": "none"},
             id=self.id("path-container"),
@@ -112,9 +109,9 @@ class BandstructureAndDosComponent(MPComponent):
                     ],
                 )
             ],
-            style={"max-width": "200"}
+            style={"width": "200px"}
             if show_path_options
-            else {"max-width": "200", "display": "none"},
+            else {"width": "200px", "display": "none"},
             id=self.id("label-container"),
         )
 
@@ -125,8 +122,10 @@ class BandstructureAndDosComponent(MPComponent):
             label="Projection",
             help_str="Choose projection",
             options=[{"label": "Atom Projected", "value": "ap"}],
-            style={"max-width": "200"},
+            style={"width": "200px"},
         )
+
+        table = get_data_list(self._get_data_list_dict(bs, dos))
 
         return {
             "graph": graph,
@@ -134,16 +133,30 @@ class BandstructureAndDosComponent(MPComponent):
             "dos-select": dos_select,
             "label-select": label_select,
             "zone": zone,
+            "table": table,
         }
 
     def layout(self):
         return html.Div(
             [
-                Column([self._sub_layouts["convention"]], size=2),
-                Column([self._sub_layouts["dos-select"]], size=2),
-                Column([self._sub_layouts["label-select"]], size=2),
-                Column([self._sub_layouts["graph"]], size=8),
-                Column([self._sub_layouts["zone"]], size=6),
+                Columns([Column([self._sub_layouts["graph"]])]),
+                Columns(
+                    [
+                        Column(
+                            [
+                                self._sub_layouts["convention"],
+                                self._sub_layouts["label-select"],
+                                self._sub_layouts["dos-select"],
+                            ]
+                        )
+                    ]
+                ),
+                Columns(
+                    [
+                        Column([Label("Summary"), self._sub_layouts["table"]]),
+                        Column([Label("Brillouin Zone"), self._sub_layouts["zone"]]),
+                    ]
+                ),
             ]
         )
 
@@ -182,7 +195,9 @@ class BandstructureAndDosComponent(MPComponent):
         else:
 
             if bandstructure_symm_line and isinstance(bandstructure_symm_line, dict):
-                bandstructure_symm_line = BSML.from_dict(bandstructure_symm_line)
+                bandstructure_symm_line = BandStructureSymmLine.from_dict(
+                    bandstructure_symm_line
+                )
 
             if density_of_states and isinstance(density_of_states, dict):
                 density_of_states = CompleteDos.from_dict(density_of_states)
@@ -199,7 +214,7 @@ class BandstructureAndDosComponent(MPComponent):
         # Brillouin zone
         bz_lattice = bs.structure.lattice.reciprocal_lattice
         bz = bz_lattice.get_wigner_seitz_cell()
-        zone_lines = []
+        lines = []
         for iface in range(len(bz)):  # pylint: disable=C0200
             for line in itertools.combinations(bz[iface], 2):
                 for jface in range(len(bz)):
@@ -208,9 +223,10 @@ class BandstructureAndDosComponent(MPComponent):
                         and any(np.all(line[0] == x) for x in bz[jface])
                         and any(np.all(line[1] == x) for x in bz[jface])
                     ):
-                        zone_lines += [list(line[0]), list(line[1])]
+                        lines += [list(line[0]), list(line[1])]
 
-        zone_lines = Lines(positions=zone_lines)
+        zone_lines = Lines(positions=lines)
+        zone_surface = Convex(positions=lines, opacity=0.05, color="#000000")
 
         # - Strip latex math wrapping for labels
         # TODO: add to string utils in pymatgen
@@ -239,7 +255,7 @@ class BandstructureAndDosComponent(MPComponent):
                     label = label.replace(orig, new)
                 labels[label] = bz_lattice.get_cartesian_coords(k.frac_coords)
         labels = [
-            Spheres(positions=[coords], tooltip=label, radius=0.05, color="#ff4b5c")
+            Spheres(positions=[coords], tooltip=label, radius=0.03, color="#5EB1BF")
             for label, coords in labels.items()
         ]
 
@@ -254,26 +270,70 @@ class BandstructureAndDosComponent(MPComponent):
             )
             path += [start, end]
             cylinder_pairs += [[start, end]]
-        path_lines = Lines(positions=path, color="#ff4b5c",)
+        # path_lines = Lines(positions=path, color="#ff4b5c",)
         path_lines = Cylinders(
-            positionPairs=cylinder_pairs, color="#ff4b5c", radius=0.01
+            positionPairs=cylinder_pairs, color="#5EB1BF", radius=0.01
         )
-        ibz_region = Convex(positions=path, opacity=0.2, color="#ff4b5c")
+        ibz_region = Convex(positions=path, opacity=0.2, color="#5EB1BF")
 
-        contents = [zone_lines, path_lines, ibz_region, *labels]
+        contents = [zone_lines, zone_surface, path_lines, ibz_region, *labels]
+
+        cbm = bs.get_cbm()["kpoint"]
+        vbm = bs.get_vbm()["kpoint"]
+        print(cbm, vbm)
+        if cbm and vbm:
+
+            if cbm.label:
+                cbm_label = cbm.label
+                for orig, new in str_replace.items():
+                    cbm_label = cbm_label.replace(orig, new)
+                cbm_label = f"CBM at {cbm_label}"
+            else:
+                cbm_label = "CBM"
+
+            if cbm == vbm:
+                cbm_label = f"VBM and {cbm_label}"
+
+            cbm_coords = bz_lattice.get_cartesian_coords(cbm.frac_coords)
+            cbm = Spheres(
+                positions=[cbm_coords], tooltip=cbm_label, radius=0.05, color="#7E259B"
+            )
+
+            contents.append(cbm)
+
+            if cbm != vbm:
+                if vbm.label:
+                    vbm_label = vbm.label
+                    for orig, new in str_replace.items():
+                        vbm_label = vbm_label.replace(orig, new)
+                    vbm_label = f"VBM at {vbm_label}"
+                else:
+                    vbm_label = "VBM"
+
+                vbm_coords = bz_lattice.get_cartesian_coords(vbm.frac_coords)
+                vbm = Spheres(
+                    positions=[vbm_coords],
+                    tooltip=vbm_label,
+                    radius=0.05,
+                    color="#7E259B",
+                )
+
+                contents.append(vbm)
 
         return Scene(name="brillouin_zone", contents=contents)
 
     @staticmethod
-    def get_bandstructure_traces(bsml, path_convention, energy_window=(-6.0, 10.0)):
+    def get_bandstructure_traces(bs, path_convention, energy_window=(-6.0, 10.0)):
 
-        bs_reg_plot = BSPlotter(bsml)
+        bs_reg_plot = BSPlotter(bs)
 
         bs_data = bs_reg_plot.bs_plot_data()
 
         # Make plot continous for lm
         if path_convention == "lm":
-            distance_map, kpath_euler = HSKP(bsml.structure).get_continuous_path(bsml)
+            distance_map, kpath_euler = HighSymmKpath(bs.structure).get_continuous_path(
+                bs
+            )
 
             kpath_labels = [pair[0] for pair in kpath_euler]
             kpath_labels.append(kpath_euler[-1][1])
@@ -303,8 +363,8 @@ class BandstructureAndDosComponent(MPComponent):
         pmin = 0.0
         tick_vals = [0.0]
 
-        cbm = bsml.get_cbm()
-        vbm = bsml.get_vbm()
+        cbm = bs.get_cbm()
+        vbm = bs.get_vbm()
 
         cbm_new = bs_data["cbm"]
         vbm_new = bs_data["vbm"]
@@ -792,6 +852,17 @@ class BandstructureAndDosComponent(MPComponent):
         figure["layout"]["xaxis2"]["domain"] = [0.73, 1.0]
 
         return figure
+
+    @staticmethod
+    def _get_data_list_dict(bs, dos):
+
+        return {
+            "Band Gap": "... eV",
+            "Direct Gap": "...",
+            "CBM": "...",
+            "VBM": "...",
+            "Spin Polarization": "...",
+        }
 
     def generate_callbacks(self, app, cache):
         pass
