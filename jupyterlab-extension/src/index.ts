@@ -1,6 +1,6 @@
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
-import { Simple3DScene } from 'mat-periodic-table';
+import { Simple3DScene } from '@materialsproject/mp-react-components';
 
 /**
  * The default mime type for the extension.
