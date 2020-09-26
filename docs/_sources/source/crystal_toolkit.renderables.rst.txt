@@ -9,6 +9,7 @@ Submodules
    crystal_toolkit.renderables.lattice
    crystal_toolkit.renderables.molecule
    crystal_toolkit.renderables.moleculegraph
+   crystal_toolkit.renderables.phasediagram
    crystal_toolkit.renderables.site
    crystal_toolkit.renderables.structure
    crystal_toolkit.renderables.structuregraph
