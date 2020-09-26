@@ -1,0 +1,7 @@
+crystal\_toolkit.renderables.phasediagram module
+================================================
+
+.. automodule:: crystal_toolkit.renderables.phasediagram
+   :members:
+   :undoc-members:
+   :show-inheritance:
