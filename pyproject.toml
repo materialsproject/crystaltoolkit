@@ -6,7 +6,7 @@ authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pymatgen = "^2020.7.10"
+pymatgen = "^2020.9.14"
 typing-extensions = { version = "^3.7", python = "~3.7" }
 pydantic = "^1.4"
 plotly = "^4.5.4"
@@ -24,15 +24,18 @@ robocrys = { version = "^0.2.1", optional = true }
 scikit-image = { version = "^0.17.2", optional = true }
 habanero = { version = "^0.7.2", optional = true }
 hiphive = { version = "^0.7", optional = true }
-dscribe = "^0.3.5"
-dash-extensions = "^0.0.31"
+dscribe = { version = "^0.3.5", optional = true }
+dash-extensions = { version = "^0.0.31", optional = true }
+sentry-sdk = { version = "^0.17.3", optional = true }
+ifermi = "^0.1.2"
+pyfftw = "^0.12.0"
 
 [tool.poetry.extras]
 server = [
     "dash", "dash-daq", "gunicorn", "redis",
     "Flask-Caching", "gevent", "dash-mp-components", "scikit-learn",
     "robocrys", "scikit-image", "habanero", "hiphive", "dscribe",
-    "dash-extensions"
+    "dash-extensions", "sentry-sdk"
 ]
 
 [tool.poetry.dev-dependencies]
@@ -45,9 +48,9 @@ sphinx_rtd_theme = "^0.4.3"
 recommonmark = "^0.6.0"
 dephell = "^0.8.2"
 
+[tool.isort]
+profile = "black"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
-[tool.isort]
-profile = "black"
