@@ -8,7 +8,7 @@ from monty.json import MSONable
 
 from crystal_toolkit.renderables import *
 
-__version__ = "2020.09.03"
+__version__ = "2020.09.28"
 
 MODULE_PATH = Path(__file__).parents[0]
 
@@ -46,6 +46,11 @@ from the same environment you run \"jupyter lab"\. \n\n
 is not installed, please consult Plotly documentation for information on how to 
 install.
 """
+
+    # TODO: to be strict here, we could use inspect.signature
+    # and .return_annotation is either a Scene or a go.Figure respectively
+    # and also check all .parameters .kind.name have no POSITIONAL_ONLY
+    # in practice, fairly unlikely this will cause issues without strict checking
 
     if hasattr(self, "get_scene"):
         return {
