@@ -5,6 +5,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    crystal_toolkit.components.transformations.autooxistatedecoration
    crystal_toolkit.components.transformations.core
