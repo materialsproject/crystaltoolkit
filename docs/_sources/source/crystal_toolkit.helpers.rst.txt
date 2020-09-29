@@ -5,6 +5,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    crystal_toolkit.helpers.asymptote_renderer
    crystal_toolkit.helpers.layouts
