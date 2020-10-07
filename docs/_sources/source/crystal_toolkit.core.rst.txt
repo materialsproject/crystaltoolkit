@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    crystal_toolkit.core.tests
 
@@ -12,6 +13,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    crystal_toolkit.core.legend
    crystal_toolkit.core.mpcomponent
