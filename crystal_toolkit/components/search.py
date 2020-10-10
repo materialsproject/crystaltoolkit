@@ -36,19 +36,22 @@ class SearchComponent(MPComponent):
         if os.path.isfile(path):
             mpid_cache = loadfn(path)
         else:
-            with MPRester() as mpr:
-                # restrict random mpids to those likely experimentally known
-                # and not too large
-                entries = mpr.query(
-                    {"nsites": {"$lte": 16}},
-                    ["task_id", "icsd_ids"],
-                    chunk_size=0,
-                    mp_decode=False,
-                )
-            mpid_cache = [
-                entry["task_id"] for entry in entries if len(entry["icsd_ids"]) > 2
-            ]
-            dumpfn(mpid_cache, path)
+            try:
+                with MPRester() as mpr:
+                    # restrict random mpids to those likely experimentally known
+                    # and not too large
+                    entries = mpr.query(
+                        {"nsites": {"$lte": 16}},
+                        ["task_id", "icsd_ids"],
+                        chunk_size=0,
+                        mp_decode=False,
+                    )
+                mpid_cache = [
+                    entry["task_id"] for entry in entries if len(entry["icsd_ids"]) > 2
+                ]
+                dumpfn(mpid_cache, path)
+            except Exception:
+                mpid_cache = []
 
         self.mpid_cache = mpid_cache
 
