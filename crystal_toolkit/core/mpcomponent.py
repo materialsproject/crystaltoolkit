@@ -207,7 +207,7 @@ class MPComponent(ABC):
         # TODO: do something else here
         if id is None:
             id = f"{CT_NAMESPACE}{self.__class__.__name__}"
-        else:
+        elif not id.startswith(CT_NAMESPACE):
             id = f"{CT_NAMESPACE}{id}"
         MPComponent._all_id_basenames.add(id)
 
