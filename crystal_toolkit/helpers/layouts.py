@@ -347,7 +347,16 @@ def get_data_list(data: Dict[str, str]):
     """
     contents = []
     for title, value in data.items():
-        contents.append(html.Tr([html.Td(Label(title)), html.Td(value)]))
+        if isinstance(title, str):
+            title = Label(title)
+        contents.append(
+            html.Tr(
+                [
+                    html.Td(title, style={"vertical-align": "middle"}),
+                    html.Td(value, style={"vertical-align": "middle"}),
+                ]
+            )
+        )
     return html.Table([html.Tbody(contents)], className="table")
 
 
