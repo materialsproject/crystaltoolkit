@@ -18,6 +18,7 @@ from monty.json import MontyDecoder, MSONable
 
 from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.helpers.layouts import add_label_help
+from crystal_toolkit.settings import SETTINGS
 
 try:
     from typing import Literal
@@ -147,7 +148,7 @@ class MPComponent(ABC):
 
     def __init__(
         self,
-        default_data: Optional[MSONable] = None,
+        default_data: Optional[Union[MSONable, Dict, str]] = None,
         id: Optional[str] = None,
         links: Optional[Dict[str, str]] = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
@@ -349,6 +350,9 @@ class MPComponent(ABC):
         )
 
     def __repr__(self):
+        return f"{self.id()}<{self.__class__.__name__}>"
+
+    def __str__(self):
         ids = "\n".join(
             [f"* {component_id}  " for component_id in sorted(self.all_ids)]
         )
@@ -433,7 +437,7 @@ Sub-layouts:  \n{layouts}"""
                         "width": "5rem",
                         "marginRight": "0.2rem",
                         "marginBottom": "0.2rem",
-                        "height": "1.5rem",
+                        "height": "36px",
                     },
                     value=value,
                     persistence=True,
@@ -452,7 +456,7 @@ Sub-layouts:  \n{layouts}"""
                         "width": "5rem",
                         "marginRight": "0.2rem",
                         "marginBottom": "0.2rem",
-                        "height": "1.5rem",
+                        "height": "36px",
                     },
                     value=value,
                     persistence=True,
@@ -656,8 +660,6 @@ Sub-layouts:  \n{layouts}"""
 
             idx = literal_eval(d["idx"])
 
-            # print(kwarg_label, k_type, idx, v)
-
             # TODO: catch Exceptions here, and display validation error to user if incorrect kwargs supplied
 
             if isinstance(k_type, tuple):
@@ -692,6 +694,7 @@ Sub-layouts:  \n{layouts}"""
             if isinstance(v, np.ndarray):
                 kwargs[k] = v.tolist()
 
-        print(self.__class__.__name__, "kwargs", kwargs)
+        if SETTINGS.DEBUG_MODE:
+            print(self.__class__.__name__, "kwargs", kwargs)
 
         return kwargs
