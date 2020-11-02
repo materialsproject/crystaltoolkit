@@ -5,7 +5,7 @@
 .idea/
 
 # auto-generated caches on first run
-crystal_toolkit/*_cache.json
+# crystal_toolkit/*_cache.json
 
 # staging area
 staging/
