@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseSettings
 
 from crystal_toolkit import MODULE_PATH
@@ -20,6 +22,8 @@ class Settings(BaseSettings):
 
     PERSISTENCE: bool = True
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"
+
+    SENTRY_DSN: Optional[str] = None
 
     class Config:
         env_prefix = "CT_"
