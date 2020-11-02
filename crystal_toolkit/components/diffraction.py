@@ -281,7 +281,11 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
     def layout(self):
         return Columns(
             [
-                Column([self._sub_layouts["graph"]], size=8, style={"height": "600px"}),
+                Column(
+                    [Box([self._sub_layouts["graph"]])],
+                    size=8,
+                    style={"height": "600px"},
+                ),
                 Column(
                     [
                         self._sub_layouts["x_axis"],
