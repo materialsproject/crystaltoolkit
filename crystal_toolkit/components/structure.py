@@ -1,29 +1,34 @@
-import re
 import os
+import re
 import sys
 import warnings
 from collections import OrderedDict
-from itertools import combinations_with_replacement, chain
-from typing import Dict, Union, Optional, Tuple
+from itertools import chain, combinations_with_replacement
+from typing import Dict, Optional, Tuple, Union
 
 import dash
 import dash_table as dt
 import numpy as np
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, MATCH
 from dash.exceptions import PreventUpdate
-from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
+from dash_mp_components import Simple3DScene
+from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core.composition import Composition
-from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.core.structure import Molecule, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from dash_mp_components import Simple3DScene
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.helpers.layouts import *
 from crystal_toolkit.settings import SETTINGS
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 # TODO: make dangling bonds "stubs"? (fixed length)
 
@@ -55,6 +60,7 @@ class StructureMoleculeComponent(MPComponent):
         # to SVG since this WebGL support is more difficult
         # in headless browsers / CI.
         "renderer": "svg" if SETTINGS.TEST_MODE else "webgl",
+        "secondaryObjectView": False,
     }
 
     # what to show for the title_layout if structure/molecule not loaded
@@ -147,6 +153,9 @@ class StructureMoleculeComponent(MPComponent):
             # graph is cached explicitly, this isn't necessary but is an
             # optimization so that graph is only re-generated if bonding
             # algorithm changes
+            struct_or_mol = self._preprocess_structure(
+                struct_or_mol, unit_cell_choice=unit_cell_choice
+            )
             graph = self._preprocess_input_to_graph(
                 struct_or_mol,
                 bonding_strategy=bonding_strategy,
@@ -278,21 +287,7 @@ class StructureMoleculeComponent(MPComponent):
 
             # TODO: add additional check here?
             unit_cell_choice = graph_generation_options["unit_cell_choice"]
-            if isinstance(struct_or_mol, Structure):
-                if unit_cell_choice != "input":
-                    if unit_cell_choice == "primitive":
-                        struct_or_mol = struct_or_mol.get_primitive_structure()
-                    elif unit_cell_choice == "conventional":
-                        sga = SpacegroupAnalyzer(struct_or_mol)
-                        struct_or_mol = sga.get_conventional_standard_structure()
-                    elif unit_cell_choice == "reduced_niggli":
-                        struct_or_mol = struct_or_mol.get_reduced_structure(
-                            reduction_algo="niggli"
-                        )
-                    elif unit_cell_choice == "reduced_lll":
-                        struct_or_mol = struct_or_mol.get_reduced_structure(
-                            reduction_algo="LLL"
-                        )
+            struct_or_mol = self._preprocess_structure(struct_or_mol, unit_cell_choice)
 
             graph = self._preprocess_input_to_graph(
                 struct_or_mol,
@@ -347,21 +342,47 @@ class StructureMoleculeComponent(MPComponent):
             )
             return legend
 
+        @app.callback(
+            Output(self.id("color-scheme"), "options"),
+            [Input(self.id("legend_data"), "data")],
+        )
+        def update_color_options(legend_data):
+
+            # TODO: make client-side
             color_options = [
                 {"label": "Jmol", "value": "Jmol"},
                 {"label": "VESTA", "value": "VESTA"},
                 {"label": "Accessible", "value": "accessible"},
             ]
-            struct_or_mol = self._get_struct_or_mol(graph)
-            site_props = Legend(struct_or_mol).analyze_site_props(struct_or_mol)
-            for site_prop_type in ("scalar", "categorical"):
-                if site_prop_type in site_props:
-                    for prop in site_props[site_prop_type]:
-                        color_options += [
-                            {"label": f"Site property: {prop}", "value": prop}
-                        ]
 
-            return scene, legend, color_options
+            if not legend_data:
+                return color_options
+
+            for option in legend_data["available_color_schemes"]:
+                color_options += [
+                    {"label": f"Site property: {option}", "value": option}
+                ]
+
+            return color_options
+
+        # app.clientside_callback(
+        #     """
+        #     function (legendData) {
+        #
+        #         var colorOptions = [
+        #             {label: "Jmol", value: "Jmol"},
+        #             {label: "VESTA", value: "VESTA"},
+        #             {label: "Accessible", value: "accessible"},
+        #         ]
+        #
+        #
+        #
+        #         return colorOptions
+        #     }
+        #     """,
+        #     Output(self.id("color-scheme"), "options"),
+        #     [Input(self.id("legend_data"), "data")]
+        # )
 
         @app.callback(
             Output(self.id("scene"), "downloadRequest"),
@@ -492,7 +513,7 @@ class StructureMoleculeComponent(MPComponent):
     def _make_title(self, legend):
 
         if not legend or (not legend.get("composition", None)):
-            return H1(self.default_title, id=self.id("title"))
+            return H2(self.default_title, id=self.id("title"))
 
         composition = legend["composition"]
         if isinstance(composition, dict):
@@ -520,7 +541,7 @@ class StructureMoleculeComponent(MPComponent):
             except:
                 formula_components = list(map(str, composition.keys()))
 
-        return H1(
+        return H2(
             formula_components, id=self.id("title"), style={"display": "inline-block"}
         )
 
@@ -768,6 +789,30 @@ class StructureMoleculeComponent(MPComponent):
         return html.Div(
             self._sub_layouts["struct"], style={"width": size, "height": size}
         )
+
+    @staticmethod
+    def _preprocess_structure(
+        struct_or_mol: Union[Structure, StructureGraph, Molecule, MoleculeGraph],
+        unit_cell_choice: Literal[
+            "input", "primitive", "conventional", "reduced_niggli", "reduced_lll"
+        ] = "input",
+    ):
+        if isinstance(struct_or_mol, Structure):
+            if unit_cell_choice != "input":
+                if unit_cell_choice == "primitive":
+                    struct_or_mol = struct_or_mol.get_primitive_structure()
+                elif unit_cell_choice == "conventional":
+                    sga = SpacegroupAnalyzer(struct_or_mol)
+                    struct_or_mol = sga.get_conventional_standard_structure()
+                elif unit_cell_choice == "reduced_niggli":
+                    struct_or_mol = struct_or_mol.get_reduced_structure(
+                        reduction_algo="niggli"
+                    )
+                elif unit_cell_choice == "reduced_lll":
+                    struct_or_mol = struct_or_mol.get_reduced_structure(
+                        reduction_algo="LLL"
+                    )
+        return struct_or_mol
 
     @staticmethod
     def _preprocess_input_to_graph(
