@@ -310,11 +310,7 @@ class StructureMoleculeComponent(MPComponent):
             return graph
 
         @app.callback(
-            [
-                Output(self.id("scene"), "data"),
-                Output(self.id("legend_data"), "data"),
-                Output(self.id("color-scheme"), "options"),
-            ],
+            Output(self.id("scene"), "data"),
             [
                 Input(self.id("graph"), "data"),
                 Input(self.id("display_options"), "data"),
@@ -322,7 +318,7 @@ class StructureMoleculeComponent(MPComponent):
             ],
         )
         @cache.memoize()
-        def update_scene_and_legend_and_colors(graph, display_options, scene_additions):
+        def update_scene(graph, display_options, scene_additions):
             if not graph or not display_options:
                 raise PreventUpdate
             display_options = self.from_data(display_options)
@@ -330,6 +326,26 @@ class StructureMoleculeComponent(MPComponent):
             scene, legend = self.get_scene_and_legend(
                 graph, **display_options, scene_additions=scene_additions
             )
+            return scene
+
+        @app.callback(
+            Output(self.id("legend_data"), "data"),
+            [
+                Input(self.id("graph"), "data"),
+                Input(self.id("display_options"), "data"),
+                Input(self.id("scene_additions"), "data"),
+            ],
+        )
+        @cache.memoize()
+        def update_legend_and_colors(graph, display_options, scene_additions):
+            if not graph or not display_options:
+                raise PreventUpdate
+            display_options = self.from_data(display_options)
+            graph = self.from_data(graph)
+            scene, legend = self.get_scene_and_legend(
+                graph, **display_options, scene_additions=scene_additions
+            )
+            return legend
 
             color_options = [
                 {"label": "Jmol", "value": "Jmol"},
@@ -375,21 +391,32 @@ class StructureMoleculeComponent(MPComponent):
             }
 
         @app.callback(
-            [
-                Output(self.id("legend_container"), "children"),
-                Output(self.id("title_container"), "children"),
-            ],
+            [Output(self.id("title_container"), "children"),],
             [Input(self.id("legend_data"), "data")],
         )
         @cache.memoize()
-        def update_legend_and_title(legend):
+        def update_title(legend):
 
             if not legend:
                 raise PreventUpdate
 
             legend = self.from_data(legend)
 
-            return self._make_legend(legend), self._make_title(legend)
+            return self._make_title(legend)
+
+        @app.callback(
+            [Output(self.id("legend_container"), "children"),],
+            [Input(self.id("legend_data"), "data")],
+        )
+        @cache.memoize()
+        def update_legend(legend):
+
+            if not legend:
+                raise PreventUpdate
+
+            legend = self.from_data(legend)
+
+            return self._make_legend(legend)
 
         @app.callback(
             [
