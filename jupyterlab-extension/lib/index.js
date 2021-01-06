@@ -51,7 +51,7 @@ export class SceneRenderer extends Widget {
 export const rendererFactory = {
     safe: true,
     mimeTypes: [MIME_TYPE],
-    createRenderer: options => new SceneRenderer(options)
+    createRenderer: (options) => new SceneRenderer(options),
 };
 /**
  * Extension definition.
@@ -67,15 +67,14 @@ const extension = {
             displayName: 'Crystal Toolkit Scene JSON',
             fileFormat: 'json',
             mimeTypes: [MIME_TYPE],
-            extensions: ['.ctk.json']
-        }
+            extensions: ['.ctk.json'],
+        },
     ],
     documentWidgetFactoryOptions: {
         name: 'SceneViewer',
         primaryFileType: 'ctk_json',
         fileTypes: ['ctk_json'],
-        defaultFor: ['ctk_json']
-    }
+        defaultFor: ['ctk_json'],
+    },
 };
 export default extension;
-//# sourceMappingURL=index.js.map
