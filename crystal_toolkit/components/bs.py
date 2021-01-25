@@ -7,11 +7,14 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 # -- Temp fake API
-from dash_mp_components import Simple3DScene
+from dash_mp_components import CrystalToolkitScene
 from maggma.stores import GridFSStore, JSONStore, MongoStore
 from pymatgen import MPRester
 from pymatgen.core.periodic_table import Element
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import (
+    BandStructureSymmLine,
+    BandStructure,
+)
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import BSPlotter, fold_point
@@ -67,7 +70,7 @@ class BandstructureAndDosComponent(MPComponent):
 
         # Brillouin zone
         zone_scene = self.get_brillouin_zone_scene(bs)
-        zone = Simple3DScene(data=zone_scene.to_json(), sceneSize="500px")
+        zone = CrystalToolkitScene(data=zone_scene.to_json(), sceneSize="500px")
 
         # Hide by default if not loaded by mpid, switching between k-paths
         # on-the-fly only supported for bandstructures retrieved from MP
@@ -203,6 +206,10 @@ class BandstructureAndDosComponent(MPComponent):
                 density_of_states = CompleteDos.from_dict(density_of_states)
 
         return bandstructure_symm_line, density_of_states
+
+    @staticmethod
+    def get_ifermi_scene(bs: BandStructure) -> Scene:
+        pass
 
     @staticmethod
     def get_brillouin_zone_scene(bs: BandStructureSymmLine) -> Scene:

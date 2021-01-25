@@ -11,7 +11,7 @@ import dash_table as dt
 import numpy as np
 from dash.dependencies import Input, Output, State, MATCH
 from dash.exceptions import PreventUpdate
-from dash_mp_components import Simple3DScene
+from dash_mp_components import CrystalToolkitScene
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core.composition import Composition
@@ -103,7 +103,7 @@ class StructureMoleculeComponent(MPComponent):
         :param bonded_sites_outside_unit_cell: whether to draw sites bonded outside the unit cell
         :param hide_incomplete_bonds: whether to hide or show incomplete bonds
         :param show_compass: whether to hide or show the compass
-        :param scene_settings: scene settings (lighting etc.) to pass to Simple3DScene
+        :param scene_settings: scene settings (lighting etc.) to pass to CrystalToolkitScene
         :param kwargs: extra keyword arguments to pass to MPComponent
         """
 
@@ -181,7 +181,7 @@ class StructureMoleculeComponent(MPComponent):
         self.create_store("legend_data", initial_data=legend)
         self.create_store("graph", initial_data=graph)
 
-        # this is used by a Simple3DScene component, not a dcc.Store
+        # this is used by a CrystalToolkitScene component, not a dcc.Store
         self._initial_data["scene"] = scene
 
         # hide axes inset for molecules
@@ -569,7 +569,7 @@ class StructureMoleculeComponent(MPComponent):
     def _sub_layouts(self):
 
         struct_layout = html.Div(
-            Simple3DScene(
+            CrystalToolkitScene(
                 id=self.id("scene"),
                 data=self.initial_data["scene"],
                 settings=self.initial_scene_settings,

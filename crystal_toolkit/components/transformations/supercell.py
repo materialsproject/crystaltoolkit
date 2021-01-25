@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 
 from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.components.transformations.core import TransformationComponent
-from dash_mp_components import Simple3DScene
+from dash_mp_components import CrystalToolkitScene
 
 from crystal_toolkit.core.scene import Scene
 
@@ -59,6 +59,6 @@ integers."""
         scene = Scene("lattices", contents=[lattice_in, lattice_out])
 
         return html.Div(
-            [Simple3DScene(data=scene.to_json())],
+            [CrystalToolkitScene(data=scene.to_json())],
             style={"width": "100px", "height": "100px"},
         )
