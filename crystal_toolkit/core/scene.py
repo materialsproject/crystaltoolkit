@@ -7,10 +7,10 @@ from typing import List, Optional, Dict, Any
 
 """
 This module gives a Python interface to generate JSON for the
-Simple3DSceneComponent. To use, create a Scene whose contents can either be a
+CrystalToolkitSceneComponent. To use, create a Scene whose contents can either be a
 a list of any of the geometric primitives defined below (e.g. Spheres,
 Cylinders, etc.) or can be another Scene. Then use scene_to_json() to convert
-the Scene to the JSON format to pass to Simple3DSceneComponent's data attribute.
+the Scene to the JSON format to pass to CrystalToolkitSceneComponent's data attribute.
 """
 
 
@@ -84,7 +84,7 @@ class Scene:
         encoder.
 
         :param scene: A Scene object
-        :return: dict in a format that can be parsed by Simple3DSceneComponent
+        :return: dict in a format that can be parsed by CrystalToolkitSceneComponent
         """
 
         merged_scene = Scene(
@@ -319,6 +319,7 @@ class Cylinders(Primitive):
     radius: Optional[float] = None
     type: str = field(default="cylinders", init=False)  # private field
     visible: bool = None
+    tooltip: str = None
     clickable: bool = False
     reference: Optional[str] = None
     _meta: Any = None
