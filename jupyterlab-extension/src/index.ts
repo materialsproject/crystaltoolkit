@@ -1,6 +1,6 @@
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
-import { Simple3DScene } from '@materialsproject/mp-react-components';
+import { CrystalToolkitScene } from '@materialsproject/mp-react-components';
 
 /**
  * The default mime type for the extension.
@@ -38,7 +38,7 @@ export class SceneRenderer extends Widget implements IRenderMime.IRenderer {
 
     // wait for the next event loop
     setTimeout(() => {
-      this.scene = new Simple3DScene(
+      this.scene = new CrystalToolkitScene(
         model,
         this.sceneContainer,
         {},
