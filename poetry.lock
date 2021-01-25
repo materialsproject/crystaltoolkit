@@ -25,6 +25,28 @@ python-versions = "*"
 version = "0.7.12"
 
 [[package]]
+category = "main"
+description = "High level compatibility layer for multiple asynchronous event loop implementations"
+name = "anyio"
+optional = false
+python-versions = ">=3.6.2"
+version = "2.0.2"
+
+[package.dependencies]
+idna = ">=2.8"
+sniffio = ">=1.1"
+
+[package.dependencies.typing-extensions]
+python = "<3.8"
+version = "*"
+
+[package.extras]
+curio = ["curio (>=1.4)"]
+doc = ["sphinx-rtd-theme", "sphinx-autodoc-typehints (>=1.2.0)"]
+test = ["coverage (>=4.5)", "hypothesis (>=4.0)", "pytest (>=4.3)", "trustme", "uvloop"]
+trio = ["trio (>=0.16)"]
+
+[[package]]
 category = "dev"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 name = "appdirs"
@@ -62,7 +84,7 @@ tests = ["coverage (>=5.0.2)", "hypothesis", "pytest"]
 category = "main"
 description = "Atomic Simulation Environment"
 name = "ase"
-optional = false
+optional = true
 python-versions = ">=3.6"
 version = "3.20.1"
 
@@ -115,7 +137,7 @@ tests = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six
 tests_no_zope = ["coverage (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Internationalization utilities"
 name = "babel"
 optional = false
@@ -172,7 +194,7 @@ webencodings = "*"
 category = "main"
 description = "band-structure interpolator and transport coefficient calculator"
 name = "boltztrap2"
-optional = false
+optional = true
 python-versions = ">=3.5"
 version = "20.7.1"
 
@@ -234,7 +256,7 @@ version = "3.2.0"
 category = "main"
 description = "Time-handling functionality from netcdf4-python"
 name = "cftime"
-optional = false
+optional = true
 python-versions = "*"
 version = "1.2.1"
 
@@ -270,7 +292,7 @@ version = "0.4.3"
 category = "main"
 description = "Color scales for IPython notebook"
 name = "colorlover"
-optional = false
+optional = true
 python-versions = "*"
 version = "0.3.0"
 
@@ -284,6 +306,17 @@ version = "0.9.1"
 
 [package.extras]
 test = ["flake8 (3.7.8)", "hypothesis (3.55.3)"]
+
+[[package]]
+category = "main"
+description = "A JupyterLab extension for rendering Crystal Toolkit Scene JSON files."
+name = "crystaltoolkit-extension"
+optional = false
+python-versions = ">=3.6"
+version = "0.3.0"
+
+[package.dependencies]
+jupyterlab = ">=3.0.0,<4.0.0"
 
 [[package]]
 category = "main"
@@ -302,21 +335,21 @@ description = "A Python framework for building reactive web-apps. Developed by P
 name = "dash"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "1.16.3"
+version = "1.19.0"
 
 [package.dependencies]
-Flask = ">=1.0.2"
-dash-core-components = "1.12.1"
-dash-html-components = "1.1.1"
-dash-table = "4.10.1"
-dash_renderer = "1.8.2"
+Flask = ">=1.0.4"
+dash-core-components = "1.15.0"
+dash-html-components = "1.1.2"
+dash-table = "4.11.2"
+dash_renderer = "1.9.0"
 flask-compress = "*"
 future = "*"
 plotly = "*"
 
 [package.extras]
-dev = ["dash_flow_example (0.0.5)", "dash-dangerously-set-inner-html", "isort (4.3.21)", "flake8 (3.7.9)", "PyYAML (5.3)", "fire (0.2.1)", "coloredlogs (14.0)", "pylint (1.9.4)", "mock (3.0.5)", "virtualenv (20.0.10)", "pylint (2.3.1)", "astroid (2.2.5)", "mock (4.0.1)", "black (19.10b0)"]
-testing = ["pytest-sugar (0.9.4)", "lxml (4.5.0)", "selenium (3.141.0)", "percy (2.0.2)", "cryptography (3.0)", "requests (2.21.0)", "beautifulsoup4 (4.8.2)", "waitress (1.4.3)", "flask-talisman (0.7.0)", "pytest (4.6.9)", "pytest-mock (2.0.0)", "pytest (6.0.1)", "pytest-mock (3.2.0)"]
+dev = ["dash_flow_example (0.0.5)", "dash-dangerously-set-inner-html", "flake8 (3.8.4)", "PyYAML (5.3.1)", "fire (0.3.1)", "coloredlogs (15.0)", "flask-talisman (0.7.0)", "isort (4.3.21)", "pylint (1.9.5)", "mock (3.0.5)", "virtualenv (20.2.2)", "mock (4.0.3)", "black (19.10b0)", "pylint (2.6.0)", "astroid (2.4.2)"]
+testing = ["pytest-sugar (>=0.9.4)", "lxml (>=4.6.2)", "selenium (>=3.141.0)", "percy (>=2.0.2)", "requests (>=2.21.0)", "waitress (>=1.4.4)", "pytest (>=4.6,<5)", "pytest-mock (>=2.0.0,<3)", "beautifulsoup4 (>=4.8.2,<=4.9.3)", "pytest (>=6.0.2)", "pytest-mock (>=3.2.0)", "beautifulsoup4 (>=4.8.2)"]
 
 [[package]]
 category = "main"
@@ -324,7 +357,7 @@ description = "Core component suite for Dash"
 name = "dash-core-components"
 optional = false
 python-versions = "*"
-version = "1.12.1"
+version = "1.15.0"
 
 [[package]]
 category = "main"
@@ -356,7 +389,7 @@ description = "Vanilla HTML components for Dash"
 name = "dash-html-components"
 optional = false
 python-versions = "*"
-version = "1.1.1"
+version = "1.1.2"
 
 [[package]]
 category = "main"
@@ -364,7 +397,7 @@ description = "Dash components for the Materials Project"
 name = "dash-mp-components"
 optional = true
 python-versions = "*"
-version = "0.0.25"
+version = "0.1.34"
 
 [[package]]
 category = "main"
@@ -372,7 +405,7 @@ description = "Front-end component renderer for Dash"
 name = "dash-renderer"
 optional = false
 python-versions = "*"
-version = "1.8.2"
+version = "1.9.0"
 
 [[package]]
 category = "main"
@@ -380,7 +413,7 @@ description = "Dash table"
 name = "dash-table"
 optional = false
 python-versions = "*"
-version = "4.10.1"
+version = "4.11.2"
 
 [[package]]
 category = "main"
@@ -805,7 +838,7 @@ version = "2.10"
 category = "main"
 description = "Fermi surface plotting tool from DFT output"
 name = "ifermi"
-optional = false
+optional = true
 python-versions = "*"
 version = "0.1.2"
 
@@ -834,7 +867,7 @@ tests = ["nose", "coverage", "coveralls"]
 category = "main"
 description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats."
 name = "imageio"
-optional = false
+optional = true
 python-versions = ">=3.5"
 version = "2.9.0"
 
@@ -960,7 +993,7 @@ version = "0.2.0"
 category = "main"
 description = "IPython HTML widgets for Jupyter"
 name = "ipywidgets"
-optional = false
+optional = true
 python-versions = "*"
 version = "7.5.1"
 
@@ -1024,6 +1057,17 @@ version = "0.16.0"
 
 [[package]]
 category = "main"
+description = "A Python implementation of the JSON5 data format."
+name = "json5"
+optional = false
+python-versions = "*"
+version = "0.9.5"
+
+[package.extras]
+dev = ["hypothesis"]
+
+[[package]]
+category = "main"
 description = "An implementation of JSON Schema validation for Python"
 name = "jsonschema"
 optional = false
@@ -1048,7 +1092,7 @@ format_nongpl = ["idna", "jsonpointer (>1.13)", "webcolors", "rfc3986-validator 
 category = "main"
 description = "Jupyter metapackage. Install all the Jupyter components in one go."
 name = "jupyter"
-optional = false
+optional = true
 python-versions = "*"
 version = "1.0.0"
 
@@ -1082,7 +1126,7 @@ test = ["ipykernel", "ipython", "mock", "pytest", "pytest-asyncio", "async-gener
 category = "main"
 description = "Jupyter terminal console"
 name = "jupyter-console"
-optional = false
+optional = true
 python-versions = ">=3.6"
 version = "6.2.0"
 
@@ -1110,6 +1154,55 @@ traitlets = "*"
 
 [[package]]
 category = "main"
+description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
+name = "jupyter-server"
+optional = false
+python-versions = ">=3.6"
+version = "1.2.2"
+
+[package.dependencies]
+Send2Trash = "*"
+anyio = ">=2.0.2"
+ipython-genutils = "*"
+jinja2 = "*"
+jupyter-client = ">=6.1.1"
+jupyter-core = ">=4.4.0"
+nbconvert = "*"
+nbformat = "*"
+prometheus-client = "*"
+pywin32 = ">=1.0"
+pyzmq = ">=17"
+terminado = ">=0.8.3"
+tornado = ">=6.1.0"
+traitlets = ">=4.2.1"
+
+[package.extras]
+test = ["coverage", "requests", "pytest", "pytest-cov", "pytest-tornasync", "pytest-console-scripts", "ipykernel"]
+
+[[package]]
+category = "main"
+description = "The JupyterLab server extension."
+name = "jupyterlab"
+optional = false
+python-versions = ">=3.6"
+version = "3.0.5"
+
+[package.dependencies]
+ipython = "*"
+jinja2 = ">=2.10"
+jupyter-core = "*"
+jupyter-server = ">=1.2,<2.0"
+jupyterlab-server = ">=2.0,<3.0"
+nbclassic = ">=0.2,<1.0"
+packaging = "*"
+tornado = ">=6.1.0"
+
+[package.extras]
+docs = ["jsx-lexer", "recommonmark", "sphinx", "sphinx-rtd-theme", "sphinx-copybutton"]
+test = ["pytest (>=6.0)", "pytest-cov", "pytest-console-scripts", "pytest-check-links", "jupyterlab-server (>=2.0,<3.0)", "requests", "wheel", "virtualenv", "nose-exclude"]
+
+[[package]]
+category = "main"
 description = "Pygments theme using JupyterLab CSS variables"
 name = "jupyterlab-pygments"
 optional = false
@@ -1118,6 +1211,26 @@ version = "0.1.1"
 
 [package.dependencies]
 pygments = ">=2.4.1,<3"
+
+[[package]]
+category = "main"
+description = "JupyterLab Server"
+name = "jupyterlab-server"
+optional = false
+python-versions = ">=3.6"
+version = "2.1.2"
+
+[package.dependencies]
+babel = "*"
+jinja2 = ">=2.10"
+json5 = "*"
+jsonschema = ">=3.0.1"
+jupyter-server = ">=1.1,<2.0"
+packaging = "*"
+requests = "*"
+
+[package.extras]
+test = ["codecov", "ipykernel", "pytest (>=5.3.2)", "pytest-cov", "jupyter-server", "pytest-console-scripts", "strict-rfc3339", "wheel"]
 
 [[package]]
 category = "main"
@@ -1218,7 +1331,7 @@ python-dateutil = ">=2.1"
 category = "main"
 description = "Utilities to slice 3D triangular meshes."
 name = "meshcut"
-optional = false
+optional = true
 python-versions = "*"
 version = "0.2.1"
 
@@ -1277,6 +1390,21 @@ name = "mypy-extensions"
 optional = false
 python-versions = "*"
 version = "0.4.3"
+
+[[package]]
+category = "main"
+description = "Jupyter Notebook as a Jupyter Server Extension."
+name = "nbclassic"
+optional = false
+python-versions = ">=3.6"
+version = "0.2.6"
+
+[package.dependencies]
+jupyter-server = ">=1.1,<2.0"
+notebook = "<7"
+
+[package.extras]
+test = ["pytest", "pytest-tornasync", "pytest-console-scripts"]
 
 [[package]]
 category = "main"
@@ -1357,7 +1485,7 @@ version = "1.4.1"
 category = "main"
 description = "Provides an object-oriented python interface to the netCDF version 4 library."
 name = "netcdf4"
-optional = false
+optional = true
 python-versions = "*"
 version = "1.5.4"
 
@@ -1450,7 +1578,7 @@ version = "1.19.2"
 category = "main"
 description = "Library to make reading, writing and modifying both binary and ascii STL files easy."
 name = "numpy-stl"
-optional = false
+optional = true
 python-versions = "*"
 version = "2.11.2"
 
@@ -1505,7 +1633,6 @@ version = "1.4.2"
 [[package]]
 category = "main"
 description = "A Python Parser"
-marker = "python_version >= \"3.3\""
 name = "parso"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
@@ -1643,7 +1770,7 @@ wcwidth = "*"
 category = "main"
 description = "Cross-platform lib for process and system monitoring in Python."
 name = "psutil"
-optional = false
+optional = true
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "5.7.2"
 
@@ -1723,7 +1850,7 @@ typing_extensions = ["typing-extensions (>=3.7.2)"]
 category = "main"
 description = "A pythonic wrapper around FFTW, the FFT library, presenting a unified interface for all the supported transforms."
 name = "pyfftw"
-optional = false
+optional = true
 python-versions = "*"
 version = "0.12.0"
 
@@ -1847,7 +1974,7 @@ six = ">=1.5"
 category = "main"
 description = "Python Utils is a module with some convenient utilities not included with the standard Python install"
 name = "python-utils"
-optional = false
+optional = true
 python-versions = "*"
 version = "2.4.0"
 
@@ -1866,7 +1993,7 @@ version = "2020.1"
 category = "main"
 description = "PyWavelets, wavelet transform module"
 name = "pywavelets"
-optional = false
+optional = true
 python-versions = ">=3.5"
 version = "1.1.1"
 
@@ -1911,7 +2038,7 @@ version = "19.0.2"
 category = "main"
 description = "Jupyter Qt console"
 name = "qtconsole"
-optional = false
+optional = true
 python-versions = "*"
 version = "4.7.7"
 
@@ -1933,7 +2060,7 @@ test = ["pytest", "mock"]
 category = "main"
 description = "Provides an abstraction layer on top of the various Qt bindings (PyQt5, PyQt4 and PySide) and additional custom QWidgets."
 name = "qtpy"
-optional = false
+optional = true
 python-versions = "*"
 version = "1.9.0"
 
@@ -2053,7 +2180,7 @@ version = "0.2.2"
 category = "main"
 description = "Image processing in Python"
 name = "scikit-image"
-optional = false
+optional = true
 python-versions = ">=3.6"
 version = "0.17.2"
 
@@ -2151,6 +2278,14 @@ name = "six"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "1.15.0"
+
+[[package]]
+category = "main"
+description = "Sniff out which async library your code is running under"
+name = "sniffio"
+optional = false
+python-versions = ">=3.5"
+version = "1.2.0"
 
 [[package]]
 category = "dev"
@@ -2346,7 +2481,7 @@ version = "2.1.0"
 category = "main"
 description = "Read and write TIFF(r) files"
 name = "tifffile"
-optional = false
+optional = true
 python-versions = ">=3.7"
 version = "2020.9.28"
 
@@ -2378,7 +2513,7 @@ description = "Tornado is a Python web framework and asynchronous networking lib
 name = "tornado"
 optional = false
 python-versions = ">= 3.5"
-version = "6.0.4"
+version = "6.1"
 
 [[package]]
 category = "main"
@@ -2409,7 +2544,7 @@ test = ["pytest"]
 category = "main"
 description = "Import, export, process, analyze and view triangular meshes."
 name = "trimesh"
-optional = false
+optional = true
 python-versions = "*"
 version = "3.8.10"
 
@@ -2530,7 +2665,7 @@ watchdog = ["watchdog"]
 category = "main"
 description = "IPython HTML widgets for Jupyter"
 name = "widgetsnbextension"
-optional = false
+optional = true
 python-versions = "*"
 version = "3.5.1"
 
@@ -2606,10 +2741,11 @@ test = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 
 [extras]
+fermi = ["ifermi", "pyfftw"]
 server = ["dash", "dash-daq", "gunicorn", "redis", "Flask-Caching", "gevent", "dash-mp-components", "scikit-learn", "robocrys", "scikit-image", "habanero", "hiphive", "dscribe", "dash-extensions", "sentry-sdk"]
 
 [metadata]
-content-hash = "4336f4e7f15473612eea377a6da9cd22173719353fe9d955042e7333b9334ba6"
+content-hash = "8997e0c475cb8fc58bd2daa08244aacae4ec1de088bdbc063fe6b891d6266552"
 lock-version = "1.0"
 python-versions = "^3.7"
 
@@ -2631,6 +2767,10 @@ aiohttp = [
 alabaster = [
     {file = "alabaster-0.7.12-py2.py3-none-any.whl", hash = "sha256:446438bdcca0e05bd45ea2de1668c1d9b032e1a9154c2c259092d77031ddd359"},
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
+]
+anyio = [
+    {file = "anyio-2.0.2-py3-none-any.whl", hash = "sha256:01cce0087b8fd8b6b7e629dc11505dcde02f916ce903332892cb2ae9817b597d"},
+    {file = "anyio-2.0.2.tar.gz", hash = "sha256:35075abd32cf20fd7e0be2fee3614e80b92d5392eba257c8d2f33de3df7ca237"},
 ]
 appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
@@ -2812,15 +2952,18 @@ commonmark = [
     {file = "commonmark-0.9.1-py2.py3-none-any.whl", hash = "sha256:da2f38c92590f83de410ba1a3cbceafbc74fee9def35f9251ba9a971d6d66fd9"},
     {file = "commonmark-0.9.1.tar.gz", hash = "sha256:452f9dc859be7f06631ddcb328b6919c67984aca654e5fefb3914d54691aed60"},
 ]
+crystaltoolkit-extension = [
+    {file = "crystaltoolkit-extension-0.3.0.tar.gz", hash = "sha256:a3b76528f3f5318eb36f067f0b4f5d9465b6bec3ccdadc533e758b6c405bdb14"},
+]
 cycler = [
     {file = "cycler-0.10.0-py2.py3-none-any.whl", hash = "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d"},
     {file = "cycler-0.10.0.tar.gz", hash = "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"},
 ]
 dash = [
-    {file = "dash-1.16.3.tar.gz", hash = "sha256:596b20d5fdbf1dbcce2a77dc226d85a83e26aa0656c0a7a41e53cd20cc5f7a5e"},
+    {file = "dash-1.19.0.tar.gz", hash = "sha256:ba7307f94795fee844551791d401073d4e9b8d71596b37d54e131cec044268ef"},
 ]
 dash-core-components = [
-    {file = "dash_core_components-1.12.1.tar.gz", hash = "sha256:27f2ac612f5574dcd0d645f9302ceca5975bbdac6791865692e3ac51d0aec7f4"},
+    {file = "dash_core_components-1.15.0.tar.gz", hash = "sha256:b61cb37322de91b4feb0d4d823694cbba8686f6459db774b53d553135350c71e"},
 ]
 dash-daq = [
     {file = "dash_daq-0.5.0.tar.gz", hash = "sha256:a1d85b6799f7b885652fbc44aebdb58c41254616a8d350b943beeb42ade4256a"},
@@ -2830,16 +2973,16 @@ dash-extensions = [
     {file = "dash_extensions-0.0.31-py3-none-any.whl", hash = "sha256:92e16c9678f8c14efc497326b6a5c56fe47435c894a8be3a759fde23fa5e74ee"},
 ]
 dash-html-components = [
-    {file = "dash_html_components-1.1.1.tar.gz", hash = "sha256:2c662e640528c890aaa0fa23d48e51c4d13ce69a97841d856ddcaaf2c6a47be3"},
+    {file = "dash_html_components-1.1.2.tar.gz", hash = "sha256:83eaa39667b7c3e6cbefa360743e6e536d913269ea15db14308ad022c78bc301"},
 ]
 dash-mp-components = [
-    {file = "dash_mp_components-0.0.25.tar.gz", hash = "sha256:5b23e965582aa2d51df47c5ab0a313dc574cd7d521634462fa3f232b04bde05d"},
+    {file = "dash_mp_components-0.1.34.tar.gz", hash = "sha256:f8071dd0d6275c8f5e33d523e65e70aa75d62ecd55aafd136d4ff34f5c0f1cca"},
 ]
 dash-renderer = [
-    {file = "dash_renderer-1.8.2.tar.gz", hash = "sha256:84cbb22019299a5a3c268ec1143c6f241c3f136e95753edac83a81673b7fa04e"},
+    {file = "dash_renderer-1.9.0.tar.gz", hash = "sha256:3c5519a781beb2261ee73b2d193bef6f212697636f204acd7d58cd986ba88e30"},
 ]
 dash-table = [
-    {file = "dash_table-4.10.1.tar.gz", hash = "sha256:1aa02180faef13434364286b60404d26164d1ce2779c765c9c52e6935991a4e9"},
+    {file = "dash_table-4.11.2.tar.gz", hash = "sha256:90fbdd12eaaf657aa80d429263de4bbeef982649eb5981ebeb2410d67c1d20eb"},
 ]
 decorator = [
     {file = "decorator-4.4.2-py2.py3-none-any.whl", hash = "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760"},
@@ -3091,6 +3234,10 @@ joblib = [
     {file = "joblib-0.16.0-py3-none-any.whl", hash = "sha256:d348c5d4ae31496b2aa060d6d9b787864dd204f9480baaa52d18850cb43e9f49"},
     {file = "joblib-0.16.0.tar.gz", hash = "sha256:8f52bf24c64b608bf0b2563e0e47d6fcf516abc8cfafe10cfd98ad66d94f92d6"},
 ]
+json5 = [
+    {file = "json5-0.9.5-py2.py3-none-any.whl", hash = "sha256:af1a1b9a2850c7f62c23fde18be4749b3599fd302f494eebf957e2ada6b9e42c"},
+    {file = "json5-0.9.5.tar.gz", hash = "sha256:703cfee540790576b56a92e1c6aaa6c4b0d98971dc358ead83812aa4d06bdb96"},
+]
 jsonschema = [
     {file = "jsonschema-3.2.0-py2.py3-none-any.whl", hash = "sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163"},
     {file = "jsonschema-3.2.0.tar.gz", hash = "sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a"},
@@ -3112,9 +3259,21 @@ jupyter-core = [
     {file = "jupyter_core-4.6.3-py2.py3-none-any.whl", hash = "sha256:a4ee613c060fe5697d913416fc9d553599c05e4492d58fac1192c9a6844abb21"},
     {file = "jupyter_core-4.6.3.tar.gz", hash = "sha256:394fd5dd787e7c8861741880bdf8a00ce39f95de5d18e579c74b882522219e7e"},
 ]
+jupyter-server = [
+    {file = "jupyter_server-1.2.2-py3-none-any.whl", hash = "sha256:49fd3f9f6f4e866c2b8d7494baa2b6e6a7e44236006e443f2c04c407f7f55918"},
+    {file = "jupyter_server-1.2.2.tar.gz", hash = "sha256:26a98cd5c45b8ebd1e10215586c350a8fa3ca2971e757ee6bf517a180f9933ae"},
+]
+jupyterlab = [
+    {file = "jupyterlab-3.0.5-py3-none-any.whl", hash = "sha256:ad6337a3fc86e9b2a1c29fca82dfd49a75148ca28b695c94962d7808d968f64d"},
+    {file = "jupyterlab-3.0.5.tar.gz", hash = "sha256:ea75d43d9a054e9192b78ae1eefa72270818d1d787ec21f19db1a92d5cc8db35"},
+]
 jupyterlab-pygments = [
     {file = "jupyterlab_pygments-0.1.1-py2.py3-none-any.whl", hash = "sha256:c9535e5999f29bff90bd0fa423717dcaf247b71fad505d66b17d3217e9021fc5"},
     {file = "jupyterlab_pygments-0.1.1.tar.gz", hash = "sha256:19a0ccde7daddec638363cd3d60b63a4f6544c9181d65253317b2fb492a797b9"},
+]
+jupyterlab-server = [
+    {file = "jupyterlab_server-2.1.2-py3-none-any.whl", hash = "sha256:8e9f35ac7ac411d0c94b66e7d72ca1ef7f2d33ab78090523adcfa42afe862940"},
+    {file = "jupyterlab_server-2.1.2.tar.gz", hash = "sha256:a71ebeb89eb2ab49eca41768f9840bb6896c264203ea755990313d4dfa610a74"},
 ]
 kiwisolver = [
     {file = "kiwisolver-1.2.0-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:443c2320520eda0a5b930b2725b26f6175ca4453c61f739fef7a5847bd262f74"},
@@ -3258,6 +3417,10 @@ multidict = [
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
+]
+nbclassic = [
+    {file = "nbclassic-0.2.6-py3-none-any.whl", hash = "sha256:0248333262d6f90c2fbe05aacb4f008f1d71b5250a9f737488e0a03cfa1c6ed5"},
+    {file = "nbclassic-0.2.6.tar.gz", hash = "sha256:b649436ff85dc731ba8115deef089e5abbe827d7a6dccbad42c15b8d427104e8"},
 ]
 nbclient = [
     {file = "nbclient-0.5.0-py3-none-any.whl", hash = "sha256:8a6e27ff581cee50895f44c41936ce02369674e85e2ad58643d8d4a6c36771b0"},
@@ -3853,6 +4016,10 @@ six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
     {file = "six-1.15.0.tar.gz", hash = "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"},
 ]
+sniffio = [
+    {file = "sniffio-1.2.0-py3-none-any.whl", hash = "sha256:471b71698eac1c2112a40ce2752bb2f4a4814c22a54a3eed3676bc0f5ca9f663"},
+    {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
+]
 snowballstemmer = [
     {file = "snowballstemmer-2.0.0-py2.py3-none-any.whl", hash = "sha256:209f257d7533fdb3cb73bdbd24f436239ca3b2fa67d56f6ff88e86be08cc5ef0"},
     {file = "snowballstemmer-2.0.0.tar.gz", hash = "sha256:df3bac3df4c2c01363f3dd2cfa78cce2840a79b9f1c2d2de9ce8d31683992f52"},
@@ -3934,15 +4101,47 @@ tomlkit = [
     {file = "tomlkit-0.7.0.tar.gz", hash = "sha256:ac57f29693fab3e309ea789252fcce3061e19110085aa31af5446ca749325618"},
 ]
 tornado = [
-    {file = "tornado-6.0.4-cp35-cp35m-win32.whl", hash = "sha256:5217e601700f24e966ddab689f90b7ea4bd91ff3357c3600fa1045e26d68e55d"},
-    {file = "tornado-6.0.4-cp35-cp35m-win_amd64.whl", hash = "sha256:c98232a3ac391f5faea6821b53db8db461157baa788f5d6222a193e9456e1740"},
-    {file = "tornado-6.0.4-cp36-cp36m-win32.whl", hash = "sha256:5f6a07e62e799be5d2330e68d808c8ac41d4a259b9cea61da4101b83cb5dc673"},
-    {file = "tornado-6.0.4-cp36-cp36m-win_amd64.whl", hash = "sha256:c952975c8ba74f546ae6de2e226ab3cc3cc11ae47baf607459a6728585bb542a"},
-    {file = "tornado-6.0.4-cp37-cp37m-win32.whl", hash = "sha256:2c027eb2a393d964b22b5c154d1a23a5f8727db6fda837118a776b29e2b8ebc6"},
-    {file = "tornado-6.0.4-cp37-cp37m-win_amd64.whl", hash = "sha256:5618f72e947533832cbc3dec54e1dffc1747a5cb17d1fd91577ed14fa0dc081b"},
-    {file = "tornado-6.0.4-cp38-cp38-win32.whl", hash = "sha256:22aed82c2ea340c3771e3babc5ef220272f6fd06b5108a53b4976d0d722bcd52"},
-    {file = "tornado-6.0.4-cp38-cp38-win_amd64.whl", hash = "sha256:c58d56003daf1b616336781b26d184023ea4af13ae143d9dda65e31e534940b9"},
-    {file = "tornado-6.0.4.tar.gz", hash = "sha256:0fe2d45ba43b00a41cd73f8be321a44936dc1aba233dee979f17a042b83eb6dc"},
+    {file = "tornado-6.1-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:d371e811d6b156d82aa5f9a4e08b58debf97c302a35714f6f45e35139c332e32"},
+    {file = "tornado-6.1-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:0d321a39c36e5f2c4ff12b4ed58d41390460f798422c4504e09eb5678e09998c"},
+    {file = "tornado-6.1-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:9de9e5188a782be6b1ce866e8a51bc76a0fbaa0e16613823fc38e4fc2556ad05"},
+    {file = "tornado-6.1-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:61b32d06ae8a036a6607805e6720ef00a3c98207038444ba7fd3d169cd998910"},
+    {file = "tornado-6.1-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:3e63498f680547ed24d2c71e6497f24bca791aca2fe116dbc2bd0ac7f191691b"},
+    {file = "tornado-6.1-cp35-cp35m-manylinux2014_aarch64.whl", hash = "sha256:6c77c9937962577a6a76917845d06af6ab9197702a42e1346d8ae2e76b5e3675"},
+    {file = "tornado-6.1-cp35-cp35m-win32.whl", hash = "sha256:6286efab1ed6e74b7028327365cf7346b1d777d63ab30e21a0f4d5b275fc17d5"},
+    {file = "tornado-6.1-cp35-cp35m-win_amd64.whl", hash = "sha256:fa2ba70284fa42c2a5ecb35e322e68823288a4251f9ba9cc77be04ae15eada68"},
+    {file = "tornado-6.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:0a00ff4561e2929a2c37ce706cb8233b7907e0cdc22eab98888aca5dd3775feb"},
+    {file = "tornado-6.1-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:748290bf9112b581c525e6e6d3820621ff020ed95af6f17fedef416b27ed564c"},
+    {file = "tornado-6.1-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:e385b637ac3acaae8022e7e47dfa7b83d3620e432e3ecb9a3f7f58f150e50921"},
+    {file = "tornado-6.1-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:25ad220258349a12ae87ede08a7b04aca51237721f63b1808d39bdb4b2164558"},
+    {file = "tornado-6.1-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:65d98939f1a2e74b58839f8c4dab3b6b3c1ce84972ae712be02845e65391ac7c"},
+    {file = "tornado-6.1-cp36-cp36m-manylinux2014_aarch64.whl", hash = "sha256:e519d64089b0876c7b467274468709dadf11e41d65f63bba207e04217f47c085"},
+    {file = "tornado-6.1-cp36-cp36m-win32.whl", hash = "sha256:b87936fd2c317b6ee08a5741ea06b9d11a6074ef4cc42e031bc6403f82a32575"},
+    {file = "tornado-6.1-cp36-cp36m-win_amd64.whl", hash = "sha256:cc0ee35043162abbf717b7df924597ade8e5395e7b66d18270116f8745ceb795"},
+    {file = "tornado-6.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:7250a3fa399f08ec9cb3f7b1b987955d17e044f1ade821b32e5f435130250d7f"},
+    {file = "tornado-6.1-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:ed3ad863b1b40cd1d4bd21e7498329ccaece75db5a5bf58cd3c9f130843e7102"},
+    {file = "tornado-6.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:dcef026f608f678c118779cd6591c8af6e9b4155c44e0d1bc0c87c036fb8c8c4"},
+    {file = "tornado-6.1-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:70dec29e8ac485dbf57481baee40781c63e381bebea080991893cd297742b8fd"},
+    {file = "tornado-6.1-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:d3f7594930c423fd9f5d1a76bee85a2c36fd8b4b16921cae7e965f22575e9c01"},
+    {file = "tornado-6.1-cp37-cp37m-manylinux2014_aarch64.whl", hash = "sha256:3447475585bae2e77ecb832fc0300c3695516a47d46cefa0528181a34c5b9d3d"},
+    {file = "tornado-6.1-cp37-cp37m-win32.whl", hash = "sha256:e7229e60ac41a1202444497ddde70a48d33909e484f96eb0da9baf8dc68541df"},
+    {file = "tornado-6.1-cp37-cp37m-win_amd64.whl", hash = "sha256:cb5ec8eead331e3bb4ce8066cf06d2dfef1bfb1b2a73082dfe8a161301b76e37"},
+    {file = "tornado-6.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:20241b3cb4f425e971cb0a8e4ffc9b0a861530ae3c52f2b0434e6c1b57e9fd95"},
+    {file = "tornado-6.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:c77da1263aa361938476f04c4b6c8916001b90b2c2fdd92d8d535e1af48fba5a"},
+    {file = "tornado-6.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:fba85b6cd9c39be262fcd23865652920832b61583de2a2ca907dbd8e8a8c81e5"},
+    {file = "tornado-6.1-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:1e8225a1070cd8eec59a996c43229fe8f95689cb16e552d130b9793cb570a288"},
+    {file = "tornado-6.1-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:d14d30e7f46a0476efb0deb5b61343b1526f73ebb5ed84f23dc794bdb88f9d9f"},
+    {file = "tornado-6.1-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:8f959b26f2634a091bb42241c3ed8d3cedb506e7c27b8dd5c7b9f745318ddbb6"},
+    {file = "tornado-6.1-cp38-cp38-win32.whl", hash = "sha256:34ca2dac9e4d7afb0bed4677512e36a52f09caa6fded70b4e3e1c89dbd92c326"},
+    {file = "tornado-6.1-cp38-cp38-win_amd64.whl", hash = "sha256:6196a5c39286cc37c024cd78834fb9345e464525d8991c21e908cc046d1cc02c"},
+    {file = "tornado-6.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:f0ba29bafd8e7e22920567ce0d232c26d4d47c8b5cf4ed7b562b5db39fa199c5"},
+    {file = "tornado-6.1-cp39-cp39-manylinux1_i686.whl", hash = "sha256:33892118b165401f291070100d6d09359ca74addda679b60390b09f8ef325ffe"},
+    {file = "tornado-6.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:7da13da6f985aab7f6f28debab00c67ff9cbacd588e8477034c0652ac141feea"},
+    {file = "tornado-6.1-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:e0791ac58d91ac58f694d8d2957884df8e4e2f6687cdf367ef7eb7497f79eaa2"},
+    {file = "tornado-6.1-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:66324e4e1beede9ac79e60f88de548da58b1f8ab4b2f1354d8375774f997e6c0"},
+    {file = "tornado-6.1-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:a48900ecea1cbb71b8c71c620dee15b62f85f7c14189bdeee54966fbd9a0c5bd"},
+    {file = "tornado-6.1-cp39-cp39-win32.whl", hash = "sha256:d3d20ea5782ba63ed13bc2b8c291a053c8d807a8fa927d941bd718468f7b950c"},
+    {file = "tornado-6.1-cp39-cp39-win_amd64.whl", hash = "sha256:548430be2740e327b3fe0201abe471f314741efcb0067ec4f2d7dcfb4825f3e4"},
+    {file = "tornado-6.1.tar.gz", hash = "sha256:33c6e81d7bd55b468d2e793517c909b139960b6c790a60b7991b9b6b76fb9791"},
 ]
 tqdm = [
     {file = "tqdm-4.50.0-py2.py3-none-any.whl", hash = "sha256:2dd75fdb764f673b8187643496fcfbeac38348015b665878e582b152f3391cdb"},

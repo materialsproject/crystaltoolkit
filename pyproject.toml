@@ -11,11 +11,12 @@ typing-extensions = { version = "*", python = "~3.7" }
 pydantic = "*"
 plotly = "^4.10"
 webcolors = "*"
+crystaltoolkit-extension = "^0.3.0"
 
 ifermi = { version = "*", optional = true}
 pyfftw = { version = "*", optional = true}
 
-dash = { version = "^1.16.3", optional = true }
+dash = { version = "^1.19.0", optional = true }
 dash-daq = { version = "*", optional = true }
 gunicorn = { version = "*", optional = true }
 redis = { version = "*", optional = true }
