@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crystal_toolkit"
-version = "2020.11.01"
+version = "2021.01.09"
 description = ""
 authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
