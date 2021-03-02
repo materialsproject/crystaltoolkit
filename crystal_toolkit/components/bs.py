@@ -190,7 +190,7 @@ class BandstructureAndDosComponent(MPComponent):
                     bandstructure_symm_line = None
 
                 try:
-                    density_of_states = mpr.get_density_of_states(mpid)
+                    density_of_states = mpr.get_dos_by_material_id(mpid)
                 except Exception as exc:
                     print(exc)
                     density_of_states = None
@@ -287,7 +287,7 @@ class BandstructureAndDosComponent(MPComponent):
 
         cbm = bs.get_cbm()["kpoint"]
         vbm = bs.get_vbm()["kpoint"]
-        print(cbm, vbm)
+
         if cbm and vbm:
 
             if cbm.label:
@@ -332,38 +332,20 @@ class BandstructureAndDosComponent(MPComponent):
     @staticmethod
     def get_bandstructure_traces(bs, path_convention, energy_window=(-6.0, 10.0)):
 
+        if path_convention == "lm":
+            bs = HighSymmKpath.get_continuous_path(bs)
+
         bs_reg_plot = BSPlotter(bs)
 
-        bs_data = bs_reg_plot.bs_plot_data()
-
-        # Make plot continous for lm
-        if path_convention == "lm":
-            distance_map, kpath_euler = HighSymmKpath(bs.structure).get_continuous_path(
-                bs
-            )
-
-            kpath_labels = [pair[0] for pair in kpath_euler]
-            kpath_labels.append(kpath_euler[-1][1])
-
-        else:
-            distance_map = [(i, False) for i in range(len(bs_data["distances"]))]
-            kpath_labels = []
-            for label_ind in range(len(bs_data["ticks"]["label"]) - 1):
-                if (
-                    bs_data["ticks"]["label"][label_ind]
-                    != bs_data["ticks"]["label"][label_ind + 1]
-                ):
-                    kpath_labels.append(bs_data["ticks"]["label"][label_ind])
-            kpath_labels.append(bs_data["ticks"]["label"][-1])
-
-        bs_data["ticks"]["label"] = kpath_labels
+        bs_data = bs_reg_plot.bs_plot_data(split_branches=False)
 
         bands = []
-        for band_num in range(bs_reg_plot._nb_bands):
-            if (
-                bs_data["energy"][0][str(Spin.up)][band_num][0] <= energy_window[1]
-            ) and (bs_data["energy"][0][str(Spin.up)][band_num][0] >= energy_window[0]):
-                bands.append(band_num)
+        for band_num in range(bs.nb_bands):
+            for segment in bs_data["energy"][str(Spin.up)]:
+                if any(segment[band_num] <= energy_window[1]) and any(
+                    segment[band_num] >= energy_window[0]
+                ):
+                    bands.append(band_num)
 
         bstraces = []
 
@@ -376,7 +358,9 @@ class BandstructureAndDosComponent(MPComponent):
         cbm_new = bs_data["cbm"]
         vbm_new = bs_data["vbm"]
 
-        for dnum, (d, rev) in enumerate(distance_map):
+        bar_loc = []
+
+        for d, dist_val in enumerate(bs_data["distances"]):
 
             x_dat = [
                 dval - bs_data["distances"][d][0] + pmin
@@ -386,132 +370,49 @@ class BandstructureAndDosComponent(MPComponent):
             pmin = x_dat[-1]
 
             tick_vals.append(pmin)
+            traces_for_segment = []
 
-            if not rev:
-                traces_for_segment = [
+            for segment in bs_data["energy"][str(Spin.up)]:
+
+                traces_for_segment += [
+                    {
+                        "x": x_dat,
+                        "y": segment[band_num],
+                        "mode": "lines",
+                        "line": {"color": "#1f77b4"},
+                        "hoverinfo": "skip",
+                        "name": "spin ↑" if bs.is_spin_polarized else "Total",
+                        "hovertemplate": "%{y:.2f} eV",
+                        "showlegend": False,
+                        "xaxis": "x",
+                        "yaxis": "y",
+                    }
+                    for band_num in bands
+                ]
+
+            if bs.is_spin_polarized:
+                traces_for_segment += [
                     {
                         "x": x_dat,
                         "y": [
-                            bs_data["energy"][d][str(Spin.up)][i][j]
+                            bs_data["energy"][str(Spin.down)][d][i][j]
                             for j in range(len(bs_data["distances"][d]))
                         ],
                         "mode": "lines",
-                        "line": {"color": "#1f77b4"},
+                        "line": {"color": "#ff7f0e", "dash": "dot"},
                         "hoverinfo": "skip",
-                        "name": "spin ↑"
-                        if bs_reg_plot._bs.is_spin_polarized
-                        else "Total",
-                        "hovertemplate": "%{y:.2f} eV",
                         "showlegend": False,
+                        "name": "spin ↓",
+                        "hovertemplate": "%{y:.2f} eV",
                         "xaxis": "x",
                         "yaxis": "y",
                     }
                     for i in bands
                 ]
-            elif rev:
-                traces_for_segment = [
-                    {
-                        "x": x_dat,
-                        "y": [
-                            bs_data["energy"][d][str(Spin.up)][i][j]
-                            for j in reversed(range(len(bs_data["distances"][d])))
-                        ],
-                        "mode": "lines",
-                        "line": {"color": "#1f77b4"},
-                        "hoverinfo": "skip",
-                        "name": "spin ↑"
-                        if bs_reg_plot._bs.is_spin_polarized
-                        else "Total",
-                        "hovertemplate": "%{y:.2f} eV",
-                        "showlegend": False,
-                        "xaxis": "x",
-                        "yaxis": "y",
-                    }
-                    for i in bands
-                ]
-
-            if bs_reg_plot._bs.is_spin_polarized:
-
-                if not rev:
-                    traces_for_segment += [
-                        {
-                            "x": x_dat,
-                            "y": [
-                                bs_data["energy"][d][str(Spin.down)][i][j]
-                                for j in range(len(bs_data["distances"][d]))
-                            ],
-                            "mode": "lines",
-                            "line": {"color": "#ff7f0e", "dash": "dot"},
-                            "hoverinfo": "skip",
-                            "showlegend": False,
-                            "name": "spin ↓",
-                            "hovertemplate": "%{y:.2f} eV",
-                            "xaxis": "x",
-                            "yaxis": "y",
-                        }
-                        for i in bands
-                    ]
-                elif rev:
-                    traces_for_segment += [
-                        {
-                            "x": x_dat,
-                            "y": [
-                                bs_data["energy"][d][str(Spin.down)][i][j]
-                                for j in reversed(range(len(bs_data["distances"][d])))
-                            ],
-                            "mode": "lines",
-                            "line": {"color": "#ff7f0e", "dash": "dot"},
-                            "hoverinfo": "skip",
-                            "showlegend": False,
-                            "name": "spin ↓",
-                            "hovertemplate": "%{y:.2f} eV",
-                            "xaxis": "x",
-                            "yaxis": "y",
-                        }
-                        for i in bands
-                    ]
 
             bstraces += traces_for_segment
 
-            # - Get proper cbm and vbm coords for lm
-            if path_convention == "lm":
-                for (x_point, y_point) in bs_data["cbm"]:
-                    if x_point in bs_data["distances"][d]:
-                        xind = bs_data["distances"][d].index(x_point)
-                        if not rev:
-                            x_point_new = x_dat[xind]
-                        else:
-                            x_point_new = x_dat[len(x_dat) - xind - 1]
-
-                        new_label = bs_data["ticks"]["label"][
-                            tick_vals.index(x_point_new)
-                        ]
-
-                        if (
-                            cbm["kpoint"].label is None
-                            or cbm["kpoint"].label in new_label
-                        ):
-                            cbm_new.append((x_point_new, y_point))
-
-                for (x_point, y_point) in bs_data["vbm"]:
-                    if x_point in bs_data["distances"][d]:
-                        xind = bs_data["distances"][d].index(x_point)
-                        if not rev:
-                            x_point_new = x_dat[xind]
-                        else:
-                            x_point_new = x_dat[len(x_dat) - xind - 1]
-
-                        new_label = bs_data["ticks"]["label"][
-                            tick_vals.index(x_point_new)
-                        ]
-
-                        if (
-                            vbm["kpoint"].label is None
-                            or vbm["kpoint"].label in new_label
-                        ):
-                            vbm_new.append((x_point_new, y_point))
-
-        bs_data["ticks"]["distance"] = tick_vals
+            bar_loc.append(dist_val[-1])
 
         # - Strip latex math wrapping for labels
         str_replace = {
@@ -531,15 +432,12 @@ class BandstructureAndDosComponent(MPComponent):
             "^{*}": "*",
         }
 
-        bar_loc = []
         for entry_num in range(len(bs_data["ticks"]["label"])):
             for key in str_replace.keys():
                 if key in bs_data["ticks"]["label"][entry_num]:
                     bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
                         entry_num
                     ].replace(key, str_replace[key])
-                    if key == "\\mid":
-                        bar_loc.append(bs_data["ticks"]["distance"][entry_num])
 
         # Vertical lines for disjointed segments
         vert_traces = [
@@ -796,10 +694,7 @@ class BandstructureAndDosComponent(MPComponent):
             ticks="inside",
             linewidth=2,
             tickwidth=2,
-            range=[
-                -rmax * 1.1 * int(len(bs_data["energy"][0].keys()) == 2),
-                rmax * 1.1,
-            ],
+            range=[-rmax * 1.1 * int(len(bs_data["energy"].keys()) == 2), rmax * 1.1,],
             linecolor="rgb(71,71,71)",
             gridcolor="white",
             zerolinecolor="white",
