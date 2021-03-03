@@ -1,0 +1,7 @@
+crystal\_toolkit.components.bandstructure module
+================================================
+
+.. automodule:: crystal_toolkit.components.bandstructure
+   :members:
+   :undoc-members:
+   :show-inheritance:

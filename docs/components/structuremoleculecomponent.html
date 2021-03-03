@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Structures and Molecules &mdash; Crystal Toolkit  documentation</title>
   
@@ -16,9 +16,12 @@
 
   
   
+
   
   
     <link rel="canonical" href="https://crystaltoolkit.orgcomponents/structuremoleculecomponent.html"/>
+  
+
   
 
   
@@ -31,7 +34,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -53,7 +55,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Crystal Toolkit
+            <a href="../index.html" class="icon icon-home"> Crystal Toolkit
           
 
           
@@ -143,6 +145,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -156,7 +160,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/components/structuremoleculecomponent.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -185,23 +189,28 @@ documentation <a class="reference external" href="../source/crystal_toolkit.comp
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># standard Dash imports</span>
 <span class="kn">import</span> <span class="nn">dash</span>
-<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
 <span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+
+<span class="c1"># import for this example</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Lattice</span><span class="p">,</span> <span class="n">Structure</span>
 
 <span class="c1"># standard Crystal Toolkit import</span>
 <span class="kn">import</span> <span class="nn">crystal_toolkit.components</span> <span class="k">as</span> <span class="nn">ctc</span>
-
-<span class="c1"># import for this example</span>
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
 
 <span class="c1"># create Dash app as normal</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">Dash</span><span class="p">()</span>
 
 <span class="c1"># create the Structure object</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span>
+    <span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">),</span>
+    <span class="p">[</span><span class="s2">&quot;Na&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span>
+    <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]],</span>
+    <span class="n">site_properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;magmom&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]},</span>
+<span class="p">)</span>
 
 <span class="c1"># create the Crystal Toolkit component</span>
-<span class="n">structure_component</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">StructureMoleculeComponent</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;my_structure&quot;</span><span class="p">)</span>
+<span class="n">structure_component</span> <span class="o">=</span> <span class="n">ctc</span><span class="o">.</span><span class="n">StructureMoleculeComponent</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;struct&quot;</span><span class="p">)</span>
 
 <span class="c1"># example layout to demonstrate capabilities of component</span>
 <span class="n">my_layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
@@ -218,8 +227,6 @@ documentation <a class="reference external" href="../source/crystal_toolkit.comp
         <span class="n">structure_component</span><span class="o">.</span><span class="n">title_layout</span><span class="p">(),</span>
         <span class="n">html</span><span class="o">.</span><span class="n">H3</span><span class="p">(</span><span class="s2">&quot;Legend Layout&quot;</span><span class="p">),</span>
         <span class="n">structure_component</span><span class="o">.</span><span class="n">legend_layout</span><span class="p">(),</span>
-        <span class="n">html</span><span class="o">.</span><span class="n">H2</span><span class="p">(</span><span class="s2">&quot;Technical Details&quot;</span><span class="p">),</span>
-        <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">structure_component</span><span class="p">)),</span>
     <span class="p">]</span>
 <span class="p">)</span>
 
@@ -245,28 +252,25 @@ documentation <a class="reference external" href="../source/crystal_toolkit.comp
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Crystal Toolkit Development Team
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
