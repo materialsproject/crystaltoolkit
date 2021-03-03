@@ -1,0 +1,683 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.diffraction &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/diffraction.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.diffraction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.components.diffraction</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dash</span>
+<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">callback_context</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">wofz</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">MPRester</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffraction.tem</span> <span class="kn">import</span> <span class="n">TEMCalculator</span>
+
+
+<span class="c1"># Scherrer equation:</span>
+<span class="c1"># Langford, J. Il, and A. J. C. Wilson. &quot;Scherrer after sixty years: a survey and some new results in the determination of crystallite size.&quot; Journal of applied crystallography 11.2 (1978): 102-113.</span>
+<span class="c1"># https://doi.org/10.1107/S0021889878012844</span>
+
+
+<span class="c1">#    def __init__(self, symprec: float = None, voltage: float = 200,</span>
+<span class="c1">#                beam_direction: Tuple[int, int, int] = (0, 0, 1), camera_length: int = 160,</span>
+<span class="c1">#                debye_waller_factors: Dict[str, float] = None, cs: float = 1) -&gt; None:</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.diffraction.xrd</span> <span class="kn">import</span> <span class="n">XRDCalculator</span><span class="p">,</span> <span class="n">WAVELENGTHS</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.panelcomponent</span> <span class="kn">import</span> <span class="n">PanelComponent</span>
+
+
+<span class="c1"># Author: Matthew McDermott</span>
+<span class="c1"># Contact: mcdermott@lbl.gov</span>
+
+
+<div class="viewcode-block" id="TEMDiffractionComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.TEMDiffractionComponent">[docs]</a><span class="k">class</span> <span class="nc">TEMDiffractionComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
+<div class="viewcode-block" id="TEMDiffractionComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.TEMDiffractionComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Columns</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Column</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">]],</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+                <span class="n">Column</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;x_axis&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;rad_source&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;shape_factor&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;peak_profile&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;crystallite_size&quot;</span><span class="p">],</span>
+                    <span class="p">],</span>
+                    <span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;inner-contents&quot;</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TEMDiffractionComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.TEMDiffractionComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="XRayDiffractionComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent">[docs]</a><span class="k">class</span> <span class="nc">XRayDiffractionComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
+    <span class="c1"># TODO: add pole figures for a given single peak for help quantifying texture</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">initial_structure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">,</span> <span class="n">initial_data</span><span class="o">=</span><span class="n">initial_structure</span><span class="p">)</span>
+
+    <span class="c1"># Default XRD plot style settings</span>
+    <span class="n">default_xrd_plot_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">xaxis</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;2𝜃 / º&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mirror&quot;</span><span class="p">:</span> <span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nticks&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;showgrid&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;showline&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tickfont&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">16.0</span><span class="p">},</span>
+            <span class="s2">&quot;ticks&quot;</span><span class="p">:</span> <span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;titlefont&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">16.0</span><span class="p">},</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zeroline&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">yaxis</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Intensity / arb. units&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mirror&quot;</span><span class="p">:</span> <span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nticks&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s2">&quot;showgrid&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;showline&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tickfont&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">16.0</span><span class="p">},</span>
+            <span class="s2">&quot;ticks&quot;</span><span class="p">:</span> <span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;titlefont&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">16.0</span><span class="p">},</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zeroline&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">autosize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">hovermode</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">225</span><span class="p">,</span>
+        <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">paper_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="n">margin</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;X-ray Diffraction Pattern&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">empty_plot_style</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s2">&quot;paper_bgcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;plot_bgcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="XRayDiffractionComponent.G"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent.G">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">G</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return c-centered Gaussian line shape at x with HWHM alpha &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+            <span class="o">/</span> <span class="n">alpha</span>
+            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(((</span><span class="n">x</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="XRayDiffractionComponent.L"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent.L">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">L</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return c-centered Lorentzian line shape at x with HWHM gamma &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">gamma</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="XRayDiffractionComponent.V"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent.V">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">V</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alphagamma</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles.&quot;&quot;&quot;</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.61065</span> <span class="o">*</span> <span class="n">alphagamma</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.61065</span> <span class="o">*</span> <span class="n">alphagamma</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">wofz</span><span class="p">(((</span><span class="n">x</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))))</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">sigma</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="XRayDiffractionComponent.twotheta_to_q"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent.twotheta_to_q">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">twotheta_to_q</span><span class="p">(</span><span class="n">twotheta</span><span class="p">,</span> <span class="n">xray_wavelength</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert twotheta to Q.</span>
+
+<span class="sd">        :param twotheta: in degrees</span>
+<span class="sd">        :param xray_wavelength: in Ångstroms</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># thanks @rwoodsrobinson</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">xray_wavelength</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">twotheta</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="XRayDiffractionComponent.grain_to_hwhm"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent.grain_to_hwhm">[docs]</a>    <span class="k">def</span> <span class="nf">grain_to_hwhm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">two_theta</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="s2">&quot;CuKa&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param tau: grain size in nm</span>
+<span class="sd">        :param two_theta: angle (in 2-theta)</span>
+<span class="sd">        :param K: shape factor (default 0.9)</span>
+<span class="sd">        :param wavelength: wavelength radiation in nm</span>
+<span class="sd">        :return: half-width half-max (alpha or gamma), for line profile</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="n">WAVELENGTHS</span><span class="p">[</span><span class="n">wavelength</span><span class="p">]</span>
+        <span class="c1"># factor of 0.1 to convert wavelength to nm</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="mf">0.5</span> <span class="o">*</span> <span class="n">K</span> <span class="o">*</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">wavelength</span> <span class="o">/</span> <span class="p">(</span><span class="n">tau</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">two_theta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span>
+        <span class="p">)</span>  <span class="c1"># Scherrer equation for half-width half max</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_sub_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;peak_profile&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shape_factor&quot;</span><span class="p">:</span> <span class="mf">0.94</span><span class="p">,</span>
+            <span class="s2">&quot;rad_source&quot;</span><span class="p">:</span> <span class="s2">&quot;CuKa&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;x_axis&quot;</span><span class="p">:</span> <span class="s2">&quot;twotheta&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;crystallite_size&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># download</span>
+
+        <span class="c1"># Main plot</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">Loading</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
+                    <span class="n">figure</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">XRayDiffractionComponent</span><span class="o">.</span><span class="n">empty_plot_style</span><span class="p">),</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;xrd-plot&quot;</span><span class="p">),</span>
+                    <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># or &quot;hover&quot;,</span>
+                        <span class="s2">&quot;plotGlPixelRatio&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                        <span class="s2">&quot;displaylogo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="c1"># &quot;modeBarButtons&quot;: [[&quot;toImage&quot;]],  # to only add an image download button</span>
+                        <span class="s2">&quot;toImageButtonOptions&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;xrd&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+                            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+                        <span class="p">},</span>
+                        <span class="s2">&quot;editable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">animate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Broaden peaks</span>
+        <span class="n">broadening_toggle</span> <span class="o">=</span> <span class="o">...</span>
+
+        <span class="c1"># Radiation source selector</span>
+        <span class="n">rad_source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;rad_source&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Radiation source&quot;</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">wav</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;α&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;β&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">wav</span><span class="p">}</span>
+                <span class="k">for</span> <span class="n">wav</span> <span class="ow">in</span> <span class="n">WAVELENGTHS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Shape factor input</span>
+        <span class="n">shape_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;shape_factor&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Shape Factor&quot;</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;The peak profile determines what distribute characterizes the broadening of an XRD pattern. </span>
+<span class="s2">Two extremes are Gaussian distributions, which are useful for peaks with more rounded tops (typically due to strain </span>
+<span class="s2">broadening) and Lorentzian distributions, which are useful for peaks with sharper top (typically due to size </span>
+<span class="s2">distributions and dislocations). In reality, peak shapes usually follow a Voigt distribution, which is a convolution of </span>
+<span class="s2">Gaussian and Lorentzian peak shapes, with the contribution to both Gaussian and Lorentzian components sample and instrument </span>
+<span class="s2">dependent. Here, both contributions are equally weighted if Voigt is chosen.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Peak profile selector (Gaussian, Lorentzian, Voigt)</span>
+        <span class="n">peak_profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;peak_profile&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Peak Profile&quot;</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;The shape factor K, also known as the “Scherrer constant” is a dimensionless </span>
+<span class="s2">        quantity to obtain an actual particle size from an apparent particle size determined from XRD. The discrepancy is </span>
+<span class="s2">        because the shape of an individual crystallite will change the resulting diffraction broadening. Commonly, a value </span>
+<span class="s2">        of 0.94 for isotropic crystals in a spherical shape is used. However, in practice K can vary from 0.62 to 2.08.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Gaussian&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;G&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Lorentzian&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;L&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Voigt&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;V&quot;</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># 2Theta or Q for x-axis</span>
+        <span class="n">x_axis_choice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;x_axis&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Choice of 𝑥 axis&quot;</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Can choose between 2𝜃 or Q, where Q is the magnitude of the reciprocal lattice and &quot;</span>
+            <span class="s2">&quot;independent of radiation source.&quot;</span><span class="p">,</span>  <span class="c1"># TODO: improve</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;2𝜃&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;twotheta&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Q&quot;</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Crystallite size selector (via Scherrer Equation)</span>
+        <span class="n">crystallite_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slider_input</span><span class="p">(</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;crystallite_size&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Scherrer crystallite size / nm&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="n">marks</span><span class="o">=</span><span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)},</span>
+            <span class="nb">min</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nb">max</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;x_axis&quot;</span><span class="p">:</span> <span class="n">x_axis_choice</span><span class="p">,</span>
+            <span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">graph</span><span class="p">,</span>
+            <span class="s2">&quot;rad_source&quot;</span><span class="p">:</span> <span class="n">rad_source</span><span class="p">,</span>
+            <span class="s2">&quot;peak_profile&quot;</span><span class="p">:</span> <span class="n">peak_profile</span><span class="p">,</span>
+            <span class="s2">&quot;shape_factor&quot;</span><span class="p">:</span> <span class="n">shape_factor</span><span class="p">,</span>
+            <span class="s2">&quot;crystallite_size&quot;</span><span class="p">:</span> <span class="n">crystallite_size</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="XRayDiffractionComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Columns</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Column</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">Box</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">]])],</span>
+                    <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                    <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="s2">&quot;600px&quot;</span><span class="p">},</span>
+                <span class="p">),</span>
+                <span class="n">Column</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;x_axis&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;rad_source&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;shape_factor&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;peak_profile&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;crystallite_size&quot;</span><span class="p">],</span>
+                    <span class="p">],</span>
+                    <span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="XRayDiffractionComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;xrd-plot&quot;</span><span class="p">),</span> <span class="s2">&quot;figure&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;crystallite_size&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;rad_source&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;peak_profile&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;shape_factor&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;x_axis&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">logsize</span><span class="p">,</span> <span class="n">rad_source</span><span class="p">,</span> <span class="n">peak_profile</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">x_axis</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwargs_from_state</span><span class="p">(</span><span class="n">callback_context</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">peak_profile</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;peak_profile&quot;</span><span class="p">]</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;shape_factor&quot;</span><span class="p">]</span>
+            <span class="n">rad_source</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;rad_source&quot;</span><span class="p">]</span>
+            <span class="n">logsize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;crystallite_size&quot;</span><span class="p">]</span>
+
+            <span class="n">x_peak</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+            <span class="n">y_peak</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+            <span class="n">d_hkls</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;d_hkls&quot;</span><span class="p">]</span>
+            <span class="n">grain_size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">logsize</span>
+
+            <span class="n">hkl_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;hkl&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hkls&quot;</span><span class="p">]]</span>
+            <span class="n">hkls</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;hkl: (&quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">hkl</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span> <span class="k">for</span> <span class="n">hkl</span> <span class="ow">in</span> <span class="n">hkl_list</span>
+            <span class="p">]</span>  <span class="c1"># convert to (h k l) format</span>
+
+            <span class="n">annotations</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;2𝜃: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">peak_x</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;br&gt;Intensity: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">peak_y</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;br&gt;</span><span class="si">{</span><span class="n">hkl</span><span class="si">}</span><span class="s2"> &lt;br&gt;d: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">peak_x</span><span class="p">,</span> <span class="n">peak_y</span><span class="p">,</span> <span class="n">hkl</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x_peak</span><span class="p">,</span> <span class="n">y_peak</span><span class="p">,</span> <span class="n">hkls</span><span class="p">,</span> <span class="n">d_hkls</span><span class="p">)</span>
+            <span class="p">]</span>  <span class="c1"># text boxes</span>
+
+            <span class="n">first</span> <span class="o">=</span> <span class="n">x_peak</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">x_peak</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">last</span> <span class="o">-</span> <span class="n">first</span>  <span class="c1"># find total domain of angles in pattern</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_peak</span><span class="p">)</span>
+
+            <span class="n">num_sigma</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;G&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;L&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;V&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">}[</span><span class="n">peak_profile</span><span class="p">]</span>
+
+            <span class="c1"># optimal number of points per degree determined through usage experiments</span>
+            <span class="k">if</span> <span class="n">logsize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">N_density</span> <span class="o">=</span> <span class="mi">150</span> <span class="o">*</span> <span class="p">(</span><span class="n">logsize</span> <span class="o">**</span> <span class="mi">4</span><span class="p">)</span>  <span class="c1"># scaled to log size to the 4th power</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">N_density</span> <span class="o">=</span> <span class="mi">150</span>
+
+            <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">N_density</span> <span class="o">*</span> <span class="n">domain</span><span class="p">)</span>  <span class="c1"># num total points</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">xp</span><span class="p">,</span> <span class="n">yp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x_peak</span><span class="p">,</span> <span class="n">y_peak</span><span class="p">):</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grain_to_hwhm</span><span class="p">(</span>
+                    <span class="n">grain_size</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">xp</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">K</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">K</span><span class="p">),</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">rad_source</span>
+                <span class="p">)</span>
+                <span class="n">sigma</span> <span class="o">=</span> <span class="p">(</span><span class="n">alpha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                <span class="n">center_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">xp</span> <span class="o">-</span> <span class="n">first</span><span class="p">)</span> <span class="o">*</span> <span class="n">N_density</span><span class="p">))</span>
+                <span class="n">half_window</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="nb">round</span><span class="p">(</span><span class="n">num_sigma</span> <span class="o">*</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">N_density</span><span class="p">)</span>
+                <span class="p">)</span>  <span class="c1"># i.e. total window of 2 * num_sigma</span>
+
+                <span class="n">lb</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">center_idx</span> <span class="o">-</span> <span class="n">half_window</span><span class="p">)])</span>
+                <span class="n">ub</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="n">center_idx</span> <span class="o">+</span> <span class="n">half_window</span><span class="p">)])</span>
+
+                <span class="n">G0</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">peak_profile</span><span class="p">)(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)):</span>
+                    <span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">yp</span> <span class="o">*</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">peak_profile</span><span class="p">)(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">xp</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">G0</span>
+
+            <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_xrd_plot_style</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;x_axis&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Q&quot;</span><span class="p">:</span>
+                <span class="n">x_peak</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">twotheta_to_q</span><span class="p">(</span><span class="n">x_peak</span><span class="p">,</span> <span class="n">WAVELENGTHS</span><span class="p">[</span><span class="n">rad_source</span><span class="p">])</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">twotheta_to_q</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">WAVELENGTHS</span><span class="p">[</span><span class="n">rad_source</span><span class="p">])</span>
+                <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;xaxis&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Q / Å⁻¹&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;xaxis&quot;</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2𝜃 / º&quot;</span>
+            <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;xaxis&quot;</span><span class="p">][</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span>
+            <span class="n">bar_width</span> <span class="o">=</span> <span class="mf">0.003</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="p">)</span>  <span class="c1"># set width of bars to 0.5% of the domain</span>
+
+            <span class="n">plotdata</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">x_peak</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">y_peak</span><span class="p">,</span>
+                    <span class="n">width</span><span class="o">=</span><span class="p">[</span><span class="n">bar_width</span><span class="p">]</span> <span class="o">*</span> <span class="n">length</span><span class="p">,</span>
+                    <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
+                    <span class="n">opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">},</span>
+                <span class="p">),</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">),</span>
+            <span class="p">]</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">plotdata</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">plot</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;rad_source&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">pattern_from_struct</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">rad_source</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">struct</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">rad_source</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+            <span class="n">rad_source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwarg_from_state</span><span class="p">(</span>
+                <span class="n">callback_context</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="s2">&quot;rad_source&quot;</span>
+            <span class="p">)</span>
+
+            <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+            <span class="n">struct</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">sga</span><span class="o">.</span><span class="n">get_conventional_standard_structure</span><span class="p">()</span>
+            <span class="p">)</span>  <span class="c1"># always get conventional structure</span>
+
+            <span class="n">xrdc</span> <span class="o">=</span> <span class="n">XRDCalculator</span><span class="p">(</span>
+                <span class="n">wavelength</span><span class="o">=</span><span class="n">WAVELENGTHS</span><span class="p">[</span><span class="n">rad_source</span><span class="p">],</span> <span class="n">symprec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">debye_waller_factors</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">xrdc</span><span class="o">.</span><span class="n">get_pattern</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">two_theta_range</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="DiffractionPanelComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.DiffractionPanelComponent">[docs]</a><span class="k">class</span> <span class="nc">DiffractionPanelComponent</span><span class="p">(</span><span class="n">PanelComponent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xrd</span> <span class="o">=</span> <span class="n">XRayDiffractionComponent</span><span class="p">(</span><span class="n">links</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;struct&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tem</span> <span class="o">=</span> <span class="n">TEMDiffractionComponent</span><span class="p">(</span><span class="n">links</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()})</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Diffraction Pattern&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s2">&quot;Display powder or single crystal diffraction patterns for this structure.&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DiffractionPanelComponent.contents_layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.DiffractionPanelComponent.contents_layout">[docs]</a>    <span class="k">def</span> <span class="nf">contents_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;powder&quot;</span><span class="p">}</span>
+
+        <span class="c1"># mode selector</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mode&quot;</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Select whether to generate a powder diffraction pattern </span>
+<span class="s2">        (a pattern averaged over all orientations of a polycrystalline material) </span>
+<span class="s2">        or a single crystal diffraction pattern (a diffraction pattern generated </span>
+<span class="s2">        from a single crystal structure.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;powder&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Powder&quot;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Single Crystal&quot;</span><span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="n">Columns</span><span class="p">(</span><span class="n">Column</span><span class="p">(</span><span class="n">mode</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">xrd</span><span class="o">.</span><span class="n">layout</span><span class="p">()])</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
