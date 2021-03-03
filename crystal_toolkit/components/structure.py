@@ -385,9 +385,9 @@ class StructureMoleculeComponent(MPComponent):
         # )
 
         @app.callback(
-            Output(self.id("scene"), "downloadRequest"),
+            Output(self.id("scene"), "imageRequest"),
             [Input(self.id("screenshot_button"), "n_clicks")],
-            [State(self.id("scene"), "downloadRequest"), State(self.id(), "data")],
+            [State(self.id("scene"), "imageRequest"), State(self.id(), "data")],
         )
         @cache.memoize()
         def trigger_screenshot(n_clicks, current_requests, struct_or_mol):
