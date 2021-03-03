@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>crystal_toolkit.core.scene module &mdash; Crystal Toolkit  documentation</title>
   
@@ -16,9 +16,12 @@
 
   
   
+
   
   
     <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.core.scene.html"/>
+  
+
   
 
   
@@ -31,7 +34,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -53,7 +55,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Crystal Toolkit
+            <a href="../index.html" class="icon icon-home"> Crystal Toolkit
           
 
           
@@ -150,6 +152,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -165,7 +169,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.core.scene.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -185,7 +189,7 @@
 <span id="crystal-toolkit-core-scene-module"></span><h1>crystal_toolkit.core.scene module<a class="headerlink" href="#module-crystal_toolkit.core.scene" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Arrows">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Arrows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positionPairs</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_animate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">headLength</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">headWidth</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Arrows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Arrows</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positionPairs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_animate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headLength</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headWidth</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Arrows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#crystal_toolkit.core.scene.Primitive" title="crystal_toolkit.core.scene.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.scene.Primitive</span></code></a></p>
 <p>Create a set of arrows. All arrows will have the same color radius and
 head shape.
@@ -199,111 +203,111 @@ start and end position of the cylinder.
 and trigger and event</p>
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Arrows.bounding_box">
-<em class="property">property </em><code class="sig-name descname">bounding_box</code><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.bounding_box" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bounding_box</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.bounding_box" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.color">
-<code class="sig-name descname">color</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.headLength">
-<code class="sig-name descname">headLength</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.headLength" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">headLength</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.headLength" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.headWidth">
-<code class="sig-name descname">headWidth</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.headWidth" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">headWidth</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.headWidth" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Arrows.key">
-<em class="property">property </em><code class="sig-name descname">key</code><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.key" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">key</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Arrows.merge">
-<em class="property">classmethod </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arrow_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Arrows.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arrow_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Arrows.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.merge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.positionPairs">
-<code class="sig-name descname">positionPairs</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.positionPairs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">positionPairs</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.positionPairs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.radius">
-<code class="sig-name descname">radius</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">radius</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.radius" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'arrows'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'arrows'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Arrows.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Arrows.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Bezier">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Bezier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">controlPoints</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius</span><span class="p">:</span> <span class="n">List<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Bezier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Bezier</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controlPoints</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Bezier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A tube shaped by Bézier control points.</p>
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Bezier.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Bezier.color">
-<code class="sig-name descname">color</code><em class="property">: List<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Bezier.controlPoints">
-<code class="sig-name descname">controlPoints</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.controlPoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">controlPoints</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.controlPoints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Bezier.radius">
-<code class="sig-name descname">radius</code><em class="property">: List<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">radius</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.radius" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Bezier.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Bezier.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'bezier'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'bezier'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Bezier.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Bezier.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Convex">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Convex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_animate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Convex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Convex" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Convex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_animate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Convex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Convex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Create a surface from the convex hull formed by list of points. Note that
 at least four points must be specified. The current Three.js renderer uses
@@ -312,49 +316,49 @@ that the current Three.js renderer doesn’t support nested transparent
 objects very well.</p>
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Convex.bounding_box">
-<em class="property">property </em><code class="sig-name descname">bounding_box</code><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.bounding_box" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bounding_box</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.bounding_box" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Convex.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Convex.color">
-<code class="sig-name descname">color</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Convex.opacity">
-<code class="sig-name descname">opacity</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.opacity" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">opacity</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.opacity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Convex.positions">
-<code class="sig-name descname">positions</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">positions</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Convex.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Convex.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'convex'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'convex'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Convex.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Convex.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Cubes">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Cubes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_animate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">width</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Cubes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Cubes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_animate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Cubes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#crystal_toolkit.core.scene.Primitive" title="crystal_toolkit.core.scene.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.scene.Primitive</span></code></a></p>
 <p>Create a set of cubes. All cubes will have the same color and width.
 :param positions: This is a list of lists corresponding to the vector
@@ -367,54 +371,54 @@ positions of the cubes.
 and trigger and event</p>
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.color">
-<code class="sig-name descname">color</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Cubes.key">
-<em class="property">property </em><code class="sig-name descname">key</code><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.key" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">key</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Cubes.merge">
-<em class="property">classmethod </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cube_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Cubes.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cube_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Cubes.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.merge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.positions">
-<code class="sig-name descname">positions</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">positions</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'cubes'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'cubes'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cubes.width">
-<code class="sig-name descname">width</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.width" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">width</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cubes.width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Cylinders">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Cylinders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positionPairs</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_animate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tooltip</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Cylinders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Cylinders</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positionPairs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_animate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tooltip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Cylinders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#crystal_toolkit.core.scene.Primitive" title="crystal_toolkit.core.scene.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.scene.Primitive</span></code></a></p>
 <p>Create a set of cylinders. All cylinders will have the same color and
 radius.
@@ -428,64 +432,64 @@ start and end position of the cylinder.
 and trigger and event</p>
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Cylinders.bounding_box">
-<em class="property">property </em><code class="sig-name descname">bounding_box</code><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.bounding_box" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bounding_box</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.bounding_box" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.color">
-<code class="sig-name descname">color</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Cylinders.key">
-<em class="property">property </em><code class="sig-name descname">key</code><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.key" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">key</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Cylinders.merge">
-<em class="property">classmethod </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cylinder_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Cylinders.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cylinder_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Cylinders.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.merge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.positionPairs">
-<code class="sig-name descname">positionPairs</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.positionPairs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">positionPairs</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.positionPairs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.radius">
-<code class="sig-name descname">radius</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">radius</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.radius" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.tooltip">
-<code class="sig-name descname">tooltip</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.tooltip" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">tooltip</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.tooltip" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'cylinders'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'cylinders'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Cylinders.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Cylinders.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Ellipsoids">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Ellipsoids</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scale</span><span class="p">:</span> <span class="n">List<span class="p">[</span>float<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">positions</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">rotate_to</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_animate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phiStart</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phiEnd</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Ellipsoids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Ellipsoids</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotate_to</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_animate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phiStart</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phiEnd</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Ellipsoids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#crystal_toolkit.core.scene.Primitive" title="crystal_toolkit.core.scene.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.scene.Primitive</span></code></a></p>
 <p>Create a set of ellipsoids. All ellipsoids will have the same color, radius and
 segment size (if only drawing a section of a ellipsoid).
@@ -504,111 +508,111 @@ ellipsoid, defaults to 2*pi
 and trigger and event</p>
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.color">
-<code class="sig-name descname">color</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.key">
-<em class="property">property </em><code class="sig-name descname">key</code><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.key" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">key</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.merge">
-<em class="property">classmethod </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ellipsoid_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Ellipsoids.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ellipsoid_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Ellipsoids.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.merge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.phiEnd">
-<code class="sig-name descname">phiEnd</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.phiEnd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">phiEnd</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.phiEnd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.phiStart">
-<code class="sig-name descname">phiStart</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.phiStart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">phiStart</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.phiStart" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.positions">
-<code class="sig-name descname">positions</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">positions</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.rotate_to">
-<code class="sig-name descname">rotate_to</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.rotate_to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">rotate_to</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.rotate_to" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.scale">
-<code class="sig-name descname">scale</code><em class="property">: List<span class="p">[</span>float<span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.scale" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">scale</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.scale" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'ellipsoids'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'ellipsoids'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Ellipsoids.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Ellipsoids.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Label">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Label</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">labelHover</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">position</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Label" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Label</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelHover</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Add a label to an object.</p>
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Label.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Label.label">
-<code class="sig-name descname">label</code><em class="property">: str</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.label" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">label</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.label" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Label.labelHover">
-<code class="sig-name descname">labelHover</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.labelHover" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">labelHover</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.labelHover" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Label.position">
-<code class="sig-name descname">position</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.position" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">position</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.position" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Label.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Label.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'labels'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'labels'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Label.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Label.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Lines">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_animate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">linewidth</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scale</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dashSize</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gapSize</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Lines" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Lines</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_animate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dashSize</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gapSize</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Lines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#crystal_toolkit.core.scene.Primitive" title="crystal_toolkit.core.scene.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.scene.Primitive</span></code></a></p>
 <p>Create a set of lines. All lines will have the same color, thickness and
 (optional) dashes.
@@ -627,109 +631,109 @@ together).
 and trigger and event</p>
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.color">
-<code class="sig-name descname">color</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.dashSize">
-<code class="sig-name descname">dashSize</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.dashSize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">dashSize</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.dashSize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.gapSize">
-<code class="sig-name descname">gapSize</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.gapSize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gapSize</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.gapSize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Lines.key">
-<em class="property">property </em><code class="sig-name descname">key</code><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.key" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">key</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.linewidth">
-<code class="sig-name descname">linewidth</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.linewidth" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">linewidth</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.linewidth" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Lines.merge">
-<em class="property">classmethod </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Lines.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Lines.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.merge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.positions">
-<code class="sig-name descname">positions</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">positions</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.scale">
-<code class="sig-name descname">scale</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.scale" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">scale</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.scale" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'lines'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'lines'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Lines.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Lines.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Primitive">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Primitive</code><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Primitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Primitive" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Primitive</span></code><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Primitive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Mixin class for standard plottable primitive behavior
 For now, this just enforces some basic mergeability</p>
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Primitive.bounding_box">
-<em class="property">property </em><code class="sig-name descname">bounding_box</code><a class="headerlink" href="#crystal_toolkit.core.scene.Primitive.bounding_box" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bounding_box</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Primitive.bounding_box" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Primitive.key">
-<em class="property">abstract property </em><code class="sig-name descname">key</code><a class="headerlink" href="#crystal_toolkit.core.scene.Primitive.key" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">key</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Primitive.key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Primitive.merge">
-<em class="property">classmethod </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">items</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Primitive.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Primitive.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Primitive.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Primitive.merge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Scene">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Scene</code><span class="sig-paren">(</span><em class="sig-param">name: str</em>, <em class="sig-param">contents: list = &lt;factory&gt;</em>, <em class="sig-param">origin: List[float] = (0</em>, <em class="sig-param">0</em>, <em class="sig-param">0)</em>, <em class="sig-param">visible: bool = True</em>, <em class="sig-param">_meta: Dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Scene</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">contents:</span> <span class="pre">list</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></em>, <em class="sig-param"><span class="pre">origin:</span> <span class="pre">List[float]</span> <span class="pre">=</span> <span class="pre">(0</span></em>, <em class="sig-param"><span class="pre">0</span></em>, <em class="sig-param"><span class="pre">0)</span></em>, <em class="sig-param"><span class="pre">visible:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></em>, <em class="sig-param"><span class="pre">_meta:</span> <span class="pre">Optional[Dict]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Scene is defined by its name (a string, does not have to be unique),
 and its contents (a list of geometric primitives or other Scenes).</p>
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Scene.bounding_box">
-<em class="property">property </em><code class="sig-name descname">bounding_box</code><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.bounding_box" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bounding_box</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.bounding_box" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the bounding box coordinates</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Scene.contents">
-<code class="sig-name descname">contents</code><em class="property">: list</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.contents" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">contents</span></code><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.contents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Scene.merge_primitives">
-<em class="property">static </em><code class="sig-name descname">merge_primitives</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitives</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.merge_primitives"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.merge_primitives" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">merge_primitives</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitives</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.merge_primitives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.merge_primitives" title="Permalink to this definition">¶</a></dt>
 <dd><p>If primitives are of the same type but differ only in position, they
 are merged together. This is a small optimization, has not been benchmarked.
 :param primitives: list of primitives (Spheres, Cylinders, etc.)
@@ -738,17 +742,17 @@ are merged together. This is a small optimization, has not been benchmarked.
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Scene.name">
-<code class="sig-name descname">name</code><em class="property">: str</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">name</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Scene.origin">
-<code class="sig-name descname">origin</code><em class="property">: List<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = (0, 0, 0)</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.origin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">origin</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.origin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Scene.to">
-<code class="sig-name descname">to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.to" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a Scene to a file. Can be opened by Jupyter Lab if
 Crystal Toolkit extension installed.</p>
 <dl class="field-list simple">
@@ -762,7 +766,7 @@ Crystal Toolkit extension installed.</p>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Scene.to_json">
-<code class="sig-name descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.to_json" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">to_json</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.to_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a Scene into JSON. It will implicitly assume all None values means
 that that attribute uses its default value, and so will be removed from
 the JSON to reduce the file size of the resulting JSON.</p>
@@ -781,20 +785,20 @@ encoder.</p>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Scene.to_plotly_json">
-<code class="sig-name descname">to_plotly_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.to_plotly_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.to_plotly_json" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">to_plotly_json</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Scene.to_plotly_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.to_plotly_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>Easy way to allow Scene objects to be returned from callbacks.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Scene.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = True</em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Scene.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Spheres">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Spheres</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_animate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phiStart</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phiEnd</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tooltip</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Spheres"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Spheres</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_animate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phiStart</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phiEnd</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tooltip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Spheres"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#crystal_toolkit.core.scene.Primitive" title="crystal_toolkit.core.scene.Primitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.scene.Primitive</span></code></a></p>
 <p>Create a set of spheres. All spheres will have the same color, radius and
 segment size (if only drawing a section of a sphere).
@@ -812,121 +816,121 @@ sphere, defaults to 2*pi
 and trigger and event</p>
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.color">
-<code class="sig-name descname">color</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Spheres.key">
-<em class="property">property </em><code class="sig-name descname">key</code><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.key" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">key</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Spheres.merge">
-<em class="property">classmethod </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sphere_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Spheres.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sphere_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Spheres.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.merge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.phiEnd">
-<code class="sig-name descname">phiEnd</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.phiEnd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">phiEnd</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.phiEnd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.phiStart">
-<code class="sig-name descname">phiStart</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.phiStart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">phiStart</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.phiStart" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.positions">
-<code class="sig-name descname">positions</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">positions</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.radius">
-<code class="sig-name descname">radius</code><em class="property">: Optional<span class="p">[</span>float<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.radius" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">radius</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.radius" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.tooltip">
-<code class="sig-name descname">tooltip</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.tooltip" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">tooltip</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.tooltip" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'spheres'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'spheres'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Spheres.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Spheres.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="crystal_toolkit.core.scene.Surface">
-<em class="property">class </em><code class="sig-prename descclassname">crystal_toolkit.core.scene.</code><code class="sig-name descname">Surface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">positions</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">_animate</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">normals</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">opacity</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_edges</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">visible</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clickable</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reference</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_meta</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Surface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Surface" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.scene.</span></code><code class="sig-name descname"><span class="pre">Surface</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_animate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normals</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_edges</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clickable</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_meta</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/scene.html#Surface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.scene.Surface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Define a surface by its vertices. Please also provide normals if known.
 Opacity can be set to enable transparency, but note that the current
 Three.js renderer doesn’t support nested transparent objects very well.</p>
 <dl class="py method">
 <dt id="crystal_toolkit.core.scene.Surface.bounding_box">
-<em class="property">property </em><code class="sig-name descname">bounding_box</code><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.bounding_box" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bounding_box</span></code><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.bounding_box" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.clickable">
-<code class="sig-name descname">clickable</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.clickable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clickable</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.clickable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.color">
-<code class="sig-name descname">color</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.color" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">color</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.color" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.normals">
-<code class="sig-name descname">normals</code><em class="property">: Optional<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.normals" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">normals</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.normals" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.opacity">
-<code class="sig-name descname">opacity</code><em class="property">: float</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.opacity" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">opacity</span></code><em class="property"><span class="pre">:</span> <span class="pre">float</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.opacity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.positions">
-<code class="sig-name descname">positions</code><em class="property">: List<span class="p">[</span>List<span class="p">[</span>float<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">positions</span></code><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.reference">
-<code class="sig-name descname">reference</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.reference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reference</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.show_edges">
-<code class="sig-name descname">show_edges</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.show_edges" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">show_edges</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.show_edges" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.type">
-<code class="sig-name descname">type</code><em class="property">: str</em><em class="property"> = 'surface'</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'surface'</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="crystal_toolkit.core.scene.Surface.visible">
-<code class="sig-name descname">visible</code><em class="property">: bool</em><em class="property"> = None</em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.visible" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visible</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#crystal_toolkit.core.scene.Surface.visible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -938,28 +942,25 @@ Three.js renderer doesn’t support nested transparent objects very well.</p>
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Crystal Toolkit Development Team
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
