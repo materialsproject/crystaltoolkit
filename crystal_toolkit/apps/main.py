@@ -8,18 +8,18 @@ from urllib import parse
 from uuid import uuid4
 
 import dash
+import sentry_sdk
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from flask_caching import Cache
 from monty.serialization import loadfn
 from pymatgen import __version__ as pmg_version
+from pymatgen.ext.matproj import MPRester
 
 import crystal_toolkit.components as ctc
 from crystal_toolkit import __file__ as module_path
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
-from pymatgen.ext.matproj import MPRester
-
 from crystal_toolkit.settings import SETTINGS
 
 # choose a default structure on load
@@ -61,8 +61,9 @@ app = dash.Dash(
     assets_folder=SETTINGS.ASSETS_PATH,
     external_scripts=external_scripts,
     prevent_initial_callbacks=False,
+    title="Crystal Toolkit",
+    update_title=None,
 )
-app.title = "Crystal Toolkit"
 app.scripts.config.serve_locally = True
 
 # Materials Project embed mode
@@ -78,6 +79,9 @@ else:
 app.server.secret_key = str(uuid4())
 server = app.server
 
+# logging of errors
+if SETTINGS.SENTRY_DSN:
+    sentry_sdk.init(SETTINGS.SENTRY_DSN)
 
 # endregion
 ###########
