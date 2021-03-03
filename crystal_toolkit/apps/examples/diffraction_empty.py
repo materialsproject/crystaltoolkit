@@ -6,7 +6,7 @@ import dash_core_components as dcc
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.helpers.layouts import H1, H3, Container
+from crystal_toolkit.helpers.layouts import H1, H2, Container
 
 # import for this example
 from pymatgen import MPRester
@@ -21,15 +21,11 @@ from pymatgen import Structure, Lattice
 
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-xrd_component = ctc.XRayDiffractionComponent(initial_structure=structure)
+xrd_component = ctc.XRayDiffractionComponent()
 
 # example layout to demonstrate capabilities of component
 my_layout = Container(
-    [
-        H1("XRDComponent Example"),
-        H3("Generated from Structure object"),
-        xrd_component.layout(),
-    ]
+    [H1("XRDComponent Example (Empty, No Structure Defined)"), xrd_component.layout(),]
 )
 
 # as explained in "preamble" section in documentation

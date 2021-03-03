@@ -1,22 +1,27 @@
 # standard Dash imports
 import dash
-import dash_html_components as html
 import dash_core_components as dcc
+import dash_html_components as html
+
+# import for this example
+from pymatgen import Lattice, Structure
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
-
-# import for this example
-from pymatgen import Structure, Lattice
 
 # create Dash app as normal
 app = dash.Dash()
 
 # create the Structure object
-structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+structure = Structure(
+    Lattice.cubic(4.2),
+    ["Na", "K"],
+    [[0, 0, 0], [0.5, 0.5, 0.5]],
+    site_properties={"magmom": [-10, 10]},
+)
 
 # create the Crystal Toolkit component
-structure_component = ctc.StructureMoleculeComponent(structure, id="my_structure")
+structure_component = ctc.StructureMoleculeComponent(structure, id="struct")
 
 # example layout to demonstrate capabilities of component
 my_layout = html.Div(
@@ -33,8 +38,6 @@ my_layout = html.Div(
         structure_component.title_layout(),
         html.H3("Legend Layout"),
         structure_component.legend_layout(),
-        html.H2("Technical Details"),
-        dcc.Markdown(str(structure_component)),
     ]
 )
 
