@@ -28,7 +28,6 @@ scikit-learn = { version = "*", optional = true }
 robocrys = { version = "*", optional = true }
 scikit-image = { version = "*", optional = true }
 habanero = { version = "*", optional = true }
-hiphive = { version = "*", optional = true }
 dscribe = { version = "*", optional = true }
 dash-extensions = { version = "*", optional = true }
 sentry-sdk = { version = "*", optional = true }
