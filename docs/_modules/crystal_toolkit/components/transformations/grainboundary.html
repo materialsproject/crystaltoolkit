@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.transformations.grainboundary &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/transformations/grainboundary.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.transformations.grainboundary</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.components.transformations.grainboundary</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dash</span>
+<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.advanced_transformations</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GrainBoundaryGenerator</span><span class="p">,</span>
+    <span class="n">GrainBoundaryTransformation</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.components.transformations.core</span> <span class="kn">import</span> <span class="n">TransformationComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="n">add_label_help</span>
+
+
+<div class="viewcode-block" id="GrainBoundaryTransformationComponent"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.grainboundary.html#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent">[docs]</a><span class="k">class</span> <span class="nc">GrainBoundaryTransformationComponent</span><span class="p">(</span><span class="n">TransformationComponent</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Make a grain boundary&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;Create a grain boundary within a periodic supercell. This transformation </span>
+<span class="s2">requires sensible inputs, and will be slow to run in certain cases.</span>
+
+<span class="s2">When using this transformation a new site property is added which can be used </span>
+<span class="s2">to colour-code the top and bottom grains.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GrainBoundaryTransformation</span>
+
+<div class="viewcode-block" id="GrainBoundaryTransformationComponent.options_layouts"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.grainboundary.html#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.options_layouts">[docs]</a>    <span class="k">def</span> <span class="nf">options_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="ow">or</span> <span class="p">{</span>
+            <span class="s2">&quot;rotation_axis&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;rotation_angle&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;expand_times&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;vacuum_thickness&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;ab_shift&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;normal&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;ratio&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;plane&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;max_search&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+            <span class="s2">&quot;tol_coi&quot;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span>
+            <span class="s2">&quot;rm_ratio&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+            <span class="s2">&quot;quick_gen&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">rotation_axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Rotation axis&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;rotation_axis&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Maximum number of atoms allowed in the supercell.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span>
+        <span class="p">)</span>
+
+        <span class="n">rotation_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Rotation angle&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;rotation_angle&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Rotation angle to generate grain boundary. Options determined by </span>
+<span class="s2">            your choice of Σ.&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># sigma isn&#39;t a direct input into the transformation, but has</span>
+        <span class="c1"># to be calculated from the rotation_axis and structure</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">sigma_options</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sigmas_options_and_ratio</span><span class="p">(</span>
+            <span class="n">structure</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rotation_axis&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">),</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;5rem&quot;</span><span class="p">},</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">sigma_options</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">sigma_options</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">sigma_options</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">add_label_help</span><span class="p">(</span>
+            <span class="n">sigma</span><span class="p">,</span>
+            <span class="s2">&quot;Sigma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;The unit cell volume of the coincidence site lattice relative to &quot;</span>
+            <span class="s2">&quot;input unit cell is denoted by sigma.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">expand_times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Expand times&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;expand_times&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;The multiple number of times to expand one unit grain into a larger grain. This is </span>
+<span class="s2">            useful to avoid self-interaction issues when using the grain boundary as an input to further simulations.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">is_int</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+            <span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nb">max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">vacuum_thickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Vacuum thickness /Å&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;vacuum_thickness&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;The thickness of vacuum that you want to insert between the two grains.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">ab_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;In-plane shift&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;ab_shift&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;In-plane shift of the two grains given in units of the **a** </span>
+<span class="s2">            and **b** vectors of the grain boundary.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,),</span>
+        <span class="p">)</span>
+
+        <span class="n">normal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Set normal direction&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Enable to require the **c** axis of the top grain to be perpendicular to the surface.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plane</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Grain boundary plane&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;plane&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Grain boundary plane in the form of a list of integers. </span>
+<span class="s2">            If not set, grain boundary will be a twist grain boundary. </span>
+<span class="s2">            The plane will be perpendicular to the rotation axis.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span>
+        <span class="p">)</span>
+
+        <span class="n">tol_coi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Coincidence Site Tolerance&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;tol_coi&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Tolerance to find the coincidence sites. To check the number of coincidence</span>
+<span class="s2">                sites are correct or not, you can compare the generated grain boundary&#39;s sigma with </span>
+<span class="s2">                expected number.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">rm_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Site Merging Tolerance&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;rm_ratio&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;The criteria to remove the atoms which are too close with each other relative to </span>
+<span class="s2">            the bond length in the bulk system.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">rotation_axis</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="p">,</span>
+            <span class="n">rotation_angle</span><span class="p">,</span>
+            <span class="n">expand_times</span><span class="p">,</span>
+            <span class="n">vacuum_thickness</span><span class="p">,</span>
+            <span class="n">ab_shift</span><span class="p">,</span>
+            <span class="n">normal</span><span class="p">,</span>
+            <span class="n">plane</span><span class="p">,</span>
+            <span class="n">tol_coi</span><span class="p">,</span>
+            <span class="n">rm_ratio</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_sigmas_options_and_ratio</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">):</span>
+
+        <span class="n">rotation_axis</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rotation_axis</span><span class="p">]</span>
+
+        <span class="n">lat_type</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;c&quot;</span>  <span class="c1"># assume cubic if no structure specified, just to set initial choices</span>
+        <span class="p">)</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="n">sga</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+            <span class="n">lat_type</span> <span class="o">=</span> <span class="n">sga</span><span class="o">.</span><span class="n">get_lattice_type</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># this should be fixed in pymatgen</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="n">GrainBoundaryGenerator</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="n">get_ratio</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">cutoff</span> <span class="o">=</span> <span class="mi">10</span>
+
+        <span class="k">if</span> <span class="n">lat_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
+            <span class="n">sigmas</span> <span class="o">=</span> <span class="n">GrainBoundaryGenerator</span><span class="o">.</span><span class="n">enum_sigma_cubic</span><span class="p">(</span>
+                <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">r_axis</span><span class="o">=</span><span class="n">rotation_axis</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">lat_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="n">sigmas</span> <span class="o">=</span> <span class="n">GrainBoundaryGenerator</span><span class="o">.</span><span class="n">enum_sigma_tet</span><span class="p">(</span>
+                <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">r_axis</span><span class="o">=</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">c2_a2_ratio</span><span class="o">=</span><span class="n">ratio</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">lat_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;o&quot;</span><span class="p">:</span>
+            <span class="n">sigmas</span> <span class="o">=</span> <span class="n">GrainBoundaryGenerator</span><span class="o">.</span><span class="n">enum_sigma_ort</span><span class="p">(</span>
+                <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">r_axis</span><span class="o">=</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">c2_b2_a2_ratio</span><span class="o">=</span><span class="n">ratio</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">lat_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="n">sigmas</span> <span class="o">=</span> <span class="n">GrainBoundaryGenerator</span><span class="o">.</span><span class="n">enum_sigma_hex</span><span class="p">(</span>
+                <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">r_axis</span><span class="o">=</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">c2_a2_ratio</span><span class="o">=</span><span class="n">ratio</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">lat_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span>
+            <span class="n">sigmas</span> <span class="o">=</span> <span class="n">GrainBoundaryGenerator</span><span class="o">.</span><span class="n">enum_sigma_rho</span><span class="p">(</span>
+                <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">r_axis</span><span class="o">=</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">ratio_alpha</span><span class="o">=</span><span class="n">ratio</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="kc">None</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">subscript_unicode_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;₀&quot;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;₁&quot;</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;₂&quot;</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;₃&quot;</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;₄&quot;</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;₅&quot;</span><span class="p">,</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;₆&quot;</span><span class="p">,</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;₇&quot;</span><span class="p">,</span>
+            <span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;₈&quot;</span><span class="p">,</span>
+            <span class="mi">9</span><span class="p">:</span> <span class="s2">&quot;₉&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">sigma</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sigmas</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">sigma_label</span> <span class="o">=</span> <span class="s2">&quot;Σ</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sigma</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">subscript_unicode_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">sigma_label</span> <span class="o">=</span> <span class="n">sigma_label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+            <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">sigma_label</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">sigmas</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">ratio</span>
+
+<div class="viewcode-block" id="GrainBoundaryTransformationComponent.generate_callbacks"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.grainboundary.html#crystal_toolkit.components.transformations.grainboundary.GrainBoundaryTransformationComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate_callbacks</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">),</span>
+            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;rotation_axis&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">)],</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;input_structure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_sigma_options</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+
+            <span class="n">rotation_axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwarg_from_state</span><span class="p">(</span>
+                <span class="n">dash</span><span class="o">.</span><span class="n">callback_context</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="s2">&quot;rotation_axis&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">rotation_axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">structure</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+            <span class="n">_</span><span class="p">,</span> <span class="n">sigma_options</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sigmas_options_and_ratio</span><span class="p">(</span>
+                <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="n">rotation_axis</span>
+            <span class="p">)</span>
+
+            <span class="c1"># TODO: add some sort of error handling here when sigmas is empty</span>
+
+            <span class="k">return</span> <span class="n">sigma_options</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;rotation_angle&quot;</span><span class="p">,</span> <span class="n">is_kwarg</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;rotation_axis&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;input_structure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_rotation_angle_options</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sigma</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">rotation_axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwarg_from_state</span><span class="p">(</span>
+                <span class="n">dash</span><span class="o">.</span><span class="n">callback_context</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="s2">&quot;rotation_axis&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">rotation_axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">structure</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+            <span class="n">sigmas</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sigmas_options_and_ratio</span><span class="p">(</span>
+                <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="n">rotation_axis</span>
+            <span class="p">)</span>
+
+            <span class="n">rotation_angles</span> <span class="o">=</span> <span class="n">sigmas</span><span class="p">[</span><span class="n">sigma</span><span class="p">]</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">rotation_angle</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rotation_angles</span><span class="p">):</span>
+                <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">º&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rotation_angle</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">rotation_angle</span><span class="p">}</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">options</span>
+
+        <span class="c1"># TODO: make client-side callback</span>
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span> <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">),</span> <span class="s2">&quot;disabled&quot;</span><span class="p">)],</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;enable_transformation&quot;</span><span class="p">),</span> <span class="s2">&quot;on&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_default_value</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+            <span class="k">return</span> <span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">enabled</span>
+
+        <span class="c1"># TODO: make client-side callback, or just combine all callbacks here</span>
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;rotation_angle&quot;</span><span class="p">,</span> <span class="n">is_kwarg</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;rotation_angle&quot;</span><span class="p">,</span> <span class="n">is_kwarg</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_default_value</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+            <span class="k">return</span> <span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
