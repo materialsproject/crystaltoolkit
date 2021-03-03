@@ -13,6 +13,7 @@ plotly = "^4.10"
 webcolors = "*"
 crystaltoolkit-extension = "^0.3.0"
 mp-pyrho = "^0.0.14"
+scikit-learn = { version = "*"}
 
 ifermi = { version = "*", optional = true}
 pyfftw = { version = "*", optional = true}
@@ -24,7 +25,6 @@ redis = { version = "*", optional = true }
 Flask-Caching = { version = "*", optional = true }
 gevent = { version = "*", optional = true }
 dash-mp-components = { version = "^0.2.5", optional = true }
-scikit-learn = { version = "*", optional = true }
 robocrys = { version = "*", optional = true }
 scikit-image = { version = "*", optional = true }
 habanero = { version = "*", optional = true }
@@ -37,7 +37,7 @@ kaleido = { version = "*", optional = true }
 [tool.poetry.extras]
 server = [
     "dash", "dash-daq", "gunicorn", "redis",
-    "Flask-Caching", "gevent", "dash-mp-components", "scikit-learn",
+    "Flask-Caching", "gevent", "dash-mp-components",
     "robocrys", "scikit-image", "habanero", "hiphive", "dscribe",
     "dash-extensions", "sentry-sdk", "dash-vtk", "kaleido"
 ]
