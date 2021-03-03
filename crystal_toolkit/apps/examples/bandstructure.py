@@ -5,14 +5,16 @@ import dash_core_components as dcc
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
+from crystal_toolkit.settings import SETTINGS
+from crystal_toolkit.helpers.layouts import H1, H2, Container
 
 # dos and bs data from local jsons
 from monty.serialization import loadfn
 import os
 
 
-# create Dash app as normal
-app = dash.Dash()
+# create Dash app as normal, assets folder set for visual styles only
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # If callbacks created dynamically they cannot be statically checked at app startup.
 # For this simple example this IS a problem and,
@@ -32,14 +34,8 @@ bsdos_component = ctc.BandstructureAndDosComponent(
 )
 
 # example layout to demonstrate capabilities of component
-my_layout = html.Div(
-    [
-        html.H1("Band Structure and Density of States Example"),
-        html.H2("Standard Layout"),
-        bsdos_component.layout(),
-        html.H2("Technical Details"),
-        dcc.Markdown(str(bsdos_component)),
-    ]
+my_layout = Container(
+    [H1("Band Structure and Density of States Example"), bsdos_component.layout(),]
 )
 
 # wrap your app.layout with crystal_toolkit_layout()
