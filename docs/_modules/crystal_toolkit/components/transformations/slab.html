@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.transformations.slab &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/transformations/slab.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.transformations.slab</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.components.transformations.slab</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="n">Label</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.components.transformations.core</span> <span class="kn">import</span> <span class="n">TransformationComponent</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.advanced_transformations</span> <span class="kn">import</span> <span class="n">SlabTransformation</span>
+
+
+<div class="viewcode-block" id="SlabTransformationComponent"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.slab.html#crystal_toolkit.components.transformations.slab.SlabTransformationComponent">[docs]</a><span class="k">class</span> <span class="nc">SlabTransformationComponent</span><span class="p">(</span><span class="n">TransformationComponent</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Make a slab&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;Create a slab from a structure, where a &quot;slab&quot; is a crystal </span>
+<span class="s2">surface that is still periodic in all three dimensions but has a large artificial</span>
+<span class="s2">vacuum inserted so that the properties of the crystal surface can be studied.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SlabTransformation</span>
+
+<div class="viewcode-block" id="SlabTransformationComponent.options_layouts"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.slab.html#crystal_toolkit.components.transformations.slab.SlabTransformationComponent.options_layouts">[docs]</a>    <span class="k">def</span> <span class="nf">options_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="ow">or</span> <span class="p">{</span>
+            <span class="s2">&quot;miller_index&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="s2">&quot;min_slab_size&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;min_vacuum_size&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;lll_reduce&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;center_slab&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;in_unit_planes&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;primitive&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;max_normal_search&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;tol&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">miller_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Miller index&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;miller_index&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;The surface plane defined by its Miller index (h, k, l)&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span>
+        <span class="p">)</span>
+
+        <span class="n">min_slab_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Minimum slab size /Å&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;min_slab_size&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Minimum slab size in Ångstroms (or number of planes of atoms if &quot;</span>
+            <span class="s1">&#39;&quot;Use plane units&quot; enabled)&#39;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span>
+        <span class="p">)</span>
+
+        <span class="n">min_vacuum_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Minimum vacuum size /Å&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;min_vacuum_size&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Minimum vacuum size in Ångstroms (or number of planes of atoms if &quot;</span>
+            <span class="s1">&#39;&quot;Use plane units&quot; enabled)&#39;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">lll_reduce</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Enable LLL reduction&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;lll_reduce&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Whether or not to apply an LLL lattice reduction&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">in_unit_planes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Use Plane Units&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;in_unit_planes&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Change units of vacuum size and slab size to be in terms of &quot;</span>
+            <span class="s2">&quot;number of planes of atoms instead of Ångstroms.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Make primitive&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;primitive&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Reduce the slab to most primitive cell.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">max_normal_search</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="s2">&quot;max_normal_search&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Maximum normal search index&quot;</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Maximum index to include in linear combinations of indices &quot;</span>
+            <span class="s2">&quot;to find **c** lattice vector orthogonal to slab surface.&quot;</span><span class="p">,</span>
+            <span class="n">is_int</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Shift /Å&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;shift&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Shift to change termination.&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Tolerance&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;tol&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Tolerance to find primitive cell.&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">miller_index</span><span class="p">,</span>
+                <span class="n">min_slab_size</span><span class="p">,</span>
+                <span class="n">min_vacuum_size</span><span class="p">,</span>
+                <span class="n">lll_reduce</span><span class="p">,</span>
+                <span class="n">in_unit_planes</span><span class="p">,</span>
+                <span class="n">primitive</span><span class="p">,</span>
+                <span class="n">max_normal_search</span><span class="p">,</span>
+                <span class="n">shift</span><span class="p">,</span>
+                <span class="n">tol</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">options</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
