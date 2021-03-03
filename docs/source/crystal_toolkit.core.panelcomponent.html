@@ -109,7 +109,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -185,8 +185,49 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="crystal-toolkit-core-panelcomponent-module">
-<h1>crystal_toolkit.core.panelcomponent module<a class="headerlink" href="#crystal-toolkit-core-panelcomponent-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-crystal_toolkit.core.panelcomponent">
+<span id="crystal-toolkit-core-panelcomponent-module"></span><h1>crystal_toolkit.core.panelcomponent module<a class="headerlink" href="#module-crystal_toolkit.core.panelcomponent" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="crystal_toolkit.core.panelcomponent.PanelComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.panelcomponent.</span></code><code class="sig-name descname"><span class="pre">PanelComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">monty.json.MSONable</span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">memory</span><span class="p"><span class="pre">,</span> </span><span class="pre">local</span><span class="p"><span class="pre">,</span> </span><span class="pre">session</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'memory'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_callbacks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/panelcomponent.html#PanelComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.panelcomponent.PanelComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
+<p>A component intended to do wrap another component or set of components
+inside a panel. The key benefit is that the inner contents of the panel
+are not loaded until the panel is opened, so can reduce the number of
+callbacks run until a user initiates interaction.</p>
+<p>To use, implement the “contents_layout” method, and add any new
+callbacks necessary to fill it.</p>
+<dl class="py method">
+<dt id="crystal_toolkit.core.panelcomponent.PanelComponent.contents_layout">
+<code class="sig-name descname"><span class="pre">contents_layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">dash_html_components.Div.Div</span><a class="reference internal" href="../_modules/crystal_toolkit/core/panelcomponent.html#PanelComponent.contents_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.panelcomponent.PanelComponent.contents_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.panelcomponent.PanelComponent.description">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">description</span></code><a class="headerlink" href="#crystal_toolkit.core.panelcomponent.PanelComponent.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.panelcomponent.PanelComponent.generate_callbacks">
+<code class="sig-name descname"><span class="pre">generate_callbacks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/panelcomponent.html#PanelComponent.generate_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.panelcomponent.PanelComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all callbacks associated with the layouts in this app. Assume
+that “suppress_callback_exceptions” is True, since it is not always
+guaranteed that all layouts will be displayed to the end user at all
+times, but it’s important the callbacks are defined on the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.panelcomponent.PanelComponent.panel_layout">
+<code class="sig-name descname"><span class="pre">panel_layout</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_by_default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/panelcomponent.html#PanelComponent.panel_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.panelcomponent.PanelComponent.panel_layout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.panelcomponent.PanelComponent.title">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">title</span></code><a class="headerlink" href="#crystal_toolkit.core.panelcomponent.PanelComponent.title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 
