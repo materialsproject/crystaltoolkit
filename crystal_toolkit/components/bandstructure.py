@@ -767,143 +767,141 @@ class BandstructureAndDosComponent(MPComponent):
         }
 
     def generate_callbacks(self, app, cache):
-        pass
-        #
-        # @app.callback(
-        #     Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
-        # )
-        # def update_graph(traces):
-        #
-        #     if traces == "error":
-        #         search_error = (
-        #             MessageContainer(
-        #                 [
-        #                     MessageBody(
-        #                         dcc.Markdown(
-        #                             "Band structure and density of states not available for this selection."
-        #                         )
-        #                     )
-        #                 ],
-        #                 kind="warning",
-        #             ),
-        #         )
-        #         return search_error
-        #
-        #     if traces is None:
-        #         raise PreventUpdate
-        #
-        #     figure = self.get_figure(bs, dos, path_convention, dos_select)
-        #
-        #     return [
-        #         dcc.Graph(
-        #             figure=figure, config={"displayModeBar": False}, responsive=True
-        #         )
-        #     ]
-        #
-        # @app.callback(
-        #     [
-        #         Output(self.id("label-select"), "value"),
-        #         Output(self.id("label-container"), "style"),
-        #     ],
-        #     [
-        #         Input(self.id("mpid"), "data"),
-        #         Input(self.id("path-convention"), "value"),
-        #     ],
-        # )
-        # def update_label_select(mpid, path_convention):
-        #     if not mpid:
-        #         raise PreventUpdate
-        #     else:
-        #
-        #         label_value = path_convention
-        #         label_style = {"max-width": "200"}
-        #
-        #         return [label_value, label_style]
-        #
-        # @app.callback(
-        #     [
-        #         Output(self.id("dos-select"), "options"),
-        #         Output(self.id("path-convention"), "options"),
-        #         Output(self.id("path-container"), "style"),
-        #     ],
-        #     [Input(self.id("elements"), "data"), Input(self.id("mpid"), "data")],
-        # )
-        # def update_select(elements, mpid):
-        #     if elements is None:
-        #         raise PreventUpdate
-        #     elif not mpid:
-        #         dos_options = (
-        #             [{"label": "Element Projected", "value": "ap"}]
-        #             + [{"label": "Orbital Projected - Total", "value": "op"}]
-        #             + [
-        #                 {
-        #                     "label": "Orbital Projected - " + str(ele_label),
-        #                     "value": "orb" + str(ele_label),
-        #                 }
-        #                 for ele_label in elements
-        #             ]
-        #         )
-        #
-        #         path_options = [{"label": "N/A", "value": "sc"}]
-        #         path_style = {"max-width": "200", "display": "none"}
-        #
-        #         return [dos_options, path_options, path_style]
-        #     else:
-        #         dos_options = (
-        #             [{"label": "Element Projected", "value": "ap"}]
-        #             + [{"label": "Orbital Projected - Total", "value": "op"}]
-        #             + [
-        #                 {
-        #                     "label": "Orbital Projected - " + str(ele_label),
-        #                     "value": "orb" + str(ele_label),
-        #                 }
-        #                 for ele_label in elements
-        #             ]
-        #         )
-        #
-        #         path_options = [
-        #             {"label": "Setyawan-Curtarolo", "value": "sc"},
-        #             {"label": "Latimer-Munro", "value": "lm"},
-        #             {"label": "Hinuma et al.", "value": "hin"},
-        #         ]
-        #
-        #         path_style = {"max-width": "200"}
-        #
-        #         return [dos_options, path_options, path_style]
-        #
-        # @app.callback(
-        #     [Output(self.id("traces"), "data"), Output(self.id("elements"), "data")],
-        #     [
-        #         Input(self.id(), "data"),
-        #         Input(self.id("path-convention"), "value"),
-        #         Input(self.id("dos-select"), "value"),
-        #         Input(self.id("label-select"), "value"),
-        #     ],
-        # )
-        # def bs_dos_data(
-        #     data,
-        #     path_convention,
-        #     dos_select,
-        #     label_select,
-        # ):
-        #
-        #
-        #     # Obtain bands to plot over and generate traces for bs data:
-        #     energy_window = (-6.0, 10.0)
-        #
-        #     traces = []
-        #
-        #     if bandstructure_symm_line:
-        #         bstraces = get_bandstructure_traces(bsml, path_convention, energy_window=energy_window)
-        #         traces.append(bstraces)
-        #
-        #     if density_of_states:
-        #         dostraces = get_dos_traces(density_of_states, energy_window=energy_window, spin_polarized=...)
-        #         traces.append(dostraces)
-        #
-        #     # traces = [bstraces, dostraces, bs_data]
-        #
-        #     return (traces, elements)
+        @app.callback(
+            Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
+        )
+        def update_graph(traces):
+
+            if traces == "error":
+                search_error = (
+                    MessageContainer(
+                        [
+                            MessageBody(
+                                dcc.Markdown(
+                                    "Band structure and density of states not available for this selection."
+                                )
+                            )
+                        ],
+                        kind="warning",
+                    ),
+                )
+                return search_error
+
+            if traces is None:
+                raise PreventUpdate
+
+            figure = self.get_figure(bs, dos, path_convention, dos_select)
+
+            return [
+                dcc.Graph(
+                    figure=figure, config={"displayModeBar": False}, responsive=True
+                )
+            ]
+
+        @app.callback(
+            [
+                Output(self.id("label-select"), "value"),
+                Output(self.id("label-container"), "style"),
+            ],
+            [
+                Input(self.id("mpid"), "data"),
+                Input(self.id("path-convention"), "value"),
+            ],
+        )
+        def update_label_select(mpid, path_convention):
+            if not mpid:
+                raise PreventUpdate
+            else:
+
+                label_value = path_convention
+                label_style = {"max-width": "200"}
+
+                return [label_value, label_style]
+
+        @app.callback(
+            [
+                Output(self.id("dos-select"), "options"),
+                Output(self.id("path-convention"), "options"),
+                Output(self.id("path-container"), "style"),
+            ],
+            [Input(self.id("elements"), "data"), Input(self.id("mpid"), "data")],
+        )
+        def update_select(elements, mpid):
+            if elements is None:
+                raise PreventUpdate
+            elif not mpid:
+                dos_options = (
+                    [{"label": "Element Projected", "value": "ap"}]
+                    + [{"label": "Orbital Projected - Total", "value": "op"}]
+                    + [
+                        {
+                            "label": "Orbital Projected - " + str(ele_label),
+                            "value": "orb" + str(ele_label),
+                        }
+                        for ele_label in elements
+                    ]
+                )
+
+                path_options = [{"label": "N/A", "value": "sc"}]
+                path_style = {"max-width": "200", "display": "none"}
+
+                return [dos_options, path_options, path_style]
+            else:
+                dos_options = (
+                    [{"label": "Element Projected", "value": "ap"}]
+                    + [{"label": "Orbital Projected - Total", "value": "op"}]
+                    + [
+                        {
+                            "label": "Orbital Projected - " + str(ele_label),
+                            "value": "orb" + str(ele_label),
+                        }
+                        for ele_label in elements
+                    ]
+                )
+
+                path_options = [
+                    {"label": "Setyawan-Curtarolo", "value": "sc"},
+                    {"label": "Latimer-Munro", "value": "lm"},
+                    {"label": "Hinuma et al.", "value": "hin"},
+                ]
+
+                path_style = {"max-width": "200"}
+
+                return [dos_options, path_options, path_style]
+
+        @app.callback(
+            [Output(self.id("traces"), "data"), Output(self.id("elements"), "data")],
+            [
+                Input(self.id(), "data"),
+                Input(self.id("path-convention"), "value"),
+                Input(self.id("dos-select"), "value"),
+                Input(self.id("label-select"), "value"),
+            ],
+        )
+        def bs_dos_data(
+            data, path_convention, dos_select, label_select,
+        ):
+
+            # Obtain bands to plot over and generate traces for bs data:
+            energy_window = (-6.0, 10.0)
+
+            traces = []
+
+            if bandstructure_symm_line:
+                bstraces = get_bandstructure_traces(
+                    bsml, path_convention, energy_window=energy_window
+                )
+                traces.append(bstraces)
+
+            if density_of_states:
+                dostraces = get_dos_traces(
+                    density_of_states, energy_window=energy_window, spin_polarized=...
+                )
+                traces.append(dostraces)
+
+            # traces = [bstraces, dostraces, bs_data]
+
+            return (traces, elements)
 
 
 class BandstructureAndDosPanelComponent(PanelComponent):
