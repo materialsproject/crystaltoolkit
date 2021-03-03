@@ -109,7 +109,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -185,8 +185,114 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="crystal-toolkit-core-legend-module">
-<h1>crystal_toolkit.core.legend module<a class="headerlink" href="#crystal-toolkit-core-legend-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-crystal_toolkit.core.legend">
+<span id="crystal-toolkit-core-legend-module"></span><h1>crystal_toolkit.core.legend module<a class="headerlink" href="#module-crystal_toolkit.core.legend" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="crystal_toolkit.core.legend.Legend">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.core.legend.</span></code><code class="sig-name descname"><span class="pre">Legend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_collection</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.structure.SiteCollection</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.sites.Site</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scheme</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'Jmol'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius_scheme</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'coolwarm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">monty.json.MSONable</span></code></p>
+<p>Help generate a legend (colors and radii) for a Structure or Molecule
+such that colors and radii can be displayed for the appropriate species.</p>
+<p>Note that species themselves have a color (for example, Oxygen is typically
+red), but that we might also want to color-code by site properties (for example,
+magnetic moment), thus this class has to take into account both the species
+present and its context (the specific site the species is at) to correctly
+generate the legend.</p>
+<dl class="py method">
+<dt id="crystal_toolkit.core.legend.Legend.analyze_site_props">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">analyze_site_props</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_collection</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.structure.SiteCollection</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.analyze_site_props"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.analyze_site_props" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns: A dictionary with keys “scalar”, “matrix”, “vector”, “categorical”
+and values of a list of site property names corresponding to each type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="crystal_toolkit.core.legend.Legend.default_color">
+<code class="sig-name descname"><span class="pre">default_color</span></code><em class="property"> <span class="pre">=</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></em><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.default_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="crystal_toolkit.core.legend.Legend.default_color_scheme">
+<code class="sig-name descname"><span class="pre">default_color_scheme</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'Jmol'</span></em><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.default_color_scheme" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="crystal_toolkit.core.legend.Legend.default_radius">
+<code class="sig-name descname"><span class="pre">default_radius</span></code><em class="property"> <span class="pre">=</span> <span class="pre">1.0</span></em><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.default_radius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="crystal_toolkit.core.legend.Legend.fallback_radius">
+<code class="sig-name descname"><span class="pre">fallback_radius</span></code><em class="property"> <span class="pre">=</span> <span class="pre">0.5</span></em><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.fallback_radius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.legend.Legend.generate_accessible_color_scheme_on_the_fly">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">generate_accessible_color_scheme_on_the_fly</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_collection</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.structure.SiteCollection</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.generate_accessible_color_scheme_on_the_fly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.generate_accessible_color_scheme_on_the_fly" title="Permalink to this definition">¶</a></dt>
+<dd><p>e.g. for a color scheme more appropriate for people with color blindness</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site_collection</strong> – SiteCollection</p>
+</dd>
+</dl>
+<p>Returns: A dictionary in similar format to EL_COLORS</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.legend.Legend.generate_categorical_color_scheme_on_the_fly">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">generate_categorical_color_scheme_on_the_fly</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site_collection</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.core.structure.SiteCollection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_prop_types</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.generate_categorical_color_scheme_on_the_fly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.generate_categorical_color_scheme_on_the_fly" title="Permalink to this definition">¶</a></dt>
+<dd><p>e.g. for Wykcoff</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site_collection</strong> – SiteCollection</p>
+</dd>
+</dl>
+<p>Returns: A dictionary in similar format to EL_COLORS</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.legend.Legend.get_color">
+<code class="sig-name descname"><span class="pre">get_color</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.periodic_table.Specie</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.periodic_table.Element</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.sites.Site</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.get_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.get_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a color to render a specific species. Optionally, you can provide
+a site for context, since …</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp</strong> – Specie or Element</p></li>
+<li><p><strong>site</strong> – Site</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: Color</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.legend.Legend.get_legend">
+<code class="sig-name descname"><span class="pre">get_legend</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.get_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.get_legend" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.legend.Legend.get_radius">
+<code class="sig-name descname"><span class="pre">get_radius</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.periodic_table.Specie</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.periodic_table.Element</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.sites.Site</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.get_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.get_radius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.core.legend.Legend.get_species_str">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_species_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.periodic_table.Specie</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.periodic_table.Element</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="../_modules/crystal_toolkit/core/legend.html#Legend.get_species_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.get_species_str" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sp</strong> – Specie or Element</p>
+</dd>
+</dl>
+<p>Returns: string representation</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="crystal_toolkit.core.legend.Legend.uniform_radius">
+<code class="sig-name descname"><span class="pre">uniform_radius</span></code><em class="property"> <span class="pre">=</span> <span class="pre">0.5</span></em><a class="headerlink" href="#crystal_toolkit.core.legend.Legend.uniform_radius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 

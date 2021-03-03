@@ -1,0 +1,659 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.core.legend &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/core/legend.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.core.legend</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.core.legend</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">SiteCollection</span><span class="p">,</span> <span class="n">Site</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.molecule_structure_comparator</span> <span class="kn">import</span> <span class="n">CovalentRadius</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify_species</span>
+
+<span class="kn">from</span> <span class="nn">monty.json</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">palettable.colorbrewer.qualitative</span> <span class="kn">import</span> <span class="n">Set1_9</span><span class="p">,</span> <span class="n">Set2_8</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span>
+<span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">get_cmap</span>
+<span class="kn">from</span> <span class="nn">webcolors</span> <span class="kn">import</span> <span class="n">html5_parse_legacy_color</span><span class="p">,</span> <span class="n">html5_serialize_simple_color</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># element colors forked from pymatgen</span>
+<span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">EL_COLORS</span> <span class="o">=</span> <span class="n">loadfn</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s2">&quot;ElementColorSchemes.yaml&quot;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="Legend"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend">[docs]</a><span class="k">class</span> <span class="nc">Legend</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Help generate a legend (colors and radii) for a Structure or Molecule</span>
+<span class="sd">    such that colors and radii can be displayed for the appropriate species.</span>
+
+<span class="sd">    Note that species themselves have a color (for example, Oxygen is typically</span>
+<span class="sd">    red), but that we might also want to color-code by site properties (for example,</span>
+<span class="sd">    magnetic moment), thus this class has to take into account both the species</span>
+<span class="sd">    present and its context (the specific site the species is at) to correctly</span>
+<span class="sd">    generate the legend.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_color_scheme</span> <span class="o">=</span> <span class="s2">&quot;Jmol&quot;</span>
+    <span class="n">default_color</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">default_radius</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">fallback_radius</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">uniform_radius</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">site_collection</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">SiteCollection</span><span class="p">,</span> <span class="n">Site</span><span class="p">],</span>
+        <span class="n">color_scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Jmol&quot;</span><span class="p">,</span>
+        <span class="n">radius_scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span>
+        <span class="n">cmap_range</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a legend for a given SiteCollection to choose how to</span>
+<span class="sd">        display colors and radii for the given sites and the species</span>
+<span class="sd">        on those sites.</span>
+
+<span class="sd">        If a site has a &quot;display_color&quot; or &quot;display_radius&quot; site</span>
+<span class="sd">        property defined, this can be used to manually override the</span>
+<span class="sd">        displayed colors and radii respectively.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site_collection: SiteCollection or, for convenience, a</span>
+<span class="sd">            single site can be provided and this will be converted</span>
+<span class="sd">            into a SiteCollection</span>
+<span class="sd">            color_scheme: choose how to color-code species, one of</span>
+<span class="sd">            &quot;Jmol&quot;, &quot;VESTA&quot;, &quot;accessible&quot; or a scalar site property</span>
+<span class="sd">            (e.g. magnetic moment) or a categorical/string site</span>
+<span class="sd">            property (e.g. Wyckoff label)</span>
+<span class="sd">            radius_scheme: choose the radius for a species, one of</span>
+<span class="sd">            &quot;atomic&quot;, &quot;specified_or_average_ionic&quot;, &quot;covalent&quot;,</span>
+<span class="sd">            &quot;van_der_waals&quot;, &quot;atomic_calculated&quot;, &quot;uniform&quot;</span>
+<span class="sd">            cmap: only used if color_mode is set to a scalar site</span>
+<span class="sd">            property, defines the matplotlib color map to use, by</span>
+<span class="sd">            default is blue-white-red for negative to postive values</span>
+<span class="sd">            cmap_range: only used if color_mode is set to a scalar site</span>
+<span class="sd">            property, defines the minimum and maximum values of the</span>
+<span class="sd">            color scape</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">site_collection</span><span class="p">,</span> <span class="n">Site</span><span class="p">):</span>
+            <span class="n">site_collection</span> <span class="o">=</span> <span class="n">Molecule</span><span class="o">.</span><span class="n">from_sites</span><span class="p">([</span><span class="n">site_collection</span><span class="p">])</span>
+
+        <span class="n">site_prop_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyze_site_props</span><span class="p">(</span><span class="n">site_collection</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">allowed_color_schemes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;VESTA&quot;</span><span class="p">,</span> <span class="s2">&quot;Jmol&quot;</span><span class="p">,</span> <span class="s2">&quot;accessible&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="o">+</span> <span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">allowed_radius_schemes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;atomic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;specified_or_average_ionic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;covalent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;van_der_waals&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;atomic_calculated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">color_scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_color_schemes</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Color scheme </span><span class="si">{</span><span class="n">color_scheme</span><span class="si">}</span><span class="s2"> not available, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;falling back to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default_color_scheme</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">color_scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_color_scheme</span>
+
+        <span class="c1"># if color-coding by a scalar site property, determine minimum and</span>
+        <span class="c1"># maximum values for color scheme, will default to be symmetric</span>
+        <span class="c1"># about zero</span>
+        <span class="k">if</span> <span class="n">color_scheme</span> <span class="ow">in</span> <span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cmap_range</span><span class="p">:</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">p</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">site_collection</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">color_scheme</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">prop_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">props</span><span class="p">)),</span> <span class="nb">max</span><span class="p">(</span><span class="n">props</span><span class="p">)])</span>
+            <span class="n">prop_min</span> <span class="o">=</span> <span class="o">-</span><span class="n">prop_max</span>
+            <span class="n">cmap_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">prop_min</span><span class="p">,</span> <span class="n">prop_max</span><span class="p">)</span>
+
+        <span class="n">el_colors</span> <span class="o">=</span> <span class="n">EL_COLORS</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">el_colors</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_accessible_color_scheme_on_the_fly</span><span class="p">(</span><span class="n">site_collection</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">categorical_colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_categorical_color_scheme_on_the_fly</span><span class="p">(</span>
+            <span class="n">site_collection</span><span class="p">,</span> <span class="n">site_prop_types</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">el_colors</span> <span class="o">=</span> <span class="n">el_colors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span> <span class="o">=</span> <span class="n">site_prop_types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site_collection</span> <span class="o">=</span> <span class="n">site_collection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="o">=</span> <span class="n">color_scheme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="o">=</span> <span class="n">radius_scheme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmap</span> <span class="o">=</span> <span class="n">cmap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmap_range</span> <span class="o">=</span> <span class="n">cmap_range</span>
+
+<div class="viewcode-block" id="Legend.generate_accessible_color_scheme_on_the_fly"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.generate_accessible_color_scheme_on_the_fly">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">generate_accessible_color_scheme_on_the_fly</span><span class="p">(</span>
+        <span class="n">site_collection</span><span class="p">:</span> <span class="n">SiteCollection</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        e.g. for a color scheme more appropriate for people with color blindness</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site_collection: SiteCollection</span>
+
+<span class="sd">        Returns: A dictionary in similar format to EL_COLORS</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">color_scheme</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">all_species</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="n">comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">site_collection</span><span class="o">.</span><span class="n">species_and_occu</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">all_elements</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s2">&quot;element&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">all_species</span><span class="p">])</span>
+
+        <span class="c1"># thanks to https://doi.org/10.1038/nmeth.1618</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># 0, black</span>
+            <span class="p">(</span><span class="mi">230</span><span class="p">,</span> <span class="mi">159</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># 1, orange</span>
+            <span class="p">(</span><span class="mi">86</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">233</span><span class="p">),</span>  <span class="c1"># 2, sky blue</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">158</span><span class="p">,</span> <span class="mi">115</span><span class="p">),</span>  <span class="c1">#  3, bluish green</span>
+            <span class="p">(</span><span class="mi">240</span><span class="p">,</span> <span class="mi">228</span><span class="p">,</span> <span class="mi">66</span><span class="p">),</span>  <span class="c1"># 4, yellow</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">178</span><span class="p">),</span>  <span class="c1"># 5, blue</span>
+            <span class="p">(</span><span class="mi">213</span><span class="p">,</span> <span class="mi">94</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># 6, vermillion</span>
+            <span class="p">(</span><span class="mi">204</span><span class="p">,</span> <span class="mi">121</span><span class="p">,</span> <span class="mi">167</span><span class="p">),</span>  <span class="c1"># 7, reddish purple</span>
+            <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>  <span class="c1">#  8, white</span>
+        <span class="p">]</span>
+
+        <span class="c1"># similar to CPK, mapping element to palette index</span>
+        <span class="n">preferred_colors</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;Cl&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;Fe&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;Br&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s2">&quot;I&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_elements</span><span class="p">))</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Too many distinct types of site to use an accessible color scheme, &quot;</span>
+                <span class="s2">&quot;some sites will be given the default color.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">preferred_elements_present</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">all_elements</span> <span class="k">if</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">preferred_colors</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="n">colors_assigned</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">preferred_elements_present</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">preferred_colors</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">colors_assigned</span><span class="p">:</span>
+                <span class="n">color_scheme</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">palette</span><span class="p">[</span><span class="n">preferred_colors</span><span class="p">[</span><span class="n">el</span><span class="p">]]</span>
+                <span class="n">colors_assigned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">preferred_colors</span><span class="p">[</span><span class="n">el</span><span class="p">])</span>
+
+        <span class="n">remaining_elements</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">all_elements</span> <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">color_scheme</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">remaining_palette</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span> <span class="k">if</span> <span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">colors_assigned</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">remaining_elements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">remaining_palette</span><span class="p">:</span>
+                <span class="n">color_scheme</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">remaining_palette</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;accessible&quot;</span><span class="p">:</span> <span class="n">color_scheme</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Legend.generate_categorical_color_scheme_on_the_fly"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.generate_categorical_color_scheme_on_the_fly">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">generate_categorical_color_scheme_on_the_fly</span><span class="p">(</span>
+        <span class="n">site_collection</span><span class="p">:</span> <span class="n">SiteCollection</span><span class="p">,</span> <span class="n">site_prop_types</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        e.g. for Wykcoff</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site_collection: SiteCollection</span>
+
+<span class="sd">        Returns: A dictionary in similar format to EL_COLORS</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">color_scheme</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">palette</span> <span class="o">=</span> <span class="n">Set1_9</span><span class="o">.</span><span class="n">colors</span>
+
+        <span class="k">for</span> <span class="n">site_prop_name</span> <span class="ow">in</span> <span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+
+            <span class="n">props</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">site_collection</span><span class="o">.</span><span class="n">site_properties</span><span class="p">[</span><span class="n">site_prop_name</span><span class="p">])</span>
+            <span class="n">props</span><span class="p">[</span><span class="n">props</span> <span class="o">==</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+
+            <span class="n">le</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+            <span class="n">le</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+            <span class="n">transformed_props</span> <span class="o">=</span> <span class="n">le</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+
+            <span class="c1"># if we have more categories than availiable colors,</span>
+            <span class="c1"># arbitrarily group some categories together</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">props</span><span class="p">))</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Too many categories for a complete categorical color scheme.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">transformed_props</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">p</span> <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">transformed_props</span>
+            <span class="p">]</span>
+
+            <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">palette</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="n">transformed_props</span><span class="p">)}</span>
+
+            <span class="n">color_scheme</span><span class="p">[</span><span class="n">site_prop_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">colors</span>
+
+        <span class="k">return</span> <span class="n">color_scheme</span></div>
+
+<div class="viewcode-block" id="Legend.get_color"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.get_color">[docs]</a>    <span class="k">def</span> <span class="nf">get_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">],</span> <span class="n">site</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Site</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a color to render a specific species. Optionally, you can provide</span>
+<span class="sd">        a site for context, since ...</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sp: Specie or Element</span>
+<span class="sd">            site: Site</span>
+
+<span class="sd">        Returns: Color</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># allow manual override by user</span>
+        <span class="k">if</span> <span class="n">site</span> <span class="ow">and</span> <span class="s2">&quot;display_color&quot;</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;display_color&quot;</span><span class="p">]</span>
+            <span class="c1"># TODO: next two lines due to change in API, will be removed</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">html5_serialize_simple_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">html5_serialize_simple_color</span><span class="p">(</span><span class="n">html5_parse_legacy_color</span><span class="p">(</span><span class="n">color</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;VESTA&quot;</span><span class="p">,</span> <span class="s2">&quot;Jmol&quot;</span><span class="p">,</span> <span class="s2">&quot;accessible&quot;</span><span class="p">):</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()[</span><span class="s2">&quot;element&quot;</span><span class="p">]</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_colors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">el</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_colors</span><span class="p">[</span><span class="s2">&quot;Extras&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_color</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">site</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Requires a site for context to get the &quot;</span>
+                    <span class="s2">&quot;appropriate site property.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">prop</span><span class="p">:</span>
+
+                <span class="n">cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmap</span><span class="p">)</span>
+
+                <span class="c1"># normalize in [0, 1] range, as expected by cmap</span>
+                <span class="n">prop_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">prop_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmap_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">prop_normed</span> <span class="o">=</span> <span class="p">(</span><span class="n">prop</span> <span class="o">-</span> <span class="n">prop_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">prop_max</span> <span class="o">-</span> <span class="n">prop_min</span><span class="p">)</span>
+
+                <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cmap</span><span class="p">(</span><span class="n">prop_normed</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># fallback if site prop is None</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_color</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">site</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Requires a site for context to get the &quot;</span>
+                    <span class="s2">&quot;appropriate site property.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span>
+
+            <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">categorical_colors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">prop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_color</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown color for </span><span class="si">{</span><span class="n">sp</span><span class="si">}</span><span class="s2"> and color scheme </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">html5_serialize_simple_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Legend.get_radius"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.get_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_radius</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">],</span> <span class="n">site</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Site</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+
+        <span class="c1"># allow manual override by user</span>
+        <span class="k">if</span> <span class="n">site</span> <span class="ow">and</span> <span class="s2">&quot;display_radius&quot;</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;display_radius&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_radius_schemes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown radius scheme </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;choose from: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">allowed_radius_schemes</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">radius</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform_radius</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="o">==</span> <span class="s2">&quot;atomic&quot;</span><span class="p">:</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">atomic_radius</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="o">==</span> <span class="s2">&quot;specified_or_average_ionic&quot;</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">Specie</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">sp</span><span class="o">.</span><span class="n">oxi_state</span>
+        <span class="p">):</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">ionic_radius</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="o">==</span> <span class="s2">&quot;specified_or_average_ionic&quot;</span><span class="p">:</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">average_ionic_radius</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="o">==</span> <span class="s2">&quot;covalent&quot;</span><span class="p">:</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">,</span> <span class="n">sp</span><span class="p">))</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">CovalentRadius</span><span class="o">.</span><span class="n">radius</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="o">==</span> <span class="s2">&quot;van_der_waals&quot;</span><span class="p">:</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">van_der_waals_radius</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span> <span class="o">==</span> <span class="s2">&quot;atomic_calculated&quot;</span><span class="p">:</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">atomic_radius_calculated</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">radius</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Radius unknown for </span><span class="si">{}</span><span class="s2"> and strategy </span><span class="si">{}</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;setting to 0.5.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_scheme</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fallback_radius</span>
+
+        <span class="k">return</span> <span class="n">radius</span></div>
+
+<div class="viewcode-block" id="Legend.analyze_site_props"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.analyze_site_props">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">analyze_site_props</span><span class="p">(</span><span class="n">site_collection</span><span class="p">:</span> <span class="n">SiteCollection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns: A dictionary with keys &quot;scalar&quot;, &quot;matrix&quot;, &quot;vector&quot;, &quot;categorical&quot;</span>
+<span class="sd">        and values of a list of site property names corresponding to each type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># (implicitly assumes all site props for a given key are same type)</span>
+        <span class="n">site_prop_names</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">props</span> <span class="ow">in</span> <span class="n">site_collection</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">site_prop_names</span><span class="p">[</span><span class="s2">&quot;scalar&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">site_prop_names</span><span class="p">[</span><span class="s2">&quot;matrix&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">site_prop_names</span><span class="p">[</span><span class="s2">&quot;vector&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">site_prop_names</span><span class="p">[</span><span class="s2">&quot;categorical&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">site_prop_names</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Legend.get_species_str"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.get_species_str">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_species_str</span><span class="p">(</span><span class="n">sp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            sp: Specie or Element</span>
+
+<span class="sd">        Returns: string representation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: add roman numerals for oxidation state for ease of readability</span>
+        <span class="c1"># and then move this to pymatgen string utils ...</span>
+        <span class="k">return</span> <span class="n">unicodeify_species</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Legend.get_legend"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.legend.html#crystal_toolkit.core.legend.Legend.get_legend">[docs]</a>    <span class="k">def</span> <span class="nf">get_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+        <span class="c1"># decide what we want the labels to be</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Jmol&quot;</span><span class="p">,</span> <span class="s2">&quot;VESTA&quot;</span><span class="p">,</span> <span class="s2">&quot;accessible&quot;</span><span class="p">):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_species_str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span> <span class="p">{}):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categorical&quot;</span><span class="p">,</span> <span class="p">{}):</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Color scheme </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color_scheme</span><span class="si">}</span><span class="s2"> not known.&quot;</span><span class="p">)</span>
+
+        <span class="n">legend</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="c1"># first get all our colors for different species</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_collection</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">occu</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">legend</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_color</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">site</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">sp</span><span class="p">))</span>
+
+        <span class="n">legend</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">))))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">legend</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="n">color_options</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site_prop_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span> <span class="s2">&quot;categorical&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">site_prop_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_prop_types</span><span class="p">[</span><span class="n">site_prop_type</span><span class="p">]:</span>
+                    <span class="n">color_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;composition&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_collection</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+            <span class="s2">&quot;colors&quot;</span><span class="p">:</span> <span class="n">legend</span><span class="p">,</span>
+            <span class="s2">&quot;available_color_schemes&quot;</span><span class="p">:</span> <span class="n">color_options</span><span class="p">,</span>
+        <span class="p">}</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
