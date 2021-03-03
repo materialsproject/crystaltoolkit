@@ -1,0 +1,456 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.helpers.povray_renderer &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/helpers/povray_renderer.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.helpers.povray_renderer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.helpers.povray_renderer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Export wrapper for POV-Ray</span>
+<span class="sd">For creating publication quality plots</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.components.structure</span> <span class="kn">import</span> <span class="n">StructureMoleculeComponent</span>
+
+<span class="n">HEAD</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#version 3.7 ;</span>
+<span class="s2">global_settings { assumed_gamma 1.8</span>
+<span class="s2">                  ambient_light rgb&lt;1, 1, 1&gt;</span>
+<span class="s2">}</span>
+<span class="s2">background { rgb 0. } // Set the background to black</span>
+
+<span class="s2">/*</span>
+<span class="s2">Create an Atom object along with some textures.</span>
+<span class="s2">The arguments are: Atom( position, radius, color, finish )</span>
+<span class="s2">*/</span>
+
+<span class="s2">#declare plastic_atom_finish = finish {</span>
+<span class="s2">                                specular 0.2</span>
+<span class="s2">                                roughness 0.001</span>
+<span class="s2">                                ambient 0.075</span>
+<span class="s2">                                diffuse 0.55</span>
+<span class="s2">                                brilliance 1.5</span>
+<span class="s2">                                conserve_energy</span>
+<span class="s2">                              }</span>
+
+<span class="s2">#macro Atom (P1, R1, C1, F1)</span>
+<span class="s2">  #local T = texture {</span>
+<span class="s2">                       pigment { C1 }</span>
+<span class="s2">                       finish { F1 }</span>
+<span class="s2">                     }</span>
+<span class="s2">  sphere { P1, R1 texture </span><span class="si">{T}</span><span class="s2"> no_shadow }</span>
+<span class="s2">#end</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">CAMERA</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">/*</span>
+<span class="s2">Define the camera and the view of the atoms</span>
+<span class="s2">*/</span>
+
+<span class="s2">camera {</span>
+<span class="s2">   orthographic</span>
+<span class="s2">   location &lt;i,  j,  k&gt;</span>
+<span class="s2">   look_at  &lt;ii, jj, kk&gt;</span>
+<span class="s2">   sky &lt;0, 0, 1&gt;</span>
+<span class="s2">}</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">LIGHTS</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">/*</span>
+<span class="s2">Define light sources to illuminate the atoms. For visualizing mediam</span>
+<span class="s2">media_interaction and media_attenuation are set to &quot;off&quot; so voxel </span>
+<span class="s2">data is rendered to be transparent. Lights are automatically oriented </span>
+<span class="s2">with respect to the camera position.</span>
+<span class="s2">*/</span>
+
+<span class="s2">// Overhead light source</span>
+<span class="s2">light_source {</span>
+<span class="s2">    &lt;0, 0, 10&gt;</span>
+<span class="s2">    color rgb &lt;1,1,1&gt;*0.5</span>
+<span class="s2">    parallel</span>
+<span class="s2">    point_at &lt;ii, jj, kk&gt;*0.5</span>
+<span class="s2">    media_interaction off</span>
+<span class="s2">    media_attenuation off</span>
+<span class="s2">}</span>
+
+<span class="s2">// Rear (forward-facing) light source</span>
+<span class="s2">light_source {</span>
+<span class="s2">    &lt; (i-ii), (j-jj), (k-kk)&gt;*4</span>
+<span class="s2">    color rgb &lt;1,1,1&gt; * 0.5</span>
+<span class="s2">    parallel</span>
+<span class="s2">    point_at &lt;ii, jj, kk&gt;</span>
+<span class="s2">    media_interaction off</span>
+<span class="s2">    media_attenuation off</span>
+<span class="s2">}</span>
+
+<span class="s2">// Left light source</span>
+<span class="s2">light_source {</span>
+<span class="s2">    &lt;( (i-ii)*cos(60*pi/180) - (j-jj)*sin(60*pi/180) ), ( (i-ii)*sin(60*pi/180) + (j-jj)*cos(60*pi/180) ), k&gt;</span>
+<span class="s2">    color rgb &lt;1,1,1&gt;*0.5</span>
+<span class="s2">    parallel</span>
+<span class="s2">    point_at &lt;ii, jj, kk&gt;</span>
+<span class="s2">    media_interaction off</span>
+<span class="s2">    media_attenuation off</span>
+<span class="s2">}</span>
+
+<span class="s2">// Right light source</span>
+<span class="s2">light_source {</span>
+<span class="s2">    &lt;( (i-ii)*cos(-60*pi/180) - (j-jj)*sin(-60*pi/180) ), ( (i-ii)*sin(-60*pi/180) + (j-jj)*cos(-60*pi/180) ), k&gt;</span>
+<span class="s2">    color rgb &lt;1,1,1&gt;*0.5</span>
+<span class="s2">    parallel</span>
+<span class="s2">    point_at &lt;ii, jj, kk&gt;</span>
+<span class="s2">    media_interaction off</span>
+<span class="s2">    media_attenuation off</span>
+<span class="s2">}</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_SPHERE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">// Draw atoms in the scene</span>
+
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or val in positions -%}</span>
+<span class="s2">Atom(&lt;{{val}}&gt;, {{radius}}, {{color}}, plastic_atom_finish)</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_CYLINDER</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">// Draw bonds between atoms in the scene</span>
+
+<span class="s2">#declare bond_texture = texture { pigment { {{color}} } finish { plastic_atom_finish } };</span>
+
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos, fpos in posPairs -%}</span>
+<span class="s2">cylinder { &lt;{{ipos}}&gt;, &lt;{{fpos}}&gt;, 0.1 texture { bond_texture } no_shadow }</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">TEMP_LINE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">// Draw the edges of the supercell in the scene</span>
+
+<span class="s2">#declare bbox = texture { pigment { rgb &lt;1,1,1&gt; } }</span>
+
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or ipos, fpos in posPairs -%}</span>
+<span class="s2">cylinder {&lt;{{ipos}}&gt;, &lt;{{fpos}}&gt;, 0.02 texture </span><span class="si">{bbox}</span><span class="s2"> no_shadow}</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+
+<span class="s2">{</span><span class="si">% f</span><span class="s2">or val in cylCaps -%}</span>
+<span class="s2">sphere {&lt;{{val}}&gt;, 0.02 texture </span><span class="si">{bbox}</span><span class="s2"> no_shadow}</span>
+<span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="pov_write_data"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.povray_renderer.html#crystal_toolkit.helpers.povray_renderer.pov_write_data">[docs]</a><span class="k">def</span> <span class="nf">pov_write_data</span><span class="p">(</span><span class="n">input_scene_comp</span><span class="p">,</span> <span class="n">fstream</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    parse a primitive display object in crystaltoolkit and print it to POV-Ray</span>
+<span class="sd">    input_scene_comp</span>
+<span class="sd">    fstream</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">vect</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.4f}</span><span class="s2">,</span><span class="si">{:.4f}</span><span class="s2">,</span><span class="si">{:.4f}</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;spheres&quot;</span><span class="p">:</span>
+        <span class="c1"># Render atoms</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">]</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">vect</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="o">*</span><span class="n">pos</span> <span class="p">)</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">]</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span><span class="o">/</span><span class="mf">255.</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;rgb&lt;&quot;</span> <span class="o">+</span> <span class="n">vect</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="o">*</span><span class="n">color</span> <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&gt;&quot;</span>
+
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">Environment</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_SPHERE</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">render</span><span class="p">(</span>
+                <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cylinders&quot;</span><span class="p">:</span>
+        <span class="c1"># Render bonds between atoms</span>
+        <span class="n">posPairs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="n">vect</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="o">*</span><span class="n">ipos</span> <span class="p">),</span> <span class="n">vect</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="o">*</span><span class="n">fpos</span> <span class="p">)]</span>
+            <span class="k">for</span> <span class="n">ipos</span><span class="p">,</span> <span class="n">fpos</span> <span class="ow">in</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positionPairs&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span><span class="o">/</span><span class="mf">255.</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;rgb&lt;&quot;</span> <span class="o">+</span> <span class="n">vect</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="o">*</span><span class="n">color</span> <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&gt;&quot;</span>
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">Environment</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_CYLINDER</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">posPairs</span><span class="o">=</span><span class="n">posPairs</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;lines&quot;</span><span class="p">:</span>
+        <span class="c1"># Render the cell</span>
+        <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">cylCaps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="p">[</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">input_scene_comp</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">]</span> <span class="p">]</span> <span class="p">)</span>
+        <span class="n">cylCaps</span> <span class="o">=</span> <span class="p">[</span> <span class="n">vect</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="o">*</span><span class="n">pos</span> <span class="p">)</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">cylCaps</span> <span class="p">]</span>
+        <span class="n">posPairs</span> <span class="o">=</span> <span class="p">[[</span><span class="n">vect</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="o">*</span><span class="n">ipos</span> <span class="p">),</span> <span class="n">vect</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="o">*</span><span class="n">fpos</span> <span class="p">)]</span> <span class="k">for</span> <span class="n">ipos</span><span class="p">,</span> <span class="n">fpos</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="p">)]</span>
+        <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">TEMP_LINE</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">posPairs</span><span class="o">=</span><span class="n">posPairs</span><span class="p">,</span> <span class="n">cylCaps</span><span class="o">=</span><span class="n">cylCaps</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="filter_data"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.povray_renderer.html#crystal_toolkit.helpers.povray_renderer.filter_data">[docs]</a><span class="k">def</span> <span class="nf">filter_data</span><span class="p">(</span><span class="n">scene_data</span><span class="p">,</span> <span class="n">fstream</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursively traverse the scene_data dictionary to find objects to draw</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">scene_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">pov_write_data</span><span class="p">(</span><span class="n">scene_data</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="n">scene_data</span><span class="p">[</span><span class="s2">&quot;contents&quot;</span><span class="p">]:</span>
+            <span class="n">filter_data</span><span class="p">(</span><span class="n">itr</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_pov_file"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.povray_renderer.html#crystal_toolkit.helpers.povray_renderer.write_pov_file">[docs]</a><span class="k">def</span> <span class="nf">write_pov_file</span><span class="p">(</span><span class="n">smc</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    smc : (StructureMoleculeComponent)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fstream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">HEAD</span><span class="p">)</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">CAMERA</span><span class="p">)</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">LIGHTS</span><span class="p">)</span>
+    <span class="n">filter_data</span><span class="p">(</span><span class="n">smc</span><span class="o">.</span><span class="n">initial_scene_data</span><span class="p">,</span> <span class="n">fstream</span><span class="p">)</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">fstream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;render.ini&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">render_settings</span> <span class="o">=</span> <span class="n">get_render_settings</span><span class="p">()</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span> <span class="n">render_settings</span> <span class="p">)</span>
+    <span class="n">fstream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="get_render_settings"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.povray_renderer.html#crystal_toolkit.helpers.povray_renderer.get_render_settings">[docs]</a><span class="k">def</span> <span class="nf">get_render_settings</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a POV-Ray render.ini file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">image_name</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span>
+
+    <span class="n">settings</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Input_File_Name = </span><span class="si">{:s}</span><span class="s2"></span>
+<span class="s2">Output_File_Name = </span><span class="si">{:s}</span><span class="s2"></span>
+<span class="s2">Display = 1</span>
+<span class="s2"># -- Option to switch on the density</span>
+<span class="s2">Declare=render_density=0     # 0 = off, 1 = on</span>
+<span class="s2">Quality = 9</span>
+<span class="s2">Height = 1200</span>
+<span class="s2">Width = 1600</span>
+<span class="s2"># -- Uncomment below for higher quality rendering</span>
+<span class="s2">Antialias = On</span>
+<span class="s2">Antialias_Threshold = 0.01</span>
+<span class="s2">Antialias_Depth = 4</span>
+<span class="s2">Jitter_Amount = 1.0</span>
+<span class="s2"># -- Set the camera position</span>
+<span class="s2">Declare=i=8</span>
+<span class="s2">Declare=j=5</span>
+<span class="s2">Declare=k=4</span>
+<span class="s2"># -- Set the look_at position</span>
+<span class="s2">Declare=ii=0</span>
+<span class="s2">Declare=jj=0</span>
+<span class="s2">Declare=kk=0</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">image_name</span> <span class="p">)</span>
+    <span class="k">return</span> <span class="n">settings</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
