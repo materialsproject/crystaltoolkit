@@ -6,9 +6,7 @@ import plotly.subplots as tls
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
-# -- Temp fake API
 from dash_mp_components import CrystalToolkitScene
-from maggma.stores import GridFSStore, JSONStore, MongoStore
 from pymatgen import MPRester
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import (
