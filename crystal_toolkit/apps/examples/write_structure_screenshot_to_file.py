@@ -8,16 +8,20 @@ import dash
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import crystal_toolkit.components as ctc
 
 
-SCREENSHOT_PATH = Path.home()
+SCREENSHOT_PATH = Path.home() / "screenshots"
 
 app = dash.Dash()
+server = app.server
 
 structure_component = ctc.StructureMoleculeComponent(
-    show_compass=False, scene_settings={"zoomToFit2D": True}
+    show_compass=False,
+    bonded_sites_outside_unit_cell=True,
+    scene_settings={"zoomToFit2D": True},
 )
 
 my_layout = html.Div(
@@ -30,12 +34,14 @@ def get_structure_for_mpid(mpid):
 
     with MPRester() as mpr:
         structure = mpr.get_structure_by_material_id(mpid)
+
+    structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
     return structure
 
 
 @app.callback(
     Output(structure_component.id("scene"), "imageRequest"),
-    [Input(structure_component.id(), "data")],
+    [Input(structure_component.id("graph"), "data")],
 )
 def trigger_image_request(data):
     sleep(1)
