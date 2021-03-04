@@ -349,9 +349,6 @@ class BandstructureAndDosComponent(MPComponent):
 
         bstraces = []
 
-        pmin = 0.0
-        tick_vals = [0.0]
-
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
 
@@ -362,33 +359,27 @@ class BandstructureAndDosComponent(MPComponent):
 
         for d, dist_val in enumerate(bs_data["distances"]):
 
-            x_dat = [
-                dval - bs_data["distances"][d][0] + pmin
-                for dval in bs_data["distances"][d]
-            ]
+            x_dat = dist_val
 
-            pmin = x_dat[-1]
-
-            tick_vals.append(pmin)
             traces_for_segment = []
 
-            for segment in bs_data["energy"][str(Spin.up)]:
+            segment = bs_data["energy"][str(Spin.up)][d]
 
-                traces_for_segment += [
-                    {
-                        "x": x_dat,
-                        "y": segment[band_num],
-                        "mode": "lines",
-                        "line": {"color": "#1f77b4"},
-                        "hoverinfo": "skip",
-                        "name": "spin ↑" if bs.is_spin_polarized else "Total",
-                        "hovertemplate": "%{y:.2f} eV",
-                        "showlegend": False,
-                        "xaxis": "x",
-                        "yaxis": "y",
-                    }
-                    for band_num in bands
-                ]
+            traces_for_segment += [
+                {
+                    "x": x_dat,
+                    "y": segment[band_num],
+                    "mode": "lines",
+                    "line": {"color": "#1f77b4"},
+                    "hoverinfo": "skip",
+                    "name": "spin ↑" if bs.is_spin_polarized else "Total",
+                    "hovertemplate": "%{y:.2f} eV",
+                    "showlegend": False,
+                    "xaxis": "x",
+                    "yaxis": "y",
+                }
+                for band_num in bands
+            ]
 
             if bs.is_spin_polarized:
                 traces_for_segment += [
