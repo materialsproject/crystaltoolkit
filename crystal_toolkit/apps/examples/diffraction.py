@@ -5,6 +5,8 @@ import dash_core_components as dcc
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
+from crystal_toolkit.settings import SETTINGS
+from crystal_toolkit.helpers.layouts import H1, H3, Container
 
 # import for this example
 from pymatgen import MPRester
@@ -12,33 +14,26 @@ from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
 # create Dash app as normal
-app = dash.Dash()
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
-# tell Crystal Toolkit about the app
-ctc.register_app(app)
+# create our crystal structure using pymatgen
+from pymatgen import Structure, Lattice
 
-# first, retrieve entries from Materials Project
-with MPRester() as mpr:
-    struct = mpr.get_structure_by_material_id("mp-13")
+structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-xrd_component = ctc.XRayDiffractionComponent(initial_structure=struct)
-# xrd_component = ctc.XRayDiffractionComponent(mpid=mpid)
+xrd_component = ctc.XRayDiffractionComponent(initial_structure=structure)
 
 # example layout to demonstrate capabilities of component
-my_layout = html.Div(
+my_layout = Container(
     [
-        html.H1("XRDComponent Example"),
-        html.H2("Shown from Spectra object"),
-        html.H2("Generated from Structure object"),
+        H1("XRDComponent Example"),
+        H3("Generated from Structure object"),
         xrd_component.layout(),
-        html.H2("Generated from mpid"),
     ]
 )
 
-# wrap your app.layout with crystal_toolkit_layout()
-# to ensure all necessary components are loaded into layout
-app.layout = ctc.crystal_toolkit_layout(my_layout)
-
+# as explained in "preamble" section in documentation
+ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
 # allow app to be run using "python structure.py"
 # in production, deploy behind gunicorn or similar

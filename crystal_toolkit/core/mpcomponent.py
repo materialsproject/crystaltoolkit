@@ -5,19 +5,19 @@ from collections import defaultdict
 from itertools import chain
 from json import JSONDecodeError, dumps, loads
 from typing import Dict, List, Optional, Set, Tuple, Union
+from base64 import b64encode
 
 import dash
 import dash_core_components as dcc
-import dash_daq as daq
 import dash_html_components as html
 import dash_table as dt
 import numpy as np
-from dash.dependencies import ALL
+from dash.dependencies import ALL, Output
 from flask_caching import Cache
 from monty.json import MontyDecoder, MSONable
 
 from crystal_toolkit import __version__ as ct_version
-from crystal_toolkit.helpers.layouts import add_label_help
+from crystal_toolkit.helpers.layouts import add_label_help, Icon, Button, Loading
 from crystal_toolkit.settings import SETTINGS
 
 try:
@@ -30,7 +30,7 @@ null_cache = Cache(config={"CACHE_TYPE": "null"})
 
 # Crystal Toolkit namespace, added to the start of all ids
 # so we can see which layouts have been added by Crystal Toolkit
-CT_NAMESPACE = "_ct_"
+CT_NAMESPACE = "CT"
 
 
 class MPComponent(ABC):
@@ -78,6 +78,9 @@ class MPComponent(ABC):
                 "content": f"Crystal Toolkit {ct_version} (Materials Project)",
             }
         )
+        # set default title, but respect the user if they override it
+        if app.title == "Dash":
+            app.title = "Crystal Toolkit"
 
     @staticmethod
     def register_cache(cache: Cache):
@@ -231,7 +234,12 @@ class MPComponent(ABC):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def id(
-        self, name: str = "default", is_kwarg: bool = False, idx=False, hint=None
+        self,
+        name: str = "default",
+        is_kwarg: bool = False,
+        idx=False,
+        hint=None,
+        is_store: bool = False,
     ) -> Union[str, Dict[str, str]]:
         """
         Generate an id from a name combined with the
@@ -255,6 +263,9 @@ class MPComponent(ABC):
         Returns: e.g. "MPComponent_default"
         """
 
+        if name in self._stores:
+            is_store = True
+
         if is_kwarg:
             return {
                 "component_id": self._id,
@@ -274,6 +285,10 @@ class MPComponent(ABC):
         else:
             name = f"{self._id}"
         return name
+        if is_store:
+            return name
+        else:
+            return {"id": name}
 
     def create_store(
         self,
@@ -303,7 +318,7 @@ class MPComponent(ABC):
             return
 
         store = dcc.Store(
-            id=self.id(name),
+            id=self.id(name, is_store=True),
             data=initial_data,
             storage_type=storage_type,
             clear_data=debug_clear,
@@ -698,3 +713,53 @@ Sub-layouts:  \n{layouts}"""
             print(self.__class__.__name__, "kwargs", kwargs)
 
         return kwargs
+
+    @staticmethod
+    def datauri_from_fig(
+        fig, fmt: str = "png", width: int = 600, height: int = 400, scale: int = 4
+    ) -> str:
+        """
+        Generate a data URI from a Plotly Figure.
+
+        :param fig: Plotly Figure object or corresponding dictionary
+        :param fmt: "png", "jpg", etc. (see PlotlyScope for supported formats)
+        :param width: width in pixels
+        :param height: height in pixels
+        :param scale: scale factor
+        :return:
+        """
+
+        from kaleido.scopes.plotly import PlotlyScope
+
+        scope = PlotlyScope()
+        output = scope.transform(
+            fig, format=fmt, width=width, height=height, scale=scale
+        )
+        image = b64encode(output).decode("ascii")
+
+        return f"data:image/{fmt};base64,{image}"
+
+    def get_figure_placeholder(self, figure_id: str) -> html.Div:
+        """
+        Get a layout to act as a placeholder for an interactive figure.
+
+        When used with `generate_static_figure_callbacks`, and assuming
+        kaleido is installed on the server, a static image placeholder will
+        be generated.
+
+        :return:
+        """
+
+        return html.Div(
+            [
+                html.Div(
+                    [Loading(id=self.id(f"{figure_id}-wrapped-figure-inner"))],
+                    id=self.id("wrapped-figure-outer"),
+                ),
+                Button(
+                    [Icon(kind="chart-pie"), html.Span(), "Make Plot Interactive"],
+                    kind="primary",
+                    id=self.id(f"{figure_id}-wrapped-figure-button"),
+                ),
+            ]
+        )

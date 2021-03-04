@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.transformations.autooxistatedecoration &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/transformations/autooxistatedecoration.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.transformations.autooxistatedecoration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.components.transformations.autooxistatedecoration</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">crystal_toolkit.components.transformations.core</span> <span class="kn">import</span> <span class="n">TransformationComponent</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutoOxiStateDecorationTransformation</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="AutoOxiStateDecorationTransformationComponent"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.autooxistatedecoration.html#crystal_toolkit.components.transformations.autooxistatedecoration.AutoOxiStateDecorationTransformationComponent">[docs]</a><span class="k">class</span> <span class="nc">AutoOxiStateDecorationTransformationComponent</span><span class="p">(</span><span class="n">TransformationComponent</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Detect likely oxidation states&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;Annotate the crystal structure with likely oxidation states </span>
+<span class="s2">using a bond valence approach. This transformation can fail if it cannot find </span>
+<span class="s2">a satisfactory combination of oxidation states, and might be slow for large </span>
+<span class="s2">structures. </span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AutoOxiStateDecorationTransformation</span>
+
+<div class="viewcode-block" id="AutoOxiStateDecorationTransformationComponent.options_layouts"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.autooxistatedecoration.html#crystal_toolkit.components.transformations.autooxistatedecoration.AutoOxiStateDecorationTransformationComponent.options_layouts">[docs]</a>    <span class="k">def</span> <span class="nf">options_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="ow">or</span> <span class="p">{</span>
+            <span class="s2">&quot;symm_tol&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="s2">&quot;max_radius&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;max_permutations&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+            <span class="s2">&quot;distance_scale_factor&quot;</span><span class="p">:</span> <span class="mf">1.015</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">symm_tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Symmetry tolerance&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;symm_tol&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Symmetry tolerance used to determine which sites are </span>
+<span class="s2">            symmetrically equivalent. Set to 0 to turn off symmetry.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">max_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Maximum radius /Å&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;max_radius&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Maximum radius in Ångstroms used to find nearest neighbors.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">max_permutations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Maximum number of permutations&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;max_permutations&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Maximum number of permutations of oxidation states to test.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">distance_scale_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Distance scale factor&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;distance_scale_factor&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;A scale factor to be applied. This is </span>
+<span class="s2">            useful for scaling distances, esp in the case of </span>
+<span class="s2">            calculation-relaxed structures, which may tend to under (GGA) or </span>
+<span class="s2">            over bind (LDA). The default of 1.015 works for GGA. For </span>
+<span class="s2">            experimental structure, set this to 1.&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">symm_tol</span><span class="p">,</span> <span class="n">max_radius</span><span class="p">,</span> <span class="n">max_permutations</span><span class="p">,</span> <span class="n">distance_scale_factor</span><span class="p">]</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

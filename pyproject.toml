@@ -12,6 +12,8 @@ pydantic = "*"
 plotly = "^4.10"
 webcolors = "*"
 crystaltoolkit-extension = "^0.3.0"
+mp-pyrho = "^0.0.14"
+scikit-learn = { version = "*"}
 
 ifermi = { version = "*", optional = true}
 pyfftw = { version = "*", optional = true}
@@ -22,22 +24,22 @@ gunicorn = { version = "*", optional = true }
 redis = { version = "*", optional = true }
 Flask-Caching = { version = "*", optional = true }
 gevent = { version = "*", optional = true }
-dash-mp-components = { version = "*", optional = true }
-scikit-learn = { version = "*", optional = true }
+dash-mp-components = { version = "^0.2.5", optional = true }
 robocrys = { version = "*", optional = true }
 scikit-image = { version = "*", optional = true }
 habanero = { version = "*", optional = true }
-hiphive = { version = "*", optional = true }
 dscribe = { version = "*", optional = true }
 dash-extensions = { version = "*", optional = true }
 sentry-sdk = { version = "*", optional = true }
+dash-vtk = { version = "^0.0.6", optional= true }
+kaleido = { version = "0.1.0", optional = true }
 
 [tool.poetry.extras]
 server = [
     "dash", "dash-daq", "gunicorn", "redis",
-    "Flask-Caching", "gevent", "dash-mp-components", "scikit-learn",
+    "Flask-Caching", "gevent", "dash-mp-components",
     "robocrys", "scikit-image", "habanero", "hiphive", "dscribe",
-    "dash-extensions", "sentry-sdk"
+    "dash-extensions", "sentry-sdk", "dash-vtk", "kaleido"
 ]
 fermi = ["ifermi", "pyfftw"]
 

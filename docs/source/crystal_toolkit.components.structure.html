@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>crystal_toolkit.components.structure module &mdash; Crystal Toolkit  documentation</title>
   
@@ -16,9 +16,12 @@
 
   
   
+
   
   
     <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.components.structure.html"/>
+  
+
   
 
   
@@ -31,7 +34,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -53,7 +55,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Crystal Toolkit
+            <a href="../index.html" class="icon icon-home"> Crystal Toolkit
           
 
           
@@ -98,7 +100,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -107,7 +109,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -150,6 +152,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -165,7 +169,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.components.structure.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -181,8 +185,98 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="crystal-toolkit-components-structure-module">
-<h1>crystal_toolkit.components.structure module<a class="headerlink" href="#crystal-toolkit-components-structure-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-crystal_toolkit.components.structure">
+<span id="crystal-toolkit-components-structure-module"></span><h1>crystal_toolkit.components.structure module<a class="headerlink" href="#module-crystal_toolkit.components.structure" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.structure.</span></code><code class="sig-name descname"><span class="pre">StructureMoleculeComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct_or_mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.core.structure.Structure</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.analysis.graphs.StructureGraph</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.core.structure.Molecule</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.analysis.graphs.MoleculeGraph</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scene_additions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Scene" title="crystal_toolkit.core.scene.Scene"><span class="pre">crystal_toolkit.core.scene.Scene</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonding_strategy</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'CrystalNN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonding_strategy_kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scheme</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'VESTA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scale</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius_strategy</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_cell_choice</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'input'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_image_atoms</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonded_sites_outside_unit_cell</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_incomplete_bonds</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_compass</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scene_settings</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
+<p>A component to display pymatgen Structure, Molecule, StructureGraph
+and MoleculeGraph objects.</p>
+<dl class="py attribute">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.available_bonding_strategies">
+<code class="sig-name descname"><span class="pre">available_bonding_strategies</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'BrunnerNN_real':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.BrunnerNN_real'&gt;,</span> <span class="pre">'BrunnerNN_reciprocal':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.BrunnerNN_reciprocal'&gt;,</span> <span class="pre">'BrunnerNN_relative':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.BrunnerNN_relative'&gt;,</span> <span class="pre">'CovalentBondNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.CovalentBondNN'&gt;,</span> <span class="pre">'Critic2NN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.Critic2NN'&gt;,</span> <span class="pre">'CrystalNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.CrystalNN'&gt;,</span> <span class="pre">'CutOffDictNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.CutOffDictNN'&gt;,</span> <span class="pre">'EconNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.EconNN'&gt;,</span> <span class="pre">'JmolNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.JmolNN'&gt;,</span> <span class="pre">'MinimumDistanceNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.MinimumDistanceNN'&gt;,</span> <span class="pre">'MinimumOKeeffeNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.MinimumOKeeffeNN'&gt;,</span> <span class="pre">'MinimumVIRENN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.MinimumVIRENN'&gt;,</span> <span class="pre">'OpenBabelNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.OpenBabelNN'&gt;,</span> <span class="pre">'VoronoiNN':</span> <span class="pre">&lt;class</span> <span class="pre">'pymatgen.analysis.local_env.VoronoiNN'&gt;}</span></em><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.available_bonding_strategies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.default_scene_settings">
+<code class="sig-name descname"><span class="pre">default_scene_settings</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'extractAxis':</span> <span class="pre">True,</span> <span class="pre">'renderer':</span> <span class="pre">'webgl',</span> <span class="pre">'secondaryObjectView':</span> <span class="pre">False}</span></em><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.default_scene_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.default_title">
+<code class="sig-name descname"><span class="pre">default_title</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'Crystal</span> <span class="pre">Toolkit'</span></em><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.default_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.generate_callbacks">
+<code class="sig-name descname"><span class="pre">generate_callbacks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.generate_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all callbacks associated with the layouts in this app. Assume
+that “suppress_callback_exceptions” is True, since it is not always
+guaranteed that all layouts will be displayed to the end user at all
+times, but it’s important the callbacks are defined on the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.get_scene_and_legend">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_scene_and_legend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pymatgen.analysis.graphs.StructureGraph</span><span class="p"><span class="pre">,</span> </span><span class="pre">pymatgen.analysis.graphs.MoleculeGraph</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VESTA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draw_image_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonded_sites_outside_unit_cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_incomplete_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explicitly_calculate_polyhedra_hull</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scene_additions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_compass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Scene" title="crystal_toolkit.core.scene.Scene"><span class="pre">crystal_toolkit.core.scene.Scene</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.get_scene_and_legend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.get_scene_and_legend" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.layout">
+<code class="sig-name descname"><span class="pre">layout</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'500px'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dash_html_components.Div.Div</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.layout" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> – a CSS string specifying width/height of Div</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A html.Div containing the 3D structure or molecule</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.legend_layout">
+<code class="sig-name descname"><span class="pre">legend_layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.legend_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.legend_layout" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A layout including a legend for the structure/molecule.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.options_layout">
+<code class="sig-name descname"><span class="pre">options_layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.options_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.options_layout" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A layout including options to change the appearance, bonding, etc.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.screenshot_layout">
+<code class="sig-name descname"><span class="pre">screenshot_layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.screenshot_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.screenshot_layout" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A layout including a button to trigger a screenshot download.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.structure.StructureMoleculeComponent.title_layout">
+<code class="sig-name descname"><span class="pre">title_layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/structure.html#StructureMoleculeComponent.title_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.structure.StructureMoleculeComponent.title_layout" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A layout including the composition of the structure/molecule as a title.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -190,28 +284,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Crystal Toolkit Development Team
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>crystal_toolkit.helpers.utils module &mdash; Crystal Toolkit  documentation</title>
   
@@ -16,9 +16,12 @@
 
   
   
+
   
   
     <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.helpers.utils.html"/>
+  
+
   
 
   
@@ -31,7 +34,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -53,7 +55,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Crystal Toolkit
+            <a href="../index.html" class="icon icon-home"> Crystal Toolkit
           
 
           
@@ -99,14 +101,14 @@
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.helpers.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.helpers.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.helpers.html#module-crystal_toolkit.helpers">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -149,6 +151,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -164,7 +168,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.helpers.utils.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -180,8 +184,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="crystal-toolkit-helpers-utils-module">
-<h1>crystal_toolkit.helpers.utils module<a class="headerlink" href="#crystal-toolkit-helpers-utils-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-crystal_toolkit.helpers.utils">
+<span id="crystal-toolkit-helpers-utils-module"></span><h1>crystal_toolkit.helpers.utils module<a class="headerlink" href="#module-crystal_toolkit.helpers.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="crystal_toolkit.helpers.utils.update_object_args">
+<code class="sig-prename descclassname"><span class="pre">crystal_toolkit.helpers.utils.</span></code><code class="sig-name descname"><span class="pre">update_object_args</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/utils.html#update_object_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.helpers.utils.update_object_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read dafault properties and overwrite them if user input exists</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{dict} -- User defined properties</strong> (<em>d_args</em>) – </p></li>
+<li><p><strong>{str} -- Name of object</strong> (<em>object_name</em>) – </p></li>
+<li><p><strong>{List</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>} -- Used to limit the data that is passed to pythreejs</strong> (<em>allowed_kwargs</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary – Properties of object after userinput and default values are considered</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -189,28 +211,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Crystal Toolkit Development Team
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

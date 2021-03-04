@@ -3,7 +3,7 @@ name: pytest
 on:
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
         restore-keys: |
           poetry-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
-      run: poetry install
+      run: poetry install -E server -E fermi
       if: steps.cache.outputs.cache-hit != 'true'
     - name: Test with pytest
       env:

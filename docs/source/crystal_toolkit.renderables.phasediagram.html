@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>crystal_toolkit.renderables.phasediagram module &mdash; Crystal Toolkit  documentation</title>
   
@@ -16,9 +16,12 @@
 
   
   
+
   
   
     <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.renderables.phasediagram.html"/>
+  
+
   
 
   
@@ -31,7 +34,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -53,7 +55,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Crystal Toolkit
+            <a href="../index.html" class="icon icon-home"> Crystal Toolkit
           
 
           
@@ -100,13 +102,13 @@
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.renderables.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.renderables.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.renderables.html#module-crystal_toolkit.renderables">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -149,6 +151,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -164,7 +168,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.renderables.phasediagram.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -180,8 +184,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="crystal-toolkit-renderables-phasediagram-module">
-<h1>crystal_toolkit.renderables.phasediagram module<a class="headerlink" href="#crystal-toolkit-renderables-phasediagram-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-crystal_toolkit.renderables.phasediagram">
+<span id="crystal-toolkit-renderables-phasediagram-module"></span><h1>crystal_toolkit.renderables.phasediagram module<a class="headerlink" href="#module-crystal_toolkit.renderables.phasediagram" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="crystal_toolkit.renderables.phasediagram.get_plot">
+<code class="sig-prename descclassname"><span class="pre">crystal_toolkit.renderables.phasediagram.</span></code><code class="sig-name descname"><span class="pre">get_plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_unstable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_stable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_unstable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_uncertainties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/renderables/phasediagram.html#get_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.renderables.phasediagram.get_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a PhaseDiagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>show_unstable</strong> – Whether unstable (above the hull) phases will be
+plotted. If a number &gt; 0 is entered, all phases with
+e_hull &lt; show_unstable (eV/atom) will be shown.</p></li>
+<li><p><strong>label_stable</strong> – Whether to label stable compounds.</p></li>
+<li><p><strong>label_unstable</strong> – Whether to label unstable compounds.</p></li>
+<li><p><strong>ordering</strong> – Ordering of vertices (matplotlib backend only).</p></li>
+<li><p><strong>energy_colormap</strong> – Colormap for coloring energy (matplotlib backend only).</p></li>
+<li><p><strong>process_attributes</strong> – Whether to process the attributes (matplotlib
+backend only).</p></li>
+<li><p><strong>plt</strong> – Existing plt object if plotting multiple phase diagrams (
+matplotlib backend only).</p></li>
+<li><p><strong>label_uncertainties</strong> – Whether to add error bars to the hull (plotly
+backend only). For binaries, this also shades the hull with the
+uncertainty window</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -189,28 +219,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Crystal Toolkit Development Team
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

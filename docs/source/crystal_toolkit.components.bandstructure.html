@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.bandstructure module &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.orgsource/crystal_toolkit.components.bandstructure.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="crystal_toolkit.components.diffraction module" href="crystal_toolkit.components.diffraction.html" />
+    <link rel="prev" title="crystal_toolkit.components.transformations.supercell module" href="crystal_toolkit.components.transformations.supercell.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="crystal_toolkit.html">API Docs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="crystal_toolkit.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="crystal_toolkit.html">crystal_toolkit package</a> &raquo;</li>
+        
+          <li><a href="crystal_toolkit.components.html">crystal_toolkit.components package</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.bandstructure module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/materialsproject/crystaltoolkit/blob/master/docs/source/crystal_toolkit.components.bandstructure.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-crystal_toolkit.components.bandstructure">
+<span id="crystal-toolkit-components-bandstructure-module"></span><h1>crystal_toolkit.components.bandstructure module<a class="headerlink" href="#module-crystal_toolkit.components.bandstructure" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.bandstructure.</span></code><code class="sig-name descname"><span class="pre">BandstructureAndDosComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandstructure_symm_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density_of_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.generate_callbacks">
+<code class="sig-name descname"><span class="pre">generate_callbacks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.generate_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all callbacks associated with the layouts in this app. Assume
+that “suppress_callback_exceptions” is True, since it is not always
+guaranteed that all layouts will be displayed to the end user at all
+times, but it’s important the callbacks are defined on the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_bandstructure_traces">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_bandstructure_traces</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_convention</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-</span> <span class="pre">6.0,</span> <span class="pre">10.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_bandstructure_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_bandstructure_traces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_brillouin_zone_scene">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_brillouin_zone_scene</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructureSymmLine</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Scene" title="crystal_toolkit.core.scene.Scene"><span class="pre">crystal_toolkit.core.scene.Scene</span></a><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_brillouin_zone_scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_brillouin_zone_scene" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_dos_traces">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_dos_traces</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_select</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-</span> <span class="pre">6.0,</span> <span class="pre">10.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_dos_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_dos_traces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_figure">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_figure</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_convention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_select</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-</span> <span class="pre">6.0,</span> <span class="pre">10.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_figure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_ifermi_scene">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_ifermi_scene</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructure</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Scene" title="crystal_toolkit.core.scene.Scene"><span class="pre">crystal_toolkit.core.scene.Scene</span></a><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_ifermi_scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_ifermi_scene" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.layout">
+<code class="sig-name descname"><span class="pre">layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.layout" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A Dash layout for the full component. Basic implementation</p>
+</dd>
+</dl>
+<p>provided, but should in general be overridden.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.bandstructure.</span></code><code class="sig-name descname"><span class="pre">BandstructureAndDosPanelComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosPanelComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.panelcomponent.html#crystal_toolkit.core.panelcomponent.PanelComponent" title="crystal_toolkit.core.panelcomponent.PanelComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.panelcomponent.PanelComponent</span></code></a></p>
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.description">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">description</span></code><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.initial_contents">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">initial_contents</span></code><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.initial_contents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.title">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">title</span></code><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.update_contents">
+<code class="sig-name descname"><span class="pre">update_contents</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_store_contents</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosPanelComponent.update_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.update_contents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
