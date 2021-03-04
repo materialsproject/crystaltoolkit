@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip && pip install --no-cache-dir poetry
-        poetry install
+        poetry install -E server -E fermi
     - name: Build and publish
       run: |
         poetry build

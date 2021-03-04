@@ -18,6 +18,6 @@ structure_component = ctc.StructureMoleculeComponent(structure)
 my_layout = html.Div([structure_component.layout()])
 
 # as explained in "preamble" section in documentation
-ctc.register_crystal_toolkit(app=app, layout=my_layout, cache=None)
+ctc.register_crystal_toolkit(app=app, layout=my_layout)
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

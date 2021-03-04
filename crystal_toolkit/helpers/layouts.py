@@ -472,7 +472,7 @@ def get_breadcrumb(parts):
         html.Ul(
             [
                 html.Li(
-                    html.A(name, href=link),
+                    dcc.Link(name, href=link),
                     className=(None if idx != len(parts) - 1 else "is-active"),
                 )
                 for idx, (name, link) in enumerate(parts.items())

@@ -1,4 +1,4 @@
-from crystal_toolkit.apps.examples.bs import app
+from crystal_toolkit.apps.examples.bandstructure import app
 import time
 
 

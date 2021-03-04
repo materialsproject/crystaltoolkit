@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.transformations.core &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/transformations/core.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.transformations.core</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.components.transformations.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">JSONDecodeError</span><span class="p">,</span> <span class="n">loads</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">dash</span>
+<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">import</span> <span class="nn">dash_daq</span> <span class="k">as</span> <span class="nn">daq</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">dash_table</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">ALL</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.transformation_abc</span> <span class="kn">import</span> <span class="n">AbstractTransformation</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Column</span><span class="p">,</span>
+    <span class="n">Columns</span><span class="p">,</span>
+    <span class="n">MessageBody</span><span class="p">,</span>
+    <span class="n">MessageContainer</span><span class="p">,</span>
+    <span class="n">MessageHeader</span><span class="p">,</span>
+    <span class="n">Reveal</span><span class="p">,</span>
+    <span class="n">add_label_help</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.settings</span> <span class="kn">import</span> <span class="n">SETTINGS</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+
+<div class="viewcode-block" id="TransformationComponent"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent">[docs]</a><span class="k">class</span> <span class="nc">TransformationComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_structure_component_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">Component&quot;</span><span class="p">:</span>
+            <span class="c1"># sanity check, enforcing conventions</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Class has to be named corresponding to the underlying &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;transformation name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">Component&quot;</span>
+            <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">links</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;input_structure&quot;</span><span class="p">:</span> <span class="n">input_structure_component_id</span><span class="p">},</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span>
+            <span class="s2">&quot;transformation_args_kwargs&quot;</span><span class="p">,</span> <span class="n">initial_data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_one_to_many</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This should reflect the underlying transformation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># need to initialize transformation to access property, which isn&#39;t</span>
+        <span class="c1"># possible in all cases without necessary kwargs, which is why</span>
+        <span class="c1"># we duplicate the property here</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_sub_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">enable</span> <span class="o">=</span> <span class="n">daq</span><span class="o">.</span><span class="n">BooleanSwitch</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;enable_transformation&quot;</span><span class="p">),</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">,</span> <span class="s2">&quot;vertical-align&quot;</span><span class="p">:</span> <span class="s2">&quot;middle&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">message</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">))</span>
+
+        <span class="n">description</span> <span class="o">=</span> <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options_layouts</span><span class="p">(),</span> <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;options&quot;</span><span class="p">))</span>
+
+        <span class="n">preview</span> <span class="o">=</span> <span class="n">dcc</span><span class="o">.</span><span class="n">Loading</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;preview&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_one_to_many</span><span class="p">:</span>
+            <span class="n">ranked_list</span> <span class="o">=</span> <span class="n">daq</span><span class="o">.</span><span class="n">NumericInput</span><span class="p">(</span>
+                <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;ranked_list&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if not 1-to-many, we don&#39;t need the control, we keep</span>
+            <span class="c1"># an empty container here to make the callbacks simpler</span>
+            <span class="c1"># since &quot;ranked_list&quot; will then always be present in layout</span>
+            <span class="n">ranked_list</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;ranked_list&quot;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+            <span class="s2">&quot;enable&quot;</span><span class="p">:</span> <span class="n">enable</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+            <span class="s2">&quot;preview&quot;</span><span class="p">:</span> <span class="n">preview</span><span class="p">,</span>
+            <span class="s2">&quot;ranked_list&quot;</span><span class="p">:</span> <span class="n">ranked_list</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="TransformationComponent.container_layout"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent.container_layout">[docs]</a>    <span class="k">def</span> <span class="nf">container_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Layout defining transformation and its options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">container</span> <span class="o">=</span> <span class="n">MessageContainer</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">MessageHeader</span><span class="p">(</span>
+                    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;enable&quot;</span><span class="p">],</span>
+                            <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+                                <span class="n">style</span><span class="o">=</span><span class="p">{</span>
+                                    <span class="s2">&quot;vertical-align&quot;</span><span class="p">:</span> <span class="s2">&quot;middle&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;margin-left&quot;</span><span class="p">:</span> <span class="s2">&quot;1rem&quot;</span><span class="p">,</span>
+                                <span class="p">},</span>
+                            <span class="p">),</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">MessageBody</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">Columns</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">Column</span><span class="p">(</span>
+                                    <span class="p">[</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+                                        <span class="n">html</span><span class="o">.</span><span class="n">Br</span><span class="p">(),</span>
+                                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">options_layouts</span><span class="p">(</span>
+                                                <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span>
+                                            <span class="p">)</span>
+                                        <span class="p">),</span>
+                                        <span class="n">html</span><span class="o">.</span><span class="n">Br</span><span class="p">(),</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span>
+                                    <span class="p">]</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;dark&quot;</span><span class="p">,</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">container</span></div>
+
+<div class="viewcode-block" id="TransformationComponent.options_layouts"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent.options_layouts">[docs]</a>    <span class="k">def</span> <span class="nf">options_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a layout to change the transformation options (that is,</span>
+<span class="sd">        that controls the args and kwargs that will be passed to pymatgen).</span>
+
+<span class="sd">        The &quot;state&quot; option is so that the controls can be populated appropriately</span>
+<span class="sd">        using existing args and kwargs, e.g. when restoring the control panel</span>
+<span class="sd">        from a previous state.</span>
+
+<span class="sd">        :param state: existing state in format {&quot;args&quot;: [], &quot;kwargs&quot;: {}}</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">()]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="TransformationComponent.get_preview_layout"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent.get_preview_layout">[docs]</a>    <span class="k">def</span> <span class="nf">get_preview_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct_in</span><span class="p">,</span> <span class="n">struct_out</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Override this method to give a layout that previews the transformation.</span>
+<span class="sd">        Has beneficial side effect of priming the transformation cache when</span>
+<span class="sd">        entire transformation pipeline is enabled.</span>
+
+<span class="sd">        :param struct_in: input Structure</span>
+<span class="sd">        :param struct_out: transformed Structure</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TransformationComponent.generate_callbacks"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
+        <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="n">transformation_data</span><span class="p">,</span> <span class="n">struct</span><span class="p">):</span>
+
+            <span class="n">transformation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">transformation_data</span><span class="p">)</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">struct</span> <span class="o">=</span> <span class="n">transformation</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">error_title</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Failed to apply &quot;</span><span class="si">{</span><span class="n">transformation</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; &#39;</span>
+                    <span class="sa">f</span><span class="s2">&quot;transformation: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">traceback_info</span> <span class="o">=</span> <span class="n">Reveal</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="n">html</span><span class="o">.</span><span class="n">B</span><span class="p">(</span><span class="s2">&quot;Traceback&quot;</span><span class="p">),</span>
+                    <span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())],</span>
+                <span class="p">)</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="p">[</span><span class="n">error_title</span><span class="p">,</span> <span class="n">traceback_info</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="n">struct</span><span class="p">,</span> <span class="n">error</span>
+
+        <span class="k">if</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">TRANSFORMATION_PREVIEWS</span><span class="p">:</span>
+
+            <span class="c1"># Transformation previews need to be included in layout too (see preview sublayout)</span>
+            <span class="c1"># Transformation previews need a full transformation pipeline replica (I/O heavy)</span>
+            <span class="c1"># Might abandon.</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Transformation previews under active development.&quot;</span><span class="p">)</span>
+
+            <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;preview&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span>
+                <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;input_structure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+            <span class="p">)</span>
+            <span class="k">def</span> <span class="nf">update_preview</span><span class="p">(</span><span class="n">transformation_data</span><span class="p">,</span> <span class="n">input_structure</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">transformation_data</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">input_structure</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">()</span>
+                <span class="n">input_structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">input_structure</span><span class="p">)</span>
+                <span class="n">output_structure</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">apply_transformation</span><span class="p">(</span>
+                    <span class="n">transformation_data</span><span class="p">,</span> <span class="n">input_structure</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_structure</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">64</span><span class="p">:</span>
+                    <span class="n">warning</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The transformed crystal structure has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">output_structure</span><span class="p">)</span><span class="si">}</span><span class="s2"> atoms &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;and might take a moment to display.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_preview_layout</span><span class="p">(</span><span class="n">input_structure</span><span class="p">,</span> <span class="n">output_structure</span><span class="p">)</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;container&quot;</span><span class="p">),</span> <span class="s2">&quot;className&quot;</span><span class="p">),</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_kwargs_id</span><span class="p">(),</span> <span class="s2">&quot;disabled&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;enable_transformation&quot;</span><span class="p">),</span> <span class="s2">&quot;on&quot;</span><span class="p">)],</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_kwargs_id</span><span class="p">(),</span> <span class="s2">&quot;value&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">(</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="n">make_name</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">_cached&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_transformation</span><span class="p">(</span><span class="n">enabled</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+
+            <span class="c1"># TODO: move callback inside AllTransformationsComponent for efficiency?</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwargs_from_state</span><span class="p">(</span><span class="n">dash</span><span class="o">.</span><span class="n">callback_context</span><span class="o">.</span><span class="n">states</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">enabled</span><span class="p">:</span>
+                <span class="n">input_state</span> <span class="o">=</span> <span class="p">(</span><span class="kc">False</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;message is-dark&quot;</span><span class="p">,</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(),</span> <span class="n">input_state</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">input_state</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+                <span class="n">trans</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exception</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="n">trans</span><span class="p">,</span>
+                    <span class="s2">&quot;message is-warning&quot;</span><span class="p">,</span>
+                    <span class="n">html</span><span class="o">.</span><span class="n">Strong</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                    <span class="n">input_state</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="k">return</span> <span class="n">trans</span><span class="p">,</span> <span class="s2">&quot;message is-success&quot;</span><span class="p">,</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(),</span> <span class="n">input_state</span></div></div>
+
+
+<div class="viewcode-block" id="AllTransformationsComponent"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.AllTransformationsComponent">[docs]</a><span class="k">class</span> <span class="nc">AllTransformationsComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">transformations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_structure_component</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MPComponent</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="n">subclasses</span> <span class="o">=</span> <span class="n">TransformationComponent</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span>
+        <span class="n">subclass_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subclasses</span><span class="p">]</span>
+
+        <span class="n">transformations</span> <span class="o">=</span> <span class="n">transformations</span> <span class="ow">or</span> <span class="n">subclass_names</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subclass_names</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Unknown transformation &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;, choose from: </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subclass_names</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+
+        <span class="n">transformations</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">subclasses</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">]</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">input_structure_component</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">[</span><span class="s2">&quot;input_structure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_structure_component</span><span class="o">.</span><span class="n">id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;input_structure&quot;</span><span class="p">)</span>
+
+        <span class="n">transformations</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">t</span><span class="p">(</span><span class="n">input_structure_component_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;input_structure&quot;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transformations</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_sub_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">layouts</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_sub_layouts</span>
+
+        <span class="n">all_transformations</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">transformation</span><span class="o">.</span><span class="n">container_layout</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">choices</span> <span class="o">=</span> <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">transformation</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">],</span>
+            <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;Select one or more transformations...&quot;</span><span class="p">,</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;choices&quot;</span><span class="p">),</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max-width&quot;</span><span class="p">:</span> <span class="s2">&quot;65vmin&quot;</span><span class="p">},</span>
+            <span class="n">persistence</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">layouts</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;all_transformations&quot;</span><span class="p">:</span> <span class="n">all_transformations</span><span class="p">,</span> <span class="s2">&quot;choices&quot;</span><span class="p">:</span> <span class="n">choices</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">layouts</span>
+
+<div class="viewcode-block" id="AllTransformationsComponent.layout"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.AllTransformationsComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="s2">&quot;Transform your crystal structure using the power of pymatgen.&quot;</span><span class="p">,</span>
+                    <span class="n">className</span><span class="o">=</span><span class="s2">&quot;mpc-panel-description&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">],</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Br</span><span class="p">(),</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)),</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;transformation_options&quot;</span><span class="p">)),</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AllTransformationsComponent.generate_callbacks"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.AllTransformationsComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">()</span>
+        <span class="k">def</span> <span class="nf">apply_transformation</span><span class="p">(</span><span class="n">transformation_data</span><span class="p">,</span> <span class="n">struct</span><span class="p">):</span>
+
+            <span class="n">transformation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">transformation_data</span><span class="p">)</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transformation</span><span class="p">,</span> <span class="n">AbstractTransformation</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Can&#39;t run transformation: </span><span class="si">{</span><span class="n">transformation</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="n">struct</span> <span class="o">=</span> <span class="n">transformation</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">error_title</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Failed to apply &quot;</span><span class="si">{</span><span class="n">transformation</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; &#39;</span>
+                    <span class="sa">f</span><span class="s2">&quot;transformation: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">traceback_info</span> <span class="o">=</span> <span class="n">Reveal</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="n">html</span><span class="o">.</span><span class="n">B</span><span class="p">(</span><span class="s2">&quot;Traceback&quot;</span><span class="p">),</span>
+                    <span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())],</span>
+                <span class="p">)</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="p">[</span><span class="n">error_title</span><span class="p">,</span> <span class="n">traceback_info</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="n">struct</span><span class="p">,</span> <span class="n">error</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;transformation_options&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;choices&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;input_structure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">show_transformation_options</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+            <span class="n">values</span> <span class="o">=</span> <span class="n">values</span> <span class="ow">or</span> <span class="p">[]</span>
+
+            <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+            <span class="n">transformation_options</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">container_layout</span><span class="p">(</span>
+                        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">[</span><span class="n">transformation_options</span><span class="p">]</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">)],</span>
+            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;input_structure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;choices&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">run_transformations</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+            <span class="c1"># do not update if we don&#39;t have a Structure to transform</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">user_visible_transformations</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">transformations</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">transformation</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">transformation</span><span class="p">:</span>
+                    <span class="n">transformations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">transformations</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">struct</span><span class="p">,</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">transformation_data</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">:</span>
+
+                <span class="c1"># following our naming convention, only apply transformations</span>
+                <span class="c1"># that are user visible</span>
+                <span class="c1"># TODO: this should be changed</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transformation_data</span><span class="p">[</span><span class="s1">&#39;@class&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">Component&quot;</span>
+                    <span class="ow">in</span> <span class="n">user_visible_transformations</span>
+                <span class="p">):</span>
+
+                    <span class="n">struct</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">apply_transformation</span><span class="p">(</span><span class="n">transformation_data</span><span class="p">,</span> <span class="n">struct</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+                        <span class="n">errors</span> <span class="o">+=</span> <span class="n">error</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">errors</span><span class="p">:</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">errors</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span>
+                        <span class="s2">&quot;Crystal Toolkit encountered an error when trying to &quot;</span>
+                        <span class="s2">&quot;applying your chosen transformations. This is usually &quot;</span>
+                        <span class="s2">&quot;because either the input crystal structure is not &quot;</span>
+                        <span class="s2">&quot;suitable for the transformation, or the choice of &quot;</span>
+                        <span class="s2">&quot;transformation settings is not appropriate. Consult &quot;</span>
+                        <span class="s2">&quot;the pymatgen documentation for more information.  </span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;&quot;</span>
+                        <span class="s2">&quot;If you think this is a bug please report it.  </span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">]</span> <span class="o">+</span> <span class="n">errors</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">MessageContainer</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">MessageHeader</span><span class="p">(</span><span class="s2">&quot;Error applying transformations&quot;</span><span class="p">),</span>
+                                <span class="n">MessageBody</span><span class="p">(</span><span class="n">errors</span><span class="p">),</span>
+                            <span class="p">],</span>
+                            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;danger&quot;</span><span class="p">,</span>
+                        <span class="p">),</span>
+                        <span class="n">html</span><span class="o">.</span><span class="n">Br</span><span class="p">(),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">struct</span><span class="p">,</span> <span class="n">error_msg</span></div></div>
+
+        <span class="c1"># callback to take all transformations</span>
+        <span class="c1"># and also state of which transformations are user-visible (+ their order)</span>
+        <span class="c1"># apply them one by one with kwargs</span>
+        <span class="c1"># external error callback(?) for each transformation, have ext error + combine with trans error</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
