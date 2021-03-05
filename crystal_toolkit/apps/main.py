@@ -226,8 +226,8 @@ if SETTINGS.DEBUG_MODE:
                     MessageHeader("Warning"),
                     MessageBody(
                         dcc.Markdown(
-                            "This is a pre-release version of Crystal Toolkit and "
-                            "may not behave reliably."
+                            "The app is running in debug mode so will be slower than usual and error "
+                            "messages may appear."
                         )
                     ),
                 ],

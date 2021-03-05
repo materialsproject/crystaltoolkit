@@ -38,8 +38,9 @@ def _repr_mimebundle_(self, include=None, exclude=None):
 
     help_text_ct = """If you see this text, the Crystal Toolkit Jupyter Lab \n
 extension is not installed. You can install it by running \n
-\"jupyter labextension install crystaltoolkit-extension\" \n
-from the same environment you run \"jupyter lab"\. \n\n
+\"pip install crystaltoolkit-extension\" \n
+from the same environment you run \"jupyter lab\". \n
+This only works in Jupyter Lab 3.x or above.\n\n
 """
 
     help_text_plotly = """If you see this text, the Plotly Jupyter Lab extension 
