@@ -1888,17 +1888,17 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "pymatgen"
-version = "2020.12.31"
+version = "2022.0.3"
 description = "Python Materials Genomics is a robust materials analysis code that defines core object representations for structures and molecules with support for many electronic structure codes. It is currently the core analysis code powering the Materials Project (https://www.materialsproject.org)."
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 matplotlib = ">=1.5"
 monty = ">=3.0.2"
 networkx = ">=2.2"
-numpy = ">=1.14.3"
+numpy = ">=1.20.1"
 palettable = ">=3.1.1"
 pandas = "*"
 plotly = ">=4.5.0"
@@ -1908,6 +1908,7 @@ scipy = ">=1.5.0"
 spglib = ">=1.9.9.44"
 sympy = "*"
 tabulate = "*"
+typing-extensions = {version = ">=3.7.4.3", markers = "python_version < \"3.8\""}
 uncertainties = ">=3.1.4"
 
 [package.extras]
@@ -2804,7 +2805,7 @@ server = ["dash", "dash-daq", "gunicorn", "redis", "Flask-Caching", "gevent", "d
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "b4616cb770b7dd05b404aa27dc532e88745ad24d84d0bf759d1013b75e1fe3a5"
+content-hash = "037f0bfc745c5e879e55bfc8efa5f0226ce6d03fb0567f6e9f8fc2c5aba6391c"
 
 [metadata.files]
 aiohttp = [
@@ -3069,11 +3070,16 @@ commonmark = [
 ]
 cryptography = [
     {file = "cryptography-3.4.6-cp36-abi3-macosx_10_10_x86_64.whl", hash = "sha256:57ad77d32917bc55299b16d3b996ffa42a1c73c6cfa829b14043c561288d2799"},
+    {file = "cryptography-3.4.6-cp36-abi3-macosx_11_0_arm64.whl", hash = "sha256:4169a27b818de4a1860720108b55a2801f32b6ae79e7f99c00d79f2a2822eeb7"},
     {file = "cryptography-3.4.6-cp36-abi3-manylinux2010_x86_64.whl", hash = "sha256:93cfe5b7ff006de13e1e89830810ecbd014791b042cbe5eec253be11ac2b28f3"},
     {file = "cryptography-3.4.6-cp36-abi3-manylinux2014_aarch64.whl", hash = "sha256:5ecf2bcb34d17415e89b546dbb44e73080f747e504273e4d4987630493cded1b"},
     {file = "cryptography-3.4.6-cp36-abi3-manylinux2014_x86_64.whl", hash = "sha256:fec7fb46b10da10d9e1d078d1ff8ed9e05ae14f431fdbd11145edd0550b9a964"},
     {file = "cryptography-3.4.6-cp36-abi3-win32.whl", hash = "sha256:df186fcbf86dc1ce56305becb8434e4b6b7504bc724b71ad7a3239e0c9d14ef2"},
     {file = "cryptography-3.4.6-cp36-abi3-win_amd64.whl", hash = "sha256:66b57a9ca4b3221d51b237094b0303843b914b7d5afd4349970bb26518e350b0"},
+    {file = "cryptography-3.4.6-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:066bc53f052dfeda2f2d7c195cf16fb3e5ff13e1b6b7415b468514b40b381a5b"},
+    {file = "cryptography-3.4.6-pp36-pypy36_pp73-manylinux2014_x86_64.whl", hash = "sha256:600cf9bfe75e96d965509a4c0b2b183f74a4fa6f5331dcb40fb7b77b7c2484df"},
+    {file = "cryptography-3.4.6-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:0923ba600d00718d63a3976f23cab19aef10c1765038945628cd9be047ad0336"},
+    {file = "cryptography-3.4.6-pp37-pypy37_pp73-manylinux2014_x86_64.whl", hash = "sha256:9e98b452132963678e3ac6c73f7010fe53adf72209a32854d55690acac3f6724"},
     {file = "cryptography-3.4.6.tar.gz", hash = "sha256:2d32223e5b0ee02943f32b19245b61a62db83a882f0e76cc564e1cec60d48f87"},
 ]
 crystaltoolkit-extension = [
@@ -3960,10 +3966,9 @@ pygments = [
     {file = "Pygments-2.8.0.tar.gz", hash = "sha256:37a13ba168a02ac54cc5891a42b1caec333e59b66addb7fa633ea8a6d73445c0"},
 ]
 pymatgen = [
-    {file = "pymatgen-2020.12.31-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:12cb72a2b3b9c6157f526a2f8acb369e3544b6ea0276776de6f1005209e789fc"},
-    {file = "pymatgen-2020.12.31-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:f52ab274d1f7f9f05b98e739149dd26ff8fa8c1f6d508e0ffe67b1a923aa9ae1"},
-    {file = "pymatgen-2020.12.31-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:01193a2bd53a673f18d12ffde6a7dc8cb01d7955eab1cfe366ce93585d4facee"},
-    {file = "pymatgen-2020.12.31.tar.gz", hash = "sha256:5002490facd47c55d2dae42c35712e061c1f5d881180485c0543a899589856d6"},
+    {file = "pymatgen-2022.0.3-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:827fda31708a189701b45101ee21dc8ffc9324fc87ac3c0f887f8e9021143321"},
+    {file = "pymatgen-2022.0.3-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:94a89fbb8d89bad616a65a01b64c037519b2ef32090b7509d3d345ee33b65e42"},
+    {file = "pymatgen-2022.0.3.tar.gz", hash = "sha256:334e5b3de7b9b6e4f78910c7c98b1192f2f0d5648e8e3fd496d9da1e5f39f217"},
 ]
 pymongo = [
     {file = "pymongo-3.11.3-cp27-cp27m-macosx_10_14_intel.whl", hash = "sha256:4d959e929cec805c2bf391418b1121590b4e7d5cb00af7b1ba521443d45a0918"},
