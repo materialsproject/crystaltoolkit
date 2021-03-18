@@ -3,6 +3,7 @@ from itertools import combinations
 from typing import List, Optional
 
 import numpy as np
+from pymatgen import PeriodicSite
 from pymatgen.core.structure import Structure
 
 from crystal_toolkit.core.legend import Legend
@@ -87,6 +88,14 @@ def get_structure_scene(
     for (idx, jimage) in sites_to_draw:
 
         site = self[idx]
+        if jimage != (0, 0, 0):
+            site = PeriodicSite(
+                site.species,
+                np.add(site.frac_coords, jimage),
+                site.lattice,
+                properties=site.properties,
+            )
+
         site_scene = site.get_scene(legend=legend,)
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
