@@ -8,7 +8,8 @@ import crystal_toolkit.components as ctc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from pymatgen import Structure, Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 
 app = dash.Dash()
 

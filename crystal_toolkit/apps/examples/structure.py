@@ -4,7 +4,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 # import for this example
-from pymatgen import Lattice, Structure
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc

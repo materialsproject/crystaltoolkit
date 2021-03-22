@@ -4,7 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 # import for this example
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 
 # standard Crystal Toolkit import

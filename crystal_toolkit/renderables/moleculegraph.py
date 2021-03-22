@@ -2,7 +2,6 @@ from collections import defaultdict
 from itertools import combinations
 
 import numpy as np
-from pymatgen import PeriodicSite
 from pymatgen.analysis.graphs import MoleculeGraph
 
 from crystal_toolkit.core.scene import Scene
@@ -13,7 +12,11 @@ from crystal_toolkit.core.legend import Legend
 
 
 def get_molecule_graph_scene(
-    self, origin=None, explicitly_calculate_polyhedra_hull=False, legend=None, draw_polyhedra=False
+    self,
+    origin=None,
+    explicitly_calculate_polyhedra_hull=False,
+    legend=None,
+    draw_polyhedra=False,
 ) -> Scene:
 
     legend = legend or Legend(self.molecule)
@@ -37,7 +40,7 @@ def get_molecule_graph_scene(
     return Scene(
         name=self.molecule.composition.reduced_formula,
         contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
-        origin=origin if origin else (0,0,0),
+        origin=origin if origin else (0, 0, 0),
     )
 
 

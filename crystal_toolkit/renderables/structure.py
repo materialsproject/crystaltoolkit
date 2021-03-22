@@ -3,7 +3,7 @@ from itertools import combinations
 from typing import List, Optional
 
 import numpy as np
-from pymatgen import PeriodicSite
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 
 from crystal_toolkit.core.legend import Legend

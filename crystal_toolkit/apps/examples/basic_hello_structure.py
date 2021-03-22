@@ -7,7 +7,8 @@ import crystal_toolkit.components as ctc
 app = dash.Dash()
 
 # create our crystal structure using pymatgen
-from pymatgen import Structure, Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 

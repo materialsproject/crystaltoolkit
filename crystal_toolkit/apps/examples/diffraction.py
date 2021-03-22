@@ -9,7 +9,7 @@ from crystal_toolkit.settings import SETTINGS
 from crystal_toolkit.helpers.layouts import H1, H3, Container
 
 # import for this example
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
@@ -17,7 +17,8 @@ from pymatgen.analysis.diffraction.xrd import XRDCalculator
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # create our crystal structure using pymatgen
-from pymatgen import Structure, Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 

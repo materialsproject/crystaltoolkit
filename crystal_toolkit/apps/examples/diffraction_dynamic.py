@@ -13,7 +13,8 @@ from crystal_toolkit.helpers.layouts import H1, H2, Container, Button
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # create our crystal structure using pymatgen
-from pymatgen import Structure, Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 
 xrd_component = ctc.XRayDiffractionComponent()
 

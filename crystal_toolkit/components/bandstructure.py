@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 from dash_mp_components import CrystalToolkitScene
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import (
     BandStructureSymmLine,

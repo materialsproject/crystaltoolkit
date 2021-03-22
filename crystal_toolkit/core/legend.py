@@ -1,4 +1,5 @@
-from pymatgen import Specie, Element, Molecule
+from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.structure import Molecule
 from pymatgen.core.structure import SiteCollection, Site
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.util.string import unicodeify_species

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -5,15 +7,13 @@ import dash_table
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
+from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
 from pymatgen.core.composition import Composition
-from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter, PDEntry
 
-from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
-
+from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
 
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov
@@ -23,7 +23,6 @@ class PhaseDiagramComponent(MPComponent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
-        self.create_store("struct")
         self.create_store("chemsys-internal")
         self.create_store("chemsys-external")
         self.create_store("figure")
@@ -497,7 +496,7 @@ class PhaseDiagramComponent(MPComponent):
                             "border": "thin lightgrey solid",
                         },
                         # n_fixed_rows=1,
-                        sort_action=True,
+                        sort_action="native",
                         editable=True,
                         row_deletable=True,
                         style_header={
@@ -533,7 +532,6 @@ class PhaseDiagramComponent(MPComponent):
 
         return {"graph": graph, "table": table}
 
-    @property
     def layout(self):
         return html.Div(
             [
@@ -711,11 +709,15 @@ class PhaseDiagramComponent(MPComponent):
             Output(self.id("chemsys-internal"), "data"),
             [
                 Input(self.id("mpid"), "data"),
-                Input(self.id("struct"), "data"),
                 Input(self.id("chemsys-external"), "data"),
             ],
         )
-        def get_chemsys_from_struct_mpid(mpid, struct, chemsys_x):
+        def get_chemsys_from_mpid_or_chemsys(mpid, chemsys_external: str):
+            """
+            :param mpid: mpid
+            :param chemsys_external: chemsys, e.g. "Co-O"
+            :return: chemsys
+            """
             ctx = dash.callback_context
 
             if ctx is None or not ctx.triggered:
@@ -726,22 +728,18 @@ class PhaseDiagramComponent(MPComponent):
             if trigger["value"] is None:
                 raise PreventUpdate
 
-            # mpid trigger
+            chemsys = None
+
+            # get entries by mpid
             if trigger["prop_id"] == self.id("mpid") + ".data":
                 with MPRester() as mpr:
                     entry = mpr.get_entry_by_material_id(mpid)
 
-                chemsys = [str(elem) for elem in entry.composition.elements]
+                chemsys = entry.composition.chemical_system
 
-            # struct trigger
-            if trigger["prop_id"] == self.id("struct") + ".data":
-                chemsys = [
-                    str(elem) for elem in self.from_data(struct).composition.elements
-                ]
-
-            # external chemsys trigger (e.g. searching by chemsys in the Synthesis App)
+            # get entries by chemsys
             if trigger["prop_id"] == self.id("chemsys-external") + ".data":
-                chemsys = chemsys_x
+                chemsys = chemsys_external
 
             return chemsys
 

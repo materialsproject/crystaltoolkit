@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Optional
 
-from pymatgen import Molecule
+from pymatgen.core.structure import Molecule
 
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.scene import Scene
