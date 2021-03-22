@@ -176,7 +176,7 @@
 
 <span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.graphs</span> <span class="kn">import</span> <span class="n">StructureGraph</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.utils</span> <span class="kn">import</span> <span class="n">update_object_args</span>
 
@@ -269,7 +269,6 @@
 <span class="s2">};</span>
 <span class="s2">drawSpheres_nolight(spheres, {{radius}}, rgb(&#39;{{color}}&#39;));</span>
 <span class="s2">&quot;&quot;&quot;</span>
-
 
 
 <span class="n">TEMP_CYLINDER</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -436,9 +435,9 @@
 <span class="sd">    Keyword Arguments:</span>
 <span class="sd">        d_args {dict} -- User defined defaults of the plot (default: {None})</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;surface&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ctk_scene</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;surface&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctk_scene</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="c1"># print nothing</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># print nothing</span>
     <span class="n">updated_defaults</span> <span class="o">=</span> <span class="n">update_object_args</span><span class="p">(</span>
         <span class="n">d_args</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="s2">&quot;Surfaces&quot;</span><span class="p">,</span> <span class="n">allowed_args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;opacity&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="s2">&quot;edge_width&quot;</span><span class="p">]</span>
     <span class="p">)</span>
@@ -558,8 +557,9 @@
 <span class="sd">        file_name: name of file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderable_object</span><span class="p">,</span> <span class="n">Structure</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
-            <span class="n">renderable_object</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;explicitly_calculate_polyhedra_hull&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">renderable_object</span><span class="p">,</span> <span class="n">StructureGraph</span>
+    <span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;explicitly_calculate_polyhedra_hull&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">write_ctk_scene_to_file</span><span class="p">(</span><span class="n">renderable_object</span><span class="o">.</span><span class="n">get_scene</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">file_name</span><span class="p">)</span></div>
 </pre></div>
 
