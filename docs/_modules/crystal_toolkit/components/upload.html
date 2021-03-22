@@ -162,23 +162,20 @@
            <div itemprop="articleBody">
             
   <h1>Source code for crystal_toolkit.components.upload</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">dash</span>
+<span></span><span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b64decode</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">NamedTemporaryFile</span>
+
+<span class="kn">import</span> <span class="nn">dash</span>
 <span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
 <span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
-
 <span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
 <span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="kn">import</span> <span class="n">Chgcar</span>
 
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">NamedTemporaryFile</span>
-<span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b64decode</span>
-
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.vasp.outputs</span> <span class="kn">import</span> <span class="n">Chgcar</span>
-
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
 
 
 <div class="viewcode-block" id="StructureMoleculeUploadComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.upload.html#crystal_toolkit.components.upload.StructureMoleculeUploadComponent">[docs]</a><span class="k">class</span> <span class="nc">StructureMoleculeUploadComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
@@ -199,7 +196,7 @@
                         <span class="p">],</span>
                         <span class="n">className</span><span class="o">=</span><span class="s2">&quot;file-cta&quot;</span><span class="p">,</span>
                     <span class="p">),</span>
-                    <span class="c1"># TODO: fix style and un-hide file name</span>
+                    <span class="c1"># TODO: CSS fix style and un-hide file name</span>
                     <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span>
                         <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;upload_label&quot;</span><span class="p">),</span>
                         <span class="n">className</span><span class="o">=</span><span class="s2">&quot;file-name&quot;</span><span class="p">,</span>
@@ -209,7 +206,7 @@
                 <span class="n">className</span><span class="o">=</span><span class="s2">&quot;file-label&quot;</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">className</span><span class="o">=</span><span class="s2">&quot;file is-boxed&quot;</span><span class="p">,</span>
-            <span class="c1"># TODO: set sensible max-width, don&#39;t hard-code</span>
+            <span class="c1"># TODO: CSS set sensible max-width, don&#39;t hard-code</span>
             <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;max-width&quot;</span><span class="p">:</span> <span class="s2">&quot;312px&quot;</span><span class="p">},</span>
         <span class="p">)</span>
 

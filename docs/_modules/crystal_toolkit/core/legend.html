@@ -162,7 +162,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for crystal_toolkit.core.legend</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Molecule</span>
+<span></span><span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Molecule</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">SiteCollection</span><span class="p">,</span> <span class="n">Site</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.molecule_structure_comparator</span> <span class="kn">import</span> <span class="n">CovalentRadius</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify_species</span>
