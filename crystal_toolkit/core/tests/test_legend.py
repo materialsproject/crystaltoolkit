@@ -1,6 +1,7 @@
 from crystal_toolkit.core.legend import Legend
 
-from pymatgen import Structure, Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 
 
 class TestLegend:

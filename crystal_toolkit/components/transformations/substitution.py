@@ -7,7 +7,8 @@ from dash.dependencies import Input, Output, State
 from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
-from pymatgen import Specie, Element, Structure
+from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
 from ast import literal_eval

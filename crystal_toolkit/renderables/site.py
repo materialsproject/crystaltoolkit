@@ -1,12 +1,12 @@
 import numpy as np
-from pymatgen import DummySpecie
+from pymatgen.core.periodic_table import DummySpecie
 from scipy.spatial.qhull import Delaunay
 
 from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface, Convex
 from crystal_toolkit.core.legend import Legend
 
 from itertools import chain
-from pymatgen import Site
+from pymatgen.core.sites import Site
 from pymatgen.analysis.graphs import ConnectedSite
 
 from typing import List, Optional

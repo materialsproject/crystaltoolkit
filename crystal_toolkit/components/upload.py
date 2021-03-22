@@ -1,20 +1,17 @@
+from base64 import b64decode
+from tempfile import NamedTemporaryFile
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from monty.serialization import loadfn
+from pymatgen.core.structure import Molecule, Structure
+from pymatgen.io.vasp.outputs import Chgcar
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import *
-
-from tempfile import NamedTemporaryFile
-from base64 import b64decode
-
-from pymatgen.core.structure import Structure, Molecule
-from pymatgen.io.vasp.outputs import Chgcar
-
-from monty.serialization import loadfn
 
 
 class StructureMoleculeUploadComponent(MPComponent):
@@ -35,7 +32,7 @@ class StructureMoleculeUploadComponent(MPComponent):
                         ],
                         className="file-cta",
                     ),
-                    # TODO: fix style and un-hide file name
+                    # TODO: CSS fix style and un-hide file name
                     html.Span(
                         id=self.id("upload_label"),
                         className="file-name",
@@ -45,7 +42,7 @@ class StructureMoleculeUploadComponent(MPComponent):
                 className="file-label",
             ),
             className="file is-boxed",
-            # TODO: set sensible max-width, don't hard-code
+            # TODO: CSS set sensible max-width, don't hard-code
             style={"max-width": "312px"},
         )
 

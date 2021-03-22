@@ -13,7 +13,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from flask_caching import Cache
 from monty.serialization import loadfn
-from pymatgen import __version__ as pmg_version
+from pymatgen.core import __version__ as pmg_version
 from pymatgen.ext.matproj import MPRester
 
 import crystal_toolkit.components as ctc

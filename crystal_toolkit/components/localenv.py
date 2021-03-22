@@ -10,7 +10,7 @@ from dash.exceptions import PreventUpdate
 from dash_mp_components import GraphComponent
 from dscribe.descriptors import SOAP
 from dscribe.kernels import REMatchKernel
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )

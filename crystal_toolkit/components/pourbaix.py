@@ -7,7 +7,7 @@ from dash.exceptions import PreventUpdate
 
 import numpy as np
 import re
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, ELEMENTS_HO
 
 from crystal_toolkit.helpers.layouts import (

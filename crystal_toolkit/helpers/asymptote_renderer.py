@@ -12,7 +12,7 @@ from itertools import chain
 
 from jinja2 import Environment
 
-from pymatgen import Structure, Molecule
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph
 from crystal_toolkit.helpers.utils import update_object_args
 
@@ -105,7 +105,6 @@ sphere{{loop.index}}
 };
 drawSpheres_nolight(spheres, {{radius}}, rgb('{{color}}'));
 """
-
 
 
 TEMP_CYLINDER = """
@@ -272,9 +271,9 @@ def _get_surface(ctk_scene, d_args=None):
     Keyword Arguments:
         d_args {dict} -- User defined defaults of the plot (default: {None})
     """
-    assert (ctk_scene.type == 'surface')
+    assert ctk_scene.type == "surface"
     if len(ctk_scene.positions) == 0:
-        return "" # print nothing
+        return ""  # print nothing
     updated_defaults = update_object_args(
         d_args, object_name="Surfaces", allowed_args=["opacity", "color", "edge_width"]
     )
@@ -394,6 +393,7 @@ def write_asy_file(renderable_object, file_name, **kwargs):
         file_name: name of file
     """
     if isinstance(renderable_object, Structure) or isinstance(
-            renderable_object, StructureGraph):
-        kwargs['explicitly_calculate_polyhedra_hull'] = True
+        renderable_object, StructureGraph
+    ):
+        kwargs["explicitly_calculate_polyhedra_hull"] = True
     write_ctk_scene_to_file(renderable_object.get_scene(**kwargs), file_name)
