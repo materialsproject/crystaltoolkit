@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        ref: master
+        ref: main
         fetch-depth: 2
     - name: Set up Python 3.7
       uses: actions/setup-python@v1
