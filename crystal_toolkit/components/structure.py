@@ -412,7 +412,7 @@ class StructureMoleculeComponent(MPComponent):
             }
 
         @app.callback(
-            [Output(self.id("title_container"), "children"),],
+            Output(self.id("title_container"), "children"),
             [Input(self.id("legend_data"), "data")],
         )
         @cache.memoize()
@@ -426,7 +426,7 @@ class StructureMoleculeComponent(MPComponent):
             return self._make_title(legend)
 
         @app.callback(
-            [Output(self.id("legend_container"), "children"),],
+            Output(self.id("legend_container"), "children"),
             [Input(self.id("legend_data"), "data")],
         )
         @cache.memoize()
