@@ -100,7 +100,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">crystal_toolkit.settings module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -174,70 +174,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.settings">
-<span id="crystal-toolkit-settings-module"></span><h1>crystal_toolkit.settings module<a class="headerlink" href="#module-crystal_toolkit.settings" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt id="crystal_toolkit.settings.Settings">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.settings.</span></code><code class="sig-name descname"><span class="pre">Settings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_env_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'&lt;object</span> <span class="pre">object&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_env_file_encoding</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_secrets_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DEBUG_MODE</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MP_EMBED_MODE</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TEST_MODE</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TRANSFORMATION_PREVIEWS</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">REDIS_URL</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'redis://localhost:6379'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ASSETS_PATH</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'/home/runner/work/crystaltoolkit/crystaltoolkit/crystal_toolkit/apps/assets'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PERSISTENCE</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PERSISTENCE_TYPE</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">memory</span><span class="p"><span class="pre">,</span> </span><span class="pre">session</span><span class="p"><span class="pre">,</span> </span><span class="pre">local</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'local'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SENTRY_DSN</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/settings.html#Settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.settings.Settings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pydantic.env_settings.BaseSettings</span></code></p>
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.ASSETS_PATH">
-<code class="sig-name descname"><span class="pre">ASSETS_PATH</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.ASSETS_PATH" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="crystal_toolkit.settings.Settings.Config">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Config</span></code><a class="reference internal" href="../_modules/crystal_toolkit/settings.html#Settings.Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.settings.Settings.Config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.Config.env_prefix">
-<code class="sig-name descname"><span class="pre">env_prefix</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'CT_'</span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.Config.env_prefix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.DEBUG_MODE">
-<code class="sig-name descname"><span class="pre">DEBUG_MODE</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.DEBUG_MODE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.MP_EMBED_MODE">
-<code class="sig-name descname"><span class="pre">MP_EMBED_MODE</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.MP_EMBED_MODE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.PERSISTENCE">
-<code class="sig-name descname"><span class="pre">PERSISTENCE</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.PERSISTENCE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.PERSISTENCE_TYPE">
-<code class="sig-name descname"><span class="pre">PERSISTENCE_TYPE</span></code><em class="property"><span class="pre">:</span> <span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">memory</span><span class="p"><span class="pre">,</span> </span><span class="pre">session</span><span class="p"><span class="pre">,</span> </span><span class="pre">local</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.PERSISTENCE_TYPE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.REDIS_URL">
-<code class="sig-name descname"><span class="pre">REDIS_URL</span></code><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.REDIS_URL" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.SENTRY_DSN">
-<code class="sig-name descname"><span class="pre">SENTRY_DSN</span></code><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.SENTRY_DSN" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.TEST_MODE">
-<code class="sig-name descname"><span class="pre">TEST_MODE</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.TEST_MODE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.settings.Settings.TRANSFORMATION_PREVIEWS">
-<code class="sig-name descname"><span class="pre">TRANSFORMATION_PREVIEWS</span></code><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#crystal_toolkit.settings.Settings.TRANSFORMATION_PREVIEWS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-settings-module">
+<h1>crystal_toolkit.settings module<a class="headerlink" href="#crystal-toolkit-settings-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
