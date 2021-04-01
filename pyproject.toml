@@ -6,7 +6,7 @@ authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pymatgen = "^2020.9.14"
+pymatgen = "^2022.0.0"
 typing-extensions = { version = "*", python = "~3.7" }
 pydantic = "*"
 plotly = "^4.10"
@@ -42,7 +42,7 @@ server = [
     "dash-extensions", "sentry-sdk", "kaleido"
 ]
 fermi = ["ifermi", "pyfftw"]
-vtl = ["dash-vtk"]
+vtk = ["dash-vtk"]
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
