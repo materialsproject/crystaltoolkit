@@ -2,9 +2,9 @@ from collections import defaultdict
 from itertools import combinations
 
 import numpy as np
-from pymatgen import PeriodicSite
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SymmetrizedStructure
 
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.core.legend import Legend
