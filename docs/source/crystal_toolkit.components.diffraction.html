@@ -100,7 +100,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -109,7 +109,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -185,144 +185,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.components.diffraction">
-<span id="crystal-toolkit-components-diffraction-module"></span><h1>crystal_toolkit.components.diffraction module<a class="headerlink" href="#module-crystal_toolkit.components.diffraction" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt id="crystal_toolkit.components.diffraction.DiffractionPanelComponent">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.diffraction.</span></code><code class="sig-name descname"><span class="pre">DiffractionPanelComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#DiffractionPanelComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.DiffractionPanelComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.panelcomponent.html#crystal_toolkit.core.panelcomponent.PanelComponent" title="crystal_toolkit.core.panelcomponent.PanelComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.panelcomponent.PanelComponent</span></code></a></p>
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.DiffractionPanelComponent.contents_layout">
-<code class="sig-name descname"><span class="pre">contents_layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">dash_html_components.Div.Div</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#DiffractionPanelComponent.contents_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.DiffractionPanelComponent.contents_layout" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.DiffractionPanelComponent.description">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">description</span></code><a class="headerlink" href="#crystal_toolkit.components.diffraction.DiffractionPanelComponent.description" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.DiffractionPanelComponent.title">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">title</span></code><a class="headerlink" href="#crystal_toolkit.components.diffraction.DiffractionPanelComponent.title" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="crystal_toolkit.components.diffraction.TEMDiffractionComponent">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.diffraction.</span></code><code class="sig-name descname"><span class="pre">TEMDiffractionComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">monty.json.MSONable</span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">memory</span><span class="p"><span class="pre">,</span> </span><span class="pre">local</span><span class="p"><span class="pre">,</span> </span><span class="pre">session</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'memory'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_callbacks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#TEMDiffractionComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.TEMDiffractionComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.TEMDiffractionComponent.generate_callbacks">
-<code class="sig-name descname"><span class="pre">generate_callbacks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#TEMDiffractionComponent.generate_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.TEMDiffractionComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.TEMDiffractionComponent.layout">
-<code class="sig-name descname"><span class="pre">layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#TEMDiffractionComponent.layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.TEMDiffractionComponent.layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A Dash layout for the full component. Basic implementation</p>
-</dd>
-</dl>
-<p>provided, but should in general be overridden.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.diffraction.</span></code><code class="sig-name descname"><span class="pre">XRayDiffractionComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#XRayDiffractionComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.G">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">G</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#XRayDiffractionComponent.G"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.G" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return c-centered Gaussian line shape at x with HWHM alpha</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.L">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">L</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#XRayDiffractionComponent.L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.L" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return c-centered Lorentzian line shape at x with HWHM gamma</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.V">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">V</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alphagamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#XRayDiffractionComponent.V"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.V" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.default_xrd_plot_style">
-<code class="sig-name descname"><span class="pre">default_xrd_plot_style</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'autosize':</span> <span class="pre">True,</span> <span class="pre">'height':</span> <span class="pre">225,</span> <span class="pre">'hovermode':</span> <span class="pre">'x',</span> <span class="pre">'margin':</span> <span class="pre">{'b':</span> <span class="pre">50,</span> <span class="pre">'l':</span> <span class="pre">60,</span> <span class="pre">'pad':</span> <span class="pre">0,</span> <span class="pre">'r':</span> <span class="pre">30,</span> <span class="pre">'t':</span> <span class="pre">50},</span> <span class="pre">'paper_bgcolor':</span> <span class="pre">'rgba(0,0,0,0)',</span> <span class="pre">'plot_bgcolor':</span> <span class="pre">'rgba(0,0,0,0)',</span> <span class="pre">'showlegend':</span> <span class="pre">False,</span> <span class="pre">'title':</span> <span class="pre">'X-ray</span> <span class="pre">Diffraction</span> <span class="pre">Pattern',</span> <span class="pre">'xaxis':</span> <span class="pre">{'anchor':</span> <span class="pre">'y',</span> <span class="pre">'mirror':</span> <span class="pre">'ticks',</span> <span class="pre">'nticks':</span> <span class="pre">8,</span> <span class="pre">'showgrid':</span> <span class="pre">True,</span> <span class="pre">'showline':</span> <span class="pre">True,</span> <span class="pre">'side':</span> <span class="pre">'bottom',</span> <span class="pre">'tickfont':</span> <span class="pre">{'size':</span> <span class="pre">16.0},</span> <span class="pre">'ticks':</span> <span class="pre">'inside',</span> <span class="pre">'title':</span> <span class="pre">'2𝜃</span> <span class="pre">/</span> <span class="pre">º',</span> <span class="pre">'titlefont':</span> <span class="pre">{'size':</span> <span class="pre">16.0},</span> <span class="pre">'type':</span> <span class="pre">'linear',</span> <span class="pre">'zeroline':</span> <span class="pre">False},</span> <span class="pre">'yaxis':</span> <span class="pre">{'anchor':</span> <span class="pre">'x',</span> <span class="pre">'mirror':</span> <span class="pre">'ticks',</span> <span class="pre">'nticks':</span> <span class="pre">7,</span> <span class="pre">'showgrid':</span> <span class="pre">True,</span> <span class="pre">'showline':</span> <span class="pre">True,</span> <span class="pre">'side':</span> <span class="pre">'left',</span> <span class="pre">'tickfont':</span> <span class="pre">{'size':</span> <span class="pre">16.0},</span> <span class="pre">'ticks':</span> <span class="pre">'inside',</span> <span class="pre">'title':</span> <span class="pre">'Intensity</span> <span class="pre">/</span> <span class="pre">arb.</span> <span class="pre">units',</span> <span class="pre">'titlefont':</span> <span class="pre">{'size':</span> <span class="pre">16.0},</span> <span class="pre">'type':</span> <span class="pre">'linear',</span> <span class="pre">'zeroline':</span> <span class="pre">False}}</span></em><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.default_xrd_plot_style" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.empty_plot_style">
-<code class="sig-name descname"><span class="pre">empty_plot_style</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'paper_bgcolor':</span> <span class="pre">'rgba(0,0,0,0)',</span> <span class="pre">'plot_bgcolor':</span> <span class="pre">'rgba(0,0,0,0)',</span> <span class="pre">'xaxis':</span> <span class="pre">{'visible':</span> <span class="pre">False},</span> <span class="pre">'yaxis':</span> <span class="pre">{'visible':</span> <span class="pre">False}}</span></em><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.empty_plot_style" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.generate_callbacks">
-<code class="sig-name descname"><span class="pre">generate_callbacks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#XRayDiffractionComponent.generate_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate all callbacks associated with the layouts in this app. Assume
-that “suppress_callback_exceptions” is True, since it is not always
-guaranteed that all layouts will be displayed to the end user at all
-times, but it’s important the callbacks are defined on the server.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.grain_to_hwhm">
-<code class="sig-name descname"><span class="pre">grain_to_hwhm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">two_theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CuKa'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#XRayDiffractionComponent.grain_to_hwhm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.grain_to_hwhm" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tau</strong> – grain size in nm</p></li>
-<li><p><strong>two_theta</strong> – angle (in 2-theta)</p></li>
-<li><p><strong>K</strong> – shape factor (default 0.9)</p></li>
-<li><p><strong>wavelength</strong> – wavelength radiation in nm</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>half-width half-max (alpha or gamma), for line profile</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.layout">
-<code class="sig-name descname"><span class="pre">layout</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#XRayDiffractionComponent.layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.layout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A Dash layout for the full component. Basic implementation</p>
-</dd>
-</dl>
-<p>provided, but should in general be overridden.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="crystal_toolkit.components.diffraction.XRayDiffractionComponent.twotheta_to_q">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">twotheta_to_q</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">twotheta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xray_wavelength</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/diffraction.html#XRayDiffractionComponent.twotheta_to_q"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.diffraction.XRayDiffractionComponent.twotheta_to_q" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert twotheta to Q.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>twotheta</strong> – in degrees</p></li>
-<li><p><strong>xray_wavelength</strong> – in Ångstroms</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-components-diffraction-module">
+<h1>crystal_toolkit.components.diffraction module<a class="headerlink" href="#crystal-toolkit-components-diffraction-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
