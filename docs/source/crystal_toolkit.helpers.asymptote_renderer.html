@@ -101,14 +101,14 @@
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.helpers.html">crystal_toolkit.helpers package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.helpers.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.helpers.html#module-crystal_toolkit.helpers">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.helpers.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.renderables.html">crystal_toolkit.renderables package</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-crystal_toolkit">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="crystal_toolkit.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -184,54 +184,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-crystal_toolkit.helpers.asymptote_renderer">
-<span id="crystal-toolkit-helpers-asymptote-renderer-module"></span><h1>crystal_toolkit.helpers.asymptote_renderer module<a class="headerlink" href="#module-crystal_toolkit.helpers.asymptote_renderer" title="Permalink to this headline">¶</a></h1>
-<p>Export wrapper for asymptote (ASY)
-For creating publication quality plots
-Since ASY does not have the nested tree structure of threejs,
-we just have to traverse the tree and draw each material as we see them.</p>
-<p>TODO The code should also appends a set of special points at the end in case the user wants to add more “hand drawn” features to the plot</p>
-<dl class="py function">
-<dt id="crystal_toolkit.helpers.asymptote_renderer.asy_write_data">
-<code class="sig-prename descclassname"><span class="pre">crystal_toolkit.helpers.asymptote_renderer.</span></code><code class="sig-name descname"><span class="pre">asy_write_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_scene_comp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fstream</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/asymptote_renderer.html#asy_write_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.helpers.asymptote_renderer.asy_write_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>parse a primitive display object in crystaltoolkit and print it to asymptote
-input_scene_comp
-fstream</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="crystal_toolkit.helpers.asymptote_renderer.filter_data">
-<code class="sig-prename descclassname"><span class="pre">crystal_toolkit.helpers.asymptote_renderer.</span></code><code class="sig-name descname"><span class="pre">filter_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scene_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fstream</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/asymptote_renderer.html#filter_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.helpers.asymptote_renderer.filter_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recursively traverse the scene_data dictionary to find objects to draw</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="crystal_toolkit.helpers.asymptote_renderer.traverse_scene_object">
-<code class="sig-prename descclassname"><span class="pre">crystal_toolkit.helpers.asymptote_renderer.</span></code><code class="sig-name descname"><span class="pre">traverse_scene_object</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scene_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fstream</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/asymptote_renderer.html#traverse_scene_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.helpers.asymptote_renderer.traverse_scene_object" title="Permalink to this definition">¶</a></dt>
-<dd><p>Traverse object</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="crystal_toolkit.helpers.asymptote_renderer.write_asy_file">
-<code class="sig-prename descclassname"><span class="pre">crystal_toolkit.helpers.asymptote_renderer.</span></code><code class="sig-name descname"><span class="pre">write_asy_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">renderable_object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/asymptote_renderer.html#write_asy_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.helpers.asymptote_renderer.write_asy_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate the scene object and write it to file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>renderable_object</strong> – Object to be rendered</p></li>
-<li><p><strong>file_name</strong> – name of file</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="crystal_toolkit.helpers.asymptote_renderer.write_ctk_scene_to_file">
-<code class="sig-prename descclassname"><span class="pre">crystal_toolkit.helpers.asymptote_renderer.</span></code><code class="sig-name descname"><span class="pre">write_ctk_scene_to_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctk_scene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/helpers/asymptote_renderer.html#write_ctk_scene_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.helpers.asymptote_renderer.write_ctk_scene_to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>ctk_scene : Scene object from crystaltoolkit
-filename : Output asymptote file and location</p>
-</dd></dl>
-
+  <div class="section" id="crystal-toolkit-helpers-asymptote-renderer-module">
+<h1>crystal_toolkit.helpers.asymptote_renderer module<a class="headerlink" href="#crystal-toolkit-helpers-asymptote-renderer-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
