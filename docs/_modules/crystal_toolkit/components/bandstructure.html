@@ -1,0 +1,1131 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.bandstructure &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/bandstructure.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.bandstructure</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.components.bandstructure</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">import</span> <span class="nn">plotly.subplots</span> <span class="k">as</span> <span class="nn">tls</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span>
+<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+
+<span class="kn">from</span> <span class="nn">dash_mp_components</span> <span class="kn">import</span> <span class="n">CrystalToolkitScene</span>
+<span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BandStructureSymmLine</span><span class="p">,</span>
+    <span class="n">BandStructure</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">CompleteDos</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="kn">import</span> <span class="n">BSPlotter</span><span class="p">,</span> <span class="n">fold_point</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="kn">import</span> <span class="n">HighSymmKpath</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.scene</span> <span class="kn">import</span> <span class="n">Scene</span><span class="p">,</span> <span class="n">Lines</span><span class="p">,</span> <span class="n">Spheres</span><span class="p">,</span> <span class="n">Convex</span><span class="p">,</span> <span class="n">Cylinders</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.panelcomponent</span> <span class="kn">import</span> <span class="n">PanelComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Author: Jason Munro</span>
+<span class="c1"># Contact: jmunro@lbl.gov</span>
+
+<span class="c1"># TODO: think about moving functionality to BSPlotter, DosPlotter</span>
+<span class="c1"># TODO: remove access to private attributes of BSPlotter</span>
+
+
+<div class="viewcode-block" id="BandstructureAndDosComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent">[docs]</a><span class="k">class</span> <span class="nc">BandstructureAndDosComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mpid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">bandstructure_symm_line</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">density_of_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="c1"># this is a compound component, can be fed by mpid or</span>
+        <span class="c1"># by the BandStructure itself</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
+            <span class="n">default_data</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;mpid&quot;</span><span class="p">:</span> <span class="n">mpid</span><span class="p">,</span>
+                <span class="s2">&quot;bandstructure_symm_line&quot;</span><span class="p">:</span> <span class="n">bandstructure_symm_line</span><span class="p">,</span>
+                <span class="s2">&quot;density_of_states&quot;</span><span class="p">:</span> <span class="n">density_of_states</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_sub_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># defaults</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;label-select&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">,</span> <span class="s2">&quot;dos-select&quot;</span><span class="p">:</span> <span class="s2">&quot;ap&quot;</span><span class="p">}</span>
+
+        <span class="n">bs</span><span class="p">,</span> <span class="n">dos</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">_get_bs_dos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_data</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">])</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">dos</span><span class="p">)</span>
+        <span class="c1"># Main plot</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">Loading</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span><span class="p">,)],</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bsdos-div&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Brillouin zone</span>
+        <span class="n">zone_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_brillouin_zone_scene</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+        <span class="n">zone</span> <span class="o">=</span> <span class="n">CrystalToolkitScene</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">zone_scene</span><span class="o">.</span><span class="n">to_json</span><span class="p">(),</span> <span class="n">sceneSize</span><span class="o">=</span><span class="s2">&quot;500px&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Hide by default if not loaded by mpid, switching between k-paths</span>
+        <span class="c1"># on-the-fly only supported for bandstructures retrieved from MP</span>
+        <span class="n">show_path_options</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_data</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;mpid&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Convention selection for band structure</span>
+        <span class="n">convention</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+                    <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;path-convention&quot;</span><span class="p">,</span>
+                    <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Path convention&quot;</span><span class="p">,</span>
+                    <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Convention to choose path in k-space&quot;</span><span class="p">,</span>
+                    <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Latimer-Munro&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">},</span>
+                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Hinuma et al.&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;hin&quot;</span><span class="p">},</span>
+                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,},</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;200px&quot;</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">show_path_options</span>
+            <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;max-width&quot;</span><span class="p">:</span> <span class="s2">&quot;200&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">},</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;path-container&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Equivalent labels across band structure conventions</span>
+        <span class="n">label_select</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+                    <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;label-select&quot;</span><span class="p">,</span>
+                    <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Label convention&quot;</span><span class="p">,</span>
+                    <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Convention to choose labels for path in k-space&quot;</span><span class="p">,</span>
+                    <span class="n">options</span><span class="o">=</span><span class="p">[</span>
+                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Latimer-Munro&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">},</span>
+                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Hinuma et al.&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;hin&quot;</span><span class="p">},</span>
+                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,},</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;200px&quot;</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">show_path_options</span>
+            <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;200px&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">},</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;label-container&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Density of states data selection</span>
+        <span class="n">dos_select</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;dos-select&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Projection&quot;</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Choose projection&quot;</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Atom Projected&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;ap&quot;</span><span class="p">}],</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;200px&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">get_data_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_data_list_dict</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">dos</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">graph</span><span class="p">,</span>
+            <span class="s2">&quot;convention&quot;</span><span class="p">:</span> <span class="n">convention</span><span class="p">,</span>
+            <span class="s2">&quot;dos-select&quot;</span><span class="p">:</span> <span class="n">dos_select</span><span class="p">,</span>
+            <span class="s2">&quot;label-select&quot;</span><span class="p">:</span> <span class="n">label_select</span><span class="p">,</span>
+            <span class="s2">&quot;zone&quot;</span><span class="p">:</span> <span class="n">zone</span><span class="p">,</span>
+            <span class="s2">&quot;table&quot;</span><span class="p">:</span> <span class="n">table</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="BandstructureAndDosComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Columns</span><span class="p">([</span><span class="n">Column</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">]])]),</span>
+                <span class="n">Columns</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">Column</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;convention&quot;</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;label-select&quot;</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;dos-select&quot;</span><span class="p">],</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">Columns</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">Column</span><span class="p">([</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Summary&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]]),</span>
+                        <span class="n">Column</span><span class="p">([</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Brillouin Zone&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;zone&quot;</span><span class="p">]]),</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_bs_dos</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="c1"># this component can be loaded either from mpid or</span>
+        <span class="c1"># directly from BandStructureSymmLine or CompleteDos objects</span>
+        <span class="c1"># if mpid is supplied, this is preferred</span>
+
+        <span class="n">mpid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">)</span>
+        <span class="n">bandstructure_symm_line</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bandstructure_symm_line&quot;</span><span class="p">)</span>
+        <span class="n">density_of_states</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;density_of_states&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mpid</span> <span class="ow">and</span> <span class="p">(</span><span class="n">bandstructure_symm_line</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">density_of_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">mpid</span><span class="p">:</span>
+
+            <span class="k">with</span> <span class="n">MPRester</span><span class="p">()</span> <span class="k">as</span> <span class="n">mpr</span><span class="p">:</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">bandstructure_symm_line</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_bandstructure_by_material_id</span><span class="p">(</span><span class="n">mpid</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                    <span class="n">bandstructure_symm_line</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">density_of_states</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_dos_by_material_id</span><span class="p">(</span><span class="n">mpid</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                    <span class="n">density_of_states</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">bandstructure_symm_line</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bandstructure_symm_line</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">bandstructure_symm_line</span> <span class="o">=</span> <span class="n">BandStructureSymmLine</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+                    <span class="n">bandstructure_symm_line</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">density_of_states</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">density_of_states</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">density_of_states</span> <span class="o">=</span> <span class="n">CompleteDos</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">density_of_states</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">bandstructure_symm_line</span><span class="p">,</span> <span class="n">density_of_states</span>
+
+<div class="viewcode-block" id="BandstructureAndDosComponent.get_ifermi_scene"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_ifermi_scene">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_ifermi_scene</span><span class="p">(</span><span class="n">bs</span><span class="p">:</span> <span class="n">BandStructure</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scene</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="BandstructureAndDosComponent.get_brillouin_zone_scene"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_brillouin_zone_scene">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_brillouin_zone_scene</span><span class="p">(</span><span class="n">bs</span><span class="p">:</span> <span class="n">BandStructureSymmLine</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scene</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Scene</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;brillouin_zone&quot;</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="p">[])</span>
+
+        <span class="c1"># TODO: from BSPlotter, merge back into BSPlotter</span>
+        <span class="c1"># Brillouin zone</span>
+        <span class="n">bz_lattice</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span>
+        <span class="n">bz</span> <span class="o">=</span> <span class="n">bz_lattice</span><span class="o">.</span><span class="n">get_wigner_seitz_cell</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">iface</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bz</span><span class="p">)):</span>  <span class="c1"># pylint: disable=C0200</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">bz</span><span class="p">[</span><span class="n">iface</span><span class="p">],</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">jface</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bz</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">iface</span> <span class="o">&lt;</span> <span class="n">jface</span>
+                        <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bz</span><span class="p">[</span><span class="n">jface</span><span class="p">])</span>
+                        <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">bz</span><span class="p">[</span><span class="n">jface</span><span class="p">])</span>
+                    <span class="p">):</span>
+                        <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">list</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+
+        <span class="n">zone_lines</span> <span class="o">=</span> <span class="n">Lines</span><span class="p">(</span><span class="n">positions</span><span class="o">=</span><span class="n">lines</span><span class="p">)</span>
+        <span class="n">zone_surface</span> <span class="o">=</span> <span class="n">Convex</span><span class="p">(</span><span class="n">positions</span><span class="o">=</span><span class="n">lines</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#000000&quot;</span><span class="p">)</span>
+
+        <span class="c1"># - Strip latex math wrapping for labels</span>
+        <span class="c1"># TODO: add to string utils in pymatgen</span>
+        <span class="n">str_replace</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;$&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">mid&quot;</span><span class="p">:</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">Gamma&quot;</span><span class="p">:</span> <span class="s2">&quot;Γ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">Sigma&quot;</span><span class="p">:</span> <span class="s2">&quot;Σ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GAMMA&quot;</span><span class="p">:</span> <span class="s2">&quot;Γ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_1&quot;</span><span class="p">:</span> <span class="s2">&quot;₁&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_2&quot;</span><span class="p">:</span> <span class="s2">&quot;₂&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_3&quot;</span><span class="p">:</span> <span class="s2">&quot;₃&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_4&quot;</span><span class="p">:</span> <span class="s2">&quot;₄&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;₁&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;₂&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_</span><span class="si">{3}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;₃&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_</span><span class="si">{4}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;₄&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;^{*}&quot;</span><span class="p">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">label</span>
+                <span class="k">for</span> <span class="n">orig</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">str_replace</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">orig</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+                <span class="n">labels</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">bz_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Spheres</span><span class="p">(</span><span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">coords</span><span class="p">],</span> <span class="n">tooltip</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#5EB1BF&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cylinder_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bs</span><span class="o">.</span><span class="n">branches</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">bz_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span>
+                <span class="n">bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s2">&quot;start_index&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">frac_coords</span>
+            <span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">bz_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span>
+                <span class="n">bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="s2">&quot;end_index&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">frac_coords</span>
+            <span class="p">)</span>
+            <span class="n">path</span> <span class="o">+=</span> <span class="p">[</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">]</span>
+            <span class="n">cylinder_pairs</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">]]</span>
+        <span class="c1"># path_lines = Lines(positions=path, color=&quot;#ff4b5c&quot;,)</span>
+        <span class="n">path_lines</span> <span class="o">=</span> <span class="n">Cylinders</span><span class="p">(</span>
+            <span class="n">positionPairs</span><span class="o">=</span><span class="n">cylinder_pairs</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#5EB1BF&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.01</span>
+        <span class="p">)</span>
+        <span class="n">ibz_region</span> <span class="o">=</span> <span class="n">Convex</span><span class="p">(</span><span class="n">positions</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#5EB1BF&quot;</span><span class="p">)</span>
+
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span><span class="n">zone_lines</span><span class="p">,</span> <span class="n">zone_surface</span><span class="p">,</span> <span class="n">path_lines</span><span class="p">,</span> <span class="n">ibz_region</span><span class="p">,</span> <span class="o">*</span><span class="n">labels</span><span class="p">]</span>
+
+        <span class="n">cbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span>
+        <span class="n">vbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">cbm</span> <span class="ow">and</span> <span class="n">vbm</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">cbm</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                <span class="n">cbm_label</span> <span class="o">=</span> <span class="n">cbm</span><span class="o">.</span><span class="n">label</span>
+                <span class="k">for</span> <span class="n">orig</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">str_replace</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">cbm_label</span> <span class="o">=</span> <span class="n">cbm_label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">orig</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+                <span class="n">cbm_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;CBM at </span><span class="si">{</span><span class="n">cbm_label</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cbm_label</span> <span class="o">=</span> <span class="s2">&quot;CBM&quot;</span>
+
+            <span class="k">if</span> <span class="n">cbm</span> <span class="o">==</span> <span class="n">vbm</span><span class="p">:</span>
+                <span class="n">cbm_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;VBM and </span><span class="si">{</span><span class="n">cbm_label</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">cbm_coords</span> <span class="o">=</span> <span class="n">bz_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">cbm</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+            <span class="n">cbm</span> <span class="o">=</span> <span class="n">Spheres</span><span class="p">(</span>
+                <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">cbm_coords</span><span class="p">],</span> <span class="n">tooltip</span><span class="o">=</span><span class="n">cbm_label</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#7E259B&quot;</span>
+            <span class="p">)</span>
+
+            <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cbm</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">cbm</span> <span class="o">!=</span> <span class="n">vbm</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">vbm</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                    <span class="n">vbm_label</span> <span class="o">=</span> <span class="n">vbm</span><span class="o">.</span><span class="n">label</span>
+                    <span class="k">for</span> <span class="n">orig</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">str_replace</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">vbm_label</span> <span class="o">=</span> <span class="n">vbm_label</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">orig</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+                    <span class="n">vbm_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;VBM at </span><span class="si">{</span><span class="n">vbm_label</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">vbm_label</span> <span class="o">=</span> <span class="s2">&quot;VBM&quot;</span>
+
+                <span class="n">vbm_coords</span> <span class="o">=</span> <span class="n">bz_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">vbm</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+                <span class="n">vbm</span> <span class="o">=</span> <span class="n">Spheres</span><span class="p">(</span>
+                    <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">vbm_coords</span><span class="p">],</span>
+                    <span class="n">tooltip</span><span class="o">=</span><span class="n">vbm_label</span><span class="p">,</span>
+                    <span class="n">radius</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#7E259B&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vbm</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Scene</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;brillouin_zone&quot;</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="n">contents</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BandstructureAndDosComponent.get_bandstructure_traces"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_bandstructure_traces">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_bandstructure_traces</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)):</span>
+
+        <span class="k">if</span> <span class="n">path_convention</span> <span class="o">==</span> <span class="s2">&quot;lm&quot;</span><span class="p">:</span>
+            <span class="n">bs</span> <span class="o">=</span> <span class="n">HighSymmKpath</span><span class="o">.</span><span class="n">get_continuous_path</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+
+        <span class="n">bs_reg_plot</span> <span class="o">=</span> <span class="n">BSPlotter</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span>
+
+        <span class="n">bs_data</span> <span class="o">=</span> <span class="n">bs_reg_plot</span><span class="o">.</span><span class="n">bs_plot_data</span><span class="p">(</span><span class="n">split_branches</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">bands</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">band_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bs</span><span class="o">.</span><span class="n">nb_bands</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)]:</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="n">band_num</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+                    <span class="n">segment</span><span class="p">[</span><span class="n">band_num</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="n">bands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">band_num</span><span class="p">)</span>
+
+        <span class="n">bstraces</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">cbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()</span>
+        <span class="n">vbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()</span>
+
+        <span class="n">cbm_new</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;cbm&quot;</span><span class="p">]</span>
+        <span class="n">vbm_new</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;vbm&quot;</span><span class="p">]</span>
+
+        <span class="n">bar_loc</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">dist_val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">]):</span>
+
+            <span class="n">x_dat</span> <span class="o">=</span> <span class="n">dist_val</span>
+
+            <span class="n">traces_for_segment</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">segment</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">)][</span><span class="n">d</span><span class="p">]</span>
+
+            <span class="n">traces_for_segment</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x_dat</span><span class="p">,</span>
+                    <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">segment</span><span class="p">[</span><span class="n">band_num</span><span class="p">],</span>
+                    <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#1f77b4&quot;</span><span class="p">},</span>
+                    <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;spin ↑&quot;</span> <span class="k">if</span> <span class="n">bs</span><span class="o">.</span><span class="n">is_spin_polarized</span> <span class="k">else</span> <span class="s2">&quot;Total&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;hovertemplate&quot;</span><span class="p">:</span> <span class="s2">&quot;%</span><span class="si">{y:.2f}</span><span class="s2"> eV&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">band_num</span> <span class="ow">in</span> <span class="n">bands</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
+                <span class="n">traces_for_segment</span> <span class="o">+=</span> <span class="p">[</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x_dat</span><span class="p">,</span>
+                        <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">)][</span><span class="n">d</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">]))</span>
+                        <span class="p">],</span>
+                        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#ff7f0e&quot;</span><span class="p">,</span> <span class="s2">&quot;dash&quot;</span><span class="p">:</span> <span class="s2">&quot;dot&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;spin ↓&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;hovertemplate&quot;</span><span class="p">:</span> <span class="s2">&quot;%</span><span class="si">{y:.2f}</span><span class="s2"> eV&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bands</span>
+                <span class="p">]</span>
+
+            <span class="n">bstraces</span> <span class="o">+=</span> <span class="n">traces_for_segment</span>
+
+            <span class="n">bar_loc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist_val</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># - Strip latex math wrapping for labels</span>
+        <span class="n">str_replace</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;$&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">mid&quot;</span><span class="p">:</span> <span class="s2">&quot;|&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">Gamma&quot;</span><span class="p">:</span> <span class="s2">&quot;Γ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">Sigma&quot;</span><span class="p">:</span> <span class="s2">&quot;Σ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;GAMMA&quot;</span><span class="p">:</span> <span class="s2">&quot;Γ&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_1&quot;</span><span class="p">:</span> <span class="s2">&quot;₁&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_2&quot;</span><span class="p">:</span> <span class="s2">&quot;₂&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_3&quot;</span><span class="p">:</span> <span class="s2">&quot;₃&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_4&quot;</span><span class="p">:</span> <span class="s2">&quot;₄&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;₁&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;₂&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_</span><span class="si">{3}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;₃&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_</span><span class="si">{4}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="s2">&quot;₄&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;^{*}&quot;</span><span class="p">:</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">entry_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">])):</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">str_replace</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]:</span>
+                    <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span>
+                        <span class="n">entry_num</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">str_replace</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+        <span class="c1"># Vertical lines for disjointed segments</span>
+        <span class="n">vert_traces</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">x_point</span><span class="p">,</span> <span class="n">x_point</span><span class="p">],</span>
+                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">energy_window</span><span class="p">,</span>
+                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">x_point</span> <span class="ow">in</span> <span class="n">bar_loc</span>
+        <span class="p">]</span>
+
+        <span class="n">bstraces</span> <span class="o">+=</span> <span class="n">vert_traces</span>
+
+        <span class="c1"># Dots for cbm and vbm</span>
+
+        <span class="n">dot_traces</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">x_point</span><span class="p">],</span>
+                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">y_point</span><span class="p">],</span>
+                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#7E259B&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+                    <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;hovertemplate&quot;</span><span class="p">:</span> <span class="s2">&quot;CBM: k = </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2"> eV&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="n">cbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span> <span class="n">cbm</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">x_point</span><span class="p">,</span> <span class="n">y_point</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">cbm_new</span><span class="p">)</span>
+        <span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">x_point</span><span class="p">],</span>
+                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">y_point</span><span class="p">],</span>
+                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;marker&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#7E259B&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+                    <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;hovertemplate&quot;</span><span class="p">:</span> <span class="s2">&quot;VBM: k = </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2"> eV&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span> <span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">x_point</span><span class="p">,</span> <span class="n">y_point</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">vbm_new</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="n">bstraces</span> <span class="o">+=</span> <span class="n">dot_traces</span>
+
+        <span class="k">return</span> <span class="n">bstraces</span><span class="p">,</span> <span class="n">bs_data</span></div>
+
+<div class="viewcode-block" id="BandstructureAndDosComponent.get_dos_traces"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_dos_traces">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_dos_traces</span><span class="p">(</span><span class="n">dos</span><span class="p">,</span> <span class="n">dos_select</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)):</span>
+
+        <span class="n">dostraces</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">dos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+        <span class="n">dos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+
+        <span class="c1"># TODO: pymatgen should have a property here</span>
+        <span class="n">spin_polarized</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">spin_polarized</span><span class="p">:</span>
+            <span class="c1"># Add second spin data if available</span>
+            <span class="n">trace_tdos</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">],</span>
+                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">]</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
+                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Total DOS (spin ↓)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">scatter</span><span class="o">.</span><span class="n">Line</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#444444&quot;</span><span class="p">,</span> <span class="n">dash</span><span class="o">=</span><span class="s2">&quot;dot&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="s2">&quot;tozerox&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fillcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;#C4C4C4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y2&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">dostraces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trace_tdos</span><span class="p">)</span>
+
+            <span class="n">tdos_label</span> <span class="o">=</span> <span class="s2">&quot;Total DOS (spin ↑)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tdos_label</span> <span class="o">=</span> <span class="s2">&quot;Total DOS&quot;</span>
+
+        <span class="c1"># Total DOS</span>
+        <span class="n">trace_tdos</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">],</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">]</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
+            <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">tdos_label</span><span class="p">,</span>
+            <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">scatter</span><span class="o">.</span><span class="n">Line</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#444444&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="s2">&quot;tozerox&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fillcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;#C4C4C4&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;legendgroup&quot;</span><span class="p">:</span> <span class="s2">&quot;spinup&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y2&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">dostraces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trace_tdos</span><span class="p">)</span>
+
+        <span class="n">ele_dos</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_dos</span><span class="p">()</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ele_dos</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+        <span class="k">if</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;ap&quot;</span><span class="p">:</span>
+            <span class="n">proj_data</span> <span class="o">=</span> <span class="n">ele_dos</span>
+        <span class="k">elif</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;op&quot;</span><span class="p">:</span>
+            <span class="n">proj_data</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_spd_dos</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="s2">&quot;orb&quot;</span> <span class="ow">in</span> <span class="n">dos_select</span><span class="p">:</span>
+            <span class="n">proj_data</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_spd_dos</span><span class="p">(</span><span class="n">Element</span><span class="p">(</span><span class="n">dos_select</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;orb&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+        <span class="c1"># Projected DOS</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;#d62728&quot;</span><span class="p">,</span>  <span class="c1"># brick red</span>
+            <span class="s2">&quot;#2ca02c&quot;</span><span class="p">,</span>  <span class="c1"># cooked asparagus green</span>
+            <span class="s2">&quot;#17becf&quot;</span><span class="p">,</span>  <span class="c1"># blue-teal</span>
+            <span class="s2">&quot;#bcbd22&quot;</span><span class="p">,</span>  <span class="c1"># curry yellow-green</span>
+            <span class="s2">&quot;#9467bd&quot;</span><span class="p">,</span>  <span class="c1"># muted purple</span>
+            <span class="s2">&quot;#8c564b&quot;</span><span class="p">,</span>  <span class="c1"># chestnut brown</span>
+            <span class="s2">&quot;#e377c2&quot;</span><span class="p">,</span>  <span class="c1"># raspberry yogurt pink</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">proj_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">spin_polarized</span><span class="p">:</span>
+                <span class="n">trace</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">proj_data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">],</span>
+                    <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">]</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
+                    <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (spin ↓)&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">count</span><span class="p">],</span> <span class="n">dash</span><span class="o">=</span><span class="s2">&quot;dot&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y2&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+
+                <span class="n">dostraces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+                <span class="n">spin_up_label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (spin ↑)&quot;</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">spin_up_label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+            <span class="n">trace</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">proj_data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">][</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">],</span>
+                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">]</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
+                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">spin_up_label</span><span class="p">,</span>
+                <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">count</span><span class="p">]),</span>
+                <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y2&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">dostraces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">dostraces</span></div>
+
+<div class="viewcode-block" id="BandstructureAndDosComponent.get_figure"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_figure">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_figure</span><span class="p">(</span>
+        <span class="n">bs</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">path_convention</span><span class="o">=</span><span class="s2">&quot;sc&quot;</span><span class="p">,</span> <span class="n">dos_select</span><span class="o">=</span><span class="s2">&quot;ap&quot;</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
+    <span class="p">):</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">dos</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">bs</span><span class="p">):</span>
+
+            <span class="n">empty_plot_style</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="s2">&quot;paper_bgcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plot_bgcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="k">return</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">empty_plot_style</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bs</span><span class="p">:</span>
+            <span class="n">bstraces</span><span class="p">,</span> <span class="n">bs_data</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">get_bandstructure_traces</span><span class="p">(</span>
+                <span class="n">bs</span><span class="p">,</span> <span class="n">path_convention</span><span class="o">=</span><span class="n">path_convention</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="n">energy_window</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
+            <span class="n">dostraces</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">get_dos_traces</span><span class="p">(</span>
+                <span class="n">dos</span><span class="p">,</span> <span class="n">dos_select</span><span class="o">=</span><span class="n">dos_select</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="n">energy_window</span>
+            <span class="p">)</span>
+
+        <span class="c1"># TODO: add logic to handle if bstraces and/or dostraces not present</span>
+
+        <span class="n">rmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="nb">max</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]),</span>
+                <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">])),</span>
+                <span class="nb">max</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]),</span>
+                <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">])),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># -- Add trace data to plots</span>
+
+        <span class="n">xaxis_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Wave Vector&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
+            <span class="n">tickmode</span><span class="o">=</span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+            <span class="n">tickvals</span><span class="o">=</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;distance&quot;</span><span class="p">],</span>
+            <span class="n">ticktext</span><span class="o">=</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
+            <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">mirror</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;distance&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
+            <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">yaxis_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;E−E&lt;sub&gt;fermi&lt;/sub&gt; (eV)&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
+            <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">zeroline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">mirror</span><span class="o">=</span><span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
+            <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">xaxis_style_dos</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Density of States&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
+            <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mirror</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">rmax</span> <span class="o">*</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">),</span> <span class="n">rmax</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,],</span>
+            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
+            <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">yaxis_style_dos</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">zeroline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">showticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mirror</span><span class="o">=</span><span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
+            <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">matches</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;x2&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">layout</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">xaxis1</span><span class="o">=</span><span class="n">xaxis_style</span><span class="p">,</span>
+            <span class="n">xaxis2</span><span class="o">=</span><span class="n">xaxis_style_dos</span><span class="p">,</span>
+            <span class="n">yaxis</span><span class="o">=</span><span class="n">yaxis_style</span><span class="p">,</span>
+            <span class="n">yaxis2</span><span class="o">=</span><span class="n">yaxis_style_dos</span><span class="p">,</span>
+            <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="n">hovermode</span><span class="o">=</span><span class="s2">&quot;closest&quot;</span><span class="p">,</span>
+            <span class="n">paper_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+            <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(230,230,230,230)&quot;</span><span class="p">,</span>
+            <span class="n">margin</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+            <span class="c1"># clickmode=&quot;event+select&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">figure</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">bstraces</span> <span class="o">+</span> <span class="n">dostraces</span><span class="p">,</span> <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="n">layout</span><span class="p">}</span>
+
+        <span class="n">legend</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="mf">1.02</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="mf">1.005</span><span class="p">,</span>
+            <span class="n">xanchor</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">yanchor</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+            <span class="n">bordercolor</span><span class="o">=</span><span class="s2">&quot;#333&quot;</span><span class="p">,</span>
+            <span class="n">borderwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">traceorder</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">figure</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;legend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">legend</span>
+
+        <span class="n">figure</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;xaxis1&quot;</span><span class="p">][</span><span class="s2">&quot;domain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
+        <span class="n">figure</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;xaxis2&quot;</span><span class="p">][</span><span class="s2">&quot;domain&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.73</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">figure</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_data_list_dict</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">dos</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;Band Gap&quot;</span><span class="p">:</span> <span class="s2">&quot;... eV&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Direct Gap&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;CBM&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;VBM&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Spin Polarization&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="BandstructureAndDosComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bsdos-div&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span> <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;traces&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span><span class="n">traces</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">traces</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+                <span class="n">search_error</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">MessageContainer</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">MessageBody</span><span class="p">(</span>
+                                <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span>
+                                    <span class="s2">&quot;Band structure and density of states not available for this selection.&quot;</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">],</span>
+                        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">search_error</span>
+
+            <span class="k">if</span> <span class="n">traces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">,</span> <span class="n">dos_select</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
+                    <span class="n">figure</span><span class="o">=</span><span class="n">figure</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;label-select&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;label-container&quot;</span><span class="p">),</span> <span class="s2">&quot;style&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;path-convention&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_label_select</span><span class="p">(</span><span class="n">mpid</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">mpid</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">label_value</span> <span class="o">=</span> <span class="n">path_convention</span>
+                <span class="n">label_style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;max-width&quot;</span><span class="p">:</span> <span class="s2">&quot;200&quot;</span><span class="p">}</span>
+
+                <span class="k">return</span> <span class="p">[</span><span class="n">label_value</span><span class="p">,</span> <span class="n">label_style</span><span class="p">]</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;dos-select&quot;</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">),</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;path-convention&quot;</span><span class="p">),</span> <span class="s2">&quot;options&quot;</span><span class="p">),</span>
+                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;path-container&quot;</span><span class="p">),</span> <span class="s2">&quot;style&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;elements&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_select</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">mpid</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">elements</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">mpid</span><span class="p">:</span>
+                <span class="n">dos_options</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Element Projected&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;ap&quot;</span><span class="p">}]</span>
+                    <span class="o">+</span> <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - Total&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">}]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;orb&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                        <span class="p">}</span>
+                        <span class="k">for</span> <span class="n">ele_label</span> <span class="ow">in</span> <span class="n">elements</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="n">path_options</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">}]</span>
+                <span class="n">path_style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;max-width&quot;</span><span class="p">:</span> <span class="s2">&quot;200&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">}</span>
+
+                <span class="k">return</span> <span class="p">[</span><span class="n">dos_options</span><span class="p">,</span> <span class="n">path_options</span><span class="p">,</span> <span class="n">path_style</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dos_options</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Element Projected&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;ap&quot;</span><span class="p">}]</span>
+                    <span class="o">+</span> <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - Total&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">}]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;orb&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                        <span class="p">}</span>
+                        <span class="k">for</span> <span class="n">ele_label</span> <span class="ow">in</span> <span class="n">elements</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="n">path_options</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Latimer-Munro&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Hinuma et al.&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;hin&quot;</span><span class="p">},</span>
+                <span class="p">]</span>
+
+                <span class="n">path_style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;max-width&quot;</span><span class="p">:</span> <span class="s2">&quot;200&quot;</span><span class="p">}</span>
+
+                <span class="k">return</span> <span class="p">[</span><span class="n">dos_options</span><span class="p">,</span> <span class="n">path_options</span><span class="p">,</span> <span class="n">path_style</span><span class="p">]</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;traces&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;elements&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;path-convention&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;dos-select&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;label-select&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">bs_dos_data</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">,</span> <span class="n">dos_select</span><span class="p">,</span> <span class="n">label_select</span><span class="p">,</span>
+        <span class="p">):</span>
+
+            <span class="c1"># Obtain bands to plot over and generate traces for bs data:</span>
+            <span class="n">energy_window</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
+
+            <span class="n">traces</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">if</span> <span class="n">bandstructure_symm_line</span><span class="p">:</span>
+                <span class="n">bstraces</span> <span class="o">=</span> <span class="n">get_bandstructure_traces</span><span class="p">(</span>
+                    <span class="n">bsml</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="n">energy_window</span>
+                <span class="p">)</span>
+                <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bstraces</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">density_of_states</span><span class="p">:</span>
+                <span class="n">dostraces</span> <span class="o">=</span> <span class="n">get_dos_traces</span><span class="p">(</span>
+                    <span class="n">density_of_states</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="n">energy_window</span><span class="p">,</span> <span class="n">spin_polarized</span><span class="o">=...</span>
+                <span class="p">)</span>
+                <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dostraces</span><span class="p">)</span>
+
+            <span class="c1"># traces = [bstraces, dostraces, bs_data]</span>
+
+            <span class="k">return</span> <span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">elements</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BandstructureAndDosPanelComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent">[docs]</a><span class="k">class</span> <span class="nc">BandstructureAndDosPanelComponent</span><span class="p">(</span><span class="n">PanelComponent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bs</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">attach_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">this_store_name</span><span class="o">=</span><span class="s2">&quot;mpid&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Band Structure and Density of States&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Display the band structure and density of states for this structure </span><span class="se">\</span>
+<span class="s2">        if it has been calculated by the Materials Project.&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">initial_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initial_contents</span><span class="p">,</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">standard_layout</span><span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">}),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="BandstructureAndDosPanelComponent.update_contents"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.update_contents">[docs]</a>    <span class="k">def</span> <span class="nf">update_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_store_contents</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bs</span><span class="o">.</span><span class="n">standard_layout</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
