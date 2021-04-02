@@ -100,7 +100,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -187,8 +187,56 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="crystal-toolkit-components-transformations-substitution-module">
-<h1>crystal_toolkit.components.transformations.substitution module<a class="headerlink" href="#crystal-toolkit-components-transformations-substitution-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-crystal_toolkit.components.transformations.substitution">
+<span id="crystal-toolkit-components-transformations-substitution-module"></span><h1>crystal_toolkit.components.transformations.substitution module<a class="headerlink" href="#module-crystal_toolkit.components.transformations.substitution" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.transformations.substitution.</span></code><code class="sig-name descname"><span class="pre">SubstitutionTransformationComponent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_structure_component_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/substitution.html#SubstitutionTransformationComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.components.transformations.core.html#crystal_toolkit.components.transformations.core.TransformationComponent" title="crystal_toolkit.components.transformations.core.TransformationComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.components.transformations.core.TransformationComponent</span></code></a></p>
+<dl class="py method">
+<dt id="crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.description">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">description</span></code><a class="headerlink" href="#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.generate_callbacks">
+<code class="sig-name descname"><span class="pre">generate_callbacks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/substitution.html#SubstitutionTransformationComponent.generate_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.generate_callbacks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all callbacks associated with the layouts in this app. Assume
+that “suppress_callback_exceptions” is True, since it is not always
+guaranteed that all layouts will be displayed to the end user at all
+times, but it’s important the callbacks are defined on the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.options_layouts">
+<code class="sig-name descname"><span class="pre">options_layouts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/transformations/substitution.html#SubstitutionTransformationComponent.options_layouts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.options_layouts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a layout to change the transformation options (that is,
+that controls the args and kwargs that will be passed to pymatgen).</p>
+<p>The “state” option is so that the controls can be populated appropriately
+using existing args and kwargs, e.g. when restoring the control panel
+from a previous state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – existing state in format {“args”: [], “kwargs”: {}}</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.title">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">title</span></code><a class="headerlink" href="#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.transformation">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">transformation</span></code><a class="headerlink" href="#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 
 

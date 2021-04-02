@@ -1,0 +1,975 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.phase_diagram &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/phase_diagram.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.phase_diagram</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.components.phase_diagram</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">dash</span>
+<span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">dash_table</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+<span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.phase_diagram</span> <span class="kn">import</span> <span class="n">PDEntry</span><span class="p">,</span> <span class="n">PDPlotter</span><span class="p">,</span> <span class="n">PhaseDiagram</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.panelcomponent</span> <span class="kn">import</span> <span class="n">PanelComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># layout helpers like `Columns` etc. (most subclass html.Div)</span>
+
+<span class="c1"># Author: Matthew McDermott</span>
+<span class="c1"># Contact: mcdermott@lbl.gov</span>
+
+
+<div class="viewcode-block" id="PhaseDiagramComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent">[docs]</a><span class="k">class</span> <span class="nc">PhaseDiagramComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;chemsys-internal&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;chemsys-external&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;figure&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;entries&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Default plot layouts for Binary (2), Ternary (3), Quaternary (4) phase diagrams</span>
+    <span class="n">default_binary_plot_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">xaxis</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mirror&quot;</span><span class="p">:</span> <span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nticks&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;showgrid&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;showline&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tickfont&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">16.0</span><span class="p">},</span>
+            <span class="s2">&quot;ticks&quot;</span><span class="p">:</span> <span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;titlefont&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#000000&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">24.0</span><span class="p">},</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zeroline&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">yaxis</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Formation energy (eV/fu)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mirror&quot;</span><span class="p">:</span> <span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nticks&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s2">&quot;showgrid&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;showline&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tickfont&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">16.0</span><span class="p">},</span>
+            <span class="s2">&quot;ticks&quot;</span><span class="p">:</span> <span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;titlefont&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#000000&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">24.0</span><span class="p">},</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zeroline&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">paper_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">hovermode</span><span class="o">=</span><span class="s2">&quot;closest&quot;</span><span class="p">,</span>
+        <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">legend</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+            <span class="n">traceorder</span><span class="o">=</span><span class="s2">&quot;reversed&quot;</span><span class="p">,</span>
+            <span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="mf">1.08</span><span class="p">,</span>
+            <span class="n">xanchor</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="n">tracegroupgap</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">margin</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">default_ternary_plot_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">autorange</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">showline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">showticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">yaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">autorange</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">showline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">showticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">autosize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">hovermode</span><span class="o">=</span><span class="s2">&quot;closest&quot;</span><span class="p">,</span>
+        <span class="n">paper_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="n">margin</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
+        <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">legend</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+            <span class="n">traceorder</span><span class="o">=</span><span class="s2">&quot;reversed&quot;</span><span class="p">,</span>
+            <span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="mf">1.08</span><span class="p">,</span>
+            <span class="n">xanchor</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="n">tracegroupgap</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">default_3d_axis</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">autorange</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">showline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">showaxeslabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">showticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">showspikes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">default_quaternary_plot_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">autosize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span>
+        <span class="n">hovermode</span><span class="o">=</span><span class="s2">&quot;closest&quot;</span><span class="p">,</span>
+        <span class="n">margin</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
+        <span class="n">paper_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">legend</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+            <span class="n">traceorder</span><span class="o">=</span><span class="s2">&quot;reversed&quot;</span><span class="p">,</span>
+            <span class="n">x</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="mf">1.08</span><span class="p">,</span>
+            <span class="n">xanchor</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="n">tracegroupgap</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">scene</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">xaxis</span><span class="o">=</span><span class="n">default_3d_axis</span><span class="p">,</span> <span class="n">yaxis</span><span class="o">=</span><span class="n">default_3d_axis</span><span class="p">,</span> <span class="n">zaxis</span><span class="o">=</span><span class="n">default_3d_axis</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">empty_plot_style</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s2">&quot;paper_bgcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;plot_bgcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">colorscale</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;#008d00&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.1111111111111111</span><span class="p">,</span> <span class="s2">&quot;#4b9f3f&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.2222222222222222</span><span class="p">,</span> <span class="s2">&quot;#73b255&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.3333333333333333</span><span class="p">,</span> <span class="s2">&quot;#97c65b&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.4444444444444444</span><span class="p">,</span> <span class="s2">&quot;#b9db53&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.5555555555555556</span><span class="p">,</span> <span class="s2">&quot;#ffdcdf&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.6666666666666666</span><span class="p">,</span> <span class="s2">&quot;#ffb8bf&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.7777777777777778</span><span class="p">,</span> <span class="s2">&quot;#fd92a0&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.8888888888888888</span><span class="p">,</span> <span class="s2">&quot;#f46b86&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;#e24377&quot;</span><span class="p">],</span>
+    <span class="p">]</span>
+
+    <span class="n">default_table_params</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;col&quot;</span><span class="p">:</span> <span class="s2">&quot;Material ID&quot;</span><span class="p">,</span> <span class="s2">&quot;edit&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;col&quot;</span><span class="p">:</span> <span class="s2">&quot;Formula&quot;</span><span class="p">,</span> <span class="s2">&quot;edit&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;col&quot;</span><span class="p">:</span> <span class="s2">&quot;Formation Energy (eV/atom)&quot;</span><span class="p">,</span> <span class="s2">&quot;edit&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;col&quot;</span><span class="p">:</span> <span class="s2">&quot;Energy Above Hull (eV/atom)&quot;</span><span class="p">,</span> <span class="s2">&quot;edit&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;col&quot;</span><span class="p">:</span> <span class="s2">&quot;Predicted Stable?&quot;</span><span class="p">,</span> <span class="s2">&quot;edit&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+    <span class="p">]</span>
+
+    <span class="n">empty_row</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Material ID&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;Formula&quot;</span><span class="p">:</span> <span class="s2">&quot;INSERT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Formation Energy (eV/atom)&quot;</span><span class="p">:</span> <span class="s2">&quot;INSERT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Energy Above Hull (eV/atom)&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;Predicted Stable&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="PhaseDiagramComponent.figure_layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.figure_layout">[docs]</a>    <span class="k">def</span> <span class="nf">figure_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotter</span><span class="p">,</span> <span class="n">pd</span><span class="p">):</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">dim</span>
+
+        <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Phase diagram must be for 2, 3, or 4 components!&quot;</span><span class="p">)</span>
+
+        <span class="n">annotations_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">coords</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">plotter</span><span class="o">.</span><span class="n">pd_plot_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">is_element</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">z</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="n">formula</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+
+            <span class="n">clean_formula</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+            <span class="n">annotation</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;font&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#000000&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">20.0</span><span class="p">},</span>
+                <span class="s2">&quot;opacity&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;showarrow&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">clean_formula</span><span class="p">,</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+                <span class="s2">&quot;xanchor&quot;</span><span class="p">:</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;yanchor&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;xshift&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span>
+                <span class="s2">&quot;yshift&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span>
+                <span class="s2">&quot;xref&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
+                <span class="s2">&quot;yref&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">annotation</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;font&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#000000&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">18.0</span><span class="p">}})</span>
+            <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">annotation</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="n">z</span><span class="p">})</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xref&quot;</span><span class="p">,</span> <span class="s2">&quot;yref&quot;</span><span class="p">]:</span>
+                    <span class="n">annotation</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>  <span class="c1"># Scatter3d cannot contain xref, yref</span>
+
+            <span class="n">annotations_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_binary_plot_style</span>
+                <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">annotations_list</span>
+            <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_ternary_plot_style</span>
+                <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">annotations_list</span>
+            <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_quaternary_plot_style</span>
+                <span class="n">layout</span><span class="p">[</span><span class="s2">&quot;scene&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="n">annotations_list</span><span class="p">,</span>
+                        <span class="s2">&quot;camera&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
+                            <span class="n">up</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                            <span class="n">center</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=-</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                            <span class="n">eye</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">1.25</span><span class="p">),</span>
+                        <span class="p">),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">layout</span></div>
+
+<div class="viewcode-block" id="PhaseDiagramComponent.create_markers"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_markers">[docs]</a>    <span class="k">def</span> <span class="nf">create_markers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotter</span><span class="p">,</span> <span class="n">pd</span><span class="p">):</span>
+        <span class="n">x_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">y_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">z_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">energy_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">dim</span>
+
+        <span class="k">for</span> <span class="n">coord</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">plotter</span><span class="o">.</span><span class="n">pd_plot_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">get_form_energy_per_atom</span><span class="p">(</span><span class="n">entry</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">energy_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+            <span class="n">mpid</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">attribute</span>
+            <span class="n">formula</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+
+            <span class="n">clean_formula</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+            <span class="n">x_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">z_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_formula</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">mpid</span><span class="si">}</span><span class="s2">)&lt;br&gt; </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">marker_plot</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x_list</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y_list</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Stable&quot;</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">energy_list</span><span class="p">,</span>
+                    <span class="n">size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+                    <span class="n">colorscale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colorscale</span><span class="p">,</span>
+                    <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#000000&quot;</span><span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                <span class="n">hoverlabel</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">14</span><span class="p">)),</span>
+                <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">hovertext</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">marker_plot</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter3d</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x_list</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y_list</span><span class="p">,</span>
+                <span class="n">z</span><span class="o">=</span><span class="n">z_list</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Stable&quot;</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">energy_list</span><span class="p">,</span>
+                    <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                    <span class="n">colorscale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">colorscale</span><span class="p">,</span>
+                    <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#000000&quot;</span><span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                <span class="n">hoverlabel</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">14</span><span class="p">)),</span>
+                <span class="n">hovertext</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">marker_plot</span></div>
+
+<div class="viewcode-block" id="PhaseDiagramComponent.create_unstable_markers"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_unstable_markers">[docs]</a>    <span class="k">def</span> <span class="nf">create_unstable_markers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotter</span><span class="p">,</span> <span class="n">pd</span><span class="p">):</span>
+        <span class="n">x_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">y_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">z_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">text_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">dim</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">unstable_entry</span><span class="p">,</span> <span class="n">unstable_coord</span><span class="p">)</span> <span class="ow">in</span> <span class="n">plotter</span><span class="o">.</span><span class="n">pd_plot_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">x_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unstable_coord</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unstable_coord</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">z_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unstable_coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="n">mpid</span> <span class="o">=</span> <span class="n">unstable_entry</span><span class="o">.</span><span class="n">attribute</span>
+            <span class="n">formula</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">unstable_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
+            <span class="n">e_above_hull</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">get_e_above_hull</span><span class="p">(</span><span class="n">unstable_entry</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+
+            <span class="n">clean_formula</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+            <span class="n">energy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">get_form_energy_per_atom</span><span class="p">(</span><span class="n">unstable_entry</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">text_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_formula</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">mpid</span><span class="si">}</span><span class="s2">)&lt;br&gt;&quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">energy</span><span class="si">}</span><span class="s2"> eV (+</span><span class="si">{</span><span class="n">e_above_hull</span><span class="si">}</span><span class="s2"> eV)&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">unstable_marker_plot</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x_list</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y_list</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                <span class="n">hovertext</span><span class="o">=</span><span class="n">text_list</span><span class="p">,</span>
+                <span class="n">visible</span><span class="o">=</span><span class="s2">&quot;legendonly&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Unstable&quot;</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#ff0000&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">unstable_marker_plot</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter3d</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x_list</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y_list</span><span class="p">,</span>
+                <span class="n">z</span><span class="o">=</span><span class="n">z_list</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                <span class="n">hovertext</span><span class="o">=</span><span class="n">text_list</span><span class="p">,</span>
+                <span class="n">visible</span><span class="o">=</span><span class="s2">&quot;legendonly&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Unstable&quot;</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#ff0000&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">unstable_marker_plot</span></div>
+
+<div class="viewcode-block" id="PhaseDiagramComponent.create_table_content"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.create_table_content">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_table_content</span><span class="p">(</span><span class="n">pd</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">all_entries</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">mpid</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">mpid</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">attribute</span>  <span class="c1"># accounting for custom entry</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;Material ID&quot;</span><span class="p">:</span> <span class="n">mpid</span><span class="p">,</span>
+                        <span class="s2">&quot;Formula&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="s2">&quot;Formation Energy (eV/atom)&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span>
+                            <span class="n">pd</span><span class="o">.</span><span class="n">get_form_energy_per_atom</span><span class="p">(</span><span class="n">entry</span><span class="p">),</span> <span class="mi">3</span>
+                        <span class="p">),</span>
+                        <span class="s2">&quot;Energy Above Hull (eV/atom)&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span>
+                            <span class="n">pd</span><span class="o">.</span><span class="n">get_e_above_hull</span><span class="p">(</span><span class="n">entry</span><span class="p">),</span> <span class="mi">3</span>
+                        <span class="p">),</span>
+                        <span class="s2">&quot;Predicted Stable?&quot;</span><span class="p">:</span> <span class="p">(</span>
+                            <span class="s2">&quot;Yes&quot;</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_e_above_hull</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;No&quot;</span>
+                        <span class="p">),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="PhaseDiagramComponent.clean_formula"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.clean_formula">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">clean_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">formula</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;sub&gt;</span><span class="si">{</span><span class="n">char</span><span class="si">}</span><span class="s2">&lt;/sub&gt;&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+
+        <span class="n">clean_formula</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">clean_formula</span></div>
+
+<div class="viewcode-block" id="PhaseDiagramComponent.ternary_plot"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.ternary_plot">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">ternary_plot</span><span class="p">(</span><span class="n">plot_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a ternary phase diagram in a two-dimensional plot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            plot_data: plot data from PDPlotter</span>
+
+<span class="sd">        Returns: go.Figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatterternary</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">list_of_a_comp</span><span class="p">,</span>
+                <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+                <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+                <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+                <span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+                    <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+                    <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">go</span><span class="o">.</span><span class="n">Scatterternary</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">})</span>
+
+        <span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Ternary Scatter Plot&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ternary&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;sum&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;aaxis&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+                        <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                        <span class="s2">&quot;ticks&quot;</span><span class="p">:</span> <span class="s2">&quot;outside&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;baxis&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;W&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+                        <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                        <span class="s2">&quot;ticks&quot;</span><span class="p">:</span> <span class="s2">&quot;outside&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;caxis&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+                        <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                        <span class="s2">&quot;ticks&quot;</span><span class="p">:</span> <span class="s2">&quot;outside&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_sub_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
+                    <span class="n">figure</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">PhaseDiagramComponent</span><span class="o">.</span><span class="n">empty_plot_style</span><span class="p">),</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span>
+                    <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;displaylogo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pd-div&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="n">dash_table</span><span class="o">.</span><span class="n">DataTable</span><span class="p">(</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;entry-table&quot;</span><span class="p">),</span>
+                        <span class="n">columns</span><span class="o">=</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="p">{</span>
+                                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span>
+                                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span>
+                                    <span class="s2">&quot;editable&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="s2">&quot;edit&quot;</span><span class="p">],</span>
+                                <span class="p">}</span>
+                                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_table_params</span>
+                            <span class="p">]</span>
+                        <span class="p">),</span>
+                        <span class="n">style_table</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;maxHeight&quot;</span><span class="p">:</span> <span class="s2">&quot;450px&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;overflowY&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;border&quot;</span><span class="p">:</span> <span class="s2">&quot;thin lightgrey solid&quot;</span><span class="p">,</span>
+                        <span class="p">},</span>
+                        <span class="c1"># n_fixed_rows=1,</span>
+                        <span class="n">sort_action</span><span class="o">=</span><span class="s2">&quot;native&quot;</span><span class="p">,</span>
+                        <span class="n">editable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">row_deletable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">style_header</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;backgroundColor&quot;</span><span class="p">:</span> <span class="s2">&quot;rgb(230, 249, 255)&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;fontWeight&quot;</span><span class="p">:</span> <span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+                        <span class="p">},</span>
+                        <span class="n">style_cell</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;fontFamily&quot;</span><span class="p">:</span> <span class="s2">&quot;IBM Plex Sans&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;textAlign&quot;</span><span class="p">:</span> <span class="s2">&quot;centered&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;whiteSpace&quot;</span><span class="p">:</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+                        <span class="p">},</span>
+                        <span class="n">css</span><span class="o">=</span><span class="p">[</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;selector&quot;</span><span class="p">:</span> <span class="s2">&quot;.dash-cell div.dash-cell-value&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;rule&quot;</span><span class="p">:</span> <span class="s2">&quot;display: inline; white-space: inherit; overflow: inherit; text-overflow: inherit;&quot;</span><span class="p">,</span>
+                            <span class="p">}</span>
+                        <span class="p">],</span>
+                        <span class="n">style_cell_conditional</span><span class="o">=</span><span class="p">[</span>
+                            <span class="p">{</span><span class="s2">&quot;if&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;column_id&quot;</span><span class="p">:</span> <span class="s2">&quot;Material ID&quot;</span><span class="p">},</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;20%&quot;</span><span class="p">},</span>
+                            <span class="p">{</span><span class="s2">&quot;if&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;column_id&quot;</span><span class="p">:</span> <span class="s2">&quot;Formula&quot;</span><span class="p">},</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;20%&quot;</span><span class="p">},</span>
+                        <span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">Button</span><span class="p">(</span>
+                    <span class="s2">&quot;Add Custom Entry&quot;</span><span class="p">,</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;editing-rows-button&quot;</span><span class="p">),</span>
+                    <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+                    <span class="n">n_clicks</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">P</span><span class="p">(</span><span class="s2">&quot;Enter composition and formation energy per atom.&quot;</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;table&quot;</span><span class="p">:</span> <span class="n">table</span><span class="p">}</span>
+
+<div class="viewcode-block" id="PhaseDiagramComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">Columns</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">Column</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">]),</span>
+                        <span class="n">Column</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]),</span>
+                    <span class="p">],</span>
+                    <span class="n">centered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhaseDiagramComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pd-div&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span> <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;figure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span><span class="n">figure</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">figure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+            <span class="k">elif</span> <span class="n">figure</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+                <span class="n">search_error</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">MessageContainer</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">MessageBody</span><span class="p">(</span>
+                                <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span>
+                                    <span class="s2">&quot;Plotting is only available for phase diagrams containing 2-4 components.&quot;</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">],</span>
+                        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">search_error</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plot</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
+                        <span class="n">figure</span><span class="o">=</span><span class="n">figure</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;displaylogo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+                <span class="k">return</span> <span class="n">plot</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;figure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">)])</span>
+        <span class="k">def</span> <span class="nf">make_figure</span><span class="p">(</span><span class="n">pd</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">pd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">dim</span>
+
+            <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="s2">&quot;error&quot;</span>
+
+            <span class="n">plotter</span> <span class="o">=</span> <span class="n">PDPlotter</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">plotter</span><span class="o">.</span><span class="n">pd_plot_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                            <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                            <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>  <span class="c1"># create all phase diagram lines</span>
+                            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                            <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                            <span class="n">line</span><span class="o">=</span><span class="p">{</span>
+                                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;rgba (0, 0, 0, 1)&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;dash&quot;</span><span class="p">:</span> <span class="s2">&quot;solid&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+                            <span class="p">},</span>
+                            <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">go</span><span class="o">.</span><span class="n">Scatter3d</span><span class="p">(</span>
+                            <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                            <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                            <span class="n">z</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                            <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+                            <span class="n">line</span><span class="o">=</span><span class="p">{</span>
+                                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;rgba (0, 0, 0, 1)&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;dash&quot;</span><span class="p">:</span> <span class="s2">&quot;solid&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+                            <span class="p">},</span>
+                            <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_unstable_markers</span><span class="p">(</span><span class="n">plotter</span><span class="p">,</span> <span class="n">pd</span><span class="p">))</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_markers</span><span class="p">(</span><span class="n">plotter</span><span class="p">,</span> <span class="n">pd</span><span class="p">))</span>
+
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">figure_layout</span><span class="p">(</span><span class="n">plotter</span><span class="p">,</span> <span class="n">pd</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">fig</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;entries&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)])</span>
+        <span class="k">def</span> <span class="nf">create_pd_object</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">entries</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;entries&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;entry-table&quot;</span><span class="p">),</span> <span class="s2">&quot;derived_virtual_data&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_entries_store</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">rows</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Formula&quot;</span><span class="p">])</span>
+                    <span class="n">energy</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Formation Energy (eV/atom)&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Material ID&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">attribute</span> <span class="o">=</span> <span class="s2">&quot;Custom Entry&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">attribute</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Material ID&quot;</span><span class="p">]</span>
+                    <span class="c1"># create new entry object containing mpid as attribute (to combine with custom entries)</span>
+                    <span class="n">entry</span> <span class="o">=</span> <span class="n">PDEntry</span><span class="p">(</span>
+                        <span class="n">comp</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span> <span class="o">*</span> <span class="n">comp</span><span class="o">.</span><span class="n">num_atoms</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="n">attribute</span>
+                    <span class="p">)</span>
+                    <span class="n">entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="k">return</span> <span class="n">entries</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;entry-table&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;chemsys-internal&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;modified_timestamp&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;editing-rows-button&quot;</span><span class="p">),</span> <span class="s2">&quot;n_clicks&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;entry-table&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">create_table</span><span class="p">(</span><span class="n">chemsys</span><span class="p">,</span> <span class="n">pd_time</span><span class="p">,</span> <span class="n">n_clicks</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">rows</span><span class="p">):</span>
+
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">callback_context</span>
+
+            <span class="k">if</span> <span class="n">ctx</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">triggered</span> <span class="ow">or</span> <span class="n">chemsys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">trigger</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">triggered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># PD update trigger</span>
+            <span class="k">if</span> <span class="n">trigger</span><span class="p">[</span><span class="s2">&quot;prop_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;.modified_timestamp&quot;</span><span class="p">:</span>
+                <span class="n">table_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_table_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">pd</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">table_content</span>
+            <span class="k">elif</span> <span class="n">trigger</span><span class="p">[</span><span class="s2">&quot;prop_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;editing-rows-button&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.n_clicks&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">n_clicks</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">rows</span><span class="p">:</span>
+                    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">empty_row</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">rows</span>
+
+            <span class="k">with</span> <span class="n">MPRester</span><span class="p">()</span> <span class="k">as</span> <span class="n">mpr</span><span class="p">:</span>
+                <span class="n">entries</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_entries_in_chemsys</span><span class="p">(</span><span class="n">chemsys</span><span class="p">)</span>
+
+            <span class="n">pd</span> <span class="o">=</span> <span class="n">PhaseDiagram</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+            <span class="n">table_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_table_content</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">table_content</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;chemsys-internal&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;chemsys-external&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">get_chemsys_from_mpid_or_chemsys</span><span class="p">(</span><span class="n">mpid</span><span class="p">,</span> <span class="n">chemsys_external</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            :param mpid: mpid</span>
+<span class="sd">            :param chemsys_external: chemsys, e.g. &quot;Co-O&quot;</span>
+<span class="sd">            :return: chemsys</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">callback_context</span>
+
+            <span class="k">if</span> <span class="n">ctx</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">triggered</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">trigger</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">triggered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">trigger</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">chemsys</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># get entries by mpid</span>
+            <span class="k">if</span> <span class="n">trigger</span><span class="p">[</span><span class="s2">&quot;prop_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.data&quot;</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">MPRester</span><span class="p">()</span> <span class="k">as</span> <span class="n">mpr</span><span class="p">:</span>
+                    <span class="n">entry</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_entry_by_material_id</span><span class="p">(</span><span class="n">mpid</span><span class="p">)</span>
+
+                <span class="n">chemsys</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">chemical_system</span>
+
+            <span class="c1"># get entries by chemsys</span>
+            <span class="k">if</span> <span class="n">trigger</span><span class="p">[</span><span class="s2">&quot;prop_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;chemsys-external&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.data&quot;</span><span class="p">:</span>
+                <span class="n">chemsys</span> <span class="o">=</span> <span class="n">chemsys_external</span>
+
+            <span class="k">return</span> <span class="n">chemsys</span></div></div>
+
+
+<div class="viewcode-block" id="PhaseDiagramPanelComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent">[docs]</a><span class="k">class</span> <span class="nc">PhaseDiagramPanelComponent</span><span class="p">(</span><span class="n">PanelComponent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pd_component</span> <span class="o">=</span> <span class="n">PhaseDiagramComponent</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pd_component</span><span class="o">.</span><span class="n">attach_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">this_store_name</span><span class="o">=</span><span class="s2">&quot;struct&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Phase Diagram&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s2">&quot;Display the compositional phase diagram for the&quot;</span>
+            <span class="s2">&quot; chemical system containing this structure (between 2–4 species).&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="PhaseDiagramPanelComponent.update_contents"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.update_contents">[docs]</a>    <span class="k">def</span> <span class="nf">update_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_store_contents</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pd_component</span><span class="o">.</span><span class="n">layout</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

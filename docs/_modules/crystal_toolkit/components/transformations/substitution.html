@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>crystal_toolkit.components.transformations.substitution &mdash; Crystal Toolkit  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+    <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/transformations/substitution.html"/>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_web_app.html">Your First App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../first_component.html">Your First Component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Component Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../mp_app.html">A Materials Project App</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../helpers.html">Helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../jupyter.html">Jupyter Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/crystal_toolkit.html">API Docs</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Crystal Toolkit</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content style-external-links">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
+      <li>crystal_toolkit.components.transformations.substitution</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for crystal_toolkit.components.transformations.substitution</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dash_core_components</span> <span class="k">as</span> <span class="nn">dcc</span>
+<span class="kn">import</span> <span class="nn">dash_html_components</span> <span class="k">as</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">dash_table</span> <span class="k">as</span> <span class="nn">dt</span>
+
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="n">Label</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.components.transformations.core</span> <span class="kn">import</span> <span class="n">TransformationComponent</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Specie</span><span class="p">,</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="kn">import</span> <span class="n">SubstitutionTransformation</span>
+
+<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span>
+
+
+<div class="viewcode-block" id="SubstitutionTransformationComponent"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.substitution.html#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent">[docs]</a><span class="k">class</span> <span class="nc">SubstitutionTransformationComponent</span><span class="p">(</span><span class="n">TransformationComponent</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Substitute one species for another&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;Replace one species in your structure (</span><span class="se">\&quot;</span><span class="s2">Previous Species</span><span class="se">\&quot;</span><span class="s2">)</span>
+<span class="s2">with another species (</span><span class="se">\&quot;</span><span class="s2">New Species</span><span class="se">\&quot;</span><span class="s2">). The new species can be specified as an</span>
+<span class="s2">element (for example, O), as an element with an oxidation state (for example, O2-)</span>
+<span class="s2">or as a composition (for example, {&quot;Au&quot;:0.5, &quot;Cu&quot;:0.5} for a 50/50 mixture of gold</span>
+<span class="s2">and copper). Please consult the pymatgen documentation for more information.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transformation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SubstitutionTransformation</span>
+
+<div class="viewcode-block" id="SubstitutionTransformationComponent.options_layouts"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.substitution.html#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.options_layouts">[docs]</a>    <span class="k">def</span> <span class="nf">options_layouts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">structure</span> <span class="ow">and</span> <span class="n">structure</span><span class="o">.</span><span class="n">is_ordered</span><span class="p">:</span>
+            <span class="n">species_mapping</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">el</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">types_of_specie</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">species_mapping</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="ow">or</span> <span class="p">{</span><span class="s2">&quot;species_mapping&quot;</span><span class="p">:</span> <span class="n">species_mapping</span><span class="p">}</span>
+
+        <span class="n">species_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dict_input</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Species Mapping&quot;</span><span class="p">,</span>
+            <span class="n">kwarg_label</span><span class="o">=</span><span class="s2">&quot;species_mapping&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;A mapping from an original species (element or element with oxidation state, e.g. O or O2-) &quot;</span>
+            <span class="s2">&quot;to a new species (element, element with oxidation state, or a composition, e.g. O or O2- or &quot;</span>
+            <span class="s1">&#39;{&quot;Au&quot;: 0.5, &quot;Cu&quot;: 0.5}). In pymatgen, these are Element, Specie and Composition classes &#39;</span>
+            <span class="s2">&quot;respectively.&quot;</span><span class="p">,</span>
+            <span class="n">key_name</span><span class="o">=</span><span class="s2">&quot;Original Species&quot;</span><span class="p">,</span>
+            <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;New Species&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">species_mapping</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SubstitutionTransformationComponent.generate_callbacks"><a class="viewcode-back" href="../../../../source/crystal_toolkit.components.transformations.substitution.html#crystal_toolkit.components.transformations.substitution.SubstitutionTransformationComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate_callbacks</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span></div></div>
+        <span class="c1">#</span>
+        <span class="c1"># @app.callback(</span>
+        <span class="c1">#     Output(self.id(&quot;transformation_args_kwargs&quot;), &quot;data&quot;),</span>
+        <span class="c1">#     [Input(self.id(&quot;species_mapping&quot;), &quot;data&quot;)],</span>
+        <span class="c1"># )</span>
+        <span class="c1"># def update_transformation_kwargs(rows):</span>
+        <span class="c1">#     def get_el_occu(string):</span>
+        <span class="c1">#         try:</span>
+        <span class="c1">#             el_occu = literal_eval(string)</span>
+        <span class="c1">#         except ValueError:</span>
+        <span class="c1">#             el_occu = string</span>
+        <span class="c1">#         return el_occu</span>
+        <span class="c1">#</span>
+        <span class="c1">#     species_map = {</span>
+        <span class="c1">#         get_el_occu(row[&quot;prev&quot;]): get_el_occu(row[&quot;new&quot;])</span>
+        <span class="c1">#         for row in rows</span>
+        <span class="c1">#         if (row[&quot;prev&quot;] and row[&quot;new&quot;])</span>
+        <span class="c1">#     }</span>
+        <span class="c1">#</span>
+        <span class="c1">#     print(species_map)</span>
+        <span class="c1">#</span>
+        <span class="c1">#     return {&quot;args&quot;: [species_map], &quot;kwargs&quot;: {}}</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
