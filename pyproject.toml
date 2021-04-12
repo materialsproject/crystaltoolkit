@@ -31,7 +31,7 @@ habanero = { version = "*", optional = true }
 dscribe = { version = "*", optional = true }
 dash-extensions = { version = "*", optional = true }
 sentry-sdk = { version = "*", optional = true }
-dash-vtk = { version = "^0.0.6", optional= true }
+dash-vtk = { version = ">=0.0.6,<0.0.8", optional= true }
 kaleido = { version = "0.1.0", optional = true }
 
 [tool.poetry.extras]
