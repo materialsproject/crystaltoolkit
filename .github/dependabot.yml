@@ -1,0 +1,59 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "08:00"
+    timezone: US/Pacific
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: dash-vtk
+    versions:
+    - 0.0.7
+  - dependency-name: pre-commit
+    versions:
+    - 2.11.1
+    - 2.12.0
+  - dependency-name: dash-extensions
+    versions:
+    - 0.0.46
+    - 0.0.47
+    - 0.0.51
+  - dependency-name: dash-mp-components
+    versions:
+    - 0.2.10
+  - dependency-name: kaleido
+    versions:
+    - 0.2.1
+  - dependency-name: sentry-sdk
+    versions:
+    - 1.0.0
+  - dependency-name: ifermi
+    versions:
+    - 0.1.4
+    - 0.2.0
+    - 0.2.1
+    - 0.2.3
+  - dependency-name: flask-caching
+    versions:
+    - 1.10.0
+    - 1.10.1
+  - dependency-name: dscribe
+    versions:
+    - 1.0.0
+  - dependency-name: lxml
+    versions:
+    - 4.6.3
+  - dependency-name: pymatgen
+    versions:
+    - 2022.0.3
+    - 2022.0.4
+    - 2022.0.5
+  - dependency-name: sphinx
+    versions:
+    - 3.5.2
+    - 3.5.3
+  - dependency-name: pydantic
+    versions:
+    - 1.8.1
