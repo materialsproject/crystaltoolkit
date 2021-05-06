@@ -2,12 +2,13 @@ import numpy as np
 from pymatgen.core.periodic_table import DummySpecie
 from scipy.spatial.qhull import Delaunay
 
-from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface, Convex
+from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface, Convex, Arrows
 from crystal_toolkit.core.legend import Legend
 
 from itertools import chain
 from pymatgen.core.sites import Site
 from pymatgen.analysis.graphs import ConnectedSite
+from pymatgen.electronic_structure.core import Magmom
 
 from typing import List, Optional
 
@@ -26,6 +27,8 @@ def get_site_scene(
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
     bond_radius: float = 0.1,
+    draw_magmoms: bool = True,
+    magmom_scale: float = 1.0,
     legend: Optional[Legend] = None,
 ) -> Scene:
     """
@@ -48,6 +51,7 @@ def get_site_scene(
     atoms = []
     bonds = []
     polyhedron = []
+    magmoms = []
 
     legend = legend or Legend(self)
 
@@ -57,6 +61,9 @@ def get_site_scene(
     occu_start = 0.0
 
     position = self.coords.tolist()
+
+    radii = [legend.get_radius(sp, site=self) for sp in self.species.keys()]
+    max_radius = min(radii)
 
     for idx, (sp, occu) in enumerate(self.species.items()):
 
@@ -98,6 +105,26 @@ def get_site_scene(
                 tooltip=name,
             )
             atoms.append(sphere)
+
+        # Add magmoms
+        if draw_magmoms:
+            magmom = self.properties.get('magmom', [])
+            if magmom:
+                # enforce type
+                magmom = np.array(Magmom(magmom).get_moment())
+                magmom = 2 * magmom_scale * max_radius * magmom
+                tail = np.array(position) - 0.5*np.array(magmom)
+                head = np.array(position) + 0.5*np.array(magmom)
+
+                arrow = Arrows(
+                    positionPairs=[[tail, head]],
+                    color="red",
+                    radius=0.20,
+                    headLength=0.5,
+                    headWidth=0.4, 
+                    clickable=True,
+                )
+                magmoms.append(arrow)
 
     if not is_ordered and not np.isclose(phiEnd, np.pi * 2):
         # if site occupancy doesn't sum to 100%, cap sphere
@@ -205,6 +232,7 @@ def get_site_scene(
             Scene("atoms", contents=atoms),
             Scene("bonds", contents=bonds),
             Scene("polyhedra", contents=polyhedron),
+            Scene("magmoms", contents=magmoms),
         ],
         origin=origin,
     )

@@ -6,6 +6,7 @@ import dash_html_components as html
 # import for this example
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.electronic_structure.core import Magmom
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
@@ -15,10 +16,11 @@ app = dash.Dash()
 
 # create the Structure object
 structure = Structure(
-    Lattice.cubic(4.2),
-    ["Na", "K"],
+    Lattice.cubic(3.0),
+    ["Ni", "Ti"],
     [[0, 0, 0], [0.5, 0.5, 0.5]],
-    site_properties={"magmom": [-2, 2]},
+    site_properties={"magmom": [[-2.0, 1.0, 0.0], [1.0, 1.0, -1.0]]},
+    # site_properties={"magmom": [3.0, -2.0]},
 )
 
 # create the Crystal Toolkit component

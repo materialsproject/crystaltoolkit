@@ -132,14 +132,14 @@ def get_structure_graph_scene(
             color_edges = True
 
     idx_to_wyckoff = {}
-    if group_by_symmetry:
-        sga = SpacegroupAnalyzer(self.structure)
-        struct_sym = sga.get_symmetrized_structure()
-        for equiv_idxs, wyckoff in zip(
-            struct_sym.equivalent_indices, struct_sym.wyckoff_symbols
-        ):
-            for idx in equiv_idxs:
-                idx_to_wyckoff[idx] = wyckoff
+    # if group_by_symmetry:
+    #     sga = SpacegroupAnalyzer(self.structure)
+    #     struct_sym = sga.get_symmetrized_structure()
+    #     for equiv_idxs, wyckoff in zip(
+    #         struct_sym.equivalent_indices, struct_sym.wyckoff_symbols
+    #     ):
+    #         for idx in equiv_idxs:
+    #             idx_to_wyckoff[idx] = wyckoff
 
     for (idx, jimage) in sites_to_draw:
 
