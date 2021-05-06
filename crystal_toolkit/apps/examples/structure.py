@@ -18,7 +18,7 @@ structure = Structure(
     Lattice.cubic(4.2),
     ["Na", "K"],
     [[0, 0, 0], [0.5, 0.5, 0.5]],
-    site_properties={"magmom": [-10, 10]},
+    site_properties={"magmom": [-2, 2]},
 )
 
 # create the Crystal Toolkit component
