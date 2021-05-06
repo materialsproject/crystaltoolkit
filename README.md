@@ -24,7 +24,8 @@ The [Crystal Toolkit Development Team](https://github.com/materialsproject/cryst
 * [Matt McDermott](https://github.com/mattmcdermott) contributed phase diagram, X-ray Diffraction, X-ray Absorption Spectrum components
 * [Jason Munro](https://github.com/munrojm) contributed band structure component
 * [Stephen Weitzner](https://github.com/sweitzner) contributed POV-Ray integration (in progress)
-* [Richard Tran](https://github.com/richardtran415) for planned contribution of Wulff shape component
+* [Richard Tran](https://github.com/richardtran415) for contributing plotly-powered Wulff shapes to pymatgen, which Crystal Toolkit uses
+* [Guy Moore](https://github.com/guymoore13) for contributing magnetic moment visualization
 
 New contributors are welcome, please see our [Code of Conduct.](code-of-conduct.md) If you are a new contributor please modify this README in your Pull Request to add your name to the list.
 
