@@ -11,7 +11,7 @@ Installation
 
 There are two steps to using Crystal Toolkit inside Jupyter:
 
-1. Make sure Jupyter Lab is installed and run using ``jupyter lab``, version 2.x.
+1. Make sure Jupyter Lab is installed and run using ``jupyter lab``, version 3.x.
    Crystal Toolkit is not supported in the older Jupyter notebooks or older versions 
    of Jupyter Lab.
 
