@@ -471,7 +471,7 @@ class BandstructureAndDosComponent(MPComponent):
             {
                 "x": [x_point],
                 "y": [y_point],
-                "mode": "marker",
+                "mode": "markers",
                 "marker": {
                     "color": "#7E259B",
                     "size": 16,
