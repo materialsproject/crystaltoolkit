@@ -210,6 +210,8 @@ class MPComponent(ABC):
         # Note: shadowing Python built-in here, but only because Dash does it...
         # TODO: do something else here
         if id is None:
+            # TODO: this could lead to duplicate ids and an error, but if
+            # setting random ids, this could also lead to undefined behavior
             id = f"{CT_NAMESPACE}{self.__class__.__name__}"
         elif not id.startswith(CT_NAMESPACE):
             id = f"{CT_NAMESPACE}{id}"
