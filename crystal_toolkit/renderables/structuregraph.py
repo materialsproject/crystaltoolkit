@@ -11,7 +11,7 @@ from crystal_toolkit.core.legend import Legend
 
 from matplotlib.cm import get_cmap
 
-from typing import Optional
+from typing import Optional, List
 
 
 def _get_sites_to_draw(
@@ -91,7 +91,8 @@ def get_structure_graph_scene(
     edge_weight_color_scale="coolwarm",
     explicitly_calculate_polyhedra_hull=False,
     legend: Optional[Legend] = None,
-    group_by_symmetry: bool = True,
+    group_by_site_property: Optional[str] = None,
+    bond_radius: float = 0.1,
 ) -> Scene:
 
     origin = origin or list(
@@ -100,6 +101,8 @@ def get_structure_graph_scene(
 
     legend = legend or Legend(self.structure)
 
+    # we get primitives from each site individually, then
+    # combine into one big Scene
     primitives = defaultdict(list)
 
     sites_to_draw = self._get_sites_to_draw(
@@ -131,15 +134,12 @@ def get_structure_graph_scene(
 
             color_edges = True
 
-    idx_to_wyckoff = {}
-    # if group_by_symmetry:
-    #     sga = SpacegroupAnalyzer(self.structure)
-    #     struct_sym = sga.get_symmetrized_structure()
-    #     for equiv_idxs, wyckoff in zip(
-    #         struct_sym.equivalent_indices, struct_sym.wyckoff_symbols
-    #     ):
-    #         for idx in equiv_idxs:
-    #             idx_to_wyckoff[idx] = wyckoff
+    if group_by_site_property:
+        # we will create sub-scenes for each group of atoms
+        # for example, if the Structure has a "wyckoff" site property
+        # this might be used to allow grouping by Wyckoff position,
+        # this then changes mouseover/interaction behavior with this scene
+        grouped_atom_scene_contents = defaultdict(list)
 
     for (idx, jimage) in sites_to_draw:
 
@@ -185,18 +185,30 @@ def get_structure_graph_scene(
             connected_sites_not_drawn_colors=connected_sites_not_drawn_colors,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             legend=legend,
+            bond_radius=bond_radius,
         )
+
         for scene in site_scene.contents:
-            if group_by_symmetry and scene.name == "atoms" and idx in idx_to_wyckoff:
-                # will rename to e.g. atoms_N_4e
-                scene.name = f"atoms_{site_scene.name}_{idx_to_wyckoff[idx]}"
-                # this is a proof-of-concept to demonstrate hover labels, could create label
-                # automatically from site properties instead
-                scene.contents[0].tooltip = f"{site_scene.name} ({idx_to_wyckoff[idx]})"
-            primitives[scene.name] += scene.contents
+
+            if group_by_site_property and scene.name == "atoms":
+
+                group_name = f"{site.properties[group_by_site_property]}"
+                scene.contents[0].tooltip = group_name
+                grouped_atom_scene_contents[group_name] += scene.contents
+
+            else:
+
+                primitives[scene.name] += scene.contents
+
+    if group_by_site_property:
+        atoms_scenes: List[Scene] = []
+        for k, v in grouped_atom_scene_contents.items():
+            atoms_scenes.append(Scene(name=k, contents=v))
+        primitives["atoms"] = atoms_scenes
 
     primitives["unit_cell"].append(self.structure.lattice.get_scene())
 
+    # why primitives comprehension? just make explicit! more readable
     return Scene(
         name="StructureGraph",
         origin=origin,
