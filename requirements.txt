@@ -11,6 +11,7 @@ gunicorn
 habanero
 ifermi
 kaleido>=0.2.1
+mp-api
 mp-pyrho==0.*,>=0.0.21
 plotly==5.*,>=5.3.1
 pre-commit

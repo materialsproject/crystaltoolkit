@@ -11,6 +11,7 @@ pydantic = "*"
 plotly = "^5.3.1"
 webcolors = "*"
 crystaltoolkit-extension = "^0.3.0"
+mp-api = "*"
 mp-pyrho = "^0.0.21"
 scikit-learn = { version = "*"}
 scikit-image = { version = "*"}
