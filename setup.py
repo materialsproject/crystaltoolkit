@@ -57,6 +57,7 @@ setup(
         "scikit-image",
         "scikit-learn",
         "webcolors",
+        "mp-api",
     ],
     extras_require={
         "dev": [
