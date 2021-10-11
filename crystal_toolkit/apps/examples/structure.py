@@ -22,7 +22,7 @@ structure = Structure(
 )
 
 # create the Crystal Toolkit component
-structure_component = ctc.StructureMoleculeComponent(structure, id="struct")
+structure_component = ctc.StructureMoleculeComponent(structure, id="my_structure")
 
 # example layout to demonstrate capabilities of component
 my_layout = html.Div(

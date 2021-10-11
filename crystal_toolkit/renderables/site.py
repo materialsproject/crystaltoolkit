@@ -2,7 +2,15 @@ import numpy as np
 from pymatgen.core.periodic_table import DummySpecie
 from scipy.spatial.qhull import Delaunay
 
-from crystal_toolkit.core.scene import Scene, Cubes, Spheres, Cylinders, Surface, Convex, Arrows
+from crystal_toolkit.core.scene import (
+    Scene,
+    Cubes,
+    Spheres,
+    Cylinders,
+    Surface,
+    Convex,
+    Arrows,
+)
 from crystal_toolkit.core.legend import Legend
 
 from itertools import chain
@@ -63,7 +71,7 @@ def get_site_scene(
     position = self.coords.tolist()
 
     radii = [legend.get_radius(sp, site=self) for sp in self.species.keys()]
-    max_radius = min(radii)
+    max_radius = float(min(radii))
 
     for idx, (sp, occu) in enumerate(self.species.items()):
 
@@ -95,6 +103,10 @@ def get_site_scene(
                 name += " ({}% occupancy)".format(occu)
             name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
 
+            if self.properties:
+                for k, v in self.properties.items():
+                    name += f" ({k} = {v})"
+
             sphere = Spheres(
                 positions=[position],
                 color=color,
@@ -108,20 +120,19 @@ def get_site_scene(
 
         # Add magmoms
         if draw_magmoms:
-            magmom = self.properties.get('magmom', [])
-            if magmom:
+            if magmom := self.properties.get("magmom"):
                 # enforce type
                 magmom = np.array(Magmom(magmom).get_moment())
                 magmom = 2 * magmom_scale * max_radius * magmom
-                tail = np.array(position) - 0.5*np.array(magmom)
-                head = np.array(position) + 0.5*np.array(magmom)
+                tail = np.array(position) - 0.5 * np.array(magmom)
+                head = np.array(position) + 0.5 * np.array(magmom)
 
                 arrow = Arrows(
                     positionPairs=[[tail, head]],
                     color="red",
                     radius=0.20,
                     headLength=0.5,
-                    headWidth=0.4, 
+                    headWidth=0.4,
                     clickable=True,
                 )
                 magmoms.append(arrow)
