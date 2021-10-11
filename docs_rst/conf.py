@@ -131,7 +131,7 @@ html_context = {
     "display_github": True,
     "github_user": "materialsproject",
     "github_repo": "crystaltoolkit",
-    "github_version": "master",
+    "github_version": "main",
     "conf_py_path": "/docs/",
 }
 
