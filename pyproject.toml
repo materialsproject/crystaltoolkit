@@ -1,18 +1,17 @@
 [tool.poetry]
 name = "crystal_toolkit"
-version = "2021.04.29"
+version = "2021.10.11"
 description = ""
 authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-pymatgen = "^2022.0.0"
-typing-extensions = { version = "*", python = "~3.7" }
+python = "^3.8"
+pymatgen = "^2022.0.14"
 pydantic = "*"
-plotly = "^4.10"
+plotly = "^5.3.1"
 webcolors = "*"
 crystaltoolkit-extension = "^0.3.0"
-mp-pyrho = "^0.0.14"
+mp-pyrho = "^0.0.21"
 scikit-learn = { version = "*"}
 scikit-image = { version = "*"}
 
@@ -25,14 +24,14 @@ gunicorn = { version = "*", optional = true }
 redis = { version = "*", optional = true }
 Flask-Caching = { version = "*", optional = true }
 gevent = { version = "*", optional = true }
-dash-mp-components = {version = "^0", optional = true}
+dash-mp-components = {version = "^0.3.44", optional = true}
 robocrys = { version = "*", optional = true }
 habanero = { version = "*", optional = true }
 dscribe = { version = "*", optional = true }
 dash-extensions = { version = "*", optional = true }
 sentry-sdk = { version = "*", optional = true }
 dash-vtk = { version = "^0.0.6", optional= true }
-kaleido = { version = "0.1.0", optional = true }
+kaleido = { version = "^0.2.1", optional = true }
 
 [tool.poetry.extras]
 server = [
