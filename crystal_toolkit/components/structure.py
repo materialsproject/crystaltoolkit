@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import sys
@@ -86,6 +87,7 @@ class StructureMoleculeComponent(MPComponent):
         hide_incomplete_bonds: bool = DEFAULTS["hide_incomplete_bonds"],
         show_compass: bool = DEFAULTS["show_compass"],
         scene_settings: Optional[Dict] = None,
+        group_by_site_property: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -104,6 +106,8 @@ class StructureMoleculeComponent(MPComponent):
         :param hide_incomplete_bonds: whether to hide or show incomplete bonds
         :param show_compass: whether to hide or show the compass
         :param scene_settings: scene settings (lighting etc.) to pass to CrystalToolkitScene
+        :param group_by_site_property: a site property used for grouping of atoms for mouseover/interaction,
+        e.g. Wyckoff label
         :param kwargs: extra keyword arguments to pass to MPComponent
         """
 
@@ -138,6 +142,7 @@ class StructureMoleculeComponent(MPComponent):
                 "bonded_sites_outside_unit_cell": bonded_sites_outside_unit_cell,
                 "hide_incomplete_bonds": hide_incomplete_bonds,
                 "show_compass": show_compass,
+                "group_by_site_property": group_by_site_property,
             },
         )
 
@@ -389,7 +394,6 @@ class StructureMoleculeComponent(MPComponent):
             [Input(self.id("screenshot_button"), "n_clicks")],
             [State(self.id("scene"), "imageRequest"), State(self.id(), "data")],
         )
-        @cache.memoize()
         def trigger_screenshot(n_clicks, current_requests, struct_or_mol):
             if n_clicks is None:
                 raise PreventUpdate
@@ -408,7 +412,23 @@ class StructureMoleculeComponent(MPComponent):
             return {
                 "n_requests": n_requests,
                 "filename": request_filename,
-                "fileType": "png",
+                "filetype": "png",
+            }
+
+        @app.callback(
+            Output(self.id("download"), "data"),
+            Input(self.id("scene"), "imageDataTimestamp"),
+            [
+                State(self.id("scene"), "imageData"),
+                State(self.id("scene"), "imageRequest"),
+            ],
+        )
+        def download_image(image_data_timestamp, image_data, image_request):
+            if not image_data_timestamp:
+                raise PreventUpdate
+            return {
+                "content": image_data[len("data:image/png;base64,") :],
+                "filename": image_request["filename"],
             }
 
         @app.callback(
@@ -590,7 +610,8 @@ class StructureMoleculeComponent(MPComponent):
                     [Icon(kind="download"), html.Span(), "Download Image"],
                     kind="primary",
                     id=self.id("screenshot_button"),
-                )
+                ),
+                dcc.Download(id=self.id("download"), type="image/png", base64=True),
             ],
             # TODO: change to "bottom" when dropdown included
             style={"verticalAlign": "top", "display": "inline-block"},
@@ -915,6 +936,7 @@ class StructureMoleculeComponent(MPComponent):
         explicitly_calculate_polyhedra_hull=False,
         scene_additions=None,
         show_compass=DEFAULTS["show_compass"],
+        group_by_site_property=None,
     ) -> Tuple[Scene, Dict[str, str]]:
 
         scene = Scene(name="StructureMoleculeComponentScene")
@@ -938,6 +960,7 @@ class StructureMoleculeComponent(MPComponent):
                 bonded_sites_outside_unit_cell=bonded_sites_outside_unit_cell,
                 hide_incomplete_edges=hide_incomplete_bonds,
                 explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
+                group_by_site_property=group_by_site_property,
                 legend=legend,
             )
         elif isinstance(graph, MoleculeGraph):
@@ -950,12 +973,13 @@ class StructureMoleculeComponent(MPComponent):
             axes.visible = show_compass
             scene.contents.append(axes)
 
-        if scene_additions:
-            # TODO: need a Scene.from_json() to make this work
-            raise NotImplementedError
-            scene["contents"].append(scene_additions)
+        scene_json = scene.to_json()
 
-        return scene.to_json(), legend.get_legend()
+        if scene_additions:
+            # TODO: this might be cleaner if we had a Scene.from_json() method
+            scene_json["contents"].append(scene_additions)
+
+        return scene_json, legend.get_legend()
 
     def screenshot_layout(self):
         """
