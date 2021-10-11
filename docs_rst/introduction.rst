@@ -12,23 +12,27 @@ allowing Python developers to easily make an interactive web app to display mate
 As a showcase of the framework's capabilities, the Crystal Toolkit app allows you to import, view, analyze and
 transform crystal structures and molecules.
 
-Crystal Toolkit App
--------------------
+.. warning::
+  If you use Crystal Toolkit to power your own web apps,
+  you are required to kindly ask your users to cite the Crystal Toolkit
+  paper. Likewise, if you use a Crystal Toolkit figure or analysis in
+  your own paper, please cite, thank you! Citations help us justify
+  further work on new features and maintenance of the code.
+
+Crystal Toolkit Demonstration App
+---------------------------------
 
 You can visit the current Crystal Toolkit web app `here. <https://materialsproject.org/#apps/xtaltoolkit>`_
 
-.. warning::
-  While the web app is online, the Crystal Toolkit source code itself is not
-  intended for public use at this time. The current master branch **may not work**,
-  and **documentation may be incomplete and/or misleading.**
-  We're working hard to reach release status, please check back soon.
 
-Crystal Toolkit Framework
--------------------------
+Crystal Toolkit Web Framework
+-----------------------------
 
 Crystal Toolkit is designed as a modular, object-orientated suite of UI components
 built upon the `Dash framework by Plotly <https://dash.plot.ly>`_. The main Crystal Toolkit web app is just
 one example of using these components.
+
+...
 
 Installation
 ------------
@@ -60,7 +64,10 @@ Development Team
 
 The `Crystal Toolkit Development Team <https://github.com/materialsproject/crystaltoolkit/graphs/contributors>`_ includes:
 
-* `Matthew Horton <https://github.com/mkhorton>`_, lead
+* `Matthew Horton <https://github.com/mkhorton>`_, project lead
+
+Contributors
+
 * `François Chabbey <https://github.com/chabb>`_ for React components
 * `Jimmy Shen <https://github.com/jmmshn>`_ contributed pythreejs support, surface plotting, initial arrows/axes support, and various bug fixes
 * `Joey Montoya <https://github.com/JosephMontoya-TRI>`_ contributed Pourbaix component
