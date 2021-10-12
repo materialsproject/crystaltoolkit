@@ -9,7 +9,7 @@ from dash.exceptions import PreventUpdate
 from monty.serialization import loadfn, dumpfn
 from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify
-from pymatgen.ext.matproj import MPRester
+from mp_api import MPRester
 
 
 from pymatgen.util.string import unicodeify_spacegroup
@@ -127,13 +127,13 @@ class SearchComponent(MPComponent):
 
             with MPRester() as mpr:
                 try:
-                    entries = mpr.query(
+                    entries = mpr.search.search(
                         search_term,
-                        [
+                        fields=[
                             "task_id",
-                            "pretty_formula",
+                            "formula_pretty",
                             "e_above_hull",
-                            "spacegroup.symbol",
+                            "symmetry",
                         ],
                     )
                 except CompositionError:
