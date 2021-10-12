@@ -2,8 +2,8 @@ import os
 import warnings
 from typing import Any, Dict, List, Optional, Union
 
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from habanero import content_negotiation
 from monty.serialization import dumpfn, loadfn
 

@@ -6,10 +6,10 @@ from json import JSONDecodeError, loads
 from typing import Dict, List, Optional, Tuple, Union
 
 import dash
-import dash_core_components as dcc
+from dash import dcc
 import dash_daq as daq
-import dash_html_components as html
-import dash_table as dt
+from dash import html
+from dash import dash_table as dt
 import numpy as np
 from dash.dependencies import ALL, Input, Output, State
 from dash.exceptions import PreventUpdate

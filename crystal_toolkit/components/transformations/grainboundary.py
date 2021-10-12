@@ -1,5 +1,5 @@
 import dash
-import dash_core_components as dcc
+from dash import dcc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
