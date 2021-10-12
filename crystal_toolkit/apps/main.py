@@ -139,10 +139,6 @@ struct_component = ctc.StructureMoleculeComponent(
     links={"default": transformation_component.id()}
 )
 
-download_component = ctc.DownloadPanelComponent(
-    links={"default": struct_component.id()}
-)
-
 robocrys_panel = ctc.RobocrysComponent(links={"default": transformation_component.id()})
 xrd_panel = ctc.DiffractionPanelComponent(
     links={"default": transformation_component.id()}
@@ -165,7 +161,7 @@ if SETTINGS.MP_EMBED_MODE:
     #     [submit_snl_panel.panel_layout, download_component.panel_layout]
     # )
 else:
-    action_div = html.Div([download_component.panel_layout()])
+    action_div = html.Div([struct_component.download_layout()])
 
 panels = [
     symmetry_panel,
