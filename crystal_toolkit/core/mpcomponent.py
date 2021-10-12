@@ -8,9 +8,9 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 from base64 import b64encode
 
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table as dt
+from dash import dcc
+from dash import html
+from dash import dash_table as dt
 import numpy as np
 from dash.dependencies import ALL, Output
 from flask_caching import Cache

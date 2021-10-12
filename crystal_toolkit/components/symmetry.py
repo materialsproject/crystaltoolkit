@@ -1,6 +1,6 @@
 from fractions import Fraction
 
-import dash_html_components as html
+from dash import html
 import numpy as np
 from dash import callback_context
 from dash.dependencies import Input, Output

@@ -15,7 +15,7 @@ from pymatgen.io.vasp.sets import MPRelaxSet
 from typing import Dict, Optional, Tuple, Union
 
 import dash
-import dash_table as dt
+from dash import dash_table as dt
 import numpy as np
 from dash.dependencies import Input, Output, State, MATCH
 from dash.exceptions import PreventUpdate
