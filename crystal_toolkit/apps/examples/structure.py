@@ -39,6 +39,8 @@ my_layout = html.Div(
         structure_component.title_layout(),
         html.H3("Legend Layout"),
         structure_component.legend_layout(),
+        html.H3("Download Layout"),
+        structure_component.download_layout(),
     ]
 )
 
