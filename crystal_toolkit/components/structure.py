@@ -21,6 +21,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from emmet.core.settings import EmmetSettings
 
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
@@ -68,6 +69,18 @@ class StructureMoleculeComponent(MPComponent):
 
     # what to show for the title_layout if structure/molecule not loaded
     default_title = "Crystal Toolkit"
+
+    # human-readable label to file extension
+    # downloading Molecules has not yet been added
+    download_options = {
+        "Structure": {
+            "CIF (Symmetrized)": {"fmt": "cif", "symprec": EmmetSettings().SYMPREC},
+            "CIF": {"fmt": "cif"},
+            "POSCAR": {"fmt": "poscar"},
+            "JSON": {"fmt": "json"},
+            "Prismatic": {"fmt": "prismatic"},
+        }
+    }
 
     def __init__(
         self,
@@ -440,20 +453,27 @@ class StructureMoleculeComponent(MPComponent):
             Output(self.id("download-structure"), "data"),
             Input(self.id("download-button"), "n_clicks"),
             [
-                State(self.get_kwarg_id("download_fmt"), "value"),
+                State(self.get_kwarg_id("download_option"), "value"),
                 State(self.id(), "data"),
             ],
         )
-        def download_image(n_clicks, fmt, data):
+        def download_structure(n_clicks, download_option, data):
 
             if not n_clicks:
                 raise PreventUpdate
 
             structure = self.from_data(data)
-            fmt = fmt[0]
+            if isinstance(structure, StructureGraph):
+                structure = structure.structure
+
+            download_option = download_option[0]
+            extension = self.download_options["Structure"][download_option][
+                "download_options"
+            ]
+            options = self.download_options["Structure"][download_option]
 
             try:
-                contents = structure.to(fmt=fmt)
+                contents = structure.to(**options)
             except Exception as exc:
                 # don't fail silently, tell user what went wrong
                 contents = exc
@@ -464,7 +484,7 @@ class StructureMoleculeComponent(MPComponent):
                 "content": base64,
                 "base64": True,
                 "type": "text/plain",
-                "filename": f"{structure.composition.reduced_formula}.{fmt}",
+                "filename": f"{structure.composition.reduced_formula}.{extension}",
             }
 
         @app.callback(
@@ -832,23 +852,18 @@ class StructureMoleculeComponent(MPComponent):
             ]
         )
 
-        # human-readable label to file extension
-        struct_options = {
-            "CIF": "cif",
-            "POSCAR": "poscar",
-            "JSON": "json",
-            "Prismatic": "prismatic",
-        }
-
-        state = {"fmt": "cif"}
+        state = {"fmt": "CIF (Symmetrized)"}
 
         download_options = self.get_choice_input(
-            kwarg_label="download_fmt",
+            kwarg_label="download_option",
             state=state,
-            options=[{"label": k, "value": v} for k, v in struct_options.items()],
+            options=[
+                {"label": k, "value": k}
+                for k, v in self.download_options["Structure"].items()
+            ],
             style={
                 "border-radius": "4px 0px 0px 4px",
-                "width": "10rem",
+                "width": "12rem",
                 "height": "1.5rem",
             },
         )
