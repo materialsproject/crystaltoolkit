@@ -3,9 +3,9 @@ from urllib import parse
 import requests
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from pymatgen.ext.matproj import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
+from mp_api import MPRester
 
 from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.core.panelcomponent import PanelComponent
