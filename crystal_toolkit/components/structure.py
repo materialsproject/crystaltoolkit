@@ -1,3 +1,7 @@
+from pathlib import Path
+
+from tempfile import TemporaryDirectory
+
 from base64 import b64encode
 
 import json
@@ -7,6 +11,7 @@ import sys
 import warnings
 from collections import OrderedDict
 from itertools import chain, combinations_with_replacement
+from pymatgen.io.vasp.sets import MPRelaxSet
 from typing import Dict, Optional, Tuple, Union
 
 import dash
@@ -79,6 +84,7 @@ class StructureMoleculeComponent(MPComponent):
             "POSCAR": {"fmt": "poscar"},
             "JSON": {"fmt": "json"},
             "Prismatic": {"fmt": "prismatic"},
+            "VASP Input Set (MPRelaxSet)": {},  # special
         }
     }
 
@@ -466,26 +472,53 @@ class StructureMoleculeComponent(MPComponent):
             if isinstance(structure, StructureGraph):
                 structure = structure.structure
 
+            file_prefix = structure.composition.reduced_formula
+
             download_option = download_option[0]
-            extension = self.download_options["Structure"][download_option][
-                "download_options"
-            ]
-            options = self.download_options["Structure"][download_option]
 
-            try:
-                contents = structure.to(**options)
-            except Exception as exc:
-                # don't fail silently, tell user what went wrong
-                contents = exc
+            if "VASP" not in download_option:
 
-            base64 = b64encode(contents.encode("utf-8")).decode("ascii")
+                extension = self.download_options["Structure"][download_option][
+                    "download_options"
+                ]
+                options = self.download_options["Structure"][download_option]
 
-            return {
-                "content": base64,
-                "base64": True,
-                "type": "text/plain",
-                "filename": f"{structure.composition.reduced_formula}.{extension}",
-            }
+                try:
+                    contents = structure.to(**options)
+                except Exception as exc:
+                    # don't fail silently, tell user what went wrong
+                    contents = exc
+
+                base64 = b64encode(contents.encode("utf-8")).decode("ascii")
+
+                download_data = {
+                    "content": base64,
+                    "base64": True,
+                    "type": "text/plain",
+                    "filename": f"{file_prefix}.{extension}",
+                }
+
+            else:
+
+                if "Relax" in download_option:
+                    vis = MPRelaxSet(structure)
+                    expected_filename = "MPRelaxSet.zip"
+                else:
+                    raise ValueError("No other VASP input sets currently supported.")
+
+                with TemporaryDirectory() as tmpdir:
+                    vis.write_input(tmpdir, potcar_spec=True, zip_output=True)
+                    path = Path(tmpdir) / expected_filename
+                    bytes = b64encode(path.read_bytes()).decode("ascii")
+
+                download_data = {
+                    "content": bytes,
+                    "base64": True,
+                    "type": "application/zip",
+                    "filename": f"{file_prefix} {expected_filename}",
+                }
+
+            return download_data
 
         @app.callback(
             Output(self.id("title_container"), "children"),
