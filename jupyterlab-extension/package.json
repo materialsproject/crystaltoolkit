@@ -1,6 +1,6 @@
 {
   "name": "crystaltoolkit-extension",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A JupyterLab extension for rendering Crystal Toolkit Scene JSON files.",
   "author": "Matthew Horton <mkhorton@lbl.gov>",
   "main": "lib/index.js",

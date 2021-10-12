@@ -1,5 +1,5 @@
 import { Widget } from '@lumino/widgets';
-import { Simple3DScene } from '@materialsproject/mp-react-components';
+import { CrystalToolkitScene } from '@materialsproject/mp-react-components';
 /**
  * The default mime type for the extension.
  */
@@ -30,7 +30,7 @@ export class SceneRenderer extends Widget {
         this.model = model;
         // wait for the next event loop
         setTimeout(() => {
-            this.scene = new Simple3DScene(model, this.sceneContainer, {}, 50, 10, (objects) => {
+            this.scene = new CrystalToolkitScene(model, this.sceneContainer, {}, 50, 10, (objects) => {
                 // not sure what to do here
                 console.log('clicked on objects', objects);
             }, () => {
