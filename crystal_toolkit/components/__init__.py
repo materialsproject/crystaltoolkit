@@ -8,7 +8,7 @@ crystal_toolkit_layout = MPComponent.crystal_toolkit_layout
 from crystal_toolkit.components.search import SearchComponent
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
-# from crystal_toolkit.components.robocrys import RobocrysComponent
+from crystal_toolkit.components.robocrys import RobocrysComponent
 
 from crystal_toolkit.components.diffraction import (
     XRayDiffractionComponent,
@@ -16,8 +16,8 @@ from crystal_toolkit.components.diffraction import (
 )
 
 # from crystal_toolkit.components.xas import XASComponent, XASPanelComponent
-from crystal_toolkit.components.download import DownloadPanelComponent
-from crystal_toolkit.components.submit_snl import SubmitSNLPanel
+
+# from crystal_toolkit.components.submit_snl import SubmitSNLPanel
 from crystal_toolkit.components.symmetry import SymmetryPanel
 from crystal_toolkit.components.upload import StructureMoleculeUploadComponent
 
