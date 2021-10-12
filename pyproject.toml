@@ -39,10 +39,11 @@ server = [
     "dash", "dash-daq", "gunicorn", "redis",
     "Flask-Caching", "gevent", "dash-mp-components",
     "robocrys", "habanero", "hiphive", "dscribe",
-    "dash-extensions", "sentry-sdk", "kaleido"
+    "dash-extensions", "sentry-sdk",
 ]
 fermi = ["ifermi", "pyfftw"]
 vtk = ["dash-vtk"]
+figures = ["kaleido"]
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
