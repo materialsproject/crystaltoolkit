@@ -49,7 +49,7 @@ setup(
         "crystal_toolkit.core": ["*.yaml"],
     },
     install_requires=[
-        "crystaltoolkit-extension==0.*,>=0.3.0",
+        "crystaltoolkit-extension==0.*,>=0.4.0",
         "mp-pyrho==0.*,>=0.0.21",
         "plotly==5.*,>=5.3.1",
         "pydantic",
