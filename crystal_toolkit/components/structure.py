@@ -426,9 +426,12 @@ class StructureMoleculeComponent(MPComponent):
         def download_image(image_data_timestamp, image_data, image_request):
             if not image_data_timestamp:
                 raise PreventUpdate
+
             return {
                 "content": image_data[len("data:image/png;base64,") :],
                 "filename": image_request["filename"],
+                "base64": True,
+                "type": "image/png",
             }
 
         @app.callback(
@@ -589,13 +592,16 @@ class StructureMoleculeComponent(MPComponent):
     def _sub_layouts(self):
 
         struct_layout = html.Div(
-            CrystalToolkitScene(
-                id=self.id("scene"),
-                data=self.initial_data["scene"],
-                settings=self.initial_scene_settings,
-                sceneSize="100%",
-                **self.scene_kwargs,
-            ),
+            [
+                CrystalToolkitScene(
+                    id=self.id("scene"),
+                    data=self.initial_data["scene"],
+                    settings=self.initial_scene_settings,
+                    sceneSize="100%",
+                    **self.scene_kwargs,
+                ),
+                dcc.Download(id=self.id("download")),
+            ],
             style={
                 "width": "100%",
                 "height": "100%",
@@ -611,7 +617,6 @@ class StructureMoleculeComponent(MPComponent):
                     kind="primary",
                     id=self.id("screenshot_button"),
                 ),
-                dcc.Download(id=self.id("download"), type="image/png", base64=True),
             ],
             # TODO: change to "bottom" when dropdown included
             style={"verticalAlign": "top", "display": "inline-block"},
