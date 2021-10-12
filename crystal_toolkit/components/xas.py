@@ -7,10 +7,8 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from pymatgen.ext.matproj import MPRester
-
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import *
 
 # Author: Matthew McDermott
@@ -140,8 +138,9 @@ class XASComponent(MPComponent):
                 ]
 
         @app.callback(
-            Output(self.id(), "data"),
-            [Input(self.id("element-selector"), "value")],
+            [Output(self.id(), "data"), Output(self.id("elements"), "data")][
+                Input(self.id("element-selector"), "value")
+            ],
             [State(self.id("mpid"), "data"), State(self.id("elements"), "data")],
         )
         def pattern_from_mpid(element, mpid, elements):
@@ -149,6 +148,8 @@ class XASComponent(MPComponent):
                 raise PreventUpdate
 
             url_path = "/materials/" + mpid["mpid"] + "/xas/" + element
+
+            from mp_api.matproj import MPRester
 
             with MPRester() as mpr:
                 data = mpr._make_request(url_path)  # querying MP database via MAPI
@@ -166,20 +167,12 @@ class XASComponent(MPComponent):
                     )
                 ]
 
-            return plotdata
-
-        @app.callback(
-            Output(self.id("elements"), "data"), [Input(self.id("mpid"), "data")]
-        )
-        def get_elements_from_mpid(mpid):
-            if not mpid or "mpid" not in mpid:
-                raise PreventUpdate
-
             with MPRester() as mpr:
                 entry = mpr.get_entry_by_material_id(mpid["mpid"])
             comp = entry.composition
             elem_options = [str(comp.elements[i]) for i in range(0, len(comp))]
-            return elem_options
+
+            return plotdata, elem_options
 
         @app.callback(
             Output(self.id("element-selector"), "options"),
