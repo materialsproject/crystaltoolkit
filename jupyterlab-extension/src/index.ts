@@ -18,7 +18,7 @@ const CLASS_NAME = 'mimerenderer-mp_ctk_json';
 export class SceneRenderer extends Widget implements IRenderMime.IRenderer {
   private sceneContainer: HTMLDivElement;
   private model!: IRenderMime.IMimeModel;
-  private scene: Simple3DScene;
+  private scene: CrystalToolkitScene;
   /**
    * Construct a new output widget
    */
