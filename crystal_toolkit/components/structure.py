@@ -1,3 +1,5 @@
+from base64 import b64encode
+
 import json
 import os
 import re
@@ -435,6 +437,37 @@ class StructureMoleculeComponent(MPComponent):
             }
 
         @app.callback(
+            Output(self.id("download-structure"), "data"),
+            Input(self.id("download-button"), "n_clicks"),
+            [
+                State(self.get_kwarg_id("download_fmt"), "value"),
+                State(self.id(), "data"),
+            ],
+        )
+        def download_image(n_clicks, fmt, data):
+
+            if not n_clicks:
+                raise PreventUpdate
+
+            structure = self.from_data(data)
+            fmt = fmt[0]
+
+            try:
+                contents = structure.to(fmt=fmt)
+            except Exception as exc:
+                # don't fail silently, tell user what went wrong
+                contents = exc
+
+            base64 = b64encode(contents.encode("utf-8")).decode("ascii")
+
+            return {
+                "content": base64,
+                "base64": True,
+                "type": "text/plain",
+                "filename": f"{structure.composition.reduced_formula}.{fmt}",
+            }
+
+        @app.callback(
             Output(self.id("title_container"), "children"),
             [Input(self.id("legend_data"), "data")],
         )
@@ -600,7 +633,6 @@ class StructureMoleculeComponent(MPComponent):
                     sceneSize="100%",
                     **self.scene_kwargs,
                 ),
-                dcc.Download(id=self.id("download")),
             ],
             style={
                 "width": "100%",
@@ -617,6 +649,7 @@ class StructureMoleculeComponent(MPComponent):
                     kind="primary",
                     id=self.id("screenshot_button"),
                 ),
+                dcc.Download(id=self.id("download")),
             ],
             # TODO: change to "bottom" when dropdown included
             style={"verticalAlign": "top", "display": "inline-block"},
@@ -799,12 +832,50 @@ class StructureMoleculeComponent(MPComponent):
             ]
         )
 
+        # human-readable label to file extension
+        struct_options = {
+            "CIF": "cif",
+            "POSCAR": "poscar",
+            "JSON": "json",
+            "Prismatic": "prismatic",
+        }
+
+        state = {"fmt": "cif"}
+
+        download_options = self.get_choice_input(
+            kwarg_label="download_fmt",
+            state=state,
+            options=[{"label": k, "value": v} for k, v in struct_options.items()],
+            style={
+                "border-radius": "4px 0px 0px 4px",
+                "width": "10rem",
+                "height": "1.5rem",
+            },
+        )
+
+        download_button = Button(
+            [Icon(kind="download"), html.Span(), "Download"],
+            kind="primary",
+            id=self.id("download-button"),
+            style={"height": "2.25rem"},
+        )
+
+        download_layout = html.Div(
+            [
+                html.Div([download_options], className="control"),
+                html.Div([download_button], className="control"),
+                dcc.Download(id=self.id("download-structure")),
+            ],
+            className="field has-addons",
+        )
+
         return {
             "struct": struct_layout,
             "screenshot": screenshot_layout,
             "options": options_layout,
             "title": title_layout,
             "legend": legend_layout,
+            "download": download_layout,
         }
 
     def layout(self, size: str = "500px") -> html.Div:
@@ -1009,3 +1080,9 @@ class StructureMoleculeComponent(MPComponent):
         :return: A layout including a legend for the structure/molecule.
         """
         return self._sub_layouts["legend"]
+
+    def download_layout(self):
+        """
+        :return: A layout including a download button to download the structure/molecule.
+        """
+        return self._sub_layouts["download"]
