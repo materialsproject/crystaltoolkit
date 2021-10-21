@@ -19,7 +19,7 @@ scikit-image = { version = "*"}
 ifermi = { version = "*", optional = true}
 pyfftw = { version = "*", optional = true}
 
-dash = { version = "^1.19.0", optional = true }
+dash = { version = "^2.0.0", optional = true }
 dash-daq = { version = "*", optional = true }
 gunicorn = { version = "*", optional = true }
 redis = { version = "*", optional = true }
