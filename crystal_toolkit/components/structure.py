@@ -478,9 +478,7 @@ class StructureMoleculeComponent(MPComponent):
 
             if "VASP" not in download_option:
 
-                extension = self.download_options["Structure"][download_option][
-                    "download_options"
-                ]
+                extension = self.download_options["Structure"][download_option]["fmt"]
                 options = self.download_options["Structure"][download_option]
 
                 try:
