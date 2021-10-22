@@ -442,6 +442,8 @@ Sub-layouts:  \n{layouts}"""
         def matrix_element(idx, value=0):
             # TODO: maybe move element out of the name
             mid = self.id(kwarg_label, is_kwarg=True, idx=idx, hint=shape)
+            if isinstance(value, np.ndarray):
+                value = value.item()
             if not is_int:
                 return dcc.Input(
                     id=mid,
@@ -456,7 +458,7 @@ Sub-layouts:  \n{layouts}"""
                         "marginBottom": "0.2rem",
                         "height": "36px",
                     },
-                    value=value,
+                    value=float(value) if value is not None else None,
                     persistence=True,
                     type="number",
                     **kwargs,
@@ -475,7 +477,7 @@ Sub-layouts:  \n{layouts}"""
                         "marginBottom": "0.2rem",
                         "height": "36px",
                     },
-                    value=value,
+                    value=int(value) if value is not None else None,
                     persistence=True,
                     type="number",
                     step=1,
@@ -679,33 +681,48 @@ Sub-layouts:  \n{layouts}"""
 
             # TODO: catch Exceptions here, and display validation error to user if incorrect kwargs supplied
 
-            if isinstance(k_type, tuple):
-                # matrix or vector
-                if kwarg_label not in kwargs:
-                    kwargs[kwarg_label] = np.empty(k_type)
-                v = literal_eval(str(v))
-                if v is not None and kwargs[kwarg_label] is not None:
-                    kwargs[kwarg_label][idx] = literal_eval(str(v))
-                else:
-                    # require all elements to have value, otherwise set
-                    # entire kwarg to None
-                    kwargs[kwarg_label] = None
+            try:
 
-            elif k_type == "literal":
+                if isinstance(k_type, tuple):
+                    # matrix or vector
+                    if kwarg_label not in kwargs:
+                        kwargs[kwarg_label] = np.empty(k_type)
+                    v = literal_eval(str(v))
+                    if (v is not None) and (kwargs[kwarg_label] is not None):
+                        if isinstance(v, list):
+                            print(
+                                "This shouldn't happen! Debug required.",
+                                kwarg_label,
+                                idx,
+                                v,
+                            )
+                            kwargs[kwarg_label][idx] = None
+                        else:
+                            kwargs[kwarg_label][idx] = v
+                    else:
+                        # require all elements to have value, otherwise set
+                        # entire kwarg to None
+                        kwargs[kwarg_label] = None
 
-                try:
-                    kwargs[kwarg_label] = literal_eval(str(v))
-                except ValueError:
-                    kwargs[kwarg_label] = str(v)
+                elif k_type == "literal":
 
-            elif k_type == "bool":
-                kwargs[kwarg_label] = bool("enabled" in v)
+                    try:
+                        kwargs[kwarg_label] = literal_eval(str(v))
+                    except ValueError:
+                        kwargs[kwarg_label] = str(v)
 
-            elif k_type == "slider":
-                kwargs[kwarg_label] = v
+                elif k_type == "bool":
+                    kwargs[kwarg_label] = bool("enabled" in v)
 
-            elif k_type == "dict":
-                pass
+                elif k_type == "slider":
+                    kwargs[kwarg_label] = v
+
+                elif k_type == "dict":
+                    pass
+
+            except Exception as exc:
+                # Not raised intentionally but if you notice this in logs please investigate.
+                print("This is a problem, debug required.", exc)
 
         for k, v in kwargs.items():
             if isinstance(v, np.ndarray):
