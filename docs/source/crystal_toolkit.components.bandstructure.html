@@ -52,7 +52,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -92,8 +92,85 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="crystal-toolkit-components-bandstructure-module">
-<h1>crystal_toolkit.components.bandstructure module<a class="headerlink" href="#crystal-toolkit-components-bandstructure-module" title="Permalink to this headline"></a></h1>
+  <section id="module-crystal_toolkit.components.bandstructure">
+<span id="crystal-toolkit-components-bandstructure-module"></span><h1>crystal_toolkit.components.bandstructure module<a class="headerlink" href="#module-crystal_toolkit.components.bandstructure" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.bandstructure.</span></span><span class="sig-name descname"><span class="pre">BandstructureAndDosComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandstructure_symm_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density_of_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.generate_callbacks">
+<span class="sig-name descname"><span class="pre">generate_callbacks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.generate_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.generate_callbacks" title="Permalink to this definition"></a></dt>
+<dd><p>Generate all callbacks associated with the layouts in this app. Assume
+that “suppress_callback_exceptions” is True, since it is not always
+guaranteed that all layouts will be displayed to the end user at all
+times, but it’s important the callbacks are defined on the server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_bandstructure_traces">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_bandstructure_traces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_convention</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-</span> <span class="pre">6.0,</span> <span class="pre">10.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_bandstructure_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_bandstructure_traces" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_brillouin_zone_scene">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_brillouin_zone_scene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructureSymmLine</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Scene" title="crystal_toolkit.core.scene.Scene"><span class="pre">crystal_toolkit.core.scene.Scene</span></a></span></span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_brillouin_zone_scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_brillouin_zone_scene" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_dos_traces">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_dos_traces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_select</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-</span> <span class="pre">6.0,</span> <span class="pre">10.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_dos_traces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_dos_traces" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_figure">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_convention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dos_select</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ap'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-</span> <span class="pre">6.0,</span> <span class="pre">10.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_figure" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_ifermi_scene">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">get_ifermi_scene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructure</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Scene" title="crystal_toolkit.core.scene.Scene"><span class="pre">crystal_toolkit.core.scene.Scene</span></a></span></span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.get_ifermi_scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_ifermi_scene" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.layout">
+<span class="sig-name descname"><span class="pre">layout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosComponent.layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.layout" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A Dash layout for the full component. Basic implementation</p>
+</dd>
+</dl>
+<p>provided, but should in general be overridden.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.bandstructure.</span></span><span class="sig-name descname"><span class="pre">BandstructureAndDosPanelComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosPanelComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.panelcomponent.html#crystal_toolkit.core.panelcomponent.PanelComponent" title="crystal_toolkit.core.panelcomponent.PanelComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.panelcomponent.PanelComponent</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.description">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.description" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.initial_contents">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">initial_contents</span></span><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.initial_contents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.title">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.title" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.update_contents">
+<span class="sig-name descname"><span class="pre">update_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_store_contents</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/bandstructure.html#BandstructureAndDosPanelComponent.update_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.bandstructure.BandstructureAndDosPanelComponent.update_contents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
