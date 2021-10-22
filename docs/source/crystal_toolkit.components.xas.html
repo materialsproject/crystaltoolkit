@@ -52,7 +52,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="crystal_toolkit.components.html">crystal_toolkit.components package</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="crystal_toolkit.components.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-contents">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="crystal_toolkit.components.html#module-crystal_toolkit.components">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="crystal_toolkit.core.html">crystal_toolkit.core package</a></li>
@@ -92,8 +92,81 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="crystal-toolkit-components-xas-module">
-<h1>crystal_toolkit.components.xas module<a class="headerlink" href="#crystal-toolkit-components-xas-module" title="Permalink to this headline"></a></h1>
+  <section id="module-crystal_toolkit.components.xas">
+<span id="crystal-toolkit-components-xas-module"></span><h1>crystal_toolkit.components.xas module<a class="headerlink" href="#module-crystal_toolkit.components.xas" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASComponent">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.xas.</span></span><span class="sig-name descname"><span class="pre">XASComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/xas.html#XASComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.xas.XASComponent" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent" title="crystal_toolkit.core.mpcomponent.MPComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.mpcomponent.MPComponent</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASComponent.default_xas_layout">
+<span class="sig-name descname"><span class="pre">default_xas_layout</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'autosize':</span> <span class="pre">True,</span> <span class="pre">'height':</span> <span class="pre">300,</span> <span class="pre">'hovermode':</span> <span class="pre">'x',</span> <span class="pre">'margin':</span> <span class="pre">{'b':</span> <span class="pre">50,</span> <span class="pre">'l':</span> <span class="pre">60,</span> <span class="pre">'pad':</span> <span class="pre">0,</span> <span class="pre">'r':</span> <span class="pre">30,</span> <span class="pre">'t':</span> <span class="pre">50},</span> <span class="pre">'paper_bgcolor':</span> <span class="pre">'rgba(0,0,0,0)',</span> <span class="pre">'plot_bgcolor':</span> <span class="pre">'rgba(0,0,0,0)',</span> <span class="pre">'showlegend':</span> <span class="pre">False,</span> <span class="pre">'xaxis':</span> <span class="pre">{'anchor':</span> <span class="pre">'y',</span> <span class="pre">'mirror':</span> <span class="pre">'ticks',</span> <span class="pre">'nticks':</span> <span class="pre">8,</span> <span class="pre">'showgrid':</span> <span class="pre">True,</span> <span class="pre">'showline':</span> <span class="pre">True,</span> <span class="pre">'side':</span> <span class="pre">'bottom',</span> <span class="pre">'tickfont':</span> <span class="pre">{'size':</span> <span class="pre">16.0},</span> <span class="pre">'ticks':</span> <span class="pre">'inside',</span> <span class="pre">'title':</span> <span class="pre">'Energy</span> <span class="pre">(eV)',</span> <span class="pre">'titlefont':</span> <span class="pre">{'size':</span> <span class="pre">16.0},</span> <span class="pre">'type':</span> <span class="pre">'linear',</span> <span class="pre">'zeroline':</span> <span class="pre">False},</span> <span class="pre">'yaxis':</span> <span class="pre">{'anchor':</span> <span class="pre">'x',</span> <span class="pre">'mirror':</span> <span class="pre">'ticks',</span> <span class="pre">'nticks':</span> <span class="pre">7,</span> <span class="pre">'showgrid':</span> <span class="pre">True,</span> <span class="pre">'showline':</span> <span class="pre">True,</span> <span class="pre">'side':</span> <span class="pre">'left',</span> <span class="pre">'tickfont':</span> <span class="pre">{'size':</span> <span class="pre">16.0},</span> <span class="pre">'ticks':</span> <span class="pre">'inside',</span> <span class="pre">'title':</span> <span class="pre">'Absorption</span> <span class="pre">Coeff,</span> <span class="pre">μ</span> <span class="pre">(a.u.)',</span> <span class="pre">'titlefont':</span> <span class="pre">{'size':</span> <span class="pre">16.0},</span> <span class="pre">'type':</span> <span class="pre">'linear',</span> <span class="pre">'zeroline':</span> <span class="pre">False}}</span></em><a class="headerlink" href="#crystal_toolkit.components.xas.XASComponent.default_xas_layout" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASComponent.empty_plot_style">
+<span class="sig-name descname"><span class="pre">empty_plot_style</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'paper_bgcolor':</span> <span class="pre">'rgba(0,0,0,0)',</span> <span class="pre">'plot_bgcolor':</span> <span class="pre">'rgba(0,0,0,0)',</span> <span class="pre">'xaxis':</span> <span class="pre">{'visible':</span> <span class="pre">False},</span> <span class="pre">'yaxis':</span> <span class="pre">{'visible':</span> <span class="pre">False}}</span></em><a class="headerlink" href="#crystal_toolkit.components.xas.XASComponent.empty_plot_style" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASComponent.generate_callbacks">
+<span class="sig-name descname"><span class="pre">generate_callbacks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/xas.html#XASComponent.generate_callbacks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.xas.XASComponent.generate_callbacks" title="Permalink to this definition"></a></dt>
+<dd><p>Generate all callbacks associated with the layouts in this app. Assume
+that “suppress_callback_exceptions” is True, since it is not always
+guaranteed that all layouts will be displayed to the end user at all
+times, but it’s important the callbacks are defined on the server.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASComponent.layout">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">layout</span></span><a class="headerlink" href="#crystal_toolkit.components.xas.XASComponent.layout" title="Permalink to this definition"></a></dt>
+<dd><p>A Dash layout for the full component. Basic implementation
+provided, but should in general be overridden.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASComponent.line_colors">
+<span class="sig-name descname"><span class="pre">line_colors</span></span><em class="property"> <span class="pre">=</span> <span class="pre">['rgb(128,</span> <span class="pre">0,</span> <span class="pre">0)',</span> <span class="pre">'rgb(0,</span> <span class="pre">0,</span> <span class="pre">128)',</span> <span class="pre">'rgb(60,</span> <span class="pre">180,</span> <span class="pre">75)',</span> <span class="pre">'rgb(145,30,180)',</span> <span class="pre">'rgb(230,25,75)',</span> <span class="pre">'rgb(240,50,230)']</span></em><a class="headerlink" href="#crystal_toolkit.components.xas.XASComponent.line_colors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASPanelComponent">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">crystal_toolkit.components.xas.</span></span><span class="sig-name descname"><span class="pre">XASPanelComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/xas.html#XASPanelComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.xas.XASPanelComponent" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="crystal_toolkit.core.panelcomponent.html#crystal_toolkit.core.panelcomponent.PanelComponent" title="crystal_toolkit.core.panelcomponent.PanelComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">crystal_toolkit.core.panelcomponent.PanelComponent</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASPanelComponent.description">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#crystal_toolkit.components.xas.XASPanelComponent.description" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASPanelComponent.initial_contents">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">initial_contents</span></span><a class="headerlink" href="#crystal_toolkit.components.xas.XASPanelComponent.initial_contents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASPanelComponent.loading_text">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">loading_text</span></span><a class="headerlink" href="#crystal_toolkit.components.xas.XASPanelComponent.loading_text" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASPanelComponent.title">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#crystal_toolkit.components.xas.XASPanelComponent.title" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="crystal_toolkit.components.xas.XASPanelComponent.update_contents">
+<span class="sig-name descname"><span class="pre">update_contents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_store_contents</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/crystal_toolkit/components/xas.html#XASPanelComponent.update_contents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#crystal_toolkit.components.xas.XASPanelComponent.update_contents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
