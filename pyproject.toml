@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "crystal_toolkit"
-version = "2021.10.21"
+version = "2021.10.25"
 description = ""
 authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pymatgen = "^2022.0.15"
+pymatgen = "^2022.0.16"
 pydantic = "*"
 plotly = "^5.3.1"
 webcolors = "*"
