@@ -14,7 +14,7 @@ readme = ""
 setup(
     long_description=readme,
     name="crystal_toolkit",
-    version="2021.10.21",
+    version="2021.10.25",
     python_requires="==3.*,>=3.8.0",
     author="Matthew Horton",
     author_email="mkhorton@lbl.gov",
@@ -54,7 +54,7 @@ setup(
         "mp-pyrho==0.*,>=0.0.21",
         "plotly==5.*,>=5.3.1",
         "pydantic",
-        "pymatgen==2022.*,>=2022.0.14",
+        "pymatgen==2022.*,>=2022.0.16",
         "scikit-image",
         "scikit-learn",
         "webcolors",
