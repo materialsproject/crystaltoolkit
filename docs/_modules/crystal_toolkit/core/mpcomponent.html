@@ -588,14 +588,14 @@
 <div class="viewcode-block" id="MPComponent.get_slider_input"><a class="viewcode-back" href="../../../source/crystal_toolkit.core.mpcomponent.html#crystal_toolkit.core.mpcomponent.MPComponent.get_slider_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_slider_input</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">kwarg_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">help_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">multiple</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 
-        <span class="n">default</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kwarg_label</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kwarg_label</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">multiple</span><span class="p">:</span>
             <span class="n">slider_input</span> <span class="o">=</span> <span class="n">dcc</span><span class="o">.</span><span class="n">RangeSlider</span><span class="p">(</span>
