@@ -513,14 +513,14 @@ Sub-layouts:  \n{layouts}"""
     def get_slider_input(
         self,
         kwarg_label: str,
-        state: Optional[dict] = None,
+        state: Dict,
         label: Optional[str] = None,
         help_str: str = None,
         multiple: bool = False,
         **kwargs,
     ):
 
-        default = state.get(kwarg_label) or False
+        default = state.get(kwarg_label)
 
         if multiple:
             slider_input = dcc.RangeSlider(
