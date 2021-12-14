@@ -30,10 +30,7 @@ from crystal_toolkit.components.bandstructure import (
 #     PhaseDiagramComponent,
 #     PhaseDiagramPanelComponent,
 # )
-# from crystal_toolkit.components.pourbaix import (
-#     PourbaixDiagramComponent,
-#     PourbaixDiagramPanelComponent,
-# )
+from crystal_toolkit.components.pourbaix import PourbaixDiagramComponent
 from crystal_toolkit.components.localenv import LocalEnvironmentPanel
 
 from crystal_toolkit.components.transformations.core import AllTransformationsComponent
