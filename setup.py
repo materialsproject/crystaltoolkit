@@ -14,7 +14,7 @@ readme = ""
 setup(
     long_description=readme,
     name="crystal_toolkit",
-    version="2021.10.25",
+    version="2021.12.14",
     python_requires="==3.*,>=3.8.0",
     author="Matthew Horton",
     author_email="mkhorton@lbl.gov",
