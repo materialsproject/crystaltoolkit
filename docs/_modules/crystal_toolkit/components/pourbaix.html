@@ -82,13 +82,16 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="kn">import</span> <span class="n">PourbaixDiagram</span><span class="p">,</span> <span class="n">ELEMENTS_HO</span>
 
 <span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">MessageContainer</span><span class="p">,</span>
     <span class="n">MessageBody</span><span class="p">,</span>
-<span class="p">)</span>  <span class="c1"># layout helpers like `Columns` etc. (most subclass html.Div)</span>
+<span class="p">)</span>
+<span class="kn">import</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="k">as</span> <span class="nn">ctl</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.panelcomponent</span> <span class="kn">import</span> <span class="n">PanelComponent</span>
 
@@ -107,23 +110,18 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pourbaix_diagram</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c1"># stores that trigger a new Pourbaix diagram</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">)</span>  <span class="c1"># e.g. &quot;mp-123&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;chemsys&quot;</span><span class="p">)</span>  <span class="c1"># e.g. [&quot;Fe&quot;, &quot;O&quot;], list of element strings</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">)</span>  <span class="c1"># pymatgen.core.structure.Structure</span>
-
-        <span class="c1"># filled from the input stores</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;pourbaix_entries&quot;</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;figure&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;pourbaix_diagram_options&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;pourbaix_display_options&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">SUPPORTED_N_ELEMENTS</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;concentration-slider-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;concentration-slider-</span><span class="si">{}</span><span class="s2">-div&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;conc_dict&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;pourbaix_diagram&quot;</span><span class="p">,</span> <span class="n">initial_data</span><span class="o">=</span><span class="n">pourbaix_diagram</span><span class="p">)</span>
+        <span class="c1"># for index in range(SUPPORTED_N_ELEMENTS):</span>
+        <span class="c1">#     self.create_store(&quot;concentration-slider-{}&quot;.format(index))</span>
+        <span class="c1">#     self.create_store(&quot;concentration-slider-{}-div&quot;.format(index))</span>
+
+        <span class="c1"># self.create_store(&quot;pourbaix_diagram&quot;, initial_data=pourbaix_diagram)</span>
+
+    <span class="n">default_state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;show_labels&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;show_heatmap&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 
     <span class="n">default_plot_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
         <span class="n">xaxis</span><span class="o">=</span><span class="p">{</span>
@@ -203,7 +201,6 @@
         <span class="s2">&quot;Predicted Stable&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="c1"># TODO: why both plotter and pd</span>
 <div class="viewcode-block" id="PourbaixDiagramComponent.get_figure"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.get_figure">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_figure</span><span class="p">(</span>
         <span class="n">pourbaix_diagram</span><span class="p">,</span> <span class="n">heatmap_entry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">heatmap_as_contour</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_labels</span><span class="o">=</span><span class="kc">True</span>
@@ -315,17 +312,16 @@
             <span class="k">if</span> <span class="n">heatmap_entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">fillcolor</span> <span class="o">=</span> <span class="s2">&quot;White&quot;</span> <span class="k">if</span> <span class="s2">&quot;Ion&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="k">else</span> <span class="s2">&quot;PaleTurquoise&quot;</span>
                 <span class="n">shape</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-                    <span class="n">fillcolor</span><span class="o">=</span><span class="n">fillcolor</span><span class="p">,</span>
-                    <span class="n">line_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;below&quot;</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="n">fillcolor</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;below&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
 
             <span class="c1"># Add lines separately so they show up on heatmap</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span>
-                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="s2">&quot;Black&quot;</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+                <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;Black&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
             <span class="p">)</span>
             <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
 
@@ -381,318 +377,211 @@
 
         <span class="n">options</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="n">dcc</span><span class="o">.</span><span class="n">Checklist</span><span class="p">(</span>
-                    <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Filter solids &quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;filter_solids&quot;</span><span class="p">}],</span>
-                    <span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">,</span> <span class="s2">&quot;show_labels&quot;</span><span class="p">],</span>
-                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_diagram_options&quot;</span><span class="p">),</span>
-                    <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
-                    <span class="n">inputClassName</span><span class="o">=</span><span class="s2">&quot;mpc-radio&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
+                    <span class="s2">&quot;filter_solids&quot;</span><span class="p">,</span>
+                    <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_state</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Filter solids&quot;</span><span class="p">,</span>
+                    <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Whether to filter solid phases by stability on the compositional phase diagram. &quot;</span>
+                    <span class="s2">&quot;The practical consequence of this is that highly oxidized or reduced phases that &quot;</span>
+                    <span class="s2">&quot;might show up in experiments due to kinetic limitations on oxygen/hydrogen evolution &quot;</span>
+                    <span class="s2">&quot;won’t appear in the diagram, but they are not actually “stable” (and are frequently &quot;</span>
+                    <span class="s2">&quot;overstabilized from DFT errors). Hence, including only the stable solid phases generally &quot;</span>
+                    <span class="s2">&quot;leads to the most accurate Pourbaix diagrams.&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
-                <span class="n">dcc</span><span class="o">.</span><span class="n">Checklist</span><span class="p">(</span>
-                    <span class="n">options</span><span class="o">=</span><span class="p">[</span>
-                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Show heatmap &quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;show_heatmap&quot;</span><span class="p">},</span>
-                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Show labels &quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;show_labels&quot;</span><span class="p">},</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
+                    <span class="s2">&quot;show_labels&quot;</span><span class="p">,</span>
+                    <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_state</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Show labels&quot;</span><span class="p">,</span>
+                    <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Hide or show formula labels in the Pourbaix diagram plot.&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
+                    <span class="s2">&quot;show_heatmap&quot;</span><span class="p">,</span>
+                    <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_state</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Show heatmap&quot;</span><span class="p">,</span>
+                    <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Hide or show a heatmap showing the decomposition energy for a specific &quot;</span>
+                    <span class="s2">&quot;entry in this system.&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+                            <span class="s2">&quot;heatmap_choice&quot;</span><span class="p">,</span>
+                            <span class="n">state</span><span class="o">=</span><span class="p">{},</span>
+                            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Heatmap entry&quot;</span><span class="p">,</span>
+                            <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Choose the entry to use for heatmap generation.&quot;</span><span class="p">,</span>
+                            <span class="n">disabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;20rem&quot;</span><span class="p">},</span>
+                        <span class="p">)</span>
                     <span class="p">],</span>
-                    <span class="n">value</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;show_labels&quot;</span><span class="p">],</span>
-                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_display_options&quot;</span><span class="p">),</span>
-                    <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
-                    <span class="n">inputClassName</span><span class="o">=</span><span class="s2">&quot;mpc-radio&quot;</span><span class="p">,</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;heatmap_choice_container&quot;</span><span class="p">),</span>
                 <span class="p">),</span>
             <span class="p">],</span>
-            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">WIDTH</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
         <span class="p">)</span>
 
-        <span class="n">graph</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-            <span class="p">[</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
+            <span class="n">ctl</span><span class="o">.</span><span class="n">Loading</span><span class="p">(</span>
                 <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
                     <span class="n">figure</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">empty_plot_style</span><span class="p">),</span>
                     <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span>
+                    <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;displaylogo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
                 <span class="p">)</span>
-            <span class="p">],</span>
-            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix-div&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;min-height&quot;</span><span class="p">:</span> <span class="s2">&quot;500px&quot;</span><span class="p">},</span>
         <span class="p">)</span>
 
-        <span class="n">sliders</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                            <span class="s2">&quot;concentration-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">),</span>
-                            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;concentration-</span><span class="si">{}</span><span class="s2">-text&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span>
-                        <span class="p">),</span>
-                        <span class="n">dcc</span><span class="o">.</span><span class="n">Slider</span><span class="p">(</span>
-                            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;concentration-slider-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span>
-                            <span class="nb">min</span><span class="o">=-</span><span class="mi">8</span><span class="p">,</span>
-                            <span class="nb">max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                            <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                            <span class="n">value</span><span class="o">=-</span><span class="mi">4</span><span class="p">,</span>
-                        <span class="p">),</span>
-                    <span class="p">],</span>
-                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;concentration-slider-</span><span class="si">{}</span><span class="s2">-div&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span>
-                    <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">},</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">SUPPORTED_N_ELEMENTS</span><span class="p">)</span>
-            <span class="p">],</span>
-            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;slider-div&quot;</span><span class="p">),</span>
-            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">WIDTH</span><span class="p">},</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">}</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span> <span class="s2">&quot;sliders&quot;</span><span class="p">:</span> <span class="n">sliders</span><span class="p">}</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PourbaixDiagramComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;sliders&quot;</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">],</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
+            <span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">],]</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="PourbaixDiagramComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix-div&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span>
-            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;figure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)],</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;heatmap_choice_container&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span>
+            <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span><span class="n">figure</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">figure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PreventUpdate</span>
-            <span class="k">elif</span> <span class="n">figure</span> <span class="o">==</span> <span class="s2">&quot;too_many_elements&quot;</span><span class="p">:</span>
-                <span class="n">search_error</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">MessageContainer</span><span class="p">(</span>
-                        <span class="p">[</span>
-                            <span class="n">MessageBody</span><span class="p">(</span>
-                                <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span>
-                                    <span class="s2">&quot;Pourbaix diagrams may only be calculated for materials &quot;</span>
-                                    <span class="s2">&quot;with </span><span class="si">{}</span><span class="s2"> or fewer non-OH elements&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                        <span class="n">SUPPORTED_N_ELEMENTS</span>
-                                    <span class="p">)</span>
-                                <span class="p">)</span>
-                            <span class="p">)</span>
-                        <span class="p">],</span>
-                        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
-                    <span class="p">),</span>
-                <span class="p">)</span>
-                <span class="k">return</span> <span class="n">search_error</span>
+        <span class="k">def</span> <span class="nf">update_heatmap_choices</span><span class="p">(</span><span class="n">entries</span><span class="p">):</span>
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">plot</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
-                        <span class="n">figure</span><span class="o">=</span><span class="n">figure</span><span class="p">,</span>
-                        <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;displaylogo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-                    <span class="p">)</span>
-                <span class="p">]</span>
-                <span class="k">return</span> <span class="n">plot</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mp&quot;</span><span class="p">):</span>
+                    <span class="n">formula</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry&quot;</span><span class="p">][</span><span class="s2">&quot;composition&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reduced_formula</span>
+                    <span class="n">mpid</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry_id&quot;</span><span class="p">]</span>
+                    <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">formula</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">mpid</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">mpid</span><span class="p">})</span>
+
+            <span class="n">heatmap_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
+                <span class="s2">&quot;heatmap_choice&quot;</span><span class="p">,</span>
+                <span class="n">state</span><span class="o">=</span><span class="p">{},</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Heatmap entry&quot;</span><span class="p">,</span>
+                <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Choose the entry to use for heatmap generation.&quot;</span><span class="p">,</span>
+                <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+                <span class="n">disabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;20rem&quot;</span><span class="p">},</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">heatmap_options</span>
+
+        <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">get_pourbaix_diagram</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PourbaixDiagram</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;figure&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;figure&quot;</span><span class="p">),</span>
             <span class="p">[</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_diagram&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_display_options&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_entries&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;show_labels&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;show_heatmap&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;heatmap_choice&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span>
         <span class="k">def</span> <span class="nf">make_figure</span><span class="p">(</span>
-            <span class="n">pourbaix_diagram</span><span class="p">,</span> <span class="n">pourbaix_display_options</span><span class="p">,</span> <span class="n">pourbaix_entries</span><span class="p">,</span> <span class="n">struct</span>
+            <span class="n">pourbaix_entries</span><span class="p">,</span> <span class="n">filter_solids</span><span class="p">,</span> <span class="n">show_labels</span><span class="p">,</span> <span class="n">show_heatmap</span><span class="p">,</span> <span class="n">heatmap_choice</span>
         <span class="p">):</span>
-            <span class="k">if</span> <span class="n">pourbaix_entries</span> <span class="o">==</span> <span class="s2">&quot;too_many_elements&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;too_many_elements&quot;</span>
 
-            <span class="k">if</span> <span class="n">pourbaix_diagram</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwargs_from_state</span><span class="p">(</span><span class="n">dash</span><span class="o">.</span><span class="n">callback_context</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">pourbaix_entries</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
 
-            <span class="n">pourbaix_display_options</span> <span class="o">=</span> <span class="n">pourbaix_display_options</span> <span class="ow">or</span> <span class="p">[]</span>
-
-            <span class="n">pourbaix_diagram</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">pourbaix_diagram</span><span class="p">)</span>
             <span class="n">pourbaix_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">)</span>
 
-            <span class="c1"># Get heatmap id</span>
-            <span class="k">if</span> <span class="s2">&quot;show_heatmap&quot;</span> <span class="ow">in</span> <span class="n">pourbaix_display_options</span><span class="p">:</span>
-                <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
-                <span class="k">with</span> <span class="n">MPRester</span><span class="p">()</span> <span class="k">as</span> <span class="n">mpr</span><span class="p">:</span>
-                    <span class="c1"># Should probably enable fetching pourbaix entry</span>
-                    <span class="c1"># by mpid in MPRester</span>
-                    <span class="n">heatmap_id</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">find_structure</span><span class="p">(</span><span class="n">struct</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># # Get composition from structure</span>
+            <span class="c1"># struct = self.from_data(struct)</span>
+            <span class="c1"># comp_dict = {</span>
+            <span class="c1">#     str(elt): coeff</span>
+            <span class="c1">#     for elt, coeff in struct.composition.items()</span>
+            <span class="c1">#     if elt not in ELEMENTS_HO</span>
+            <span class="c1"># }</span>
+            <span class="c1"># if conc_dict is not None:</span>
+            <span class="c1">#     conc_dict = self.from_data(conc_dict)</span>
 
-                <span class="c1"># Find entry</span>
-                <span class="n">heatmap_entry</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">entry</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">pourbaix_entries</span> <span class="k">if</span> <span class="n">heatmap_id</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span>
-                <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pourbaix_diagram</span> <span class="o">=</span> <span class="n">get_pourbaix_diagram</span><span class="p">(</span>
+                <span class="n">pourbaix_entries</span><span class="p">,</span>
+                <span class="c1"># comp_dict=comp_dict,</span>
+                <span class="c1"># conc_dict=conc_dict,</span>
+                <span class="n">filter_solids</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generated pourbaix diagram&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Get heatmap id</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;show_heatmap&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;heatmap_choice&quot;</span><span class="p">):</span>
+                <span class="n">heatmap_entry</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                    <span class="n">entry</span>
+                    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">pourbaix_entries</span>
+                    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">==</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;heatmap_choice&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">heatmap_entry</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="n">show_labels</span> <span class="o">=</span> <span class="s2">&quot;show_labels&quot;</span> <span class="ow">in</span> <span class="n">pourbaix_display_options</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(</span>
-                <span class="n">pourbaix_diagram</span><span class="p">,</span> <span class="n">heatmap_entry</span><span class="o">=</span><span class="n">heatmap_entry</span><span class="p">,</span> <span class="n">show_labels</span><span class="o">=</span><span class="n">show_labels</span>
+                <span class="n">pourbaix_diagram</span><span class="p">,</span>
+                <span class="n">show_labels</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;show_labels&quot;</span><span class="p">],</span>
+                <span class="n">heatmap_entry</span><span class="o">=</span><span class="n">heatmap_entry</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="n">fig</span>
 
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_diagram&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-            <span class="p">[</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_entries&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_diagram_options&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;conc_dict&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">create_pbx_object</span><span class="p">(</span>
-            <span class="n">pourbaix_entries</span><span class="p">,</span> <span class="n">pourbaix_diagram_options</span><span class="p">,</span> <span class="n">conc_dict</span><span class="p">,</span> <span class="n">struct</span>
-        <span class="p">):</span>
-            <span class="c1"># Pass along element restriction</span>
-            <span class="k">if</span> <span class="n">pourbaix_entries</span> <span class="o">==</span> <span class="s2">&quot;too_many_elements&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;too_many_elements&quot;</span>
+            <span class="k">return</span> <span class="n">fig</span></div></div>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating entries&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">pourbaix_entries</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">pourbaix_entries</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Preventing updating entries&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+        <span class="c1"># # This is a hacked way of getting concentration, but haven&#39;t found a more sane fix</span>
+        <span class="c1"># # Basically creates 3 persistent sliders and updates the concentration according to</span>
+        <span class="c1"># # their values.  Renders only the necessary ones visible.</span>
+        <span class="c1"># @app.callback(</span>
+        <span class="c1">#     [</span>
+        <span class="c1">#         Output(self.id(&quot;concentration-slider-{}-div&quot;.format(index)), &quot;style&quot;)</span>
+        <span class="c1">#         for index in range(SUPPORTED_N_ELEMENTS)</span>
+        <span class="c1">#     ],</span>
+        <span class="c1">#     [</span>
+        <span class="c1">#         Input(self.id(&quot;pourbaix_diagram&quot;), &quot;data&quot;),</span>
+        <span class="c1">#         Input(self.id(&quot;struct&quot;), &quot;data&quot;),</span>
+        <span class="c1">#     ],</span>
+        <span class="c1"># )</span>
+        <span class="c1"># def reveal_sliders(pourbaix_diagram, struct):</span>
+        <span class="c1">#     if struct is None:</span>
+        <span class="c1">#         raise PreventUpdate</span>
+        <span class="c1">#     struct = self.from_data(struct)</span>
+        <span class="c1">#     pbx_elts = [</span>
+        <span class="c1">#         elt for elt in struct.composition.keys() if elt not in ELEMENTS_HO</span>
+        <span class="c1">#     ]</span>
+        <span class="c1">#     nelts = len(pbx_elts)</span>
+        <span class="c1">#     styles = [{}] * nelts</span>
+        <span class="c1">#     styles += [{&quot;display&quot;: &quot;none&quot;}] * (SUPPORTED_N_ELEMENTS - nelts)</span>
+        <span class="c1">#     return styles</span>
 
-            <span class="n">pourbaix_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">)</span>
-
-            <span class="c1"># filter_solids = True</span>
-            <span class="k">if</span> <span class="n">pourbaix_diagram_options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">filter_solids</span> <span class="o">=</span> <span class="s2">&quot;filter_solids&quot;</span> <span class="ow">in</span> <span class="n">pourbaix_diagram_options</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">filter_solids</span> <span class="o">=</span> <span class="kc">True</span>
-
-            <span class="c1"># Get composition from structure</span>
-            <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
-            <span class="n">comp_dict</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">elt</span><span class="p">):</span> <span class="n">coeff</span>
-                <span class="k">for</span> <span class="n">elt</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">struct</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ELEMENTS_HO</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="n">conc_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">conc_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">conc_dict</span><span class="p">)</span>
-
-            <span class="n">pourbaix_diagram</span> <span class="o">=</span> <span class="n">PourbaixDiagram</span><span class="p">(</span>
-                <span class="n">pourbaix_entries</span><span class="p">,</span>
-                <span class="n">comp_dict</span><span class="o">=</span><span class="n">comp_dict</span><span class="p">,</span>
-                <span class="n">conc_dict</span><span class="o">=</span><span class="n">conc_dict</span><span class="p">,</span>
-                <span class="n">filter_solids</span><span class="o">=</span><span class="n">filter_solids</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generated pourbaix diagram&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">pourbaix_diagram</span>
-
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_entries&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-            <span class="p">[</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;chemsys&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">get_chemsys_from_struct_mpid</span><span class="p">(</span><span class="n">mpid</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">chemsys</span><span class="p">):</span>
-            <span class="n">ctx</span> <span class="o">=</span> <span class="n">dash</span><span class="o">.</span><span class="n">callback_context</span>
-
-            <span class="k">if</span> <span class="n">ctx</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">triggered</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PreventUpdate</span>
-
-            <span class="n">trigger</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">triggered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="n">trigger</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PreventUpdate</span>
-
-            <span class="c1"># mpid trigger</span>
-            <span class="k">if</span> <span class="n">trigger</span><span class="p">[</span><span class="s2">&quot;prop_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.data&quot;</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">MPRester</span><span class="p">()</span> <span class="k">as</span> <span class="n">mpr</span><span class="p">:</span>
-                    <span class="n">entry</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_entry_by_material_id</span><span class="p">(</span><span class="n">mpid</span><span class="p">)</span>
-
-                <span class="n">chemsys</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span>
-
-            <span class="c1"># struct trigger</span>
-            <span class="k">elif</span> <span class="n">trigger</span><span class="p">[</span><span class="s2">&quot;prop_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.data&quot;</span><span class="p">:</span>
-                <span class="n">chemsys</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span>
-                <span class="p">]</span>
-
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chemsys</span><span class="p">)</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">})</span> <span class="o">&gt;</span> <span class="n">SUPPORTED_N_ELEMENTS</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;too_many_elements&quot;</span>
-
-            <span class="k">with</span> <span class="n">MPRester</span><span class="p">()</span> <span class="k">as</span> <span class="n">mpr</span><span class="p">:</span>
-                <span class="n">pourbaix_entries</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">get_pourbaix_entries</span><span class="p">(</span><span class="n">chemsys</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">pourbaix_entries</span>
-
-        <span class="c1"># This is a hacked way of getting concentration, but haven&#39;t found a more sane fix</span>
-        <span class="c1"># Basically creates 3 persistent sliders and updates the concentration according to</span>
-        <span class="c1"># their values.  Renders only the necessary ones visible.</span>
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;concentration-slider-</span><span class="si">{}</span><span class="s2">-div&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">)),</span> <span class="s2">&quot;style&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">SUPPORTED_N_ELEMENTS</span><span class="p">)</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;pourbaix_diagram&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">reveal_sliders</span><span class="p">(</span><span class="n">pourbaix_diagram</span><span class="p">,</span> <span class="n">struct</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">struct</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PreventUpdate</span>
-            <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
-            <span class="n">pbx_elts</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">elt</span> <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">struct</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ELEMENTS_HO</span>
-            <span class="p">]</span>
-            <span class="n">nelts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pbx_elts</span><span class="p">)</span>
-            <span class="n">styles</span> <span class="o">=</span> <span class="p">[{}]</span> <span class="o">*</span> <span class="n">nelts</span>
-            <span class="n">styles</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">}]</span> <span class="o">*</span> <span class="p">(</span><span class="n">SUPPORTED_N_ELEMENTS</span> <span class="o">-</span> <span class="n">nelts</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">styles</span>
-
-        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;conc_dict&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)]</span>
-            <span class="o">+</span> <span class="p">[</span>
-                <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;concentration-</span><span class="si">{}</span><span class="s2">-text&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">)),</span> <span class="s2">&quot;children&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">SUPPORTED_N_ELEMENTS</span><span class="p">)</span>
-            <span class="p">],</span>
-            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;struct&quot;</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)]</span>
-            <span class="o">+</span> <span class="p">[</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;concentration-slider-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">)),</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">SUPPORTED_N_ELEMENTS</span><span class="p">)</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">update_conc_dict</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PreventUpdate</span>
-
-            <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
-            <span class="n">pbx_elts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">elt</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">elt</span> <span class="ow">in</span> <span class="n">struct</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">elt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ELEMENTS_HO</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-            <span class="n">conc_dict</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">k</span><span class="p">:</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">arg</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pbx_elts</span><span class="p">,</span> <span class="n">args</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">pbx_elts</span><span class="p">)])</span>
-            <span class="p">}</span>
-            <span class="n">conc_text</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> M&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">conc_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
-            <span class="n">conc_text</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">SUPPORTED_N_ELEMENTS</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">pbx_elts</span><span class="p">))</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">conc_dict</span><span class="p">]</span> <span class="o">+</span> <span class="n">conc_text</span></div></div>
-
-
-<div class="viewcode-block" id="PourbaixDiagramPanelComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent">[docs]</a><span class="k">class</span> <span class="nc">PourbaixDiagramPanelComponent</span><span class="p">(</span><span class="n">PanelComponent</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_component</span> <span class="o">=</span> <span class="n">PourbaixDiagramComponent</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_component</span><span class="o">.</span><span class="n">attach_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">this_store_name</span><span class="o">=</span><span class="s2">&quot;struct&quot;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;Pourbaix Diagram&quot;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="s2">&quot;Display the pourbaix diagram for the&quot;</span>
-            <span class="s2">&quot; chemical system containing this structure (fewer than 3 non-OH species).&quot;</span>
-        <span class="p">)</span>
-
-<div class="viewcode-block" id="PourbaixDiagramPanelComponent.update_contents"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.update_contents">[docs]</a>    <span class="k">def</span> <span class="nf">update_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_store_contents</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pourbaix_component</span><span class="o">.</span><span class="n">layout</span></div></div>
+        <span class="c1"># @app.callback(</span>
+        <span class="c1">#     [Output(self.id(&quot;conc_dict&quot;), &quot;data&quot;)]</span>
+        <span class="c1">#     + [</span>
+        <span class="c1">#         Output(self.id(&quot;concentration-{}-text&quot;.format(index)), &quot;children&quot;)</span>
+        <span class="c1">#         for index in range(SUPPORTED_N_ELEMENTS)</span>
+        <span class="c1">#     ],</span>
+        <span class="c1">#     [Input(self.id(&quot;struct&quot;), &quot;data&quot;)]</span>
+        <span class="c1">#     + [</span>
+        <span class="c1">#         Input(self.id(&quot;concentration-slider-{}&quot;.format(index)), &quot;value&quot;)</span>
+        <span class="c1">#         for index in range(SUPPORTED_N_ELEMENTS)</span>
+        <span class="c1">#     ],</span>
+        <span class="c1"># )</span>
+        <span class="c1"># def update_conc_dict(struct, *args):</span>
+        <span class="c1">#     if args[0] is None:</span>
+        <span class="c1">#         raise PreventUpdate</span>
+        <span class="c1">#</span>
+        <span class="c1">#     struct = self.from_data(struct)</span>
+        <span class="c1">#     pbx_elts = sorted(</span>
+        <span class="c1">#         [</span>
+        <span class="c1">#             str(elt)</span>
+        <span class="c1">#             for elt in struct.composition.keys()</span>
+        <span class="c1">#             if elt not in ELEMENTS_HO</span>
+        <span class="c1">#         ]</span>
+        <span class="c1">#     )</span>
+        <span class="c1">#     conc_dict = {</span>
+        <span class="c1">#         k: 10 ** arg for k, arg in zip(pbx_elts, args[: len(pbx_elts)])</span>
+        <span class="c1">#     }</span>
+        <span class="c1">#     conc_text = [&quot;{}: {} M&quot;.format(k, v) for k, v in conc_dict.items()]</span>
+        <span class="c1">#     conc_text += [&quot;&quot;] * (SUPPORTED_N_ELEMENTS - len(pbx_elts))</span>
+        <span class="c1">#     return [conc_dict] + conc_text</span>
 </pre></div>
 
            </div>
