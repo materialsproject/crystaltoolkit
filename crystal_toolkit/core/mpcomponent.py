@@ -402,7 +402,6 @@ Sub-layouts:  \n{layouts}"""
         """
         return html.Div(list(self._sub_layouts.values()))
 
-    @abstractmethod
     def generate_callbacks(self, app, cache):
         """
         Generate all callbacks associated with the layouts in this app. Assume
@@ -410,11 +409,12 @@ Sub-layouts:  \n{layouts}"""
         guaranteed that all layouts will be displayed to the end user at all
         times, but it's important the callbacks are defined on the server.
         """
-        raise NotImplementedError
+        return None
 
     def get_numerical_input(
         self,
         kwarg_label: str,
+        default: Optional[Union[int, float, List]] = None,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
@@ -429,14 +429,18 @@ Sub-layouts:  \n{layouts}"""
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
         :param label: A description for this input.
-        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param default: A default value for this input.
+        :param state: Used to set default state for this input, use a dict with the kwarg_label as a key
+        and the default value as a value. Ignored if `default` is set. It can be useful to use
+        `state` if you want to set defaults for multiple inputs from a single dictionary.
         :param help_str: Text for a tooltip when hovering over label.
         :param is_int: if True, will use a numeric input
         :param shape: (3, 3) for matrix, (1, 3) for vector, (1, 1) for scalar
         :return: a Dash layout
         """
 
-        default = np.full(shape, state.get(kwarg_label))
+        state = state or {}
+        default = np.full(shape, default or state.get(kwarg_label))
         default = np.reshape(default, shape)
 
         def matrix_element(idx, value=0):
@@ -513,14 +517,16 @@ Sub-layouts:  \n{layouts}"""
     def get_slider_input(
         self,
         kwarg_label: str,
-        state: Dict,
+        default: Optional = None,
+        state: Dict = None,
         label: Optional[str] = None,
         help_str: str = None,
         multiple: bool = False,
         **kwargs,
     ):
 
-        default = state.get(kwarg_label)
+        state = state or {}
+        default = default or state.get(kwarg_label)
 
         if multiple:
             slider_input = dcc.RangeSlider(
@@ -544,6 +550,7 @@ Sub-layouts:  \n{layouts}"""
     def get_bool_input(
         self,
         kwarg_label: str,
+        default: Optional[bool] = None,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
@@ -555,12 +562,16 @@ Sub-layouts:  \n{layouts}"""
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
         :param label: A description for this input.
-        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param default: A default value for this input.
+        :param state: Used to set default state for this input, use a dict with the kwarg_label as a key
+        and the default value as a value. Ignored if `default` is set. It can be useful to use
+        `state` if you want to set defaults for multiple inputs from a single dictionary.
         :param help_str: Text for a tooltip when hovering over label.
         :return: a Dash layout
         """
 
-        default = state.get(kwarg_label) or False
+        state = state or {}
+        default = default or state.get(kwarg_label) or False
 
         bool_input = dcc.Checklist(
             id=self.id(kwarg_label, is_kwarg=True, hint="bool"),
@@ -575,6 +586,7 @@ Sub-layouts:  \n{layouts}"""
     def get_choice_input(
         self,
         kwarg_label: str,
+        default: Optional[Dict] = None,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
@@ -588,13 +600,17 @@ Sub-layouts:  \n{layouts}"""
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
         :param label: A description for this input.
-        :param state: Used to set state for this input, dict with arg name or kwarg name as key
+        :param default: A default value for this input.
+        :param state: Used to set default state for this input, use a dict with the kwarg_label as a key
+        and the default value as a value. Ignored if `default` is set. It can be useful to use
+        `state` if you want to set defaults for multiple inputs from a single dictionary.
         :param help_str: Text for a tooltip when hovering over label.
         :param options: Options to choose from, as per dcc.Dropdown
         :return: a Dash layout
         """
 
-        default = state.get(kwarg_label)
+        state = state or {}
+        default = default or state.get(kwarg_label)
 
         option_input = dcc.Dropdown(
             id=self.id(kwarg_label, is_kwarg=True, hint="literal"),
@@ -610,14 +626,27 @@ Sub-layouts:  \n{layouts}"""
     def get_dict_input(
         self,
         kwarg_label: str,
+        default: Optional = None,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
         key_name: str = "key",
         value_name: str = "value",
     ):
+        """
 
-        default = state.get(kwarg_label) or {}
+        :param kwarg_label:
+        :param default:
+        :param state:
+        :param label:
+        :param help_str:
+        :param key_name:
+        :param value_name:
+        :return:
+        """
+
+        state = state or {}
+        default = default or state.get(kwarg_label) or {}
 
         dict_input = dt.DataTable(
             id=self.id(kwarg_label, is_kwarg=True, hint="dict"),
@@ -653,10 +682,23 @@ Sub-layouts:  \n{layouts}"""
         return {"component_id": self._id, "kwarg_label": ALL, "idx": ALL, "hint": ALL}
 
     def reconstruct_kwarg_from_state(self, state, kwarg_name):
-        return self.reconstruct_kwargs_from_state(state)[kwarg_name]
+        return self.reconstruct_kwargs_from_state(
+            state=state, kwarg_labels=[kwarg_name]
+        )[kwarg_name]
 
-    def reconstruct_kwargs_from_state(self, state) -> Dict:
-        # TODO: change to take callback_context directly
+    def reconstruct_kwargs_from_state(self, state=None, kwarg_labels=None) -> Dict:
+        """
+        Generate
+
+        :param state: optional, a Dash callback context input or state
+        :param kwarg_labels: optional, parse only a specific kwarg or list of kwargs
+        :return: A dictionary of keyword arguments with their values
+        """
+
+        if not state:
+            state = {}
+            state.update(dash.callback_context.inputs)
+            state.update(dash.callback_context.states)
 
         kwargs = {}
         for k, v in state.items():
@@ -671,6 +713,9 @@ Sub-layouts:  \n{layouts}"""
                 continue
 
             kwarg_label = d["kwarg_label"]
+
+            if kwarg_labels and kwarg_label not in kwarg_labels:
+                continue
 
             try:
                 k_type = literal_eval(d["hint"])
