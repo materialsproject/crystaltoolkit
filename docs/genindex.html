@@ -624,6 +624,8 @@
 </li>
       <li><a href="source/crystal_toolkit.components.structure.html#crystal_toolkit.components.structure.StructureMoleculeComponent.default_scene_settings">default_scene_settings (crystal_toolkit.components.structure.StructureMoleculeComponent attribute)</a>
 </li>
+      <li><a href="source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.default_state">default_state (crystal_toolkit.components.pourbaix.PourbaixDiagramComponent attribute)</a>
+</li>
       <li><a href="source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.default_table_params">default_table_params (crystal_toolkit.components.phase_diagram.PhaseDiagramComponent attribute)</a>
 
       <ul>
@@ -646,8 +648,6 @@
         <li><a href="source/crystal_toolkit.components.localenv.html#crystal_toolkit.components.localenv.LocalEnvironmentPanel.description">(crystal_toolkit.components.localenv.LocalEnvironmentPanel property)</a>
 </li>
         <li><a href="source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.description">(crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent property)</a>
-</li>
-        <li><a href="source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.description">(crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent property)</a>
 </li>
         <li><a href="source/crystal_toolkit.components.robocrys.html#crystal_toolkit.components.robocrys.RobocrysComponent.description">(crystal_toolkit.components.robocrys.RobocrysComponent property)</a>
 </li>
@@ -960,12 +960,8 @@
 </li>
       <li><a href="source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Label.labelHover">labelHover (crystal_toolkit.core.scene.Label attribute)</a>
 </li>
-      <li><a href="source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.layout">layout (crystal_toolkit.components.pourbaix.PourbaixDiagramComponent property)</a>
-
-      <ul>
-        <li><a href="source/crystal_toolkit.components.xas.html#crystal_toolkit.components.xas.XASComponent.layout">(crystal_toolkit.components.xas.XASComponent property)</a>
+      <li><a href="source/crystal_toolkit.components.xas.html#crystal_toolkit.components.xas.XASComponent.layout">layout (crystal_toolkit.components.xas.XASComponent property)</a>
 </li>
-      </ul></li>
       <li><a href="source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.layout">layout() (crystal_toolkit.components.bandstructure.BandstructureAndDosComponent method)</a>
 
       <ul>
@@ -974,6 +970,8 @@
         <li><a href="source/crystal_toolkit.components.diffraction.html#crystal_toolkit.components.diffraction.XRayDiffractionComponent.layout">(crystal_toolkit.components.diffraction.XRayDiffractionComponent method)</a>
 </li>
         <li><a href="source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramComponent.layout">(crystal_toolkit.components.phase_diagram.PhaseDiagramComponent method)</a>
+</li>
+        <li><a href="source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.layout">(crystal_toolkit.components.pourbaix.PourbaixDiagramComponent method)</a>
 </li>
         <li><a href="source/crystal_toolkit.components.search.html#crystal_toolkit.components.search.SearchComponent.layout">(crystal_toolkit.components.search.SearchComponent method)</a>
 </li>
@@ -1247,8 +1245,6 @@
       </ul></li>
       <li><a href="source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent">PourbaixDiagramComponent (class in crystal_toolkit.components.pourbaix)</a>
 </li>
-      <li><a href="source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent">PourbaixDiagramPanelComponent (class in crystal_toolkit.components.pourbaix)</a>
-</li>
       <li><a href="source/crystal_toolkit.helpers.povray_renderer.html#crystal_toolkit.helpers.povray_renderer.pov_write_data">pov_write_data() (in module crystal_toolkit.helpers.povray_renderer)</a>
 </li>
       <li><a href="source/crystal_toolkit.components.symmetry.html#crystal_toolkit.components.symmetry.SymmetryPanel.pretty_frac_format">pretty_frac_format() (crystal_toolkit.components.symmetry.SymmetryPanel static method)</a>
@@ -1404,8 +1400,6 @@
 </li>
         <li><a href="source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.title">(crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent property)</a>
 </li>
-        <li><a href="source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.title">(crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent property)</a>
-</li>
         <li><a href="source/crystal_toolkit.components.robocrys.html#crystal_toolkit.components.robocrys.RobocrysComponent.title">(crystal_toolkit.components.robocrys.RobocrysComponent property)</a>
 </li>
         <li><a href="source/crystal_toolkit.components.submit_snl.html#crystal_toolkit.components.submit_snl.SubmitSNLPanel.title">(crystal_toolkit.components.submit_snl.SubmitSNLPanel property)</a>
@@ -1433,10 +1427,10 @@
         <li><a href="source/crystal_toolkit.core.panelcomponent.html#crystal_toolkit.core.panelcomponent.PanelComponent.title">(crystal_toolkit.core.panelcomponent.PanelComponent property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/crystal_toolkit.components.structure.html#crystal_toolkit.components.structure.StructureMoleculeComponent.title_layout">title_layout() (crystal_toolkit.components.structure.StructureMoleculeComponent method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Scene.to">to() (crystal_toolkit.core.scene.Scene method)</a>
 </li>
       <li><a href="source/crystal_toolkit.core.scene.html#crystal_toolkit.core.scene.Scene.to_json">to_json() (crystal_toolkit.core.scene.Scene method)</a>
@@ -1513,8 +1507,6 @@
 
       <ul>
         <li><a href="source/crystal_toolkit.components.phase_diagram.html#crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent.update_contents">(crystal_toolkit.components.phase_diagram.PhaseDiagramPanelComponent method)</a>
-</li>
-        <li><a href="source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent.update_contents">(crystal_toolkit.components.pourbaix.PourbaixDiagramPanelComponent method)</a>
 </li>
         <li><a href="source/crystal_toolkit.components.xas.html#crystal_toolkit.components.xas.XASPanelComponent.update_contents">(crystal_toolkit.components.xas.XASPanelComponent method)</a>
 </li>
