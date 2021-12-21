@@ -419,8 +419,12 @@ class StructureMoleculeComponent(MPComponent):
             if n_clicks is None:
                 raise PreventUpdate
             struct_or_mol = self.from_data(struct_or_mol)
-            # TODO: this will break if store is structure/molecule graph ...
-            formula = struct_or_mol.composition.reduced_formula
+            if isinstance(struct_or_mol, StructureGraph):
+                formula = struct_or_mol.structure.composition.reduced_formula
+            elif isinstance(struct_or_mol, MoleculeGraph):
+                formula = struct_or_mol.molecule.composition.reduced_Formula
+            else:
+                formula = struct_or_mol.composition.reduced_formula
             if hasattr(struct_or_mol, "get_space_group_info"):
                 spgrp = struct_or_mol.get_space_group_info()[0]
             else:
