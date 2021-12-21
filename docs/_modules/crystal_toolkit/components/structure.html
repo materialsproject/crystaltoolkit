@@ -494,8 +494,12 @@
             <span class="k">if</span> <span class="n">n_clicks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
             <span class="n">struct_or_mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">struct_or_mol</span><span class="p">)</span>
-            <span class="c1"># TODO: this will break if store is structure/molecule graph ...</span>
-            <span class="n">formula</span> <span class="o">=</span> <span class="n">struct_or_mol</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">struct_or_mol</span><span class="p">,</span> <span class="n">StructureGraph</span><span class="p">):</span>
+                <span class="n">formula</span> <span class="o">=</span> <span class="n">struct_or_mol</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">struct_or_mol</span><span class="p">,</span> <span class="n">MoleculeGraph</span><span class="p">):</span>
+                <span class="n">formula</span> <span class="o">=</span> <span class="n">struct_or_mol</span><span class="o">.</span><span class="n">molecule</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_Formula</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">formula</span> <span class="o">=</span> <span class="n">struct_or_mol</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">struct_or_mol</span><span class="p">,</span> <span class="s2">&quot;get_space_group_info&quot;</span><span class="p">):</span>
                 <span class="n">spgrp</span> <span class="o">=</span> <span class="n">struct_or_mol</span><span class="o">.</span><span class="n">get_space_group_info</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
