@@ -87,7 +87,7 @@ def get_structure_graph_scene(
     bonded_sites_outside_unit_cell=True,
     hide_incomplete_edges=False,
     incomplete_edge_length_scale=0.3,
-    color_edges_by_edge_weight=True,
+    color_edges_by_edge_weight=False,
     edge_weight_color_scale="coolwarm",
     explicitly_calculate_polyhedra_hull=False,
     legend: Optional[Legend] = None,
