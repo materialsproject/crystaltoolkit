@@ -1,3 +1,5 @@
+from base64 import b64encode
+
 import dash
 from dash import dcc
 from dash import html
@@ -34,26 +36,60 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 
 
 class TEMDiffractionComponent(MPComponent):
+    def __init__(self, *args, initial_structure=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.create_store("structure", initial_data=initial_structure)
+
     def layout(self):
+
+        voltage = self.get_numerical_input(
+            kwarg_label="voltage",
+            default=200,
+            label="Voltage / kV",
+            help_str="The incident wavelength with which to generate the diffraction pattern, "
+            "typically corresponding to a TEM microscope’s voltage.",
+        )
+
+        beam_direction = self.get_numerical_input(
+            kwarg_label="beam_direction",
+            default=[0, 0, 1],
+            label="Beam Direction",
+            help_str="The direction of the electron beam fired onto the sample.",
+            shape=(3,),
+            is_int=True,
+        )
+
+        # TODO: add additional kwargs for TemCalculator, or switch to an alternative solution
+
         return Columns(
             [
-                Column([self._sub_layouts["graph"]], size=8),
-                Column(
-                    [
-                        self._sub_layouts["x_axis"],
-                        self._sub_layouts["rad_source"],
-                        self._sub_layouts["shape_factor"],
-                        self._sub_layouts["peak_profile"],
-                        self._sub_layouts["crystallite_size"],
-                    ],
-                    size=4,
-                ),
+                Column([Box(Loading(id=self.id("tem-plot")))], size=8),
+                Column([voltage, html.Br(), beam_direction], size=4,),
             ],
-            id=self.id("inner-contents"),
         )
 
     def generate_callbacks(self, app, cache):
-        pass
+        @app.callback(
+            Output(self.id("tem-plot"), "children"),
+            [
+                Input(self.id("structure"), "data"),
+                Input(self.get_all_kwargs_id(), "value"),
+            ],
+        )
+        def generate_diffraction_pattern(structure, *args):
+
+            structure = self.from_data(structure)
+            kwargs = self.reconstruct_kwargs_from_state()
+
+            calculator = TEMCalculator(**kwargs)
+
+            print("kwargs", kwargs)
+
+            return dcc.Graph(
+                figure=calculator.get_plot_2d(structure),
+                responsive=False,
+                config={"displayModeBar": False, "displaylogo": False},
+            )
 
 
 class XRayDiffractionComponent(MPComponent):
@@ -61,14 +97,13 @@ class XRayDiffractionComponent(MPComponent):
 
     def __init__(self, *args, initial_structure=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.create_store("struct", initial_data=initial_structure)
+        self.create_store("structure", initial_data=initial_structure)
 
     # Default XRD plot style settings
     default_xrd_plot_style = dict(
         xaxis={
             "title": "2𝜃 / º",
             "anchor": "y",
-            "mirror": "ticks",
             "nticks": 8,
             "showgrid": True,
             "showline": True,
@@ -82,7 +117,6 @@ class XRayDiffractionComponent(MPComponent):
         yaxis={
             "title": "Intensity / arb. units",
             "anchor": "x",
-            "mirror": "ticks",
             "nticks": 7,
             "showgrid": True,
             "showline": True,
@@ -171,8 +205,6 @@ class XRayDiffractionComponent(MPComponent):
             "crystallite_size": 0.1,
         }
 
-        # download
-
         # Main plot
         graph = Loading(
             [
@@ -199,19 +231,20 @@ class XRayDiffractionComponent(MPComponent):
             ]
         )
 
-        # Broaden peaks
-        broadening_toggle = ...
-
         # Radiation source selector
         rad_source = self.get_choice_input(
             kwarg_label="rad_source",
             state=state,
             label="Radiation source",
-            help_str="...",
+            help_str="This defines the wavelength of the incident X-ray radiation.",
             options=[
-                {"label": wav.replace("a", "α").replace("b", "β"), "value": wav}
-                for wav in WAVELENGTHS.keys()
+                {
+                    "label": f'{name.replace("a", "α").replace("b", "β")} ({wavelength:.3f} Å)',
+                    "value": name,
+                }
+                for name, wavelength in WAVELENGTHS.items()
             ],
+            style={"width": "10rem"},
         )
 
         # Shape factor input
@@ -241,19 +274,27 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
                 {"label": "Lorentzian", "value": "L"},
                 {"label": "Voigt", "value": "V"},
             ],
+            style={"width": "10rem"},
         )
 
         # 2Theta or Q for x-axis
-        x_axis_choice = self.get_choice_input(
-            kwarg_label="x_axis",
-            state=state,
-            label="Choice of 𝑥 axis",
-            help_str="Can choose between 2𝜃 or Q, where Q is the magnitude of the reciprocal lattice and "
-            "independent of radiation source.",  # TODO: improve
-            options=[
-                {"label": "2𝜃", "value": "twotheta"},
-                {"label": "Q", "value": "Q"},
+        x_axis_choice = html.Div(
+            [
+                self.get_choice_input(
+                    kwarg_label="x_axis",
+                    state=state,
+                    label="Choice of 𝑥 axis",
+                    help_str="Can choose between 2𝜃 or Q, where Q is the magnitude of the reciprocal lattice and "
+                    "independent of radiation source.",  # TODO: improve
+                    options=[
+                        {"label": "2𝜃", "value": "twotheta"},
+                        {"label": "Q", "value": "Q"},
+                    ],
+                )
             ],
+            style={
+                "display": "none"
+            },  # TODO: this is buggy! let's fix it before we share
         )
 
         # Crystallite size selector (via Scherrer Equation)
@@ -261,12 +302,16 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             kwarg_label="crystallite_size",
             label="Scherrer crystallite size / nm",
             state=state,
-            help_str="...",
+            help_str="Simulate a real diffraction pattern by applying Scherrer broadening, which estimates the "
+            "full width at half maximum (FWHM) resulting from a finite, rather than infinite, crystallite "
+            "size.",
             marks={i: "{}".format(10 ** i) for i in range(-1, 3)},
             min=-1,
             max=2,
             step=0.01,
         )
+
+        static_image = self.get_figure_placeholder("xrd-plot")
 
         return {
             "x_axis": x_axis_choice,
@@ -275,13 +320,26 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             "peak_profile": peak_profile,
             "shape_factor": shape_factor,
             "crystallite_size": crystallite_size,
+            "static_image": static_image,
         }
 
-    def layout(self):
+    def layout(self, static_image=False):
+        """
+        Get the standard XRD diffraction pattern layout.
+
+        :param static_image: If True, will show a static image instead of an interactive graph.
+        :return:
+        """
+
+        if static_image:
+            inner = self._sub_layouts["static_image"]
+        else:
+            inner = self._sub_layouts["graph"]
+
         return Columns(
             [
                 Column(
-                    [Box([self._sub_layouts["graph"]])],
+                    [Box([inner], style={"height": "480px"})],
                     size=8,
                     style={"height": "600px"},
                 ),
@@ -407,7 +465,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
         @app.callback(
             Output(self.id(), "data"),
             [
-                Input(self.id("struct"), "data"),
+                Input(self.id("structure"), "data"),
                 Input(self.get_kwarg_id("rad_source"), "value"),
             ],
         )
@@ -417,6 +475,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
                 raise PreventUpdate
 
             struct = self.from_data(struct)
+
             rad_source = self.reconstruct_kwarg_from_state(
                 callback_context.inputs, "rad_source"
             )
@@ -433,40 +492,14 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
 
             return data.as_dict()
 
-
-class DiffractionPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.xrd = XRayDiffractionComponent(links={"struct": self.id()})
-        self.tem = TEMDiffractionComponent(links={"default": self.id()})
-
-    @property
-    def title(self):
-        return "Diffraction Pattern"
-
-    @property
-    def description(self):
-        return (
-            "Display powder or single crystal diffraction patterns for this structure."
-        )
-
-    def contents_layout(self) -> html.Div:
-
-        state = {"mode": "powder"}
-
-        # mode selector
-        mode = self.get_choice_input(
-            kwarg_label="mode",
-            state=state,
-            label="Mode",
-            help_str="""Select whether to generate a powder diffraction pattern 
-        (a pattern averaged over all orientations of a polycrystalline material) 
-        or a single crystal diffraction pattern (a diffraction pattern generated 
-        from a single crystal structure.""",
-            options=[
-                {"value": "powder", "label": "Powder"},
-                {"value": "single", "label": "Single Crystal"},
-            ],
-        )
-
-        return html.Div([Columns(Column(mode)), self.xrd.layout()])
+        # @app.callback(
+        #     Output(self.id("static-image"), "src"),
+        #     [Input(self.id("xrd-plot"), "figure")]
+        # )
+        # def update_static_image(data):
+        #
+        #     scope = PlotlyScope()
+        #     output = scope.transform(data, format="png", width=600, height=400, scale=4)
+        #     image = b64encode(output).decode('ascii')
+        #
+        #     return "data:image/png;base64," + image
