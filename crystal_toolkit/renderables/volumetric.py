@@ -15,7 +15,7 @@ def get_isosurface_scene(
     Args:
         data_key (str, optional): Use the volumetric data from self.data[data_key]. Defaults to 'total'.
         isolvl (float, optional): The cutoff for the isosurface to using the same units as VESTA so
-        e/bhor and kept grid size independent
+        e/bohr and kept grid size independent
         step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.
 
     Returns:
@@ -29,8 +29,8 @@ def get_isosurface_scene(
     vol_data = vol_data / vol / _ANGS2_TO_BOHR3
 
     padded_data = np.pad(vol_data, (0, 1), "wrap")
-    vertices, faces, normals, values = measure.marching_cubes_lewiner(
-        padded_data, level=isolvl, step_size=step_size
+    vertices, faces, normals, values = measure.marching_cubes(
+        padded_data, level=isolvl, step_size=step_size, method="lewiner"
     )
     # transform to fractional coordinates
     vertices = vertices / (vol_data.shape[0], vol_data.shape[1], vol_data.shape[2])
