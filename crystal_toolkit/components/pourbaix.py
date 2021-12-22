@@ -589,6 +589,9 @@ class PourbaixDiagramComponent(MPComponent):
         )
         def update_heatmap_choices(entries):
 
+            if not entries:
+                raise PreventUpdate
+
             options = []
             for entry in entries:
                 if entry["entry_id"].startswith("mp"):
