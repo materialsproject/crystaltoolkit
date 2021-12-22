@@ -528,21 +528,22 @@ Sub-layouts:  \n{layouts}"""
         state = state or {}
         default = default or state.get(kwarg_label)
 
+        slider_kwargs = dict(
+            tooltip={"placement": "bottom", "always_visible": True}, persistence=False,
+        )
+        slider_kwargs.update(kwargs)
+
         if multiple:
             slider_input = dcc.RangeSlider(
                 id=self.id(kwarg_label, is_kwarg=True, hint="slider"),
-                tooltip={"placement": "bottom"},
                 value=default,
-                persistence=True,
-                **kwargs,
+                **slider_kwargs,
             )
         else:
             slider_input = dcc.Slider(
                 id=self.id(kwarg_label, is_kwarg=True, hint="slider"),
-                tooltip={"placement": "bottom"},
                 value=default,
-                persistence=True,
-                **kwargs,
+                **slider_kwargs,
             )
 
         return add_label_help(slider_input, label, help_str)
@@ -578,7 +579,7 @@ Sub-layouts:  \n{layouts}"""
             style={"width": "5rem"},
             options=[{"label": "", "value": "enabled"}],
             value=["enabled"] if default else [],
-            persistence=True,
+            persistence=False,
         )
 
         return add_label_help(bool_input, label, help_str)
@@ -586,7 +587,7 @@ Sub-layouts:  \n{layouts}"""
     def get_choice_input(
         self,
         kwarg_label: str,
-        default: Optional[Dict] = None,
+        default: Optional[str] = None,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
@@ -616,7 +617,7 @@ Sub-layouts:  \n{layouts}"""
             id=self.id(kwarg_label, is_kwarg=True, hint="literal"),
             options=options if options else [],
             value=default,
-            persistence=True,
+            persistence=False,
             clearable=False,
             **kwargs,
         )
@@ -656,7 +657,7 @@ Sub-layouts:  \n{layouts}"""
             ],
             data=[{"key": k, "value": v} for k, v in default.items()],
             editable=True,
-            persistence=True,
+            persistence=False,
         )
 
         return add_label_help(dict_input, label, help_str)
@@ -724,8 +725,6 @@ Sub-layouts:  \n{layouts}"""
 
             idx = literal_eval(d["idx"])
 
-            # TODO: catch Exceptions here, and display validation error to user if incorrect kwargs supplied
-
             try:
 
                 if isinstance(k_type, tuple):
@@ -734,6 +733,7 @@ Sub-layouts:  \n{layouts}"""
                         kwargs[kwarg_label] = np.empty(k_type)
                     v = literal_eval(str(v))
                     if (v is not None) and (kwargs[kwarg_label] is not None):
+                        # print("debugging", kwargs, kwarg_label, idx, v)
                         if isinstance(v, list):
                             print(
                                 "This shouldn't happen! Debug required.",
@@ -767,7 +767,7 @@ Sub-layouts:  \n{layouts}"""
 
             except Exception as exc:
                 # Not raised intentionally but if you notice this in logs please investigate.
-                print("This is a problem, debug required.", exc)
+                print("This is a problem, debug required.", exc, d, v, type(v))
 
         for k, v in kwargs.items():
             if isinstance(v, np.ndarray):
