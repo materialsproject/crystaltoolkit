@@ -358,24 +358,24 @@ class Legend(MSONable):
         if self.radius_scheme == "uniform":
             radius = self.uniform_radius
         elif self.radius_scheme == "atomic":
-            radius = sp.atomic_radius
+            radius = float(sp.atomic_radius)
         elif (
             self.radius_scheme == "specified_or_average_ionic"
             and isinstance(sp, Specie)
             and sp.oxi_state
         ):
-            radius = sp.ionic_radius
+            radius = float(sp.ionic_radius)
         elif self.radius_scheme == "specified_or_average_ionic":
-            radius = sp.average_ionic_radius
+            radius = float(sp.average_ionic_radius)
         elif self.radius_scheme == "covalent":
             el = str(getattr(sp, "element", sp))
-            radius = CovalentRadius.radius[el]
+            radius = float(CovalentRadius.radius[el])
         elif self.radius_scheme == "van_der_waals":
-            radius = sp.van_der_waals_radius
+            radius = float(sp.van_der_waals_radius)
         elif self.radius_scheme == "atomic_calculated":
-            radius = sp.atomic_radius_calculated
+            radius = float(sp.atomic_radius_calculated)
 
-        if not radius:
+        if (not radius) or (not isinstance(radius, float)):
             warnings.warn(
                 "Radius unknown for {} and strategy {}, "
                 "setting to 0.5.".format(sp, self.radius_scheme)
