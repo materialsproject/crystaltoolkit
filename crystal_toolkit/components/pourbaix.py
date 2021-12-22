@@ -7,8 +7,11 @@ from dash.exceptions import PreventUpdate
 
 import numpy as np
 import re
+from matplotlib.cm import get_cmap
 
-from pymatgen.core import Composition
+from pymatgen.util.string import unicodeify
+from shapely.geometry import Polygon
+from pymatgen.core import Composition, Element
 from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, ELEMENTS_HO
 
@@ -26,27 +29,16 @@ __email__ = "joseph.montoya@tri.global"
 
 
 # TODO: fix bug for Pa, etc.
+# TODO: fix bug with composition input, needs further investigation and testing
+# TODO: add water stability region
 
-SUPPORTED_N_ELEMENTS = 4
+HEIGHT = 550  # in px
 WIDTH = 700  # in px
 
 
 class PourbaixDiagramComponent(MPComponent):
-    def __init__(self, pourbaix_diagram=None, **kwargs):
-        super().__init__(**kwargs)
 
-        self.create_store("figure")
-        self.create_store("pourbaix_diagram_options")
-        self.create_store("pourbaix_display_options")
-        self.create_store("mpid")
-
-        # for index in range(SUPPORTED_N_ELEMENTS):
-        #     self.create_store("concentration-slider-{}".format(index))
-        #     self.create_store("concentration-slider-{}-div".format(index))
-
-        # self.create_store("pourbaix_diagram", initial_data=pourbaix_diagram)
-
-    default_state = {"filter_solids": True, "show_labels": True, "show_heatmap": False}
+    default_state = {"filter_solids": True, "show_heatmap": False}
 
     default_plot_style = dict(
         xaxis={
@@ -79,10 +71,10 @@ class PourbaixDiagramComponent(MPComponent):
         },
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        height=550,
+        height=HEIGHT,
         width=WIDTH,
         hovermode="closest",
-        showlegend=False,
+        showlegend=True,
         legend=dict(
             orientation="h",
             traceorder="reversed",
@@ -126,24 +118,337 @@ class PourbaixDiagramComponent(MPComponent):
         "Predicted Stable": None,
     }
 
+    # @staticmethod
+    # def get_figure_with_shapes(
+    #     pourbaix_diagram, heatmap_entry=None, heatmap_as_contour=True, show_labels=True
+    # ):
+    #     """
+    #     Deprecated. This method returns a figure with Pourbaix domains as "shapes" and labels
+    #     as "annotations." The new figure method instead returns a Pourbaix diagram with
+    #     domains and labels as independent traces, so that they can be interacted with and
+    #     placed ona  legend.
+    #
+    #     Static method for getting plotly figure from a Pourbaix diagram.
+    #
+    #     Args:
+    #         pourbaix_diagram (PourbaixDiagram): Pourbaix diagram to plot
+    #         heatmap_entry (PourbaixEntry): id for the heatmap generation
+    #         heatmap_as_contour (bool): if True, display contours, if False heatmap as grid
+    #
+    #     Returns:
+    #         (dict) figure layout
+    #
+    #     """
+    #     # TODO: fix mpid problem.  Can't attach from mpid without it being a structure.
+    #     data = []
+    #
+    #     # Get data for heatmap
+    #     if heatmap_entry is not None:
+    #         ph_range = np.arange(-2, 16.001, 0.1)
+    #         v_range = np.arange(-2, 4.001, 0.1)
+    #         ph_mesh, v_mesh = np.meshgrid(ph_range, v_range)
+    #         decomposition_e = pourbaix_diagram.get_decomposition_energy(
+    #             heatmap_entry, ph_mesh, v_mesh
+    #         )
+    #
+    #         # Generate hoverinfo
+    #         hovertexts = []
+    #         for ph_val, v_val, de_val in zip(
+    #             ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()
+    #         ):
+    #             hovertext = [
+    #                 "∆G<sub>pbx</sub>={:.2f}".format(de_val),
+    #                 "ph={:.2f}".format(ph_val),
+    #                 "V={:.2f}".format(v_val),
+    #             ]
+    #             hovertext = "<br>".join(hovertext)
+    #             hovertexts.append(hovertext)
+    #         hovertexts = np.reshape(hovertexts, list(decomposition_e.shape))
+    #
+    #         # Enforce decomposition limit energy
+    #         decomposition_e = np.min(
+    #             [decomposition_e, np.ones(decomposition_e.shape)], axis=0
+    #         )
+    #
+    #         if not heatmap_as_contour:
+    #             # Plotly needs a list here for validation
+    #             hmap = go.Heatmap(
+    #                 x=list(ph_range),
+    #                 y=list(v_range),
+    #                 z=decomposition_e,
+    #                 text=hovertexts,
+    #                 hoverinfo="text",
+    #                 colorbar={
+    #                     "title": "∆G<sub>pbx</sub> (eV/atom)",
+    #                     "titleside": "right",
+    #                 },
+    #                 colorscale=PourbaixDiagramComponent.colorscale,
+    #                 zmin=0,
+    #                 zmax=1,
+    #             )
+    #             data.append(hmap)
+    #
+    #         else:
+    #
+    #             hmap = go.Contour(
+    #                 z=decomposition_e,
+    #                 x=list(ph_range),
+    #                 y=list(v_range),
+    #                 colorscale=PourbaixDiagramComponent.colorscale,  # or magma
+    #                 zmin=0,
+    #                 zmax=1,
+    #                 connectgaps=True,
+    #                 line_smoothing=0,
+    #                 line_width=0,
+    #                 contours_coloring="heatmap",
+    #                 text=hovertexts,
+    #             )
+    #             data.insert(0, hmap)
+    #
+    #     shapes = []
+    #     xydata = []
+    #     labels = []
+    #
+    #     for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
+    #         formula = entry.name
+    #         clean_formula = PourbaixDiagramComponent.clean_formula(formula)
+    #
+    #         # Generate annotation
+    #         xydata.append(np.average(vertices, axis=0))
+    #         labels.append(clean_formula)
+    #
+    #         # Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+    #         # Move to first point
+    #         path = "M {},{}".format(*vertices[0])
+    #         # Draw lines to each other point
+    #         path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
+    #         # Close path
+    #         path += "Z"
+    #
+    #         # Note that the lines and fills are added separately
+    #         # so that the lines but not the fills will show up on heatmap.
+    #         # This may be condensable in the future if plotly adds a more
+    #         # general z-ordering of objects
+    #
+    #         # Fill with turquoise if solution
+    #         if heatmap_entry is None:
+    #             fillcolor = "White" if "Ion" in entry.phase_type else "PaleTurquoise"
+    #             shape = go.layout.Shape(
+    #                 type="path", path=path, fillcolor=fillcolor, layer="below",
+    #             )
+    #             shapes.append(shape)
+    #
+    #         # Add lines separately so they show up on heatmap
+    #         shape = go.layout.Shape(
+    #             type="path",
+    #             path=path,
+    #             fillcolor="rgba(0,0,0,0)",
+    #             line={"color": "Black", "width": 1},
+    #         )
+    #         shapes.append(shape)
+    #
+    #     layout = PourbaixDiagramComponent.default_plot_style
+    #     layout.update({"shapes": shapes})
+    #
+    #     if show_labels:
+    #         if len(pourbaix_diagram.pbx_elts) == 1:
+    #             # Add annotations to layout
+    #             annotations = [
+    #                 {
+    #                     "align": "center",
+    #                     "font": {"color": "#000000", "size": 15.0},
+    #                     "opacity": 1,
+    #                     "showarrow": False,
+    #                     "text": label,
+    #                     "x": x,
+    #                     "xanchor": "center",
+    #                     "yanchor": "auto",
+    #                     # "xshift": -10,
+    #                     # "yshift": -10,
+    #                     "xref": "x",
+    #                     "y": y,
+    #                     "yref": "y",
+    #                 }
+    #                 for (x, y), label in zip(xydata, labels)
+    #             ]
+    #             layout.update({"annotations": annotations})
+    #         else:
+    #             x, y = zip(*xydata)
+    #             data.append(
+    #                 go.Scatter(x=x, y=y, text=labels, hoverinfo="text", mode="markers")
+    #             )
+    #
+    #     figure = go.Figure(data=data, layout=layout)
+    #
+    #     return figure
+
     @staticmethod
     def get_figure(
-        pourbaix_diagram, heatmap_entry=None, heatmap_as_contour=True, show_labels=True
+        pourbaix_diagram, heatmap_entry=None,
     ):
         """
-        Static method for getting plotly figure from a pourbaix diagram
+        Static method for getting plotly figure from a Pourbaix diagram.
 
         Args:
-            pourbaix_diagram (PourbaixDiagram): pourbaix diagram to plot
+            pourbaix_diagram (PourbaixDiagram): Pourbaix diagram to plot
             heatmap_entry (PourbaixEntry): id for the heatmap generation
-            heatmap_as_contour (bool): if True, display contours, if False heatmap as grid
 
         Returns:
             (dict) figure layout
 
         """
-        # TODO: fix mpid problem.  Can't attach from mpid without it being a structure.
         data = []
+
+        shapes = []
+        xydata = []
+        labels = []
+        domain_heights = []
+
+        include_legend = set()
+
+        for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
+            formula = entry.name
+            clean_formula = PourbaixDiagramComponent.clean_formula(formula)
+
+            # Generate information for textual labels
+            domain = Polygon(vertices)
+            centroid = domain.centroid
+            height = domain.bounds[3] - domain.bounds[1]
+
+            # Ensure label is within plot area
+            # TODO: remove hard-coded value here and make sure it's set dynamically
+            xydata.append([centroid.x, max(centroid.y, -1.6)])
+            labels.append(clean_formula)
+            domain_heights.append(height)
+
+            # Assumes that entry.phase_type is either "Solid" or "Ion" or
+            # a list of "Solid" and "Ion"
+            if isinstance(entry.phase_type, str):
+                legend_entry = entry.phase_type
+            elif isinstance(entry.phase_type, list):
+                if len(set(entry.phase_type)) == 1:
+                    if entry.phase_type[0] == "Ion":
+                        legend_entry = "Mixed Ion"
+                    else:
+                        legend_entry = "Mixed Solid"
+                else:
+                    legend_entry = "Mixed Ion/Solid"
+            else:
+                # Should never get here
+                print(f"Debug required in Pourbaix for {entry.phase_type}")
+                legend_entry = "Unknown"
+
+            if not heatmap_entry:
+                if legend_entry == "Ion" or legend_entry == "Unknown":
+                    fillcolor = "rgb(255,255,250,1)"
+                elif legend_entry == "Mixed Ion":
+                    fillcolor = "rgb(255,255,240,1)"
+                elif legend_entry == "Solid":
+                    fillcolor = "rgba(188,236,237,1)"
+                elif legend_entry == "Mixed Solid":
+                    fillcolor = "rgba(155,229,232,1)"
+                elif legend_entry == "Mixed Ion/Solid":
+                    fillcolor = "rgb(95,238,222,1)"
+            else:
+                fillcolor = "rgba(0,0,0,0)"
+
+            data.append(
+                go.Scatter(
+                    x=[v[0] for v in vertices],
+                    y=[v[1] for v in vertices],
+                    fill="toself",
+                    fillcolor=fillcolor,
+                    legendgroup=legend_entry,
+                    # legendgrouptitle={"text": legend_entry},
+                    name=legend_entry,
+                    text=f"{clean_formula} ({entry.entry_id})",
+                    marker={"color": "Black"},
+                    line={"color": "Black", "width": 0},
+                    mode="lines",
+                    showlegend=True if legend_entry not in include_legend else False,
+                )
+            )
+
+            include_legend.add(legend_entry)
+
+            # Add lines separately so they show up on heatmap
+
+            # Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+            # Move to first point
+            path = "M {},{}".format(*vertices[0])
+            # Draw lines to each other point
+            path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
+            # Close path
+            path += "Z"
+
+            # stable entries are black with default color scheme,
+            # so use white lines instead
+            if heatmap_entry:
+                line = {"color": "White", "width": 4}
+            else:
+                line = {"color": "Black", "width": 1}
+
+            shape = go.layout.Shape(
+                type="path", path=path, fillcolor="rgba(0,0,0,0)", opacity=1, line=line,
+            )
+            shapes.append(shape)
+
+        layout = PourbaixDiagramComponent.default_plot_style
+        layout.update({"shapes": shapes})
+
+        if heatmap_entry is None:
+            x, y = zip(*xydata)
+            data.append(
+                go.Scatter(
+                    x=x, y=y, text=labels, hoverinfo="text", mode="text", name="Labels"
+                )
+            )
+        else:
+            # Add annotations to layout to make text more readable when displaying heatmaps
+
+            # TODO: this doesn't work yet; resolve or scrap
+            # cmap = get_cmap(PourbaixDiagramComponent.colorscale)
+            # def get_text_color(x, y):
+            #     """
+            #     Set text color based on whether background at that point is dark or light.
+            #     """
+            #     energy = pourbaix_diagram.get_decomposition_energy(entry, pH=x, V=y)
+            #     c = [int(c * 255) for c in cmap(energy)[0:3]]
+            #     # borrowed from crystal_toolkit.components.structure
+            #     # TODO: move to utility function and ensure correct attribution for magic numbers
+            #     if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5:
+            #         font_color = "#000000"
+            #     else:
+            #         font_color = "#ffffff"
+            #     #print(energy, c, font_color)
+            #     return font_color
+
+            def get_text_size(available_vertical_space):
+                """
+                Set text size based on available vertical space
+                """
+                return min(max(6 * available_vertical_space, 12), 20)
+
+            annotations = [
+                {
+                    "align": "center",
+                    "bgcolor": "white",
+                    "font": {"color": "black", "size": get_text_size(height)},
+                    "opacity": 1,
+                    "showarrow": False,
+                    "text": label,
+                    "x": x,
+                    "xanchor": "center",
+                    "yanchor": "auto",
+                    # "xshift": -10,
+                    # "yshift": -10,
+                    "xref": "x",
+                    "y": y,
+                    "yref": "y",
+                }
+                for (x, y), label, height in zip(xydata, labels, domain_heights)
+            ]
+            layout.update({"annotations": annotations})
 
         # Get data for heatmap
         if heatmap_entry is not None:
@@ -173,113 +478,32 @@ class PourbaixDiagramComponent(MPComponent):
                 [decomposition_e, np.ones(decomposition_e.shape)], axis=0
             )
 
-            if not heatmap_as_contour:
-                # Plotly needs a list here for validation
-                hmap = go.Heatmap(
-                    x=list(ph_range),
-                    y=list(v_range),
-                    z=decomposition_e,
-                    text=hovertexts,
-                    hoverinfo="text",
-                    colorbar={
-                        "title": "∆G<sub>pbx</sub> (eV/atom)",
-                        "titleside": "right",
-                    },
-                    colorscale=PourbaixDiagramComponent.colorscale,
-                    zmin=0,
-                    zmax=1,
-                )
-                data.append(hmap)
-
-            else:
-
-                hmap = go.Contour(
-                    z=decomposition_e,
-                    x=list(ph_range),
-                    y=list(v_range),
-                    colorscale=PourbaixDiagramComponent.colorscale,  # or magma
-                    zmin=0,
-                    zmax=1,
-                    connectgaps=True,
-                    line_smoothing=0,
-                    line_width=0,
-                    contours_coloring="heatmap",
-                    text=hovertexts,
-                )
-                data.insert(0, hmap)
-
-        shapes = []
-        xydata = []
-        labels = []
-
-        for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
-            formula = entry.name
-            clean_formula = PourbaixDiagramComponent.clean_formula(formula)
-
-            # Generate annotation
-            xydata.append(np.average(vertices, axis=0))
-            labels.append(clean_formula)
-
-            # Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
-            # Move to first point
-            path = "M {},{}".format(*vertices[0])
-            # Draw lines to each other point
-            path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
-            # Close path
-            path += "Z"
-
-            # Note that the lines and fills are added separately
-            # so that the lines but not the fills will show up on heatmap.
-            # This may be condensable in the future if plotly adds a more
-            # general z-ordering of objects
-
-            # Fill with turquoise if solution
-            if heatmap_entry is None:
-                fillcolor = "White" if "Ion" in entry.phase_type else "PaleTurquoise"
-                shape = go.layout.Shape(
-                    type="path", path=path, fillcolor=fillcolor, layer="below",
-                )
-                shapes.append(shape)
-
-            # Add lines separately so they show up on heatmap
-            shape = go.layout.Shape(
-                type="path",
-                path=path,
-                fillcolor="rgba(0,0,0,0)",
-                line={"color": "Black", "width": 1},
+            heatmap_formula = unicodeify(
+                Composition(heatmap_entry.composition).reduced_formula
             )
-            shapes.append(shape)
 
-        layout = PourbaixDiagramComponent.default_plot_style
-        layout.update({"shapes": shapes})
+            hmap = go.Contour(
+                z=decomposition_e,
+                x=list(ph_range),
+                y=list(v_range),
+                colorbar={"title": "∆G<sub>pbx</sub> (eV/atom)", "titleside": "right",},
+                colorscale=PourbaixDiagramComponent.colorscale,  # or magma
+                zmin=0,
+                zmax=1,
+                connectgaps=True,
+                line_smoothing=0,
+                line_width=0,
+                # contours_coloring="heatmap",
+                text=hovertexts,
+                name=f"{heatmap_formula} ({heatmap_entry.entry_id}) Heatmap",
+                showlegend=True,
+            )
+            data.append(hmap)
 
-        if show_labels:
-            if len(pourbaix_diagram.pbx_elts) == 1:
-                # Add annotations to layout
-                annotations = [
-                    {
-                        "align": "center",
-                        "font": {"color": "#000000", "size": 15.0},
-                        "opacity": 1,
-                        "showarrow": False,
-                        "text": label,
-                        "x": x,
-                        "xanchor": "center",
-                        "yanchor": "auto",
-                        # "xshift": -10,
-                        # "yshift": -10,
-                        "xref": "x",
-                        "y": y,
-                        "yref": "y",
-                    }
-                    for (x, y), label in zip(xydata, labels)
-                ]
-                layout.update({"annotations": annotations})
-            else:
-                x, y = zip(*xydata)
-                data.append(
-                    go.Scatter(x=x, y=y, text=labels, hoverinfo="text", mode="markers")
-                )
+        # SHE line
+        # data.append(go.Scatter(
+        #
+        # ))
 
         figure = go.Figure(data=data, layout=layout)
 
@@ -314,12 +538,6 @@ class PourbaixDiagramComponent(MPComponent):
                     "leads to the most accurate Pourbaix diagrams.",
                 ),
                 self.get_bool_input(
-                    "show_labels",
-                    state=self.default_state,
-                    label="Show labels",
-                    help_str="Hide or show formula labels in the Pourbaix diagram plot.",
-                ),
-                self.get_bool_input(
                     "show_heatmap",
                     state=self.default_state,
                     label="Show heatmap",
@@ -339,6 +557,7 @@ class PourbaixDiagramComponent(MPComponent):
                     ],
                     id=self.id("heatmap_choice_container"),
                 ),
+                html.Div(id=self.id("element_specific_controls")),
             ],
             style={"display": "inline-block"},
         )
@@ -369,13 +588,11 @@ class PourbaixDiagramComponent(MPComponent):
         )
         def update_heatmap_choices(entries):
 
-            if not entries:
-                raise PreventUpdate
-
             options = []
             for entry in entries:
                 if entry["entry_id"].startswith("mp"):
-                    formula = Composition(entry["entry"]["composition"]).reduced_formula
+                    composition = Composition(entry["entry"]["composition"])
+                    formula = unicodeify(composition.reduced_formula)
                     mpid = entry["entry_id"]
                     options.append({"label": f"{formula} ({mpid})", "value": mpid})
 
@@ -391,48 +608,126 @@ class PourbaixDiagramComponent(MPComponent):
 
             return heatmap_options
 
+        @app.callback(
+            Output(self.id("element_specific_controls"), "children"),
+            Input(self.id(), "data"),
+            Input(self.get_kwarg_id("heatmap_choice"), "value"),
+            [State(self.get_kwarg_id("show_heatmap"), "value")],
+        )
+        def update_element_specific_sliders(entries, heatmap_choice, show_heatmap):
+
+            if not entries:
+                raise PreventUpdate
+
+            elements = set()
+
+            kwargs = self.reconstruct_kwargs_from_state()
+            heatmap_choice = kwargs.get("heatmap_choice")
+            show_heatmap = kwargs.get("show_heatmap")
+            heatmap_entry = None
+
+            for entry in entries:
+                if entry["entry_id"].startswith("mp"):
+                    composition = Composition(entry["entry"]["composition"])
+                    elements.update(composition.elements)
+                if entry["entry_id"] == heatmap_choice:
+                    heatmap_entry = entry
+
+            # exclude O and H
+            elements = elements - ELEMENTS_HO
+
+            comp_defaults = {element: 1 / len(elements) for element in elements}
+
+            comp_inputs = []
+            conc_inputs = []
+            for element in sorted(elements):
+                if len(elements) > 1:
+                    comp_input = html.Div(
+                        [
+                            self.get_slider_input(
+                                f"comp-{element}",
+                                default=comp_defaults[element],
+                                label=f"Composition of {element}",
+                                max=1,
+                                min=0,
+                                step=0.01,
+                                disabled=True if heatmap_entry else False,
+                            )
+                        ]
+                    )
+                    comp_inputs.append(comp_input)
+
+                conc_input = html.Div(
+                    [
+                        self.get_numerical_input(
+                            f"conc-{element}",
+                            default=1e-6,
+                            label=f"Concentration of {element} ion",
+                        )
+                    ]
+                )
+
+                conc_inputs.append(conc_input)
+
+            comp_conc_controls = [html.Br()]
+            if comp_inputs and (not heatmap_entry) and (not show_heatmap):
+                comp_conc_controls.append(ctl.Label("Set Composition"))
+                comp_conc_controls += comp_inputs
+                comp_conc_controls.append(html.Br())
+                comp_conc_controls.append(html.Div(id=self.id("display-composition")))
+                comp_conc_controls.append(html.Br())
+            if len(elements) > 1:
+                comp_conc_controls.append(ctl.Label("Set Ion Concentrations"))
+            else:
+                comp_conc_controls.append(ctl.Label("Set Ion Concentration"))
+            comp_conc_controls += conc_inputs
+
+            comp_conc_controls = html.Div(comp_conc_controls)
+
+            return comp_conc_controls
+
+        @app.callback(
+            Output(self.id("display-composition"), "children"),
+            Input(self.get_all_kwargs_id(), "value"),
+        )
+        def update_displayed_composition(*args):
+
+            kwargs = self.reconstruct_kwargs_from_state()
+
+            comp_dict = {}
+            for k, v in kwargs.items():
+                if "comp" in k:  # keys are encoded like "comp-Ag"
+                    el = k.split("-")[1]
+                    comp_dict[el] = v
+            comp_dict = comp_dict or None
+
+            if not comp_dict:
+                return ""
+
+            comp = Composition(comp_dict)
+
+            formula = Composition(
+                comp.get_integer_formula_and_factor()[0]
+            ).reduced_formula
+
+            return html.Small(f"Pourbaix composition set to {unicodeify(formula)}.")
+
         @cache.memoize(timeout=5 * 60)
         def get_pourbaix_diagram(pourbaix_entries, **kwargs):
             return PourbaixDiagram(pourbaix_entries, **kwargs)
 
         @app.callback(
             Output(self.id("graph"), "figure"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_kwarg_id("filter_solids"), "value"),
-                Input(self.get_kwarg_id("show_labels"), "value"),
-                Input(self.get_kwarg_id("show_heatmap"), "value"),
-                Input(self.get_kwarg_id("heatmap_choice"), "value"),
-            ],
+            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value"),],
         )
-        def make_figure(
-            pourbaix_entries, filter_solids, show_labels, show_heatmap, heatmap_choice
-        ):
+        def make_figure(pourbaix_entries, *args):
 
-            kwargs = self.reconstruct_kwargs_from_state(dash.callback_context.inputs)
+            kwargs = self.reconstruct_kwargs_from_state()
 
             if pourbaix_entries is None:
                 raise PreventUpdate
 
             pourbaix_entries = self.from_data(pourbaix_entries)
-
-            # # Get composition from structure
-            # struct = self.from_data(struct)
-            # comp_dict = {
-            #     str(elt): coeff
-            #     for elt, coeff in struct.composition.items()
-            #     if elt not in ELEMENTS_HO
-            # }
-            # if conc_dict is not None:
-            #     conc_dict = self.from_data(conc_dict)
-
-            pourbaix_diagram = get_pourbaix_diagram(
-                pourbaix_entries,
-                # comp_dict=comp_dict,
-                # conc_dict=conc_dict,
-                filter_solids=kwargs["filter_solids"],
-            )
-            self.logger.debug("Generated pourbaix diagram")
 
             # Get heatmap id
             if kwargs["show_heatmap"] and kwargs.get("heatmap_choice"):
@@ -441,69 +736,39 @@ class PourbaixDiagramComponent(MPComponent):
                     for entry in pourbaix_entries
                     if entry.entry_id == kwargs["heatmap_choice"]
                 )
+
+                comp_dict = {
+                    element: coeff
+                    for element, coeff in heatmap_entry.composition.items()
+                    if element not in ELEMENTS_HO
+                }
             else:
                 heatmap_entry = None
 
-            fig = self.get_figure(
-                pourbaix_diagram,
-                show_labels=kwargs["show_labels"],
-                heatmap_entry=heatmap_entry,
+                comp_dict = {}
+                for k, v in kwargs.items():
+                    if "comp" in k:  # keys are encoded like "comp-Ag"
+                        el = k.split("-")[1]
+                        comp_dict[el] = v
+                comp_dict = comp_dict or None
+
+            conc_dict = {}
+            for k, v in kwargs.items():
+                if "conc" in k:  # keys are encoded like "conc-Ag"
+                    el = k.split("-")[1]
+                    conc_dict[el] = v
+            conc_dict = conc_dict or None
+
+            # print(comp_dict, conc_dict, kwargs, "debug")
+
+            pourbaix_diagram = get_pourbaix_diagram(
+                pourbaix_entries,
+                comp_dict=comp_dict,
+                conc_dict=conc_dict,
+                filter_solids=kwargs["filter_solids"],
             )
+            self.logger.debug("Generated pourbaix diagram")
+
+            fig = self.get_figure(pourbaix_diagram, heatmap_entry=heatmap_entry,)
 
             return fig
-
-        # # This is a hacked way of getting concentration, but haven't found a more sane fix
-        # # Basically creates 3 persistent sliders and updates the concentration according to
-        # # their values.  Renders only the necessary ones visible.
-        # @app.callback(
-        #     [
-        #         Output(self.id("concentration-slider-{}-div".format(index)), "style")
-        #         for index in range(SUPPORTED_N_ELEMENTS)
-        #     ],
-        #     [
-        #         Input(self.id("pourbaix_diagram"), "data"),
-        #         Input(self.id("struct"), "data"),
-        #     ],
-        # )
-        # def reveal_sliders(pourbaix_diagram, struct):
-        #     if struct is None:
-        #         raise PreventUpdate
-        #     struct = self.from_data(struct)
-        #     pbx_elts = [
-        #         elt for elt in struct.composition.keys() if elt not in ELEMENTS_HO
-        #     ]
-        #     nelts = len(pbx_elts)
-        #     styles = [{}] * nelts
-        #     styles += [{"display": "none"}] * (SUPPORTED_N_ELEMENTS - nelts)
-        #     return styles
-
-        # @app.callback(
-        #     [Output(self.id("conc_dict"), "data")]
-        #     + [
-        #         Output(self.id("concentration-{}-text".format(index)), "children")
-        #         for index in range(SUPPORTED_N_ELEMENTS)
-        #     ],
-        #     [Input(self.id("struct"), "data")]
-        #     + [
-        #         Input(self.id("concentration-slider-{}".format(index)), "value")
-        #         for index in range(SUPPORTED_N_ELEMENTS)
-        #     ],
-        # )
-        # def update_conc_dict(struct, *args):
-        #     if args[0] is None:
-        #         raise PreventUpdate
-        #
-        #     struct = self.from_data(struct)
-        #     pbx_elts = sorted(
-        #         [
-        #             str(elt)
-        #             for elt in struct.composition.keys()
-        #             if elt not in ELEMENTS_HO
-        #         ]
-        #     )
-        #     conc_dict = {
-        #         k: 10 ** arg for k, arg in zip(pbx_elts, args[: len(pbx_elts)])
-        #     }
-        #     conc_text = ["{}: {} M".format(k, v) for k, v in conc_dict.items()]
-        #     conc_text += [""] * (SUPPORTED_N_ELEMENTS - len(pbx_elts))
-        #     return [conc_dict] + conc_text
