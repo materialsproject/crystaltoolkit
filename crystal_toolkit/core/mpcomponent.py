@@ -443,6 +443,18 @@ Sub-layouts:  \n{layouts}"""
         default = np.full(shape, default or state.get(kwarg_label))
         default = np.reshape(default, shape)
 
+        style = {
+            "textAlign": "center",
+            # shorter default width if matrix or vector
+            "width": "5rem",
+            "marginRight": "0.2rem",
+            "marginBottom": "0.2rem",
+            "height": "36px",
+        }
+        if "style" in kwargs:
+            style.update(kwargs["style"])
+            del kwargs["style"]
+
         def matrix_element(idx, value=0):
             # TODO: maybe move element out of the name
             mid = self.id(kwarg_label, is_kwarg=True, idx=idx, hint=shape)
@@ -454,14 +466,7 @@ Sub-layouts:  \n{layouts}"""
                     inputMode="numeric",
                     debounce=True,
                     className="input",
-                    style={
-                        "textAlign": "center",
-                        # shorter default width if matrix or vector
-                        "width": "5rem",
-                        "marginRight": "0.2rem",
-                        "marginBottom": "0.2rem",
-                        "height": "36px",
-                    },
+                    style=style,
                     value=float(value) if value is not None else None,
                     persistence=True,
                     type="number",
@@ -473,14 +478,7 @@ Sub-layouts:  \n{layouts}"""
                     inputMode="numeric",
                     debounce=True,
                     className="input",
-                    style={
-                        "textAlign": "center",
-                        # shorter default width if matrix or vector
-                        "width": "5rem",
-                        "marginRight": "0.2rem",
-                        "marginBottom": "0.2rem",
-                        "height": "36px",
-                    },
+                    style=style,
                     value=int(value) if value is not None else None,
                     persistence=True,
                     type="number",
