@@ -317,7 +317,7 @@ class PourbaixDiagramComponent(MPComponent):
 
             # Ensure label is within plot area
             # TODO: remove hard-coded value here and make sure it's set dynamically
-            xydata.append([centroid.x, max(centroid.y, -1.6)])
+            xydata.append([centroid.x, centroid.y])
             labels.append(clean_formula)
             domain_heights.append(height)
 
@@ -403,6 +403,7 @@ class PourbaixDiagramComponent(MPComponent):
                     x=x, y=y, text=labels, hoverinfo="text", mode="text", name="Labels"
                 )
             )
+            layout.update({"annotations": []})
         else:
             # Add annotations to layout to make text more readable when displaying heatmaps
 
@@ -663,6 +664,7 @@ class PourbaixDiagramComponent(MPComponent):
                             f"conc-{element}",
                             default=1e-6,
                             label=f"Concentration of {element} ion",
+                            style={"width": "10rem"},
                         )
                     ]
                 )
@@ -670,7 +672,7 @@ class PourbaixDiagramComponent(MPComponent):
                 conc_inputs.append(conc_input)
 
             comp_conc_controls = [html.Br()]
-            if comp_inputs and (not heatmap_entry) and (not show_heatmap):
+            if comp_inputs and (not show_heatmap) and (not heatmap_entry):
                 comp_conc_controls.append(ctl.Label("Set Composition"))
                 comp_conc_controls += comp_inputs
                 comp_conc_controls.append(html.Br())
@@ -704,11 +706,15 @@ class PourbaixDiagramComponent(MPComponent):
             if not comp_dict:
                 return ""
 
-            comp = Composition(comp_dict)
-
-            formula = Composition(
-                comp.get_integer_formula_and_factor()[0]
-            ).reduced_formula
+            try:
+                comp = Composition(comp_dict)
+                formula = Composition(
+                    comp.get_integer_formula_and_factor()[0]
+                ).reduced_formula
+            except:
+                return html.Small(
+                    f"Invalid composition selected.", style={"color": "red"}
+                )
 
             return html.Small(f"Pourbaix composition set to {unicodeify(formula)}.")
 
@@ -759,7 +765,7 @@ class PourbaixDiagramComponent(MPComponent):
                     conc_dict[el] = v
             conc_dict = conc_dict or None
 
-            # print(comp_dict, conc_dict, kwargs, "debug")
+            # print("requesting pourbaix diagram", len(pourbaix_entries), heatmap_entry, conc_dict, comp_dict)
 
             pourbaix_diagram = get_pourbaix_diagram(
                 pourbaix_entries,
