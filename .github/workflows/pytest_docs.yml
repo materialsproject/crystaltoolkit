@@ -1,9 +1,7 @@
 name: pytest_and_docs
 
 on:
-  push:
-    branches:
-      - main
+  release
 
 jobs:
   build:
