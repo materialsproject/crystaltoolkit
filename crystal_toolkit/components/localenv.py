@@ -661,7 +661,13 @@ class LocalEnvironmentPanel(PanelComponent):
 
             graph = self.from_data(graph)
 
-            return html.Div([str(_get_local_order_parameters(graph, 0))])
+            return html.Div(
+                [
+                    str(_get_local_order_parameters(graph, 0)),
+                    html.Br(),
+                    html.Small("This functionality is still under development."),
+                ]
+            )
 
         @app.callback(
             Output(self.id("bondinggraph_analysis"), "children"),
