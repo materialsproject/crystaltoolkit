@@ -55,6 +55,7 @@ sphinx = "*"
 sphinx_rtd_theme = "*"
 recommonmark = "*"
 dephell = "*"
+mistune = "<2.0.0"
 
 [tool.isort]
 profile = "black"
