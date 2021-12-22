@@ -12,7 +12,7 @@ from crystal_toolkit.components.robocrys import RobocrysComponent
 
 from crystal_toolkit.components.diffraction import (
     XRayDiffractionComponent,
-    DiffractionPanelComponent,
+    TEMDiffractionComponent,
 )
 
 # from crystal_toolkit.components.xas import XASComponent, XASPanelComponent
