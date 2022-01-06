@@ -50,6 +50,12 @@ class Container(html.Div):
         super().__init__(*args, **kwargs)
 
 
+class Block(html.Div):
+    def __init__(self, *args, **kwargs):
+        _update_css_class(kwargs, "block")
+        super().__init__(*args, **kwargs)
+
+
 class Columns(html.Div):
     def __init__(
         self,
