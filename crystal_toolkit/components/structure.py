@@ -50,6 +50,9 @@ DEFAULTS = {
     "hide_incomplete_bonds": True,
     "show_compass": True,
     "unit_cell_choice": "input",
+    "show_legend": True,
+    "show_controls": True,
+    "show_position_button": False
 }
 
 
@@ -109,6 +112,9 @@ class StructureMoleculeComponent(MPComponent):
         show_compass: bool = DEFAULTS["show_compass"],
         scene_settings: Optional[Dict] = None,
         group_by_site_property: Optional[str] = None,
+        show_legend: bool = DEFAULTS["show_legend"],
+        show_controls: bool = DEFAULTS["show_controls"],
+        show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
     ):
         """
@@ -128,12 +134,17 @@ class StructureMoleculeComponent(MPComponent):
         :param show_compass: whether to hide or show the compass
         :param scene_settings: scene settings (lighting etc.) to pass to CrystalToolkitScene
         :param group_by_site_property: a site property used for grouping of atoms for mouseover/interaction,
+        :param show_legend: show or hide legend panel within the scene
+        :param show_controls: show or hide scene control bar
+        :param show_position_button: show or hide the revert position button within the scene control bar
         e.g. Wyckoff label
         :param kwargs: extra keyword arguments to pass to MPComponent
         """
 
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
-
+        self.show_legend = show_legend
+        self.show_controls = show_controls
+        self.show_position_button = show_position_button
         self.initial_scene_settings = self.default_scene_settings.copy()
         if scene_settings:
             self.initial_scene_settings.update(scene_settings)
@@ -411,14 +422,18 @@ class StructureMoleculeComponent(MPComponent):
         # )
 
         @app.callback(
-            Output(self.id("scene"), "imageRequest"),
-            [Input(self.id("screenshot_button"), "n_clicks")],
-            [State(self.id("scene"), "imageRequest"), State(self.id(), "data")],
+            Output(self.id("download"), "data"),
+            Input(self.id("scene"), "imageDataTimestamp"),
+            [
+                State(self.id("scene"), "imageData"),
+                State(self.id(), "data"),
+            ],
         )
-        def trigger_screenshot(n_clicks, current_requests, struct_or_mol):
-            if n_clicks is None:
+        def download_image(image_data_timestamp, image_data, data):
+            if not image_data_timestamp:
                 raise PreventUpdate
-            struct_or_mol = self.from_data(struct_or_mol)
+
+            struct_or_mol = self.from_data(data)
             if isinstance(struct_or_mol, StructureGraph):
                 formula = struct_or_mol.structure.composition.reduced_formula
             elif isinstance(struct_or_mol, MoleculeGraph):
@@ -430,46 +445,25 @@ class StructureMoleculeComponent(MPComponent):
             else:
                 spgrp = ""
             request_filename = "{}-{}-crystal-toolkit.png".format(formula, spgrp)
-            if not current_requests:
-                n_requests = 1
-            else:
-                n_requests = current_requests["n_requests"] + 1
-            return {
-                "n_requests": n_requests,
-                "filename": request_filename,
-                "filetype": "png",
-            }
-
-        @app.callback(
-            Output(self.id("download"), "data"),
-            Input(self.id("scene"), "imageDataTimestamp"),
-            [
-                State(self.id("scene"), "imageData"),
-                State(self.id("scene"), "imageRequest"),
-            ],
-        )
-        def download_image(image_data_timestamp, image_data, image_request):
-            if not image_data_timestamp:
-                raise PreventUpdate
 
             return {
                 "content": image_data[len("data:image/png;base64,") :],
-                "filename": image_request["filename"],
+                "filename": request_filename,
                 "base64": True,
                 "type": "image/png",
             }
 
         @app.callback(
             Output(self.id("download-structure"), "data"),
-            Input(self.id("download-button"), "n_clicks"),
+            Input(self.id("scene"), "fileTimestamp"),
             [
-                State(self.get_kwarg_id("download_option"), "value"),
+                State(self.id("scene"), "fileType"),
                 State(self.id(), "data"),
             ],
         )
-        def download_structure(n_clicks, download_option, data):
+        def download_structure(file_timestamp, download_option, data):
 
-            if not n_clicks:
+            if not file_timestamp:
                 raise PreventUpdate
 
             structure = self.from_data(data)
@@ -477,8 +471,6 @@ class StructureMoleculeComponent(MPComponent):
                 structure = structure.structure
 
             file_prefix = structure.composition.reduced_formula
-
-            download_option = download_option[0]
 
             if "VASP" not in download_option:
 
@@ -679,45 +671,9 @@ class StructureMoleculeComponent(MPComponent):
     @property
     def _sub_layouts(self):
 
-        struct_layout = html.Div(
-            [
-                CrystalToolkitScene(
-                    id=self.id("scene"),
-                    data=self.initial_data["scene"],
-                    settings=self.initial_scene_settings,
-                    sceneSize="100%",
-                    **self.scene_kwargs,
-                ),
-            ],
-            style={
-                "width": "100%",
-                "height": "100%",
-                "overflow": "hidden",
-                "margin": "0 auto",
-            },
-        )
-
-        screenshot_layout = html.Div(
-            [
-                Button(
-                    [Icon(kind="download"), html.Span(), "Download Image"],
-                    kind="primary",
-                    id=self.id("screenshot_button"),
-                ),
-                dcc.Download(id=self.id("download")),
-            ],
-            # TODO: change to "bottom" when dropdown included
-            style={"verticalAlign": "top", "display": "inline-block"},
-        )
-
         title_layout = html.Div(
             self._make_title(self._initial_data["legend_data"]),
             id=self.id("title_container"),
-        )
-
-        legend_layout = html.Div(
-            self._make_legend(self._initial_data["legend_data"]),
-            id=self.id("legend_container"),
         )
 
         nn_mapping = {
@@ -760,172 +716,173 @@ class StructureMoleculeComponent(MPComponent):
             style={"display": "none"},
         )
 
-        options_layout = Field(
+        if self.show_controls:
+            options_layout = Field(
+                [
+                    #  TODO: hide if molecule
+                    html.Label("Change unit cell:", className="mpc-label"),
+                    html.Div(
+                        dcc.Dropdown(
+                            options=[
+                                {"label": "Input cell", "value": "input"},
+                                {"label": "Primitive cell", "value": "primitive"},
+                                {"label": "Conventional cell", "value": "conventional"},
+                                {
+                                    "label": "Reduced cell (Niggli)",
+                                    "value": "reduced_niggli",
+                                },
+                                {"label": "Reduced cell (LLL)", "value": "reduced_lll"},
+                            ],
+                            value="input",
+                            clearable=False,
+                            id=self.id("unit-cell-choice"),
+                            persistence=SETTINGS.PERSISTENCE,
+                            persistence_type=SETTINGS.PERSISTENCE_TYPE,
+                        ),
+                        className="mpc-control",
+                    ),
+                    html.Div(
+                        [
+                            html.Label("Change bonding algorithm: ", className="mpc-label"),
+                            bonding_algorithm,
+                            bonding_algorithm_custom_cutoffs,
+                        ]
+                    ),
+                    html.Label("Change color scheme:", className="mpc-label"),
+                    html.Div(
+                        dcc.Dropdown(
+                            options=[
+                                {"label": "VESTA", "value": "VESTA"},
+                                {"label": "Jmol", "value": "Jmol"},
+                                {"label": "Accessible", "value": "accessible"},
+                            ],
+                            value=self.initial_data["display_options"]["color_scheme"],
+                            clearable=False,
+                            persistence=SETTINGS.PERSISTENCE,
+                            persistence_type=SETTINGS.PERSISTENCE_TYPE,
+                            id=self.id("color-scheme"),
+                        ),
+                        className="mpc-control",
+                    ),
+                    html.Label("Change atomic radii:", className="mpc-label"),
+                    html.Div(
+                        dcc.Dropdown(
+                            options=[
+                                {"label": "Ionic", "value": "specified_or_average_ionic"},
+                                {"label": "Covalent", "value": "covalent"},
+                                {"label": "Van der Waals", "value": "van_der_waals"},
+                                {
+                                    "label": f"Uniform ({Legend.uniform_radius}Å)",
+                                    "value": "uniform",
+                                },
+                            ],
+                            value=self.initial_data["display_options"]["radius_strategy"],
+                            clearable=False,
+                            persistence=SETTINGS.PERSISTENCE,
+                            persistence_type=SETTINGS.PERSISTENCE_TYPE,
+                            id=self.id("radius_strategy"),
+                        ),
+                        className="mpc-control",
+                    ),
+                    html.Label("Draw options:", className="mpc-label"),
+                    html.Div(
+                        [
+                            dcc.Checklist(
+                                options=[
+                                    {
+                                        "label": "Draw repeats of atoms on periodic boundaries",
+                                        "value": "draw_image_atoms",
+                                    },
+                                    {
+                                        "label": "Draw atoms outside unit cell bonded to "
+                                        "atoms within unit cell",
+                                        "value": "bonded_sites_outside_unit_cell",
+                                    },
+                                    {
+                                        "label": "Hide bonds where destination atoms are not shown",
+                                        "value": "hide_incomplete_bonds",
+                                    },
+                                ],
+                                value=[
+                                    opt
+                                    for opt in (
+                                        "draw_image_atoms",
+                                        "bonded_sites_outside_unit_cell",
+                                        "hide_incomplete_bonds",
+                                    )
+                                    if self.initial_data["display_options"][opt]
+                                ],
+                                labelStyle={"display": "block"},
+                                inputClassName="mpc-radio",
+                                id=self.id("draw_options"),
+                                persistence=SETTINGS.PERSISTENCE,
+                                persistence_type=SETTINGS.PERSISTENCE_TYPE,
+                            )
+                        ]
+                    ),
+                    html.Label("Hide/show:", className="mpc-label"),
+                    html.Div(
+                        [
+                            dcc.Checklist(
+                                options=[
+                                    {"label": "Atoms", "value": "atoms"},
+                                    {"label": "Bonds", "value": "bonds"},
+                                    {"label": "Unit cell", "value": "unit_cell"},
+                                    {"label": "Polyhedra", "value": "polyhedra"},
+                                    {"label": "Axes", "value": "axes"},
+                                ],
+                                value=["atoms", "bonds", "unit_cell", "polyhedra"],
+                                labelStyle={"display": "block"},
+                                inputClassName="mpc-radio",
+                                id=self.id("hide-show"),
+                                persistence=SETTINGS.PERSISTENCE,
+                                persistence_type=SETTINGS.PERSISTENCE_TYPE,
+                            )
+                        ],
+                        className="mpc-control",
+                    ),
+                ]
+            )
+        else:
+            options_layout = None
+
+        if self.show_legend:
+            legend_layout = html.Div(
+                self._make_legend(self._initial_data["legend_data"]),
+                id=self.id("legend_container"),
+            )
+        else:
+            legend_layout = None
+
+        struct_layout = html.Div(
             [
-                #  TODO: hide if molecule
-                html.Label("Change unit cell:", className="mpc-label"),
-                html.Div(
-                    dcc.Dropdown(
-                        options=[
-                            {"label": "Input cell", "value": "input"},
-                            {"label": "Primitive cell", "value": "primitive"},
-                            {"label": "Conventional cell", "value": "conventional"},
-                            {
-                                "label": "Reduced cell (Niggli)",
-                                "value": "reduced_niggli",
-                            },
-                            {"label": "Reduced cell (LLL)", "value": "reduced_lll"},
-                        ],
-                        value="input",
-                        clearable=False,
-                        id=self.id("unit-cell-choice"),
-                        persistence=SETTINGS.PERSISTENCE,
-                        persistence_type=SETTINGS.PERSISTENCE_TYPE,
-                    ),
-                    className="mpc-control",
-                ),
-                html.Div(
+                CrystalToolkitScene(
                     [
-                        html.Label("Change bonding algorithm: ", className="mpc-label"),
-                        bonding_algorithm,
-                        bonding_algorithm_custom_cutoffs,
-                    ]
-                ),
-                html.Label("Change color scheme:", className="mpc-label"),
-                html.Div(
-                    dcc.Dropdown(
-                        options=[
-                            {"label": "VESTA", "value": "VESTA"},
-                            {"label": "Jmol", "value": "Jmol"},
-                            {"label": "Accessible", "value": "accessible"},
-                        ],
-                        value=self.initial_data["display_options"]["color_scheme"],
-                        clearable=False,
-                        persistence=SETTINGS.PERSISTENCE,
-                        persistence_type=SETTINGS.PERSISTENCE_TYPE,
-                        id=self.id("color-scheme"),
-                    ),
-                    className="mpc-control",
-                ),
-                html.Label("Change atomic radii:", className="mpc-label"),
-                html.Div(
-                    dcc.Dropdown(
-                        options=[
-                            {"label": "Ionic", "value": "specified_or_average_ionic"},
-                            {"label": "Covalent", "value": "covalent"},
-                            {"label": "Van der Waals", "value": "van_der_waals"},
-                            {
-                                "label": f"Uniform ({Legend.uniform_radius}Å)",
-                                "value": "uniform",
-                            },
-                        ],
-                        value=self.initial_data["display_options"]["radius_strategy"],
-                        clearable=False,
-                        persistence=SETTINGS.PERSISTENCE,
-                        persistence_type=SETTINGS.PERSISTENCE_TYPE,
-                        id=self.id("radius_strategy"),
-                    ),
-                    className="mpc-control",
-                ),
-                html.Label("Draw options:", className="mpc-label"),
-                html.Div(
-                    [
-                        dcc.Checklist(
-                            options=[
-                                {
-                                    "label": "Draw repeats of atoms on periodic boundaries",
-                                    "value": "draw_image_atoms",
-                                },
-                                {
-                                    "label": "Draw atoms outside unit cell bonded to "
-                                    "atoms within unit cell",
-                                    "value": "bonded_sites_outside_unit_cell",
-                                },
-                                {
-                                    "label": "Hide bonds where destination atoms are not shown",
-                                    "value": "hide_incomplete_bonds",
-                                },
-                            ],
-                            value=[
-                                opt
-                                for opt in (
-                                    "draw_image_atoms",
-                                    "bonded_sites_outside_unit_cell",
-                                    "hide_incomplete_bonds",
-                                )
-                                if self.initial_data["display_options"][opt]
-                            ],
-                            labelStyle={"display": "block"},
-                            inputClassName="mpc-radio",
-                            id=self.id("draw_options"),
-                            persistence=SETTINGS.PERSISTENCE,
-                            persistence_type=SETTINGS.PERSISTENCE_TYPE,
-                        )
-                    ]
-                ),
-                html.Label("Hide/show:", className="mpc-label"),
-                html.Div(
-                    [
-                        dcc.Checklist(
-                            options=[
-                                {"label": "Atoms", "value": "atoms"},
-                                {"label": "Bonds", "value": "bonds"},
-                                {"label": "Unit cell", "value": "unit_cell"},
-                                {"label": "Polyhedra", "value": "polyhedra"},
-                                {"label": "Axes", "value": "axes"},
-                            ],
-                            value=["atoms", "bonds", "unit_cell", "polyhedra"],
-                            labelStyle={"display": "block"},
-                            inputClassName="mpc-radio",
-                            id=self.id("hide-show"),
-                            persistence=SETTINGS.PERSISTENCE,
-                            persistence_type=SETTINGS.PERSISTENCE_TYPE,
-                        )
+                        options_layout,
+                        legend_layout
                     ],
-                    className="mpc-control",
+                    id=self.id("scene"),
+                    data=self.initial_data["scene"],
+                    settings=self.initial_scene_settings,
+                    sceneSize="100%",
+                    fileOptions=list(self.download_options["Structure"].keys()),
+                    hideControls=False if self.show_controls else True,
+                    **self.scene_kwargs,
                 ),
-            ]
-        )
-
-        state = {"fmt": "CIF (Symmetrized)"}
-
-        download_options = self.get_choice_input(
-            kwarg_label="download_option",
-            state=state,
-            options=[
-                {"label": k, "value": k}
-                for k, v in self.download_options["Structure"].items()
             ],
             style={
-                "border-radius": "4px 0px 0px 4px",
-                "width": "12rem",
-                "height": "1.5rem",
+                "width": "100%",
+                "height": "100%",
+                "overflow": "hidden",
+                "margin": "0 auto",
             },
-        )
-
-        download_button = Button(
-            [Icon(kind="download"), html.Span(), "Download"],
-            kind="primary",
-            id=self.id("download-button"),
-            style={"height": "2.25rem"},
-        )
-
-        download_layout = html.Div(
-            [
-                html.Div([download_options], className="control"),
-                html.Div([download_button], className="control"),
-                dcc.Download(id=self.id("download-structure")),
-            ],
-            className="field has-addons",
         )
 
         return {
             "struct": struct_layout,
-            "screenshot": screenshot_layout,
             "options": options_layout,
             "title": title_layout,
             "legend": legend_layout,
-            "download": download_layout,
         }
 
     def layout(self, size: str = "500px") -> html.Div:
@@ -1107,32 +1064,8 @@ class StructureMoleculeComponent(MPComponent):
 
         return scene_json, legend.get_legend()
 
-    def screenshot_layout(self):
-        """
-        :return: A layout including a button to trigger a screenshot download.
-        """
-        return self._sub_layouts["screenshot"]
-
-    def options_layout(self):
-        """
-        :return: A layout including options to change the appearance, bonding, etc.
-        """
-        return self._sub_layouts["options"]
-
     def title_layout(self):
         """
         :return: A layout including the composition of the structure/molecule as a title.
         """
         return self._sub_layouts["title"]
-
-    def legend_layout(self):
-        """
-        :return: A layout including a legend for the structure/molecule.
-        """
-        return self._sub_layouts["legend"]
-
-    def download_layout(self):
-        """
-        :return: A layout including a download button to download the structure/molecule.
-        """
-        return self._sub_layouts["download"]
