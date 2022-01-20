@@ -563,14 +563,12 @@ class PourbaixDiagramComponent(MPComponent):
             style={"display": "inline-block"},
         )
 
-        graph = ctl.Box(
-            ctl.Loading(
-                dcc.Graph(
-                    figure=go.Figure(layout=PourbaixDiagramComponent.empty_plot_style),
-                    id=self.id("graph"),
-                    responsive=True,
-                    config={"displayModeBar": False, "displaylogo": False},
-                )
+        graph = html.Div(
+            dcc.Graph(
+                figure=go.Figure(layout=PourbaixDiagramComponent.empty_plot_style),
+                id=self.id("graph"),
+                responsive=True,
+                config={"displayModeBar": False, "displaylogo": False},
             ),
             style={"min-height": "500px"},
         )
