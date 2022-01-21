@@ -10,6 +10,10 @@ def test_structure(dash_duo):
     time.sleep(5)
     dash_duo.percy_snapshot("example_structure_on_load")
 
+    # click the settings button (second button in the button-bar) to show the settings panel
+    # and test the settings options.
+    dash_duo.find_elements(".mpc-button-bar .button")[1].click()
+
     # test changing radius
     el = dash_duo.select_dcc_dropdown("#CTmy_structure_radius_strategy", index=0)
     time.sleep(1)
