@@ -148,7 +148,7 @@ class StructureMoleculeComponent(MPComponent):
         self.show_settings = show_settings
         self.show_controls = show_controls
         self.show_position_button = show_position_button
-        
+
         self.initial_scene_settings = self.default_scene_settings.copy()
         if scene_settings:
             self.initial_scene_settings.update(scene_settings)
@@ -434,8 +434,6 @@ class StructureMoleculeComponent(MPComponent):
             ],
         )
         def download_image(image_data_timestamp, image_data, data):
-            print('image data')
-            print(image_data_timestamp)
             if not image_data_timestamp:
                 raise PreventUpdate
 
@@ -468,8 +466,6 @@ class StructureMoleculeComponent(MPComponent):
             ],
         )
         def download_structure(file_timestamp, download_option, data):
-            print('file data')
-            print(file_timestamp)
             if not file_timestamp:
                 raise PreventUpdate
 
@@ -604,20 +600,21 @@ class StructureMoleculeComponent(MPComponent):
         )
 
         legend_elements = [
-            Button(
+            html.Span(
                 html.Span(
                     name, className="icon", style={"color": get_font_color(color)}
                 ),
-                kind="static",
+                className="button is-static is-rounded",
                 style={"backgroundColor": color},
             )
             for color, name in legend_colors.items()
         ]
 
-        return Field(
-            [Control(el, style={"marginRight": "0.2rem"}) for el in legend_elements],
+        return html.Div(
+            legend_elements,
             id=self.id("legend"),
-            grouped=True,
+            style={"display": "flex"},
+            className="buttons"
         )
 
     def _make_title(self, legend):
