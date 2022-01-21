@@ -51,6 +51,7 @@ DEFAULTS = {
     "show_compass": True,
     "unit_cell_choice": "input",
     "show_legend": True,
+    "show_settings": True,
     "show_controls": True,
     "show_position_button": False
 }
@@ -113,6 +114,7 @@ class StructureMoleculeComponent(MPComponent):
         scene_settings: Optional[Dict] = None,
         group_by_site_property: Optional[str] = None,
         show_legend: bool = DEFAULTS["show_legend"],
+        show_settings: bool = DEFAULTS["show_settings"],
         show_controls: bool = DEFAULTS["show_controls"],
         show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
@@ -143,8 +145,10 @@ class StructureMoleculeComponent(MPComponent):
 
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
         self.show_legend = show_legend
+        self.show_settings = show_settings
         self.show_controls = show_controls
         self.show_position_button = show_position_button
+        
         self.initial_scene_settings = self.default_scene_settings.copy()
         if scene_settings:
             self.initial_scene_settings.update(scene_settings)
@@ -719,7 +723,7 @@ class StructureMoleculeComponent(MPComponent):
             style={"display": "none"},
         )
 
-        if self.show_controls:
+        if self.show_settings:
             options_layout = Field(
                 [
                     #  TODO: hide if molecule
