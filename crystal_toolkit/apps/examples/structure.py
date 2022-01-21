@@ -30,17 +30,8 @@ my_layout = html.Div(
         html.H1("StructureMoleculeComponent Example"),
         html.H2("Standard Layout"),
         structure_component.layout(size="400px"),
-        html.H2("Optional Additional Layouts"),
-        html.H3("Screenshot Layout"),
-        structure_component.screenshot_layout(),
-        html.H3("Options Layout"),
-        structure_component.options_layout(),
-        html.H3("Title Layout"),
+        html.H2("Optional Title Layout"),
         structure_component.title_layout(),
-        html.H3("Legend Layout"),
-        structure_component.legend_layout(),
-        html.H3("Download Layout"),
-        structure_component.download_layout(),
     ]
 )
 
