@@ -26,7 +26,7 @@ gunicorn = { version = "*", optional = true }
 redis = { version = "*", optional = true }
 Flask-Caching = { version = "*", optional = true }
 gevent = { version = "*", optional = true }
-dash-mp-components = {version = "^0.3.44", optional = true}
+dash-mp-components = "^0.3.82"
 robocrys = { version = "*", optional = true }
 habanero = { version = "*", optional = true }
 dscribe = { version = "*", optional = true }
