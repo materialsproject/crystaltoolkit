@@ -876,13 +876,7 @@ class StructureMoleculeComponent(MPComponent):
                 ),
                 dcc.Download(id=self.id("download-image")),
                 dcc.Download(id=self.id("download-structure"))
-            ],
-            style={
-                "width": "100%",
-                "height": "100%",
-                "overflow": "hidden",
-                "margin": "0 auto",
-            },
+            ]
         )
 
         return {
