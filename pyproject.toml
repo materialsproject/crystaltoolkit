@@ -5,7 +5,7 @@ description = ""
 authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8, <3.11"
 pymatgen = "^2022.0.16"
 pydantic = "*"
 plotly = "^5.3.1"
@@ -34,6 +34,7 @@ dash-extensions = { version = "*", optional = true }
 sentry-sdk = { version = "*", optional = true }
 dash-vtk = { version = "^0.0.6", optional= true }
 kaleido = { version = "^0.2.1", optional = true }
+numba = ">=0.53"
 
 [tool.poetry.extras]
 server = [
