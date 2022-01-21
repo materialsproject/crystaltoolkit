@@ -422,7 +422,7 @@ class StructureMoleculeComponent(MPComponent):
         # )
 
         @app.callback(
-            Output(self.id("download"), "data"),
+            Output(self.id("download-image"), "data"),
             Input(self.id("scene"), "imageDataTimestamp"),
             [
                 State(self.id("scene"), "imageData"),
@@ -430,6 +430,8 @@ class StructureMoleculeComponent(MPComponent):
             ],
         )
         def download_image(image_data_timestamp, image_data, data):
+            print('image data')
+            print(image_data_timestamp)
             if not image_data_timestamp:
                 raise PreventUpdate
 
@@ -462,7 +464,8 @@ class StructureMoleculeComponent(MPComponent):
             ],
         )
         def download_structure(file_timestamp, download_option, data):
-
+            print('file data')
+            print(file_timestamp)
             if not file_timestamp:
                 raise PreventUpdate
 
@@ -867,8 +870,11 @@ class StructureMoleculeComponent(MPComponent):
                     sceneSize="100%",
                     fileOptions=list(self.download_options["Structure"].keys()),
                     hideControls=False if self.show_controls else True,
+                    showPositionButton=True if self.show_position_button else False,
                     **self.scene_kwargs,
                 ),
+                dcc.Download(id=self.id("download-image")),
+                dcc.Download(id=self.id("download-structure"))
             ],
             style={
                 "width": "100%",
