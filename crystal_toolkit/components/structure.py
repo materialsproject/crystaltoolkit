@@ -53,7 +53,10 @@ DEFAULTS = {
     "show_legend": True,
     "show_settings": True,
     "show_controls": True,
-    "show_position_button": False
+    "show_expand_button": True,
+    "show_image_button": True,
+    "show_export_button": True,
+    "show_position_button": True
 }
 
 
@@ -98,6 +101,7 @@ class StructureMoleculeComponent(MPComponent):
             Union[Structure, StructureGraph, Molecule, MoleculeGraph]
         ] = None,
         id: str = None,
+        className: str = "box",
         scene_additions: Optional[Scene] = None,
         bonding_strategy: str = DEFAULTS["bonding_strategy"],
         bonding_strategy_kwargs: Optional[dict] = None,
@@ -116,6 +120,9 @@ class StructureMoleculeComponent(MPComponent):
         show_legend: bool = DEFAULTS["show_legend"],
         show_settings: bool = DEFAULTS["show_settings"],
         show_controls: bool = DEFAULTS["show_controls"],
+        show_expand_button: bool = DEFAULTS["show_expand_button"],
+        show_image_button: bool = DEFAULTS["show_image_button"],
+        show_export_button: bool = DEFAULTS["show_export_button"],
         show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
     ):
@@ -138,15 +145,22 @@ class StructureMoleculeComponent(MPComponent):
         :param group_by_site_property: a site property used for grouping of atoms for mouseover/interaction,
         :param show_legend: show or hide legend panel within the scene
         :param show_controls: show or hide scene control bar
+        :param show_expand_button: show or hide the full screen button within the scene control bar
+        :param show_image_button: show or hide the image download button within the scene control bar
+        :param show_export_button: show or hide the file export button within the scene control bar
         :param show_position_button: show or hide the revert position button within the scene control bar
         e.g. Wyckoff label
         :param kwargs: extra keyword arguments to pass to MPComponent
         """
 
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
+        self.className = className
         self.show_legend = show_legend
         self.show_settings = show_settings
         self.show_controls = show_controls
+        self.show_expand_button = show_expand_button
+        self.show_image_button = show_image_button
+        self.show_export_button = show_export_button
         self.show_position_button = show_position_button
 
         self.initial_scene_settings = self.default_scene_settings.copy()
@@ -866,12 +880,16 @@ class StructureMoleculeComponent(MPComponent):
                         legend_layout
                     ],
                     id=self.id("scene"),
+                    className=self.className,
                     data=self.initial_data["scene"],
                     settings=self.initial_scene_settings,
                     sceneSize="100%",
                     fileOptions=list(self.download_options["Structure"].keys()),
-                    hideControls=False if self.show_controls else True,
-                    showPositionButton=True if self.show_position_button else False,
+                    showControls=self.show_controls,
+                    showExpandButton=self.show_expand_button,
+                    showImageButton=self.show_image_button,
+                    showExportButton=self.show_export_button,
+                    showPositionButton=self.show_position_button,
                     **self.scene_kwargs,
                 ),
                 dcc.Download(id=self.id("download-image")),

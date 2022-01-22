@@ -14,7 +14,7 @@ from pymatgen.core.lattice import Lattice
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
 # create the Crystal Toolkit component
-structure_component = ctc.StructureMoleculeComponent(structure, id="hello_structure", show_controls=True)
+structure_component = ctc.StructureMoleculeComponent(structure, id="hello_structure")
 
 # add the component's layout to our app's layout
 my_layout = html.Div([structure_component.layout()])
