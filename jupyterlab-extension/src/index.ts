@@ -38,7 +38,7 @@ export class SceneRenderer extends Widget implements IRenderMime.IRenderer {
 
     // wait for the next event loop
     setTimeout(() => {
-      this.scene = new CrystalToolkitScene(
+      this.scene = CrystalToolkitScene(
         model,
         this.sceneContainer,
         {},
