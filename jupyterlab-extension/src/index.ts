@@ -1,6 +1,6 @@
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
-import { CrystalToolkitScene } from '@materialsproject/mp-react-components';
+import { Scene } from '@materialsproject/mp-react-components';
 
 /**
  * The default mime type for the extension.
@@ -18,7 +18,7 @@ const CLASS_NAME = 'mimerenderer-mp_ctk_json';
 export class SceneRenderer extends Widget implements IRenderMime.IRenderer {
   private sceneContainer: HTMLDivElement;
   private model!: IRenderMime.IMimeModel;
-  private scene: CrystalToolkitScene;
+  private scene: Scene;
   /**
    * Construct a new output widget
    */
@@ -38,21 +38,18 @@ export class SceneRenderer extends Widget implements IRenderMime.IRenderer {
 
     // wait for the next event loop
     setTimeout(() => {
-      this.scene = CrystalToolkitScene(
-        model,
-        this.sceneContainer,
-        {},
-        50,
-        10,
-        (objects: any[]) => {
-          // not sure what to do here
-          console.log('clicked on objects', objects);
-        },
-        () => {
-          /* we do not need to dispatch camera changes */
-        },
-        null
-      );
+      this.scene = new Scene(
+          model,  // sceneJSON
+          this.sceneContainer,  // domElement
+          {},  // settings
+          50,  // size
+          10, // padding
+          (objects) => {  // clickCallback
+                null
+            },
+          () => {  // cameraState
+                /* we do not need to dispatch camera changes */
+            }, null);
       this.scene.addToScene(this.model.data[MIME_TYPE]);
       this.scene.resizeRendererToDisplaySize();
     }, 0);

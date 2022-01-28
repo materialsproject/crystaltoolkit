@@ -1,5 +1,5 @@
 import { Widget } from '@lumino/widgets';
-import { CrystalToolkitScene } from '@materialsproject/mp-react-components';
+import { Scene } from '@materialsproject/mp-react-components';
 /**
  * The default mime type for the extension.
  */
@@ -28,11 +28,16 @@ export class SceneRenderer extends Widget {
     renderModel(model) {
         // Save reference to model
         this.model = model;
+        console.log("Running dev version 2!");
         // wait for the next event loop
         setTimeout(() => {
-            this.scene = new CrystalToolkitScene(model, this.sceneContainer, {}, 50, 10, (objects) => {
-                // not sure what to do here
-                console.log('clicked on objects', objects);
+            this.scene = new Scene(model, // sceneJSON
+            this.sceneContainer, // domElement
+            {}, // settings
+            50, // size
+            10, // padding
+            (objects) => {
+                null;
             }, () => {
                 /* we do not need to dispatch camera changes */
             }, null);
