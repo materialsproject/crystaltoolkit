@@ -13,7 +13,7 @@ from pymatgen.util.string import unicodeify
 from shapely.geometry import Polygon
 from pymatgen.core import Composition, Element
 from pymatgen.ext.matproj import MPRester
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, ELEMENTS_HO
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, ELEMENTS_HO, PREFAC
 
 from crystal_toolkit.helpers.layouts import (
     MessageContainer,
@@ -283,15 +283,14 @@ class PourbaixDiagramComponent(MPComponent):
     #     return figure
 
     @staticmethod
-    def get_figure(
-        pourbaix_diagram, heatmap_entry=None,
-    ):
+    def get_figure(pourbaix_diagram, heatmap_entry=None, show_water_lines=True):
         """
         Static method for getting plotly figure from a Pourbaix diagram.
 
         Args:
             pourbaix_diagram (PourbaixDiagram): Pourbaix diagram to plot
             heatmap_entry (PourbaixEntry): id for the heatmap generation
+            show_water_lines (bool): if True, show region of water stability
 
         Returns:
             (dict) figure layout
@@ -501,10 +500,35 @@ class PourbaixDiagramComponent(MPComponent):
             )
             data.append(hmap)
 
-        # SHE line
-        # data.append(go.Scatter(
-        #
-        # ))
+        if show_water_lines:
+            ph_range = [-2, 16]
+            # hydrogen line
+            data.append(
+                go.Scatter(
+                    x=[ph_range[0], ph_range[1]],
+                    y=[-ph_range[0] * PREFAC, -ph_range[1] * PREFAC],
+                    mode="lines",
+                    line={"color": "orange", "dash": "dash"},
+                    name="Hydrogen Stability Line",
+                )
+            )
+            # oxygen line
+            data.append(
+                go.Scatter(
+                    x=[ph_range[0], ph_range[1]],
+                    y=[-ph_range[0] * PREFAC + 1.23, -ph_range[1] * PREFAC + 1.23],
+                    mode="lines",
+                    line={"color": "orange", "dash": "dash"},
+                    name="Oxygen Stability Line",
+                )
+            )
+
+            #     h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])
+            #     o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])
+            # #   SHE line
+            # #   data.append(go.Scatter(
+            # #
+            # #   ))
 
         figure = go.Figure(data=data, layout=layout)
 
