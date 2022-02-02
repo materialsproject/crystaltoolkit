@@ -599,8 +599,8 @@ Sub-layouts:  \n{layouts}"""
         **kwargs,
     ):
         """
-        For Python classes which take floats as inputs, this will generate
-        a corresponding Dash input layout.
+        For Python classes which take pre-defined values as inputs, this will generate
+        a corresponding input layout using mpc.Select.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
@@ -617,13 +617,12 @@ Sub-layouts:  \n{layouts}"""
         state = state or {}
         default = default or state.get(kwarg_label)
 
-        option_input = dcc.Dropdown(
+        option_input = mpc.Select(
             id=self.id(kwarg_label, is_kwarg=True, hint="literal"),
             options=options if options else [],
             value=default,
-            persistence=False,
-            clearable=False,
-            **kwargs,
+            isClearable=False,
+            arbitraryProps={**kwargs},
         )
 
         return add_label_help(option_input, label, help_str)
@@ -761,7 +760,7 @@ Sub-layouts:  \n{layouts}"""
                         kwargs[kwarg_label] = str(v)
 
                 elif k_type == "bool":
-                    kwargs[kwarg_label] = bool("enabled" in v)
+                    kwargs[kwarg_label] = v
 
                 elif k_type == "slider":
                     kwargs[kwarg_label] = v
