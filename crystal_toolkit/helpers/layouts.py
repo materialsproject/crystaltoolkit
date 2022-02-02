@@ -6,6 +6,8 @@ from dash import dcc
 from dash import html
 from habanero import content_negotiation
 from monty.serialization import dumpfn, loadfn
+from uuid import uuid4
+import dash_mp_components as mpc
 
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.settings import SETTINGS
@@ -322,26 +324,38 @@ class Control(html.Div):
         _update_css_class(kwargs, "control")
         super().__init__(*args, **kwargs)
 
-
 def get_tooltip(
-    tooltip: html.Div, tooltip_text: str, underline: bool = True
-) -> html.Div:
+    tooltip_label: Any,
+    tooltip_text: str,
+    underline: bool = True,
+    tooltip_id: str = "",
+    wrapper_class: str = None,
+    **kwargs,
+):
     """
-    Add a tooltip, typically for help text.
-    :param tooltip: element to apply tooltip to
+    Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
+    This component uses react-tooltip under the hood.
+    :param tooltip_label: text or component to display and apply hover behavior to
     :param tooltip_text: text to show on hover
-    :param underline: whether to show hint that element provides tooltip functionality
-    :return: html.Div
+    :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
+    :param wrapper_class: class to add to the span that wraps all the returned tooltip components (label + content)
+    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props. 
+    :return: html.Span
     """
-    if underline:
-        style = None
-    else:
-        style = {"borderBottom": "0px"}
+    if not tooltip_id:
+        tooltip_id = uuid4().hex
 
-    return html.Div(
-        [tooltip, html.Span(tooltip_text, className="tooltiptext")],
-        className="tooltip",
-        style=style,
+    tooltip_class = "tooltip-label" if underline else None
+    return html.Span(
+        [
+            html.Span(
+                tooltip_label,
+                className=tooltip_class,
+                **{"data-tip": True, "data-for": tooltip_id},
+            ),
+            mpc.Tooltip(tooltip_text, id=tooltip_id, **kwargs),
+        ],
+        className=wrapper_class,
     )
 
 
@@ -438,26 +452,15 @@ def cite_me(
 
 
 def add_label_help(input, label, help):
-
-    if (not label) and (not help):
-        return input
-
-    contents = []
-    if label and not help:
-        contents.append(html.Label(label, className="mpc-label"))
-    if label and help:
-        contents.append(
-            get_tooltip(html.Label(label, className="mpc-label"), dcc.Markdown(help))
-        )
-    contents.append(input)
-
-    return html.Div(
-        contents,
-        style={
-            "display": "inline-block",
-            "padding-right": "1rem",
-            "vertical-align": "top",
-        },
+    """
+    Combine an input, label, and tooltip text into a 
+    single consistent component.
+    """
+    return mpc.FilterField(
+        input,
+        id=uuid4().hex,
+        label=label,
+        tooltip=help
     )
 
 
