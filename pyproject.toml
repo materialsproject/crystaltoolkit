@@ -26,7 +26,7 @@ gunicorn = { version = "*", optional = true }
 redis = { version = "*", optional = true }
 Flask-Caching = { version = "*", optional = true }
 gevent = { version = "*", optional = true }
-dash-mp-components = { version = "^0.3.84", optional = true }
+dash-mp-components = "^0.3.89"
 robocrys = { version = "*", optional = true }
 habanero = { version = "*", optional = true }
 dscribe = { version = "*", optional = true }
@@ -35,6 +35,7 @@ sentry-sdk = { version = "*", optional = true }
 dash-vtk = { version = "^0.0.6", optional= true }
 kaleido = { version = "^0.2.1", optional = true }
 numba = ">=0.53"
+uuid = "^1.30"
 
 [tool.poetry.extras]
 server = [

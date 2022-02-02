@@ -15,6 +15,7 @@ import numpy as np
 from dash.dependencies import ALL, Output
 from flask_caching import Cache
 from monty.json import MontyDecoder, MSONable
+import dash_mp_components as mpc
 
 from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.helpers.layouts import add_label_help, Icon, Button, Loading
@@ -572,12 +573,17 @@ Sub-layouts:  \n{layouts}"""
         state = state or {}
         default = default or state.get(kwarg_label) or False
 
-        bool_input = dcc.Checklist(
+        # bool_input = dcc.Checklist(
+        #     id=self.id(kwarg_label, is_kwarg=True, hint="bool"),
+        #     style={"width": "5rem"},
+        #     options=[{"label": "", "value": "enabled"}],
+        #     value=["enabled"] if default else [],
+        #     persistence=False,
+        # )
+
+        bool_input = mpc.Switch(
             id=self.id(kwarg_label, is_kwarg=True, hint="bool"),
-            style={"width": "5rem"},
-            options=[{"label": "", "value": "enabled"}],
-            value=["enabled"] if default else [],
-            persistence=False,
+            value=True if default else False,
         )
 
         return add_label_help(bool_input, label, help_str)
