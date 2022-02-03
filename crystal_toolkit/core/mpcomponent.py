@@ -516,7 +516,7 @@ Sub-layouts:  \n{layouts}"""
     def get_slider_input(
         self,
         kwarg_label: str,
-        default: Optional = None,
+        default: Optional[any] = None,
         state: Dict = None,
         label: Optional[str] = None,
         help_str: str = None,
@@ -549,6 +549,7 @@ Sub-layouts:  \n{layouts}"""
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
+        **kwargs,
     ):
         """
         For Python classes which take boolean values as inputs, this will generate
@@ -568,17 +569,11 @@ Sub-layouts:  \n{layouts}"""
         state = state or {}
         default = default or state.get(kwarg_label) or False
 
-        # bool_input = dcc.Checklist(
-        #     id=self.id(kwarg_label, is_kwarg=True, hint="bool"),
-        #     style={"width": "5rem"},
-        #     options=[{"label": "", "value": "enabled"}],
-        #     value=["enabled"] if default else [],
-        #     persistence=False,
-        # )
-
         bool_input = mpc.Switch(
             id=self.id(kwarg_label, is_kwarg=True, hint="bool"),
             value=True if default else False,
+            hasLabel=True,
+            **kwargs,
         )
 
         return add_label_help(bool_input, label, help_str)
@@ -625,7 +620,7 @@ Sub-layouts:  \n{layouts}"""
     def get_dict_input(
         self,
         kwarg_label: str,
-        default: Optional = None,
+        default: Optional[any] = None,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
