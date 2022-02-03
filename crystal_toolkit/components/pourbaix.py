@@ -674,10 +674,8 @@ class PourbaixDiagramComponent(MPComponent):
                                 f"comp-{element}",
                                 default=comp_defaults[element],
                                 label=f"Composition of {element}",
-                                max=1,
-                                min=0,
+                                domain=[0, 1],
                                 step=0.01,
-                                disabled=True if heatmap_entry else False,
                             )
                         ]
                     )
