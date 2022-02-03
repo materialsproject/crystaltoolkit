@@ -527,22 +527,17 @@ Sub-layouts:  \n{layouts}"""
         state = state or {}
         default = default or state.get(kwarg_label)
 
-        slider_kwargs = dict(
-            tooltip={"placement": "bottom", "always_visible": True}, persistence=False,
-        )
-        slider_kwargs.update(kwargs)
-
         if multiple:
-            slider_input = dcc.RangeSlider(
+            slider_input = mpc.DualRangeSlider(
                 id=self.id(kwarg_label, is_kwarg=True, hint="slider"),
                 value=default,
-                **slider_kwargs,
+                **kwargs,
             )
         else:
-            slider_input = dcc.Slider(
+            slider_input = mpc.RangeSlider(
                 id=self.id(kwarg_label, is_kwarg=True, hint="slider"),
                 value=default,
-                **slider_kwargs,
+                **kwargs,
             )
 
         return add_label_help(slider_input, label, help_str)
