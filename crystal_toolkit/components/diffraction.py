@@ -305,9 +305,9 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             help_str="Simulate a real diffraction pattern by applying Scherrer broadening, which estimates the "
             "full width at half maximum (FWHM) resulting from a finite, rather than infinite, crystallite "
             "size.",
-            # marks={i: "{}".format(10 ** i) for i in range(-1, 3)},
             domain=[-1, 2],
             step=0.01,
+            isLogScale=True
         )
 
         static_image = self.get_figure_placeholder("xrd-plot")
