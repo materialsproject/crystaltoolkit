@@ -694,17 +694,10 @@ class PourbaixDiagramComponent(MPComponent):
 
                 conc_inputs.append(conc_input)
 
-            comp_conc_controls = [html.Br()]
+            comp_conc_controls = []
             if comp_inputs and (not show_heatmap) and (not heatmap_entry):
-                comp_conc_controls.append(ctl.Label("Set Composition"))
                 comp_conc_controls += comp_inputs
-                comp_conc_controls.append(html.Br())
                 comp_conc_controls.append(html.Div(id=self.id("display-composition")))
-                comp_conc_controls.append(html.Br())
-            if len(elements) > 1:
-                comp_conc_controls.append(ctl.Label("Set Ion Concentrations"))
-            else:
-                comp_conc_controls.append(ctl.Label("Set Ion Concentration"))
             comp_conc_controls += conc_inputs
 
             comp_conc_controls = html.Div(comp_conc_controls)
