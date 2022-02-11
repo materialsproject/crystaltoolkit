@@ -4,7 +4,7 @@ from ast import literal_eval
 from collections import defaultdict
 from itertools import chain
 from json import JSONDecodeError, dumps, loads
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from base64 import b64encode
 
 import dash
@@ -516,7 +516,7 @@ Sub-layouts:  \n{layouts}"""
     def get_slider_input(
         self,
         kwarg_label: str,
-        default: Optional[any] = None,
+        default: Optional[Any] = None,
         state: Dict = None,
         label: Optional[str] = None,
         help_str: str = None,
@@ -620,7 +620,7 @@ Sub-layouts:  \n{layouts}"""
     def get_dict_input(
         self,
         kwarg_label: str,
-        default: Optional[any] = None,
+        default: Optional[Any] = None,
         state: Optional[dict] = None,
         label: Optional[str] = None,
         help_str: str = None,
