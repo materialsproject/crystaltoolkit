@@ -576,15 +576,13 @@ class PourbaixDiagramComponent(MPComponent):
                             state={},
                             label="Heatmap entry",
                             help_str="Choose the entry to use for heatmap generation.",
-                            disabled=True,
-                            style={"width": "20rem"},
+                            disabled=True
                         )
                     ],
                     id=self.id("heatmap_choice_container"),
                 ),
                 html.Div(id=self.id("element_specific_controls")),
-            ],
-            style={"display": "inline-block"},
+            ]
         )
 
         graph = html.Div(
@@ -628,8 +626,7 @@ class PourbaixDiagramComponent(MPComponent):
                 label="Heatmap entry",
                 help_str="Choose the entry to use for heatmap generation.",
                 options=options,
-                disabled=False,
-                style={"width": "20rem"},
+                disabled=False
             )
 
             return heatmap_options
