@@ -554,7 +554,7 @@ class PourbaixDiagramComponent(MPComponent):
                 self.get_bool_input(
                     "filter_solids",
                     state=self.default_state,
-                    label="Filter solids",
+                    label="Filter Solids",
                     help_str="Whether to filter solid phases by stability on the compositional phase diagram. "
                     "The practical consequence of this is that highly oxidized or reduced phases that "
                     "might show up in experiments due to kinetic limitations on oxygen/hydrogen evolution "
@@ -565,7 +565,7 @@ class PourbaixDiagramComponent(MPComponent):
                 self.get_bool_input(
                     "show_heatmap",
                     state=self.default_state,
-                    label="Show heatmap",
+                    label="Show Heatmap",
                     help_str="Hide or show a heatmap showing the decomposition energy for a specific "
                     "entry in this system.",
                 ),
@@ -623,7 +623,7 @@ class PourbaixDiagramComponent(MPComponent):
             heatmap_options = self.get_choice_input(
                 "heatmap_choice",
                 state={},
-                label="Heatmap entry",
+                label="Heatmap Entry",
                 help_str="Choose the entry to use for heatmap generation.",
                 options=options,
                 disabled=False
