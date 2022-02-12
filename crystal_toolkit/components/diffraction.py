@@ -380,7 +380,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             peak_profile = kwargs["peak_profile"]
             K = kwargs["shape_factor"]
             rad_source = kwargs["rad_source"]
-            logsize = kwargs["crystallite_size"]
+            logsize = float(kwargs["crystallite_size"])
 
             x_peak = data["x"]
             y_peak = data["y"]
