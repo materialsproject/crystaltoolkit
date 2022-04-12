@@ -142,7 +142,7 @@ def get_site_scene(
         sphere = Spheres(
             positions=[position],
             color="#ffffff",
-            radius=self.properties["display_radius"][0],
+            radius=max_radius,
             phiStart=phiEnd,
             phiEnd=np.pi * 2,
         )
