@@ -283,7 +283,9 @@ class PourbaixDiagramComponent(MPComponent):
     #     return figure
 
     @staticmethod
-    def get_figure(pourbaix_diagram, heatmap_entry=None, show_water_lines=True):
+    def get_figure(
+        pourbaix_diagram: PourbaixDiagram, heatmap_entry=None, show_water_lines=True
+    ) -> go.Figure:
         """
         Static method for getting plotly figure from a Pourbaix diagram.
 
@@ -326,10 +328,9 @@ class PourbaixDiagramComponent(MPComponent):
                 legend_entry = entry.phase_type
             elif isinstance(entry.phase_type, list):
                 if len(set(entry.phase_type)) == 1:
-                    if entry.phase_type[0] == "Ion":
-                        legend_entry = "Mixed Ion"
-                    else:
-                        legend_entry = "Mixed Solid"
+                    legend_entry = (
+                        "Mixed Ion" if entry.phase_type[0] == "Ion" else "Mixed Solid"
+                    )
                 else:
                     legend_entry = "Mixed Ion/Solid"
             else:
@@ -339,11 +340,11 @@ class PourbaixDiagramComponent(MPComponent):
 
             if not heatmap_entry:
                 if legend_entry == "Ion" or legend_entry == "Unknown":
-                    fillcolor = "rgb(255,255,250,1)"
+                    fillcolor = "rgb(255,255,250,1)"  # same color as old website
                 elif legend_entry == "Mixed Ion":
                     fillcolor = "rgb(255,255,240,1)"
                 elif legend_entry == "Solid":
-                    fillcolor = "rgba(188,236,237,1)"
+                    fillcolor = "rgba(188,236,237,1)"  # same color as old website
                 elif legend_entry == "Mixed Solid":
                     fillcolor = "rgba(155,229,232,1)"
                 elif legend_entry == "Mixed Ion/Solid":
@@ -563,7 +564,7 @@ class PourbaixDiagramComponent(MPComponent):
                     "leads to the most accurate Pourbaix diagrams.",
                 ),
                 self.get_bool_input(
-                    "show_heatmap",
+                    "show_heatmap",  # kwarg_label
                     state=self.default_state,
                     label="Show Heatmap",
                     help_str="Hide or show a heatmap showing the decomposition energy for a specific "
@@ -576,7 +577,7 @@ class PourbaixDiagramComponent(MPComponent):
                             state={},
                             label="Heatmap entry",
                             help_str="Choose the entry to use for heatmap generation.",
-                            disabled=True
+                            disabled=True,
                         )
                     ],
                     id=self.id("heatmap_choice_container"),
@@ -626,7 +627,7 @@ class PourbaixDiagramComponent(MPComponent):
                 label="Heatmap Entry",
                 help_str="Choose the entry to use for heatmap generation.",
                 options=options,
-                disabled=False
+                disabled=False,
             )
 
             return heatmap_options
@@ -694,7 +695,13 @@ class PourbaixDiagramComponent(MPComponent):
             comp_conc_controls = []
             if comp_inputs and (not show_heatmap) and (not heatmap_entry):
                 comp_conc_controls += comp_inputs
-                comp_conc_controls.append(html.Div(id=self.id("display-composition")))
+                comp_conc_controls.append(
+                    ctl.Block(html.Div(id=self.id("display-composition")))
+                )
+            if len(elements) > 1:
+                comp_conc_controls.append(ctl.Label("Set Ion Concentrations"))
+            else:
+                comp_conc_controls.append(ctl.Label("Set Ion Concentration"))
             comp_conc_controls += conc_inputs
 
             comp_conc_controls = html.Div(comp_conc_controls)
@@ -741,21 +748,24 @@ class PourbaixDiagramComponent(MPComponent):
         )
         def make_figure(pourbaix_entries, *args):
 
-            kwargs = self.reconstruct_kwargs_from_state()
-
             if pourbaix_entries is None:
                 raise PreventUpdate
+
+            kwargs = self.reconstruct_kwargs_from_state()
 
             pourbaix_entries = self.from_data(pourbaix_entries)
 
             # Get heatmap id
             if kwargs["show_heatmap"] and kwargs.get("heatmap_choice"):
+
+                # get Entry object based on the heatmap_choice, which is entry_id string
                 heatmap_entry = next(
                     entry
                     for entry in pourbaix_entries
                     if entry.entry_id == kwargs["heatmap_choice"]
                 )
 
+                # if using heatmap, comp_dict is constrained and is set automatically
                 comp_dict = {
                     element: coeff
                     for element, coeff in heatmap_entry.composition.items()
@@ -764,7 +774,10 @@ class PourbaixDiagramComponent(MPComponent):
             else:
                 heatmap_entry = None
 
+                # otherwise, user sets comp_dict
                 comp_dict = {}
+                # e.g. kwargs contains {"comp-Ag": 0.5, "comp-Fe": 0.5},
+                # essentially {slider_name: slider_value}
                 for k, v in kwargs.items():
                     if "comp" in k:  # keys are encoded like "comp-Ag"
                         el = k.split("-")[1]
@@ -772,13 +785,13 @@ class PourbaixDiagramComponent(MPComponent):
                 comp_dict = comp_dict or None
 
             conc_dict = {}
+            # e.g. kwargs contains {"conc-Ag": 1e-6, "conc-Fe": 1e-4},
+            # essentially {slider_name: slider_value}
             for k, v in kwargs.items():
                 if "conc" in k:  # keys are encoded like "conc-Ag"
                     el = k.split("-")[1]
                     conc_dict[el] = v
             conc_dict = conc_dict or None
-
-            # print("requesting pourbaix diagram", len(pourbaix_entries), heatmap_entry, conc_dict, comp_dict)
 
             pourbaix_diagram = get_pourbaix_diagram(
                 pourbaix_entries,
@@ -786,8 +799,18 @@ class PourbaixDiagramComponent(MPComponent):
                 conc_dict=conc_dict,
                 filter_solids=kwargs["filter_solids"],
             )
-            self.logger.debug("Generated pourbaix diagram")
+            self.logger.debug(
+                "Generated pourbaix diagram",
+                len(pourbaix_entries),
+                heatmap_entry,
+                conc_dict,
+                comp_dict,
+            )
 
             fig = self.get_figure(pourbaix_diagram, heatmap_entry=heatmap_entry,)
 
             return fig
+
+    # TODO
+    # def graph_layout(self):
+    #     return self._sub_layouts["graph"]
