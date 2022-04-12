@@ -527,17 +527,21 @@ Sub-layouts:  \n{layouts}"""
         state = state or {}
         default = default or state.get(kwarg_label)
 
+        # mpc.RangeSlider requires a domain to be specified
+        slider_kwargs = {"domain": [0, default * 2]}
+        slider_kwargs.update(**kwargs)
+
         if multiple:
             slider_input = mpc.DualRangeSlider(
                 id=self.id(kwarg_label, is_kwarg=True, hint="slider"),
                 value=default,
-                **kwargs,
+                **slider_kwargs,
             )
         else:
             slider_input = mpc.RangeSlider(
                 id=self.id(kwarg_label, is_kwarg=True, hint="slider"),
                 value=default,
-                **kwargs,
+                **slider_kwargs,
             )
 
         return add_label_help(slider_input, label, help_str)
