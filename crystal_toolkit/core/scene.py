@@ -20,7 +20,8 @@ class Primitive:
     For now, this just enforces some basic mergeability
     """
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def key(self):
         raise NotImplementedError
 
