@@ -243,7 +243,7 @@ class LocalEnvironmentPanel(PanelComponent):
                         html.Br(),
                         cite_me(
                             cite_text="How to cite ChemEnv",
-                            doi="10.26434/chemrxiv.11294480.v1",
+                            doi="10.1107/S2052520620007994",
                         ),
                         html.Br(),
                         distance_cutoff,
