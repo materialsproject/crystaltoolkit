@@ -1,4 +1,4 @@
-crystaltoolkit-extension==0.*,>=0.4.0
+crystaltoolkit-extension==0.*,>=0.6.0
 dash[testing]==1.*,>=1.19.0
 dash-daq
 dash-extensions
