@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crystal_toolkit"
-version = "2022.02.11.1"
+version = "2022.04.19"
 description = ""
 authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
@@ -10,7 +10,7 @@ pymatgen = "^2022.0.16"
 pydantic = "*"
 plotly = "^5.3.1"
 webcolors = "*"
-crystaltoolkit-extension = "^0.4.0"
+crystaltoolkit-extension = "^0.6.0"
 mp-api = "*"
 mp-pyrho = "^0.0.21"
 shapely = "^1.8.0"
