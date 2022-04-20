@@ -45,6 +45,7 @@ vacuum inserted so that the properties of the crystal surface can be studied.
             kwarg_label="miller_index",
             state=state,
             help_str="The surface plane defined by its Miller index (h, k, l)",
+            is_int=True,
             shape=(3,),
         )
 
@@ -54,7 +55,7 @@ vacuum inserted so that the properties of the crystal surface can be studied.
             state=state,
             help_str="Minimum slab size in Ångstroms (or number of planes of atoms if "
             '"Use plane units" enabled)',
-            shape=(3,),
+            shape=(),
         )
 
         min_vacuum_size = self.get_numerical_input(
