@@ -22,17 +22,25 @@ transform crystal structures and molecules.
 Crystal Toolkit Demonstration App
 ---------------------------------
 
-You can visit the current Crystal Toolkit web app `here. <https://materialsproject.org/#apps/xtaltoolkit>`_
+The new Materials Project website is powered by the Crystal Toolkit framework, visit it
+`here. <https://next-gen.materialsproject.org>`_. This includes the original "Crystal
+Toolkit" app `available here <https://next-gen.materialsproject.org/toolkit>`_.
 
 
 Crystal Toolkit Web Framework
 -----------------------------
 
 Crystal Toolkit is designed as a modular, object-orientated suite of UI components
-built upon the `Dash framework by Plotly <https://dash.plot.ly>`_. The main Crystal Toolkit web app is just
+built upon the `Dash framework by Plotly <https://dash.plot.ly>`_. The Crystal Toolkit web app is just
 one example of using these components.
 
-...
+The custom Dash components developed for use by Crystal Toolkit are available at
+`dash-mp-components <https://github.com/materialsproject/dash-mp-components>`_, and
+powered by our custom React components available at
+`mp-react-components <https://github.com/materialsproject/mp-react-components>`_. These
+can be explored interactively in our
+`Storybook <https://materialsproject.github.io/mp-react-components/?path=/story/introduction-mp-react-components--page>`_.
+These components can also be installed and used independently of Crystal Toolkit.
 
 Installation
 ------------
@@ -59,6 +67,15 @@ Make sure to set your ``PMG_MAPI_KEY`` appropriately.
 If you need a Materials Project API key, please get a free account on
 `Materials Project <https://materialsproject.org>`_ and access your dashboard.
 
+
+Dash 2.x Migration
+------------------
+
+Crystal Toolkit works with both Dash 1.x and Dash 2.x. Several design choices were made
+before Dash 2.x was developed that may be re-evaluated in future as new functionality
+becomes available.
+
+
 Development Team
 ----------------
 
@@ -68,7 +85,8 @@ The `Crystal Toolkit Development Team <https://github.com/materialsproject/cryst
 
 Contributors
 
-* `François Chabbey <https://github.com/chabb>`_ for React components
+* `Cody O'Donnell <https://github.com/codytodonnell>`_ primary developer of custom React components
+* `François Chabbey <https://github.com/chabb>`_ for development of React components
 * `Jimmy Shen <https://github.com/jmmshn>`_ contributed pythreejs support, surface plotting, initial arrows/axes support, and various bug fixes
 * `Joey Montoya <https://github.com/JosephMontoya-TRI>`_ contributed Pourbaix component
 * `Shyam Dwaraknath <https://github.com/shyamd>`_ for planned contributions for ellipsoid support and architectural design

@@ -1,32 +1,70 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>crystal_toolkit.helpers.layouts &mdash; Crystal Toolkit  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
     <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/helpers/layouts.html"/>
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
             <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -34,10 +72,21 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://next-gen.materialsproject.org/toolkit">Try The App!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
@@ -47,31 +96,71 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Crystal Toolkit</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content style-external-links">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
           <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
       <li>crystal_toolkit.helpers.layouts</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for crystal_toolkit.helpers.layouts</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -81,6 +170,8 @@
 <span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">html</span>
 <span class="kn">from</span> <span class="nn">habanero</span> <span class="kn">import</span> <span class="n">content_negotiation</span>
 <span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">dumpfn</span><span class="p">,</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">import</span> <span class="nn">dash_mp_components</span> <span class="k">as</span> <span class="nn">mpc</span>
 
 <span class="kn">from</span> <span class="nn">crystal_toolkit</span> <span class="kn">import</span> <span class="n">MODULE_PATH</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.settings</span> <span class="kn">import</span> <span class="n">SETTINGS</span>
@@ -122,6 +213,12 @@
 <div class="viewcode-block" id="Container"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.Container">[docs]</a><span class="k">class</span> <span class="nc">Container</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">_update_css_class</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;container&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Block"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.Block">[docs]</a><span class="k">class</span> <span class="nc">Block</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">_update_css_class</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;block&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -391,26 +488,38 @@
         <span class="n">_update_css_class</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;control&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="get_tooltip"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.get_tooltip">[docs]</a><span class="k">def</span> <span class="nf">get_tooltip</span><span class="p">(</span>
-    <span class="n">tooltip</span><span class="p">:</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">,</span> <span class="n">tooltip_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">underline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">:</span>
+    <span class="n">tooltip_label</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">tooltip_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">underline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">tooltip_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">wrapper_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a tooltip, typically for help text.</span>
-<span class="sd">    :param tooltip: element to apply tooltip to</span>
+<span class="sd">    Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.</span>
+<span class="sd">    This component uses react-tooltip under the hood.</span>
+<span class="sd">    :param tooltip_label: text or component to display and apply hover behavior to</span>
 <span class="sd">    :param tooltip_text: text to show on hover</span>
-<span class="sd">    :param underline: whether to show hint that element provides tooltip functionality</span>
-<span class="sd">    :return: html.Div</span>
+<span class="sd">    :param tooltip_id: unique id of the tooltip (will generate one if not supplied)</span>
+<span class="sd">    :param wrapper_class: class to add to the span that wraps all the returned tooltip components (label + content)</span>
+<span class="sd">    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props. </span>
+<span class="sd">    :return: html.Span</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">underline</span><span class="p">:</span>
-        <span class="n">style</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;borderBottom&quot;</span><span class="p">:</span> <span class="s2">&quot;0px&quot;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tooltip_id</span><span class="p">:</span>
+        <span class="n">tooltip_id</span> <span class="o">=</span> <span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
 
-    <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">tooltip</span><span class="p">,</span> <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span><span class="n">tooltip_text</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;tooltiptext&quot;</span><span class="p">)],</span>
-        <span class="n">className</span><span class="o">=</span><span class="s2">&quot;tooltip&quot;</span><span class="p">,</span>
-        <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+    <span class="n">tooltip_class</span> <span class="o">=</span> <span class="s2">&quot;tooltip-label&quot;</span> <span class="k">if</span> <span class="n">underline</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">html</span><span class="o">.</span><span class="n">Span</span><span class="p">(</span>
+                <span class="n">tooltip_label</span><span class="p">,</span>
+                <span class="n">className</span><span class="o">=</span><span class="n">tooltip_class</span><span class="p">,</span>
+                <span class="o">**</span><span class="p">{</span><span class="s2">&quot;data-tip&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;data-for&quot;</span><span class="p">:</span> <span class="n">tooltip_id</span><span class="p">},</span>
+            <span class="p">),</span>
+            <span class="n">mpc</span><span class="o">.</span><span class="n">Tooltip</span><span class="p">(</span><span class="n">tooltip_text</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">tooltip_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">className</span><span class="o">=</span><span class="n">wrapper_class</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -507,26 +616,15 @@
 
 
 <div class="viewcode-block" id="add_label_help"><a class="viewcode-back" href="../../../source/crystal_toolkit.helpers.layouts.html#crystal_toolkit.helpers.layouts.add_label_help">[docs]</a><span class="k">def</span> <span class="nf">add_label_help</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">help</span><span class="p">):</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">label</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">help</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">input</span>
-
-    <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">label</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">help</span><span class="p">:</span>
-        <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;mpc-label&quot;</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">label</span> <span class="ow">and</span> <span class="n">help</span><span class="p">:</span>
-        <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">get_tooltip</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;mpc-label&quot;</span><span class="p">),</span> <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="n">help</span><span class="p">))</span>
-        <span class="p">)</span>
-    <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-        <span class="n">contents</span><span class="p">,</span>
-        <span class="n">style</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;padding-right&quot;</span><span class="p">:</span> <span class="s2">&quot;1rem&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vertical-align&quot;</span><span class="p">:</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Combine an input, label, and tooltip text into a </span>
+<span class="sd">    single consistent component.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">mpc</span><span class="o">.</span><span class="n">FilterField</span><span class="p">(</span>
+        <span class="nb">input</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+        <span class="n">tooltip</span><span class="o">=</span><span class="n">help</span>
     <span class="p">)</span></div>
 
 
@@ -560,30 +658,46 @@
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2019, Crystal Toolkit Development Team.</p>
-  </div>
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
