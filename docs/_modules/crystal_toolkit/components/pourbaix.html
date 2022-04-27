@@ -1,32 +1,70 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>crystal_toolkit.components.pourbaix &mdash; Crystal Toolkit  documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
     <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/pourbaix.html"/>
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+          
+
+          
             <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -34,10 +72,21 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://materialsproject.org/#apps/xtaltoolkit">Try The App!</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://next-gen.materialsproject.org/toolkit">Try The App!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_web_app.html">Your First App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../first_component.html">Your First Component</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components.html">Component Library</a></li>
@@ -47,31 +96,71 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Crystal Toolkit</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content style-external-links">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
+    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
           <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
+        
       <li>crystal_toolkit.components.pourbaix</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   <h1>Source code for crystal_toolkit.components.pourbaix</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">dash</span>
 <span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">dcc</span>
@@ -82,10 +171,13 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">get_cmap</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="kn">import</span> <span class="n">PourbaixDiagram</span><span class="p">,</span> <span class="n">ELEMENTS_HO</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="kn">import</span> <span class="n">PourbaixDiagram</span><span class="p">,</span> <span class="n">ELEMENTS_HO</span><span class="p">,</span> <span class="n">PREFAC</span>
 
 <span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">MessageContainer</span><span class="p">,</span>
@@ -101,27 +193,16 @@
 
 
 <span class="c1"># TODO: fix bug for Pa, etc.</span>
+<span class="c1"># TODO: fix bug with composition input, needs further investigation and testing</span>
+<span class="c1"># TODO: add water stability region</span>
 
-<span class="n">SUPPORTED_N_ELEMENTS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">HEIGHT</span> <span class="o">=</span> <span class="mi">550</span>  <span class="c1"># in px</span>
 <span class="n">WIDTH</span> <span class="o">=</span> <span class="mi">700</span>  <span class="c1"># in px</span>
 
 
 <div class="viewcode-block" id="PourbaixDiagramComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent">[docs]</a><span class="k">class</span> <span class="nc">PourbaixDiagramComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pourbaix_diagram</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;figure&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;pourbaix_diagram_options&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;pourbaix_display_options&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_store</span><span class="p">(</span><span class="s2">&quot;mpid&quot;</span><span class="p">)</span>
-
-        <span class="c1"># for index in range(SUPPORTED_N_ELEMENTS):</span>
-        <span class="c1">#     self.create_store(&quot;concentration-slider-{}&quot;.format(index))</span>
-        <span class="c1">#     self.create_store(&quot;concentration-slider-{}-div&quot;.format(index))</span>
-
-        <span class="c1"># self.create_store(&quot;pourbaix_diagram&quot;, initial_data=pourbaix_diagram)</span>
-
-    <span class="n">default_state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;show_labels&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;show_heatmap&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+    <span class="n">default_state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;show_heatmap&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 
     <span class="n">default_plot_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
         <span class="n">xaxis</span><span class="o">=</span><span class="p">{</span>
@@ -154,10 +235,10 @@
         <span class="p">},</span>
         <span class="n">paper_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
         <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
-        <span class="n">height</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span>
+        <span class="n">height</span><span class="o">=</span><span class="n">HEIGHT</span><span class="p">,</span>
         <span class="n">width</span><span class="o">=</span><span class="n">WIDTH</span><span class="p">,</span>
         <span class="n">hovermode</span><span class="o">=</span><span class="s2">&quot;closest&quot;</span><span class="p">,</span>
-        <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">legend</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
             <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
             <span class="n">traceorder</span><span class="o">=</span><span class="s2">&quot;reversed&quot;</span><span class="p">,</span>
@@ -201,24 +282,338 @@
         <span class="s2">&quot;Predicted Stable&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
+    <span class="c1"># @staticmethod</span>
+    <span class="c1"># def get_figure_with_shapes(</span>
+    <span class="c1">#     pourbaix_diagram, heatmap_entry=None, heatmap_as_contour=True, show_labels=True</span>
+    <span class="c1"># ):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Deprecated. This method returns a figure with Pourbaix domains as &quot;shapes&quot; and labels</span>
+    <span class="c1">#     as &quot;annotations.&quot; The new figure method instead returns a Pourbaix diagram with</span>
+    <span class="c1">#     domains and labels as independent traces, so that they can be interacted with and</span>
+    <span class="c1">#     placed ona  legend.</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Static method for getting plotly figure from a Pourbaix diagram.</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Args:</span>
+    <span class="c1">#         pourbaix_diagram (PourbaixDiagram): Pourbaix diagram to plot</span>
+    <span class="c1">#         heatmap_entry (PourbaixEntry): id for the heatmap generation</span>
+    <span class="c1">#         heatmap_as_contour (bool): if True, display contours, if False heatmap as grid</span>
+    <span class="c1">#</span>
+    <span class="c1">#     Returns:</span>
+    <span class="c1">#         (dict) figure layout</span>
+    <span class="c1">#</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     # TODO: fix mpid problem.  Can&#39;t attach from mpid without it being a structure.</span>
+    <span class="c1">#     data = []</span>
+    <span class="c1">#</span>
+    <span class="c1">#     # Get data for heatmap</span>
+    <span class="c1">#     if heatmap_entry is not None:</span>
+    <span class="c1">#         ph_range = np.arange(-2, 16.001, 0.1)</span>
+    <span class="c1">#         v_range = np.arange(-2, 4.001, 0.1)</span>
+    <span class="c1">#         ph_mesh, v_mesh = np.meshgrid(ph_range, v_range)</span>
+    <span class="c1">#         decomposition_e = pourbaix_diagram.get_decomposition_energy(</span>
+    <span class="c1">#             heatmap_entry, ph_mesh, v_mesh</span>
+    <span class="c1">#         )</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # Generate hoverinfo</span>
+    <span class="c1">#         hovertexts = []</span>
+    <span class="c1">#         for ph_val, v_val, de_val in zip(</span>
+    <span class="c1">#             ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()</span>
+    <span class="c1">#         ):</span>
+    <span class="c1">#             hovertext = [</span>
+    <span class="c1">#                 &quot;∆G&lt;sub&gt;pbx&lt;/sub&gt;={:.2f}&quot;.format(de_val),</span>
+    <span class="c1">#                 &quot;ph={:.2f}&quot;.format(ph_val),</span>
+    <span class="c1">#                 &quot;V={:.2f}&quot;.format(v_val),</span>
+    <span class="c1">#             ]</span>
+    <span class="c1">#             hovertext = &quot;&lt;br&gt;&quot;.join(hovertext)</span>
+    <span class="c1">#             hovertexts.append(hovertext)</span>
+    <span class="c1">#         hovertexts = np.reshape(hovertexts, list(decomposition_e.shape))</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # Enforce decomposition limit energy</span>
+    <span class="c1">#         decomposition_e = np.min(</span>
+    <span class="c1">#             [decomposition_e, np.ones(decomposition_e.shape)], axis=0</span>
+    <span class="c1">#         )</span>
+    <span class="c1">#</span>
+    <span class="c1">#         if not heatmap_as_contour:</span>
+    <span class="c1">#             # Plotly needs a list here for validation</span>
+    <span class="c1">#             hmap = go.Heatmap(</span>
+    <span class="c1">#                 x=list(ph_range),</span>
+    <span class="c1">#                 y=list(v_range),</span>
+    <span class="c1">#                 z=decomposition_e,</span>
+    <span class="c1">#                 text=hovertexts,</span>
+    <span class="c1">#                 hoverinfo=&quot;text&quot;,</span>
+    <span class="c1">#                 colorbar={</span>
+    <span class="c1">#                     &quot;title&quot;: &quot;∆G&lt;sub&gt;pbx&lt;/sub&gt; (eV/atom)&quot;,</span>
+    <span class="c1">#                     &quot;titleside&quot;: &quot;right&quot;,</span>
+    <span class="c1">#                 },</span>
+    <span class="c1">#                 colorscale=PourbaixDiagramComponent.colorscale,</span>
+    <span class="c1">#                 zmin=0,</span>
+    <span class="c1">#                 zmax=1,</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#             data.append(hmap)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#</span>
+    <span class="c1">#             hmap = go.Contour(</span>
+    <span class="c1">#                 z=decomposition_e,</span>
+    <span class="c1">#                 x=list(ph_range),</span>
+    <span class="c1">#                 y=list(v_range),</span>
+    <span class="c1">#                 colorscale=PourbaixDiagramComponent.colorscale,  # or magma</span>
+    <span class="c1">#                 zmin=0,</span>
+    <span class="c1">#                 zmax=1,</span>
+    <span class="c1">#                 connectgaps=True,</span>
+    <span class="c1">#                 line_smoothing=0,</span>
+    <span class="c1">#                 line_width=0,</span>
+    <span class="c1">#                 contours_coloring=&quot;heatmap&quot;,</span>
+    <span class="c1">#                 text=hovertexts,</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#             data.insert(0, hmap)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     shapes = []</span>
+    <span class="c1">#     xydata = []</span>
+    <span class="c1">#     labels = []</span>
+    <span class="c1">#</span>
+    <span class="c1">#     for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():</span>
+    <span class="c1">#         formula = entry.name</span>
+    <span class="c1">#         clean_formula = PourbaixDiagramComponent.clean_formula(formula)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # Generate annotation</span>
+    <span class="c1">#         xydata.append(np.average(vertices, axis=0))</span>
+    <span class="c1">#         labels.append(clean_formula)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths</span>
+    <span class="c1">#         # Move to first point</span>
+    <span class="c1">#         path = &quot;M {},{}&quot;.format(*vertices[0])</span>
+    <span class="c1">#         # Draw lines to each other point</span>
+    <span class="c1">#         path += &quot;&quot;.join([&quot;L {},{}&quot;.format(*vertex) for vertex in vertices[1:]])</span>
+    <span class="c1">#         # Close path</span>
+    <span class="c1">#         path += &quot;Z&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # Note that the lines and fills are added separately</span>
+    <span class="c1">#         # so that the lines but not the fills will show up on heatmap.</span>
+    <span class="c1">#         # This may be condensable in the future if plotly adds a more</span>
+    <span class="c1">#         # general z-ordering of objects</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # Fill with turquoise if solution</span>
+    <span class="c1">#         if heatmap_entry is None:</span>
+    <span class="c1">#             fillcolor = &quot;White&quot; if &quot;Ion&quot; in entry.phase_type else &quot;PaleTurquoise&quot;</span>
+    <span class="c1">#             shape = go.layout.Shape(</span>
+    <span class="c1">#                 type=&quot;path&quot;, path=path, fillcolor=fillcolor, layer=&quot;below&quot;,</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#             shapes.append(shape)</span>
+    <span class="c1">#</span>
+    <span class="c1">#         # Add lines separately so they show up on heatmap</span>
+    <span class="c1">#         shape = go.layout.Shape(</span>
+    <span class="c1">#             type=&quot;path&quot;,</span>
+    <span class="c1">#             path=path,</span>
+    <span class="c1">#             fillcolor=&quot;rgba(0,0,0,0)&quot;,</span>
+    <span class="c1">#             line={&quot;color&quot;: &quot;Black&quot;, &quot;width&quot;: 1},</span>
+    <span class="c1">#         )</span>
+    <span class="c1">#         shapes.append(shape)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     layout = PourbaixDiagramComponent.default_plot_style</span>
+    <span class="c1">#     layout.update({&quot;shapes&quot;: shapes})</span>
+    <span class="c1">#</span>
+    <span class="c1">#     if show_labels:</span>
+    <span class="c1">#         if len(pourbaix_diagram.pbx_elts) == 1:</span>
+    <span class="c1">#             # Add annotations to layout</span>
+    <span class="c1">#             annotations = [</span>
+    <span class="c1">#                 {</span>
+    <span class="c1">#                     &quot;align&quot;: &quot;center&quot;,</span>
+    <span class="c1">#                     &quot;font&quot;: {&quot;color&quot;: &quot;#000000&quot;, &quot;size&quot;: 15.0},</span>
+    <span class="c1">#                     &quot;opacity&quot;: 1,</span>
+    <span class="c1">#                     &quot;showarrow&quot;: False,</span>
+    <span class="c1">#                     &quot;text&quot;: label,</span>
+    <span class="c1">#                     &quot;x&quot;: x,</span>
+    <span class="c1">#                     &quot;xanchor&quot;: &quot;center&quot;,</span>
+    <span class="c1">#                     &quot;yanchor&quot;: &quot;auto&quot;,</span>
+    <span class="c1">#                     # &quot;xshift&quot;: -10,</span>
+    <span class="c1">#                     # &quot;yshift&quot;: -10,</span>
+    <span class="c1">#                     &quot;xref&quot;: &quot;x&quot;,</span>
+    <span class="c1">#                     &quot;y&quot;: y,</span>
+    <span class="c1">#                     &quot;yref&quot;: &quot;y&quot;,</span>
+    <span class="c1">#                 }</span>
+    <span class="c1">#                 for (x, y), label in zip(xydata, labels)</span>
+    <span class="c1">#             ]</span>
+    <span class="c1">#             layout.update({&quot;annotations&quot;: annotations})</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             x, y = zip(*xydata)</span>
+    <span class="c1">#             data.append(</span>
+    <span class="c1">#                 go.Scatter(x=x, y=y, text=labels, hoverinfo=&quot;text&quot;, mode=&quot;markers&quot;)</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#</span>
+    <span class="c1">#     figure = go.Figure(data=data, layout=layout)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     return figure</span>
+
 <div class="viewcode-block" id="PourbaixDiagramComponent.get_figure"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.get_figure">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_figure</span><span class="p">(</span>
-        <span class="n">pourbaix_diagram</span><span class="p">,</span> <span class="n">heatmap_entry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">heatmap_as_contour</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_labels</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">):</span>
+        <span class="n">pourbaix_diagram</span><span class="p">:</span> <span class="n">PourbaixDiagram</span><span class="p">,</span> <span class="n">heatmap_entry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_water_lines</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Static method for getting plotly figure from a pourbaix diagram</span>
+<span class="sd">        Static method for getting plotly figure from a Pourbaix diagram.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            pourbaix_diagram (PourbaixDiagram): pourbaix diagram to plot</span>
+<span class="sd">            pourbaix_diagram (PourbaixDiagram): Pourbaix diagram to plot</span>
 <span class="sd">            heatmap_entry (PourbaixEntry): id for the heatmap generation</span>
-<span class="sd">            heatmap_as_contour (bool): if True, display contours, if False heatmap as grid</span>
+<span class="sd">            show_water_lines (bool): if True, show region of water stability</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            (dict) figure layout</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: fix mpid problem.  Can&#39;t attach from mpid without it being a structure.</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">shapes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">xydata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">domain_heights</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">include_legend</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">entry</span><span class="p">,</span> <span class="n">vertices</span> <span class="ow">in</span> <span class="n">pourbaix_diagram</span><span class="o">.</span><span class="n">_stable_domain_vertices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">formula</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">clean_formula</span> <span class="o">=</span> <span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">clean_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+
+            <span class="c1"># Generate information for textual labels</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span>
+            <span class="n">centroid</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">centroid</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">domain</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">domain</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Ensure label is within plot area</span>
+            <span class="c1"># TODO: remove hard-coded value here and make sure it&#39;s set dynamically</span>
+            <span class="n">xydata</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">centroid</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">centroid</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clean_formula</span><span class="p">)</span>
+            <span class="n">domain_heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+
+            <span class="c1"># Assumes that entry.phase_type is either &quot;Solid&quot; or &quot;Ion&quot; or</span>
+            <span class="c1"># a list of &quot;Solid&quot; and &quot;Ion&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">legend_entry</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">legend_entry</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s2">&quot;Mixed Ion&quot;</span> <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span> <span class="k">else</span> <span class="s2">&quot;Mixed Solid&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">legend_entry</span> <span class="o">=</span> <span class="s2">&quot;Mixed Ion/Solid&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Should never get here</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Debug required in Pourbaix for </span><span class="si">{</span><span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">legend_entry</span> <span class="o">=</span> <span class="s2">&quot;Unknown&quot;</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">heatmap_entry</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">legend_entry</span> <span class="o">==</span> <span class="s2">&quot;Ion&quot;</span> <span class="ow">or</span> <span class="n">legend_entry</span> <span class="o">==</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">:</span>
+                    <span class="n">fillcolor</span> <span class="o">=</span> <span class="s2">&quot;rgb(255,255,250,1)&quot;</span>  <span class="c1"># same color as old website</span>
+                <span class="k">elif</span> <span class="n">legend_entry</span> <span class="o">==</span> <span class="s2">&quot;Mixed Ion&quot;</span><span class="p">:</span>
+                    <span class="n">fillcolor</span> <span class="o">=</span> <span class="s2">&quot;rgb(255,255,240,1)&quot;</span>
+                <span class="k">elif</span> <span class="n">legend_entry</span> <span class="o">==</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
+                    <span class="n">fillcolor</span> <span class="o">=</span> <span class="s2">&quot;rgba(188,236,237,1)&quot;</span>  <span class="c1"># same color as old website</span>
+                <span class="k">elif</span> <span class="n">legend_entry</span> <span class="o">==</span> <span class="s2">&quot;Mixed Solid&quot;</span><span class="p">:</span>
+                    <span class="n">fillcolor</span> <span class="o">=</span> <span class="s2">&quot;rgba(155,229,232,1)&quot;</span>
+                <span class="k">elif</span> <span class="n">legend_entry</span> <span class="o">==</span> <span class="s2">&quot;Mixed Ion/Solid&quot;</span><span class="p">:</span>
+                    <span class="n">fillcolor</span> <span class="o">=</span> <span class="s2">&quot;rgb(95,238,222,1)&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fillcolor</span> <span class="o">=</span> <span class="s2">&quot;rgba(0,0,0,0)&quot;</span>
+
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">],</span>
+                    <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">],</span>
+                    <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;toself&quot;</span><span class="p">,</span>
+                    <span class="n">fillcolor</span><span class="o">=</span><span class="n">fillcolor</span><span class="p">,</span>
+                    <span class="n">legendgroup</span><span class="o">=</span><span class="n">legend_entry</span><span class="p">,</span>
+                    <span class="c1"># legendgrouptitle={&quot;text&quot;: legend_entry},</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">legend_entry</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_formula</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;Black&quot;</span><span class="p">},</span>
+                    <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;Black&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                    <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">legend_entry</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">include_legend</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="n">include_legend</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">legend_entry</span><span class="p">)</span>
+
+            <span class="c1"># Add lines separately so they show up on heatmap</span>
+
+            <span class="c1"># Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths</span>
+            <span class="c1"># Move to first point</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;M </span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="c1"># Draw lines to each other point</span>
+            <span class="n">path</span> <span class="o">+=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;L </span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">vertex</span><span class="p">)</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+            <span class="c1"># Close path</span>
+            <span class="n">path</span> <span class="o">+=</span> <span class="s2">&quot;Z&quot;</span>
+
+            <span class="c1"># stable entries are black with default color scheme,</span>
+            <span class="c1"># so use white lines instead</span>
+            <span class="k">if</span> <span class="n">heatmap_entry</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;White&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;Black&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="n">line</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">default_plot_style</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;shapes&quot;</span><span class="p">:</span> <span class="n">shapes</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">heatmap_entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">xydata</span><span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Labels&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">layout</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Add annotations to layout to make text more readable when displaying heatmaps</span>
+
+            <span class="c1"># TODO: this doesn&#39;t work yet; resolve or scrap</span>
+            <span class="c1"># cmap = get_cmap(PourbaixDiagramComponent.colorscale)</span>
+            <span class="c1"># def get_text_color(x, y):</span>
+            <span class="c1">#     &quot;&quot;&quot;</span>
+            <span class="c1">#     Set text color based on whether background at that point is dark or light.</span>
+            <span class="c1">#     &quot;&quot;&quot;</span>
+            <span class="c1">#     energy = pourbaix_diagram.get_decomposition_energy(entry, pH=x, V=y)</span>
+            <span class="c1">#     c = [int(c * 255) for c in cmap(energy)[0:3]]</span>
+            <span class="c1">#     # borrowed from crystal_toolkit.components.structure</span>
+            <span class="c1">#     # TODO: move to utility function and ensure correct attribution for magic numbers</span>
+            <span class="c1">#     if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 &lt; 0.5:</span>
+            <span class="c1">#         font_color = &quot;#000000&quot;</span>
+            <span class="c1">#     else:</span>
+            <span class="c1">#         font_color = &quot;#ffffff&quot;</span>
+            <span class="c1">#     #print(energy, c, font_color)</span>
+            <span class="c1">#     return font_color</span>
+
+            <span class="k">def</span> <span class="nf">get_text_size</span><span class="p">(</span><span class="n">available_vertical_space</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Set text size based on available vertical space</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">available_vertical_space</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="mi">20</span><span class="p">)</span>
+
+            <span class="n">annotations</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;bgcolor&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;font&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="n">get_text_size</span><span class="p">(</span><span class="n">height</span><span class="p">)},</span>
+                    <span class="s2">&quot;opacity&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;showarrow&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+                    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+                    <span class="s2">&quot;xanchor&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;yanchor&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                    <span class="c1"># &quot;xshift&quot;: -10,</span>
+                    <span class="c1"># &quot;yshift&quot;: -10,</span>
+                    <span class="s2">&quot;xref&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
+                    <span class="s2">&quot;yref&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">label</span><span class="p">,</span> <span class="n">height</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xydata</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">domain_heights</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">layout</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="n">annotations</span><span class="p">})</span>
 
         <span class="c1"># Get data for heatmap</span>
         <span class="k">if</span> <span class="n">heatmap_entry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -248,113 +643,57 @@
                 <span class="p">[</span><span class="n">decomposition_e</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">decomposition_e</span><span class="o">.</span><span class="n">shape</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
             <span class="p">)</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">heatmap_as_contour</span><span class="p">:</span>
-                <span class="c1"># Plotly needs a list here for validation</span>
-                <span class="n">hmap</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Heatmap</span><span class="p">(</span>
-                    <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ph_range</span><span class="p">),</span>
-                    <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">v_range</span><span class="p">),</span>
-                    <span class="n">z</span><span class="o">=</span><span class="n">decomposition_e</span><span class="p">,</span>
-                    <span class="n">text</span><span class="o">=</span><span class="n">hovertexts</span><span class="p">,</span>
-                    <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
-                    <span class="n">colorbar</span><span class="o">=</span><span class="p">{</span>
-                        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;∆G&lt;sub&gt;pbx&lt;/sub&gt; (eV/atom)&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;titleside&quot;</span><span class="p">:</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span>
-                    <span class="p">},</span>
-                    <span class="n">colorscale</span><span class="o">=</span><span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">colorscale</span><span class="p">,</span>
-                    <span class="n">zmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                    <span class="n">zmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hmap</span><span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-
-                <span class="n">hmap</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Contour</span><span class="p">(</span>
-                    <span class="n">z</span><span class="o">=</span><span class="n">decomposition_e</span><span class="p">,</span>
-                    <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ph_range</span><span class="p">),</span>
-                    <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">v_range</span><span class="p">),</span>
-                    <span class="n">colorscale</span><span class="o">=</span><span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">colorscale</span><span class="p">,</span>  <span class="c1"># or magma</span>
-                    <span class="n">zmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                    <span class="n">zmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                    <span class="n">connectgaps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">line_smoothing</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                    <span class="n">line_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                    <span class="n">contours_coloring</span><span class="o">=</span><span class="s2">&quot;heatmap&quot;</span><span class="p">,</span>
-                    <span class="n">text</span><span class="o">=</span><span class="n">hovertexts</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">hmap</span><span class="p">)</span>
-
-        <span class="n">shapes</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">xydata</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">entry</span><span class="p">,</span> <span class="n">vertices</span> <span class="ow">in</span> <span class="n">pourbaix_diagram</span><span class="o">.</span><span class="n">_stable_domain_vertices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">formula</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span>
-            <span class="n">clean_formula</span> <span class="o">=</span> <span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">clean_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
-
-            <span class="c1"># Generate annotation</span>
-            <span class="n">xydata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clean_formula</span><span class="p">)</span>
-
-            <span class="c1"># Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths</span>
-            <span class="c1"># Move to first point</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;M </span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="c1"># Draw lines to each other point</span>
-            <span class="n">path</span> <span class="o">+=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;L </span><span class="si">{}</span><span class="s2">,</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">vertex</span><span class="p">)</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
-            <span class="c1"># Close path</span>
-            <span class="n">path</span> <span class="o">+=</span> <span class="s2">&quot;Z&quot;</span>
-
-            <span class="c1"># Note that the lines and fills are added separately</span>
-            <span class="c1"># so that the lines but not the fills will show up on heatmap.</span>
-            <span class="c1"># This may be condensable in the future if plotly adds a more</span>
-            <span class="c1"># general z-ordering of objects</span>
-
-            <span class="c1"># Fill with turquoise if solution</span>
-            <span class="k">if</span> <span class="n">heatmap_entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">fillcolor</span> <span class="o">=</span> <span class="s2">&quot;White&quot;</span> <span class="k">if</span> <span class="s2">&quot;Ion&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">phase_type</span> <span class="k">else</span> <span class="s2">&quot;PaleTurquoise&quot;</span>
-                <span class="n">shape</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="n">fillcolor</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;below&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
-
-            <span class="c1"># Add lines separately so they show up on heatmap</span>
-            <span class="n">shape</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span>
-                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
-                <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-                <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
-                <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;Black&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+            <span class="n">heatmap_formula</span> <span class="o">=</span> <span class="n">unicodeify</span><span class="p">(</span>
+                <span class="n">Composition</span><span class="p">(</span><span class="n">heatmap_entry</span><span class="o">.</span><span class="n">composition</span><span class="p">)</span><span class="o">.</span><span class="n">reduced_formula</span>
             <span class="p">)</span>
-            <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
 
-        <span class="n">layout</span> <span class="o">=</span> <span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">default_plot_style</span>
-        <span class="n">layout</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;shapes&quot;</span><span class="p">:</span> <span class="n">shapes</span><span class="p">})</span>
+            <span class="n">hmap</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Contour</span><span class="p">(</span>
+                <span class="n">z</span><span class="o">=</span><span class="n">decomposition_e</span><span class="p">,</span>
+                <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ph_range</span><span class="p">),</span>
+                <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">v_range</span><span class="p">),</span>
+                <span class="n">colorbar</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;∆G&lt;sub&gt;pbx&lt;/sub&gt; (eV/atom)&quot;</span><span class="p">,</span> <span class="s2">&quot;titleside&quot;</span><span class="p">:</span> <span class="s2">&quot;right&quot;</span><span class="p">,},</span>
+                <span class="n">colorscale</span><span class="o">=</span><span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">colorscale</span><span class="p">,</span>  <span class="c1"># or magma</span>
+                <span class="n">zmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">zmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">connectgaps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">line_smoothing</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">line_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="c1"># contours_coloring=&quot;heatmap&quot;,</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">hovertexts</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">heatmap_formula</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">heatmap_entry</span><span class="o">.</span><span class="n">entry_id</span><span class="si">}</span><span class="s2">) Heatmap&quot;</span><span class="p">,</span>
+                <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hmap</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">show_labels</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pourbaix_diagram</span><span class="o">.</span><span class="n">pbx_elts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="c1"># Add annotations to layout</span>
-                <span class="n">annotations</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;align&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;font&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#000000&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">},</span>
-                        <span class="s2">&quot;opacity&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                        <span class="s2">&quot;showarrow&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                        <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
-                        <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
-                        <span class="s2">&quot;xanchor&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;yanchor&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
-                        <span class="c1"># &quot;xshift&quot;: -10,</span>
-                        <span class="c1"># &quot;yshift&quot;: -10,</span>
-                        <span class="s2">&quot;xref&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
-                        <span class="s2">&quot;yref&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
-                    <span class="p">}</span>
-                    <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xydata</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
-                <span class="p">]</span>
-                <span class="n">layout</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="n">annotations</span><span class="p">})</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">xydata</span><span class="p">)</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_water_lines</span><span class="p">:</span>
+            <span class="n">ph_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">]</span>
+            <span class="c1"># hydrogen line</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">ph_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ph_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">ph_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">PREFAC</span><span class="p">,</span> <span class="o">-</span><span class="n">ph_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">PREFAC</span><span class="p">],</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                    <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="s2">&quot;dash&quot;</span><span class="p">:</span> <span class="s2">&quot;dash&quot;</span><span class="p">},</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Hydrogen Stability Line&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="c1"># oxygen line</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">ph_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ph_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                    <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">ph_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">PREFAC</span> <span class="o">+</span> <span class="mf">1.23</span><span class="p">,</span> <span class="o">-</span><span class="n">ph_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">PREFAC</span> <span class="o">+</span> <span class="mf">1.23</span><span class="p">],</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                    <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="s2">&quot;dash&quot;</span><span class="p">:</span> <span class="s2">&quot;dash&quot;</span><span class="p">},</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Oxygen Stability Line&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1">#     h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], [xlim[1], -xlim[1] * PREFAC]])</span>
+            <span class="c1">#     o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], [xlim[1], -xlim[1] * PREFAC + 1.23]])</span>
+            <span class="c1"># #   SHE line</span>
+            <span class="c1"># #   data.append(go.Scatter(</span>
+            <span class="c1"># #</span>
+            <span class="c1"># #   ))</span>
 
         <span class="n">figure</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
 
@@ -380,7 +719,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
                     <span class="s2">&quot;filter_solids&quot;</span><span class="p">,</span>
                     <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_state</span><span class="p">,</span>
-                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Filter solids&quot;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Filter Solids&quot;</span><span class="p">,</span>
                     <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Whether to filter solid phases by stability on the compositional phase diagram. &quot;</span>
                     <span class="s2">&quot;The practical consequence of this is that highly oxidized or reduced phases that &quot;</span>
                     <span class="s2">&quot;might show up in experiments due to kinetic limitations on oxygen/hydrogen evolution &quot;</span>
@@ -389,15 +728,9 @@
                     <span class="s2">&quot;leads to the most accurate Pourbaix diagrams.&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
-                    <span class="s2">&quot;show_labels&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;show_heatmap&quot;</span><span class="p">,</span>  <span class="c1"># kwarg_label</span>
                     <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_state</span><span class="p">,</span>
-                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Show labels&quot;</span><span class="p">,</span>
-                    <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Hide or show formula labels in the Pourbaix diagram plot.&quot;</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_bool_input</span><span class="p">(</span>
-                    <span class="s2">&quot;show_heatmap&quot;</span><span class="p">,</span>
-                    <span class="n">state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_state</span><span class="p">,</span>
-                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Show heatmap&quot;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Show Heatmap&quot;</span><span class="p">,</span>
                     <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Hide or show a heatmap showing the decomposition energy for a specific &quot;</span>
                     <span class="s2">&quot;entry in this system.&quot;</span><span class="p">,</span>
                 <span class="p">),</span>
@@ -409,23 +742,20 @@
                             <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Heatmap entry&quot;</span><span class="p">,</span>
                             <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Choose the entry to use for heatmap generation.&quot;</span><span class="p">,</span>
                             <span class="n">disabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;20rem&quot;</span><span class="p">},</span>
                         <span class="p">)</span>
                     <span class="p">],</span>
                     <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;heatmap_choice_container&quot;</span><span class="p">),</span>
                 <span class="p">),</span>
-            <span class="p">],</span>
-            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;display&quot;</span><span class="p">:</span> <span class="s2">&quot;inline-block&quot;</span><span class="p">},</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;element_specific_controls&quot;</span><span class="p">)),</span>
+            <span class="p">]</span>
         <span class="p">)</span>
 
-        <span class="n">graph</span> <span class="o">=</span> <span class="n">ctl</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
-            <span class="n">ctl</span><span class="o">.</span><span class="n">Loading</span><span class="p">(</span>
-                <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
-                    <span class="n">figure</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">empty_plot_style</span><span class="p">),</span>
-                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span>
-                    <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;displaylogo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-                <span class="p">)</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
+                <span class="n">figure</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">empty_plot_style</span><span class="p">),</span>
+                <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span>
+                <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;displaylogo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
             <span class="p">),</span>
             <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;min-height&quot;</span><span class="p">:</span> <span class="s2">&quot;500px&quot;</span><span class="p">},</span>
         <span class="p">)</span>
@@ -450,21 +780,127 @@
             <span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mp&quot;</span><span class="p">):</span>
-                    <span class="n">formula</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry&quot;</span><span class="p">][</span><span class="s2">&quot;composition&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reduced_formula</span>
+                    <span class="n">composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry&quot;</span><span class="p">][</span><span class="s2">&quot;composition&quot;</span><span class="p">])</span>
+                    <span class="n">formula</span> <span class="o">=</span> <span class="n">unicodeify</span><span class="p">(</span><span class="n">composition</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
                     <span class="n">mpid</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry_id&quot;</span><span class="p">]</span>
                     <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">formula</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">mpid</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">mpid</span><span class="p">})</span>
 
             <span class="n">heatmap_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_choice_input</span><span class="p">(</span>
                 <span class="s2">&quot;heatmap_choice&quot;</span><span class="p">,</span>
                 <span class="n">state</span><span class="o">=</span><span class="p">{},</span>
-                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Heatmap entry&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Heatmap Entry&quot;</span><span class="p">,</span>
                 <span class="n">help_str</span><span class="o">=</span><span class="s2">&quot;Choose the entry to use for heatmap generation.&quot;</span><span class="p">,</span>
                 <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
                 <span class="n">disabled</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;20rem&quot;</span><span class="p">},</span>
             <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">heatmap_options</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;element_specific_controls&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span>
+            <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+            <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;heatmap_choice&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">[</span><span class="n">State</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;show_heatmap&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_element_specific_sliders</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">heatmap_choice</span><span class="p">,</span> <span class="n">show_heatmap</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PreventUpdate</span>
+
+            <span class="n">elements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwargs_from_state</span><span class="p">()</span>
+            <span class="n">heatmap_choice</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;heatmap_choice&quot;</span><span class="p">)</span>
+            <span class="n">show_heatmap</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;show_heatmap&quot;</span><span class="p">)</span>
+            <span class="n">heatmap_entry</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mp&quot;</span><span class="p">):</span>
+                    <span class="n">composition</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry&quot;</span><span class="p">][</span><span class="s2">&quot;composition&quot;</span><span class="p">])</span>
+                    <span class="n">elements</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;entry_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">heatmap_choice</span><span class="p">:</span>
+                    <span class="n">heatmap_entry</span> <span class="o">=</span> <span class="n">entry</span>
+
+            <span class="c1"># exclude O and H</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="n">elements</span> <span class="o">-</span> <span class="n">ELEMENTS_HO</span>
+
+            <span class="n">comp_defaults</span> <span class="o">=</span> <span class="p">{</span><span class="n">element</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">}</span>
+
+            <span class="n">comp_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">conc_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">comp_input</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">get_slider_input</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;comp-</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">default</span><span class="o">=</span><span class="n">comp_defaults</span><span class="p">[</span><span class="n">element</span><span class="p">],</span>
+                                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Composition of </span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">domain</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                <span class="n">step</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">comp_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp_input</span><span class="p">)</span>
+
+                <span class="n">conc_input</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_numerical_input</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;conc-</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">default</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Concentration of </span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2"> ion&quot;</span><span class="p">,</span>
+                            <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;10rem&quot;</span><span class="p">},</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="n">conc_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conc_input</span><span class="p">)</span>
+
+            <span class="n">comp_conc_controls</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">comp_inputs</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">show_heatmap</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">heatmap_entry</span><span class="p">):</span>
+                <span class="n">comp_conc_controls</span> <span class="o">+=</span> <span class="n">comp_inputs</span>
+                <span class="n">comp_conc_controls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ctl</span><span class="o">.</span><span class="n">Block</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display-composition&quot;</span><span class="p">)))</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">comp_conc_controls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ctl</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Set Ion Concentrations&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">comp_conc_controls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ctl</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Set Ion Concentration&quot;</span><span class="p">))</span>
+            <span class="n">comp_conc_controls</span> <span class="o">+=</span> <span class="n">conc_inputs</span>
+
+            <span class="n">comp_conc_controls</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">comp_conc_controls</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">comp_conc_controls</span>
+
+        <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+            <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;display-composition&quot;</span><span class="p">),</span> <span class="s2">&quot;children&quot;</span><span class="p">),</span>
+            <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_kwargs_id</span><span class="p">(),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">update_displayed_composition</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwargs_from_state</span><span class="p">()</span>
+
+            <span class="n">comp_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s2">&quot;comp&quot;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>  <span class="c1"># keys are encoded like &quot;comp-Ag&quot;</span>
+                    <span class="n">el</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">comp_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="n">comp_dict</span> <span class="o">=</span> <span class="n">comp_dict</span> <span class="ow">or</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">comp_dict</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">comp_dict</span><span class="p">)</span>
+                <span class="n">formula</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span>
+                    <span class="n">comp</span><span class="o">.</span><span class="n">get_integer_formula_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">reduced_formula</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Small</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid composition selected.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Small</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pourbaix composition set to </span><span class="si">{</span><span class="n">unicodeify</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
         <span class="nd">@cache</span><span class="o">.</span><span class="n">memoize</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">get_pourbaix_diagram</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -472,143 +908,119 @@
 
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;figure&quot;</span><span class="p">),</span>
-            <span class="p">[</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;show_labels&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;show_heatmap&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kwarg_id</span><span class="p">(</span><span class="s2">&quot;heatmap_choice&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
-            <span class="p">],</span>
+            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_kwargs_id</span><span class="p">(),</span> <span class="s2">&quot;value&quot;</span><span class="p">),],</span>
         <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">make_figure</span><span class="p">(</span>
-            <span class="n">pourbaix_entries</span><span class="p">,</span> <span class="n">filter_solids</span><span class="p">,</span> <span class="n">show_labels</span><span class="p">,</span> <span class="n">show_heatmap</span><span class="p">,</span> <span class="n">heatmap_choice</span>
-        <span class="p">):</span>
-
-            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwargs_from_state</span><span class="p">(</span><span class="n">dash</span><span class="o">.</span><span class="n">callback_context</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">make_figure</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="n">pourbaix_entries</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
 
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_kwargs_from_state</span><span class="p">()</span>
+
             <span class="n">pourbaix_entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">)</span>
-
-            <span class="c1"># # Get composition from structure</span>
-            <span class="c1"># struct = self.from_data(struct)</span>
-            <span class="c1"># comp_dict = {</span>
-            <span class="c1">#     str(elt): coeff</span>
-            <span class="c1">#     for elt, coeff in struct.composition.items()</span>
-            <span class="c1">#     if elt not in ELEMENTS_HO</span>
-            <span class="c1"># }</span>
-            <span class="c1"># if conc_dict is not None:</span>
-            <span class="c1">#     conc_dict = self.from_data(conc_dict)</span>
-
-            <span class="n">pourbaix_diagram</span> <span class="o">=</span> <span class="n">get_pourbaix_diagram</span><span class="p">(</span>
-                <span class="n">pourbaix_entries</span><span class="p">,</span>
-                <span class="c1"># comp_dict=comp_dict,</span>
-                <span class="c1"># conc_dict=conc_dict,</span>
-                <span class="n">filter_solids</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">],</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generated pourbaix diagram&quot;</span><span class="p">)</span>
 
             <span class="c1"># Get heatmap id</span>
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;show_heatmap&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;heatmap_choice&quot;</span><span class="p">):</span>
+
+                <span class="c1"># get Entry object based on the heatmap_choice, which is entry_id string</span>
                 <span class="n">heatmap_entry</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
                     <span class="n">entry</span>
                     <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">pourbaix_entries</span>
                     <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">==</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;heatmap_choice&quot;</span><span class="p">]</span>
                 <span class="p">)</span>
+
+                <span class="c1"># if using heatmap, comp_dict is constrained and is set automatically</span>
+                <span class="n">comp_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">element</span><span class="p">:</span> <span class="n">coeff</span>
+                    <span class="k">for</span> <span class="n">element</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">heatmap_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">element</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ELEMENTS_HO</span>
+                <span class="p">}</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">heatmap_entry</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(</span>
-                <span class="n">pourbaix_diagram</span><span class="p">,</span>
-                <span class="n">show_labels</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;show_labels&quot;</span><span class="p">],</span>
-                <span class="n">heatmap_entry</span><span class="o">=</span><span class="n">heatmap_entry</span><span class="p">,</span>
+                <span class="c1"># otherwise, user sets comp_dict</span>
+                <span class="n">comp_dict</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="c1"># e.g. kwargs contains {&quot;comp-Ag&quot;: 0.5, &quot;comp-Fe&quot;: 0.5},</span>
+                <span class="c1"># essentially {slider_name: slider_value}</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="s2">&quot;comp&quot;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>  <span class="c1"># keys are encoded like &quot;comp-Ag&quot;</span>
+                        <span class="n">el</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">comp_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="n">comp_dict</span> <span class="o">=</span> <span class="n">comp_dict</span> <span class="ow">or</span> <span class="kc">None</span>
+
+            <span class="n">conc_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># e.g. kwargs contains {&quot;conc-Ag&quot;: 1e-6, &quot;conc-Fe&quot;: 1e-4},</span>
+            <span class="c1"># essentially {slider_name: slider_value}</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s2">&quot;conc&quot;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>  <span class="c1"># keys are encoded like &quot;conc-Ag&quot;</span>
+                    <span class="n">el</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">conc_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="n">conc_dict</span> <span class="o">=</span> <span class="n">conc_dict</span> <span class="ow">or</span> <span class="kc">None</span>
+
+            <span class="n">pourbaix_diagram</span> <span class="o">=</span> <span class="n">get_pourbaix_diagram</span><span class="p">(</span>
+                <span class="n">pourbaix_entries</span><span class="p">,</span>
+                <span class="n">comp_dict</span><span class="o">=</span><span class="n">comp_dict</span><span class="p">,</span>
+                <span class="n">conc_dict</span><span class="o">=</span><span class="n">conc_dict</span><span class="p">,</span>
+                <span class="n">filter_solids</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;filter_solids&quot;</span><span class="p">],</span>
             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Generated pourbaix diagram&quot;</span><span class="p">,</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">),</span>
+                <span class="n">heatmap_entry</span><span class="p">,</span>
+                <span class="n">conc_dict</span><span class="p">,</span>
+                <span class="n">comp_dict</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(</span><span class="n">pourbaix_diagram</span><span class="p">,</span> <span class="n">heatmap_entry</span><span class="o">=</span><span class="n">heatmap_entry</span><span class="p">,)</span>
 
             <span class="k">return</span> <span class="n">fig</span></div></div>
 
-        <span class="c1"># # This is a hacked way of getting concentration, but haven&#39;t found a more sane fix</span>
-        <span class="c1"># # Basically creates 3 persistent sliders and updates the concentration according to</span>
-        <span class="c1"># # their values.  Renders only the necessary ones visible.</span>
-        <span class="c1"># @app.callback(</span>
-        <span class="c1">#     [</span>
-        <span class="c1">#         Output(self.id(&quot;concentration-slider-{}-div&quot;.format(index)), &quot;style&quot;)</span>
-        <span class="c1">#         for index in range(SUPPORTED_N_ELEMENTS)</span>
-        <span class="c1">#     ],</span>
-        <span class="c1">#     [</span>
-        <span class="c1">#         Input(self.id(&quot;pourbaix_diagram&quot;), &quot;data&quot;),</span>
-        <span class="c1">#         Input(self.id(&quot;struct&quot;), &quot;data&quot;),</span>
-        <span class="c1">#     ],</span>
-        <span class="c1"># )</span>
-        <span class="c1"># def reveal_sliders(pourbaix_diagram, struct):</span>
-        <span class="c1">#     if struct is None:</span>
-        <span class="c1">#         raise PreventUpdate</span>
-        <span class="c1">#     struct = self.from_data(struct)</span>
-        <span class="c1">#     pbx_elts = [</span>
-        <span class="c1">#         elt for elt in struct.composition.keys() if elt not in ELEMENTS_HO</span>
-        <span class="c1">#     ]</span>
-        <span class="c1">#     nelts = len(pbx_elts)</span>
-        <span class="c1">#     styles = [{}] * nelts</span>
-        <span class="c1">#     styles += [{&quot;display&quot;: &quot;none&quot;}] * (SUPPORTED_N_ELEMENTS - nelts)</span>
-        <span class="c1">#     return styles</span>
-
-        <span class="c1"># @app.callback(</span>
-        <span class="c1">#     [Output(self.id(&quot;conc_dict&quot;), &quot;data&quot;)]</span>
-        <span class="c1">#     + [</span>
-        <span class="c1">#         Output(self.id(&quot;concentration-{}-text&quot;.format(index)), &quot;children&quot;)</span>
-        <span class="c1">#         for index in range(SUPPORTED_N_ELEMENTS)</span>
-        <span class="c1">#     ],</span>
-        <span class="c1">#     [Input(self.id(&quot;struct&quot;), &quot;data&quot;)]</span>
-        <span class="c1">#     + [</span>
-        <span class="c1">#         Input(self.id(&quot;concentration-slider-{}&quot;.format(index)), &quot;value&quot;)</span>
-        <span class="c1">#         for index in range(SUPPORTED_N_ELEMENTS)</span>
-        <span class="c1">#     ],</span>
-        <span class="c1"># )</span>
-        <span class="c1"># def update_conc_dict(struct, *args):</span>
-        <span class="c1">#     if args[0] is None:</span>
-        <span class="c1">#         raise PreventUpdate</span>
-        <span class="c1">#</span>
-        <span class="c1">#     struct = self.from_data(struct)</span>
-        <span class="c1">#     pbx_elts = sorted(</span>
-        <span class="c1">#         [</span>
-        <span class="c1">#             str(elt)</span>
-        <span class="c1">#             for elt in struct.composition.keys()</span>
-        <span class="c1">#             if elt not in ELEMENTS_HO</span>
-        <span class="c1">#         ]</span>
-        <span class="c1">#     )</span>
-        <span class="c1">#     conc_dict = {</span>
-        <span class="c1">#         k: 10 ** arg for k, arg in zip(pbx_elts, args[: len(pbx_elts)])</span>
-        <span class="c1">#     }</span>
-        <span class="c1">#     conc_text = [&quot;{}: {} M&quot;.format(k, v) for k, v in conc_dict.items()]</span>
-        <span class="c1">#     conc_text += [&quot;&quot;] * (SUPPORTED_N_ELEMENTS - len(pbx_elts))</span>
-        <span class="c1">#     return [conc_dict] + conc_text</span>
+    <span class="c1"># TODO</span>
+    <span class="c1"># def graph_layout(self):</span>
+    <span class="c1">#     return self._sub_layouts[&quot;graph&quot;]</span>
 </pre></div>
 
            </div>
+           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2019, Crystal Toolkit Development Team.</p>
-  </div>
+    <p>
+        &#169; Copyright 2019, Crystal Toolkit Development Team.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
