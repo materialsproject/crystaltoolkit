@@ -22,14 +22,16 @@ transform crystal structures and molecules.
 Crystal Toolkit Demonstration App
 ---------------------------------
 
-You can visit the current Crystal Toolkit web app `here. <https://next-gen.materialsproject.org/toolkit>`_
+The new Materials Project website is powered by the Crystal Toolkit framework, visit it
+`here. <https://next-gen.materialsproject.org>`_. This includes the original "Crystal
+Toolkit" app `available here <https://next-gen.materialsproject.org/toolkit>`_.
 
 
 Crystal Toolkit Web Framework
 -----------------------------
 
 Crystal Toolkit is designed as a modular, object-orientated suite of UI components
-built upon the `Dash framework by Plotly <https://dash.plot.ly>`_. The main Crystal Toolkit web app is just
+built upon the `Dash framework by Plotly <https://dash.plot.ly>`_. The Crystal Toolkit web app is just
 one example of using these components.
 
 The custom Dash components developed for use by Crystal Toolkit are available at
@@ -38,6 +40,7 @@ powered by our custom React components available at
 `mp-react-components <https://github.com/materialsproject/mp-react-components>`_. These
 can be explored interactively in our
 `Storybook <https://materialsproject.github.io/mp-react-components/?path=/story/introduction-mp-react-components--page>`_.
+These components can also be installed and used independently of Crystal Toolkit.
 
 Installation
 ------------
