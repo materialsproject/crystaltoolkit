@@ -2,7 +2,7 @@
    :hidden:
 
    introduction
-   Try The App!<https://materialsproject.org/#apps/xtaltoolkit>
+   Try The App!<https://next-gen.materialsproject.org/toolkit>
    first_web_app
    first_component
    components
