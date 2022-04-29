@@ -54,19 +54,12 @@ to colour-code the top and bottom grains."""
             shape=(3,),
         )
 
-        rotation_angle = self.get_choice_input(
-            label="Rotation angle",
-            kwarg_label="rotation_angle",
-            state=state,
-            help_str="""Rotation angle to generate grain boundary. Options determined by 
-            your choice of Σ.""",
-        )
-
         # sigma isn't a direct input into the transformation, but has
         # to be calculated from the rotation_axis and structure
         _, sigma_options, _ = self._get_sigmas_options_and_ratio(
             structure, state.get("rotation_axis")
         )
+
         sigma = dcc.Dropdown(
             id=self.id("sigma"),
             style={"width": "5rem"},
@@ -78,6 +71,19 @@ to colour-code the top and bottom grains."""
             "Sigma",
             "The unit cell volume of the coincidence site lattice relative to "
             "input unit cell is denoted by sigma.",
+        )
+
+        # likewise, rotation_angle is then a function of sigma, so
+        # best determined using sigma to provide a default value:
+        # this is initialized via a callback
+
+        rotation_angle = self.get_choice_input(
+            label="Rotation angle",
+            kwarg_label="rotation_angle",
+            state=state,  # starts as None
+            help_str="""Rotation angle to generate grain boundary. Options determined by 
+                    your choice of Σ.""",
+            style={"width": "15rem"},
         )
 
         expand_times = self.get_numerical_input(
@@ -198,7 +204,7 @@ to colour-code the top and bottom grains."""
                 cutoff=cutoff, r_axis=rotation_axis, ratio_alpha=ratio
             )
         else:
-            return [], None
+            return [], None, ratio
 
         options = []
         subscript_unicode_map = {
@@ -248,7 +254,7 @@ to colour-code the top and bottom grains."""
             return sigma_options
 
         @app.callback(
-            Output(self.id("rotation_angle", is_kwarg=True), "options"),
+            Output(self.id("rotation_angle", is_kwarg=True, hint="literal"), "options"),
             [
                 Input(self.id("sigma"), "value"),
                 Input(self.get_kwarg_id("rotation_axis"), "value"),
@@ -290,16 +296,20 @@ to colour-code the top and bottom grains."""
             ],
         )
         def update_default_value(options, enabled):
-            if options is None:
+            if not options:
                 raise PreventUpdate
             return options[0]["value"], enabled
 
         # TODO: make client-side callback, or just combine all callbacks here
         @app.callback(
-            Output(self.id("rotation_angle", is_kwarg=True), "value"),
-            [Input(self.id("rotation_angle", is_kwarg=True), "options")],
+            Output(self.id("rotation_angle", is_kwarg=True, hint="literal"), "value"),
+            [
+                Input(
+                    self.id("rotation_angle", is_kwarg=True, hint="literal"), "options"
+                )
+            ],
         )
         def update_default_value(options):
-            if options is None:
+            if not options:
                 raise PreventUpdate
             return options[0]["value"]
