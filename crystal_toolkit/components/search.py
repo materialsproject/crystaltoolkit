@@ -10,6 +10,7 @@ from monty.serialization import loadfn, dumpfn
 from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify
 from mp_api import MPRester
+from mp_api.client import MPRestError
 
 
 from pymatgen.util.string import unicodeify_spacegroup
@@ -127,44 +128,42 @@ class SearchComponent(MPComponent):
 
             with MPRester() as mpr:
                 try:
-                    entries = mpr.search.search(
-                        search_term,
+                    entries = mpr.summary.search_summary_docs(
+                        formula=search_term,
                         fields=[
-                            "task_id",
+                            "material_id",
                             "formula_pretty",
-                            "e_above_hull",
+                            "energy_above_hull",
                             "symmetry",
                         ],
                     )
-                except CompositionError:
+                except MPRestError:
                     entries = []
 
             if len(entries) == 0:
                 self.logger.info(f"Search: no results for {search_term}")
                 return {"error": f"No results found for {search_term}."}
 
-            # sort by e_above_hull if a normal query, or by Levenshtein distance
-            # if fuzzy matching (order of mpids list if present matches Levenshtein distance)
-            if not mpids:
-                entries = sorted(entries, key=lambda x: x["e_above_hull"])
-            else:
-                entries = sorted(entries, key=lambda x: mpids.index(x["task_id"]))
+            entries = sorted(entries, key=lambda x: x.energy_above_hull)
 
+            human_readable_hull_labels = []
             for entry in entries:
-                e_hull = entry["e_above_hull"]
+                e_hull = entry.energy_above_hull
                 if e_hull == 0:
-                    entry["e_above_hull_human"] = "predicted stable phase"
+                    human_readable_hull_labels.append("predicted stable phase")
                 elif e_hull >= 0.01:
-                    entry["e_above_hull_human"] = f"+{e_hull:.2f} eV/atom"
+                    human_readable_hull_labels.append(f"+{e_hull:.2f} eV/atom")
                 else:
                     e_hull_str = np.format_float_scientific(e_hull, precision=2)
-                    entry["e_above_hull_human"] = f"+{e_hull_str} eV/atom"
+                    human_readable_hull_labels.append(f"+{e_hull_str} eV/atom")
 
             human_readable_results = {
-                entry["task_id"]: f"{unicodeify(entry['pretty_formula'])} "
-                f"({unicodeify_spacegroup(entry['spacegroup.symbol'])}) "
-                f"{entry['e_above_hull_human']}"
-                for entry in entries
+                entry.material_id: f"{unicodeify(entry.formula_pretty)} "
+                f"({unicodeify_spacegroup(entry.symmetry.symbol)}) "
+                f"{human_readable_hull_label}"
+                for entry, human_readable_hull_label in zip(
+                    entries, human_readable_hull_labels
+                )
             }
 
             return human_readable_results
