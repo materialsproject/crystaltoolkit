@@ -250,6 +250,8 @@ class TransformationComponent(MPComponent):
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 
             kwargs = self.reconstruct_kwargs_from_state(dash.callback_context.states)
+            # for debug
+            # print("transformation kwargs", kwargs)
 
             if not enabled:
                 input_state = (False,) * len(states)
@@ -286,7 +288,16 @@ class AllTransformationsComponent(MPComponent):
         *args,
         **kwargs,
     ):
+        """
+        Create a component that can manage multiple transformations in a
+        user-defined order.
 
+        :param transformations: if provided, only offer a subset of available
+            transformaitons, provide as a string of the given transformation name
+        :param input_structure_component: will supply the structure to transform
+        """
+
+        # get available transformations
         subclasses = TransformationComponent.__subclasses__()
         subclass_names = [s.__name__ for s in subclasses]
 
@@ -305,6 +316,8 @@ class AllTransformationsComponent(MPComponent):
         if input_structure_component:
             self.links["input_structure"] = input_structure_component.id()
         self.create_store("input_structure")
+
+        self.create_store("enabled-transformations", initial_data=[])
 
         transformations = [
             t(input_structure_component_id=self.id("input_structure"))
@@ -370,11 +383,12 @@ class AllTransformationsComponent(MPComponent):
 
                 struct = transformation.apply_transformation(struct)
             except Exception as exc:
-                error_title = (
+                error_title = html.Span(
                     f'Failed to apply "{transformation.__class__.__name__}" '
                     f"transformation: {exc}"
                 )
                 traceback_info = Reveal(
+                    id=self.id("Error"),
                     title=html.B("Traceback"),
                     children=[dcc.Markdown(traceback.format_exc())],
                 )
@@ -385,12 +399,15 @@ class AllTransformationsComponent(MPComponent):
         @app.callback(
             Output(self.id("transformation_options"), "children"),
             [
-                Input(self.id("choices"), "value"),
                 Input(self.id("input_structure"), "data"),
+                Input(self.id("choices"), "value"),
             ],
             [State(t.id(), "data") for t in self.transformations.values()],
         )
-        def show_transformation_options(values, structure, *args):
+        def show_transformation_options(structure, values, *args):
+
+            # for debug
+            # print(dash.callback_context.triggered)
 
             values = values or []
 
@@ -408,11 +425,27 @@ class AllTransformationsComponent(MPComponent):
             return [transformation_options]
 
         @app.callback(
-            [Output(self.id(), "data"), Output(self.id("error"), "children")],
+            Output(self.id("enabled-transformations"), "data"),
+            Input(self.id("choices"), "value"),
+        )
+        def set_enabled_transformations(value):
+            """
+            This is due to an unfortunate but noisy bug that
+            complains that this specific input is not present
+            in the layout on load.
+            """
+            return value
+
+        # TODO: make an error store too
+
+        @app.callback(
+            # [
+            Output(self.id(), "data"),
+            # Output(self.id("error"), "children")],
             [Input(t.id(), "data") for t in self.transformations.values()]
             + [
                 Input(self.id("input_structure"), "data"),
-                Input(self.id("choices"), "value"),
+                Input(self.id("enabled-transformations"), "data"),
             ],
         )
         def run_transformations(*args):
@@ -424,6 +457,9 @@ class AllTransformationsComponent(MPComponent):
             user_visible_transformations = args[-1]
             struct = self.from_data(args[-2])
 
+            # for debug
+            # print("input struct", struct)
+
             errors = []
 
             transformations = []
@@ -432,7 +468,7 @@ class AllTransformationsComponent(MPComponent):
                     transformations.append(transformation)
 
             if not transformations:
-                return struct, html.Div()
+                return struct  # , html.Div()
 
             for transformation_data in transformations:
 
@@ -478,7 +514,10 @@ class AllTransformationsComponent(MPComponent):
                     ]
                 )
 
-            return struct, error_msg
+            # for debug
+            # print("transformed struct", struct)
+
+            return struct  # , error_msg
 
         # callback to take all transformations
         # and also state of which transformations are user-visible (+ their order)
