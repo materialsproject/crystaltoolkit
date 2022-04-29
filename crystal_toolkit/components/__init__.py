@@ -37,9 +37,10 @@ from crystal_toolkit.components.transformations.core import AllTransformationsCo
 from crystal_toolkit.components.transformations.autooxistatedecoration import (
     AutoOxiStateDecorationTransformationComponent,
 )
-from crystal_toolkit.components.transformations.cubic import (
-    CubicSupercellTransformationComponent,
-)
+
+# from crystal_toolkit.components.transformations.cubic import (
+#     CubicSupercellTransformationComponent,
+# )
 from crystal_toolkit.components.transformations.grainboundary import (
     GrainBoundaryTransformationComponent,
 )
@@ -50,6 +51,7 @@ from crystal_toolkit.components.transformations.substitution import (
 from crystal_toolkit.components.transformations.supercell import (
     SupercellTransformationComponent,
 )
-from crystal_toolkit.components.transformations.rattle import (
-    MonteCarloRattleTransformationComponent,
-)
+
+# from crystal_toolkit.components.transformations.rattle import (
+#     MonteCarloRattleTransformationComponent,
+# )
