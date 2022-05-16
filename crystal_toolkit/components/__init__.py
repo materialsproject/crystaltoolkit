@@ -26,6 +26,11 @@ from crystal_toolkit.components.bandstructure import (
     BandstructureAndDosPanelComponent,
 )
 
+from crystal_toolkit.components.phonon import (
+    PhononBandstructureAndDosComponent,
+    PhononBandstructureAndDosPanelComponent,
+)
+
 # from crystal_toolkit.components.phase_diagram import (
 #     PhaseDiagramComponent,
 #     PhaseDiagramPanelComponent,
