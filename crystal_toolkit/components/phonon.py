@@ -50,7 +50,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # defaults
         state = {"label-select": "sc", "dos-select": "ap"}
 
-        bs, dos = PhononBandstructureAndDosComponent._get_bs_dos(self.initial_data["default"])
+        bs, dos = PhononBandstructureAndDosComponent._get_ph_bs_dos(self.initial_data["default"])
         fig = PhononBandstructureAndDosComponent.get_figure(bs, dos)
         # Main plot
         graph = Loading(
@@ -241,7 +241,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         }
 
         labels = {}
-        for k in bs.kpoints:
+        for k in bs.qpoints:
             if k.label:
                 label = k.label
                 for orig, new in str_replace.items():
@@ -256,10 +256,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
         cylinder_pairs = []
         for b in bs.branches:
             start = bz_lattice.get_cartesian_coords(
-                bs.kpoints[b["start_index"]].frac_coords
+                bs.qpoints[b["start_index"]].frac_coords
             )
             end = bz_lattice.get_cartesian_coords(
-                bs.kpoints[b["end_index"]].frac_coords
+                bs.qpoints[b["end_index"]].frac_coords
             )
             path += [start, end]
             cylinder_pairs += [[start, end]]
@@ -345,25 +345,29 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         # Vertical lines for disjointed segments
         for dist_val, tick_label in zip(bs_data["ticks"]["distance"],bs_data["ticks"]["label"]): 
-        
-            if "|" in tick_label:
-                
-                vert_trace = [
+            vert_trace = [
                     {
                         "x": [dist_val, dist_val],
                         "y": freq_range,
                         "mode": "lines",
                         "marker": {"color": "white"},
+                        "line":{"width": 1 if "|" not in tick_label else 2},
                         "hoverinfo": "skip",
                         "showlegend": False,
                         "xaxis": "x",
                         "yaxis": "y",
                     } 
                 ]
+    
+            bstraces += vert_trace
 
-                bstraces += vert_trace
 
         return bstraces, bs_data
+
+    @staticmethod
+    def _get_data_list_dict(bs, dos):
+
+        return {}
 
     @staticmethod
     def get_ph_dos_traces(dos, freq_range):
