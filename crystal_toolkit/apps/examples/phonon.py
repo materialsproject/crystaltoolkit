@@ -31,7 +31,7 @@ density_of_states = loadfn(path + "/BaTiO3_ph_dos.json")
 bsdos_component = PhononBandstructureAndDosComponent(
     bandstructure_symm_line=bandstructure_symm_line,
     density_of_states=density_of_states,
-    id="bs_dos",
+    id="ph_bs_dos",
 )
 
 # example layout to demonstrate capabilities of component
