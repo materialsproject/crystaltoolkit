@@ -36,7 +36,7 @@ bsdos_component = PhononBandstructureAndDosComponent(
 
 # example layout to demonstrate capabilities of component
 my_layout = Container(
-    [H1("Phnon Band Structure and Density of States Example"), bsdos_component.layout(),]
+    [H1("Phonon Band Structure and Density of States Example"), bsdos_component.layout(),]
 )
 
 # wrap your app.layout with crystal_toolkit_layout()
