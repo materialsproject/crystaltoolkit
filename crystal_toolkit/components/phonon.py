@@ -344,14 +344,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     ].replace(key, str_replace[key])
 
         # Vertical lines for disjointed segments
-        for dist_val, tick_label in zip(bs_data["ticks"]["distance"],bs_data["ticks"]["label"]): 
+        for dist_val, tick_label in zip(bs_data["ticks"]["distance"], bs_data["ticks"]["label"]): 
             vert_trace = [
                     {
                         "x": [dist_val, dist_val],
                         "y": freq_range,
                         "mode": "lines",
-                        "marker": {"color": "white"},
-                        "line":{"width": 1 if "|" not in tick_label else 2},
+                        "marker": {"color": "#F5F5F5" if "|" not in tick_label else "white"},
+                        "line": {"width": 0.5 if "|" not in tick_label else 2},
                         "hoverinfo": "skip",
                         "showlegend": False,
                         "xaxis": "x",

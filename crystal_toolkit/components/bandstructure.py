@@ -353,8 +353,6 @@ class BandstructureAndDosComponent(MPComponent):
         cbm_new = bs_data["cbm"]
         vbm_new = bs_data["vbm"]
 
-        bar_loc = []
-
         for d, dist_val in enumerate(bs_data["distances"]):
 
             x_dat = dist_val
@@ -401,8 +399,6 @@ class BandstructureAndDosComponent(MPComponent):
 
             bstraces += traces_for_segment
 
-            bar_loc.append(dist_val[-1])
-
         # - Strip latex math wrapping for labels
         str_replace = {
             "$": "",
@@ -429,21 +425,23 @@ class BandstructureAndDosComponent(MPComponent):
                     ].replace(key, str_replace[key])
 
         # Vertical lines for disjointed segments
-        vert_traces = [
-            {
-                "x": [x_point, x_point],
-                "y": energy_window,
-                "mode": "lines",
-                "marker": {"color": "white"},
-                "hoverinfo": "skip",
-                "showlegend": False,
-                "xaxis": "x",
-                "yaxis": "y",
-            }
-            for x_point in bar_loc
-        ]
+        for dist_val, tick_label in zip(bs_data["ticks"]["distance"], bs_data["ticks"]["label"]): 
+            vert_trace = [
+                    {
+                        "x": [dist_val, dist_val],
+                        "y": energy_window,
+                        "mode": "lines",
+                        "marker": {"color": "#F5F5F5" if "|" not in tick_label else "white"},
+                        "line": {"width": 0.5 if "|" not in tick_label else 2},
+                        "hoverinfo": "skip",
+                        "showlegend": False,
+                        "xaxis": "x",
+                        "yaxis": "y",
+                    } 
+                ]
+    
+            bstraces += vert_trace
 
-        bstraces += vert_traces
 
         # Dots for cbm and vbm
 
