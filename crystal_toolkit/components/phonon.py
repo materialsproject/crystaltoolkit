@@ -55,7 +55,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # Main plot
         graph = Loading(
             [dcc.Graph(figure=fig, config={"displayModeBar": False}, responsive=True,)],
-            id=self.id("bsdos-div"),
+            id=self.id("ph-bsdos-div"),
         )
 
         # Brillouin zone
@@ -584,7 +584,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
+            Output(self.id("ph-bsdos-div"), "children"), [Input(self.id("traces"), "data")]
         )
         def update_graph(traces):
 
