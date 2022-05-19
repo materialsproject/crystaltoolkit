@@ -1,13 +1,11 @@
 # standard Dash imports
 import dash
-from dash import html
-from dash import dcc
 
 # standard Crystal Toolkit import
 from crystal_toolkit.components.phonon import PhononBandstructureAndDosComponent
 from crystal_toolkit.components import register_crystal_toolkit
 from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.helpers.layouts import H1, H2, Container
+from crystal_toolkit.helpers.layouts import H1, Container
 
 # dos and bs data from local jsons
 from monty.serialization import loadfn
