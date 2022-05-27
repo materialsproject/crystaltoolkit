@@ -12,7 +12,6 @@ plotly = "^5.3.1"
 webcolors = "*"
 crystaltoolkit-extension = "^0.6.0"
 mp-api = "*"
-mp-pyrho = "^0.0.21"
 shapely = "^1.8.0"
 scikit-learn = { version = "*"}
 scikit-image = { version = "*"}
