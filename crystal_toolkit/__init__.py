@@ -8,7 +8,7 @@ from monty.json import MSONable
 
 from crystal_toolkit.renderables import *
 
-__version__ = "2022.04.29"
+__version__ = "2022.06.08"
 
 MODULE_PATH = Path(__file__).parents[0]
 
