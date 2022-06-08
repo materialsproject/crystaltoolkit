@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional, Union
 
 from dash import dcc
 from dash import html
-from habanero import content_negotiation
 from monty.serialization import dumpfn, loadfn
 from uuid import uuid4
 import dash_mp_components as mpc
@@ -324,6 +323,7 @@ class Control(html.Div):
         _update_css_class(kwargs, "control")
         super().__init__(*args, **kwargs)
 
+
 def get_tooltip(
     tooltip_label: Any,
     tooltip_text: str,
@@ -410,45 +410,14 @@ def cite_me(
     :return: A button
     """
     if doi:
-        if doi in DOI_CACHE:
-            ref = DOI_CACHE[doi]
-        else:
-            try:
-                ref = content_negotiation(ids=doi, format="text", style="ieee")[3:]
-                DOI_CACHE[doi] = ref
-                dumpfn(DOI_CACHE, MODULE_PATH / "apps/assets/doi_cache.json")
-            except Exception as exc:
-                print("Error retrieving DOI", doi, exc)
-                ref = f"DOI: {doi}"
-        tooltip_text = f"If this analysis is useful, please cite {ref}"
+        component = mpc.PublicationButton(id=doi, doi=doi, showTooltip=True)
     elif manual_ref:
         warnings.warn("Please use the DOI if available.")
-        tooltip_text = (
-            f"If this analysis is useful, please cite the "
-            f"relevant publication: {manual_ref}"
-        )
-    else:
-        tooltip_text = (
-            f"If this analysis is useful, please cite the "
-            f"relevant publication (publication pending)."
+        component = mpc.PublicationButton(
+            children=cite_text, id=manual_ref, url=manual_ref
         )
 
-    reference_button = html.A(
-        [
-            Button(
-                [Icon(kind="book"), html.Span(cite_text)],
-                size="small",
-                kind="link",
-                style={"height": "1.5rem"},
-            )
-        ],
-        href=f"https://dx.doi.org/{doi}",
-        target="_blank",
-    )
-
-    with_tooltip = get_tooltip(reference_button, tooltip_text, underline=False)
-
-    return with_tooltip
+    return component
 
 
 def add_label_help(input, label, help):
@@ -456,12 +425,7 @@ def add_label_help(input, label, help):
     Combine an input, label, and tooltip text into a 
     single consistent component.
     """
-    return mpc.FilterField(
-        input,
-        id=uuid4().hex,
-        label=label,
-        tooltip=help
-    )
+    return mpc.FilterField(input, id=uuid4().hex, label=label, tooltip=help)
 
 
 class Loading(dcc.Loading):
