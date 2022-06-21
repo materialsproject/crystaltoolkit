@@ -101,7 +101,7 @@ def get_structure_scene(
 
     primitives["unit_cell"].append(self.lattice.get_scene())
 
-    lattice_vectors = [list(array) for array in self.lattice.matrix]
+    lattice_vectors = self.lattice.matrix.tolist()
 
     return Scene(
         name="Structure",
