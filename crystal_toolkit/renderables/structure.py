@@ -69,7 +69,7 @@ def get_structure_scene(
     Args:
         self:  Structure object
         origin: fractional coordinate of the origin
-        legend: Legend for the sites
+        legend: Legend for the sites\
         draw_image_atoms: If true draw image atoms that are just outside the
         periodic boundary
 
@@ -95,16 +95,18 @@ def get_structure_scene(
                 site.lattice,
                 properties=site.properties,
             )
-
         site_scene = site.get_scene(legend=legend,)
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
 
     primitives["unit_cell"].append(self.lattice.get_scene())
 
+    lattice_vectors = [list(array) for array in self.lattice.matrix]
+
     return Scene(
         name="Structure",
         origin=origin,
+        lattice=lattice_vectors,
         contents=[
             Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
         ],

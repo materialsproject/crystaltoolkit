@@ -45,6 +45,7 @@ class Scene:
     contents: list = field(default_factory=list)
     origin: List[float] = field(default=(0, 0, 0))
     visible: bool = True
+    lattice: Optional[List[List[float]]] = None
     _meta: Dict = None
 
     def __add__(self, other):
@@ -61,6 +62,7 @@ class Scene:
             contents=self.contents + other.contents,
             origin=self.origin,
             visible=self.visible,
+            lattice=self.lattice,
             _meta={self.name: self._meta, other.name: other._meta},
         )
 
@@ -91,6 +93,7 @@ class Scene:
             name=self.name,
             contents=self.merge_primitives(self.contents),
             origin=self.origin,
+            lattice=self.lattice,
         )
 
         def remove_defaults(scene_dict):
