@@ -95,16 +95,18 @@ def get_structure_scene(
                 site.lattice,
                 properties=site.properties,
             )
-
         site_scene = site.get_scene(legend=legend,)
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
 
     primitives["unit_cell"].append(self.lattice.get_scene())
 
+    lattice_vectors = self.lattice.matrix.tolist()
+
     return Scene(
         name="Structure",
         origin=origin,
+        lattice=lattice_vectors,
         contents=[
             Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
         ],
