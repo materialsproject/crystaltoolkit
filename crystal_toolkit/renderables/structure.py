@@ -69,7 +69,7 @@ def get_structure_scene(
     Args:
         self:  Structure object
         origin: fractional coordinate of the origin
-        legend: Legend for the sites\
+        legend: Legend for the sites
         draw_image_atoms: If true draw image atoms that are just outside the
         periodic boundary
 
