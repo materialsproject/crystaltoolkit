@@ -541,11 +541,10 @@ class BandstructureAndDosComponent(MPComponent):
 
         dostraces.append(trace_tdos)
 
-        ele_dos = dos.get_element_dos()
-        elements = [str(entry) for entry in ele_dos.keys()]
-
-        if dos_select == "ap":
-            proj_data = ele_dos
+        if dos_select == "tot":
+            proj_data = {}
+        elif dos_select == "ap":
+            proj_data = dos.get_element_dos()
         elif dos_select == "op":
             proj_data = dos.get_spd_dos()
         elif "orb" in dos_select:
@@ -670,14 +669,21 @@ class BandstructureAndDosComponent(MPComponent):
             )
             traces += dostraces
 
-            rmax = max(
-                [
-                    max(dostraces[0]["x"]),
-                    abs(min(dostraces[0]["x"])),
-                    max(dostraces[1]["x"]),
-                    abs(min(dostraces[1]["x"])),
-                ]
-            )
+            list_max = [
+                max(dostraces[0]["x"]),
+                abs(min(dostraces[0]["x"])),
+            ]
+
+            # check the max of the second dos trace only if spin polarized
+            spin_polarized = len(dos.densities.keys()) == 2
+            if spin_polarized:
+                list_max.extend(
+                    [
+                        max(dostraces[1]["x"]),
+                        abs(min(dostraces[1]["x"])),
+                    ]
+                )
+            rmax = max(list_max)
 
             xaxis_style_dos = dict(
                 title=dict(text="Density of States", font=dict(size=16)),
