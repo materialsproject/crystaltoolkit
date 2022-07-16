@@ -1,6 +1,12 @@
 # Crystal Toolkit
 
-**Crystal Toolkit is not ready for the public yet! Please wait for a release announcement soon, thank you :-)**   
+# Call for new contributors
+
+Crystal Toolkit is an academic project. A manuscript is in preparation to detail the design goals of Crystal Toolkit and achievements to date.
+
+**If you are interested in getting involved in Crystal Toolkit and are not already, it is not too late to be included in this manuscript, but please get in touch with mkhorton@lbl.gov ASAP.** Include information on the specific contributions that you would like to make (e.g. this may include adding features, addressing bugs, writing documentation, manuscript preparation, community engagement, writing tests, and the like), and if these align with the project we can formally add you to the development team.
+
+## Status
 
 [![Pytest Status](https://github.com/materialsproject/crystaltoolkit/workflows/pytest_and_docs/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions?query=workflow%3Apytest_and_docs)
 [![Visual Regression Test Status](https://percy.io/static/images/percy-badge.svg)](https://percy.io/Materials-Project/crystaltoolkit)
