@@ -1,17 +1,17 @@
 # standard Dash imports
 import dash
-from dash import dcc
 from dash import html
 
 # import for this example
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
+from crystal_toolkit.settings import SETTINGS
 
 # create Dash app as normal
-app = dash.Dash()
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # create the Structure object
 structure = Structure(
