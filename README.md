@@ -6,6 +6,8 @@ Crystal Toolkit is an academic project. A manuscript is in preparation to detail
 
 **If you are interested in getting involved in Crystal Toolkit and are not already, it is not too late to be included in this manuscript, but please get in touch with mkhorton@lbl.gov ASAP.** Include information on the specific contributions that you would like to make (e.g. this may include adding features, addressing bugs, writing documentation, manuscript preparation, community engagement, writing tests, and the like), and if these align with the project we can formally add you to the development team.
 
+Following a discussion with a potential contributor, "new contributor" issues are assigned. A current list of new contributor issues can be seen [here](https://github.com/materialsproject/crystaltoolkit/labels/new-contributor).
+
 ## Status
 
 [![Pytest Status](https://github.com/materialsproject/crystaltoolkit/workflows/pytest_and_docs/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions?query=workflow%3Apytest_and_docs)
