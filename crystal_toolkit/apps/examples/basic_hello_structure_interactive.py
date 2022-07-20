@@ -1,21 +1,20 @@
 # as above
 import dash
 from dash import html
-from dash import dcc
-import crystal_toolkit.components as ctc
 
 # standard Dash imports for callbacks (interactivity)
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+
+import crystal_toolkit.components as ctc
 
 app = dash.Dash()
 
 # now we give a list of structures to pick from
 structures = [
-    Structure(Lattice.cubic(4), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
+    Structure(Lattice.hexagonal(5, 3), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
     Structure(Lattice.cubic(5), ["K", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
 ]
 
