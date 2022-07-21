@@ -66,19 +66,18 @@ else:
         )
 
 
-labels = {
+plot_labels = {
     "crystal_sys": "Crystal system",
     "n": "Refractive index n",
     "spg_num": "Space group",
 }
-
 
 fig_n_vs_volume = px.scatter(
     df_diel.round(2),
     x="volume",
     y="n",
     color="crystal_sys",
-    labels=labels,
+    labels=plot_labels,
     size="n",
     hover_data=[df_diel.index, "spg_num"],
     hover_name="formula",
@@ -159,4 +158,5 @@ def update_structure(
     return structure
 
 
-app.run_server()
+if __name__ == "__main__":
+    app.run_server(debug=True, port=8050)
