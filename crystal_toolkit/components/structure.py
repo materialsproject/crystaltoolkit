@@ -1,37 +1,30 @@
-from pathlib import Path
-
-from tempfile import TemporaryDirectory
-
-from base64 import b64encode
-
-import json
-import os
 import re
-import sys
 import warnings
+from base64 import b64encode
 from collections import OrderedDict
 from itertools import chain, combinations_with_replacement
-from pymatgen.io.vasp.sets import MPRelaxSet
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Dict, Optional, Tuple, Union
 
-import dash
-from dash import dash_table as dt
 import numpy as np
-from dash.dependencies import Input, Output, State, MATCH
+from dash import dash_table as dt
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
+from emmet.core.settings import EmmetSettings
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from emmet.core.settings import EmmetSettings
 
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import H2, Field, dcc, html
 from crystal_toolkit.settings import SETTINGS
 
 try:
@@ -56,7 +49,7 @@ DEFAULTS = {
     "show_expand_button": True,
     "show_image_button": True,
     "show_export_button": True,
-    "show_position_button": True
+    "show_position_button": True,
 }
 
 
@@ -256,7 +249,7 @@ class StructureMoleculeComponent(MPComponent):
         app.clientside_callback(
             """
             function (bonding_strategy, custom_cutoffs_rows, unit_cell_choice) {
-            
+
                 const bonding_strategy_kwargs = {}
                 if (bonding_strategy === 'CutOffDictNN') {
                     const cut_off_dict = []
@@ -265,7 +258,7 @@ class StructureMoleculeComponent(MPComponent):
                     })
                     bonding_strategy_kwargs.cut_off_dict = cut_off_dict
                 }
-            
+
                 return {
                     bonding_strategy: bonding_strategy,
                     bonding_strategy_kwargs: bonding_strategy_kwargs,
@@ -299,7 +292,7 @@ class StructureMoleculeComponent(MPComponent):
         app.clientside_callback(
             """
             function (colorScheme, radiusStrategy, drawOptions, displayOptions) {
-            
+
                 const newDisplayOptions = Object.assign({}, displayOptions);
                 newDisplayOptions.color_scheme = colorScheme
                 newDisplayOptions.radius_strategy = radiusStrategy
@@ -462,7 +455,7 @@ class StructureMoleculeComponent(MPComponent):
                 spgrp = struct_or_mol.get_space_group_info()[0]
             else:
                 spgrp = ""
-            request_filename = "{}-{}-crystal-toolkit.png".format(formula, spgrp)
+            request_filename = f"{formula}-{spgrp}-crystal-toolkit.png"
 
             return {
                 "content": image_data[len("data:image/png;base64,") :],
@@ -628,7 +621,7 @@ class StructureMoleculeComponent(MPComponent):
             legend_elements,
             id=self.id("legend"),
             style={"display": "flex"},
-            className="buttons"
+            className="buttons",
         )
 
     def _make_title(self, legend):
@@ -761,7 +754,9 @@ class StructureMoleculeComponent(MPComponent):
                     ),
                     html.Div(
                         [
-                            html.Label("Change bonding algorithm: ", className="mpc-label"),
+                            html.Label(
+                                "Change bonding algorithm: ", className="mpc-label"
+                            ),
                             bonding_algorithm,
                             bonding_algorithm_custom_cutoffs,
                         ]
@@ -786,7 +781,10 @@ class StructureMoleculeComponent(MPComponent):
                     html.Div(
                         dcc.Dropdown(
                             options=[
-                                {"label": "Ionic", "value": "specified_or_average_ionic"},
+                                {
+                                    "label": "Ionic",
+                                    "value": "specified_or_average_ionic",
+                                },
                                 {"label": "Covalent", "value": "covalent"},
                                 {"label": "Van der Waals", "value": "van_der_waals"},
                                 {
@@ -794,7 +792,9 @@ class StructureMoleculeComponent(MPComponent):
                                     "value": "uniform",
                                 },
                             ],
-                            value=self.initial_data["display_options"]["radius_strategy"],
+                            value=self.initial_data["display_options"][
+                                "radius_strategy"
+                            ],
                             clearable=False,
                             persistence=SETTINGS.PERSISTENCE,
                             persistence_type=SETTINGS.PERSISTENCE_TYPE,
@@ -875,10 +875,7 @@ class StructureMoleculeComponent(MPComponent):
         struct_layout = html.Div(
             [
                 CrystalToolkitScene(
-                    [
-                        options_layout,
-                        legend_layout
-                    ],
+                    [options_layout, legend_layout],
                     id=self.id("scene"),
                     className=self.className,
                     data=self.initial_data["scene"],
@@ -893,7 +890,7 @@ class StructureMoleculeComponent(MPComponent):
                     **self.scene_kwargs,
                 ),
                 dcc.Download(id=self.id("download-image")),
-                dcc.Download(id=self.id("download-structure"))
+                dcc.Download(id=self.id("download-structure")),
             ]
         )
 
@@ -906,7 +903,7 @@ class StructureMoleculeComponent(MPComponent):
 
     def layout(self, size: str = "500px") -> html.Div:
         """
-        :param size: a CSS string specifying width/height of Div
+        :param size: a CSS dimension specifying width/height of Div
         :return: A html.Div containing the 3D structure or molecule
         """
         return html.Div(
@@ -946,7 +943,7 @@ class StructureMoleculeComponent(MPComponent):
 
         if isinstance(input, Structure):
 
-            # ensure fractional co-ordinates are normalized to be in [0,1)
+            # ensure fractional coordinates are normalized to be in [0,1)
             # (this is actually not guaranteed by Structure)
             try:
                 input = input.as_dict(verbosity=0)
@@ -988,10 +985,10 @@ class StructureMoleculeComponent(MPComponent):
                             (x[0], x[1]): x[2]
                             for x in bonding_strategy_kwargs["cut_off_dict"]
                         }
-                bonding_strategy = StructureMoleculeComponent.available_bonding_strategies[
-                    bonding_strategy
-                ](
-                    **bonding_strategy_kwargs
+                bonding_strategy = (
+                    StructureMoleculeComponent.available_bonding_strategies[
+                        bonding_strategy
+                    ](**bonding_strategy_kwargs)
                 )
                 try:
                     with warnings.catch_warnings():
