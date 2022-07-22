@@ -17,7 +17,9 @@ from crystal_toolkit.settings import SETTINGS
 pio.templates.default = "plotly_white"
 
 
+__author__ = "Janosh Riebesell"
 __date__ = "2022-07-21"
+__email__ = "janosh@lbl.gov"
 
 """
 Run this app with:
