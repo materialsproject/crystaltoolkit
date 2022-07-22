@@ -1,40 +1,32 @@
 # standard Dash imports
 import dash
-from dash import html
-from dash import dcc
 from dash.dependencies import Input, Output
+
+# create our crystal structure using pymatgen
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
+from crystal_toolkit.helpers.layouts import H1, Button, Container
 from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.helpers.layouts import H1, H2, Container, Button
 
 # create Dash app as normal
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
-# create our crystal structure using pymatgen
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-
-xrd_component = ctc.XRayDiffractionComponent()
+xrd_component = ctc.XRayDiffractionComponent(id="xrd-diffraction")
 
 # example layout to demonstrate capabilities of component
-my_layout = Container(
-    [
-        H1("XRDComponent Example (Structure Added After Loading)"),
-        xrd_component.layout(),
-        Button("Load XRD", id="load-xrd-button"),
-    ]
-)
+page_title = H1("XRDComponent Example (Structure Added After Loading)")
+load_btn = Button("Load XRD", id="load-xrd-button")
+my_layout = Container([page_title, xrd_component.layout(), load_btn])
 
 # as explained in "preamble" section in documentation
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
 
-@app.callback(
-    Output(xrd_component.id(), "data"), [Input("load-xrd-button", "n_clicks")]
-)
-def load_structure(n_clicks):
+@app.callback(Output(xrd_component.id(), "data"), Input(load_btn.id, "n_clicks"))
+def load_structure(n_clicks: int) -> Structure:
     structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
     return structure
 
