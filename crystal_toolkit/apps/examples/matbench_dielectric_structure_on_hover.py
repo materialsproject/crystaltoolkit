@@ -121,19 +121,28 @@ hover_click_dropdown = html.Div(
         margin="1em",
     ),
 )
+struct_title = html.H2(
+    "Try hovering on a point in the plot to see its corresponding structure",
+    id="struct-title",
+    style=dict(position="absolute"),
+)
 graph_structure_div = html.Div(
-    [graph, structure_component.layout(size="800px")],
+    [
+        graph,
+        html.Div([struct_title, structure_component.layout(size="800px")]),
+    ],
     style=dict(display="flex", gap="2em"),
 )
 app.layout = html.Div(
     [hover_click_dropdown, graph_structure_div],
-    style=dict(margin="2em"),
+    style=dict(margin="2em", padding="1em"),
 )
 ctc.register_crystal_toolkit(app=app, layout=app.layout)
 
 
 @app.callback(
     Output(structure_component.id(), "data"),
+    Output(struct_title.id, "children"),
     Input(graph.id, "hoverData"),
     Input(graph.id, "clickData"),
     State(hover_click_dd.id, "value"),
@@ -142,7 +151,7 @@ def update_structure(
     hover_data: dict[str, list[dict[str, Any]]],
     click_data: dict[str, list[dict[str, Any]]],  # needed as callback trigger
     dropdown_value: str,
-) -> Structure | None:
+) -> tuple[Structure, str]:
     """Update StructureMoleculeComponent with pymatgen structure when user clicks on
     new scatter point.
     """
@@ -156,9 +165,10 @@ def update_structure(
     data = hover_data["points"][0]
     material_id = data.get("customdata", ["missing _id"])[0]
 
-    structure = df_diel.structure.get(material_id)
+    structure = df_diel.structure[material_id]
+    formula = df_diel.formula[material_id]
 
-    return structure
+    return structure, formula
 
 
 if __name__ == "__main__":

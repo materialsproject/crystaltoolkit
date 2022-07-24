@@ -41,7 +41,7 @@ datatable_diel = dash_table.DataTable(
 structure_component = ctc.StructureMoleculeComponent(id="structure")
 xrd_component = ctc.XRayDiffractionComponent(id="xrd")
 
-stack_structure_xrd = html.Div(
+structure_xrd_stacked = html.Div(
     [structure_component.layout(), xrd_component.layout()],
     style=dict(display="grid", gap="2em", alignContent="start"),
 )
@@ -55,7 +55,7 @@ description = html.P(
 
 app = dash.Dash(prevent_initial_callbacks=True, assets_folder=SETTINGS.ASSETS_PATH)
 main_div = html.Div(
-    [datatable_diel, stack_structure_xrd],
+    [datatable_diel, structure_xrd_stacked],
     style=dict(margin="2em", display="flex", gap="2em", justifyContent="center"),
 )
 app.layout = html.Div([page_title, description, main_div])
