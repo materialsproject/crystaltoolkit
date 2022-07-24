@@ -7,7 +7,7 @@ import plotly.io as pio
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from pymatgen.core import Structure
-from pymatviz.utils import get_crystal_sys
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from tqdm import tqdm
 
 import crystal_toolkit.components as ctc
@@ -55,7 +55,9 @@ else:
             for struct in tqdm(df_diel.structure, desc="Getting space groups")
         ]
 
-        df_diel["crystal_sys"] = [get_crystal_sys(x) for x in df_diel.spg_num]
+        df_diel["crystal_sys"] = [
+            SpacegroupAnalyzer(x).get_crystal_system() for x in df_diel.structure
+        ]
 
         df_diel["volume"] = [x.volume for x in df_diel.structure]
         df_diel["formula"] = [x.formula for x in df_diel.structure]
