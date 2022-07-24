@@ -1,10 +1,10 @@
 import os
 
+import dash
 import pandas as pd
 import plotly.io as pio
 from dash import dash_table, html
 from dash.dependencies import Input, Output
-from jupyter_dash import JupyterDash
 from pymatgen.core import Structure
 
 import crystal_toolkit.components as ctc
@@ -53,7 +53,7 @@ description = html.P(
     style=dict(textAlign="center"),
 )
 
-app = JupyterDash(prevent_initial_callbacks=True, assets_folder=SETTINGS.ASSETS_PATH)
+app = dash.Dash(prevent_initial_callbacks=True, assets_folder=SETTINGS.ASSETS_PATH)
 main_div = html.Div(
     [datatable_diel, stack_structure_xrd],
     style=dict(margin="2em", display="flex", gap="2em", justifyContent="center"),

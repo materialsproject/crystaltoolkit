@@ -6,7 +6,6 @@ import plotly.express as px
 import plotly.io as pio
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
-from jupyter_dash import JupyterDash
 from pymatgen.core import Structure
 from pymatviz.utils import get_crystal_sys
 from tqdm import tqdm
@@ -97,7 +96,7 @@ fig_n_vs_volume.update_traces(marker_sizeref=0.05, selector=dict(mode="markers")
 
 structure_component = ctc.StructureMoleculeComponent(id="structure")
 
-app = JupyterDash(prevent_initial_callbacks=True, assets_folder=SETTINGS.ASSETS_PATH)
+app = dash.Dash(prevent_initial_callbacks=True, assets_folder=SETTINGS.ASSETS_PATH)
 graph = dcc.Graph(
     id="volume-vs-refract-idx-scatter-plot",
     figure=fig_n_vs_volume,
