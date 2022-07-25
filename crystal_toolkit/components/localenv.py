@@ -6,7 +6,7 @@ import plotly.express as px
 from dash import callback_context, dcc, html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-from dash_mp_components import GraphComponent
+import dash_mp_components as mpc
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
@@ -720,7 +720,7 @@ class LocalEnvironmentPanel(PanelComponent):
             }
 
             return html.Div(
-                [GraphComponent(graph=graph_data, options=options)],
+                [mpc.GraphComponent(graph=graph_data, options=options)],
                 style={"width": "65vmin", "height": "65vmin"},
             )
 
