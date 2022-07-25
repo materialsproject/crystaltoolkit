@@ -3,7 +3,7 @@ import os
 
 import dash
 
-# dos and bs data from local jsons
+# dos and bs data from local json files
 from monty.serialization import loadfn
 
 from crystal_toolkit.components import register_crystal_toolkit
@@ -23,8 +23,8 @@ app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 # app.config["suppress_callback_exceptions"] = True
 
 path = os.path.dirname(os.path.realpath(__file__))
-bandstructure_symm_line = loadfn(path + "/BaTiO3_ph_bs.json")
-density_of_states = loadfn(path + "/BaTiO3_ph_dos.json")
+bandstructure_symm_line = loadfn(f"{path}/BaTiO3_ph_bs.json")
+density_of_states = loadfn(f"{path}/BaTiO3_ph_dos.json")
 
 # # create the Crystal Toolkit component
 ph_bs_dos_component = PhononBandstructureAndDosComponent(

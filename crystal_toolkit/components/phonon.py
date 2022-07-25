@@ -19,11 +19,21 @@ from crystal_toolkit.helpers.layouts import (
     Columns,
     Label,
     Loading,
+    MessageBody,
+    MessageContainer,
     get_data_list,
 )
 
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov
+
+
+# TODOs:
+# - look for additional projection methods in phonon DOS (currently only atom
+#   projections supported)
+# - indicate presence of imaginary frequencies in summary tables
+# - highlight high symmetry points in Brillouin zone when hovering corresponding section
+#   of bandstructure and vice versa
 
 
 class PhononBandstructureAndDosComponent(MPComponent):
@@ -258,11 +268,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
         labels = {}
         for k in bs.qpoints:
             if k.label:
-                label = k.label
                 for orig, new in str_replace.items():
-                    label = label.replace(orig, new)
+                    label = k.label.replace(orig, new)
                 labels[label] = bz_lattice.get_cartesian_coords(k.frac_coords)
-        labels = [
+        label_list = [
             Spheres(positions=[coords], tooltip=label, radius=0.03, color="#5EB1BF")
             for label, coords in labels.items()
         ]
@@ -284,7 +293,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
         ibz_region = Convex(positions=path, opacity=0.2, color="#5EB1BF")
 
-        contents = [zone_lines, zone_surface, path_lines, ibz_region, *labels]
+        contents = [zone_lines, zone_surface, path_lines, ibz_region, *label_list]
 
         return Scene(name="brillouin_zone", contents=contents)
 
@@ -303,9 +312,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 ):
                     bands.append(band_num)
 
-        bstraces = []
-
-        bar_loc = []
+        bs_traces = []
 
         for d, dist_val in enumerate(bs_data["distances"]):
 
@@ -331,7 +338,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 for band_num in bands
             ]
 
-            bstraces += traces_for_segment
+            bs_traces += traces_for_segment
 
         # - Strip latex math wrapping for labels
         str_replace = {
@@ -378,9 +385,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 }
             ]
 
-            bstraces += vert_trace
+            bs_traces += vert_trace
 
-        return bstraces, bs_data
+        return bs_traces, bs_data
 
     @staticmethod
     def _get_data_list_dict(bs, dos):
@@ -413,11 +420,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         dostraces.append(trace_tdos)
 
-        ele_dos = dos.get_element_dos()
-        elements = [str(entry) for entry in ele_dos.keys()]
-
-        proj_data = ele_dos
-
         # Projected DOS
         count = 0
         colors = [
@@ -430,12 +432,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
             "#e377c2",  # raspberry yogurt pink
         ]
 
-        for label in proj_data.keys():
+        ele_dos = dos.get_element_dos()  # project DOS onto elements
+        for label in ele_dos:
 
             spin_up_label = str(label)
 
             trace = {
-                "x": proj_data[label].densities[dos_min:dos_max],
+                "x": ele_dos[label].densities[dos_min:dos_max],
                 "y": dos.frequencies[dos_min:dos_max],
                 "mode": "lines",
                 "name": spin_up_label,
@@ -595,30 +598,23 @@ class PhononBandstructureAndDosComponent(MPComponent):
         def update_graph(traces):
 
             if traces == "error":
-                search_error = (
-                    MessageContainer(
-                        [
-                            MessageBody(
-                                dcc.Markdown(
-                                    "Band structure and density of states not available for this selection."
-                                )
-                            )
-                        ],
-                        kind="warning",
-                    ),
+                msg_body = MessageBody(
+                    dcc.Markdown(
+                        "Band structure and density of states not available for this selection."
+                    )
                 )
+                search_error = (MessageContainer([msg_body], kind="warning"),)
                 return search_error
 
             if traces is None:
                 raise PreventUpdate
 
             figure = self.get_figure(bs, dos)
+            graph = dcc.Graph(
+                figure=figure, config={"displayModeBar": False}, responsive=True
+            )
 
-            return [
-                dcc.Graph(
-                    figure=figure, config={"displayModeBar": False}, responsive=True
-                )
-            ]
+            return [graph]
 
         @app.callback(
             [
@@ -714,12 +710,18 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 traces.append(bstraces)
 
             if self.density_of_states:
-                dostraces = get_dos_traces(density_of_states, freq_range=energy_window)
-                traces.append(dostraces)
+                dos_traces = self.get_ph_dos_traces(
+                    density_of_states, freq_range=energy_window
+                )
+                traces.append(dos_traces)
 
             # traces = [bstraces, dostraces, bs_data]
 
-            return (traces, elements)
+            # TODO: not tested if this is correct way to get element list
+            ele_dos = density_of_states.get_element_dos()
+            elements = [str(entry) for entry in ele_dos.keys()]
+
+            return traces, elements
 
 
 class PhononBandstructureAndDosPanelComponent(PanelComponent):
