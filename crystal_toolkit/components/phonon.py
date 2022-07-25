@@ -14,7 +14,13 @@ from pymatgen.phonon.plotter import PhononBSPlotter
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
-from crystal_toolkit.helpers.layouts import Column, Columns, Label, Loading
+from crystal_toolkit.helpers.layouts import (
+    Column,
+    Columns,
+    Label,
+    Loading,
+    get_data_list,
+)
 
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov
@@ -86,7 +92,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             ],
             style={"width": "200px"}
             if show_path_options
-            else {"max-width": "200", "display": "none"},
+            else {"maxWidth": "200", "display": "none"},
             id=self.id("path-container"),
         )
 
