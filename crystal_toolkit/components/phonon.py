@@ -130,7 +130,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
             style={"width": "200px"},
         )
 
-        table = get_data_list(self._get_data_list_dict(bs, dos))
+        data_dict = self._get_data_list_dict(bs, dos)
+        table = get_data_list(data_dict)
 
         return {
             "graph": graph,
@@ -497,72 +498,55 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         # -- Add trace data to plots
 
-        xaxis_style = dict(
-            title=dict(text="Wave Vector", font=dict(size=16)),
-            tickmode="array",
-            tickvals=bs_data["ticks"]["distance"],
-            ticktext=bs_data["ticks"]["label"],
+        in_common_axis_styles = dict(
+            gridcolor="white",
+            linecolor="rgb(71,71,71)",
+            linewidth=2,
+            showgrid=False,
+            showline=True,
             tickfont=dict(size=16),
             ticks="inside",
             tickwidth=2,
-            showgrid=False,
-            showline=True,
-            zeroline=False,
-            linewidth=2,
+        )
+
+        xaxis_style = dict(
+            **in_common_axis_styles,
+            tickmode="array",
             mirror=True,
             range=[0, bs_data["ticks"]["distance"][-1]],
-            linecolor="rgb(71,71,71)",
-            gridcolor="white",
+            ticktext=bs_data["ticks"]["label"],
+            tickvals=bs_data["ticks"]["distance"],
+            title=dict(text="Wave Vector", font=dict(size=16)),
+            zeroline=False,
         )
 
         yaxis_style = dict(
-            title=dict(text="Frequency (THz)", font=dict(size=16)),
-            tickfont=dict(size=16),
-            showgrid=False,
-            showline=True,
-            zeroline=True,
+            **in_common_axis_styles,
             mirror="ticks",
-            ticks="inside",
-            linewidth=2,
-            tickwidth=2,
-            zerolinewidth=2,
             range=y_range,
-            linecolor="rgb(71,71,71)",
-            gridcolor="white",
+            title=dict(text="Frequency (THz)", font=dict(size=16)),
+            zeroline=True,
             zerolinecolor="white",
+            zerolinewidth=2,
         )
 
         xaxis_style_dos = dict(
+            **in_common_axis_styles,
             title=dict(text="Density of States", font=dict(size=16)),
-            tickfont=dict(size=16),
-            showgrid=False,
-            showline=True,
             zeroline=False,
             mirror=True,
-            ticks="inside",
-            linewidth=2,
-            tickwidth=2,
             range=[0, rmax * 1.1],
-            linecolor="rgb(71,71,71)",
-            gridcolor="white",
             zerolinecolor="white",
             zerolinewidth=2,
         )
 
         yaxis_style_dos = dict(
-            tickfont=dict(size=16),
-            showgrid=False,
-            showline=True,
+            **in_common_axis_styles,
             zeroline=True,
             showticklabels=False,
             mirror="ticks",
-            ticks="inside",
-            linewidth=2,
-            tickwidth=2,
             zerolinewidth=2,
             range=y_range,
-            linecolor="rgb(71,71,71)",
-            gridcolor="white",
             zerolinecolor="white",
             matches="y",
             anchor="x2",

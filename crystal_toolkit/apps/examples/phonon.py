@@ -27,7 +27,7 @@ bandstructure_symm_line = loadfn(path + "/BaTiO3_ph_bs.json")
 density_of_states = loadfn(path + "/BaTiO3_ph_dos.json")
 
 # # create the Crystal Toolkit component
-bsdos_component = PhononBandstructureAndDosComponent(
+ph_bs_dos_component = PhononBandstructureAndDosComponent(
     bandstructure_symm_line=bandstructure_symm_line,
     density_of_states=density_of_states,
     id="ph_bs_dos",
@@ -35,7 +35,7 @@ bsdos_component = PhononBandstructureAndDosComponent(
 
 # example layout to demonstrate capabilities of component
 page_title = H1("Phonon Band Structure and Density of States Example")
-my_layout = Container([page_title, bsdos_component.layout()])
+my_layout = Container([page_title, ph_bs_dos_component.layout()])
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
