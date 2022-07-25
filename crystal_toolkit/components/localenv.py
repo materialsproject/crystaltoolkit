@@ -1,5 +1,6 @@
 import itertools
 from multiprocessing import cpu_count
+from warnings import warn
 
 import plotly.express as px
 from dash import callback_context, dcc, html
@@ -45,11 +46,12 @@ try:
     from dscribe.descriptors import SOAP
     from dscribe.kernels import REMatchKernel
 except ImportError:
-    print(
+    warn(
         "Using dscribe SOAP and REMatchKernel requires the dscribe package "
         "which was made optional since it in turn requires numba and numba "
         "was a common source of installation issues."
     )
+    SOAP = None
 
 
 def _get_local_order_parameters(structure_graph, n):
@@ -535,6 +537,9 @@ class LocalEnvironmentPanel(PanelComponent):
 
             if not struct:
                 raise PreventUpdate
+                
+            if not SOAP:
+                return mpc.Markdown("This feature will not work unless `dscribe` is installed on the server.")
 
             struct = self.from_data(struct)
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
@@ -581,6 +586,10 @@ class LocalEnvironmentPanel(PanelComponent):
 
             if not struct:
                 raise PreventUpdate
+
+            if not SOAP:
+                return mpc.Markdown("This feature will not work unless `dscribe` is installed on the server.")
+
 
             structs = {"input": self.from_data(struct)}
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
