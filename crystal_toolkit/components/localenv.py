@@ -1,16 +1,11 @@
 import itertools
 from multiprocessing import cpu_count
 
-from dash import dcc
-from dash import html
 import plotly.express as px
-from dash import callback_context
+from dash import callback_context, dcc, html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from dash_mp_components import GraphComponent
-from dscribe.descriptors import SOAP
-from dscribe.kernels import REMatchKernel
-from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
@@ -23,28 +18,38 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import (
     LightStructureEnvironments,
 )
-from pymatgen.analysis.graphs import MoleculeGraph
-from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.analysis.local_env import cn_opt_params, LocalStructOrderParams
+from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
+from pymatgen.analysis.local_env import LocalStructOrderParams, cn_opt_params
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.ext.matproj import MPRester
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.string import unicodeify_species, unicodeify
+from pymatgen.util.string import unicodeify, unicodeify_species
 from sklearn.preprocessing import normalize
 
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import (
-    get_data_list,
-    Columns,
-    Column,
-    get_tooltip,
-    cite_me,
-    Loading,
     H5,
+    Column,
+    Columns,
     Label,
+    Loading,
+    cite_me,
+    get_data_list,
+    get_tooltip,
 )
+
+try:
+    from dscribe.descriptors import SOAP
+    from dscribe.kernels import REMatchKernel
+except ImportError:
+    print(
+        "Using dscribe SOAP and REMatchKernel requires the dscribe package "
+        "which was made optional since it in turn requires numba and numba "
+        "was a common source of installation issues."
+    )
 
 
 def _get_local_order_parameters(structure_graph, n):
@@ -563,7 +568,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
             with MPRester() as mpr:
                 docs = mpr.query(
-                    {"chemsys": {"$in": all_chemsyses}}, ["task_id", "structure"],
+                    {"chemsys": {"$in": all_chemsyses}}, ["task_id", "structure"]
                 )
             structs.update({d["task_id"]: d["structure"] for d in docs})
             return structs
