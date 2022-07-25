@@ -2,21 +2,19 @@ import itertools
 
 import numpy as np
 import plotly.graph_objs as go
-import plotly.subplots as tls
+from dash import dcc, html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
 from dash_mp_components import CrystalToolkitScene
 from pymatgen.ext.matproj import MPRester
-from pymatgen.core.periodic_table import Element
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononBSPlotter
 
-from crystal_toolkit.core.scene import Scene, Lines, Spheres, Convex, Cylinders
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
+from crystal_toolkit.helpers.layouts import Column, Columns, Label, Loading
 
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov
@@ -50,11 +48,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # defaults
         state = {"label-select": "sc", "dos-select": "ap"}
 
-        bs, dos = PhononBandstructureAndDosComponent._get_ph_bs_dos(self.initial_data["default"])
+        bs, dos = PhononBandstructureAndDosComponent._get_ph_bs_dos(
+            self.initial_data["default"]
+        )
         fig = PhononBandstructureAndDosComponent.get_figure(bs, dos)
         # Main plot
         graph = Loading(
-            [dcc.Graph(figure=fig, config={"displayModeBar": False}, responsive=True,)],
+            [dcc.Graph(figure=fig, config={"displayModeBar": False}, responsive=True)],
             id=self.id("ph-bsdos-div"),
         )
 
@@ -77,7 +77,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     options=[
                         {"label": "Latimer-Munro", "value": "lm"},
                         {"label": "Hinuma et al.", "value": "hin"},
-                        {"label": "Setyawan-Curtarolo", "value": "sc",},
+                        {
+                            "label": "Setyawan-Curtarolo",
+                            "value": "sc",
+                        },
                     ],
                 )
             ],
@@ -98,7 +101,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     options=[
                         {"label": "Latimer-Munro", "value": "lm"},
                         {"label": "Hinuma et al.", "value": "hin"},
-                        {"label": "Setyawan-Curtarolo", "value": "sc",},
+                        {
+                            "label": "Setyawan-Curtarolo",
+                            "value": "sc",
+                        },
                     ],
                 )
             ],
@@ -174,7 +180,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
             with MPRester() as mpr:
 
                 try:
-                    bandstructure_symm_line = mpr.get_phonon_bandstructure_by_material_id(mpid)
+                    bandstructure_symm_line = (
+                        mpr.get_phonon_bandstructure_by_material_id(mpid)
+                    )
                 except Exception as exc:
                     print(exc)
                     bandstructure_symm_line = None
@@ -284,7 +292,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         for band_num in range(bs.nb_bands):
             for segment in bs_data["frequency"]:
                 if any([v <= freq_range[1] for v in segment[band_num]]) and any(
-                     [v >= freq_range[0] for v in segment[band_num]]
+                    [v >= freq_range[0] for v in segment[band_num]]
                 ):
                     bands.append(band_num)
 
@@ -344,23 +352,26 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     ].replace(key, str_replace[key])
 
         # Vertical lines for disjointed segments
-        for dist_val, tick_label in zip(bs_data["ticks"]["distance"], bs_data["ticks"]["label"]): 
+        for dist_val, tick_label in zip(
+            bs_data["ticks"]["distance"], bs_data["ticks"]["label"]
+        ):
             vert_trace = [
-                    {
-                        "x": [dist_val, dist_val],
-                        "y": freq_range,
-                        "mode": "lines",
-                        "marker": {"color": "#F5F5F5" if "|" not in tick_label else "white"},
-                        "line": {"width": 0.5 if "|" not in tick_label else 2},
-                        "hoverinfo": "skip",
-                        "showlegend": False,
-                        "xaxis": "x",
-                        "yaxis": "y",
-                    } 
-                ]
-    
-            bstraces += vert_trace
+                {
+                    "x": [dist_val, dist_val],
+                    "y": freq_range,
+                    "mode": "lines",
+                    "marker": {
+                        "color": "#F5F5F5" if "|" not in tick_label else "white"
+                    },
+                    "line": {"width": 0.5 if "|" not in tick_label else 2},
+                    "hoverinfo": "skip",
+                    "showlegend": False,
+                    "xaxis": "x",
+                    "yaxis": "y",
+                }
+            ]
 
+            bstraces += vert_trace
 
         return bstraces, bs_data
 
@@ -376,7 +387,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         dos_max = np.abs((dos.frequencies - freq_range[1])).argmin()
         dos_min = np.abs((dos.frequencies - freq_range[0])).argmin()
-    
+
         tdos_label = "Total DOS"
 
         # Total DOS
@@ -398,7 +409,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         ele_dos = dos.get_element_dos()
         elements = [str(entry) for entry in ele_dos.keys()]
 
-    
         proj_data = ele_dos
 
         # Projected DOS
@@ -414,7 +424,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         ]
 
         for label in proj_data.keys():
-            
+
             spin_up_label = str(label)
 
             trace = {
@@ -435,14 +445,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def get_figure(ph_bs, ph_dos, freq_range=(None, None)):
-    
+
         y_range = list(freq_range)
-  
+
         if freq_range[0] is None:
-            y_range[0] = np.min(ph_bs.bands)*1.05
-            
+            y_range[0] = np.min(ph_bs.bands) * 1.05
+
         if freq_range[1] is None:
-            y_range[1] = np.max(ph_bs.bands)*1.05
+            y_range[1] = np.max(ph_bs.bands) * 1.05
 
         if (not ph_dos) and (not ph_bs):
 
@@ -456,12 +466,17 @@ class PhononBandstructureAndDosComponent(MPComponent):
             return go.Figure(layout=empty_plot_style)
 
         if ph_bs:
-            bstraces, bs_data = PhononBandstructureAndDosComponent.get_ph_bandstructure_traces(
+            (
+                bstraces,
+                bs_data,
+            ) = PhononBandstructureAndDosComponent.get_ph_bandstructure_traces(
                 ph_bs, freq_range=y_range
             )
 
         if ph_dos:
-            dostraces = PhononBandstructureAndDosComponent.get_ph_dos_traces(ph_dos, freq_range=y_range)
+            dostraces = PhononBandstructureAndDosComponent.get_ph_dos_traces(
+                ph_dos, freq_range=y_range
+            )
 
         # TODO: add logic to handle if bstraces and/or dostraces not present
 
@@ -521,7 +536,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             ticks="inside",
             linewidth=2,
             tickwidth=2,
-            range=[0, rmax * 1.1,],
+            range=[0, rmax * 1.1],
             linecolor="rgb(71,71,71)",
             gridcolor="white",
             zerolinecolor="white",
@@ -584,7 +599,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("ph-bsdos-div"), "children"), [Input(self.id("traces"), "data")]
+            Output(self.id("ph-bsdos-div"), "children"),
+            [Input(self.id("traces"), "data")],
         )
         def update_graph(traces):
 
@@ -694,24 +710,21 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 Input(self.id("label-select"), "value"),
             ],
         )
-        def bs_dos_data(
-            data, dos_select, label_select,
-        ):
+        def bs_dos_data(data, dos_select, label_select):
 
             # Obtain bands to plot over and generate traces for bs data:
             energy_window = (-6.0, 10.0)
 
             traces = []
 
-            if bandstructure_symm_line:
-                bstraces = get_bandstructure_traces(
+            if self.bandstructure_symm_line:
+                bstraces = self.get_ph_bandstructure_traces(
                     bsml, freq_range=energy_window
                 )
                 traces.append(bstraces)
 
-            if density_of_states:
-                dostraces = get_dos_traces(
-                    density_of_states, freq_range=energy_window)
+            if self.density_of_states:
+                dostraces = get_dos_traces(density_of_states, freq_range=energy_window)
                 traces.append(dostraces)
 
             # traces = [bstraces, dostraces, bs_data]

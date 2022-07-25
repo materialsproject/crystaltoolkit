@@ -1,16 +1,17 @@
 # standard Dash imports
-import dash
+import os
 
-# standard Crystal Toolkit import
-from crystal_toolkit.components.phonon import PhononBandstructureAndDosComponent
-from crystal_toolkit.components import register_crystal_toolkit
-from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.helpers.layouts import H1, Container
+import dash
 
 # dos and bs data from local jsons
 from monty.serialization import loadfn
-import os
 
+from crystal_toolkit.components import register_crystal_toolkit
+
+# standard Crystal Toolkit import
+from crystal_toolkit.components.phonon import PhononBandstructureAndDosComponent
+from crystal_toolkit.helpers.layouts import H1, Container
+from crystal_toolkit.settings import SETTINGS
 
 # create Dash app as normal, assets folder set for visual styles only
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
@@ -33,9 +34,8 @@ bsdos_component = PhononBandstructureAndDosComponent(
 )
 
 # example layout to demonstrate capabilities of component
-my_layout = Container(
-    [H1("Phonon Band Structure and Density of States Example"), bsdos_component.layout(),]
-)
+page_title = H1("Phonon Band Structure and Density of States Example")
+my_layout = Container([page_title, bsdos_component.layout()])
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
