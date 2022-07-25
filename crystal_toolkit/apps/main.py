@@ -389,7 +389,7 @@ master_layout = Container(
                                 ),
                                 action_div,
                             ],
-                            style={"width": box_size, "max-width": box_size},
+                            style={"width": box_size, "maxWidth": box_size},
                         ),
                     ],
                     desktop_only=False,

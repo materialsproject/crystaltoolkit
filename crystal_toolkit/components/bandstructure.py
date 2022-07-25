@@ -2,25 +2,23 @@ import itertools
 
 import numpy as np
 import plotly.graph_objs as go
-import plotly.subplots as tls
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
 from dash_mp_components import CrystalToolkitScene
-from pymatgen.ext.matproj import MPRester
 from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.bandstructure import (
-    BandStructureSymmLine,
     BandStructure,
+    BandStructureSymmLine,
 )
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import BSPlotter, fold_point
+from pymatgen.ext.matproj import MPRester
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
-from crystal_toolkit.core.scene import Scene, Lines, Spheres, Convex, Cylinders
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
 from crystal_toolkit.helpers.layouts import *
 
 # Author: Jason Munro
@@ -62,7 +60,7 @@ class BandstructureAndDosComponent(MPComponent):
         fig = BandstructureAndDosComponent.get_figure(bs, dos)
         # Main plot
         graph = Loading(
-            [dcc.Graph(figure=fig, config={"displayModeBar": False}, responsive=True,)],
+            [dcc.Graph(figure=fig, config={"displayModeBar": False}, responsive=True)],
             id=self.id("bsdos-div"),
         )
 
@@ -85,13 +83,13 @@ class BandstructureAndDosComponent(MPComponent):
                     options=[
                         {"label": "Latimer-Munro", "value": "lm"},
                         {"label": "Hinuma et al.", "value": "hin"},
-                        {"label": "Setyawan-Curtarolo", "value": "sc",},
+                        {"label": "Setyawan-Curtarolo", "value": "sc"},
                     ],
                 )
             ],
             style={"width": "200px"}
             if show_path_options
-            else {"max-width": "200", "display": "none"},
+            else {"maxWidth": "200", "display": "none"},
             id=self.id("path-container"),
         )
 
@@ -106,7 +104,7 @@ class BandstructureAndDosComponent(MPComponent):
                     options=[
                         {"label": "Latimer-Munro", "value": "lm"},
                         {"label": "Hinuma et al.", "value": "hin"},
-                        {"label": "Setyawan-Curtarolo", "value": "sc",},
+                        {"label": "Setyawan-Curtarolo", "value": "sc"},
                     ],
                 )
             ],
@@ -425,23 +423,26 @@ class BandstructureAndDosComponent(MPComponent):
                     ].replace(key, str_replace[key])
 
         # Vertical lines for disjointed segments
-        for dist_val, tick_label in zip(bs_data["ticks"]["distance"], bs_data["ticks"]["label"]): 
+        for dist_val, tick_label in zip(
+            bs_data["ticks"]["distance"], bs_data["ticks"]["label"]
+        ):
             vert_trace = [
-                    {
-                        "x": [dist_val, dist_val],
-                        "y": energy_window,
-                        "mode": "lines",
-                        "marker": {"color": "#F5F5F5" if "|" not in tick_label else "white"},
-                        "line": {"width": 0.5 if "|" not in tick_label else 2},
-                        "hoverinfo": "skip",
-                        "showlegend": False,
-                        "xaxis": "x",
-                        "yaxis": "y",
-                    } 
-                ]
-    
-            bstraces += vert_trace
+                {
+                    "x": [dist_val, dist_val],
+                    "y": energy_window,
+                    "mode": "lines",
+                    "marker": {
+                        "color": "#F5F5F5" if "|" not in tick_label else "white"
+                    },
+                    "line": {"width": 0.5 if "|" not in tick_label else 2},
+                    "hoverinfo": "skip",
+                    "showlegend": False,
+                    "xaxis": "x",
+                    "yaxis": "y",
+                }
+            ]
 
+            bstraces += vert_trace
 
         # Dots for cbm and vbm
 
@@ -681,7 +682,7 @@ class BandstructureAndDosComponent(MPComponent):
             ticks="inside",
             linewidth=2,
             tickwidth=2,
-            range=[-rmax * 1.1 * int(len(bs_data["energy"].keys()) == 2), rmax * 1.1,],
+            range=[-rmax * 1.1 * int(len(bs_data["energy"].keys()) == 2), rmax * 1.1],
             linecolor="rgb(71,71,71)",
             gridcolor="white",
             zerolinecolor="white",
@@ -801,7 +802,7 @@ class BandstructureAndDosComponent(MPComponent):
             else:
 
                 label_value = path_convention
-                label_style = {"max-width": "200"}
+                label_style = {"maxWidth": "200"}
 
                 return [label_value, label_style]
 
@@ -830,7 +831,7 @@ class BandstructureAndDosComponent(MPComponent):
                 )
 
                 path_options = [{"label": "N/A", "value": "sc"}]
-                path_style = {"max-width": "200", "display": "none"}
+                path_style = {"maxWidth": "200", "display": "none"}
 
                 return [dos_options, path_options, path_style]
             else:
@@ -852,7 +853,7 @@ class BandstructureAndDosComponent(MPComponent):
                     {"label": "Hinuma et al.", "value": "hin"},
                 ]
 
-                path_style = {"max-width": "200"}
+                path_style = {"maxWidth": "200"}
 
                 return [dos_options, path_options, path_style]
 
@@ -865,9 +866,7 @@ class BandstructureAndDosComponent(MPComponent):
                 Input(self.id("label-select"), "value"),
             ],
         )
-        def bs_dos_data(
-            data, path_convention, dos_select, label_select,
-        ):
+        def bs_dos_data(data, path_convention, dos_select, label_select):
 
             # Obtain bands to plot over and generate traces for bs data:
             energy_window = (-6.0, 10.0)

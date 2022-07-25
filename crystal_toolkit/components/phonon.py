@@ -646,7 +646,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             else:
 
                 label_value = path_convention
-                label_style = {"max-width": "200"}
+                label_style = {"maxWidth": "200"}
 
                 return [label_value, label_style]
 
@@ -675,7 +675,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 )
 
                 path_options = [{"label": "N/A", "value": "sc"}]
-                path_style = {"max-width": "200", "display": "none"}
+                path_style = {"maxWidth": "200", "display": "none"}
 
                 return [dos_options, path_options, path_style]
             else:
@@ -697,7 +697,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     {"label": "Hinuma et al.", "value": "hin"},
                 ]
 
-                path_style = {"max-width": "200"}
+                path_style = {"maxWidth": "200"}
 
                 return [dos_options, path_options, path_style]
 

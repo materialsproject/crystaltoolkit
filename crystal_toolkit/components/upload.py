@@ -42,8 +42,8 @@ class StructureMoleculeUploadComponent(MPComponent):
                 className="file-label",
             ),
             className="file is-boxed",
-            # TODO: CSS set sensible max-width, don't hard-code
-            style={"max-width": "312px"},
+            # TODO: CSS set sensible maxWidth, don't hard-code
+            style={"maxWidth": "312px"},
         )
 
         upload = html.Div(
