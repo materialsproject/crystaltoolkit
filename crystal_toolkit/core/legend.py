@@ -1,25 +1,20 @@
-from pymatgen.core.periodic_table import Specie, Element
-from pymatgen.core.structure import Molecule
-from pymatgen.core.structure import SiteCollection, Site
-from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.util.string import unicodeify_species
+import os
+import warnings
+from collections import defaultdict
+from itertools import chain
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+import numpy as np
+from matplotlib.cm import get_cmap
 from monty.json import MSONable
 from monty.serialization import loadfn
-
-from itertools import chain
-from collections import defaultdict
-
-from palettable.colorbrewer.qualitative import Set1_9, Set2_8
+from palettable.colorbrewer.qualitative import Set1_9
+from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
+from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.structure import Molecule, Site, SiteCollection
+from pymatgen.util.string import unicodeify_species
 from sklearn.preprocessing import LabelEncoder
-from matplotlib.cm import get_cmap
 from webcolors import html5_parse_legacy_color, html5_serialize_simple_color
-
-from typing import Union, Optional, Tuple, Dict, List, Any
-
-import warnings
-import numpy as np
-import os
 
 # element colors forked from pymatgen
 module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -74,7 +69,7 @@ class Legend(MSONable):
             "van_der_waals", "atomic_calculated", "uniform"
             cmap: only used if color_mode is set to a scalar site
             property, defines the matplotlib color map to use, by
-            default is blue-white-red for negative to postive values
+            default is blue-white-red for negative to positive values
             cmap_range: only used if color_mode is set to a scalar site
             property, defines the minimum and maximum values of the
             color scape
@@ -160,7 +155,7 @@ class Legend(MSONable):
                 comp.keys() for comp in site_collection.species_and_occu
             )
         )
-        all_elements = sorted([sp.as_dict()["element"] for sp in all_species])
+        all_elements = sorted(sp.as_dict()["element"] for sp in all_species)
 
         # thanks to https://doi.org/10.1038/nmeth.1618
         palette = [
@@ -170,7 +165,7 @@ class Legend(MSONable):
             (0, 158, 115),  #  3, bluish green
             (240, 228, 66),  # 4, yellow
             (0, 114, 178),  # 5, blue
-            (213, 94, 0),  # 6, vermillion
+            (213, 94, 0),  # 6, vermilion
             (204, 121, 167),  # 7, reddish purple
             (255, 255, 255),  #  8, white
         ]
@@ -240,13 +235,13 @@ class Legend(MSONable):
         for site_prop_name in site_prop_types.get("categorical", []):
 
             props = np.array(site_collection.site_properties[site_prop_name])
-            props[props == None] = "None"
+            props[props is None] = "None"
 
             le = LabelEncoder()
             le.fit(props)
             transformed_props = le.transform(props)
 
-            # if we have more categories than availiable colors,
+            # if we have more categories than available colors,
             # arbitrarily group some categories together
             if len(set(props)) > len(palette):
                 warnings.warn(

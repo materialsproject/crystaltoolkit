@@ -1,11 +1,7 @@
-# standard Dash imports
 import dash
-from dash import dcc
-from dash import html
-
-# import for this example
-from pymatgen.ext.matproj import MPRester
+from dash import dcc, html
 from pymatgen.analysis.phase_diagram import PhaseDiagram
+from pymatgen.ext.matproj import MPRester
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc

@@ -5,7 +5,7 @@ from collections import OrderedDict
 from itertools import chain, combinations_with_replacement
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Literal, Optional, Tuple, Union
 
 import numpy as np
 from dash import dash_table as dt
@@ -26,11 +26,6 @@ from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.helpers.layouts import H2, Field, dcc, html
 from crystal_toolkit.settings import SETTINGS
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 # TODO: make dangling bonds "stubs"? (fixed length)
 
@@ -598,7 +593,7 @@ class StructureMoleculeComponent(MPComponent):
 
         try:
             formula = Composition.from_dict(legend["composition"]).reduced_formula
-        except:
+        except Exception:
             # TODO: fix legend for Dummy Specie compositions
             formula = "Unknown"
 
@@ -652,7 +647,7 @@ class StructureMoleculeComponent(MPComponent):
                     else html.Span(part.strip())
                     for part in formula_parts
                 ]
-            except:
+            except Exception:
                 formula_components = list(map(str, composition.keys()))
 
         return H2(
@@ -1001,7 +996,7 @@ class StructureMoleculeComponent(MPComponent):
                             graph = MoleculeGraph.with_local_env_strategy(
                                 input, bonding_strategy, reorder=False
                             )
-                except:
+                except Exception:
                     # for some reason computing bonds failed, so let's not have any bonds(!)
                     if isinstance(input, Structure):
                         graph = StructureGraph.with_empty_graph(input)
