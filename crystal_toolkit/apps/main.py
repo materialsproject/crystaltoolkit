@@ -8,7 +8,6 @@ from urllib import parse
 from uuid import uuid4
 
 import dash
-import sentry_sdk
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -89,10 +88,6 @@ else:
 
 app.server.secret_key = str(uuid4())
 server = app.server
-
-# logging of errors
-if SETTINGS.SENTRY_DSN:
-    sentry_sdk.init(SETTINGS.SENTRY_DSN)
 
 # endregion
 ###########
