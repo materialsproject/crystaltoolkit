@@ -4,7 +4,7 @@ from robocrys import StructureCondenser, StructureDescriber
 from robocrys import __version__ as robocrys_version
 
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import MessageContainer, MessageBody, Loading
+from crystal_toolkit.helpers.layouts import Loading, MessageBody, MessageContainer
 
 
 class RobocrysComponent(PanelComponent):

@@ -1,5 +1,6 @@
-from crystal_toolkit.apps.examples.bandstructure import app
 import time
+
+from crystal_toolkit.apps.examples.bandstructure import app
 
 
 def test_bs(dash_duo):

@@ -1,14 +1,10 @@
-# standard Dash imports
 import dash
-from dash import dcc
-from dash import html
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
+from dash import dcc, html
+from dash.dependencies import Input, Output
 from dash_mp_components import JsonView
-
-# import for this example
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.ext.matproj import MPRester
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
@@ -19,8 +15,6 @@ app = dash.Dash()
 # create the Structure object
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-
-from pymatgen.ext.matproj import MPRester
 
 # create an input structure as an example
 structure = MPRester().get_structure_by_material_id("mp-804")
@@ -59,7 +53,8 @@ ctc.register_crystal_toolkit(app, layout=my_layout)
 
 
 @app.callback(
-    Output("structure_out", "data"), [Input(transformation_component.id(), "data")],
+    Output("structure_out", "data"),
+    [Input(transformation_component.id(), "data")],
 )
 def update_structure(struct):
     return struct

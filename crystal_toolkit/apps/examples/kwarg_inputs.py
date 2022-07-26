@@ -1,8 +1,7 @@
 import random
 
 import dash
-from dash import html, dcc, Input, Output
-
+from dash import Input, Output, dcc, html
 from dash.exceptions import PreventUpdate
 
 import crystal_toolkit.components as ctc

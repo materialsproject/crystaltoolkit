@@ -1,8 +1,8 @@
-from crystal_toolkit.components.transformations.core import TransformationComponent
-
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
 )
+
+from crystal_toolkit.components.transformations.core import TransformationComponent
 
 
 class AutoOxiStateDecorationTransformationComponent(TransformationComponent):
@@ -12,10 +12,10 @@ class AutoOxiStateDecorationTransformationComponent(TransformationComponent):
 
     @property
     def description(self):
-        return """Annotate the crystal structure with likely oxidation states 
-using a bond valence approach. This transformation can fail if it cannot find 
-a satisfactory combination of oxidation states, and might be slow for large 
-structures. 
+        return """Annotate the crystal structure with likely oxidation states
+using a bond valence approach. This transformation can fail if it cannot find
+a satisfactory combination of oxidation states, and might be slow for large
+structures.
 """
 
     @property
@@ -35,7 +35,7 @@ structures.
             label="Symmetry tolerance",
             kwarg_label="symm_tol",
             state=state,
-            help_str="""Symmetry tolerance used to determine which sites are 
+            help_str="""Symmetry tolerance used to determine which sites are
             symmetrically equivalent. Set to 0 to turn off symmetry.""",
             shape=(),
         )
@@ -60,10 +60,10 @@ structures.
             label="Distance scale factor",
             kwarg_label="distance_scale_factor",
             state=state,
-            help_str="""A scale factor to be applied. This is 
-            useful for scaling distances, esp in the case of 
-            calculation-relaxed structures, which may tend to under (GGA) or 
-            over bind (LDA). The default of 1.015 works for GGA. For 
+            help_str="""A scale factor to be applied. This is
+            useful for scaling distances, esp in the case of
+            calculation-relaxed structures, which may tend to under (GGA) or
+            over bind (LDA). The default of 1.015 works for GGA. For
             experimental structure, set this to 1.""",
             shape=(),
         )

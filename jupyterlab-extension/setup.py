@@ -4,14 +4,14 @@ crystaltoolkit-extension setup
 import json
 import os
 
+import setuptools
 from jupyter_packaging import (
-    create_cmdclass,
-    install_npm,
-    ensure_targets,
     combine_commands,
+    create_cmdclass,
+    ensure_targets,
+    install_npm,
     skip_if_exists,
 )
-import setuptools
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -43,7 +43,8 @@ cmdclass = create_cmdclass(
 )
 
 js_command = combine_commands(
-    install_npm(HERE, build_cmd="build:prod", npm=["jlpm"]), ensure_targets(jstargets),
+    install_npm(HERE, build_cmd="build:prod", npm=["jlpm"]),
+    ensure_targets(jstargets),
 )
 
 is_repo = os.path.exists(os.path.join(HERE, ".git"))
@@ -52,7 +53,7 @@ if is_repo:
 else:
     cmdclass["jsdeps"] = skip_if_exists(jstargets, js_command)
 
-with open("README.md", "r") as fh:
+with open("README.md") as fh:
     long_description = fh.read()
 
 setup_args = dict(
@@ -65,7 +66,7 @@ setup_args = dict(
     long_description_content_type="text/markdown",
     cmdclass=cmdclass,
     packages=setuptools.find_packages(),
-    install_requires=["jupyterlab>=3.0.0rc13,==3.*",],
+    install_requires=["jupyterlab>=3.0.0rc13,==3.*"],
     zip_safe=False,
     include_package_data=True,
     python_requires=">=3.6",

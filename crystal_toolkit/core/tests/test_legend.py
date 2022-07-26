@@ -1,7 +1,7 @@
-from crystal_toolkit.core.legend import Legend
-
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+
+from crystal_toolkit.core.legend import Legend
 
 
 class TestLegend:
@@ -171,3 +171,8 @@ class TestLegend:
         legend_from_dict = Legend.from_dict(legend_dict)
 
         assert legend.get_legend() == legend_from_dict.get_legend()
+
+    def test_get_tiling(self):
+        scene = self.struct.get_scene()
+        assert hasattr(scene, "lattice")
+        assert scene.lattice == [[5.0, 0, 0], [0, 5.0, 0], [0, 0, 5.0]]

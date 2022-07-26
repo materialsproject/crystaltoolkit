@@ -1,10 +1,9 @@
-from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import PRIMARY_COLOR, Reveal
+from crystal_toolkit.helpers.layouts import Reveal
 
 
 class PanelComponent(MPComponent):

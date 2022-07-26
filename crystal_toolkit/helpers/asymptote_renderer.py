@@ -11,9 +11,9 @@ import logging
 from itertools import chain
 
 from jinja2 import Environment
-
-from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.core.structure import Structure
+
 from crystal_toolkit.helpers.utils import update_object_args
 
 logger = logging.getLogger(__name__)
@@ -338,11 +338,11 @@ def asy_write_data(input_scene_comp, fstream):
 
     return
 
-    # TODO we can make the line solide for the forground and dashed for the background
+    # TODO we can make the line solide for the foreground and dashed for the background
     # This will require use to modify the way the line objects are generated
     # at each vertex in the unit cell, we can evaluate the sum of all three lattice vectors from the point
     # then the <vec_sum | vec_to_camera> for each vertex.  The smallest
-    # normalized vertex contians the three lines that should be dashed
+    # normalized vertex contains the three lines that should be dashed
 
 
 def filter_data(scene_data, fstream):

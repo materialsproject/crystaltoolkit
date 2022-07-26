@@ -4,7 +4,7 @@ from skimage import measure
 
 from crystal_toolkit.core.scene import Scene, Surface
 
-_ANGS2_TO_BOHR3 = 1.88973 ** 3
+_ANGS2_TO_BOHR3 = 1.88973**3
 
 
 def get_isosurface_scene(
@@ -41,7 +41,7 @@ def get_isosurface_scene(
     )
 
 
-def get_volumetric_scene(self, data_key="total", isolvl=0.5, step_size=3, **kwargs):
+def get_volumetric_scene(self, data_key="total", isolvl=0.02, step_size=3, **kwargs):
     """Get the Scene object which contains a structure and a isosurface components
 
     Args:

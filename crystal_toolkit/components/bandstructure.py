@@ -12,14 +12,24 @@ from pymatgen.electronic_structure.bandstructure import (
 )
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.plotter import BSPlotter, fold_point
+from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.ext.matproj import MPRester
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import (
+    Column,
+    Columns,
+    Label,
+    Loading,
+    MessageBody,
+    MessageContainer,
+    dcc,
+    get_data_list,
+    html,
+)
 
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov
@@ -497,8 +507,8 @@ class BandstructureAndDosComponent(MPComponent):
 
         dostraces = []
 
-        dos_max = np.abs((dos.energies - dos.efermi - energy_window[1])).argmin()
-        dos_min = np.abs((dos.energies - dos.efermi - energy_window[0])).argmin()
+        dos_max = np.abs(dos.energies - dos.efermi - energy_window[1]).argmin()
+        dos_min = np.abs(dos.energies - dos.efermi - energy_window[0]).argmin()
 
         # TODO: pymatgen should have a property here
         spin_polarized = len(dos.densities.keys()) == 2
@@ -540,7 +550,7 @@ class BandstructureAndDosComponent(MPComponent):
         dostraces.append(trace_tdos)
 
         ele_dos = dos.get_element_dos()
-        elements = [str(entry) for entry in ele_dos.keys()]
+        [str(entry) for entry in ele_dos.keys()]
 
         if dos_select == "ap":
             proj_data = ele_dos
@@ -761,18 +771,12 @@ class BandstructureAndDosComponent(MPComponent):
         def update_graph(traces):
 
             if traces == "error":
-                search_error = (
-                    MessageContainer(
-                        [
-                            MessageBody(
-                                dcc.Markdown(
-                                    "Band structure and density of states not available for this selection."
-                                )
-                            )
-                        ],
-                        kind="warning",
-                    ),
+                body = MessageBody(
+                    dcc.Markdown(
+                        "Band structure and density of states not available for this selection."
+                    )
                 )
+                search_error = MessageContainer([body], kind="warning")
                 return search_error
 
             if traces is None:
