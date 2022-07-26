@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from abc import abstractmethod
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from itertools import chain
 from json import dump
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 """
 This module gives a Python interface to generate JSON for the
@@ -30,7 +32,7 @@ class Primitive:
         raise NotImplementedError
 
     @property
-    def bounding_box(self) -> List[List[float]]:
+    def bounding_box(self) -> list[list[float]]:
         x, y, z = zip(*self.positions)
         return [[min(x), min(y), min(z)], [max(x), max(y), max(z)]]
 
@@ -44,10 +46,10 @@ class Scene:
 
     name: str  # name for the scene, does not have to be unique
     contents: list = field(default_factory=list)
-    origin: List[float] = field(default=(0, 0, 0))
+    origin: list[float] = field(default=(0, 0, 0))
     visible: bool = True
-    lattice: Optional[List[List[float]]] = None
-    _meta: Dict = None
+    lattice: list[list[float]] | None = None
+    _meta: dict | None = None
 
     def __add__(self, other):
         """
@@ -139,7 +141,7 @@ class Scene:
             dump(self.to_json(), f)
 
     @property
-    def bounding_box(self) -> List[List[float]]:
+    def bounding_box(self) -> list[list[float]]:
         """
         Returns the bounding box coordinates
         """
@@ -196,17 +198,17 @@ class Spheres(Primitive):
     and trigger and event
     """
 
-    positions: List[List[float]]
-    _animate: Optional[List[List[float]]] = None
-    color: Optional[str] = None
-    radius: Optional[float] = None
-    phiStart: Optional[float] = None
-    phiEnd: Optional[float] = None
+    positions: list[list[float]]
+    _animate: list[list[float]] | None = None
+    color: str | None = None
+    radius: float | None = None
+    phiStart: float | None = None
+    phiEnd: float | None = None
     type: str = field(default="spheres", init=False)  # private field
-    visible: bool = None
-    tooltip: str = None
+    visible: bool | None = None
+    tooltip: str | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
     @property
@@ -250,17 +252,17 @@ class Ellipsoids(Primitive):
     and trigger and event
     """
 
-    scale: List[float]
-    positions: List[List[float]]
-    rotate_to: List[List[float]]
-    _animate: Optional[List[List[float]]] = None
-    color: Optional[str] = None
-    phiStart: Optional[float] = None
-    phiEnd: Optional[float] = None
+    scale: list[float]
+    positions: list[list[float]]
+    rotate_to: list[list[float]]
+    _animate: list[list[float]] | None = None
+    color: str | None = None
+    phiStart: float | None = None
+    phiEnd: float | None = None
     type: str = field(default="ellipsoids", init=False)  # private field
-    visible: bool = None
+    visible: bool | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
     @property
@@ -312,15 +314,15 @@ class Cylinders(Primitive):
     and trigger and event
     """
 
-    positionPairs: List[List[List[float]]]
-    _animate: Optional[List[List[List[float]]]] = None
-    color: Optional[str] = None
-    radius: Optional[float] = None
+    positionPairs: list[list[list[float]]]
+    _animate: list[list[list[float]]] | None = None
+    color: str | None = None
+    radius: float | None = None
     type: str = field(default="cylinders", init=False)  # private field
-    visible: bool = None
-    tooltip: str = None
+    visible: bool | None = None
+    tooltip: str | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
     @property
@@ -342,7 +344,7 @@ class Cylinders(Primitive):
         )
 
     @property
-    def bounding_box(self) -> List[List[float]]:
+    def bounding_box(self) -> list[list[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
         return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
 
@@ -361,14 +363,14 @@ class Cubes(Primitive):
     and trigger and event
     """
 
-    positions: List[List[float]]
-    _animate: Optional[List[List[float]]] = None
-    color: Optional[str] = None
-    width: Optional[float] = None
+    positions: list[list[float]]
+    _animate: list[list[float]] | None = None
+    color: str | None = None
+    width: float | None = None
     type: str = field(default="cubes", init=False)  # private field
-    visible: bool = None
+    visible: bool | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
     @property
@@ -408,17 +410,17 @@ class Lines(Primitive):
     and trigger and event
     """
 
-    positions: List[List[float]]
-    _animate: Optional[List[List[float]]] = None
-    color: str = None
-    linewidth: float = None
-    scale: float = None
-    dashSize: float = None
-    gapSize: float = None
+    positions: list[list[float]]
+    _animate: list[list[float]] | None = None
+    color: str | None = None
+    linewidth: float | None = None
+    scale: float | None = None
+    dashSize: float | None = None
+    gapSize: float | None = None
     type: str = field(default="lines", init=False)  # private field
-    visible: bool = None
+    visible: bool | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
     @property
@@ -449,20 +451,20 @@ class Surface:
     Three.js renderer doesn't support nested transparent objects very well.
     """
 
-    positions: List[List[float]]
-    _animate: Optional[List[List[float]]] = None
-    normals: Optional[List[List[float]]] = None
-    color: str = None
-    opacity: float = None
+    positions: list[list[float]]
+    _animate: list[list[float]] | None = None
+    normals: list[list[float]] | None = None
+    color: str | None = None
+    opacity: float | None = None
     show_edges: bool = False
     type: str = field(default="surface", init=False)  # private field
-    visible: bool = None
+    visible: bool | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
     @property
-    def bounding_box(self) -> List[List[float]]:
+    def bounding_box(self) -> list[list[float]]:
         # Not used in the calculation of the bounding box
         return [[0, 0, 0], [0, 0, 0]]
 
@@ -477,18 +479,18 @@ class Convex:
     objects very well.
     """
 
-    positions: List[List[float]]
-    _animate: Optional[List[List[float]]] = None
-    color: str = None
-    opacity: float = None
+    positions: list[list[float]]
+    _animate: list[list[float]] | None = None
+    color: str | None = None
+    opacity: float | None = None
     type: str = field(default="convex", init=False)  # private field
-    visible: bool = None
+    visible: bool | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
     @property
-    def bounding_box(self) -> List[List[float]]:
+    def bounding_box(self) -> list[list[float]]:
         # Not used in the calculation of the bounding box
         return [[0, 0, 0], [0, 0, 0]]
 
@@ -508,16 +510,16 @@ class Arrows(Primitive):
     and trigger and event
     """
 
-    positionPairs: List[List[List[float]]]
-    _animate: Optional[List[List[List[float]]]] = None
-    color: Optional[str] = None
-    radius: Optional[float] = None
-    headLength: Optional[float] = None
-    headWidth: Optional[float] = None
+    positionPairs: list[list[list[float]]]
+    _animate: list[list[list[float]]] | None = None
+    color: str | None = None
+    radius: float | None = None
+    headLength: float | None = None
+    headWidth: float | None = None
     type: str = field(default="arrows", init=False)  # private field
-    visible: bool = None
+    visible: bool | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
     @property
@@ -539,7 +541,7 @@ class Arrows(Primitive):
         )
 
     @property
-    def bounding_box(self) -> List[List[float]]:
+    def bounding_box(self) -> list[list[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
         return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
 
@@ -551,12 +553,12 @@ class Label:
     """
 
     label: str
-    labelHover: str = None
-    position: List[List[float]] = None
+    labelHover: str | None = None
+    position: list[list[float]] = None
     type: str = field(default="labels", init=False)  # private field
-    visible: bool = None
+    visible: bool | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None
 
 
@@ -566,11 +568,11 @@ class Bezier:
     A tube shaped by Bézier control points.
     """
 
-    controlPoints: List[List[List[float]]] = None
-    color: List[str] = None
-    radius: List[float] = None
+    controlPoints: list[list[list[float]]] | None = None
+    color: list[str] | None = None
+    radius: list[float] | None = None
     type: str = field(default="bezier", init=False)  # private field
-    visible: bool = None
+    visible: bool | None = None
     clickable: bool = False
-    reference: Optional[str] = None
+    reference: str | None = None
     _meta: Any = None

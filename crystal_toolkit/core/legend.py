@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import os
 import warnings
 from collections import defaultdict
 from itertools import chain
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 from matplotlib.cm import get_cmap
@@ -41,11 +43,11 @@ class Legend(MSONable):
 
     def __init__(
         self,
-        site_collection: Union[SiteCollection, Site],
+        site_collection: SiteCollection | Site,
         color_scheme: str = "Jmol",
         radius_scheme: str = "uniform",
         cmap: str = "coolwarm",
-        cmap_range: Optional[Tuple[float, float]] = None,
+        cmap_range: tuple[float, float] | None = None,
     ):
         """
         Create a legend for a given SiteCollection to choose how to
@@ -137,7 +139,7 @@ class Legend(MSONable):
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(
         site_collection: SiteCollection,
-    ) -> Dict[str, Dict[str, Tuple[int, int, int]]]:
+    ) -> dict[str, dict[str, tuple[int, int, int]]]:
         """
         e.g. for a color scheme more appropriate for people with color blindness
 
@@ -217,7 +219,7 @@ class Legend(MSONable):
     @staticmethod
     def generate_categorical_color_scheme_on_the_fly(
         site_collection: SiteCollection, site_prop_types
-    ) -> Dict[str, Dict[str, Tuple[int, int, int]]]:
+    ) -> dict[str, dict[str, tuple[int, int, int]]]:
         """
         e.g. for Wykcoff
 
@@ -257,7 +259,7 @@ class Legend(MSONable):
 
         return color_scheme
 
-    def get_color(self, sp: Union[Specie, Element], site: Optional[Site] = None) -> str:
+    def get_color(self, sp: Specie | Element, site: Site | None = None) -> str:
         """
         Get a color to render a specific species. Optionally, you can provide
         a site for context, since ...
@@ -335,9 +337,7 @@ class Legend(MSONable):
 
         return html5_serialize_simple_color(color)
 
-    def get_radius(
-        self, sp: Union[Specie, Element], site: Optional[Site] = None
-    ) -> float:
+    def get_radius(self, sp: Specie | Element, site: Site | None = None) -> float:
 
         # allow manual override by user
         if site and "display_radius" in site.properties:
@@ -380,7 +380,7 @@ class Legend(MSONable):
         return radius
 
     @staticmethod
-    def analyze_site_props(site_collection: SiteCollection) -> Dict[str, List[str]]:
+    def analyze_site_props(site_collection: SiteCollection) -> dict[str, list[str]]:
         """
         Returns: A dictionary with keys "scalar", "matrix", "vector", "categorical"
         and values of a list of site property names corresponding to each type
@@ -400,7 +400,7 @@ class Legend(MSONable):
         return dict(site_prop_names)
 
     @staticmethod
-    def get_species_str(sp: Union[Specie, Element]) -> str:
+    def get_species_str(sp: Specie | Element) -> str:
         """
         Args:
             sp: Specie or Element
@@ -411,7 +411,7 @@ class Legend(MSONable):
         # and then move this to pymatgen string utils ...
         return unicodeify_species(str(sp))
 
-    def get_legend(self) -> Dict[str, Any]:
+    def get_legend(self) -> dict[str, Any]:
 
         # decide what we want the labels to be
         if self.color_scheme in ("Jmol", "VESTA", "accessible"):

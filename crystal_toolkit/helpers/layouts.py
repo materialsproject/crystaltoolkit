@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import warnings
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import dash_mp_components as mpc
@@ -235,7 +237,7 @@ class Tag(html.Div):
 
 
 class TagContainer(html.Div):
-    def __init__(self, tags: List[Tag], *args, **kwargs):
+    def __init__(self, tags: list[Tag], *args, **kwargs):
         _update_css_class(kwargs, "field is-grouped is-grouped-multiline")
         tags = [html.Div(tag, className="control") for tag in tags]
         super().__init__(tags, *args, **kwargs)
@@ -357,7 +359,7 @@ def get_tooltip(
     )
 
 
-def get_data_list(data: Dict[str, str]):
+def get_data_list(data: dict[str, str]):
     """
     Show a formatted table of data items.
     :param data: dictionary of label, value pairs
@@ -378,7 +380,7 @@ def get_data_list(data: Dict[str, str]):
     return html.Table([html.Tbody(contents)], className="table")
 
 
-def get_table(rows: List[List[Any]], header: Optional[List[str]] = None) -> html.Table:
+def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Table:
     """
     Create a HTML table from a list of elements.
     :param rows: list of list of cell contents

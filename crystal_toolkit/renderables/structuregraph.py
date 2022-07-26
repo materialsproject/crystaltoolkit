@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from itertools import combinations
-from typing import List, Optional
 
 import numpy as np
 from matplotlib.cm import get_cmap
@@ -87,8 +88,8 @@ def get_structure_graph_scene(
     color_edges_by_edge_weight=False,
     edge_weight_color_scale="coolwarm",
     explicitly_calculate_polyhedra_hull=False,
-    legend: Optional[Legend] = None,
-    group_by_site_property: Optional[str] = None,
+    legend: Legend | None = None,
+    group_by_site_property: str | None = None,
     bond_radius: float = 0.1,
 ) -> Scene:
 
@@ -198,7 +199,7 @@ def get_structure_graph_scene(
                 primitives[scene.name] += scene.contents
 
     if group_by_site_property:
-        atoms_scenes: List[Scene] = []
+        atoms_scenes: list[Scene] = []
         for k, v in grouped_atom_scene_contents.items():
             atoms_scenes.append(Scene(name=k, contents=v))
         primitives["atoms"] = atoms_scenes

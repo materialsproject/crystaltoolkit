@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import traceback
 import warnings
-from typing import List, Optional
 
 import dash
 import dash_daq as daq
@@ -133,7 +134,7 @@ class TransformationComponent(MPComponent):
 
         return container
 
-    def options_layouts(self, state=None, structure=None) -> List[html.Div]:
+    def options_layouts(self, state=None, structure=None) -> list[html.Div]:
         """
         Return a layout to change the transformation options (that is,
         that controls the args and kwargs that will be passed to pymatgen).
@@ -270,8 +271,8 @@ class TransformationComponent(MPComponent):
 class AllTransformationsComponent(MPComponent):
     def __init__(
         self,
-        transformations: Optional[List[str]] = None,
-        input_structure_component: Optional[MPComponent] = None,
+        transformations: list[str] | None = None,
+        input_structure_component: MPComponent | None = None,
         *args,
         **kwargs,
     ):

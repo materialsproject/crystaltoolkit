@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from collections import defaultdict
-from typing import Optional
 
 from pymatgen.core.structure import Molecule
 
@@ -7,7 +8,7 @@ from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.scene import Scene
 
 
-def get_scene_from_molecule(self, origin=None, legend: Optional[Legend] = None):
+def get_scene_from_molecule(self, origin=None, legend: Legend | None = None):
     """
     Create CTK objects for the lattice and sties
     Args:

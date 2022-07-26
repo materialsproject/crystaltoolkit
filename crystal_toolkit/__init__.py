@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import json
 import os as _os
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 # pleasant hack to support MSONable objects in Dash callbacks natively
 from monty.json import MSONable
@@ -30,7 +33,7 @@ MSONable.to_plotly_json = to_plotly_json
 
 
 # Populate the default values from the JSON file
-_DEFAULTS = defaultdict()
+_DEFAULTS: dict[str, Any] = defaultdict()
 default_js = _os.path.join(
     _os.path.join(_os.path.dirname(_os.path.abspath(__file__))), "./", "defaults.json"
 )
