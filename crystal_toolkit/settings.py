@@ -17,7 +17,8 @@ class Settings(BaseSettings):
     
     DEV_LOGIN_DISABLED: bool = True
     LOGIN_ENDPOINT: str = "https://profile.materialsproject.org/"
-    API_KEY: Optional[str]
+    API_KEY: Optional[str] = ""
+    API_EXTERNAL_ENDPOINT: str = "https://api.materialsproject.org"
 
     PERSISTENCE: bool = True
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"
