@@ -1,4 +1,5 @@
 import itertools
+from typing import Any
 
 import numpy as np
 import plotly.graph_objs as go
@@ -141,8 +142,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
             style={"width": "200px"},
         )
 
-        data_dict = self._get_data_list_dict(bs, dos)
-        table = get_data_list(data_dict)
+        summary_dict = self._get_data_list_dict(bs, dos)
+        summary_table = get_data_list(summary_dict)
 
         return {
             "graph": graph,
@@ -150,7 +151,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             "dos-select": dos_select,
             "label-select": label_select,
             "zone": zone,
-            "table": table,
+            "table": summary_table,
         }
 
     def layout(self):
@@ -178,7 +179,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
 
     @staticmethod
-    def _get_ph_bs_dos(data):
+    def _get_ph_bs_dos(
+        data: dict[str, Any] | None
+    ) -> tuple[PhononBandStructureSymmLine, CompletePhononDos]:
 
         data = data or {}
 
@@ -355,17 +358,42 @@ class PhononBandstructureAndDosComponent(MPComponent):
         return bs_traces, bs_data
 
     @staticmethod
-    def _get_data_list_dict(bs, dos):
+    def _get_data_list_dict(
+        bs: PhononBandStructureSymmLine, dos: CompletePhononDos
+    ) -> dict[str, str | bool | int]:
 
-        return {}
+        bs_minpoint, bs_min_freq = bs.min_freq()
+        min_freq_report = (
+            f"{bs_min_freq:.2f} THz at frac. coords. {bs_minpoint.frac_coords}"
+        )
+        if bs_minpoint.label is not None:
+            label = f" ({bs_minpoint.label})"
+            for orig, new in pretty_labels.items():
+                label = label.replace(orig, new)
+            min_freq_report += label
+
+        f" at q-point=${bs_minpoint.label}$ (frac. coords. = {bs_minpoint.frac_coords})"
+
+        summary_dict: dict[str, str | bool | int] = {
+            "Number of bands": f"{bs.nb_bands:,}",
+            "Number of q-points": f"{bs.nb_qpoints:,}",
+            # for NAC see https://phonopy.github.io/phonopy/formulation.html#non-analytical-term-correction
+            "Has NAC (see phonopy docs)": bs.has_nac,
+            "Has imaginary frequencies": bs.has_imaginary_freq(),
+            "Has eigen-displacements": bs.has_eigendisplacements,
+            "Min frequency": min_freq_report,
+            "max frequency": f"{max(dos.frequencies):.2f} THz",
+        }
+
+        return summary_dict
 
     @staticmethod
-    def get_ph_dos_traces(dos, freq_range):
+    def get_ph_dos_traces(dos: CompletePhononDos, freq_range: tuple[float, float]):
 
         dostraces = []
 
-        dos_max = np.abs((dos.frequencies - freq_range[1])).argmin()
-        dos_min = np.abs((dos.frequencies - freq_range[0])).argmin()
+        dos_max = np.abs(dos.frequencies - freq_range[1]).argmin()
+        dos_min = np.abs(dos.frequencies - freq_range[0]).argmin()
 
         tdos_label = "Total DOS"
 
@@ -574,6 +602,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
             if traces is None:
                 raise PreventUpdate
 
+            bs, dos = self._get_ph_bs_dos(self.initial_data["default"])
+
             figure = self.get_figure(bs, dos)
             graph = dcc.Graph(
                 figure=figure, config={"displayModeBar": False}, responsive=True
@@ -668,6 +698,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
             traces = []
 
+            bsml, density_of_states = self._get_ph_bs_dos(data)
+
             if self.bandstructure_symm_line:
                 bstraces = self.get_ph_bandstructure_traces(
                     bsml, freq_range=energy_window
@@ -687,6 +719,15 @@ class PhononBandstructureAndDosComponent(MPComponent):
             elements = [str(entry) for entry in ele_dos.keys()]
 
             return traces, elements
+
+        @app.callback(
+            Output(self.id("brillouin-zone"), "data"), Input(self.id(), "data")
+        )
+        def highlight_bz_on_hover_bs(data, dos_select, label_select):
+            """Highlight the corresponding point/edge of the Brillouin Zone when hover the band structure plot."""
+
+            # TODO: figure out what to return (CSS?) to highlight BZ edge/point
+            return
 
 
 class PhononBandstructureAndDosPanelComponent(PanelComponent):
