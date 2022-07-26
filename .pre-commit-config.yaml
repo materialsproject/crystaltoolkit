@@ -6,7 +6,7 @@ default_stages: [commit]
 default_install_hook_types: [pre-commit, commit-msg]
 
 # ignore generated doc and dependency lock files
-exclude: ^(docs/.+|.*lock.*)$
+exclude: ^(docs/.+|.*lock.*|.*\.(svg|js|css))$
 
 repos:
   - repo: https://github.com/PyCQA/isort
