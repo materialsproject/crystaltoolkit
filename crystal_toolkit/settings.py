@@ -23,8 +23,6 @@ class Settings(BaseSettings):
     PERSISTENCE: bool = True
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"
 
-    SENTRY_DSN: Optional[str] = None
-
     class Config:
         env_prefix = "CT_"
 
