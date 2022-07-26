@@ -1,13 +1,8 @@
-from typing import Optional
+from typing import Literal
 
 from pydantic import BaseSettings
 
 from crystal_toolkit import MODULE_PATH
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 
 class Settings(BaseSettings):
@@ -22,8 +17,6 @@ class Settings(BaseSettings):
 
     PERSISTENCE: bool = True
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"
-
-    SENTRY_DSN: Optional[str] = None
 
     class Config:
         env_prefix = "CT_"

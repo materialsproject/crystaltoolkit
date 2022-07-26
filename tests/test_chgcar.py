@@ -1,14 +1,10 @@
 import dash
 import dash_html_components as html
-import crystal_toolkit.components as ctc
 import numpy as np
-
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
 from pymatgen.io.vasp import Chgcar
-
 from skimage import measure
 
+import crystal_toolkit.components as ctc
 
 app = dash.Dash(__name__)
 

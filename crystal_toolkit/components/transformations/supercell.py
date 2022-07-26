@@ -1,15 +1,9 @@
-from dash import dcc
 from dash import html
-
-from dash.dependencies import Input, Output, State
-
-from crystal_toolkit.helpers.layouts import Label
-from crystal_toolkit.components.transformations.core import TransformationComponent
 from dash_mp_components import CrystalToolkitScene
-
-from crystal_toolkit.core.scene import Scene
-
 from pymatgen.transformations.standard_transformations import SupercellTransformation
+
+from crystal_toolkit.components.transformations.core import TransformationComponent
+from crystal_toolkit.core.scene import Scene
 
 
 class SupercellTransformationComponent(TransformationComponent):
@@ -23,10 +17,10 @@ class SupercellTransformationComponent(TransformationComponent):
 input lattice vectors a, b and c into transformed lattice vectors a', b' and c'.
 
 
-For example, to create a supercell with lattice vectors a'=2a, b'=2b, c'=2c enter a 
-scaling matrix [[2, 0, 0], [0, 2, 0], [0, 0, 2]] or to create a supercell with 
-lattice vectors a' = 2a+b, b' = 3b and c' = c enter a scaling matrix 
-[[2, 1, 0], [0, 3, 0], [0, 0, 1]]. All elements of the scaling matrix must be 
+For example, to create a supercell with lattice vectors a'=2a, b'=2b, c'=2c enter a
+scaling matrix [[2, 0, 0], [0, 2, 0], [0, 0, 2]] or to create a supercell with
+lattice vectors a' = 2a+b, b' = 3b and c' = c enter a scaling matrix
+[[2, 1, 0], [0, 3, 0], [0, 0, 1]]. All elements of the scaling matrix must be
 integers."""
 
     @property
@@ -41,7 +35,7 @@ integers."""
             label="Scaling matrix",
             kwarg_label="scaling_matrix",
             state=state,
-            help_str="""Scaling matrix that transforms 
+            help_str="""Scaling matrix that transforms
             input lattice vectors a, b and c into transformed lattice vectors a', b' and c'.""",
             shape=(3, 3),
         )

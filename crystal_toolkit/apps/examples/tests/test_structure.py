@@ -1,5 +1,6 @@
-from crystal_toolkit.apps.examples.structure import app
 import time
+
+from crystal_toolkit.apps.examples.structure import app
 
 
 def test_structure(dash_duo):

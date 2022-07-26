@@ -1,14 +1,26 @@
+from __future__ import annotations
+
 import json
 import os as _os
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 # pleasant hack to support MSONable objects in Dash callbacks natively
 from monty.json import MSONable
 
-from crystal_toolkit.renderables import *
+from crystal_toolkit.renderables import (
+    Lattice,
+    Molecule,
+    MoleculeGraph,
+    PhaseDiagram,
+    Site,
+    Structure,
+    StructureGraph,
+    VolumetricData,
+)
 
-__version__ = "2022.06.08"
+__version__ = "2022.07.25"
 
 MODULE_PATH = Path(__file__).parents[0]
 
@@ -21,7 +33,7 @@ MSONable.to_plotly_json = to_plotly_json
 
 
 # Populate the default values from the JSON file
-_DEFAULTS = defaultdict(lambda: None)
+_DEFAULTS: dict[str, Any] = defaultdict()
 default_js = _os.path.join(
     _os.path.join(_os.path.dirname(_os.path.abspath(__file__))), "./", "defaults.json"
 )
@@ -43,8 +55,8 @@ from the same environment you run \"jupyter lab\". \n
 This only works in Jupyter Lab 3.x or above.\n\n
 """
 
-    help_text_plotly = """If you see this text, the Plotly Jupyter Lab extension 
-is not installed, please consult Plotly documentation for information on how to 
+    help_text_plotly = """If you see this text, the Plotly Jupyter Lab extension
+is not installed, please consult Plotly documentation for information on how to
 install.
 """
 

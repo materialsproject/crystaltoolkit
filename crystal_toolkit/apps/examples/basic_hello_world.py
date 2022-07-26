@@ -1,7 +1,5 @@
-# standard Dash imports
 import dash
 from dash import html
-from dash import dcc
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc

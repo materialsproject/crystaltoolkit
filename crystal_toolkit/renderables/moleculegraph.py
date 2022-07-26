@@ -1,12 +1,9 @@
 from collections import defaultdict
-from itertools import combinations
 
-import numpy as np
 from pymatgen.analysis.graphs import MoleculeGraph
 
-from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.core.legend import Legend
-
+from crystal_toolkit.core.scene import Scene
 
 # TODO: fix Sam's bug (reorder)
 

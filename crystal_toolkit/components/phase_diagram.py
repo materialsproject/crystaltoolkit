@@ -1,19 +1,22 @@
-from typing import Optional
-
 import dash
-from dash import dcc
-from dash import html
 import dash_table
 import plotly.graph_objs as go
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
 from pymatgen.core.composition import Composition
+from pymatgen.ext.matproj import MPRester
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
+from crystal_toolkit.helpers.layouts import (
+    Button,
+    Column,
+    Columns,
+    MessageBody,
+    MessageContainer,
+)
 
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov
@@ -366,7 +369,7 @@ class PhaseDiagramComponent(MPComponent):
         for entry in pd.all_entries:
             try:
                 mpid = entry.entry_id
-            except:
+            except Exception:
                 mpid = entry.attribute  # accounting for custom entry
 
             try:
@@ -386,7 +389,7 @@ class PhaseDiagramComponent(MPComponent):
                     }
                 )
 
-            except:
+            except Exception:
                 data.append({})
         return data
 
@@ -662,7 +665,7 @@ class PhaseDiagramComponent(MPComponent):
                         comp, float(energy) * comp.num_atoms, attribute=attribute
                     )
                     entries.append(entry)
-                except:
+                except Exception:
                     continue
 
             if not entries:
@@ -758,7 +761,7 @@ class PhaseDiagramPanelComponent(PanelComponent):
     def description(self):
         return (
             "Display the compositional phase diagram for the"
-            " chemical system containing this structure (between 2–4 species)."
+            " chemical system containing this structure (between 2-4 species)."
         )
 
     def update_contents(self, new_store_contents, *args):

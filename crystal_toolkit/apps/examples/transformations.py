@@ -1,17 +1,13 @@
-# standard Dash imports
 import dash
 from dash import html
-from dash import dcc
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
+from dash.dependencies import Input, Output
+from dash_mp_components import JsonView
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.ext.matproj import MPRester
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
-from dash_mp_components import JsonView
-
-# import for this example
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
 
 # create Dash app as normal
 app = dash.Dash()
@@ -19,7 +15,6 @@ app = dash.Dash()
 # create the Structure object
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-from pymatgen.ext.matproj import MPRester
 
 # create an input structure as an example
 structure_component = ctc.StructureMoleculeComponent(
@@ -63,7 +58,10 @@ app.clientside_callback(
     }
     """,
     Output("json", "src"),
-    [Input(t.id(), "data") for t in transformation_component.transformations.values()],
+    [
+        Input(trafo.id(), "data")
+        for trafo in transformation_component.transformations.values()
+    ],
 )
 
 
