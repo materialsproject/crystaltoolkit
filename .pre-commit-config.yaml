@@ -41,9 +41,7 @@ repos:
       - id: check-case-conflict
       - id: check-symlinks
       - id: check-yaml
-      - id: destroyed-symlinks
       - id: end-of-file-fixer
-        exclude: ^assets/.+\.(svg|html)$
       - id: mixed-line-ending
       - id: trailing-whitespace
 
@@ -53,14 +51,6 @@ repos:
       - id: codespell
         stages: [commit, commit-msg]
         exclude_types: [csv, svg, html, yaml, jupyter]
-
-  - repo: local
-    hooks:
-      - id: svg-assets
-        name: SVG assets
-        entry: Files under assets/* must end in .(svg|html)
-        language: fail
-        files: ^assets/.*(?<!\.svg)(?<!\.html)$
 
   - repo: https://github.com/myint/autoflake
     rev: v1.4
