@@ -215,7 +215,7 @@ class MPComponent(ABC):
         MPComponent._all_id_basenames.add(id)
 
         self._id = id
-        self._all_ids = set()
+        self._all_ids: set[str] = set()
         self._stores = {}
         self._initial_data = {}
 
@@ -497,9 +497,9 @@ Sub-layouts:  \n{layouts}"""
 
         # arrange the input boxes in two dimensions (rows, columns)
         matrix_div_contents = []
-        for row_idx, columns in sorted(matrix_contents.items()):
+        for columns in sorted(matrix_contents.values()):
             row = []
-            for column_idx, element in sorted(columns.items()):
+            for element in sorted(columns.values()):
                 row.append(element)
             matrix_div_contents.append(html.Div(row))
 

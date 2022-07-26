@@ -240,7 +240,8 @@ class Ellipsoids(Primitive):
     :param scale: This is the scale to apply to the x,y and z axis of the ellipsoid prior to rotation to the target axes
     :param positions: This is a list of lists corresponding to the vector
     positions of the ellipsoids.
-    :param rotate_to: This is a list of vectors that specify the direction the major axis of the ellipsoid should point towards. The major axis is the z-axis: (0,0,1)
+    :param rotate_to: This is a list of vectors that specify the direction the major axis of the ellipsoid should point
+        towards. The major axis is the z-axis: (0,0,1)
     :param color: Ellipsoid color as a hexadecimal string, e.g. #ff0000
     :param phiStart: Start angle in radians if drawing only a section of the
     ellipsoid, defaults to 0
@@ -554,7 +555,7 @@ class Label:
 
     label: str
     labelHover: str | None = None
-    position: list[list[float]] = None
+    position: list[list[float]] | None = None
     type: str = field(default="labels", init=False)  # private field
     visible: bool | None = None
     clickable: bool = False

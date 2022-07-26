@@ -289,11 +289,13 @@ class StructureMoleculeComponent(MPComponent):
             """
             function (colorScheme, radiusStrategy, drawOptions, displayOptions) {
 
-                const newDisplayOptions = Object.assign({}, displayOptions);
+                const newDisplayOptions = {...displayOptions}
                 newDisplayOptions.color_scheme = colorScheme
                 newDisplayOptions.radius_strategy = radiusStrategy
                 newDisplayOptions.draw_image_atoms = drawOptions.includes('draw_image_atoms')
-                newDisplayOptions.bonded_sites_outside_unit_cell =  drawOptions.includes('bonded_sites_outside_unit_cell')
+                newDisplayOptions.bonded_sites_outside_unit_cell = drawOptions.includes(
+                    'bonded_sites_outside_unit_cell'
+                )
                 newDisplayOptions.hide_incomplete_bonds = drawOptions.includes('hide_incomplete_bonds')
 
                 return newDisplayOptions

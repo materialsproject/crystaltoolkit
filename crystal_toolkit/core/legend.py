@@ -427,7 +427,7 @@ class Legend(MSONable):
 
         # first get all our colors for different species
         for site in self.site_collection:
-            for sp, occu in site.species.items():
+            for sp in site.species:
                 legend[self.get_color(sp, site)].append(label(site, sp))
 
         legend = {k: ", ".join(sorted(list(set(v)))) for k, v in legend.items()}
