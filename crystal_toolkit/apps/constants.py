@@ -1,4 +1,7 @@
+from collections import defaultdict
 from monty.serialization import loadfn
+from crystal_toolkit import MODULE_PATH
+from pydash import set_, get
 
 APP_METADATA = loadfn(MODULE_PATH / "apps/app_metadata.yaml")
 
@@ -25,7 +28,9 @@ _MP_APP_CATEGORY_ORDER = [
     "Characterization",
     "Reference Data",
 ]
-            
+
+MP_APPS_BY_CATEGORY = defaultdict(list)
+
 MP_APPS_BY_CATEGORY = {
     category: MP_APPS_BY_CATEGORY[category] for category in _MP_APP_CATEGORY_ORDER
 }

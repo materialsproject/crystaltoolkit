@@ -1,11 +1,18 @@
-from crystal_toolkit import _DEFAULTS
 from flask import request, has_request_context
+from typing import Optional, Literal, Any
+from uuid import uuid4
 
 from dash import html
 from dash import dcc
 
-from crystal_toolkit.helpers.utils import is_url
+from mpcontribs.client import Client as MPContribsClient
+import dash_mp_components as mpc
+from monty.serialization import loadfn
+
+from crystal_toolkit import MODULE_PATH, _DEFAULTS
+from crystal_toolkit.settings import SETTINGS
 from crystal_toolkit.apps.constants import MP_APPS_BY_CATEGORY, APP_METADATA
+
 
 
 def update_object_args(d_args, object_name, allowed_args):
@@ -189,4 +196,122 @@ def get_apps_sidebar(current_app):
             className="mp-sidebar-items-container",
         ),
         className="mp-sidebar is-hidden-touch",
+    )
+
+def get_user_api_key(consumer=None) -> Optional[str]:
+    """
+    Get the api key that belongs to the current user
+    If running on localhost, api key is obtained from
+    the environment variable MP_API_KEY
+    """
+    if not consumer:
+        consumer = get_consumer()
+
+    if is_localhost():
+        return SETTINGS.API_KEY
+    elif is_logged_in_user(consumer):
+        return consumer["X-Consumer-Custom-Id"]
+    else:
+        return None
+    
+def get_contribs_client():
+    """
+    Get an instance of the MPContribsClient that will work
+    in either production or a dev environment.
+    Client uses MPCONTRIBS_API_HOST by default.
+    """
+    headers = get_consumer()
+
+    if is_localhost():
+        return MPContribsClient(apikey=get_user_api_key())
+    else:
+        return MPContribsClient(headers=headers)
+    
+def get_contribs_api_base_url(request_url=None, deployment="contribs"):
+    """Get the MPContribs API endpoint for a specific deployment"""
+    if is_localhost() and SETTINGS.API_EXTERNAL_ENDPOINT:
+        return f"https://{deployment}-api.materialsproject.org"
+
+    if has_request_context() and (not request_url):
+        request_url = request.url
+
+    return parse_request_url(request_url, f"{deployment}-api")
+
+def parse_request_url(request_url, subdomain):
+    parsed_url = urllib.parse.urlparse(request_url)
+    pre, suf = parsed_url.netloc.split("next-gen")
+    netloc = pre + subdomain + suf
+    scheme = "http" if netloc.startswith("localhost.") else "https"
+    base_url = f"{scheme}://{netloc}"
+    return base_url
+
+HELP_STRINGS = loadfn(MODULE_PATH / "apps/help.yaml")
+if SETTINGS.DEBUG_MODE:
+    for k, v in HELP_STRINGS.items():
+        if len(v["help"]) > 280:
+            # TODO: add a debug logger here instead
+            logger.debug(
+                f"⚠️ HELP STRING WARNING. Help for {k} is too long, please re-write: {v}"
+            )
+
+
+def get_box_title(title, id=None):
+    """
+    Convenience method to wrap box titles in H5 tags and
+    conditionally add a tooltip from HELP_STRINGS.
+    :param title: text that displays as title and maps to property in HELP_STRINGS
+    :return: H5 title with or without a tooltip
+    """
+    args = {}
+    if id is not None:
+        args["id"] = id
+
+    if title not in HELP_STRINGS:
+        return html.H5(title, className="title is-6 mb-2", **args)
+    else:
+        div = html.H5(
+            get_tooltip(
+                tooltip_label=HELP_STRINGS[title]["label"],
+                tooltip_text=HELP_STRINGS[title]["help"],
+                className="has-tooltip-multiline",
+            ),
+            className="title is-6 mb-2",
+            **args,
+        )
+        if link := HELP_STRINGS[title]["link"]:
+            div = html.A(div, href=link)
+        return div
+    
+def get_tooltip(
+    tooltip_label: Any,
+    tooltip_text: str,
+    underline: bool = True,
+    tooltip_id: str = "",
+    wrapper_class: str = None,
+    **kwargs,
+):
+    """
+    Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
+    This component uses react-tooltip under the hood.
+    :param tooltip_label: text or component to display and apply hover behavior to
+    :param tooltip_text: text to show on hover
+    :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
+    :param wrapper_class: class to add to the span that wraps all the returned tooltip components (label + content)
+    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props.
+    :return: html.Span
+    """
+    if not tooltip_id:
+        tooltip_id = uuid4().hex
+
+    tooltip_class = "tooltip-label" if underline else None
+    return html.Span(
+        [
+            html.Span(
+                tooltip_label,
+                className=tooltip_class,
+                **{"data-tip": True, "data-for": tooltip_id},
+            ),
+            mpc.Tooltip(tooltip_text, id=tooltip_id, **kwargs),
+        ],
+        className=wrapper_class,
     )
