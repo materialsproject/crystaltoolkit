@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 import dash
@@ -7,10 +6,12 @@ import plotly.io as pio
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from pymatgen.core import Structure
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from tqdm import tqdm
 
 import crystal_toolkit.components as ctc
+from crystal_toolkit.apps.examples.utils import (
+    load_and_store_matbench_dataset,
+    matbench_dielectric_desc,
+)
 from crystal_toolkit.settings import SETTINGS
 
 pio.templates.default = "plotly_white"
@@ -22,52 +23,11 @@ __email__ = "janosh@lbl.gov"
 
 """
 Run this app with:
-```
-python crystal_toolkit/apps/examples/matbench_dielectric_structure_on_hover.py
-```
-
-About the matbench_dielectric dataset:
-
-Intended use: Machine learning task to predict refractive index from structure.
-    All data from Materials Project. Removed entries having a formation energy (or energy
-    above the convex hull) more than 150meV and those having refractive indices less than
-    1 and those containing noble gases. Retrieved April 2, 2019.
-Input: Pymatgen Structure of the material
-Target variable: refractive index n (unitless)
-Entries: 636
-URL: https://ml.materialsproject.org/projects/matbench_dielectric
+    python crystal_toolkit/apps/examples/matbench_dielectric_structure_on_hover.py
 """
 
-data_path = os.path.join(os.path.dirname(__file__), "matbench_dielectric.json.gz")
 
-if os.path.isfile(data_path):
-    import pandas as pd
-
-    df_diel = pd.read_json(data_path)
-else:
-    try:
-        from matminer.datasets import load_dataset
-
-        df_diel = load_dataset("matbench_dielectric")
-
-        df_diel[["spg_symbol", "spg_num"]] = [
-            struct.get_space_group_info()
-            for struct in tqdm(df_diel.structure, desc="Getting space groups")
-        ]
-
-        df_diel["crystal_sys"] = [
-            SpacegroupAnalyzer(x).get_crystal_system() for x in df_diel.structure
-        ]
-
-        df_diel["volume"] = [x.volume for x in df_diel.structure]
-        df_diel["formula"] = [x.formula for x in df_diel.structure]
-
-        df_diel.to_json(data_path, default_handler=lambda x: x.as_dict())
-    except ImportError:
-        print(
-            "Matminer is not installed but needed to download a dataset. Run `pip install matminer`"
-        )
-
+df_diel = load_and_store_matbench_dataset("matbench_dielectric")
 
 plot_labels = {
     "crystal_sys": "Crystal system",
@@ -124,17 +84,17 @@ hover_click_dropdown = html.Div(
 struct_title = html.H2(
     "Try hovering on a point in the plot to see its corresponding structure",
     id="struct-title",
-    style=dict(position="absolute"),
+    style=dict(position="absolute", padding="1ex 1em"),
 )
 graph_structure_div = html.Div(
     [
         graph,
-        html.Div([struct_title, structure_component.layout(size="800px")]),
+        html.Div([struct_title, structure_component.layout()]),
     ],
     style=dict(display="flex", gap="2em"),
 )
 app.layout = html.Div(
-    [hover_click_dropdown, graph_structure_div],
+    [hover_click_dropdown, graph_structure_div, matbench_dielectric_desc],
     style=dict(margin="2em", padding="1em"),
 )
 ctc.register_crystal_toolkit(app=app, layout=app.layout)

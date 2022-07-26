@@ -1,7 +1,4 @@
-import os
-
 import dash
-import pandas as pd
 import plotly.io as pio
 from dash import dash_table, html
 from dash.dependencies import Input, Output
@@ -9,6 +6,10 @@ from pymatgen.core import Structure
 
 import crystal_toolkit.components as ctc
 import crystal_toolkit.helpers.layouts as ctl
+from crystal_toolkit.apps.examples.utils import (
+    load_and_store_matbench_dataset,
+    matbench_dielectric_desc,
+)
 from crystal_toolkit.settings import SETTINGS
 
 pio.templates.default = "plotly_white"
@@ -20,16 +21,10 @@ __email__ = "janosh@lbl.gov"
 
 """
 Run this app with:
-```
-python crystal_toolkit/apps/examples/matbench_dielectric_structure_on_hover.py
-```
+    python crystal_toolkit/apps/examples/matbench_dielectric_datatable_xrd.py
 """
 
-data_path = os.path.join(os.path.dirname(__file__), "matbench_dielectric.json.gz")
-
-assert os.path.isfile(data_path), "Data file not found"
-
-df_diel = pd.read_json(data_path)
+df_diel = load_and_store_matbench_dataset("matbench_dielectric")
 
 datatable_diel = dash_table.DataTable(
     data=df_diel.drop(columns="structure").round(2).to_dict("records"),
@@ -58,7 +53,7 @@ main_div = html.Div(
     [datatable_diel, structure_xrd_stacked],
     style=dict(margin="2em", display="flex", gap="2em", justifyContent="center"),
 )
-app.layout = html.Div([page_title, description, main_div])
+app.layout = html.Div([page_title, description, main_div, matbench_dielectric_desc])
 
 ctc.register_crystal_toolkit(app=app, layout=app.layout)
 
