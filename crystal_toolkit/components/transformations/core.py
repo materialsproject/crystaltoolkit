@@ -24,7 +24,7 @@ from crystal_toolkit.settings import SETTINGS
 class TransformationComponent(MPComponent):
     def __init__(self, input_structure_component_id: str, *args, **kwargs):
 
-        if self.__class__.__name__ != f"{self.transformation.__name__}Component":
+        if type(self).__name__ != f"{self.transformation.__name__}Component":
             # sanity check, enforcing conventions
             raise NameError(
                 f"Class has to be named corresponding to the underlying "
@@ -230,7 +230,7 @@ class TransformationComponent(MPComponent):
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
-            make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
+            make_name=lambda x: f"{type(self).__name__}_{x}_cached",
         )
         def update_transformation(enabled, states):
 

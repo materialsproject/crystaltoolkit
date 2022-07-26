@@ -207,7 +207,7 @@ class MPComponent(ABC):
         if id is None:
             # TODO: this could lead to duplicate ids and an error, but if
             # setting random ids, this could also lead to undefined behavior
-            id = f"{CT_NAMESPACE}{self.__class__.__name__}"
+            id = f"{CT_NAMESPACE}{type(self).__name__}"
         elif not id.startswith(CT_NAMESPACE):
             id = f"{CT_NAMESPACE}{id}"
         MPComponent._all_id_basenames.add(id)
@@ -228,7 +228,7 @@ class MPComponent(ABC):
             # callbacks generated as final step by crystal_toolkit_layout()
             self._callbacks_to_generate.add(self)
 
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(type(self).__name__)
 
     def id(
         self,
@@ -360,7 +360,7 @@ class MPComponent(ABC):
         )
 
     def __repr__(self):
-        return f"{self.id()}<{self.__class__.__name__}>"
+        return f"{self.id()}<{type(self).__name__}>"
 
     def __str__(self):
         ids = "\n".join(
@@ -371,7 +371,7 @@ class MPComponent(ABC):
             [f"* {layout}  " for layout in sorted(self._sub_layouts.keys())]
         )
 
-        return f"""{self.id()}<{self.__class__.__name__}>  \n
+        return f"""{self.id()}<{type(self).__name__}>  \n
 IDs:  \n{ids}  \n
 Stores:  \n{stores}  \n
 Sub-layouts:  \n{layouts}"""
@@ -764,7 +764,7 @@ Sub-layouts:  \n{layouts}"""
                 kwargs[k] = v.tolist()
 
         if SETTINGS.DEBUG_MODE:
-            print(self.__class__.__name__, "kwargs", kwargs)
+            print(type(self).__name__, "kwargs", kwargs)
 
         return kwargs
 
