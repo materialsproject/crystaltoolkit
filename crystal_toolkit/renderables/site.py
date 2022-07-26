@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from itertools import chain
-from typing import List, Optional
 
 import numpy as np
 from pymatgen.analysis.graphs import ConnectedSite
@@ -22,21 +23,21 @@ from crystal_toolkit.core.scene import (
 
 def get_site_scene(
     self,
-    connected_sites: List[ConnectedSite] = None,
+    connected_sites: list[ConnectedSite] = None,
     # connected_site_metadata: None,
     # connected_sites_to_draw,
-    connected_sites_not_drawn: List[ConnectedSite] = None,
+    connected_sites_not_drawn: list[ConnectedSite] = None,
     hide_incomplete_edges: bool = False,
-    incomplete_edge_length_scale: Optional[float] = 1.0,
-    connected_sites_colors: Optional[List[str]] = None,
-    connected_sites_not_drawn_colors: Optional[List[str]] = None,
-    origin: Optional[List[float]] = None,
+    incomplete_edge_length_scale: float | None = 1.0,
+    connected_sites_colors: list[str] | None = None,
+    connected_sites_not_drawn_colors: list[str] | None = None,
+    origin: list[float] | None = None,
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
     bond_radius: float = 0.1,
     draw_magmoms: bool = True,
     magmom_scale: float = 1.0,
-    legend: Optional[Legend] = None,
+    legend: Legend | None = None,
 ) -> Scene:
     """
 

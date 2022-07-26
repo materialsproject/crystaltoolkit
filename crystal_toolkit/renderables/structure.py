@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from itertools import combinations
-from typing import List, Optional
 
 import numpy as np
 from pymatgen.core.sites import PeriodicSite
@@ -60,8 +61,8 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
 
 def get_structure_scene(
     self,
-    origin: List[float] = None,
-    legend: Optional[Legend] = None,
+    origin: list[float] = None,
+    legend: Legend | None = None,
     draw_image_atoms: bool = True,
 ) -> Scene:
     """
