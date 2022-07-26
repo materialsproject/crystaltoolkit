@@ -514,7 +514,8 @@ class PhaseDiagramComponent(MPComponent):
                         css=[
                             {
                                 "selector": ".dash-cell div.dash-cell-value",
-                                "rule": "display: inline; white-space: inherit; overflow: inherit; text-overflow: inherit;",
+                                "rule": "display: inline; white-space: inherit; overflow: inherit; "
+                                "text-overflow: inherit;",
                             }
                         ],
                         style_cell_conditional=[

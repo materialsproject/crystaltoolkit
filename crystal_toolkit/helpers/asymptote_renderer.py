@@ -4,7 +4,8 @@ For creating publication quality plots
 Since ASY does not have the nested tree structure of threejs,
 we just have to traverse the tree and draw each material as we see them.
 
-TODO The code should also appends a set of special points at the end in case the user wants to add more "hand drawn" features to the plot
+TODO The code should also appends a set of special points at the end in case the user wants to add
+more "hand drawn" features to the plot
 
 """
 import logging

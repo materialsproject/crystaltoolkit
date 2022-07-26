@@ -1,10 +1,10 @@
 import dash
-import dash_html_components as html
 import numpy as np
 from pymatgen.io.vasp import Chgcar
 from skimage import measure
 
 import crystal_toolkit.components as ctc
+import crystal_toolkit.core.scene as cts
 
 app = dash.Dash(__name__)
 
@@ -39,11 +39,11 @@ vertices = vertices
 pos = [vert for triangle in vertices[faces].tolist() for vert in triangle]
 
 add_comp = [
-    ctc.Scene(
+    cts.Scene(
         "test",
         contents=[
-            ctc.Surface(positions=pos),
-            ctc.Arrows(positionPairs=[[[0, 0, 0], [1, 1, 1]]]),
+            cts.Surface(positions=pos),
+            cts.Arrows(positionPairs=[[[0, 0, 0], [1, 1, 1]]]),
         ],
     )
 ]
@@ -57,9 +57,10 @@ struct_component = ctc.StructureMoleculeComponent(
 
 # for a custom-sized component, use `struct_component.struct_layout` and put
 # it inside a Div of the required size
-app.layout = html.Div(
+app.layout = dash.html.Div(
     [
-        ctc.MPComponent.all_app_stores(),  # not required in this minimal example, but usually necessary for interactivity
+        # not required in this minimal example but usually necessary for interactivity
+        ctc.MPComponent.all_app_stores(),
         struct_component.standard_layout,
     ]
 )

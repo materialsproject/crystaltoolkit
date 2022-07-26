@@ -339,7 +339,8 @@ def get_tooltip(
     :param tooltip_text: text to show on hover
     :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
     :param wrapper_class: class to add to the span that wraps all the returned tooltip components (label + content)
-    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props.
+    :param kwargs: additional props added to Tooltip component. See the components js file in
+        dash-mp-components for a full list of props.
     :return: html.Span
     """
     if not tooltip_id:
