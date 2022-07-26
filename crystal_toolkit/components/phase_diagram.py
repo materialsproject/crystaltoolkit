@@ -10,7 +10,13 @@ from pymatgen.ext.matproj import MPRester
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
+from crystal_toolkit.helpers.layouts import (
+    Button,
+    Column,
+    Columns,
+    MessageBody,
+    MessageContainer,
+)
 
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov
@@ -363,7 +369,7 @@ class PhaseDiagramComponent(MPComponent):
         for entry in pd.all_entries:
             try:
                 mpid = entry.entry_id
-            except:
+            except Exception:
                 mpid = entry.attribute  # accounting for custom entry
 
             try:
@@ -383,7 +389,7 @@ class PhaseDiagramComponent(MPComponent):
                     }
                 )
 
-            except:
+            except Exception:
                 data.append({})
         return data
 
@@ -659,7 +665,7 @@ class PhaseDiagramComponent(MPComponent):
                         comp, float(energy) * comp.num_atoms, attribute=attribute
                     )
                     entries.append(entry)
-                except:
+                except Exception:
                     continue
 
             if not entries:

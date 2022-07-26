@@ -1,9 +1,5 @@
-# standard Dash imports
 import dash
-from dash import dcc
 from dash import html
-
-# import for this example
 from pymatgen.ext.matproj import MPRester
 
 # standard Crystal Toolkit import
@@ -30,7 +26,7 @@ my_layout = html.Div(
         html.H1("PourbaixDiagramComponent Example"),
         html.Button("Get Pourbaix Diagram", id="get-pourbaix"),
         pourbaix_component.layout(),
-        html.Div(id="pourbaix-output")
+        html.Div(id="pourbaix-output"),
     ]
 )
 

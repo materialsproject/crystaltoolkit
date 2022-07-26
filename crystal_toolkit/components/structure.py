@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import warnings
 from base64 import b64encode
@@ -5,7 +7,7 @@ from collections import OrderedDict
 from itertools import chain, combinations_with_replacement
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Dict, Optional, Tuple, Union
+from typing import Literal
 
 import numpy as np
 from dash import dash_table as dt
@@ -27,14 +29,9 @@ from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.helpers.layouts import H2, Field, dcc, html
 from crystal_toolkit.settings import SETTINGS
 
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
-
 # TODO: make dangling bonds "stubs"? (fixed length)
 
-DEFAULTS = {
+DEFAULTS: dict[str, str | bool] = {
     "color_scheme": "VESTA",
     "bonding_strategy": "CrystalNN",
     "radius_strategy": "uniform",
@@ -90,16 +87,15 @@ class StructureMoleculeComponent(MPComponent):
 
     def __init__(
         self,
-        struct_or_mol: Optional[
-            Union[Structure, StructureGraph, Molecule, MoleculeGraph]
-        ] = None,
+        struct_or_mol: None
+        | (Structure | StructureGraph | Molecule | MoleculeGraph) = None,
         id: str = None,
         className: str = "box",
-        scene_additions: Optional[Scene] = None,
+        scene_additions: Scene | None = None,
         bonding_strategy: str = DEFAULTS["bonding_strategy"],
-        bonding_strategy_kwargs: Optional[dict] = None,
+        bonding_strategy_kwargs: dict | None = None,
         color_scheme: str = DEFAULTS["color_scheme"],
-        color_scale: Optional[str] = None,
+        color_scale: str | None = None,
         radius_strategy: str = DEFAULTS["radius_strategy"],
         unit_cell_choice: str = DEFAULTS["unit_cell_choice"],
         draw_image_atoms: bool = DEFAULTS["draw_image_atoms"],
@@ -108,8 +104,8 @@ class StructureMoleculeComponent(MPComponent):
         ],
         hide_incomplete_bonds: bool = DEFAULTS["hide_incomplete_bonds"],
         show_compass: bool = DEFAULTS["show_compass"],
-        scene_settings: Optional[Dict] = None,
-        group_by_site_property: Optional[str] = None,
+        scene_settings: dict | None = None,
+        group_by_site_property: str | None = None,
         show_legend: bool = DEFAULTS["show_legend"],
         show_settings: bool = DEFAULTS["show_settings"],
         show_controls: bool = DEFAULTS["show_controls"],
@@ -598,7 +594,7 @@ class StructureMoleculeComponent(MPComponent):
 
         try:
             formula = Composition.from_dict(legend["composition"]).reduced_formula
-        except:
+        except Exception:
             # TODO: fix legend for Dummy Specie compositions
             formula = "Unknown"
 
@@ -652,7 +648,7 @@ class StructureMoleculeComponent(MPComponent):
                     else html.Span(part.strip())
                     for part in formula_parts
                 ]
-            except:
+            except Exception:
                 formula_components = list(map(str, composition.keys()))
 
         return H2(
@@ -912,7 +908,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _preprocess_structure(
-        struct_or_mol: Union[Structure, StructureGraph, Molecule, MoleculeGraph],
+        struct_or_mol: Structure | StructureGraph | Molecule | MoleculeGraph,
         unit_cell_choice: Literal[
             "input", "primitive", "conventional", "reduced_niggli", "reduced_lll"
         ] = "input",
@@ -936,10 +932,10 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _preprocess_input_to_graph(
-        input: Union[Structure, StructureGraph, Molecule, MoleculeGraph],
+        input: Structure | StructureGraph | Molecule | MoleculeGraph,
         bonding_strategy: str = DEFAULTS["bonding_strategy"],
-        bonding_strategy_kwargs: Optional[Dict] = None,
-    ) -> Union[StructureGraph, MoleculeGraph]:
+        bonding_strategy_kwargs: dict | None = None,
+    ) -> StructureGraph | MoleculeGraph:
 
         if isinstance(input, Structure):
 
@@ -1001,7 +997,7 @@ class StructureMoleculeComponent(MPComponent):
                             graph = MoleculeGraph.with_local_env_strategy(
                                 input, bonding_strategy, reorder=False
                             )
-                except:
+                except Exception:
                     # for some reason computing bonds failed, so let's not have any bonds(!)
                     if isinstance(input, Structure):
                         graph = StructureGraph.with_empty_graph(input)
@@ -1012,8 +1008,8 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _get_struct_or_mol(
-        graph: Union[StructureGraph, MoleculeGraph, Structure, Molecule]
-    ) -> Union[Structure, Molecule]:
+        graph: StructureGraph | MoleculeGraph | Structure | Molecule,
+    ) -> Structure | Molecule:
         if isinstance(graph, StructureGraph):
             return graph.structure
         elif isinstance(graph, MoleculeGraph):
@@ -1025,7 +1021,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def get_scene_and_legend(
-        graph: Optional[Union[StructureGraph, MoleculeGraph]],
+        graph: StructureGraph | MoleculeGraph | None,
         color_scheme=DEFAULTS["color_scheme"],
         color_scale=None,
         radius_strategy=DEFAULTS["radius_strategy"],
@@ -1036,7 +1032,7 @@ class StructureMoleculeComponent(MPComponent):
         scene_additions=None,
         show_compass=DEFAULTS["show_compass"],
         group_by_site_property=None,
-    ) -> Tuple[Scene, Dict[str, str]]:
+    ) -> tuple[Scene, dict[str, str]]:
 
         scene = Scene(name="StructureMoleculeComponentScene")
 

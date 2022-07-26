@@ -1,4 +1,4 @@
-from pymatgen.analysis.phase_diagram import PhaseDiagram, PDPlotter
+from pymatgen.analysis.phase_diagram import PDPlotter, PhaseDiagram
 
 
 def get_plot(

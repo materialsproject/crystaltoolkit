@@ -1,25 +1,22 @@
-from pymatgen.core.periodic_table import Specie, Element
-from pymatgen.core.structure import Molecule
-from pymatgen.core.structure import SiteCollection, Site
-from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.util.string import unicodeify_species
+from __future__ import annotations
 
+import os
+import warnings
+from collections import defaultdict
+from itertools import chain
+from typing import Any
+
+import numpy as np
+from matplotlib.cm import get_cmap
 from monty.json import MSONable
 from monty.serialization import loadfn
-
-from itertools import chain
-from collections import defaultdict
-
-from palettable.colorbrewer.qualitative import Set1_9, Set2_8
+from palettable.colorbrewer.qualitative import Set1_9
+from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
+from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.structure import Molecule, Site, SiteCollection
+from pymatgen.util.string import unicodeify_species
 from sklearn.preprocessing import LabelEncoder
-from matplotlib.cm import get_cmap
 from webcolors import html5_parse_legacy_color, html5_serialize_simple_color
-
-from typing import Union, Optional, Tuple, Dict, List, Any
-
-import warnings
-import numpy as np
-import os
 
 # element colors forked from pymatgen
 module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -46,11 +43,11 @@ class Legend(MSONable):
 
     def __init__(
         self,
-        site_collection: Union[SiteCollection, Site],
+        site_collection: SiteCollection | Site,
         color_scheme: str = "Jmol",
         radius_scheme: str = "uniform",
         cmap: str = "coolwarm",
-        cmap_range: Optional[Tuple[float, float]] = None,
+        cmap_range: tuple[float, float] | None = None,
     ):
         """
         Create a legend for a given SiteCollection to choose how to
@@ -74,7 +71,7 @@ class Legend(MSONable):
             "van_der_waals", "atomic_calculated", "uniform"
             cmap: only used if color_mode is set to a scalar site
             property, defines the matplotlib color map to use, by
-            default is blue-white-red for negative to postive values
+            default is blue-white-red for negative to positive values
             cmap_range: only used if color_mode is set to a scalar site
             property, defines the minimum and maximum values of the
             color scape
@@ -142,7 +139,7 @@ class Legend(MSONable):
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(
         site_collection: SiteCollection,
-    ) -> Dict[str, Dict[str, Tuple[int, int, int]]]:
+    ) -> dict[str, dict[str, tuple[int, int, int]]]:
         """
         e.g. for a color scheme more appropriate for people with color blindness
 
@@ -160,7 +157,7 @@ class Legend(MSONable):
                 comp.keys() for comp in site_collection.species_and_occu
             )
         )
-        all_elements = sorted([sp.as_dict()["element"] for sp in all_species])
+        all_elements = sorted(sp.as_dict()["element"] for sp in all_species)
 
         # thanks to https://doi.org/10.1038/nmeth.1618
         palette = [
@@ -170,7 +167,7 @@ class Legend(MSONable):
             (0, 158, 115),  #  3, bluish green
             (240, 228, 66),  # 4, yellow
             (0, 114, 178),  # 5, blue
-            (213, 94, 0),  # 6, vermillion
+            (213, 94, 0),  # 6, vermilion
             (204, 121, 167),  # 7, reddish purple
             (255, 255, 255),  #  8, white
         ]
@@ -222,7 +219,7 @@ class Legend(MSONable):
     @staticmethod
     def generate_categorical_color_scheme_on_the_fly(
         site_collection: SiteCollection, site_prop_types
-    ) -> Dict[str, Dict[str, Tuple[int, int, int]]]:
+    ) -> dict[str, dict[str, tuple[int, int, int]]]:
         """
         e.g. for Wykcoff
 
@@ -240,13 +237,13 @@ class Legend(MSONable):
         for site_prop_name in site_prop_types.get("categorical", []):
 
             props = np.array(site_collection.site_properties[site_prop_name])
-            props[props == None] = "None"
+            props[props is None] = "None"
 
             le = LabelEncoder()
             le.fit(props)
             transformed_props = le.transform(props)
 
-            # if we have more categories than availiable colors,
+            # if we have more categories than available colors,
             # arbitrarily group some categories together
             if len(set(props)) > len(palette):
                 warnings.warn(
@@ -262,7 +259,7 @@ class Legend(MSONable):
 
         return color_scheme
 
-    def get_color(self, sp: Union[Specie, Element], site: Optional[Site] = None) -> str:
+    def get_color(self, sp: Specie | Element, site: Site | None = None) -> str:
         """
         Get a color to render a specific species. Optionally, you can provide
         a site for context, since ...
@@ -340,9 +337,7 @@ class Legend(MSONable):
 
         return html5_serialize_simple_color(color)
 
-    def get_radius(
-        self, sp: Union[Specie, Element], site: Optional[Site] = None
-    ) -> float:
+    def get_radius(self, sp: Specie | Element, site: Site | None = None) -> float:
 
         # allow manual override by user
         if site and "display_radius" in site.properties:
@@ -385,7 +380,7 @@ class Legend(MSONable):
         return radius
 
     @staticmethod
-    def analyze_site_props(site_collection: SiteCollection) -> Dict[str, List[str]]:
+    def analyze_site_props(site_collection: SiteCollection) -> dict[str, list[str]]:
         """
         Returns: A dictionary with keys "scalar", "matrix", "vector", "categorical"
         and values of a list of site property names corresponding to each type
@@ -405,7 +400,7 @@ class Legend(MSONable):
         return dict(site_prop_names)
 
     @staticmethod
-    def get_species_str(sp: Union[Specie, Element]) -> str:
+    def get_species_str(sp: Specie | Element) -> str:
         """
         Args:
             sp: Specie or Element
@@ -416,7 +411,7 @@ class Legend(MSONable):
         # and then move this to pymatgen string utils ...
         return unicodeify_species(str(sp))
 
-    def get_legend(self) -> Dict[str, Any]:
+    def get_legend(self) -> dict[str, Any]:
 
         # decide what we want the labels to be
         if self.color_scheme in ("Jmol", "VESTA", "accessible"):

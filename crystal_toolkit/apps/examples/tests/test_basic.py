@@ -1,12 +1,8 @@
-from crystal_toolkit.apps.examples.basic_hello_world import app as hello_world_app
-from crystal_toolkit.apps.examples.basic_hello_structure import (
-    app as hello_structure_app,
-)
+import time
+
 from crystal_toolkit.apps.examples.basic_hello_structure_interactive import (
     app as hello_structure_interactive_app,
 )
-
-import time
 
 #
 # def test_hello_scientist(dash_duo):

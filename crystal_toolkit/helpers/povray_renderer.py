@@ -3,7 +3,6 @@ Export wrapper for POV-Ray
 For creating publication quality plots
 """
 from jinja2 import Environment
-from crystal_toolkit.components.structure import StructureMoleculeComponent
 
 HEAD = """
 #version 3.7 ;
@@ -36,7 +35,7 @@ The arguments are: Atom( position, radius, color, finish )
 
 """
 
-CAMERA="""
+CAMERA = """
 /*
 Define the camera and the view of the atoms
 */
@@ -50,11 +49,11 @@ camera {
 
 """
 
-LIGHTS="""
+LIGHTS = """
 /*
 Define light sources to illuminate the atoms. For visualizing mediam
-media_interaction and media_attenuation are set to "off" so voxel 
-data is rendered to be transparent. Lights are automatically oriented 
+media_interaction and media_attenuation are set to "off" so voxel
+data is rendered to be transparent. Lights are automatically oriented
 with respect to the camera position.
 */
 
@@ -132,6 +131,7 @@ sphere {<{{val}}>, 0.02 texture {bbox} no_shadow}
 {% endfor %}
 """
 
+
 def pov_write_data(input_scene_comp, fstream):
     """
     parse a primitive display object in crystaltoolkit and print it to POV-Ray
@@ -144,10 +144,10 @@ def pov_write_data(input_scene_comp, fstream):
     if input_scene_comp["type"] == "spheres":
         # Render atoms
         positions = input_scene_comp["positions"]
-        positions = [vect.format( *pos ) for pos in positions]
+        positions = [vect.format(*pos) for pos in positions]
         color = input_scene_comp["color"].replace("#", "")
-        color = tuple(int(color[i:i+2], 16)/255. for i in (0, 2, 4))
-        color = "rgb<" + vect.format( *color ) + ">"
+        color = tuple(int(color[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
+        color = "rgb<" + vect.format(*color) + ">"
 
         fstream.write(
             Environment()
@@ -162,12 +162,12 @@ def pov_write_data(input_scene_comp, fstream):
     if input_scene_comp["type"] == "cylinders":
         # Render bonds between atoms
         posPairs = [
-            [vect.format( *ipos ), vect.format( *fpos )]
+            [vect.format(*ipos), vect.format(*fpos)]
             for ipos, fpos in input_scene_comp["positionPairs"]
         ]
         color = input_scene_comp["color"].replace("#", "")
-        color = tuple(int(color[i:i+2], 16)/255. for i in (0, 2, 4))
-        color = "rgb<" + vect.format( *color ) + ">"
+        color = tuple(int(color[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
+        color = "rgb<" + vect.format(*color) + ">"
         fstream.write(
             Environment()
             .from_string(TEMP_CYLINDER)
@@ -180,10 +180,16 @@ def pov_write_data(input_scene_comp, fstream):
             input_scene_comp["positions"][0::2],
             input_scene_comp["positions"][1::2],
         )
-        cylCaps = set( [ tuple(pos) for pos in input_scene_comp["positions"] ] )
-        cylCaps = [ vect.format( *pos ) for pos in cylCaps ]
-        posPairs = [[vect.format( *ipos ), vect.format( *fpos )] for ipos, fpos in zip(pos1, pos2)]
-        fstream.write(Environment().from_string(TEMP_LINE).render(posPairs=posPairs, cylCaps=cylCaps))
+        cylCaps = {tuple(pos) for pos in input_scene_comp["positions"]}
+        cylCaps = [vect.format(*pos) for pos in cylCaps]
+        posPairs = [
+            [vect.format(*ipos), vect.format(*fpos)] for ipos, fpos in zip(pos1, pos2)
+        ]
+        fstream.write(
+            Environment()
+            .from_string(TEMP_LINE)
+            .render(posPairs=posPairs, cylCaps=cylCaps)
+        )
 
 
 def filter_data(scene_data, fstream):
@@ -208,10 +214,11 @@ def write_pov_file(smc, file_name):
     filter_data(smc.initial_scene_data, fstream)
     fstream.close()
 
-    fstream = open('render.ini', 'w')
+    fstream = open("render.ini", "w")
     render_settings = get_render_settings()
-    fstream.write( render_settings )
+    fstream.write(render_settings)
     fstream.close()
+
 
 def get_render_settings(file_name):
     """
@@ -220,9 +227,9 @@ def get_render_settings(file_name):
 
     image_name = file_name[:-4] + ".png"
 
-    settings = """
-Input_File_Name = {:s}
-Output_File_Name = {:s}
+    settings = f"""
+Input_File_Name = {file_name}
+Output_File_Name = {image_name}
 Display = 1
 # -- Option to switch on the density
 Declare=render_density=0     # 0 = off, 1 = on
@@ -242,5 +249,5 @@ Declare=k=4
 Declare=ii=0
 Declare=jj=0
 Declare=kk=0
-""".format( file_name, image_name )
+"""
     return settings

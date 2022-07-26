@@ -1,8 +1,8 @@
-from crystal_toolkit.components.transformations.core import TransformationComponent
-
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
+
+from crystal_toolkit.components.transformations.core import TransformationComponent
 
 
 class CubicSupercellTransformationComponent(TransformationComponent):
@@ -14,7 +14,7 @@ class CubicSupercellTransformationComponent(TransformationComponent):
     def description(self):
         return """A transformation that aims to generate a nearly cubic supercell structure
 from a structure.
-        
+
 The algorithm solves for a transformation matrix that makes the supercell
 cubic. The matrix must have integer entries, so entries are rounded in such
 a way that forces the matrix to be nonsingular. From the supercell

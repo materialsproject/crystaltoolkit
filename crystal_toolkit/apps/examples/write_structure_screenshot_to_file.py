@@ -1,17 +1,15 @@
 # This example is used to write structures to images in an automated manner.
 # It is a very specific script! Not intended for general use.
 import urllib
-from time import sleep
 from pathlib import Path
+from time import sleep
 
 import dash
-from dash import html
-from dash import dcc
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import crystal_toolkit.components as ctc
-
 
 SCREENSHOT_PATH = Path.home() / "screenshots"
 

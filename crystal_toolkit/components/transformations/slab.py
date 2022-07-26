@@ -1,12 +1,7 @@
-from dash import dcc
 from dash import html
-
-from dash.dependencies import Input, Output, State
-
-from crystal_toolkit.helpers.layouts import Label
-from crystal_toolkit.components.transformations.core import TransformationComponent
-
 from pymatgen.transformations.advanced_transformations import SlabTransformation
+
+from crystal_toolkit.components.transformations.core import TransformationComponent
 
 
 class SlabTransformationComponent(TransformationComponent):
@@ -16,7 +11,7 @@ class SlabTransformationComponent(TransformationComponent):
 
     @property
     def description(self):
-        return """Create a slab from a structure, where a "slab" is a crystal 
+        return """Create a slab from a structure, where a "slab" is a crystal
 surface that is still periodic in all three dimensions but has a large artificial
 vacuum inserted so that the properties of the crystal surface can be studied.
 """

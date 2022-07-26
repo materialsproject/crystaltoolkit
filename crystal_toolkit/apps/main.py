@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 import logging
 import os
 import warnings
 from random import choice
 from time import time
-from typing import Optional
 from urllib import parse
 from uuid import uuid4
 
@@ -448,7 +449,7 @@ def update_search_term_on_page_load(href: str) -> str:
     [Input(search_component.id("input"), "value")],
     [State(search_component.id("input"), "n_submit")],
 )
-def perform_search_on_page_load(search_term: str, n_submit: Optional[int]):
+def perform_search_on_page_load(search_term: str, n_submit: int | None):
     """
     Loading with an mpid in the URL requires populating the search term with
     the mpid, this callback forces that search to then take place by force updating
@@ -468,7 +469,7 @@ def perform_search_on_page_load(search_term: str, n_submit: Optional[int]):
 
 
 @app.callback(Output("url", "pathname"), [Input(search_component.id(), "data")])
-def update_url_pathname_from_search_term(mpid: Optional[str]) -> str:
+def update_url_pathname_from_search_term(mpid: str | None) -> str:
     """
     Updates the URL from the search term. Technically a circular callback,
     this is done to prevent the app seeming inconsistent from the end user.
@@ -488,7 +489,7 @@ def update_url_pathname_from_search_term(mpid: Optional[str]) -> str:
     Output(transformation_component.id("input_structure"), "data"),
     [Input(search_component.id(), "data"), Input(upload_component.id(), "data")],
 )
-def master_update_structure(search_mpid: Optional[str], upload_data: Optional[str]):
+def master_update_structure(search_mpid: str | None, upload_data: dict | None):
     """
     A new structure is loaded either from the search component or from the
     upload component. This callback triggers the update, and uses the callback

@@ -1,28 +1,17 @@
-import dash
-from dash import dcc
-from dash import html
-import plotly.graph_objs as go
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
+import re
 
 import numpy as np
-import re
-from matplotlib.cm import get_cmap
-
+import plotly.graph_objs as go
+from dash import dcc, html
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
+from pymatgen.analysis.pourbaix_diagram import ELEMENTS_HO, PREFAC, PourbaixDiagram
+from pymatgen.core import Composition
 from pymatgen.util.string import unicodeify
 from shapely.geometry import Polygon
-from pymatgen.core import Composition, Element
-from pymatgen.ext.matproj import MPRester
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, ELEMENTS_HO, PREFAC
 
-from crystal_toolkit.helpers.layouts import (
-    MessageContainer,
-    MessageBody,
-)
 import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
-
 
 __author__ = "Joseph Montoya"
 __email__ = "joseph.montoya@tri.global"
@@ -389,7 +378,11 @@ class PourbaixDiagramComponent(MPComponent):
                 line = {"color": "Black", "width": 1}
 
             shape = go.layout.Shape(
-                type="path", path=path, fillcolor="rgba(0,0,0,0)", opacity=1, line=line,
+                type="path",
+                path=path,
+                fillcolor="rgba(0,0,0,0)",
+                opacity=1,
+                line=line,
             )
             shapes.append(shape)
 
@@ -466,9 +459,9 @@ class PourbaixDiagramComponent(MPComponent):
                 ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()
             ):
                 hovertext = [
-                    "∆G<sub>pbx</sub>={:.2f}".format(de_val),
-                    "ph={:.2f}".format(ph_val),
-                    "V={:.2f}".format(v_val),
+                    f"∆G<sub>pbx</sub>={de_val:.2f}",
+                    f"ph={ph_val:.2f}",
+                    f"V={v_val:.2f}",
                 ]
                 hovertext = "<br>".join(hovertext)
                 hovertexts.append(hovertext)
@@ -487,7 +480,10 @@ class PourbaixDiagramComponent(MPComponent):
                 z=decomposition_e,
                 x=list(ph_range),
                 y=list(v_range),
-                colorbar={"title": "∆G<sub>pbx</sub> (eV/atom)", "titleside": "right",},
+                colorbar={
+                    "title": "∆G<sub>pbx</sub> (eV/atom)",
+                    "titleside": "right",
+                },
                 colorscale=PourbaixDiagramComponent.colorscale,  # or magma
                 zmin=0,
                 zmax=1,
@@ -600,7 +596,10 @@ class PourbaixDiagramComponent(MPComponent):
 
     def layout(self):
         return html.Div(
-            children=[self._sub_layouts["options"], self._sub_layouts["graph"],]
+            children=[
+                self._sub_layouts["options"],
+                self._sub_layouts["graph"],
+            ]
         )
 
     def generate_callbacks(self, app, cache):
@@ -731,9 +730,9 @@ class PourbaixDiagramComponent(MPComponent):
                 formula = Composition(
                     comp.get_integer_formula_and_factor()[0]
                 ).reduced_formula
-            except:
+            except Exception:
                 return html.Small(
-                    f"Invalid composition selected.", style={"color": "red"}
+                    "Invalid composition selected.", style={"color": "red"}
                 )
 
             return html.Small(f"Pourbaix composition set to {unicodeify(formula)}.")
@@ -744,7 +743,10 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph"), "figure"),
-            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value"),],
+            [
+                Input(self.id(), "data"),
+                Input(self.get_all_kwargs_id(), "value"),
+            ],
         )
         def make_figure(pourbaix_entries, *args):
 
@@ -807,7 +809,10 @@ class PourbaixDiagramComponent(MPComponent):
                 comp_dict,
             )
 
-            fig = self.get_figure(pourbaix_diagram, heatmap_entry=heatmap_entry,)
+            fig = self.get_figure(
+                pourbaix_diagram,
+                heatmap_entry=heatmap_entry,
+            )
 
             return fig
 
