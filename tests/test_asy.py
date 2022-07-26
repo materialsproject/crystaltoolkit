@@ -1,8 +1,8 @@
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from crystal_toolkit.helpers.asymptote import write_asy_file
+from pymatgen.core.structure import Structure
+
 from crystal_toolkit.components.structure import StructureMoleculeComponent
-import os
+from crystal_toolkit.helpers.asymptote import write_asy_file
 
 example_struct = Structure.from_spacegroup(
     "P6_3mc",

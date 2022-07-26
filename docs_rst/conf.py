@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
 #
@@ -21,14 +20,14 @@ print(sys.path)
 
 # -- Project information -----------------------------------------------------
 
-project = u"Crystal Toolkit"
-copyright = u"2019, Crystal Toolkit Development Team"
-author = u"Crystal Toolkit Development Team"
+project = "Crystal Toolkit"
+copyright = "2019, Crystal Toolkit Development Team"
+author = "Crystal Toolkit Development Team"
 
 # The short X.Y version
-version = u""
+version = ""
 # The full version, including alpha/beta/rc tags
-release = u""
+release = ""
 
 
 # -- General configuration ---------------------------------------------------
@@ -70,7 +69,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = [u"_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
@@ -161,8 +160,8 @@ latex_documents = [
     (
         master_doc,
         "CrystalToolkit.tex",
-        u"Crystal Toolkit Documentation",
-        u"Crystal Toolkit Development Team",
+        "Crystal Toolkit Documentation",
+        "Crystal Toolkit Development Team",
         "manual",
     )
 ]
@@ -173,7 +172,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, "crystaltoolkit", u"Crystal Toolkit Documentation", [author], 1)
+    (master_doc, "crystaltoolkit", "Crystal Toolkit Documentation", [author], 1)
 ]
 
 
@@ -186,7 +185,7 @@ texinfo_documents = [
     (
         master_doc,
         "CrystalToolkit",
-        u"Crystal Toolkit Documentation",
+        "Crystal Toolkit Documentation",
         author,
         "CrystalToolkit",
         "One line description of project.",

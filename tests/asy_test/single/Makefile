@@ -1,4 +1,4 @@
-all: interact 
+all: interact
 
 interact:
 	asy  -V GaN.asy

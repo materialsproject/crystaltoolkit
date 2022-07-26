@@ -1,19 +1,17 @@
-from base64 import b64encode
-
-import dash
-from dash import dcc
-from dash import html
 import math
+
 import numpy as np
-from dash import callback_context
-from scipy.special import wofz
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output, State
+from dash import callback_context, dcc, html
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.diffraction.tem import TEMCalculator
+from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from scipy.special import wofz
 
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 
 # Scherrer equation:
 # Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years: a survey and some new results in the determination of crystallite size." Journal of applied crystallography 11.2 (1978): 102-113.
@@ -23,12 +21,6 @@ from pymatgen.analysis.diffraction.tem import TEMCalculator
 #    def __init__(self, symprec: float = None, voltage: float = 200,
 #                beam_direction: Tuple[int, int, int] = (0, 0, 1), camera_length: int = 160,
 #                debye_waller_factors: Dict[str, float] = None, cs: float = 1) -> None:
-
-from pymatgen.analysis.diffraction.xrd import XRDCalculator, WAVELENGTHS
-
-from crystal_toolkit.helpers.layouts import *
-from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
 
 
 # Author: Matthew McDermott
@@ -64,7 +56,10 @@ class TEMDiffractionComponent(MPComponent):
         return Columns(
             [
                 Column([Box(Loading(id=self.id("tem-plot")))], size=8),
-                Column([voltage, html.Br(), beam_direction], size=4,),
+                Column(
+                    [voltage, html.Br(), beam_direction],
+                    size=4,
+                ),
             ],
         )
 
@@ -146,7 +141,7 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def G(x, c, alpha):
-        """ Return c-centered Gaussian line shape at x with HWHM alpha """
+        """Return c-centered Gaussian line shape at x with HWHM alpha"""
         return (
             np.sqrt(np.log(2) / np.pi)
             / alpha
@@ -155,12 +150,12 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def L(x, c, gamma):
-        """ Return c-centered Lorentzian line shape at x with HWHM gamma """
-        return gamma / (np.pi * ((x - c) ** 2 + gamma ** 2))
+        """Return c-centered Lorentzian line shape at x with HWHM gamma"""
+        return gamma / (np.pi * ((x - c) ** 2 + gamma**2))
 
     @staticmethod
     def V(x, c, alphagamma):
-        """ Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
+        """Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
         alpha = 0.61065 * alphagamma
         gamma = 0.61065 * alphagamma
         sigma = alpha / np.sqrt(2 * np.log(2))
@@ -252,12 +247,13 @@ class XRayDiffractionComponent(MPComponent):
             kwarg_label="shape_factor",
             state=state,
             label="Shape Factor",
-            help_str="""The peak profile determines what distribute characterizes the broadening of an XRD pattern. 
-Two extremes are Gaussian distributions, which are useful for peaks with more rounded tops (typically due to strain 
-broadening) and Lorentzian distributions, which are useful for peaks with sharper top (typically due to size 
-distributions and dislocations). In reality, peak shapes usually follow a Voigt distribution, which is a convolution of 
-Gaussian and Lorentzian peak shapes, with the contribution to both Gaussian and Lorentzian components sample and instrument 
-dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
+            help_str="""The peak profile determines what distribute characterizes the broadening of
+an XRD pattern. Two extremes are Gaussian distributions, which are useful for peaks with more rounded tops
+(typically due to strain broadening) and Lorentzian distributions, which are useful for peaks with
+sharper top (typically due to size distributions and dislocations). In reality, peak shapes usually
+follow a Voigt distribution, which is a convolution of Gaussian and Lorentzian peak shapes, with the
+contribution to both Gaussian and Lorentzian components sample and instrument dependent. Here, both
+contributions are equally weighted if Voigt is chosen.""",
         )
 
         # Peak profile selector (Gaussian, Lorentzian, Voigt)
@@ -265,10 +261,11 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             kwarg_label="peak_profile",
             state=state,
             label="Peak Profile",
-            help_str="""The shape factor K, also known as the “Scherrer constant” is a dimensionless 
-        quantity to obtain an actual particle size from an apparent particle size determined from XRD. The discrepancy is 
-        because the shape of an individual crystallite will change the resulting diffraction broadening. Commonly, a value 
-        of 0.94 for isotropic crystals in a spherical shape is used. However, in practice K can vary from 0.62 to 2.08.""",
+            help_str="""The shape factor K, also known as the “Scherrer constant” is a
+dimensionless quantity to obtain an actual particle size from an apparent particle size
+determined from XRD. The discrepancy is because the shape of an individual crystallite
+will change the resulting diffraction broadening. Commonly, a value of 0.94 for isotropic
+crystals in a spherical shape is used. However, in practice K can vary from 0.62 to 2.08.""",
             options=[
                 {"label": "Gaussian", "value": "G"},
                 {"label": "Lorentzian", "value": "L"},
@@ -307,7 +304,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             "size.",
             domain=[-1, 2],
             step=0.01,
-            isLogScale=True
+            isLogScale=True,
         )
 
         static_image = self.get_figure_placeholder("xrd-plot")
@@ -385,7 +382,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             x_peak = data["x"]
             y_peak = data["y"]
             d_hkls = data["d_hkls"]
-            grain_size = 10 ** logsize
+            grain_size = 10**logsize
 
             hkl_list = [hkl[0]["hkl"] for hkl in data["hkls"]]
             hkls = [
@@ -406,7 +403,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
 
             # optimal number of points per degree determined through usage experiments
             if logsize > 1:
-                N_density = 150 * (logsize ** 4)  # scaled to log size to the 4th power
+                N_density = 150 * (logsize**4)  # scaled to log size to the 4th power
             else:
                 N_density = 150
 

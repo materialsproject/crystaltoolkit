@@ -1,8 +1,5 @@
-# standard Dash imports
 import dash
 from dash import html
-
-# import for this example
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 

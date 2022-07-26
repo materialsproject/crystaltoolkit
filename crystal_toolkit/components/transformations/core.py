@@ -1,19 +1,13 @@
+from __future__ import annotations
+
 import traceback
 import warnings
-from ast import literal_eval
-from collections import defaultdict
-from json import JSONDecodeError, loads
-from typing import Dict, List, Optional, Tuple, Union
 
 import dash
-from dash import dcc
 import dash_daq as daq
-from dash import html
-from dash import dash_table as dt
-import numpy as np
-from dash.dependencies import ALL, Input, Output, State
+from dash import dcc, html
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 from crystal_toolkit.core.mpcomponent import MPComponent
@@ -24,20 +18,14 @@ from crystal_toolkit.helpers.layouts import (
     MessageContainer,
     MessageHeader,
     Reveal,
-    add_label_help,
 )
 from crystal_toolkit.settings import SETTINGS
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 
 class TransformationComponent(MPComponent):
     def __init__(self, input_structure_component_id: str, *args, **kwargs):
 
-        if self.__class__.__name__ != f"{self.transformation.__name__}Component":
+        if type(self).__name__ != f"{self.transformation.__name__}Component":
             # sanity check, enforcing conventions
             raise NameError(
                 f"Class has to be named corresponding to the underlying "
@@ -146,7 +134,7 @@ class TransformationComponent(MPComponent):
 
         return container
 
-    def options_layouts(self, state=None, structure=None) -> List[html.Div]:
+    def options_layouts(self, state=None, structure=None) -> list[html.Div]:
         """
         Return a layout to change the transformation options (that is,
         that controls the args and kwargs that will be passed to pymatgen).
@@ -243,7 +231,7 @@ class TransformationComponent(MPComponent):
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
-            make_name=lambda x: f"{self.__class__.__name__}_{x}_cached",
+            make_name=lambda x: f"{type(self).__name__}_{x}_cached",
         )
         def update_transformation(enabled, states):
 
@@ -283,8 +271,8 @@ class TransformationComponent(MPComponent):
 class AllTransformationsComponent(MPComponent):
     def __init__(
         self,
-        transformations: Optional[List[str]] = None,
-        input_structure_component: Optional[MPComponent] = None,
+        transformations: list[str] | None = None,
+        input_structure_component: MPComponent | None = None,
         *args,
         **kwargs,
     ):

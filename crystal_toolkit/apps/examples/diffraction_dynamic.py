@@ -1,4 +1,3 @@
-# standard Dash imports
 import dash
 from dash.dependencies import Input, Output
 
