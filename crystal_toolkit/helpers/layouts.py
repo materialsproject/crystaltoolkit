@@ -369,14 +369,7 @@ def get_data_list(data: dict[str, str]):
     for title, value in data.items():
         if isinstance(title, str):
             title = Label(title)
-        contents.append(
-            html.Tr(
-                [
-                    html.Td(title, style={"vertical-align": "middle"}),
-                    html.Td(value, style={"vertical-align": "middle"}),
-                ]
-            )
-        )
+        contents.append(html.Tr([html.Td(title), html.Td(str(value))]))
     return html.Table([html.Tbody(contents)], className="table")
 
 

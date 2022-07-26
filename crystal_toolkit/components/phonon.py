@@ -23,6 +23,7 @@ from crystal_toolkit.helpers.layouts import (
     MessageContainer,
     get_data_list,
 )
+from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov
@@ -246,30 +247,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
         zone_lines = Lines(positions=lines)
         zone_surface = Convex(positions=lines, opacity=0.05, color="#000000")
 
-        # - Strip latex math wrapping for labels
-        # TODO: add to string utils in pymatgen
-        str_replace = {
-            "$": "",
-            "\\mid": "|",
-            "\\Gamma": "Γ",
-            "\\Sigma": "Σ",
-            "GAMMA": "Γ",
-            "_1": "₁",
-            "_2": "₂",
-            "_3": "₃",
-            "_4": "₄",
-            "_{1}": "₁",
-            "_{2}": "₂",
-            "_{3}": "₃",
-            "_{4}": "₄",
-            "^{*}": "*",
-        }
-
         labels = {}
         for k in bs.qpoints:
             if k.label:
-                for orig, new in str_replace.items():
-                    label = k.label.replace(orig, new)
+                label = k.label
+                for orig, new in pretty_labels.items():
+                    label = label.replace(orig, new)
                 labels[label] = bz_lattice.get_cartesian_coords(k.frac_coords)
         label_list = [
             Spheres(positions=[coords], tooltip=label, radius=0.03, color="#5EB1BF")
@@ -340,30 +323,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
             bs_traces += traces_for_segment
 
-        # - Strip latex math wrapping for labels
-        str_replace = {
-            "$": "",
-            "\\mid": "|",
-            "\\Gamma": "Γ",
-            "\\Sigma": "Σ",
-            "GAMMA": "Γ",
-            "_1": "₁",
-            "_2": "₂",
-            "_3": "₃",
-            "_4": "₄",
-            "_{1}": "₁",
-            "_{2}": "₂",
-            "_{3}": "₃",
-            "_{4}": "₄",
-            "^{*}": "*",
-        }
-
         for entry_num in range(len(bs_data["ticks"]["label"])):
-            for key in str_replace.keys():
+            for key in pretty_labels.keys():
                 if key in bs_data["ticks"]["label"][entry_num]:
                     bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
                         entry_num
-                    ].replace(key, str_replace[key])
+                    ].replace(key, pretty_labels[key])
 
         # Vertical lines for disjointed segments
         for dist_val, tick_label in zip(
