@@ -1,0 +1,84 @@
+[
+  {
+    "title":"Catalyst ID",
+    "selector": "identifier",
+    "formatType":"LINK",
+    "formatOptions" : {
+      "baseUrl": "/catalysis/",
+      "preserveQuery": true
+    },
+    "minWidth": "140px"
+  },
+  {
+    "title":"MPContribs ID",
+    "selector": "id",
+    "formatType":"LINK",
+    "formatOptions": {
+      "baseUrl": "https://contribs.materialsproject.org/contributions/",
+      "target": "_blank"
+    },
+    "minWidth": "130px",
+    "omit": true
+  },
+  {
+    "title":"Formula",
+    "selector": "formula",
+    "formatType":"FORMULA",
+    "minWidth": "150px"
+  },
+  {
+    "title":"Bulk Material ID",
+    "selector": "data.mpid",
+    "formatType":"LINK",
+    "formatOptions" : {
+      "baseUrl": "/materials/"
+    },
+    "minWidth": "130px"
+  },
+  {
+    "title":"Bulk Formula",
+    "selector": "data.bulkFormula",
+    "formatType":"FORMULA"
+  },
+  {
+    "title":"Adsorbate Smiles",
+    "selector": "data.adsorbateSmiles"
+  },
+  {
+    "title":"Adsorbate IUPAC Formula",
+    "selector": "data.adsorbateIUPACFormula"
+  },
+  {
+    "title":"Adsorption Energy",
+    "selector": "data.adsorptionEnergy.value",
+    "formatType":"FIXED_DECIMAL",
+    "formatOptions": {
+      "decimals": 3
+    },
+    "right": true
+  },
+  {
+    "title":"h",
+    "selector": "data.h.value",
+    "right": true
+  },
+  {
+    "title":"k",
+    "selector": "data.k.value",
+    "right": true
+  },
+  {
+    "title":"l",
+    "selector": "data.l.value",
+    "right": true
+  },
+  {
+    "title":"Surface Shift",
+    "selector": "data.surfaceShift.value",
+    "formatType":"FIXED_DECIMAL",
+    "formatOptions": {
+      "decimals": 3
+    },
+    "right": true
+  }
+]

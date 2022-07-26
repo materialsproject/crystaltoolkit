@@ -1,0 +1,98 @@
+[
+    {
+      "name": "Composition",
+      "filters": [
+        {
+          "name": "Bulk Formula",
+          "params": ["data__bulkFormula__exact"],
+          "type": "MATERIALS_INPUT",
+          "isSearchBarField": true,
+          "props": {
+            "type": "formula",
+            "periodicTableMode": "none",
+            "errorMessage": "Please enter a valid bulk formula (e.g. AlCu4).",
+            "helpItems": [
+              { "label": "Bulk Formula Examples" },
+              { "label": null, "examples": ["Ti2Pd3", "FeSi"] }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Adsorbate",
+      "filters": [
+        {
+          "name": "Adsorbate SMILES",
+          "params": ["data__adsorbateSmiles__exact"],
+          "type": "TEXT_INPUT"
+        },
+        {
+          "name": "Adsorbate IUPAC Formula",
+          "params": ["data__adsorbateIUPACFormula__exact"],
+          "type": "TEXT_INPUT"
+        }
+      ]
+    },
+    {
+      "name": "Surface",
+      "filters": [
+        {
+          "name": "Bulk Material ID",
+          "params": ["data__mpid__exact"],
+          "type": "TEXT_INPUT"
+        },
+        {
+          "name": "Formula",
+          "params": ["formula__exact"],
+          "type": "MATERIALS_INPUT",
+          "props": {
+            "type": "formula",
+            "periodicTableMode": "none",
+            "errorMessage": "Please enter a valid chemical formula (e.g. Al60H2O).",
+            "helpItems": [
+              { "label": "Formula Examples" },
+              { "label": null, "examples": ["Cr18H2CS36O", "Tc48CN"] }
+            ]
+          }
+        },
+        {
+          "name": "Miller index, h",
+          "params": ["data__h__value__gte", "data__h__value__lte"],
+          "type": "SLIDER",
+          "props": { "domain": [0, 2], "step": 1 }
+        },
+        {
+          "name": "Miller index, k",
+          "params": ["data__k__value__gte", "data__k__value__lte"],
+          "type": "SLIDER",
+          "props": { "domain": [-2, 2], "step": 1 }
+        },
+        {
+          "name": "Miller index, l",
+          "params": ["data__l__value__gte", "data__l__value__lte"],
+          "type": "SLIDER",
+          "props": { "domain": [-2, 2], "step": 1 }
+        },
+        {
+          "name": "Surface Shift",
+          "params": ["data__surfaceShift__value__gte", "data__surfaceShift__value__lte"],
+          "units": "Å",
+          "type": "SLIDER",
+          "props": { "domain": [0, 1], "step": 0.01 }
+        }
+      ]
+    },
+    {
+      "name": "Properties",
+      "filters": [
+        {
+          "name": "Adsorption Energy",
+          "params": ["data__adsorptionEnergy__value__gte", "data__adsorptionEnergy__value__lte"],
+          "units": "eV",
+          "type": "SLIDER",
+          "props": { "domain": [-10, 10], "step": 1 }
+        }
+      ]
+    }
+ ]

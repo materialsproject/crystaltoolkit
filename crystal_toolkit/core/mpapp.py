@@ -14,14 +14,14 @@ from dash import dcc
 from dash import html
 
 from crystal_toolkit import MODULE_PATH
-from crystall_toolkit.apps.constants import APP_METADATA, APP_TREE
+from crystal_toolkit.apps.constants import APP_METADATA, APP_TREE
 from crystal_toolkit.helpers.utils import (
     get_mp_app_icon,
     get_breadcrumb,
     is_logged_in,
-    get_login_endpoints
+    get_login_endpoints,
+    get_apps_sidebar
 )
-from mp_web.layouts.apps_sidebar import get_apps_sidebar
 
 #TODO: figure out what to do about this
 # _MAIN_CITATION = loadfn(MODULE_PATH / "pages/about/cite/main_citation.json")
@@ -112,7 +112,8 @@ class MPApp(MPComponent, ABC):
         return APP_METADATA.get(self.__class__.__name__, {}).get("icon", None)
 
     @property
-    def dois(self) -> ctl.List[str]:
+    # def dois(self) -> ctl.List[str]:
+    def dois(self):
         """
         :return: A list of DOI(s) to cite when using this app
         """
@@ -126,14 +127,16 @@ class MPApp(MPComponent, ABC):
         return APP_METADATA.get(self.__class__.__name__, {}).get("docs_url", None)
 
     @property
-    def external_links(self) -> ctl.List[Any]:
+    # def external_links(self) -> ctl.List[Any]:
+    def external_links(self):
         """
         :return: A list of external links to display with this app
         """
         return APP_METADATA.get(self.__class__.__name__, {}).get("external_links", None)
 
     @property
-    def child_apps(self) -> ctl.List[str]:
+    # def child_apps(self) -> ctl.List[str]:
+    def child_apps(self):
         """
         :return: A list of MPApp class names that are "children" (with respect to the
         URL) of this app
