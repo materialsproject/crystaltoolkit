@@ -281,12 +281,16 @@ footer = html.Footer(
     html.Div(
         [
             dcc.Markdown(
-                f"App created by [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors).  \n"
-                f"Bug reports and feature requests gratefully accepted, please send them to [@mkhorton](mailto:mkhorton@lbl.gov).  \n"
-                f"Powered by [The Materials Project](https://materialsproject.org), "
-                f"[pymatgen v{pmg_version}](http://pymatgen.org) and "
-                f"[Dash by Plotly](https://plot.ly/products/dash/). "
-                f"Deployed on [Spin](http://www.nersc.gov/users/data-analytics/spin/)."
+                f"""
+                App created by [Crystal Toolkit Development Team][contributors].\nBug reports and feature
+                requests gratefully accepted, please send them to [@mkhorton](mailto:mkhorton@lbl.gov).\n
+                Powered by [The Materials Project](https://materialsproject.org),
+                [pymatgen v{pmg_version}](http://pymatgen.org) and
+                [Dash by Plotly](https://plot.ly/products/dash/).
+                Deployed on [Spin](http://www.nersc.gov/users/data-analytics/spin/).
+
+                [contributors]: https://github.com/materialsproject/crystaltoolkit/graphs/contributors
+                """
             )
         ],
         className="content has-text-centered",
@@ -513,7 +517,7 @@ def master_update_structure(search_mpid: str | None, upload_data: dict | None):
         # triggered by both on initial load
         load_by = "mpid"
     elif (
-        dash.callback_context.triggered[0]["prop_id"] == search_component.id() + ".data"
+        dash.callback_context.triggered[0]["prop_id"] == f"{search_component.id()}.data"
     ):
         load_by = "mpid"
     else:

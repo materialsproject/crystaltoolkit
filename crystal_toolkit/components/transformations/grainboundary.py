@@ -91,7 +91,8 @@ to colour-code the top and bottom grains."""
             kwarg_label="expand_times",
             state=state,
             help_str="""The multiple number of times to expand one unit grain into a larger grain. This is
-            useful to avoid self-interaction issues when using the grain boundary as an input to further simulations.""",
+            useful to avoid self-interaction issues when using the grain boundary as an input to further
+            simulations.""",
             is_int=True,
             shape=(),
             min=1,

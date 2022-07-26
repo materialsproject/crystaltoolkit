@@ -13,8 +13,9 @@ from scipy.special import wofz
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 
-# Scherrer equation:
-# Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years: a survey and some new results in the determination of crystallite size." Journal of applied crystallography 11.2 (1978): 102-113.
+# Scherrer equation: Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years:
+# a survey and some new results in the determination of crystallite size." Journal of
+# applied crystallography 11.2 (1978): 102-113.
 # https://doi.org/10.1107/S0021889878012844
 
 
