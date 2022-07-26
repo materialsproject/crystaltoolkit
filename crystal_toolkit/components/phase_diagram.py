@@ -1,15 +1,12 @@
-from typing import Optional
-
 import dash
-from dash import dcc
-from dash import html
 import dash_table
 import plotly.graph_objs as go
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
 from pymatgen.core.composition import Composition
+from pymatgen.ext.matproj import MPRester
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
@@ -758,7 +755,7 @@ class PhaseDiagramPanelComponent(PanelComponent):
     def description(self):
         return (
             "Display the compositional phase diagram for the"
-            " chemical system containing this structure (between 2–4 species)."
+            " chemical system containing this structure (between 2-4 species)."
         )
 
     def update_contents(self, new_store_contents, *args):

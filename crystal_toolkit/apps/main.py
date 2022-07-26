@@ -1,6 +1,6 @@
 import logging
 import os
-from ast import literal_eval
+import warnings
 from random import choice
 from time import time
 from typing import Optional
@@ -9,17 +9,28 @@ from uuid import uuid4
 
 import dash
 import sentry_sdk
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from flask_caching import Cache
 from monty.serialization import loadfn
 from pymatgen.core import __version__ as pmg_version
-from pymatgen.ext.matproj import MPRester
+from pymatgen.ext.matproj import MPRester, MPRestError
 
 import crystal_toolkit.components as ctc
 from crystal_toolkit import __file__ as module_path
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import (
+    Box,
+    Column,
+    Columns,
+    Container,
+    Loading,
+    MessageBody,
+    MessageContainer,
+    MessageHeader,
+    Reveal,
+)
 from crystal_toolkit.settings import SETTINGS
 
 # choose a default structure on load
@@ -196,17 +207,17 @@ else:
     mp_panels = []
 
     mp_section = (
-        H3("Materials Project"),
+        html.H3("Materials Project"),
         html.Div([panel.panel_layout() for panel in mp_panels], id="mp_panels"),
     )
 
 
 body_layout = [
     html.Br(),
-    H3("Transform"),
+    html.H3("Transform"),
     html.Div([transformation_component.layout()]),
     html.Br(),
-    H3("Analyze"),
+    html.H3("Analyze"),
     html.Div([panel.panel_layout() for panel in panels], id="panels"),
     # html.Br(),
     # *mp_section,
@@ -270,7 +281,7 @@ if api_offline:
 ################################################################################
 
 
-footer = Footer(
+footer = html.Footer(
     html.Div(
         [
             dcc.Markdown(
@@ -317,7 +328,7 @@ master_layout = Container(
     [
         dcc.Location(id="url", refresh=False),
         banner,
-        Section(
+        html.Section(
             [
                 Columns(
                     [
@@ -398,7 +409,7 @@ master_layout = Container(
                 Columns([Column(body_layout)]),
             ]
         ),
-        Section(footer),
+        html.Section(footer),
     ]
 )
 
@@ -524,7 +535,7 @@ def master_update_structure(search_mpid: Optional[str], upload_data: Optional[st
             try:
                 struct = mpr.get_task_data(search_mpid, "structure")[0]["structure"]
                 print("Struct from task.")
-            except:
+            except MPRestError:
                 struct = mpr.get_structure_by_material_id(search_mpid)
                 print("Struct from material.")
     else:
