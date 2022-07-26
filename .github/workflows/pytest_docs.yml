@@ -50,4 +50,3 @@ jobs:
         PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
       run: |
         poetry run pytest --color=yes --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
-
