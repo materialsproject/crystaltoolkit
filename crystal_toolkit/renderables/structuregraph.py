@@ -1,17 +1,14 @@
 from collections import defaultdict
 from itertools import combinations
+from typing import List, Optional
 
 import numpy as np
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SymmetrizedStructure
-
-from crystal_toolkit.core.scene import Scene
-from crystal_toolkit.core.legend import Legend
-
 from matplotlib.cm import get_cmap
+from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.core.sites import PeriodicSite
 
-from typing import Optional, List
+from crystal_toolkit.core.legend import Legend
+from crystal_toolkit.core.scene import Scene
 
 
 def _get_sites_to_draw(
@@ -35,8 +32,8 @@ def _get_sites_to_draw(
 
             coord_permutations = [
                 x
-                for l in range(1, len(zero_elements) + 1)
-                for x in combinations(zero_elements, l)
+                for length in range(1, len(zero_elements) + 1)
+                for x in combinations(zero_elements, length)
             ]
 
             for perm in coord_permutations:
@@ -52,8 +49,8 @@ def _get_sites_to_draw(
 
             coord_permutations = [
                 x
-                for l in range(1, len(one_elements) + 1)
-                for x in combinations(one_elements, l)
+                for length in range(1, len(one_elements) + 1)
+                for x in combinations(one_elements, length)
             ]
 
             for perm in coord_permutations:

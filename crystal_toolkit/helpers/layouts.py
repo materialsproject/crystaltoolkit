@@ -1,12 +1,10 @@
-import os
 import warnings
-from typing import Any, Dict, List, Optional, Union
-
-from dash import dcc
-from dash import html
-from monty.serialization import dumpfn, loadfn
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
+
 import dash_mp_components as mpc
+from dash import dcc, html
+from monty.serialization import loadfn
 
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.settings import SETTINGS
@@ -339,7 +337,7 @@ def get_tooltip(
     :param tooltip_text: text to show on hover
     :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
     :param wrapper_class: class to add to the span that wraps all the returned tooltip components (label + content)
-    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props. 
+    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props.
     :return: html.Span
     """
     if not tooltip_id:
@@ -422,7 +420,7 @@ def cite_me(
 
 def add_label_help(input, label, help):
     """
-    Combine an input, label, and tooltip text into a 
+    Combine an input, label, and tooltip text into a
     single consistent component.
     """
     return mpc.FilterField(input, id=uuid4().hex, label=label, tooltip=help)

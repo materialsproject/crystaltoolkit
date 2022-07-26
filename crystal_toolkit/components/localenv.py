@@ -2,11 +2,10 @@ import itertools
 from multiprocessing import cpu_count
 from warnings import warn
 
-import plotly.express as px
+import dash_mp_components as mpc
 from dash import callback_context, dcc, html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-import dash_mp_components as mpc
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
@@ -63,7 +62,7 @@ def _get_local_order_parameters(structure_graph, n):
     the given site whose ideal CN corresponds to the
     underlying motif (e.g., CN=4, then calculate the
     square planar, tetrahedral, see-saw-like,
-    rectangular see-saw-like order paramters).
+    rectangular see-saw-like order parameters).
     Args:
         structure_graph: StructureGraph object
         n (int): site index.
@@ -483,7 +482,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 "data": [
                     {
                         "coloraxis": "coloraxis",
-                        #'hovertemplate': 'x: %{x}<br>y: %{y}<br>color: %{z}<extra></extra>',
+                        # 'hovertemplate': 'x: %{x}<br>y: %{y}<br>color: %{z}<extra></extra>',
                         "type": "heatmap",
                         "z": feature.tolist(),
                     }
@@ -537,9 +536,11 @@ class LocalEnvironmentPanel(PanelComponent):
 
             if not struct:
                 raise PreventUpdate
-                
+
             if not SOAP:
-                return mpc.Markdown("This feature will not work unless `dscribe` is installed on the server.")
+                return mpc.Markdown(
+                    "This feature will not work unless `dscribe` is installed on the server."
+                )
 
             struct = self.from_data(struct)
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
@@ -588,8 +589,9 @@ class LocalEnvironmentPanel(PanelComponent):
                 raise PreventUpdate
 
             if not SOAP:
-                return mpc.Markdown("This feature will not work unless `dscribe` is installed on the server.")
-
+                return mpc.Markdown(
+                    "This feature will not work unless `dscribe` is installed on the server."
+                )
 
             structs = {"input": self.from_data(struct)}
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)

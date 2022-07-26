@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import abstractmethod
 from collections import defaultdict
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from itertools import chain
 from json import dump
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
 """
 This module gives a Python interface to generate JSON for the
@@ -160,7 +160,7 @@ class Scene:
         :param primitives: list of primitives (Spheres, Cylinders, etc.)
         :return: list of primitives
         """
-        mergable = defaultdict(list)
+        mergeable = defaultdict(list)
         remainder = []
 
         for primitive in primitives:
@@ -168,11 +168,11 @@ class Scene:
                 primitive.contents = Scene.merge_primitives(primitive.contents)
                 remainder.append(primitive)
             elif isinstance(primitive, Primitive):
-                mergable[primitive.key].append(primitive)
+                mergeable[primitive.key].append(primitive)
             else:
                 remainder.append(primitive)
 
-        merged = [v[0].merge(v) for v in mergable.values()]
+        merged = [v[0].merge(v) for v in mergeable.values()]
 
         return merged + remainder
 
@@ -217,11 +217,6 @@ class Spheres(Primitive):
     def merge(cls, sphere_list):
         new_positions = list(
             chain.from_iterable([sphere.positions for sphere in sphere_list])
-        )
-        new__animate = list(
-            chain.from_iterable(
-                [sphere._animate for sphere in sphere_list if sphere._animate]
-            )
         )
         return cls(
             positions=new_positions,
@@ -338,11 +333,6 @@ class Cylinders(Primitive):
         new_positionPairs = list(
             chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
         )
-        new__animate = list(
-            chain.from_iterable(
-                [cylinder._animate for cylinder in cylinder_list if cylinder._animate]
-            )
-        )
 
         return cls(
             positionPairs=new_positionPairs,
@@ -389,9 +379,6 @@ class Cubes(Primitive):
     def merge(cls, cube_list):
         new_positions = list(
             chain.from_iterable([cube.positions for cube in cube_list])
-        )
-        new__animate = list(
-            chain.from_iterable([cube._animate for cube in cube_list if cube._animate])
         )
         return cls(
             positions=new_positions,
@@ -442,9 +429,6 @@ class Lines(Primitive):
     def merge(cls, line_list):
         new_positions = list(
             chain.from_iterable([line.positions for line in line_list])
-        )
-        new__animate = list(
-            chain.from_iterable([line._animate for line in line_list if line._animate])
         )
         return cls(
             positions=new_positions,
@@ -544,11 +528,6 @@ class Arrows(Primitive):
     def merge(cls, arrow_list):
         new_positionPairs = list(
             chain.from_iterable([arrow.positionPairs for arrow in arrow_list])
-        )
-        new__animate = list(
-            chain.from_iterable(
-                [arrow._animate for arrow in arrow_list if arrow._animate]
-            )
         )
         return cls(
             positionPairs=new_positionPairs,

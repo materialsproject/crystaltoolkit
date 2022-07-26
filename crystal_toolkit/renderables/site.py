@@ -1,24 +1,23 @@
+from itertools import chain
+from typing import List, Optional
+
 import numpy as np
+from pymatgen.analysis.graphs import ConnectedSite
 from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.core.sites import Site
+from pymatgen.electronic_structure.core import Magmom
 from scipy.spatial.qhull import Delaunay
 
-from crystal_toolkit.core.scene import (
-    Scene,
-    Cubes,
-    Spheres,
-    Cylinders,
-    Surface,
-    Convex,
-    Arrows,
-)
 from crystal_toolkit.core.legend import Legend
-
-from itertools import chain
-from pymatgen.core.sites import Site
-from pymatgen.analysis.graphs import ConnectedSite
-from pymatgen.electronic_structure.core import Magmom
-
-from typing import List, Optional
+from crystal_toolkit.core.scene import (
+    Arrows,
+    Convex,
+    Cubes,
+    Cylinders,
+    Scene,
+    Spheres,
+    Surface,
+)
 
 
 def get_site_scene(
@@ -100,7 +99,7 @@ def get_site_scene(
 
             name = str(sp)
             if occu != 1.0:
-                name += " ({}% occupancy)".format(occu)
+                name += f" ({occu}% occupancy)"
             name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
 
             if self.properties:
@@ -224,7 +223,7 @@ def get_site_scene(
                     # .vertex_neighbor_vertices = [1, 2, 3, 2, 3, 0, 1, 3, 0, 1, 2, 0]
 
                     vertices_indices = Delaunay(all_positions).convex_hull
-                except Exception as e:
+                except Exception:
                     vertices_indices = []
 
                 vertices = [

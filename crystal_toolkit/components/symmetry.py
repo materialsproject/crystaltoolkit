@@ -1,8 +1,7 @@
 from fractions import Fraction
 
-from dash import html
 import numpy as np
-from dash import callback_context
+from dash import callback_context, html
 from dash.dependencies import Input, Output
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

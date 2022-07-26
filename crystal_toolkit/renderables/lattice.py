@@ -1,8 +1,7 @@
 import numpy as np
-
-from crystal_toolkit.core.scene import Scene, Lines, Arrows, Spheres
-
 from pymatgen.core.lattice import Lattice
+
+from crystal_toolkit.core.scene import Arrows, Lines, Scene, Spheres
 
 
 def _axes_from_lattice(self, origin=None, scale=1, offset=0, **kwargs):

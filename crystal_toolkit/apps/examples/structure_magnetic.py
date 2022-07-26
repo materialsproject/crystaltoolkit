@@ -1,12 +1,7 @@
-# standard Dash imports
 import dash
-from dash import dcc
 from dash import html
-
-# import for this example
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.electronic_structure.core import Magmom
+from pymatgen.core.structure import Structure
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
