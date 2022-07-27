@@ -1,6 +1,10 @@
-# Troubleshooting
+# End-to-end Testing
 
-## Webdriver
+## Dependencies
+
+The tests in this folder need the dependencies specified in `tests/requirements.txt`, in particular `dash[testing]` and `selenium`.
+
+## Troubleshooting
 
 If you're seeing errors like
 
