@@ -358,7 +358,9 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         )
 
     @staticmethod
-    def get_figure(peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis):
+    def get_figure(
+        peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis
+    ):
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
         hkls = [
@@ -379,7 +381,9 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         # optimal number of points per degree determined through usage experiments
         if grain_size > 10:
-            N_density = 150 * (math.log10(grain_size) ** 4)  # scaled to log size to the 4th power
+            N_density = 150 * (
+                math.log10(grain_size) ** 4
+            )  # scaled to log size to the 4th power
         else:
             N_density = 150
 
@@ -403,20 +407,24 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
             G0 = getattr(XRayDiffractionComponent, peak_profile)(0, 0, alpha)
             for i, j in zip(range(lb, ub), range(lb, ub)):
-                y[j] += yp * getattr(XRayDiffractionComponent, peak_profile)(x[i], xp, alpha) / G0
+                y[j] += (
+                    yp
+                    * getattr(XRayDiffractionComponent, peak_profile)(x[i], xp, alpha)
+                    / G0
+                )
 
         layout = XRayDiffractionComponent.default_xrd_plot_style
 
         if x_axis == "Q":
-            x_peak = XRayDiffractionComponent.twotheta_to_q(x_peak, WAVELENGTHS[rad_source])
+            x_peak = XRayDiffractionComponent.twotheta_to_q(
+                x_peak, WAVELENGTHS[rad_source]
+            )
             x = XRayDiffractionComponent.twotheta_to_q(x, WAVELENGTHS[rad_source])
             layout["xaxis"]["title"] = "Q / Å⁻¹"
         else:
             layout["xaxis"]["title"] = "2𝜃 / º"
         layout["xaxis"]["range"] = [min(x), max(x)]
-        bar_width = 0.003 * (
-                max(x) - min(x)
-        )  # set width of bars to 0.5% of the domain
+        bar_width = 0.003 * (max(x) - min(x))  # set width of bars to 0.5% of the domain
 
         plotdata = [
             go.Bar(
@@ -462,13 +470,23 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             logsize = float(kwargs["crystallite_size"])
             x_axis = kwargs["x_axis"]
 
-            grain_size = 10 ** logsize
+            grain_size = 10**logsize
             x_peak = data["x"]
             y_peak = data["y"]
             d_hkls = data["d_hkls"]
             hkls = data["hkls"]
 
-            plot = self.get_figure(peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis)
+            plot = self.get_figure(
+                peak_profile,
+                K,
+                rad_source,
+                grain_size,
+                x_peak,
+                y_peak,
+                d_hkls,
+                hkls,
+                x_axis,
+            )
 
             return plot
 

@@ -715,7 +715,10 @@ class BandstructureAndDosComponent(MPComponent):
                 ticks="inside",
                 linewidth=2,
                 tickwidth=2,
-                range=[-rmax * 1.1 * int(len(dos.densities) == 2), rmax * 1.1,],
+                range=[
+                    -rmax * 1.1 * int(len(dos.densities) == 2),
+                    rmax * 1.1,
+                ],
                 linecolor="rgb(71,71,71)",
                 gridcolor="white",
                 zerolinecolor="white",

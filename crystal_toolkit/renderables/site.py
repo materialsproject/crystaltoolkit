@@ -159,7 +159,7 @@ def get_site_scene(
         all_positions = [self.coords]
 
         for idx, connected_site in enumerate(connected_sites):
-            
+
             connected_position = connected_site.site.coords
             bond_midpoint = np.add(position, connected_position) / 2
 
@@ -169,29 +169,30 @@ def get_site_scene(
                 color = site_color
 
             cylinders = []
-            if (connected_site.weight > 1):
+            if connected_site.weight > 1:
                 trans_vector = 0.0
                 for bond in range(connected_site.weight):
-                    pos_r_1 = [i+trans_vector for i in position]
-                    pos_r_2 = [i+trans_vector for i in bond_midpoint.tolist()]
-                    cylinders.append(Cylinders(
-                        positionPairs=[[pos_r_1, pos_r_2]],
-                        color=color,
-                        radius=bond_radius/2,
-                    ))
-                    trans_vector = trans_vector + 0.25*max_radius
+                    pos_r_1 = [i + trans_vector for i in position]
+                    pos_r_2 = [i + trans_vector for i in bond_midpoint.tolist()]
+                    cylinders.append(
+                        Cylinders(
+                            positionPairs=[[pos_r_1, pos_r_2]],
+                            color=color,
+                            radius=bond_radius / 2,
+                        )
+                    )
+                    trans_vector = trans_vector + 0.25 * max_radius
                 for cylinder in cylinders:
                     bonds.append(cylinder)
             else:
                 cylinder = Cylinders(
-                positionPairs=[[position, bond_midpoint.tolist()]],
-                color=color,
-                radius=bond_radius,
-            )
+                    positionPairs=[[position, bond_midpoint.tolist()]],
+                    color=color,
+                    radius=bond_radius,
+                )
                 bonds.append(cylinder)
-            
+
             all_positions.append(connected_position.tolist())
-        
 
         if connected_sites_not_drawn and not hide_incomplete_edges:
 
@@ -264,8 +265,6 @@ def get_site_scene(
         ],
         origin=origin,
     )
-
-    
 
 
 Site.get_scene = get_site_scene
