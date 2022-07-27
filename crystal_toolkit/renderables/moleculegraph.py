@@ -16,14 +16,15 @@ def get_molecule_graph_scene(
     draw_polyhedra=False,
 ) -> Scene:
 
+    vis_mol_graph = MoleculeGraph.with_local_env_strategy(self.molecule, OpenBabelNN())
     legend = legend or Legend(self.molecule)
 
     primitives = defaultdict(list)
 
     for idx, site in enumerate(self.molecule):
-
-        connected_sites = self.get_connected_sites(idx)
-
+       
+        connected_sites = vis_mol_graph.get_connected_sites(idx)
+       
         site_scene = site.get_scene(
             connected_sites=connected_sites,
             origin=origin,
@@ -33,7 +34,7 @@ def get_molecule_graph_scene(
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
-
+    
     return Scene(
         name=self.molecule.composition.reduced_formula,
         contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
