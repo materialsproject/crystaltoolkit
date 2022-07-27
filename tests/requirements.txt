@@ -3,7 +3,7 @@
 # pip install -r requirements.txt
 
 chromedriver-binary
-dash>=0.31.0
+dash[testing]>=0.31.0  # be sure to install dash with additional dependencies for testing
 dash-core-components
 dash-html-components
 dash-renderer
@@ -12,4 +12,3 @@ percy
 selenium
 flake8
 pylint
-pytest-dash>=1.0.1
