@@ -26,6 +26,5 @@ def test_bs(dash_duo):
     # time.sleep(3)
     # dash_duo.percy_snapshot("example_bsdos_projection_index_2")
 
-    assert (
-        bool(dash_duo.get_logs()) is False
-    ), f"Browser console contains an error: {dash_duo.get_logs()}"
+    logs = dash_duo.get_logs()
+    assert logs == [], f"Browser console should not contain errors: {logs}"
