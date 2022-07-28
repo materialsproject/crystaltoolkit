@@ -3,13 +3,12 @@
 # pip install -r requirements.txt
 
 chromedriver-binary
-dash>=0.31.0
+dash[testing]>=0.31.0  # be sure to install dash with additional dependencies for testing
 dash-core-components
 dash-html-components
 dash-renderer
 ipdb
 percy
-selenium
+selenium==4.2 # pin needed due to DashComposite AttributeError: 'WebDriver' object has no attribute 'find_element_by_css_selector' (see https://stackoverflow.com/a/72754667)
 flake8
 pylint
-pytest-dash>=1.0.1

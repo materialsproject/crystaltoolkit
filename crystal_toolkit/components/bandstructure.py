@@ -366,7 +366,7 @@ class BandstructureAndDosComponent(MPComponent):
                 ):
                     bands.append(band_num)
 
-        bstraces = []
+        bs_traces = []
 
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -420,7 +420,7 @@ class BandstructureAndDosComponent(MPComponent):
                     for i in bands
                 ]
 
-            bstraces += traces_for_segment
+            bs_traces += traces_for_segment
 
             bar_loc.append(dist_val[-1])
 
@@ -464,7 +464,7 @@ class BandstructureAndDosComponent(MPComponent):
             for x_point in bar_loc
         ]
 
-        bstraces += vert_traces
+        bs_traces += vert_traces
 
         # Dots for cbm and vbm
 
@@ -481,9 +481,7 @@ class BandstructureAndDosComponent(MPComponent):
                 "showlegend": False,
                 "hoverinfo": "text",
                 "name": "",
-                "hovertemplate": "CBM: k = {}, {} eV".format(
-                    list(cbm["kpoint"].frac_coords), cbm["energy"]
-                ),
+                "hovertemplate": f"CBM: k = {list(cbm['kpoint'].frac_coords)}, {cbm['energy']} eV",
                 "xaxis": "x",
                 "yaxis": "y",
             }
@@ -501,18 +499,16 @@ class BandstructureAndDosComponent(MPComponent):
                 "showlegend": False,
                 "hoverinfo": "text",
                 "name": "",
-                "hovertemplate": "VBM: k = {}, {} eV".format(
-                    list(vbm["kpoint"].frac_coords), vbm["energy"]
-                ),
+                "hovertemplate": f"VBM: k = {list(vbm['kpoint'].frac_coords)}, {vbm['energy']} eV",
                 "xaxis": "x",
                 "yaxis": "y",
             }
             for (x_point, y_point) in set(vbm_new)
         ]
 
-        bstraces += dot_traces
+        bs_traces += dot_traces
 
-        return bstraces, bs_data
+        return bs_traces, bs_data
 
     @staticmethod
     def get_dos_traces(dos, dos_select, energy_window=(-6.0, 10.0)):
@@ -643,10 +639,10 @@ class BandstructureAndDosComponent(MPComponent):
         xaxis_style_dos = {}
         yaxis_style_dos = {}
         if bs:
-            bstraces, bs_data = BandstructureAndDosComponent.get_bandstructure_traces(
+            bs_traces, bs_data = BandstructureAndDosComponent.get_bandstructure_traces(
                 bs, path_convention=path_convention, energy_window=energy_window
             )
-            traces += bstraces
+            traces += bs_traces
 
             xaxis_style = dict(
                 title=dict(text="Wave Vector", font=dict(size=16)),
@@ -715,7 +711,7 @@ class BandstructureAndDosComponent(MPComponent):
                 ticks="inside",
                 linewidth=2,
                 tickwidth=2,
-                range=[-rmax * 1.1 * int(len(dos.densities) == 2), rmax * 1.1,],
+                range=[-rmax * 1.1 * int(len(dos.densities) == 2), rmax * 1.1],
                 linecolor="rgb(71,71,71)",
                 gridcolor="white",
                 zerolinecolor="white",
@@ -901,10 +897,10 @@ class BandstructureAndDosComponent(MPComponent):
             traces = []
 
             if bandstructure_symm_line:
-                bstraces = get_bandstructure_traces(
+                bs_traces = get_bandstructure_traces(
                     bsml, path_convention, energy_window=energy_window
                 )
-                traces.append(bstraces)
+                traces.append(bs_traces)
 
             if density_of_states:
                 dostraces = get_dos_traces(
@@ -912,7 +908,7 @@ class BandstructureAndDosComponent(MPComponent):
                 )
                 traces.append(dostraces)
 
-            # traces = [bstraces, dostraces, bs_data]
+            # traces = [bs_traces, dostraces, bs_data]
 
             return (traces, elements)
 
