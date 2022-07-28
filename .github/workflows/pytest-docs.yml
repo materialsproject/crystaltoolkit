@@ -8,19 +8,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install poetry
+        # install poetry before setup-python to enable cache retrieval
+        run: pipx install poetry
+
       - name: Set up Python 3.8
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
+          cache: poetry
+
       - name: Install webdriver and poetry
         run: |
           sudo apt-get update && sudo apt-get install firefox-geckodriver
-          pip install --upgrade pip && pip install --no-cache-dir poetry
+          pip install --upgrade pip
           poetry config virtualenvs.in-project false
           poetry config virtualenvs.path ~/.virtualenvs
+
       - name: Install dependencies
         run: poetry install -E server -E fermi
-        if: steps.cache.outputs.cache-hit != 'true'
+
       - name: Build new docs
         run: |
           git config --global user.name 'Matthew Horton'
@@ -29,12 +37,14 @@ jobs:
           git checkout "${GITHUB_REF:11}"
           cd docs_rst
           poetry run make html
+
       - name: Commit new docs
         run: |
           git add -A
           git diff-index --quiet HEAD || git commit -m "Automated doc build"
           git push
         continue-on-error: true
+
       - name: Test with pytest
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
