@@ -519,6 +519,7 @@ Sub-layouts:  \n{layouts}"""
     ):
 
         state = state or {}
+        # TODO: bug if default == 0
         default = default or state.get(kwarg_label)
 
         # mpc.RangeSlider requires a domain to be specified
@@ -745,7 +746,7 @@ Sub-layouts:  \n{layouts}"""
 
                     try:
                         kwargs[kwarg_label] = literal_eval(str(v))
-                    except ValueError:
+                    except (ValueError, SyntaxError):
                         kwargs[kwarg_label] = str(v)
 
                 elif k_type == "bool":
