@@ -586,6 +586,7 @@ Sub-layouts:  \n{layouts}"""
         label: str | None = None,
         help_str: str = None,
         options: list[dict] | None = None,
+        clearable: bool = False,
         **kwargs,
     ):
         """
@@ -601,6 +602,7 @@ Sub-layouts:  \n{layouts}"""
         `state` if you want to set defaults for multiple inputs from a single dictionary.
         :param help_str: Text for a tooltip when hovering over label.
         :param options: Options to choose from, as per dcc.Dropdown
+        :param clearable: If True, will allow Dropdown to be cleared after a selection is made.
         :return: a Dash layout
         """
 
@@ -611,7 +613,7 @@ Sub-layouts:  \n{layouts}"""
             id=self.id(kwarg_label, is_kwarg=True, hint="literal"),
             options=options if options else [],
             value=default,
-            isClearable=False,
+            isClearable=clearable,
             arbitraryProps={**kwargs},
         )
 
