@@ -104,10 +104,10 @@ def get_site_scene(
             name = str(sp)
             if occu != 1.0:
                 name += f" ({occu}% occupancy)"
-                
+
             if show_atom_coord:
                 name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
-            
+
             if show_atom_idx:
                 name += "\n" + "index:" + str(site_idx)
 
@@ -167,13 +167,15 @@ def get_site_scene(
         all_positions = [self.coords]
 
         for idx, connected_site in enumerate(connected_sites):
-            
+
             if show_bond_order:
                 name_cyl = "bond order:" + str("{:.2f}".format(connected_site.weight))
-                
+
             if show_bond_length:
-                name_cyl += "\n" + "bond length:" + str("{:.3f}".format(connected_site.dist))
-            
+                name_cyl += (
+                    "\n" + "bond length:" + str("{:.3f}".format(connected_site.dist))
+                )
+
             connected_position = connected_site.site.coords
             bond_midpoint = np.add(position, connected_position) / 2
 
@@ -181,46 +183,47 @@ def get_site_scene(
                 color = connected_sites_colors[idx]
             else:
                 color = site_color
-                
+
             if visualize_bond_orders:
                 cylinders = []
-                
-                if (connected_site.weight is not None):
-                    
-                    if (connected_site.weight > 1):
+
+                if connected_site.weight is not None:
+
+                    if connected_site.weight > 1:
                         trans_vector = 0.0
                         for bond in range(connected_site.weight):
-                            pos_r_1 = [i+trans_vector for i in position]
-                            pos_r_2 = [i+trans_vector for i in bond_midpoint.tolist()]
-                            cylinders.append(Cylinders(
-                                positionPairs=[[pos_r_1, pos_r_2]],
-                                color=color,
-                                radius=bond_radius/2,
-                                clickable=True,
-                                tooltip=name_cyl,
-                            ))
-                            trans_vector = trans_vector + 0.25*max_radius
+                            pos_r_1 = [i + trans_vector for i in position]
+                            pos_r_2 = [i + trans_vector for i in bond_midpoint.tolist()]
+                            cylinders.append(
+                                Cylinders(
+                                    positionPairs=[[pos_r_1, pos_r_2]],
+                                    color=color,
+                                    radius=bond_radius / 2,
+                                    clickable=True,
+                                    tooltip=name_cyl,
+                                )
+                            )
+                            trans_vector = trans_vector + 0.25 * max_radius
                         for cylinder in cylinders:
                             bonds.append(cylinder)
                     else:
                         cylinder = Cylinders(
-                        positionPairs=[[position, bond_midpoint.tolist()]],
-                        color=color,
-                        radius=bond_radius,
-                        clickable=True,
-                        tooltip=name_cyl,
-
-                    )
+                            positionPairs=[[position, bond_midpoint.tolist()]],
+                            color=color,
+                            radius=bond_radius,
+                            clickable=True,
+                            tooltip=name_cyl,
+                        )
                         bonds.append(cylinder)
-                    
+
             else:
                 cylinder = Cylinders(
-                positionPairs=[[position, bond_midpoint.tolist()]],
-                color=color,
-                radius=bond_radius,
-                clickable=True,
-                tooltip=name_cyl,
-            )
+                    positionPairs=[[position, bond_midpoint.tolist()]],
+                    color=color,
+                    radius=bond_radius,
+                    clickable=True,
+                    tooltip=name_cyl,
+                )
                 bonds.append(cylinder)
             all_positions.append(connected_position.tolist())
 
@@ -244,7 +247,6 @@ def get_site_scene(
                     positionPairs=[[position, bond_midpoint.tolist()]],
                     color=color,
                     radius=bond_radius,
-                    
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())

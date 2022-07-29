@@ -10,14 +10,14 @@ from crystal_toolkit.core.scene import Scene
 
 def get_molecule_graph_scene(
     self,
-    origin = None,
-    explicitly_calculate_polyhedra_hull = False,
-    legend = None,
-    draw_polyhedra = False,
-    show_atom_idx = True,
-    show_atom_coord = True,
-    show_bond_order = True,
-    show_bond_length = False,
+    origin=None,
+    explicitly_calculate_polyhedra_hull=False,
+    legend=None,
+    draw_polyhedra=False,
+    show_atom_idx=True,
+    show_atom_coord=True,
+    show_bond_order=True,
+    show_bond_length=False,
     visualize_bond_orders=False,
 ) -> Scene:
 
@@ -38,29 +38,28 @@ def get_molecule_graph_scene(
     primitives = defaultdict(list)
 
     for idx, site in enumerate(self.molecule):
-        
+
         if visualize_bond_orders:
             connected_sites = vis_mol_graph.get_connected_sites(idx)
         else:
             connected_sites = self.get_connected_sites(idx)
-        
-       
+
         site_scene = site.get_scene(
-            site_idx = idx,
+            site_idx=idx,
             connected_sites=connected_sites,
             origin=origin,
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             legend=legend,
-            show_atom_idx = show_atom_idx,
-            show_atom_coord = show_atom_coord,
-            show_bond_order = show_bond_order,
-            show_bond_length = show_bond_length,
-            visualize_bond_orders = visualize_bond_orders,
+            show_atom_idx=show_atom_idx,
+            show_atom_coord=show_atom_coord,
+            show_bond_order=show_bond_order,
+            show_bond_length=show_bond_length,
+            visualize_bond_orders=visualize_bond_orders,
             draw_polyhedra=draw_polyhedra,
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
-    
+
     return Scene(
         name=self.molecule.composition.reduced_formula,
         contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
