@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
+
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.scene import Scene
 
