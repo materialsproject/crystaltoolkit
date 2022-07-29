@@ -20,7 +20,7 @@ from crystal_toolkit.renderables import (
     VolumetricData,
 )
 
-__version__ = "2022.07.25"
+__version__ = "2022.07.28"
 
 MODULE_PATH = Path(__file__).parents[0]
 

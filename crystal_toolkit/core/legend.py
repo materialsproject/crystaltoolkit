@@ -372,8 +372,8 @@ class Legend(MSONable):
 
         if (not radius) or (not isinstance(radius, float)):
             warnings.warn(
-                "Radius unknown for {} and strategy {}, "
-                "setting to 0.5.".format(sp, self.radius_scheme)
+                f"Radius unknown for {sp} and strategy {self.radius_scheme}, "
+                "setting to 0.5."
             )
             radius = self.fallback_radius
 
