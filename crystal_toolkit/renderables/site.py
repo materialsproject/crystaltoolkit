@@ -171,12 +171,12 @@ def get_site_scene(
             if show_bond_order:
                 if connected_site.weight is not None:
                     name_cyl = "bond order:" + str(f"{connected_site.weight:.2f}")
-                
 
             if show_bond_length:
                 if connected_site.dist is not None:
-                    name_cyl += "\n" + "bond length:" + str(f"{connected_site.dist:.3f}")
-                
+                    name_cyl += (
+                        "\n" + "bond length:" + str(f"{connected_site.dist:.3f}")
+                    )
 
             connected_position = connected_site.site.coords
             bond_midpoint = np.add(position, connected_position) / 2
