@@ -165,6 +165,7 @@ def get_site_scene(
         # TODO: can cause a bug if all vertices almost co-planar
         # necessary to include center site in case it's outside polyhedra
         all_positions = [self.coords]
+        name_cyl = " "
 
         for idx, connected_site in enumerate(connected_sites):
 
