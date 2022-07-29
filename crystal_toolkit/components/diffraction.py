@@ -381,9 +381,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         # optimal number of points per degree determined through usage experiments
         if grain_size > 10:
-            N_density = 150 * (
-                math.log10(grain_size) ** 4
-            )  # scaled to log size to the 4th power
+            # scaled to log size to the 4th power
+            N_density = 150 * (math.log10(grain_size) ** 4)
         else:
             N_density = 150
 

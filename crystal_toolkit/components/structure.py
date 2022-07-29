@@ -966,13 +966,12 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy
                 not in StructureMoleculeComponent.available_bonding_strategies.keys()
             ):
+                valid_subclasses = ", ".join(
+                    StructureMoleculeComponent.available_bonding_strategies
+                )
                 raise ValueError(
-                    "Bonding strategy not supported. Please supply a name "
-                    "of a NearNeighbor subclass, choose from: {}".format(
-                        ", ".join(
-                            StructureMoleculeComponent.available_bonding_strategies.keys()
-                        )
-                    )
+                    "Bonding strategy not supported. Please supply a name of a NearNeighbor "
+                    f"subclass, choose from: {valid_subclasses}"
                 )
             else:
                 bonding_strategy_kwargs = bonding_strategy_kwargs or {}

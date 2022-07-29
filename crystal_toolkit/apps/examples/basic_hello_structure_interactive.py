@@ -1,4 +1,3 @@
-# as above
 import dash
 from dash import html
 
@@ -9,9 +8,8 @@ from pymatgen.core.structure import Structure
 
 import crystal_toolkit.components as ctc
 
-app = dash.Dash(
-    prevent_initial_callbacks=True,  # don't run callbacks on page load
-)
+# don't run callbacks on page load
+app = dash.Dash(prevent_initial_callbacks=True)
 
 # now we give a list of structures to pick from
 structures = [
@@ -41,6 +39,5 @@ def update_structure(n_clicks):
     return structures[n_clicks % 2]
 
 
-# as above
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

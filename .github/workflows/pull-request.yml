@@ -1,0 +1,39 @@
+name: pytest
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install poetry
+        # install poetry before setup-python to enable cache retrieval
+        run: pipx install poetry
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          cache: poetry
+
+      - name: Install webdriver and poetry
+        run: |
+          sudo apt-get update && sudo apt-get install firefox-geckodriver
+          pip install --upgrade pip
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path ~/.virtualenvs
+
+      - name: Install dependencies
+        run: poetry install -E server -E fermi
+
+      - name: Test with pytest
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+        run: |
+          poetry run pytest --color=yes --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
