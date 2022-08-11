@@ -2,11 +2,10 @@ import dash
 from dash import html
 from pymatgen.ext.matproj import MPRester
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
+from crystal_toolkit.settings import SETTINGS
 
-# create Dash app as normal
-app = dash.Dash()
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # If callbacks created dynamically they cannot be statically checked at app startup.
 # For this simple example this is not a problem, but if creating a complicated,

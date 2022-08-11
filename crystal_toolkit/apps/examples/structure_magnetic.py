@@ -3,10 +3,8 @@ from dash import html
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 
-# create Dash app as normal
 app = dash.Dash()
 
 # create the Structure object
