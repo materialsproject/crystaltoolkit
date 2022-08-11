@@ -26,12 +26,13 @@ my_layout = html.Div(
         html.Button("Get Pourbaix Diagram", id="get-pourbaix"),
         pourbaix_component.layout(),
         html.Div(id="pourbaix-output"),
-    ]
+    ],
+    style=dict(maxWidth="90vw", margin="2em auto"),
 )
 
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
-# allow app to be run using "python structure.py"
+# allow app to be run using "python pourbaix.py"
 # in production, deploy behind gunicorn or similar
 # see Dash documentation for more information
 if __name__ == "__main__":
