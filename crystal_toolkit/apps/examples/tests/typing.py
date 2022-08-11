@@ -1,12 +1,17 @@
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Protocol, Union
 
 import dash
 
+ElemOrSelector = Union[str, dash.development.base_component.Component]
+
 
 class DashDuo(Protocol):
-    "The dash_duo pytest fixture lives in dash.testing.plugin.dash_duo."
+    """The dash_duo pytest fixture lives in dash.testing.plugin.dash_duo.
+
+    See https://dash.plotly.com/testing#browser-apis
+    """
 
     def start_server(self, start_server) -> None:
         ...
@@ -38,4 +43,15 @@ class DashDuo(Protocol):
         ...
 
     def wait_for_page(self, url: str = None, timeout: int = 10) -> None:
+        ...
+
+    def find_elements(
+        self, selector: str
+    ) -> list[dash.development.base_component.Component]:
+        ...
+
+    def select_dcc_dropdown(
+        self, elem_or_selector: ElemOrSelector, value: str = None, index: int = None
+    ) -> None:
+        # https://github.com/plotly/dash/blob/04217e8/dash/testing/browser.py#L409
         ...
