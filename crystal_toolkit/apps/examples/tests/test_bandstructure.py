@@ -1,9 +1,10 @@
 import time
 
 from crystal_toolkit.apps.examples.bandstructure import app
+from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
 
-def test_bs(dash_duo):
+def test_bs(dash_duo: DashDuo) -> None:
 
     dash_duo.start_server(app)
     dash_duo.clear_storage()
