@@ -497,10 +497,11 @@ Sub-layouts:  \n{layouts}"""
 
         # arrange the input boxes in two dimensions (rows, columns)
         matrix_div_contents = []
-        for columns in sorted(matrix_contents.values()):
+        print("matrix_contents", matrix_contents)
+        for column_idx in sorted(matrix_contents.keys()):
             row = []
-            for element in sorted(columns.values()):
-                row.append(element)
+            for row_idx in sorted(matrix_contents[column_idx].keys()):
+                row.append(matrix_contents[column_idx][row_idx])
             matrix_div_contents.append(html.Div(row))
 
         matrix = html.Div(matrix_div_contents)
