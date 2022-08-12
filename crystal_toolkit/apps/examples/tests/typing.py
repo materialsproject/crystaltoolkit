@@ -13,6 +13,8 @@ class DashDuo(Protocol):
     See https://dash.plotly.com/testing#browser-apis
     """
 
+    # driver = ...  # selenium.webdriver.remote.WebDriver
+
     def start_server(self, start_server) -> None:
         ...
 
