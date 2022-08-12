@@ -350,7 +350,7 @@ def filter_data(scene_data, fstream):
     """
     Recursively traverse the scene_data dictionary to find objects to draw
     """
-    if "type" in scene_data.keys():
+    if "type" in scene_data:
         asy_write_data(scene_data, fstream)
     else:
         for itr in scene_data["contents"]:

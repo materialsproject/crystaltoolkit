@@ -70,7 +70,7 @@ def get_site_scene(
 
     position = self.coords.tolist()
 
-    radii = [legend.get_radius(sp, site=self) for sp in self.species.keys()]
+    radii = [legend.get_radius(sp, site=self) for sp in self.species]
     max_radius = float(min(radii))
 
     for sp, occu in self.species.items():

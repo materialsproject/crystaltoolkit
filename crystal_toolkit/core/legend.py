@@ -153,9 +153,7 @@ class Legend(MSONable):
         color_scheme = {}
 
         all_species = set(
-            chain.from_iterable(
-                comp.keys() for comp in site_collection.species_and_occu
-            )
+            chain.from_iterable(comp for comp in site_collection.species_and_occu)
         )
         all_elements = sorted(sp.as_dict()["element"] for sp in all_species)
 
@@ -194,7 +192,7 @@ class Legend(MSONable):
             )
 
         preferred_elements_present = [
-            el for el in all_elements if el in preferred_colors.keys()
+            el for el in all_elements if el in preferred_colors
         ]
 
         colors_assigned = []
@@ -203,9 +201,7 @@ class Legend(MSONable):
                 color_scheme[el] = palette[preferred_colors[el]]
                 colors_assigned.append(preferred_colors[el])
 
-        remaining_elements = [
-            el for el in all_elements if el not in color_scheme.keys()
-        ]
+        remaining_elements = [el for el in all_elements if el not in color_scheme]
         remaining_palette = [
             c for idx, c in enumerate(palette) if idx not in colors_assigned
         ]

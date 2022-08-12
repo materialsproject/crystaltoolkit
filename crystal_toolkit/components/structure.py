@@ -651,7 +651,7 @@ class StructureMoleculeComponent(MPComponent):
                     for part in formula_parts
                 ]
             except Exception:
-                formula_components = list(map(str, composition.keys()))
+                formula_components = list(map(str, composition))
 
         return H2(
             formula_components, id=self.id("title"), style={"display": "inline-block"}
@@ -666,9 +666,7 @@ class StructureMoleculeComponent(MPComponent):
         species = set(
             map(
                 str,
-                chain.from_iterable(
-                    [list(c.keys()) for c in struct_or_mol.species_and_occu]
-                ),
+                chain.from_iterable([list(c) for c in struct_or_mol.species_and_occu]),
             )
         )
         rows = [
@@ -879,7 +877,7 @@ class StructureMoleculeComponent(MPComponent):
                     data=self.initial_data["scene"],
                     settings=self.initial_scene_settings,
                     sceneSize="100%",
-                    fileOptions=list(self.download_options["Structure"].keys()),
+                    fileOptions=list(self.download_options["Structure"]),
                     showControls=self.show_controls,
                     showExpandButton=self.show_expand_button,
                     showImageButton=self.show_image_button,
@@ -964,7 +962,7 @@ class StructureMoleculeComponent(MPComponent):
         else:
             if (
                 bonding_strategy
-                not in StructureMoleculeComponent.available_bonding_strategies.keys()
+                not in StructureMoleculeComponent.available_bonding_strategies
             ):
                 valid_subclasses = ", ".join(
                     StructureMoleculeComponent.available_bonding_strategies

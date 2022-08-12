@@ -75,8 +75,8 @@ def _get_local_order_parameters(structure_graph, n):
     # code from @nisse3000, moved here from graphs to avoid circular
     # import, also makes sense to have this as a general NN method
     cn = structure_graph.get_coordination_of_site(n)
-    if cn in [int(k_cn) for k_cn in cn_opt_params.keys()]:
-        names = [k for k in cn_opt_params[cn].keys()]
+    if cn in [int(k_cn) for k_cn in cn_opt_params]:
+        names = [k for k in cn_opt_params[cn]]
         types = []
         params = []
         for name in names:
@@ -645,7 +645,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 if mpid != "input"
             }
 
-            sorted_mpids = sorted(similarities.keys(), key=lambda x: -similarities[x])
+            sorted_mpids = sorted(similarities, key=lambda x: -similarities[x])
 
             print("Generating similarity graphs")
             # TODO: was much slower using px.imshow (see prev commit)

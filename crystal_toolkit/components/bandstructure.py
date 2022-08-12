@@ -443,7 +443,7 @@ class BandstructureAndDosComponent(MPComponent):
         }
 
         for entry_num in range(len(bs_data["ticks"]["label"])):
-            for key in str_replace.keys():
+            for key in str_replace:
                 if key in bs_data["ticks"]["label"][entry_num]:
                     bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
                         entry_num
@@ -519,7 +519,7 @@ class BandstructureAndDosComponent(MPComponent):
         dos_min = np.abs(dos.energies - dos.efermi - energy_window[0]).argmin()
 
         # TODO: pymatgen should have a property here
-        spin_polarized = len(dos.densities.keys()) == 2
+        spin_polarized = len(dos.densities) == 2
 
         if spin_polarized:
             # Add second spin data if available
@@ -580,7 +580,7 @@ class BandstructureAndDosComponent(MPComponent):
             "#e377c2",  # raspberry yogurt pink
         ]
 
-        for label in proj_data.keys():
+        for label in proj_data:
 
             if spin_polarized:
                 trace = {
@@ -691,7 +691,7 @@ class BandstructureAndDosComponent(MPComponent):
             ]
 
             # check the max of the second dos trace only if spin polarized
-            spin_polarized = len(dos.densities.keys()) == 2
+            spin_polarized = len(dos.densities) == 2
             if spin_polarized:
                 list_max.extend(
                     [
