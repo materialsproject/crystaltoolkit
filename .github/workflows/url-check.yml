@@ -7,15 +7,14 @@ on:
     branches: [main]
 
 jobs:
-  markdown-link-check:
+  lychee-link-check:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
 
-      - name: Check URL
-        uses: urlstechie/urlchecker-action@master
+      - name: Check for broken links
+        uses: lycheeverse/lychee-action@v1
         with:
-          file_types: .md,.py,.rst  # file types to check URLs in
-          timeout: 5  # allowed timeout for requests to resolve, default = 5 sec
-          retry_count: 2
+          # exclude loopback to skip localhost URLs from checking
+          args: --exclude-loopback './**/*.md' './**/*.rst'

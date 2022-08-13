@@ -88,7 +88,7 @@ Contributors
 * `Matt McDermott <https://github.com/mattmcdermott>`_ contributed phase diagram, X-ray Diffraction, X-ray Absorption Spectrum components
 * `Jason Munro <https://github.com/munrojm>`_ contributed band structure component
 * `Stephen Weitzner <https://github.com/sweitzner>`_ contributed POV-Ray integration (in progress)
-* `Richard Tran <https://github.com/richardtran415>`_ for contributing plotly-powered Wulff shapes to pymatgen, which Crystal Toolkit uses
+* `Richard Tran <https://github.com/CifLord>`_ for contributing plotly-powered Wulff shapes to pymatgen, which Crystal Toolkit uses
 * `Guy Moore <https://github.com/guymoore13>`_ for contributing magnetic moment visualization
 
 

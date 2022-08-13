@@ -1,10 +1,8 @@
 # crystaltoolkit-extension
 
-![Github Actions Status](https://github.com/materialsproject/crystaltoolkit/workflows/Build/badge.svg)
+![Github Actions Status](https://github.com/materialsproject/crystaltoolkit/workflows/release/badge.svg)
 
 A JupyterLab extension for rendering Crystal Toolkit Scene JSON files.
-
-
 
 ## Requirements
 
@@ -15,7 +13,6 @@ A JupyterLab extension for rendering Crystal Toolkit Scene JSON files.
 ```bash
 pip install crystaltoolkit-extension
 ```
-
 
 ## Contributing
 
