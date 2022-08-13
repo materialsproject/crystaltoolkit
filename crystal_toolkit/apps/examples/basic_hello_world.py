@@ -1,6 +1,7 @@
 import dash
 from dash import html
 
+# create Dash app as normal
 app = dash.Dash()
 
 # create your layout

@@ -6,7 +6,6 @@ from pymatgen.core.structure import Structure
 
 import crystal_toolkit.components as ctc
 
-# app = dash.Dash(external_stylesheets=['https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css'])
 app = dash.Dash()
 
 # create our crystal structure using pymatgen
