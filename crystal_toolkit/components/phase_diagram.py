@@ -1,7 +1,6 @@
 import dash
-import dash_table
 import plotly.graph_objs as go
-from dash import dcc, html
+from dash import dash_table, dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
@@ -420,7 +419,7 @@ class PhaseDiagramComponent(MPComponent):
         go.Scatterternary(
             {
                 "mode": "markers",
-                "a": list_of_a_comp,
+                "a": ...,  # list_of_a_comp
                 "b": ...,
                 "c": ...,
                 "text": ...,

@@ -3,11 +3,9 @@ from dash import html
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 from crystal_toolkit.settings import SETTINGS
 
-# create Dash app as normal
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # create the Structure object
@@ -26,10 +24,13 @@ my_layout = html.Div(
     [
         html.H1("StructureMoleculeComponent Example"),
         html.H2("Standard Layout"),
-        structure_component.layout(size="400px"),
+        structure_component.layout(),
         html.H2("Optional Title Layout"),
         structure_component.title_layout(),
-    ]
+    ],
+    style=dict(
+        margin="2em auto", display="grid", placeContent="center", placeItems="center"
+    ),
 )
 
 # tell crystal toolkit about your app and layout

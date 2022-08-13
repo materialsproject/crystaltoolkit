@@ -3,10 +3,8 @@ from dash import dcc, html
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.ext.matproj import MPRester
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 
-# create Dash app as normal
 app = dash.Dash()
 
 # If callbacks created dynamically they cannot be statically checked at app startup.
@@ -20,10 +18,10 @@ ctc.register_app(app)
 
 # first, retrieve entries from Materials Project
 with MPRester() as mpr:
-    # li_entries = mpr.get_entries_in_chemsys(["Li"])
-    # li_o_entries = mpr.get_entries_in_chemsys(["Li", "O"])
-    li_co_o_entries = mpr.get_entries_in_chemsys(["Li", "O", "Co"])
-    # li_co_o_fe_entries = mpr.get_entries_in_chemsys(["Li", "O", "Co", "Fe"])
+    # li_entries = mpr.get_entries_in_chemsys("Li")
+    # li_o_entries = mpr.get_entries_in_chemsys("Li-O")
+    li_co_o_entries = mpr.get_entries_in_chemsys("Li-O-Co")
+    # li_co_o_fe_entries = mpr.get_entries_in_chemsys("Li-O-Co-Fe")
 
 # and then create the phase diagrams
 # li_phase_diagram = PhaseDiagram(li_entries)
@@ -39,7 +37,6 @@ li_co_o_phase_diagram = PhaseDiagram(li_co_o_entries)
 li_co_o_phase_diagram_component = ctc.PhaseDiagramComponent(li_co_o_phase_diagram)
 # li_co_o_fe_phase_diagram_component = ctc.PhaseDiagramComponent(li_co_o_fe_phase_diagram)
 
-print(li_co_o_entries)
 
 # example layout to demonstrate capabilities of component
 my_layout = html.Div(

@@ -4,12 +4,10 @@ import dash
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 from crystal_toolkit.helpers.layouts import H1, Container
 from crystal_toolkit.settings import SETTINGS
 
-# create Dash app as normal
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])

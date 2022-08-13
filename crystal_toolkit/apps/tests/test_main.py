@@ -17,4 +17,4 @@ def test_main_app_startup(dash_duo: DashDuo):
 
     assert (
         dash_duo.get_logs() == []
-    ), f"Browser console contains an error: {dash_duo.get_logs()}"
+    ), f"Browser console should not contain errors: {dash_duo.get_logs()}"

@@ -7,6 +7,7 @@ from time import sleep
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
+from pymatgen.ext.matproj import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import crystal_toolkit.components as ctc
@@ -48,7 +49,13 @@ def trigger_image_request(data):
 
 @app.callback(Output(structure_component.id(), "data"), [Input("url", "pathname")])
 def trigger_new_data(url):
-    return get_structure_for_mpid(url[1:])
+
+    mp_id = url[1:]
+    with MPRester() as mpr:
+        structure = mpr.get_structure_by_material_id(mp_id)
+
+    structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+    return structure
 
 
 @app.callback(

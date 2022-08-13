@@ -5,12 +5,11 @@ import dash
 # dos and bs data from local jsons
 from monty.serialization import loadfn
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 from crystal_toolkit.helpers.layouts import H1, Container
 from crystal_toolkit.settings import SETTINGS
 
-# create Dash app as normal, assets folder set for visual styles only
+# assets folder set for visual styles only
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # If callbacks created dynamically they cannot be statically checked at app startup.

@@ -5,8 +5,9 @@ default_stages: [commit]
 
 default_install_hook_types: [pre-commit, commit-msg]
 
-# ignore generated doc and dependency lock files
-exclude: ^(docs/.+|.*lock.*|.*\.(svg|js|css))$
+# ignore generated docs and dependency lock files, the directory
+# jupyterlab-extension/ and all SVG, JS and CSS files
+exclude: ^(docs/.+|.*lock.*|jupyterlab-extension/.+|.*\.(svg|js|css))$
 
 repos:
   - repo: https://github.com/PyCQA/isort
@@ -72,3 +73,9 @@ repos:
       - id: nbqa-isort
       - id: nbqa-flake8
         args: [--ignore=E402]
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.0
+    hooks:
+      - id: nbstripout
+        args: [--drop-empty-cells, --keep-output]
