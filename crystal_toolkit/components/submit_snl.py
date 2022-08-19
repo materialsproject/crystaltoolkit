@@ -3,7 +3,7 @@ from urllib import parse
 import requests
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from mp_api import MPRester
+from mp_api.client import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
 

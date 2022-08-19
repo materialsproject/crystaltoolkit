@@ -6,8 +6,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from monty.serialization import loadfn
-from mp_api import MPRester
-from mp_api.client import MPRestError
+from mp_api.client import MPRester, MPRestError
 from pymatgen.util.string import unicodeify, unicodeify_spacegroup
 
 from crystal_toolkit import __file__ as module_path

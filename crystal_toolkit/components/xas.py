@@ -145,7 +145,7 @@ class XASComponent(MPComponent):
 
             url_path = "/materials/" + mpid["mpid"] + "/xas/" + element
 
-            from mp_api.matproj import MPRester
+            from mp_api.client import MPRester
 
             with MPRester() as mpr:
                 data = mpr._make_request(url_path)  # querying MP database via MAPI
