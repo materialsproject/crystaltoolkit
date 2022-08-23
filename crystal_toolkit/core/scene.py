@@ -77,7 +77,7 @@ class Scene:
         """
         return {
             "application/vnd.mp.ctk+json": self.to_json(),
-            "text/plain": self.__repr__(),
+            "text/plain": repr(self),
         }
 
     def to_json(self):

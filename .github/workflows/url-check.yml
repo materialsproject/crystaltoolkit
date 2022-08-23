@@ -16,5 +16,5 @@ jobs:
       - name: Check for broken links
         uses: lycheeverse/lychee-action@v1
         with:
-          # exclude loopback to skip localhost URLs from checking
+          # --exclude-loopback ensures we don't check localhost URLs
           args: --exclude-loopback './**/*.md' './**/*.rst'

@@ -846,8 +846,8 @@ class BandstructureAndDosComponent(MPComponent):
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
                     + [
                         {
-                            "label": "Orbital Projected - " + str(ele_label),
-                            "value": "orb" + str(ele_label),
+                            "label": f"Orbital Projected - {ele_label}",
+                            "value": f"orb{ele_label}",
                         }
                         for ele_label in elements
                     ]
@@ -863,8 +863,8 @@ class BandstructureAndDosComponent(MPComponent):
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
                     + [
                         {
-                            "label": "Orbital Projected - " + str(ele_label),
-                            "value": "orb" + str(ele_label),
+                            "label": f"Orbital Projected - {ele_label}",
+                            "value": f"orb{ele_label}",
                         }
                         for ele_label in elements
                     ]

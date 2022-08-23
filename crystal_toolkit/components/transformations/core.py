@@ -183,7 +183,7 @@ class TransformationComponent(MPComponent):
                 struct = transformation.apply_transformation(struct)
             except Exception as exc:
                 error_title = (
-                    f'Failed to apply "{transformation.__class__.__name__}" '
+                    f'Failed to apply "{type(transformation).__name__}" '
                     f"transformation: {exc}"
                 )
                 traceback_info = Reveal(
@@ -281,7 +281,7 @@ class AllTransformationsComponent(MPComponent):
         user-defined order.
 
         :param transformations: if provided, only offer a subset of available
-            transformaitons, provide as a string of the given transformation name
+            transformations, provide as a string of the given transformation name
         :param input_structure_component: will supply the structure to transform
         """
 
@@ -311,7 +311,7 @@ class AllTransformationsComponent(MPComponent):
             t(input_structure_component_id=self.id("input_structure"))
             for t in transformations
         ]
-        self.transformations = {t.__class__.__name__: t for t in transformations}
+        self.transformations = {type(t).__name__: t for t in transformations}
 
     @property
     def _sub_layouts(self):
@@ -372,7 +372,7 @@ class AllTransformationsComponent(MPComponent):
                 struct = transformation.apply_transformation(struct)
             except Exception as exc:
                 error_title = html.Span(
-                    f'Failed to apply "{transformation.__class__.__name__}" '
+                    f'Failed to apply "{type(transformation).__name__}" '
                     f"transformation: {exc}"
                 )
                 traceback_info = Reveal(

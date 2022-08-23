@@ -68,15 +68,15 @@ install.
     if hasattr(self, "get_scene"):
         return {
             "application/vnd.mp.ctk+json": self.get_scene().to_json(),
-            "text/plain": help_text_ct + self.__repr__(),
+            "text/plain": help_text_ct + repr(self),
         }
     elif hasattr(self, "get_plot"):
         return {
             "application/vnd.plotly.v1+json": self.get_plot().to_plotly_json(),
-            "text/plain": help_text_plotly + self.__repr__(),
+            "text/plain": help_text_plotly + repr(self),
         }
     else:
-        return {"application/json": self.as_dict(), "text/plain": self.__repr__()}
+        return {"application/json": self.as_dict(), "text/plain": repr(self)}
 
 
 MSONable._repr_mimebundle_ = _repr_mimebundle_

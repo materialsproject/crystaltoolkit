@@ -529,4 +529,4 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         #     output = scope.transform(data, format="png", width=600, height=400, scale=4)
         #     image = b64encode(output).decode('ascii')
         #
-        #     return "data:image/png;base64," + image
+        #     return f"data:image/png;base64,{image}"
