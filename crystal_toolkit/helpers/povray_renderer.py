@@ -147,7 +147,7 @@ def pov_write_data(input_scene_comp, fstream):
         positions = [vect.format(*pos) for pos in positions]
         color = input_scene_comp["color"].replace("#", "")
         color = tuple(int(color[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
-        color = "rgb<" + vect.format(*color) + ">"
+        color = f"rgb<{vect.format(*color)}>"
 
         fstream.write(
             Environment()
@@ -167,7 +167,7 @@ def pov_write_data(input_scene_comp, fstream):
         ]
         color = input_scene_comp["color"].replace("#", "")
         color = tuple(int(color[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
-        color = "rgb<" + vect.format(*color) + ">"
+        color = f"rgb<{vect.format(*color)}>"
         fstream.write(
             Environment()
             .from_string(TEMP_CYLINDER)
@@ -225,7 +225,7 @@ def get_render_settings(file_name):
     Creates a POV-Ray render.ini file
     """
 
-    image_name = file_name[:-4] + ".png"
+    image_name = f"{file_name[:-4]}.png"
 
     settings = f"""
 Input_File_Name = {file_name}

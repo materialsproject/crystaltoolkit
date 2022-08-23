@@ -5,6 +5,7 @@ import os
 import warnings
 from random import choice
 from time import time
+from typing import Any
 from urllib import parse
 from uuid import uuid4
 
@@ -20,6 +21,7 @@ from pymatgen.ext.matproj import MPRester, MPRestError
 import crystal_toolkit.components as ctc
 from crystal_toolkit import __file__ as module_path
 from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import (
     Box,
     Column,
@@ -151,7 +153,7 @@ xrd_panel = ctc.DiffractionPanelComponent(
     links={"default": transformation_component.id()}
 )
 # pbx_component = ctc.PourbaixDiagramPanelComponent(origin_component=struct_component)
-#
+
 symmetry_panel = ctc.SymmetryPanel(links={"default": struct_component.id()})
 localenv_panel = ctc.LocalEnvironmentPanel(
     links={
@@ -179,7 +181,7 @@ panels = [
 
 
 if SETTINGS.MP_EMBED_MODE:
-    mp_section = (html.Div(),)
+    mp_section: tuple[Any, ...] = (html.Div(),)
 else:
 
     # bsdos_component = ctc.BandstructureAndDosPanelComponent(
@@ -200,7 +202,7 @@ else:
     #     literature_component,
     # ]
 
-    mp_panels = []
+    mp_panels: list[PanelComponent] = []
 
     mp_section = (
         html.H3("Materials Project"),

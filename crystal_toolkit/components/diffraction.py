@@ -364,7 +364,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
         hkls = [
-            "hkl: (" + " ".join([str(i) for i in hkl]) + ")" for hkl in hkl_list
+            f"hkl: ({' '.join([str(i) for i in hkl])})" for hkl in hkl_list
         ]  # convert to (h k l) format
 
         annotations = [

@@ -143,7 +143,7 @@ class XASComponent(MPComponent):
             if not element or not elements:
                 raise PreventUpdate
 
-            url_path = "/materials/" + mpid["mpid"] + "/xas/" + element
+            url_path = f"/materials/{mpid['mpid']}/xas/{element}"
 
             from mp_api.client import MPRester
 

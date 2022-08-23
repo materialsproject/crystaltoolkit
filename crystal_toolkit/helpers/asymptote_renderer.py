@@ -282,9 +282,7 @@ def _get_surface(ctk_scene, d_args=None):
     color = color.replace("#", "")
     opacity = ctk_scene.opacity or updated_defaults["opacity"]
 
-    positions = tuple(
-        map(lambda x: "{" + f"{x[0]}, {x[1]}, {x[2]}" + "}", ctk_scene.positions)
-    )
+    positions = tuple(map(lambda x: f"{{{x[0]}, {x[1]}, {x[2]}}}", ctk_scene.positions))
     num_triangle = len(ctk_scene.positions) / 3.0
     # sanity check the mesh must be triangles
     assert num_triangle.is_integer()

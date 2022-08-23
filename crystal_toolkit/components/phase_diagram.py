@@ -692,10 +692,10 @@ class PhaseDiagramComponent(MPComponent):
             trigger = ctx.triggered[0]
 
             # PD update trigger
-            if trigger["prop_id"] == self.id() + ".modified_timestamp":
+            if trigger["prop_id"] == f"{self.id()}.modified_timestamp":
                 table_content = self.create_table_content(self.from_data(pd))
                 return table_content
-            elif trigger["prop_id"] == self.id("editing-rows-button") + ".n_clicks":
+            elif trigger["prop_id"] == f"{self.id('editing-rows-button')}.n_clicks":
                 if n_clicks > 0 and rows:
                     rows.append(self.empty_row)
                     return rows
@@ -734,14 +734,14 @@ class PhaseDiagramComponent(MPComponent):
             chemsys = None
 
             # get entries by mpid
-            if trigger["prop_id"] == self.id("mpid") + ".data":
+            if trigger["prop_id"] == f"{self.id('mpid')}.data":
                 with MPRester() as mpr:
                     entry = mpr.get_entry_by_material_id(mpid)
 
                 chemsys = entry.composition.chemical_system
 
             # get entries by chemsys
-            if trigger["prop_id"] == self.id("chemsys-external") + ".data":
+            if trigger["prop_id"] == f"{self.id('chemsys-external')}.data":
                 chemsys = chemsys_external
 
             return chemsys

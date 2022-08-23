@@ -587,14 +587,14 @@ class BandstructureAndDosComponent(MPComponent):
                     "x": -1.0 * proj_data[label].densities[Spin.down][dos_min:dos_max],
                     "y": dos.energies[dos_min:dos_max] - dos.efermi,
                     "mode": "lines",
-                    "name": str(label) + " (spin ↓)",
+                    "name": f"{label} (spin ↓)",
                     "line": dict(width=3, color=colors[count], dash="dot"),
                     "xaxis": "x2",
                     "yaxis": "y2",
                 }
 
                 dostraces.append(trace)
-                spin_up_label = str(label) + " (spin ↑)"
+                spin_up_label = f"{label} (spin ↑)"
 
             else:
                 spin_up_label = str(label)

@@ -18,9 +18,11 @@ the Scene to the JSON format to pass to CrystalToolkitSceneComponent's data attr
 
 class Primitive:
     """
-    A Mixin class for standard plottable primitive behavior
-    For now, this just enforces some basic mergeability
+    A Mixin class for standard plottable primitive behavior.
+    For now, this just enforces some basic mergeability.
     """
+
+    positions: tuple
 
     @property
     @abstractmethod
@@ -61,7 +63,7 @@ class Scene:
         :return:
         """
         return Scene(
-            name=self.name + "_" + other.name,
+            name=f"{self.name}_{other.name}",
             contents=self.contents + other.contents,
             origin=self.origin,
             visible=self.visible,
