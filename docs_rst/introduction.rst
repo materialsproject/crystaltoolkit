@@ -44,24 +44,6 @@ You can ``pip install crystal-toolkit``.
 For Jupyter integration, please see the `additional installation steps <jupyter>`_.
 
 
-Running the App Locally
------------------------
-
-If the web app is offline or undergoing maintenance, you can also run the
-web app locally using `Docker <https://www.docker.com>`_. After you've
-installed Docker, run the following:
-
-::
-
-    docker container run -p 8000:8000 -e PMG_MAPI_KEY=YOUR_API_KEY_HERE materialsproject/crystal_toolkit
-
-The app should then be available at `<http://localhost:8000>`_.
-
-Make sure to set your ``PMG_MAPI_KEY`` appropriately.
-If you need a Materials Project API key, please get a free account on
-`Materials Project <https://materialsproject.org>`_ and access your dashboard.
-
-
 Dash 2.x Migration
 ------------------
 
