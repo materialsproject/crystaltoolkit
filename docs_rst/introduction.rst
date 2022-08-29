@@ -24,7 +24,7 @@ Toolkit" app `available here <https://next-gen.materialsproject.org/toolkit>`_.
 Crystal Toolkit Web Framework
 -----------------------------
 
-Crystal Toolkit is designed as a modular, object-orientated suite of UI components
+Crystal Toolkit is designed as a modular, object-oriented suite of UI components
 built upon the `Dash framework by Plotly <https://dash.plot.ly>`_. The Crystal Toolkit web app is just
 one example of using these components.
 

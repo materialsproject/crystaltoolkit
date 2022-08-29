@@ -39,7 +39,7 @@ New contributors are welcome, please see our [Code of Conduct.](code-of-conduct.
 
 ## Future of This Repository
 
-The Crystal Toolkit repository is home of an object-orientated Python framework for rendering materials science data based on the schema employed by the Materials Project.
+The Crystal Toolkit repository is home of an object-oriented Python framework for rendering materials science data based on the schema employed by the Materials Project.
 
 The custom Plotly Dash components that power Crystal Toolkit are now maintained in a [separate repository](https://github.com/materialsproject/dash-mp-components) for ease of development, as well as the [custom React components](https://github.com/materialsproject/mp-react-components). These components were formerly included in the Crystal Toolkit repo, and are still considered part of Crystal Toolkit in spirit.
 
