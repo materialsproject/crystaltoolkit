@@ -11,10 +11,11 @@ from pymatgen.ext.matproj import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import crystal_toolkit.components as ctc
+from crystal_toolkit.settings import SETTINGS
 
 SCREENSHOT_PATH = Path.home() / "screenshots"
 
-app = dash.Dash()
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 server = app.server
 
 structure_component = ctc.StructureMoleculeComponent(

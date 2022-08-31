@@ -1,8 +1,10 @@
 import dash
 from dash import html
 
+from crystal_toolkit.settings import SETTINGS
+
 # create Dash app as normal
-app = dash.Dash()
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # create your layout
 app.layout = html.Span(["Hello scientist!"])
