@@ -715,11 +715,21 @@ class PhaseDiagramComponent(MPComponent):
                 Input(self.id("chemsys-external"), "data"),
             ],
         )
-        def get_chemsys_from_mpid_or_chemsys(mpid, chemsys_external: str):
-            """
-            :param mpid: mpid
-            :param chemsys_external: chemsys, e.g. "Co-O"
-            :return: chemsys
+        def get_chemsys_from_mpid_or_chemsys(
+            mpid: str, chemsys_external: str
+        ) -> str | None:
+            """Get the chemical system as a string of elements sorted alphabetically and joined by dashes,
+            by convention for use in database keys.
+
+            Args:
+                mpid (str): MP material ID.
+                chemsys_external (str): chemsys, e.g. "Co-O"
+
+            Raises:
+                PreventUpdate: ctx is None or not triggered or trigger["value"] is None.
+
+            Returns:
+                str | None: chemical system, e.g. "O-Si" for SiO2.
             """
             ctx = dash.callback_context
 

@@ -15,6 +15,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from flask_caching import Cache
 from monty.serialization import loadfn
+from pymatgen.core import Structure
 from pymatgen.core import __version__ as pmg_version
 from pymatgen.ext.matproj import MPRester, MPRestError
 
@@ -455,7 +456,9 @@ def update_search_term_on_page_load(href: str) -> str:
     [Input(search_component.id("input"), "value")],
     [State(search_component.id("input"), "n_submit")],
 )
-def perform_search_on_page_load(search_term: str, n_submit: int | None):
+def perform_search_on_page_load(
+    search_term: str, n_submit: int | None
+) -> tuple[int, int]:
     """
     Loading with an mpid in the URL requires populating the search term with
     the mpid, this callback forces that search to then take place by force updating
@@ -495,7 +498,9 @@ def update_url_pathname_from_search_term(mpid: str | None) -> str:
     Output(transformation_component.id("input_structure"), "data"),
     [Input(search_component.id(), "data"), Input(upload_component.id(), "data")],
 )
-def master_update_structure(search_mpid: str | None, upload_data: dict | None):
+def master_update_structure(
+    search_mpid: str | None, upload_data: dict | None
+) -> Structure:
     """
     A new structure is loaded either from the search component or from the
     upload component. This callback triggers the update, and uses the callback

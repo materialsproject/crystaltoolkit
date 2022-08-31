@@ -12,6 +12,7 @@ from typing import Any, Literal
 import dash
 import dash_mp_components as mpc
 import numpy as np
+import plotly.graph_objects as go
 from dash import dash_table as dt
 from dash import dcc, html
 from dash.dependencies import ALL
@@ -80,7 +81,7 @@ class MPComponent(ABC):
             app.title = "Crystal Toolkit"
 
     @staticmethod
-    def register_cache(cache: Cache):
+    def register_cache(cache: Cache) -> None:
         """
         This method must be called at least once in your
         Crystal Toolkit Dash app if you want to enable
@@ -92,7 +93,9 @@ class MPComponent(ABC):
         Args:
             cache: a flask_caching Cache instance
         """
-        if cache:
+        if SETTINGS.DEBUG_MODE:
+            cache = null_cache
+        elif cache:
             MPComponent.cache = cache
         else:
             MPComponent.cache = Cache(
@@ -104,8 +107,7 @@ class MPComponent(ABC):
 
         if not MPComponent.app:
             raise ValueError(
-                "Please register the Dash app with Crystal Toolkit "
-                "using register_app()."
+                "Please register the Dash app with Crystal Toolkit using register_app()."
             )
 
         # layout_str = str(layout)
@@ -295,7 +297,7 @@ class MPComponent(ABC):
         initial_data: MSONable | dict | str | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         debug_clear: bool = False,
-    ):
+    ) -> None:
         """
         Generate a dcc.Store to hold something (MSONable object, Dict
         or string), and register it so that it will be included in the
@@ -327,7 +329,7 @@ class MPComponent(ABC):
         MPComponent._app_stores_dict[self.id()].append(store)
 
     @property
-    def initial_data(self):
+    def initial_data(self) -> dict[str, Any]:
         """
         :return: Initial data for all the stores defined by component,
         keyed by store name.
@@ -335,7 +337,7 @@ class MPComponent(ABC):
         return self._initial_data
 
     @staticmethod
-    def from_data(data):
+    def from_data(data: dict[str, Any]) -> MPComponent:
         """
         Converts the contents of a dcc.Store back into a Python object.
         :param data: contents of a dcc.Store created by to_data
@@ -361,10 +363,10 @@ class MPComponent(ABC):
             if component_id not in self.all_stores
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.id()}<{type(self).__name__}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         ids = "\n".join(
             [f"* {component_id}  " for component_id in sorted(self.all_ids)]
         )
@@ -377,7 +379,7 @@ Stores:  \n{stores}  \n
 Sub-layouts:  \n{layouts}"""
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, dash.development.base_component.Component]:
         """
         Layouts associated with this component, available for book-keeping
         if your component is complex, so that the layout() method is just
@@ -395,7 +397,7 @@ Sub-layouts:  \n{layouts}"""
         """
         return html.Div(list(self._sub_layouts.values()))
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         """
         Generate all callbacks associated with the layouts in this app. Assume
         that "suppress_callback_exceptions" is True, since it is not always
@@ -414,7 +416,7 @@ Sub-layouts:  \n{layouts}"""
         is_int: bool = False,
         shape: tuple[int, ...] = (),
         **kwargs,
-    ):
+    ) -> html.Div:
         """
         For Python classes which take matrices as inputs, this will generate
         a corresponding Dash input layout.
@@ -656,7 +658,7 @@ Sub-layouts:  \n{layouts}"""
 
         return add_label_help(dict_input, label, help_str)
 
-    def get_kwarg_id(self, kwarg_name) -> dict:
+    def get_kwarg_id(self, kwarg_name) -> dict[str, str]:
         """
 
         :param kwarg_name:
@@ -669,7 +671,7 @@ Sub-layouts:  \n{layouts}"""
             "hint": ALL,
         }
 
-    def get_all_kwargs_id(self) -> dict:
+    def get_all_kwargs_id(self) -> dict[str, str]:
         """
 
         :return:
@@ -773,20 +775,25 @@ Sub-layouts:  \n{layouts}"""
         return kwargs
 
     @staticmethod
-    def datauri_from_fig(
-        fig, fmt: str = "png", width: int = 600, height: int = 400, scale: int = 4
+    def data_uri_from_fig(
+        fig: go.Figure,
+        fmt: str = "png",
+        width: int = 600,
+        height: int = 400,
+        scale: int = 4,
     ) -> str:
-        """
-        Generate a data URI from a Plotly Figure.
+        """Generate a data URI from a Plotly Figure.
 
-        :param fig: Plotly Figure object or corresponding dictionary
-        :param fmt: "png", "jpg", etc. (see PlotlyScope for supported formats)
-        :param width: width in pixels
-        :param height: height in pixels
-        :param scale: scale factor
-        :return:
-        """
+        Args:
+            fig (Figure): Plotly Figure object or corresponding dictionary
+            fmt (str, optional): "png", "jpg", etc. (see PlotlyScope for supported formats). Defaults to "png".
+            width (int, optional): width in pixels. Defaults to 600.
+            height (int, optional): height in pixels. Defaults to 400.
+            scale (int, optional): scale factor. Defaults to 4.
 
+        Returns:
+            str: Data URI containing base64-encoded image.
+        """
         from kaleido.scopes.plotly import PlotlyScope
 
         scope = PlotlyScope()

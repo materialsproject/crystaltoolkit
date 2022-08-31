@@ -72,9 +72,7 @@ class Scene:
         )
 
     def _repr_mimebundle_(self, include=None, exclude=None):
-        """
-        Render Scenes using crystaltoolkit-extension for Jupyter Lab.
-        """
+        """Render Scenes using crystaltoolkit-extension for Jupyter Lab."""
         return {
             "application/vnd.mp.ctk+json": self.to_json(),
             "text/plain": repr(self),

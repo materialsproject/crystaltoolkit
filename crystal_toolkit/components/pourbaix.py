@@ -751,7 +751,7 @@ class PourbaixDiagramComponent(MPComponent):
                 Input(self.get_all_kwargs_id(), "value"),
             ],
         )
-        def make_figure(pourbaix_entries, *args):
+        def make_figure(pourbaix_entries, *args) -> go.Figure:
 
             if pourbaix_entries is None:
                 raise PreventUpdate

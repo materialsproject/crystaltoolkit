@@ -421,7 +421,7 @@ def cite_me(
     return component
 
 
-def add_label_help(input, label, help):
+def add_label_help(input, label, help) -> mpc.FilterField:
     """
     Combine an input, label, and tooltip text into a
     single consistent component.
