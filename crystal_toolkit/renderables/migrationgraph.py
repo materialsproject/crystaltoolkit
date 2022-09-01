@@ -1,4 +1,3 @@
-
 import numpy as np
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
 
@@ -43,7 +42,7 @@ def get_migrationgraph_scene(
         CTK scene object to be rendered
     """
 
-    result_scene = self.only_sites.get_scene()
+    result_scene = self.structure.get_scene()
     hop_contents = []
 
     for k, one_hop in self.unique_hops.items():
@@ -56,11 +55,9 @@ def get_migrationgraph_scene(
         one_hop_contents.append(hop_cyl)
 
         if one_hop["to_jimage"] != (0, 0, 0):
-            print(k)
             extras_cross_boundary = _get_extras_cross_boundary(one_hop, self.only_sites)
             one_hop_contents.extend(extras_cross_boundary)
 
-        print(one_hop_contents)
         one_hop_scene = Scene(name=f"hop_{k}", contents=one_hop_contents)
         hop_contents.append(one_hop_scene)
 
