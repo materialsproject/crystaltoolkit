@@ -3,13 +3,21 @@ from urllib import parse
 import requests
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from mp_api.client import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
-from mp_api import MPRester
 
 from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import (
+    Button,
+    MessageBody,
+    MessageContainer,
+    MessageHeader,
+    dcc,
+    html,
+    os,
+)
 
 # ask Donny Winston
 MP_CLIENT_KEY = os.environ.get("MP_CLIENT_KEY")
@@ -117,14 +125,14 @@ class SubmitSNLPanel(PanelComponent):
 
             description = dcc.Markdown(
                 f"""
-> **Structure to upload:** {structure.composition.reduced_formula} ({len(structure)} sites)  
-> **Name:** {contents['first_name']} {contents['last_name']}  
-> **Email:** {contents['email']}  
+> **Structure to upload:** {structure.composition.reduced_formula} ({len(structure)} sites)
+> **Name:** {contents['first_name']} {contents['last_name']}
+> **Email:** {contents['email']}
 > **Comment:** {comments}
 
-This information is stored so that we can give credit to you on the Materials 
-Project website and to say thank you for submitting the structure. 
-For more information, see the Materials Project 
+This information is stored so that we can give credit to you on the Materials
+Project website and to say thank you for submitting the structure.
+For more information, see the Materials Project
 [privacy policy](https://materialsproject.org/terms).
 """
             )
@@ -159,8 +167,8 @@ For more information, see the Materials Project
 
             if not MP_CLIENT_KEY:
                 message = (
-                    f"Submission to MPComplete is currently disabled, "
-                    f"please check back soon or contact @mkhorton."
+                    "Submission to MPComplete is currently disabled, "
+                    "please check back soon or contact @mkhorton."
                 )
                 return MessageContainer(message, kind="warning")
 

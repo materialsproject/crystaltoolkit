@@ -1,7 +1,7 @@
-from crystal_toolkit.core.legend import Legend
-
-from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+
+from crystal_toolkit.core.legend import Legend
 
 
 class TestLegend:
@@ -18,13 +18,13 @@ class TestLegend:
         )
 
         self.site0 = self.struct[0]
-        self.sp0 = list(self.site0.species.keys())[0]
+        self.sp0 = list(self.site0.species)[0]
 
         self.site1 = self.struct[1]
-        self.sp1 = list(self.site1.species.keys())[0]
+        self.sp1 = list(self.site1.species)[0]
 
         self.site2 = self.struct[2]
-        self.sp2 = list(self.site2.species.keys())[0]
+        self.sp2 = list(self.site2.species)[0]
 
         self.struct_disordered = Structure(
             Lattice.cubic(5),
@@ -34,8 +34,8 @@ class TestLegend:
         )
 
         self.site_d = self.struct_disordered[2]
-        self.site_d_sp0 = list(self.site_d.species.keys())[0]
-        self.site_d_sp1 = list(self.site_d.species.keys())[1]
+        self.site_d_sp0 = list(self.site_d.species)[0]
+        self.site_d_sp1 = list(self.site_d.species)[1]
 
         self.struct_manual = Structure(
             Lattice.cubic(5),
@@ -174,7 +174,5 @@ class TestLegend:
 
     def test_get_tiling(self):
         scene = self.struct.get_scene()
-        assert hasattr(scene, 'lattice')
-        assert scene.lattice == [[5.0, 0, 0],
-                                 [0, 5.0, 0],
-                                 [0, 0, 5.0]]
+        assert hasattr(scene, "lattice")
+        assert scene.lattice == [[5.0, 0, 0], [0, 5.0, 0], [0, 0, 5.0]]

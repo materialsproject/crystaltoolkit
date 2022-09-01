@@ -1,34 +1,29 @@
-from base64 import b64encode
+from __future__ import annotations
 
-import dash
-from dash import dcc
-from dash import html
 import math
+
 import numpy as np
-from dash import callback_context
-from scipy.special import wofz
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output, State
+from dash import callback_context, dcc, html
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.diffraction.tem import TEMCalculator
+from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from scipy.special import wofz
 
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 
-# Scherrer equation:
-# Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years: a survey and some new results in the determination of crystallite size." Journal of applied crystallography 11.2 (1978): 102-113.
+# Scherrer equation: Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years:
+# a survey and some new results in the determination of crystallite size." Journal of
+# applied crystallography 11.2 (1978): 102-113.
 # https://doi.org/10.1107/S0021889878012844
 
 
 #    def __init__(self, symprec: float = None, voltage: float = 200,
 #                beam_direction: Tuple[int, int, int] = (0, 0, 1), camera_length: int = 160,
 #                debye_waller_factors: Dict[str, float] = None, cs: float = 1) -> None:
-
-from pymatgen.analysis.diffraction.xrd import XRDCalculator, WAVELENGTHS
-
-from crystal_toolkit.helpers.layouts import *
-from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
 
 
 # Author: Matthew McDermott
@@ -40,7 +35,7 @@ class TEMDiffractionComponent(MPComponent):
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
 
-    def layout(self):
+    def layout(self) -> Columns:
 
         voltage = self.get_numerical_input(
             kwarg_label="voltage",
@@ -64,7 +59,10 @@ class TEMDiffractionComponent(MPComponent):
         return Columns(
             [
                 Column([Box(Loading(id=self.id("tem-plot")))], size=8),
-                Column([voltage, html.Br(), beam_direction], size=4,),
+                Column(
+                    [voltage, html.Br(), beam_direction],
+                    size=4,
+                ),
             ],
         )
 
@@ -88,7 +86,7 @@ class TEMDiffractionComponent(MPComponent):
             return dcc.Graph(
                 figure=calculator.get_plot_2d(structure),
                 responsive=False,
-                config={"displayModeBar": False, "displaylogo": False},
+                config=dict(displayModeBar=False, displaylogo=False),
             )
 
 
@@ -135,6 +133,7 @@ class XRayDiffractionComponent(MPComponent):
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=60, b=50, t=50, pad=0, r=30),
         title="X-ray Diffraction Pattern",
+        template="simple_white",
     )
 
     empty_plot_style = {
@@ -146,7 +145,7 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def G(x, c, alpha):
-        """ Return c-centered Gaussian line shape at x with HWHM alpha """
+        """Return c-centered Gaussian line shape at x with HWHM alpha"""
         return (
             np.sqrt(np.log(2) / np.pi)
             / alpha
@@ -155,12 +154,12 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def L(x, c, gamma):
-        """ Return c-centered Lorentzian line shape at x with HWHM gamma """
-        return gamma / (np.pi * ((x - c) ** 2 + gamma ** 2))
+        """Return c-centered Lorentzian line shape at x with HWHM gamma"""
+        return gamma / (np.pi * ((x - c) ** 2 + gamma**2))
 
     @staticmethod
     def V(x, c, alphagamma):
-        """ Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
+        """Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
         alpha = 0.61065 * alphagamma
         gamma = 0.61065 * alphagamma
         sigma = alpha / np.sqrt(2 * np.log(2))
@@ -169,30 +168,39 @@ class XRayDiffractionComponent(MPComponent):
         )
 
     @staticmethod
-    def twotheta_to_q(twotheta, xray_wavelength):
-        """
-        Convert twotheta to Q.
+    def two_theta_to_q(two_theta: float, xray_wavelength: float) -> float:
+        """Angular conversion from 2*theta to q in small-angle scattering (SAS).
 
-        :param twotheta: in degrees
-        :param xray_wavelength: in Ångstroms
-        :return:
+        Args:
+            two_theta (float): in degrees
+            xray_wavelength (float): in Ångstroms
+
+        Returns:
+            float: Q in Ångstroms^-1
         """
         # thanks @rwoodsrobinson
-        return (4 * np.pi / xray_wavelength) * np.sin(np.deg2rad(twotheta))
+        return (4 * np.pi / xray_wavelength) * np.sin(np.deg2rad(two_theta) / 2)
 
-    def grain_to_hwhm(self, tau, two_theta, K=0.9, wavelength="CuKa"):
+    @staticmethod
+    def grain_to_hwhm(
+        tau: float, two_theta: float, K: float = 0.9, wavelength: float | str = "CuKa"
+    ) -> float:
+        """_summary_
+
+        Args:
+            tau (float): grain size in nm
+            two_theta (float): angle (in 2-theta)
+            K (float, optional): shape factor (default 0.9). Defaults to 0.9.
+            wavelength (float | str, optional): wavelength radiation in nm. Defaults to "CuKa".
+
+        Returns:
+            float: half-width half-max (alpha or gamma), for line profile
         """
-        :param tau: grain size in nm
-        :param two_theta: angle (in 2-theta)
-        :param K: shape factor (default 0.9)
-        :param wavelength: wavelength radiation in nm
-        :return: half-width half-max (alpha or gamma), for line profile
-        """
-        wavelength = WAVELENGTHS[wavelength]
+        if isinstance(wavelength, str):
+            wavelength = WAVELENGTHS[wavelength]
+        # Scherrer equation for half-width half max
         # factor of 0.1 to convert wavelength to nm
-        return (
-            0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
-        )  # Scherrer equation for half-width half max
+        return 0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
 
     @property
     def _sub_layouts(self):
@@ -201,7 +209,7 @@ class XRayDiffractionComponent(MPComponent):
             "peak_profile": "G",
             "shape_factor": 0.94,
             "rad_source": "CuKa",
-            "x_axis": "twotheta",
+            "x_axis": "two_theta",
             "crystallite_size": 0.1,
         }
 
@@ -252,12 +260,13 @@ class XRayDiffractionComponent(MPComponent):
             kwarg_label="shape_factor",
             state=state,
             label="Shape Factor",
-            help_str="""The peak profile determines what distribute characterizes the broadening of an XRD pattern. 
-Two extremes are Gaussian distributions, which are useful for peaks with more rounded tops (typically due to strain 
-broadening) and Lorentzian distributions, which are useful for peaks with sharper top (typically due to size 
-distributions and dislocations). In reality, peak shapes usually follow a Voigt distribution, which is a convolution of 
-Gaussian and Lorentzian peak shapes, with the contribution to both Gaussian and Lorentzian components sample and instrument 
-dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
+            help_str="""The peak profile determines what distribute characterizes the broadening of
+an XRD pattern. Two extremes are Gaussian distributions, which are useful for peaks with more rounded tops
+(typically due to strain broadening) and Lorentzian distributions, which are useful for peaks with
+sharper top (typically due to size distributions and dislocations). In reality, peak shapes usually
+follow a Voigt distribution, which is a convolution of Gaussian and Lorentzian peak shapes, with the
+contribution to both Gaussian and Lorentzian components sample and instrument dependent. Here, both
+contributions are equally weighted if Voigt is chosen.""",
         )
 
         # Peak profile selector (Gaussian, Lorentzian, Voigt)
@@ -265,10 +274,11 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             kwarg_label="peak_profile",
             state=state,
             label="Peak Profile",
-            help_str="""The shape factor K, also known as the “Scherrer constant” is a dimensionless 
-        quantity to obtain an actual particle size from an apparent particle size determined from XRD. The discrepancy is 
-        because the shape of an individual crystallite will change the resulting diffraction broadening. Commonly, a value 
-        of 0.94 for isotropic crystals in a spherical shape is used. However, in practice K can vary from 0.62 to 2.08.""",
+            help_str="""The shape factor K, also known as the “Scherrer constant” is a
+dimensionless quantity to obtain an actual particle size from an apparent particle size
+determined from XRD. The discrepancy is because the shape of an individual crystallite
+will change the resulting diffraction broadening. Commonly, a value of 0.94 for isotropic
+crystals in a spherical shape is used. However, in practice K can vary from 0.62 to 2.08.""",
             options=[
                 {"label": "Gaussian", "value": "G"},
                 {"label": "Lorentzian", "value": "L"},
@@ -287,7 +297,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
                     help_str="Can choose between 2𝜃 or Q, where Q is the magnitude of the reciprocal lattice and "
                     "independent of radiation source.",  # TODO: improve
                     options=[
-                        {"label": "2𝜃", "value": "twotheta"},
+                        {"label": "2𝜃", "value": "two_theta"},
                         {"label": "Q", "value": "Q"},
                     ],
                 )
@@ -307,7 +317,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             "size.",
             domain=[-1, 2],
             step=0.01,
-            isLogScale=True
+            isLogScale=True,
         )
 
         static_image = self.get_figure_placeholder("xrd-plot")
@@ -322,18 +332,21 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             "static_image": static_image,
         }
 
-    def layout(self, static_image=False):
-        """
-        Get the standard XRD diffraction pattern layout.
+    def layout(self, static_image: bool = False) -> Columns:
+        """Get the standard XRD diffraction pattern layout.
 
-        :param static_image: If True, will show a static image instead of an interactive graph.
-        :return:
-        """
+        Args:
+            static_image (bool, optional): If True, will show a static image instead of an interactive graph.
+                Defaults to False.
 
+        Returns:
+            Columns: from crystal_toolkit.helpers.layouts
+        """
+        sub_layouts = self._sub_layouts
         if static_image:
-            inner = self._sub_layouts["static_image"]
+            inner = sub_layouts["static_image"]
         else:
-            inner = self._sub_layouts["graph"]
+            inner = sub_layouts["graph"]
 
         return Columns(
             [
@@ -344,16 +357,100 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
                 ),
                 Column(
                     [
-                        self._sub_layouts["x_axis"],
-                        self._sub_layouts["rad_source"],
-                        self._sub_layouts["shape_factor"],
-                        self._sub_layouts["peak_profile"],
-                        self._sub_layouts["crystallite_size"],
+                        sub_layouts["x_axis"],
+                        sub_layouts["rad_source"],
+                        sub_layouts["shape_factor"],
+                        sub_layouts["peak_profile"],
+                        sub_layouts["crystallite_size"],
                     ],
                     size=4,
                 ),
             ]
         )
+
+    @staticmethod
+    def get_figure(
+        peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis
+    ):
+
+        hkl_list = [hkl[0]["hkl"] for hkl in hkls]
+        hkls = [
+            f"hkl: ({' '.join([str(i) for i in hkl])})" for hkl in hkl_list
+        ]  # convert to (h k l) format
+
+        annotations = [
+            f"2𝜃: {round(peak_x, 3)}<br>Intensity: {round(peak_y, 3)}<br>{hkl} <br>d: {round(d, 3)}"
+            for peak_x, peak_y, hkl, d in zip(x_peak, y_peak, hkls, d_hkls)
+        ]  # text boxes
+
+        first = x_peak[0]
+        last = x_peak[-1]
+        domain = last - first  # find total domain of angles in pattern
+        length = len(x_peak)
+
+        num_sigma = {"G": 5, "L": 12, "V": 12}[peak_profile]
+
+        # optimal number of points per degree determined through usage experiments
+        if grain_size > 10:
+            # scaled to log size to the 4th power
+            N_density = 150 * (math.log10(grain_size) ** 4)
+        else:
+            N_density = 150
+
+        N = int(N_density * domain)  # num total points
+        x = np.linspace(first, last, N).tolist()
+        y = np.zeros(len(x)).tolist()
+
+        for xp, yp in zip(x_peak, y_peak):
+            alpha = XRayDiffractionComponent.grain_to_hwhm(
+                grain_size, math.radians(xp / 2), K=float(K), wavelength=rad_source
+            )
+            sigma = (alpha / np.sqrt(2 * np.log(2))).item()
+
+            center_idx = int(round((xp - first) * N_density))
+            half_window = int(
+                round(num_sigma * sigma * N_density)
+            )  # i.e. total window of 2 * num_sigma
+
+            lb = max([0, (center_idx - half_window)])
+            ub = min([N, (center_idx + half_window)])
+
+            G0 = getattr(XRayDiffractionComponent, peak_profile)(0, 0, alpha)
+            for i, j in zip(range(lb, ub), range(lb, ub)):
+                y[j] += (
+                    yp
+                    * getattr(XRayDiffractionComponent, peak_profile)(x[i], xp, alpha)
+                    / G0
+                )
+
+        layout = XRayDiffractionComponent.default_xrd_plot_style
+
+        if x_axis == "Q":
+            x_peak = XRayDiffractionComponent.two_theta_to_q(
+                x_peak, WAVELENGTHS[rad_source]
+            )
+            x = XRayDiffractionComponent.two_theta_to_q(x, WAVELENGTHS[rad_source])
+            layout["xaxis"]["title"] = "Q / Å⁻¹"
+        else:
+            layout["xaxis"]["title"] = "2𝜃 / º"
+        layout["xaxis"]["range"] = [min(x), max(x)]
+        bar_width = 0.003 * (max(x) - min(x))  # set width of bars to 0.5% of the domain
+
+        plotdata = [
+            go.Bar(
+                x=x_peak,
+                y=y_peak,
+                width=[bar_width] * length,
+                hoverinfo="text",
+                text=annotations,
+                opacity=0.8,
+                marker={"color": "black"},
+            ),
+            go.Scatter(x=x, y=y, hoverinfo="none"),
+        ]
+        plot = go.Figure(data=plotdata, layout=layout)
+
+        return plot
 
     def generate_callbacks(self, app, cache):
         @app.callback(
@@ -381,83 +478,25 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             K = kwargs["shape_factor"]
             rad_source = kwargs["rad_source"]
             logsize = float(kwargs["crystallite_size"])
+            x_axis = kwargs["x_axis"]
 
+            grain_size = 10**logsize
             x_peak = data["x"]
             y_peak = data["y"]
             d_hkls = data["d_hkls"]
-            grain_size = 10 ** logsize
+            hkls = data["hkls"]
 
-            hkl_list = [hkl[0]["hkl"] for hkl in data["hkls"]]
-            hkls = [
-                "hkl: (" + " ".join([str(i) for i in hkl]) + ")" for hkl in hkl_list
-            ]  # convert to (h k l) format
-
-            annotations = [
-                f"2𝜃: {round(peak_x,3)}<br>Intensity: {round(peak_y,3)}<br>{hkl} <br>d: {round(d, 3)}"
-                for peak_x, peak_y, hkl, d in zip(x_peak, y_peak, hkls, d_hkls)
-            ]  # text boxes
-
-            first = x_peak[0]
-            last = x_peak[-1]
-            domain = last - first  # find total domain of angles in pattern
-            length = len(x_peak)
-
-            num_sigma = {"G": 5, "L": 12, "V": 12}[peak_profile]
-
-            # optimal number of points per degree determined through usage experiments
-            if logsize > 1:
-                N_density = 150 * (logsize ** 4)  # scaled to log size to the 4th power
-            else:
-                N_density = 150
-
-            N = int(N_density * domain)  # num total points
-            x = np.linspace(first, last, N).tolist()
-            y = np.zeros(len(x)).tolist()
-
-            for xp, yp in zip(x_peak, y_peak):
-                alpha = self.grain_to_hwhm(
-                    grain_size, math.radians(xp / 2), K=float(K), wavelength=rad_source
-                )
-                sigma = (alpha / np.sqrt(2 * np.log(2))).item()
-
-                center_idx = int(round((xp - first) * N_density))
-                half_window = int(
-                    round(num_sigma * sigma * N_density)
-                )  # i.e. total window of 2 * num_sigma
-
-                lb = max([0, (center_idx - half_window)])
-                ub = min([N, (center_idx + half_window)])
-
-                G0 = getattr(self, peak_profile)(0, 0, alpha)
-                for i, j in zip(range(lb, ub), range(lb, ub)):
-                    y[j] += yp * getattr(self, peak_profile)(x[i], xp, alpha) / G0
-
-            layout = self.default_xrd_plot_style
-
-            if kwargs["x_axis"] == "Q":
-                x_peak = self.twotheta_to_q(x_peak, WAVELENGTHS[rad_source])
-                x = self.twotheta_to_q(x, WAVELENGTHS[rad_source])
-                layout["xaxis"]["title"] = "Q / Å⁻¹"
-            else:
-                layout["xaxis"]["title"] = "2𝜃 / º"
-            layout["xaxis"]["range"] = [min(x), max(x)]
-            bar_width = 0.003 * (
-                max(x) - min(x)
-            )  # set width of bars to 0.5% of the domain
-
-            plotdata = [
-                go.Bar(
-                    x=x_peak,
-                    y=y_peak,
-                    width=[bar_width] * length,
-                    hoverinfo="text",
-                    text=annotations,
-                    opacity=0.8,
-                    marker={"color": "black"},
-                ),
-                go.Scatter(x=x, y=y, hoverinfo="none"),
-            ]
-            plot = go.Figure(data=plotdata, layout=layout)
+            plot = self.get_figure(
+                peak_profile,
+                K,
+                rad_source,
+                grain_size,
+                x_peak,
+                y_peak,
+                d_hkls,
+                hkls,
+                x_axis,
+            )
 
             return plot
 
@@ -501,4 +540,4 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
         #     output = scope.transform(data, format="png", width=600, height=400, scale=4)
         #     image = b64encode(output).decode('ascii')
         #
-        #     return "data:image/png;base64," + image
+        #     return f"data:image/png;base64,{image}"

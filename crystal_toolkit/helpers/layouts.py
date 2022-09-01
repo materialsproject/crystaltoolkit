@@ -1,12 +1,12 @@
-import os
-import warnings
-from typing import Any, Dict, List, Optional, Union
+from __future__ import annotations
 
-from dash import dcc
-from dash import html
-from monty.serialization import dumpfn, loadfn
+import warnings
+from typing import Any
 from uuid import uuid4
+
 import dash_mp_components as mpc
+from dash import dcc, html
+from monty.serialization import loadfn
 
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.settings import SETTINGS
@@ -237,7 +237,7 @@ class Tag(html.Div):
 
 
 class TagContainer(html.Div):
-    def __init__(self, tags: List[Tag], *args, **kwargs):
+    def __init__(self, tags: list[Tag], *args, **kwargs):
         _update_css_class(kwargs, "field is-grouped is-grouped-multiline")
         tags = [html.Div(tag, className="control") for tag in tags]
         super().__init__(tags, *args, **kwargs)
@@ -339,7 +339,8 @@ def get_tooltip(
     :param tooltip_text: text to show on hover
     :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
     :param wrapper_class: class to add to the span that wraps all the returned tooltip components (label + content)
-    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props. 
+    :param kwargs: additional props added to Tooltip component. See the components js file in
+        dash-mp-components for a full list of props.
     :return: html.Span
     """
     if not tooltip_id:
@@ -359,7 +360,7 @@ def get_tooltip(
     )
 
 
-def get_data_list(data: Dict[str, str]):
+def get_data_list(data: dict[str, str]):
     """
     Show a formatted table of data items.
     :param data: dictionary of label, value pairs
@@ -380,7 +381,7 @@ def get_data_list(data: Dict[str, str]):
     return html.Table([html.Tbody(contents)], className="table")
 
 
-def get_table(rows: List[List[Any]], header: Optional[List[str]] = None) -> html.Table:
+def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Table:
     """
     Create a HTML table from a list of elements.
     :param rows: list of list of cell contents
@@ -420,9 +421,9 @@ def cite_me(
     return component
 
 
-def add_label_help(input, label, help):
+def add_label_help(input, label, help) -> mpc.FilterField:
     """
-    Combine an input, label, and tooltip text into a 
+    Combine an input, label, and tooltip text into a
     single consistent component.
     """
     return mpc.FilterField(input, id=uuid4().hex, label=label, tooltip=help)

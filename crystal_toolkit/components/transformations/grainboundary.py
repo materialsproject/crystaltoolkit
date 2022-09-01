@@ -19,10 +19,10 @@ class GrainBoundaryTransformationComponent(TransformationComponent):
 
     @property
     def description(self):
-        return """Create a grain boundary within a periodic supercell. This transformation 
+        return """Create a grain boundary within a periodic supercell. This transformation
 requires sensible inputs, and will be slow to run in certain cases.
 
-When using this transformation a new site property is added which can be used 
+When using this transformation a new site property is added which can be used
 to colour-code the top and bottom grains."""
 
     @property
@@ -81,7 +81,7 @@ to colour-code the top and bottom grains."""
             label="Rotation angle",
             kwarg_label="rotation_angle",
             state=state,  # starts as None
-            help_str="""Rotation angle to generate grain boundary. Options determined by 
+            help_str="""Rotation angle to generate grain boundary. Options determined by
                     your choice of Σ.""",
             style={"width": "15rem"},
         )
@@ -90,8 +90,9 @@ to colour-code the top and bottom grains."""
             label="Expand times",
             kwarg_label="expand_times",
             state=state,
-            help_str="""The multiple number of times to expand one unit grain into a larger grain. This is 
-            useful to avoid self-interaction issues when using the grain boundary as an input to further simulations.""",
+            help_str="""The multiple number of times to expand one unit grain into a larger grain. This is
+            useful to avoid self-interaction issues when using the grain boundary as an input to further
+            simulations.""",
             is_int=True,
             shape=(),
             min=1,
@@ -110,7 +111,7 @@ to colour-code the top and bottom grains."""
             label="In-plane shift",
             kwarg_label="ab_shift",
             state=state,
-            help_str="""In-plane shift of the two grains given in units of the **a** 
+            help_str="""In-plane shift of the two grains given in units of the **a**
             and **b** vectors of the grain boundary.""",
             shape=(2,),
         )
@@ -126,8 +127,8 @@ to colour-code the top and bottom grains."""
             label="Grain boundary plane",
             kwarg_label="plane",
             state=state,
-            help_str="""Grain boundary plane in the form of a list of integers. 
-            If not set, grain boundary will be a twist grain boundary. 
+            help_str="""Grain boundary plane in the form of a list of integers.
+            If not set, grain boundary will be a twist grain boundary.
             The plane will be perpendicular to the rotation axis.""",
             shape=(3,),
         )
@@ -137,7 +138,7 @@ to colour-code the top and bottom grains."""
             kwarg_label="tol_coi",
             state=state,
             help_str="""Tolerance to find the coincidence sites. To check the number of coincidence
-                sites are correct or not, you can compare the generated grain boundary's sigma with 
+                sites are correct or not, you can compare the generated grain boundary's sigma with
                 expected number.""",
             shape=(),
         )
@@ -146,7 +147,7 @@ to colour-code the top and bottom grains."""
             label="Site Merging Tolerance",
             kwarg_label="rm_ratio",
             state=state,
-            help_str="""The criteria to remove the atoms which are too close with each other relative to 
+            help_str="""The criteria to remove the atoms which are too close with each other relative to
             the bond length in the bulk system.""",
             shape=(),
         )
@@ -219,8 +220,8 @@ to colour-code the top and bottom grains."""
             8: "₈",
             9: "₉",
         }
-        for sigma in sorted(sigmas.keys()):
-            sigma_label = "Σ{}".format(sigma)
+        for sigma in sorted(sigmas):
+            sigma_label = f"Σ{sigma}"
             for k, v in subscript_unicode_map.items():
                 sigma_label = sigma_label.replace(str(k), v)
             options.append({"label": sigma_label, "value": sigma})
@@ -282,7 +283,7 @@ to colour-code the top and bottom grains."""
             options = []
             for rotation_angle in sorted(rotation_angles):
                 options.append(
-                    {"label": "{:.2f}º".format(rotation_angle), "value": rotation_angle}
+                    {"label": f"{rotation_angle:.2f}º", "value": rotation_angle}
                 )
 
             return options

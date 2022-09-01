@@ -1,19 +1,15 @@
-# standard Dash imports
-import dash
-from dash import html
-from dash import dcc
+import os
 
-# standard Crystal Toolkit import
-import crystal_toolkit.components as ctc
-from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.helpers.layouts import H1, H2, Container
+import dash
 
 # dos and bs data from local jsons
 from monty.serialization import loadfn
-import os
 
+import crystal_toolkit.components as ctc
+from crystal_toolkit.helpers.layouts import H1, Container
+from crystal_toolkit.settings import SETTINGS
 
-# create Dash app as normal, assets folder set for visual styles only
+# assets folder set for visual styles only
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # If callbacks created dynamically they cannot be statically checked at app startup.
@@ -23,8 +19,8 @@ app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 # app.config["suppress_callback_exceptions"] = True
 
 path = os.path.dirname(os.path.realpath(__file__))
-bandstructure_symm_line = loadfn(path + "/GaN_bs.json")
-density_of_states = loadfn(path + "/GaN_dos.json")
+bandstructure_symm_line = loadfn(f"{path}/GaN_bs.json")
+density_of_states = loadfn(f"{path}/GaN_dos.json")
 
 # # create the Crystal Toolkit component
 bsdos_component = ctc.BandstructureAndDosComponent(
@@ -35,7 +31,7 @@ bsdos_component = ctc.BandstructureAndDosComponent(
 
 # example layout to demonstrate capabilities of component
 my_layout = Container(
-    [H1("Band Structure and Density of States Example"), bsdos_component.layout(),]
+    [H1("Band Structure and Density of States Example"), bsdos_component.layout()]
 )
 
 # wrap your app.layout with crystal_toolkit_layout()

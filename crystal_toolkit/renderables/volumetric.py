@@ -4,7 +4,7 @@ from skimage import measure
 
 from crystal_toolkit.core.scene import Scene, Surface
 
-_ANGS2_TO_BOHR3 = 1.88973 ** 3
+_ANGS2_TO_BOHR3 = 1.88973**3
 
 
 def get_isosurface_scene(

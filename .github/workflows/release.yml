@@ -1,28 +1,33 @@
 name: release
 
-on: 
-  workflow_dispatch
+on: workflow_dispatch
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: main
-        fetch-depth: 2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
-    - name: Install dependencies
-      run: |
-        pip install --upgrade pip && pip install --no-cache-dir poetry
-        poetry install -E server -E fermi
-    - name: Build and publish
-      run: |
-        poetry build
-        poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-        poetry publish
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Install poetry
+        # install poetry before setup-python to enable cache retrieval
+        run: pipx install poetry
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          cache: poetry
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          poetry install -E server -E fermi
+
+      - name: Build and publish
+        run: |
+          poetry build
+          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+          poetry publish

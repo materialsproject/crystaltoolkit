@@ -1,47 +1,37 @@
-from pathlib import Path
+from __future__ import annotations
 
-from tempfile import TemporaryDirectory
-
-from base64 import b64encode
-
-import json
-import os
 import re
-import sys
 import warnings
+from base64 import b64encode
 from collections import OrderedDict
 from itertools import chain, combinations_with_replacement
-from pymatgen.io.vasp.sets import MPRelaxSet
-from typing import Dict, Optional, Tuple, Union
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import Literal
 
-import dash
-from dash import dash_table as dt
 import numpy as np
-from dash.dependencies import Input, Output, State, MATCH
+from dash import dash_table as dt
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
+from emmet.core.settings import EmmetSettings
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.core.structure import Molecule, Structure
+from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from emmet.core.settings import EmmetSettings
 
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import H2, Field, dcc, html
 from crystal_toolkit.settings import SETTINGS
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 # TODO: make dangling bonds "stubs"? (fixed length)
 
-DEFAULTS = {
+DEFAULTS: dict[str, str | bool] = {
     "color_scheme": "VESTA",
     "bonding_strategy": "CrystalNN",
     "radius_strategy": "uniform",
@@ -56,7 +46,7 @@ DEFAULTS = {
     "show_expand_button": True,
     "show_image_button": True,
     "show_export_button": True,
-    "show_position_button": True
+    "show_position_button": True,
 }
 
 
@@ -97,16 +87,15 @@ class StructureMoleculeComponent(MPComponent):
 
     def __init__(
         self,
-        struct_or_mol: Optional[
-            Union[Structure, StructureGraph, Molecule, MoleculeGraph]
-        ] = None,
+        struct_or_mol: None
+        | (Structure | StructureGraph | Molecule | MoleculeGraph) = None,
         id: str = None,
         className: str = "box",
-        scene_additions: Optional[Scene] = None,
+        scene_additions: Scene | None = None,
         bonding_strategy: str = DEFAULTS["bonding_strategy"],
-        bonding_strategy_kwargs: Optional[dict] = None,
+        bonding_strategy_kwargs: dict | None = None,
         color_scheme: str = DEFAULTS["color_scheme"],
-        color_scale: Optional[str] = None,
+        color_scale: str | None = None,
         radius_strategy: str = DEFAULTS["radius_strategy"],
         unit_cell_choice: str = DEFAULTS["unit_cell_choice"],
         draw_image_atoms: bool = DEFAULTS["draw_image_atoms"],
@@ -115,8 +104,8 @@ class StructureMoleculeComponent(MPComponent):
         ],
         hide_incomplete_bonds: bool = DEFAULTS["hide_incomplete_bonds"],
         show_compass: bool = DEFAULTS["show_compass"],
-        scene_settings: Optional[Dict] = None,
-        group_by_site_property: Optional[str] = None,
+        scene_settings: dict | None = None,
+        group_by_site_property: str | None = None,
         show_legend: bool = DEFAULTS["show_legend"],
         show_settings: bool = DEFAULTS["show_settings"],
         show_controls: bool = DEFAULTS["show_controls"],
@@ -126,33 +115,40 @@ class StructureMoleculeComponent(MPComponent):
         show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
     ):
-        """
-        Create a StructureMoleculeComponent from a structure or molecule.
+        """Create a StructureMoleculeComponent from a structure or molecule.
 
-        :param struct_or_mol: input structure or molecule
-        :param id: canonical id
-        :param scene_additions: extra geometric elements to add to the 3D scene
-        :param bonding_strategy: bonding strategy from pymatgen NearNeighbors class
-        :param bonding_strategy_kwargs: options for the bonding strategy
-        :param color_scheme: color scheme, see Legend class
-        :param color_scale: color scale, see Legend class
-        :param radius_strategy: radius strategy, see Legend class
-        :param draw_image_atoms: whether to draw repeats of atoms on periodic images
-        :param bonded_sites_outside_unit_cell: whether to draw sites bonded outside the unit cell
-        :param hide_incomplete_bonds: whether to hide or show incomplete bonds
-        :param show_compass: whether to hide or show the compass
-        :param scene_settings: scene settings (lighting etc.) to pass to CrystalToolkitScene
-        :param group_by_site_property: a site property used for grouping of atoms for mouseover/interaction,
-        :param show_legend: show or hide legend panel within the scene
-        :param show_controls: show or hide scene control bar
-        :param show_expand_button: show or hide the full screen button within the scene control bar
-        :param show_image_button: show or hide the image download button within the scene control bar
-        :param show_export_button: show or hide the file export button within the scene control bar
-        :param show_position_button: show or hide the revert position button within the scene control bar
-        e.g. Wyckoff label
-        :param kwargs: extra keyword arguments to pass to MPComponent
+        Args:
+            struct_or_mol (None |, optional): input structure or molecule. Defaults to None.
+            id (str, optional): canonical id. Defaults to None.
+            className (str, optional): extra geometric elements to add to the 3D scene. Defaults to "box".
+            scene_additions (Scene | None, optional): bonding strategy from pymatgen NearNeighbors class.
+                Defaults to None.
+            bonding_strategy (str, optional): options for the bonding strategy.
+            bonding_strategy_kwargs (dict | None, optional): color scheme, see Legend class.
+                Defaults to None.
+            color_scheme (str, optional): color scale, see Legend class.
+            color_scale (str | None, optional): radius strategy, see Legend class.
+                Defaults to None.
+            radius_strategy (str, optional):  optional): radius strategy, see Legend class.
+            unit_cell_choice (str, optional): whether to draw repeats of atoms on periodic images.
+            draw_image_atoms (bool, optional): whether to draw sites bonded outside the unit cell.
+            bonded_sites_outside_unit_cell (bool, optional): whether to hide or show incomplete bonds.
+                Defaults to DEFAULTS[ "bonded_sites_outside_unit_cell" ].
+            hide_incomplete_bonds (bool, optional): whether to hide or show the compass.
+            show_compass (bool, optional): scene settings (lighting etc.) to pass to CrystalToolkitScene.
+            scene_settings (dict | None, optional): a site property used for grouping of atoms for
+                mouseover/interaction. Defaults to None.
+            group_by_site_property (str | None, optional): a site property used for grouping of atoms for
+                mouseover/interaction. Defaults to None.
+            show_legend (bool, optional):  optional): show or hide legend panel within the scene.
+            show_settings (bool, optional): show or hide scene control bar.
+            show_controls (bool, optional): show or hide the full screen button within the scene control bar.
+            show_expand_button (bool, optional): show or hide the image download button within the scene control bar.
+            show_image_button (bool, optional): show or hide the file export button within the scene control bar.
+            show_export_button (bool, optional): show or hide the revert position button within the scene control bar.
+            show_position_button (bool, optional): extra keyword arguments to pass to MPComponent. e.g. Wyckoff label.
+            **kwargs: a CSS dimension specifying width/height of Div.
         """
-
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
         self.className = className
         self.show_legend = show_legend
@@ -256,7 +252,7 @@ class StructureMoleculeComponent(MPComponent):
         app.clientside_callback(
             """
             function (bonding_strategy, custom_cutoffs_rows, unit_cell_choice) {
-            
+
                 const bonding_strategy_kwargs = {}
                 if (bonding_strategy === 'CutOffDictNN') {
                     const cut_off_dict = []
@@ -265,7 +261,7 @@ class StructureMoleculeComponent(MPComponent):
                     })
                     bonding_strategy_kwargs.cut_off_dict = cut_off_dict
                 }
-            
+
                 return {
                     bonding_strategy: bonding_strategy,
                     bonding_strategy_kwargs: bonding_strategy_kwargs,
@@ -299,12 +295,14 @@ class StructureMoleculeComponent(MPComponent):
         app.clientside_callback(
             """
             function (colorScheme, radiusStrategy, drawOptions, displayOptions) {
-            
-                const newDisplayOptions = Object.assign({}, displayOptions);
+
+                const newDisplayOptions = {...displayOptions}
                 newDisplayOptions.color_scheme = colorScheme
                 newDisplayOptions.radius_strategy = radiusStrategy
                 newDisplayOptions.draw_image_atoms = drawOptions.includes('draw_image_atoms')
-                newDisplayOptions.bonded_sites_outside_unit_cell =  drawOptions.includes('bonded_sites_outside_unit_cell')
+                newDisplayOptions.bonded_sites_outside_unit_cell = drawOptions.includes(
+                    'bonded_sites_outside_unit_cell'
+                )
                 newDisplayOptions.hide_incomplete_bonds = drawOptions.includes('hide_incomplete_bonds')
 
                 return newDisplayOptions
@@ -462,7 +460,7 @@ class StructureMoleculeComponent(MPComponent):
                 spgrp = struct_or_mol.get_space_group_info()[0]
             else:
                 spgrp = ""
-            request_filename = "{}-{}-crystal-toolkit.png".format(formula, spgrp)
+            request_filename = f"{formula}-{spgrp}-crystal-toolkit.png"
 
             return {
                 "content": image_data[len("data:image/png;base64,") :],
@@ -605,7 +603,7 @@ class StructureMoleculeComponent(MPComponent):
 
         try:
             formula = Composition.from_dict(legend["composition"]).reduced_formula
-        except:
+        except Exception:
             # TODO: fix legend for Dummy Specie compositions
             formula = "Unknown"
 
@@ -628,7 +626,7 @@ class StructureMoleculeComponent(MPComponent):
             legend_elements,
             id=self.id("legend"),
             style={"display": "flex"},
-            className="buttons"
+            className="buttons",
         )
 
     def _make_title(self, legend):
@@ -659,8 +657,8 @@ class StructureMoleculeComponent(MPComponent):
                     else html.Span(part.strip())
                     for part in formula_parts
                 ]
-            except:
-                formula_components = list(map(str, composition.keys()))
+            except Exception:
+                formula_components = list(map(str, composition))
 
         return H2(
             formula_components, id=self.id("title"), style={"display": "inline-block"}
@@ -675,9 +673,7 @@ class StructureMoleculeComponent(MPComponent):
         species = set(
             map(
                 str,
-                chain.from_iterable(
-                    [list(c.keys()) for c in struct_or_mol.species_and_occu]
-                ),
+                chain.from_iterable([list(c) for c in struct_or_mol.species_and_occu]),
             )
         )
         rows = [
@@ -761,7 +757,9 @@ class StructureMoleculeComponent(MPComponent):
                     ),
                     html.Div(
                         [
-                            html.Label("Change bonding algorithm: ", className="mpc-label"),
+                            html.Label(
+                                "Change bonding algorithm: ", className="mpc-label"
+                            ),
                             bonding_algorithm,
                             bonding_algorithm_custom_cutoffs,
                         ]
@@ -786,7 +784,10 @@ class StructureMoleculeComponent(MPComponent):
                     html.Div(
                         dcc.Dropdown(
                             options=[
-                                {"label": "Ionic", "value": "specified_or_average_ionic"},
+                                {
+                                    "label": "Ionic",
+                                    "value": "specified_or_average_ionic",
+                                },
                                 {"label": "Covalent", "value": "covalent"},
                                 {"label": "Van der Waals", "value": "van_der_waals"},
                                 {
@@ -794,7 +795,9 @@ class StructureMoleculeComponent(MPComponent):
                                     "value": "uniform",
                                 },
                             ],
-                            value=self.initial_data["display_options"]["radius_strategy"],
+                            value=self.initial_data["display_options"][
+                                "radius_strategy"
+                            ],
                             clearable=False,
                             persistence=SETTINGS.PERSISTENCE,
                             persistence_type=SETTINGS.PERSISTENCE_TYPE,
@@ -875,16 +878,13 @@ class StructureMoleculeComponent(MPComponent):
         struct_layout = html.Div(
             [
                 CrystalToolkitScene(
-                    [
-                        options_layout,
-                        legend_layout
-                    ],
+                    [options_layout, legend_layout],
                     id=self.id("scene"),
                     className=self.className,
                     data=self.initial_data["scene"],
                     settings=self.initial_scene_settings,
                     sceneSize="100%",
-                    fileOptions=list(self.download_options["Structure"].keys()),
+                    fileOptions=list(self.download_options["Structure"]),
                     showControls=self.show_controls,
                     showExpandButton=self.show_expand_button,
                     showImageButton=self.show_image_button,
@@ -893,7 +893,7 @@ class StructureMoleculeComponent(MPComponent):
                     **self.scene_kwargs,
                 ),
                 dcc.Download(id=self.id("download-image")),
-                dcc.Download(id=self.id("download-structure"))
+                dcc.Download(id=self.id("download-structure")),
             ]
         )
 
@@ -905,9 +905,13 @@ class StructureMoleculeComponent(MPComponent):
         }
 
     def layout(self, size: str = "500px") -> html.Div:
-        """
-        :param size: a CSS string specifying width/height of Div
-        :return: A html.Div containing the 3D structure or molecule
+        """Get the layout for this component.
+
+        Args:
+            size (str, optional): a CSS dimension specifying width/height of Div. Defaults to "500px".
+
+        Returns:
+            html.Div: A html.Div containing the 3D structure or molecule
         """
         return html.Div(
             self._sub_layouts["struct"], style={"width": size, "height": size}
@@ -915,7 +919,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _preprocess_structure(
-        struct_or_mol: Union[Structure, StructureGraph, Molecule, MoleculeGraph],
+        struct_or_mol: Structure | StructureGraph | Molecule | MoleculeGraph,
         unit_cell_choice: Literal[
             "input", "primitive", "conventional", "reduced_niggli", "reduced_lll"
         ] = "input",
@@ -939,14 +943,14 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _preprocess_input_to_graph(
-        input: Union[Structure, StructureGraph, Molecule, MoleculeGraph],
+        input: Structure | StructureGraph | Molecule | MoleculeGraph,
         bonding_strategy: str = DEFAULTS["bonding_strategy"],
-        bonding_strategy_kwargs: Optional[Dict] = None,
-    ) -> Union[StructureGraph, MoleculeGraph]:
+        bonding_strategy_kwargs: dict | None = None,
+    ) -> StructureGraph | MoleculeGraph:
 
         if isinstance(input, Structure):
 
-            # ensure fractional co-ordinates are normalized to be in [0,1)
+            # ensure fractional coordinates are normalized to be in [0,1)
             # (this is actually not guaranteed by Structure)
             try:
                 input = input.as_dict(verbosity=0)
@@ -969,15 +973,14 @@ class StructureMoleculeComponent(MPComponent):
         else:
             if (
                 bonding_strategy
-                not in StructureMoleculeComponent.available_bonding_strategies.keys()
+                not in StructureMoleculeComponent.available_bonding_strategies
             ):
+                valid_subclasses = ", ".join(
+                    StructureMoleculeComponent.available_bonding_strategies
+                )
                 raise ValueError(
-                    "Bonding strategy not supported. Please supply a name "
-                    "of a NearNeighbor subclass, choose from: {}".format(
-                        ", ".join(
-                            StructureMoleculeComponent.available_bonding_strategies.keys()
-                        )
-                    )
+                    "Bonding strategy not supported. Please supply a name of a NearNeighbor "
+                    f"subclass, choose from: {valid_subclasses}"
                 )
             else:
                 bonding_strategy_kwargs = bonding_strategy_kwargs or {}
@@ -988,10 +991,10 @@ class StructureMoleculeComponent(MPComponent):
                             (x[0], x[1]): x[2]
                             for x in bonding_strategy_kwargs["cut_off_dict"]
                         }
-                bonding_strategy = StructureMoleculeComponent.available_bonding_strategies[
-                    bonding_strategy
-                ](
-                    **bonding_strategy_kwargs
+                bonding_strategy = (
+                    StructureMoleculeComponent.available_bonding_strategies[
+                        bonding_strategy
+                    ](**bonding_strategy_kwargs)
                 )
                 try:
                     with warnings.catch_warnings():
@@ -1004,7 +1007,7 @@ class StructureMoleculeComponent(MPComponent):
                             graph = MoleculeGraph.with_local_env_strategy(
                                 input, bonding_strategy, reorder=False
                             )
-                except:
+                except Exception:
                     # for some reason computing bonds failed, so let's not have any bonds(!)
                     if isinstance(input, Structure):
                         graph = StructureGraph.with_empty_graph(input)
@@ -1015,8 +1018,8 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def _get_struct_or_mol(
-        graph: Union[StructureGraph, MoleculeGraph, Structure, Molecule]
-    ) -> Union[Structure, Molecule]:
+        graph: StructureGraph | MoleculeGraph | Structure | Molecule,
+    ) -> Structure | Molecule:
         if isinstance(graph, StructureGraph):
             return graph.structure
         elif isinstance(graph, MoleculeGraph):
@@ -1028,7 +1031,7 @@ class StructureMoleculeComponent(MPComponent):
 
     @staticmethod
     def get_scene_and_legend(
-        graph: Optional[Union[StructureGraph, MoleculeGraph]],
+        graph: StructureGraph | MoleculeGraph | None,
         color_scheme=DEFAULTS["color_scheme"],
         color_scale=None,
         radius_strategy=DEFAULTS["radius_strategy"],
@@ -1039,7 +1042,7 @@ class StructureMoleculeComponent(MPComponent):
         scene_additions=None,
         show_compass=DEFAULTS["show_compass"],
         group_by_site_property=None,
-    ) -> Tuple[Scene, Dict[str, str]]:
+    ) -> tuple[Scene, dict[str, str]]:
 
         scene = Scene(name="StructureMoleculeComponentScene")
 

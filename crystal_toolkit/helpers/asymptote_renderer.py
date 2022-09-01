@@ -4,16 +4,17 @@ For creating publication quality plots
 Since ASY does not have the nested tree structure of threejs,
 we just have to traverse the tree and draw each material as we see them.
 
-TODO The code should also appends a set of special points at the end in case the user wants to add more "hand drawn" features to the plot
+TODO The code should also appends a set of special points at the end in case the user wants to add
+more "hand drawn" features to the plot
 
 """
 import logging
 from itertools import chain
 
 from jinja2 import Environment
-
-from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.graphs import StructureGraph
+from pymatgen.core.structure import Structure
+
 from crystal_toolkit.helpers.utils import update_object_args
 
 logger = logging.getLogger(__name__)
@@ -281,9 +282,7 @@ def _get_surface(ctk_scene, d_args=None):
     color = color.replace("#", "")
     opacity = ctk_scene.opacity or updated_defaults["opacity"]
 
-    positions = tuple(
-        map(lambda x: "{" + f"{x[0]}, {x[1]}, {x[2]}" + "}", ctk_scene.positions)
-    )
+    positions = tuple(map(lambda x: f"{{{x[0]}, {x[1]}, {x[2]}}}", ctk_scene.positions))
     num_triangle = len(ctk_scene.positions) / 3.0
     # sanity check the mesh must be triangles
     assert num_triangle.is_integer()
@@ -338,18 +337,18 @@ def asy_write_data(input_scene_comp, fstream):
 
     return
 
-    # TODO we can make the line solide for the forground and dashed for the background
+    # TODO we can make the line solide for the foreground and dashed for the background
     # This will require use to modify the way the line objects are generated
     # at each vertex in the unit cell, we can evaluate the sum of all three lattice vectors from the point
     # then the <vec_sum | vec_to_camera> for each vertex.  The smallest
-    # normalized vertex contians the three lines that should be dashed
+    # normalized vertex contains the three lines that should be dashed
 
 
 def filter_data(scene_data, fstream):
     """
     Recursively traverse the scene_data dictionary to find objects to draw
     """
-    if "type" in scene_data.keys():
+    if "type" in scene_data:
         asy_write_data(scene_data, fstream)
     else:
         for itr in scene_data["contents"]:

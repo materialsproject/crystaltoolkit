@@ -1,19 +1,21 @@
-from typing import Optional
-
 import dash
-from dash import dcc
-from dash import html
-import dash_table
 import plotly.graph_objs as go
+from dash import dash_table, dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
 from pymatgen.core.composition import Composition
+from pymatgen.ext.matproj import MPRester
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import *  # layout helpers like `Columns` etc. (most subclass html.Div)
+from crystal_toolkit.helpers.layouts import (
+    Button,
+    Column,
+    Columns,
+    MessageBody,
+    MessageContainer,
+)
 
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov
@@ -366,7 +368,7 @@ class PhaseDiagramComponent(MPComponent):
         for entry in pd.all_entries:
             try:
                 mpid = entry.entry_id
-            except:
+            except Exception:
                 mpid = entry.attribute  # accounting for custom entry
 
             try:
@@ -386,7 +388,7 @@ class PhaseDiagramComponent(MPComponent):
                     }
                 )
 
-            except:
+            except Exception:
                 data.append({})
         return data
 
@@ -417,7 +419,7 @@ class PhaseDiagramComponent(MPComponent):
         go.Scatterternary(
             {
                 "mode": "markers",
-                "a": list_of_a_comp,
+                "a": ...,  # list_of_a_comp
                 "b": ...,
                 "c": ...,
                 "text": ...,
@@ -511,7 +513,8 @@ class PhaseDiagramComponent(MPComponent):
                         css=[
                             {
                                 "selector": ".dash-cell div.dash-cell-value",
-                                "rule": "display: inline; white-space: inherit; overflow: inherit; text-overflow: inherit;",
+                                "rule": "display: inline; white-space: inherit; overflow: inherit; "
+                                "text-overflow: inherit;",
                             }
                         ],
                         style_cell_conditional=[
@@ -662,7 +665,7 @@ class PhaseDiagramComponent(MPComponent):
                         comp, float(energy) * comp.num_atoms, attribute=attribute
                     )
                     entries.append(entry)
-                except:
+                except Exception:
                     continue
 
             if not entries:
@@ -689,10 +692,10 @@ class PhaseDiagramComponent(MPComponent):
             trigger = ctx.triggered[0]
 
             # PD update trigger
-            if trigger["prop_id"] == self.id() + ".modified_timestamp":
+            if trigger["prop_id"] == f"{self.id()}.modified_timestamp":
                 table_content = self.create_table_content(self.from_data(pd))
                 return table_content
-            elif trigger["prop_id"] == self.id("editing-rows-button") + ".n_clicks":
+            elif trigger["prop_id"] == f"{self.id('editing-rows-button')}.n_clicks":
                 if n_clicks > 0 and rows:
                     rows.append(self.empty_row)
                     return rows
@@ -712,11 +715,21 @@ class PhaseDiagramComponent(MPComponent):
                 Input(self.id("chemsys-external"), "data"),
             ],
         )
-        def get_chemsys_from_mpid_or_chemsys(mpid, chemsys_external: str):
-            """
-            :param mpid: mpid
-            :param chemsys_external: chemsys, e.g. "Co-O"
-            :return: chemsys
+        def get_chemsys_from_mpid_or_chemsys(
+            mpid: str, chemsys_external: str
+        ) -> str | None:
+            """Get the chemical system as a string of elements sorted alphabetically and joined by dashes,
+            by convention for use in database keys.
+
+            Args:
+                mpid (str): MP material ID.
+                chemsys_external (str): chemsys, e.g. "Co-O"
+
+            Raises:
+                PreventUpdate: ctx is None or not triggered or trigger["value"] is None.
+
+            Returns:
+                str | None: chemical system, e.g. "O-Si" for SiO2.
             """
             ctx = dash.callback_context
 
@@ -731,14 +744,14 @@ class PhaseDiagramComponent(MPComponent):
             chemsys = None
 
             # get entries by mpid
-            if trigger["prop_id"] == self.id("mpid") + ".data":
+            if trigger["prop_id"] == f"{self.id('mpid')}.data":
                 with MPRester() as mpr:
                     entry = mpr.get_entry_by_material_id(mpid)
 
                 chemsys = entry.composition.chemical_system
 
             # get entries by chemsys
-            if trigger["prop_id"] == self.id("chemsys-external") + ".data":
+            if trigger["prop_id"] == f"{self.id('chemsys-external')}.data":
                 chemsys = chemsys_external
 
             return chemsys
@@ -758,7 +771,7 @@ class PhaseDiagramPanelComponent(PanelComponent):
     def description(self):
         return (
             "Display the compositional phase diagram for the"
-            " chemical system containing this structure (between 2–4 species)."
+            " chemical system containing this structure (between 2-4 species)."
         )
 
     def update_contents(self, new_store_contents, *args):

@@ -1,43 +1,43 @@
-import numpy as np
-from pymatgen.core.periodic_table import DummySpecie
-from scipy.spatial.qhull import Delaunay
-
-from crystal_toolkit.core.scene import (
-    Scene,
-    Cubes,
-    Spheres,
-    Cylinders,
-    Surface,
-    Convex,
-    Arrows,
-)
-from crystal_toolkit.core.legend import Legend
+from __future__ import annotations
 
 from itertools import chain
-from pymatgen.core.sites import Site
-from pymatgen.analysis.graphs import ConnectedSite
-from pymatgen.electronic_structure.core import Magmom
 
-from typing import List, Optional
+import numpy as np
+from pymatgen.analysis.graphs import ConnectedSite
+from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.core.sites import Site
+from pymatgen.electronic_structure.core import Magmom
+from scipy.spatial.qhull import Delaunay
+
+from crystal_toolkit.core.legend import Legend
+from crystal_toolkit.core.scene import (
+    Arrows,
+    Convex,
+    Cubes,
+    Cylinders,
+    Scene,
+    Spheres,
+    Surface,
+)
 
 
 def get_site_scene(
     self,
-    connected_sites: List[ConnectedSite] = None,
+    connected_sites: list[ConnectedSite] = None,
     # connected_site_metadata: None,
     # connected_sites_to_draw,
-    connected_sites_not_drawn: List[ConnectedSite] = None,
+    connected_sites_not_drawn: list[ConnectedSite] = None,
     hide_incomplete_edges: bool = False,
-    incomplete_edge_length_scale: Optional[float] = 1.0,
-    connected_sites_colors: Optional[List[str]] = None,
-    connected_sites_not_drawn_colors: Optional[List[str]] = None,
-    origin: Optional[List[float]] = None,
+    incomplete_edge_length_scale: float | None = 1.0,
+    connected_sites_colors: list[str] | None = None,
+    connected_sites_not_drawn_colors: list[str] | None = None,
+    origin: list[float] | None = None,
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
     bond_radius: float = 0.1,
     draw_magmoms: bool = True,
     magmom_scale: float = 1.0,
-    legend: Optional[Legend] = None,
+    legend: Legend | None = None,
 ) -> Scene:
     """
 
@@ -70,10 +70,10 @@ def get_site_scene(
 
     position = self.coords.tolist()
 
-    radii = [legend.get_radius(sp, site=self) for sp in self.species.keys()]
+    radii = [legend.get_radius(sp, site=self) for sp in self.species]
     max_radius = float(min(radii))
 
-    for idx, (sp, occu) in enumerate(self.species.items()):
+    for sp, occu in self.species.items():
 
         if isinstance(sp, DummySpecie):
 
@@ -100,7 +100,7 @@ def get_site_scene(
 
             name = str(sp)
             if occu != 1.0:
-                name += " ({}% occupancy)".format(occu)
+                name += f" ({occu}% occupancy)"
             name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
 
             if self.properties:
@@ -224,7 +224,7 @@ def get_site_scene(
                     # .vertex_neighbor_vertices = [1, 2, 3, 2, 3, 0, 1, 3, 0, 1, 2, 0]
 
                     vertices_indices = Delaunay(all_positions).convex_hull
-                except Exception as e:
+                except Exception:
                     vertices_indices = []
 
                 vertices = [

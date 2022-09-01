@@ -1,21 +1,19 @@
-# as above
 import dash
 from dash import html
-from dash import dcc
-import crystal_toolkit.components as ctc
 
 # standard Dash imports for callbacks (interactivity)
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
-
-from pymatgen.core.structure import Structure
+from dash.dependencies import Input, Output
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 
-app = dash.Dash()
+import crystal_toolkit.components as ctc
+
+# don't run callbacks on page load
+app = dash.Dash(prevent_initial_callbacks=True)
 
 # now we give a list of structures to pick from
 structures = [
-    Structure(Lattice.cubic(4), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
+    Structure(Lattice.hexagonal(5, 3), ["Na", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
     Structure(Lattice.cubic(5), ["K", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]),
 ]
 
@@ -31,19 +29,15 @@ my_layout = html.Div([structure_component.layout(), my_button])
 
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
+
 # for the interactivity, we use a standard Dash callback
 @app.callback(
     Output(structure_component.id(), "data"),
     [Input("change_structure_button", "n_clicks")],
 )
 def update_structure(n_clicks):
-    # on load, n_clicks will be None, and no update is required
-    # after clicking on the button, n_clicks will be an int and incremented
-    if not n_clicks:
-        raise PreventUpdate
     return structures[n_clicks % 2]
 
 
-# as above
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

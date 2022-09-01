@@ -1,30 +1,27 @@
+from __future__ import annotations
+
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC
 from ast import literal_eval
+from base64 import b64encode
 from collections import defaultdict
 from itertools import chain
 from json import JSONDecodeError, dumps, loads
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
-from base64 import b64encode
+from typing import Any, Literal
 
 import dash
-from dash import dcc
-from dash import html
-from dash import dash_table as dt
+import dash_mp_components as mpc
 import numpy as np
-from dash.dependencies import ALL, Output
+import plotly.graph_objects as go
+from dash import dash_table as dt
+from dash import dcc, html
+from dash.dependencies import ALL
 from flask_caching import Cache
 from monty.json import MontyDecoder, MSONable
-import dash_mp_components as mpc
 
 from crystal_toolkit import __version__ as ct_version
-from crystal_toolkit.helpers.layouts import add_label_help, Icon, Button, Loading
+from crystal_toolkit.helpers.layouts import Button, Icon, Loading, add_label_help
 from crystal_toolkit.settings import SETTINGS
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 # fallback cache if Redis etc. isn't set up
 null_cache = Cache(config={"CACHE_TYPE": "null"})
@@ -48,15 +45,15 @@ class MPComponent(ABC):
 
     # used to track all dcc.Stores required for all MPComponents to work
     # keyed by the MPComponent id
-    _app_stores_dict: Dict[str, List[dcc.Store]] = defaultdict(list)
+    _app_stores_dict: dict[str, list[dcc.Store]] = defaultdict(list)
 
     # used to track what individual Dash components are defined
     # by this MPComponent
-    _all_id_basenames: Set[str] = set()
+    _all_id_basenames: set[str] = set()
 
     # used to defer generation of callbacks until app.layout defined
     # can be helpful to callback exceptions retained
-    _callbacks_to_generate: Set["MPComponent"] = set()
+    _callbacks_to_generate: set[MPComponent] = set()
 
     @staticmethod
     def register_app(app: dash.Dash):
@@ -84,7 +81,7 @@ class MPComponent(ABC):
             app.title = "Crystal Toolkit"
 
     @staticmethod
-    def register_cache(cache: Cache):
+    def register_cache(cache: Cache) -> None:
         """
         This method must be called at least once in your
         Crystal Toolkit Dash app if you want to enable
@@ -96,7 +93,9 @@ class MPComponent(ABC):
         Args:
             cache: a flask_caching Cache instance
         """
-        if cache:
+        if SETTINGS.DEBUG_MODE:
+            cache = null_cache
+        elif cache:
             MPComponent.cache = cache
         else:
             MPComponent.cache = Cache(
@@ -108,8 +107,7 @@ class MPComponent(ABC):
 
         if not MPComponent.app:
             raise ValueError(
-                "Please register the Dash app with Crystal Toolkit "
-                "using register_app()."
+                "Please register the Dash app with Crystal Toolkit using register_app()."
             )
 
         # layout_str = str(layout)
@@ -152,9 +150,9 @@ class MPComponent(ABC):
 
     def __init__(
         self,
-        default_data: Optional[Union[MSONable, Dict, str]] = None,
-        id: Optional[str] = None,
-        links: Optional[Dict[str, str]] = None,
+        default_data: MSONable | dict | str | None = None,
+        id: str | None = None,
+        links: dict[str, str] | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
     ):
@@ -188,7 +186,7 @@ class MPComponent(ABC):
         are _sub_layouts and generate_callbacks().
 
         Args:
-            default_data: inital contents for the component, can be None
+            default_data: initial contents for the component, can be None
             id: a unique id, required if multiple of the same type of
             MPComponent are included in an app
             links: if set, will set store contents from the stores of another
@@ -213,13 +211,13 @@ class MPComponent(ABC):
         if id is None:
             # TODO: this could lead to duplicate ids and an error, but if
             # setting random ids, this could also lead to undefined behavior
-            id = f"{CT_NAMESPACE}{self.__class__.__name__}"
+            id = f"{CT_NAMESPACE}{type(self).__name__}"
         elif not id.startswith(CT_NAMESPACE):
             id = f"{CT_NAMESPACE}{id}"
         MPComponent._all_id_basenames.add(id)
 
         self._id = id
-        self._all_ids = set()
+        self._all_ids: set[str] = set()
         self._stores = {}
         self._initial_data = {}
 
@@ -234,7 +232,7 @@ class MPComponent(ABC):
             # callbacks generated as final step by crystal_toolkit_layout()
             self._callbacks_to_generate.add(self)
 
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(type(self).__name__)
 
     def id(
         self,
@@ -243,7 +241,7 @@ class MPComponent(ABC):
         idx=False,
         hint=None,
         is_store: bool = False,
-    ) -> Union[str, Dict[str, str]]:
+    ) -> str | dict[str, str]:
         """
         Generate an id from a name combined with the
         base id of the MPComponent itself, useful for generating
@@ -296,10 +294,10 @@ class MPComponent(ABC):
     def create_store(
         self,
         name: str,
-        initial_data: Optional[Union[MSONable, Dict, str]] = None,
+        initial_data: MSONable | dict | str | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         debug_clear: bool = False,
-    ):
+    ) -> None:
         """
         Generate a dcc.Store to hold something (MSONable object, Dict
         or string), and register it so that it will be included in the
@@ -331,7 +329,7 @@ class MPComponent(ABC):
         MPComponent._app_stores_dict[self.id()].append(store)
 
     @property
-    def initial_data(self):
+    def initial_data(self) -> dict[str, Any]:
         """
         :return: Initial data for all the stores defined by component,
         keyed by store name.
@@ -339,7 +337,7 @@ class MPComponent(ABC):
         return self._initial_data
 
     @staticmethod
-    def from_data(data):
+    def from_data(data: dict[str, Any]) -> MPComponent:
         """
         Converts the contents of a dcc.Store back into a Python object.
         :param data: contents of a dcc.Store created by to_data
@@ -348,44 +346,40 @@ class MPComponent(ABC):
         return loads(dumps(data), cls=MontyDecoder)
 
     @property
-    def all_stores(self) -> List[str]:
+    def all_stores(self) -> list[str]:
         """
         :return: List of all store ids generated by this component
         """
-        return list(self._stores.keys())
+        return list(self._stores)
 
     @property
-    def all_ids(self) -> List[str]:
+    def all_ids(self) -> list[str]:
         """
         :return: List of all ids generated by this component
         """
         return list(
-            [
-                component_id
-                for component_id in self._all_ids
-                if component_id not in self.all_stores
-            ]
+            component_id
+            for component_id in self._all_ids
+            if component_id not in self.all_stores
         )
 
-    def __repr__(self):
-        return f"{self.id()}<{self.__class__.__name__}>"
+    def __repr__(self) -> str:
+        return f"{self.id()}<{type(self).__name__}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         ids = "\n".join(
             [f"* {component_id}  " for component_id in sorted(self.all_ids)]
         )
         stores = "\n".join([f"* {store}  " for store in sorted(self.all_stores)])
-        layouts = "\n".join(
-            [f"* {layout}  " for layout in sorted(self._sub_layouts.keys())]
-        )
+        layouts = "\n".join([f"* {layout}  " for layout in sorted(self._sub_layouts)])
 
-        return f"""{self.id()}<{self.__class__.__name__}>  \n
+        return f"""{self.id()}<{type(self).__name__}>  \n
 IDs:  \n{ids}  \n
 Stores:  \n{stores}  \n
 Sub-layouts:  \n{layouts}"""
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, dash.development.base_component.Component]:
         """
         Layouts associated with this component, available for book-keeping
         if your component is complex, so that the layout() method is just
@@ -403,7 +397,7 @@ Sub-layouts:  \n{layouts}"""
         """
         return html.Div(list(self._sub_layouts.values()))
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         """
         Generate all callbacks associated with the layouts in this app. Assume
         that "suppress_callback_exceptions" is True, since it is not always
@@ -415,14 +409,14 @@ Sub-layouts:  \n{layouts}"""
     def get_numerical_input(
         self,
         kwarg_label: str,
-        default: Optional[Union[int, float, List]] = None,
-        state: Optional[dict] = None,
-        label: Optional[str] = None,
+        default: int | float | list | None = None,
+        state: dict | None = None,
+        label: str | None = None,
         help_str: str = None,
         is_int: bool = False,
-        shape: Tuple[int, ...] = (),
+        shape: tuple[int, ...] = (),
         **kwargs,
-    ):
+    ) -> html.Div:
         """
         For Python classes which take matrices as inputs, this will generate
         a corresponding Dash input layout.
@@ -503,10 +497,11 @@ Sub-layouts:  \n{layouts}"""
 
         # arrange the input boxes in two dimensions (rows, columns)
         matrix_div_contents = []
-        for row_idx, columns in sorted(matrix_contents.items()):
+        print("matrix_contents", matrix_contents)
+        for column_idx in sorted(matrix_contents):
             row = []
-            for column_idx, element in sorted(columns.items()):
-                row.append(element)
+            for row_idx in sorted(matrix_contents[column_idx]):
+                row.append(matrix_contents[column_idx][row_idx])
             matrix_div_contents.append(html.Div(row))
 
         matrix = html.Div(matrix_div_contents)
@@ -516,15 +511,16 @@ Sub-layouts:  \n{layouts}"""
     def get_slider_input(
         self,
         kwarg_label: str,
-        default: Optional[Any] = None,
-        state: Dict = None,
-        label: Optional[str] = None,
+        default: Any | None = None,
+        state: dict = None,
+        label: str | None = None,
         help_str: str = None,
         multiple: bool = False,
         **kwargs,
     ):
 
         state = state or {}
+        # TODO: bug if default == 0
         default = default or state.get(kwarg_label)
 
         # mpc.RangeSlider requires a domain to be specified
@@ -549,9 +545,9 @@ Sub-layouts:  \n{layouts}"""
     def get_bool_input(
         self,
         kwarg_label: str,
-        default: Optional[bool] = None,
-        state: Optional[dict] = None,
-        label: Optional[str] = None,
+        default: bool | None = None,
+        state: dict | None = None,
+        label: str | None = None,
         help_str: str = None,
         **kwargs,
     ):
@@ -563,9 +559,10 @@ Sub-layouts:  \n{layouts}"""
         to name the component.
         :param label: A description for this input.
         :param default: A default value for this input.
-        :param state: Used to set default state for this input, use a dict with the kwarg_label as a key
-        and the default value as a value. Ignored if `default` is set. It can be useful to use
-        `state` if you want to set defaults for multiple inputs from a single dictionary.
+        :param state: Used to set default state for this input, use a dict with the
+            kwarg_label as a key
+        and the default value as a value. Ignored if `default` is set. It can be useful
+            to use `state` if you want to set defaults for multiple inputs from a single dictionary.
         :param help_str: Text for a tooltip when hovering over label.
         :return: a Dash layout
         """
@@ -585,11 +582,12 @@ Sub-layouts:  \n{layouts}"""
     def get_choice_input(
         self,
         kwarg_label: str,
-        default: Optional[str] = None,
-        state: Optional[dict] = None,
-        label: Optional[str] = None,
+        default: str | None = None,
+        state: dict | None = None,
+        label: str | None = None,
         help_str: str = None,
-        options: Optional[List[Dict]] = None,
+        options: list[dict] | None = None,
+        clearable: bool = False,
         **kwargs,
     ):
         """
@@ -605,6 +603,7 @@ Sub-layouts:  \n{layouts}"""
         `state` if you want to set defaults for multiple inputs from a single dictionary.
         :param help_str: Text for a tooltip when hovering over label.
         :param options: Options to choose from, as per dcc.Dropdown
+        :param clearable: If True, will allow Dropdown to be cleared after a selection is made.
         :return: a Dash layout
         """
 
@@ -615,7 +614,7 @@ Sub-layouts:  \n{layouts}"""
             id=self.id(kwarg_label, is_kwarg=True, hint="literal"),
             options=options if options else [],
             value=default,
-            isClearable=False,
+            isClearable=clearable,
             arbitraryProps={**kwargs},
         )
 
@@ -624,9 +623,9 @@ Sub-layouts:  \n{layouts}"""
     def get_dict_input(
         self,
         kwarg_label: str,
-        default: Optional[Any] = None,
-        state: Optional[dict] = None,
-        label: Optional[str] = None,
+        default: Any | None = None,
+        state: dict | None = None,
+        label: str | None = None,
         help_str: str = None,
         key_name: str = "key",
         value_name: str = "value",
@@ -659,7 +658,7 @@ Sub-layouts:  \n{layouts}"""
 
         return add_label_help(dict_input, label, help_str)
 
-    def get_kwarg_id(self, kwarg_name) -> Dict:
+    def get_kwarg_id(self, kwarg_name) -> dict[str, str]:
         """
 
         :param kwarg_name:
@@ -672,7 +671,7 @@ Sub-layouts:  \n{layouts}"""
             "hint": ALL,
         }
 
-    def get_all_kwargs_id(self) -> Dict:
+    def get_all_kwargs_id(self) -> dict[str, str]:
         """
 
         :return:
@@ -684,7 +683,7 @@ Sub-layouts:  \n{layouts}"""
             state=state, kwarg_labels=[kwarg_name]
         )[kwarg_name]
 
-    def reconstruct_kwargs_from_state(self, state=None, kwarg_labels=None) -> Dict:
+    def reconstruct_kwargs_from_state(self, state=None, kwarg_labels=None) -> dict:
         """
         Generate
 
@@ -750,7 +749,7 @@ Sub-layouts:  \n{layouts}"""
 
                     try:
                         kwargs[kwarg_label] = literal_eval(str(v))
-                    except ValueError:
+                    except (ValueError, SyntaxError):
                         kwargs[kwarg_label] = str(v)
 
                 elif k_type == "bool":
@@ -771,25 +770,30 @@ Sub-layouts:  \n{layouts}"""
                 kwargs[k] = v.tolist()
 
         if SETTINGS.DEBUG_MODE:
-            print(self.__class__.__name__, "kwargs", kwargs)
+            print(type(self).__name__, "kwargs", kwargs)
 
         return kwargs
 
     @staticmethod
-    def datauri_from_fig(
-        fig, fmt: str = "png", width: int = 600, height: int = 400, scale: int = 4
+    def data_uri_from_fig(
+        fig: go.Figure,
+        fmt: str = "png",
+        width: int = 600,
+        height: int = 400,
+        scale: int = 4,
     ) -> str:
-        """
-        Generate a data URI from a Plotly Figure.
+        """Generate a data URI from a Plotly Figure.
 
-        :param fig: Plotly Figure object or corresponding dictionary
-        :param fmt: "png", "jpg", etc. (see PlotlyScope for supported formats)
-        :param width: width in pixels
-        :param height: height in pixels
-        :param scale: scale factor
-        :return:
-        """
+        Args:
+            fig (Figure): Plotly Figure object or corresponding dictionary
+            fmt (str, optional): "png", "jpg", etc. (see PlotlyScope for supported formats). Defaults to "png".
+            width (int, optional): width in pixels. Defaults to 600.
+            height (int, optional): height in pixels. Defaults to 400.
+            scale (int, optional): scale factor. Defaults to 4.
 
+        Returns:
+            str: Data URI containing base64-encoded image.
+        """
         from kaleido.scopes.plotly import PlotlyScope
 
         scope = PlotlyScope()

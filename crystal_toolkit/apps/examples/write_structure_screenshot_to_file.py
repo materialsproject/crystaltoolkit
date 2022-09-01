@@ -1,21 +1,21 @@
 # This example is used to write structures to images in an automated manner.
 # It is a very specific script! Not intended for general use.
 import urllib
-from time import sleep
 from pathlib import Path
+from time import sleep
 
 import dash
-from dash import html
-from dash import dcc
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
+from pymatgen.ext.matproj import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import crystal_toolkit.components as ctc
-
+from crystal_toolkit.settings import SETTINGS
 
 SCREENSHOT_PATH = Path.home() / "screenshots"
 
-app = dash.Dash()
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 server = app.server
 
 structure_component = ctc.StructureMoleculeComponent(
@@ -50,7 +50,13 @@ def trigger_image_request(data):
 
 @app.callback(Output(structure_component.id(), "data"), [Input("url", "pathname")])
 def trigger_new_data(url):
-    return get_structure_for_mpid(url[1:])
+
+    mp_id = url[1:]
+    with MPRester() as mpr:
+        structure = mpr.get_structure_by_material_id(mp_id)
+
+    structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
+    return structure
 
 
 @app.callback(

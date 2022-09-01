@@ -1,28 +1,24 @@
 import os
-
-from dash import dcc
-from dash import html
-
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
-
-from monty.serialization import loadfn, dumpfn
-from pymatgen.core.composition import CompositionError
-from pymatgen.util.string import unicodeify
-from mp_api import MPRester
-from mp_api.client import MPRestError
-
-
-from pymatgen.util.string import unicodeify_spacegroup
-from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import *
-from crystal_toolkit import __file__ as module_path
+from random import choice
 
 import numpy as np
+from dash import dcc, html
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
+from monty.serialization import loadfn
+from mp_api.client import MPRester, MPRestError
+from pymatgen.util.string import unicodeify, unicodeify_spacegroup
 
-from collections import defaultdict
-from itertools import chain
-from random import choice
+from crystal_toolkit import __file__ as module_path
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.helpers.layouts import (
+    Button,
+    Control,
+    Field,
+    Icon,
+    MessageBody,
+    MessageContainer,
+)
 
 
 class SearchComponent(MPComponent):
@@ -200,7 +196,7 @@ class SearchComponent(MPComponent):
         def update_dropdown_value(results):
             if not results or "error" in results:
                 raise PreventUpdate
-            return list(results.keys())[0]
+            return list(results)[0]
 
         @app.callback(
             Output(self.id("dropdown-container"), "style"),
