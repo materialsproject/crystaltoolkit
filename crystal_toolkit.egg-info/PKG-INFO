@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: crystal-toolkit
+Version: 2022.4.29
+Summary: UNKNOWN
+Home-page: UNKNOWN
+Author: Matthew Horton
+Author-email: mkhorton@lbl.gov
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: ==3.*,>=3.8.0
+Provides-Extra: dev
+Provides-Extra: fermi
+Provides-Extra: figures
+Provides-Extra: server
+Provides-Extra: vtk
+License-File: LICENSE
+
+UNKNOWN
+
