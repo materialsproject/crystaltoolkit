@@ -9,7 +9,15 @@ from pymatgen.util.provenance import StructureNL
 
 from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import Button, MessageBody, MessageContainer, MessageHeader, dcc, html, os
+from crystal_toolkit.helpers.layouts import (
+    Button,
+    MessageBody,
+    MessageContainer,
+    MessageHeader,
+    dcc,
+    html,
+    os,
+)
 
 # ask Donny Winston
 MP_CLIENT_KEY = os.environ.get("MP_CLIENT_KEY")

@@ -585,11 +585,7 @@ class PourbaixDiagramComponent(MPComponent):
 
             struct = self.from_data(struct)
             pbx_elts = sorted(
-
-                    str(elt)
-                    for elt in struct.composition.keys()
-                    if elt not in ELEMENTS_HO
-
+                str(elt) for elt in struct.composition.keys() if elt not in ELEMENTS_HO
             )
             conc_dict = {
                 k: 10**arg for k, arg in zip(pbx_elts, args[: len(pbx_elts)])

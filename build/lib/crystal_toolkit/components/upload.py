@@ -10,7 +10,12 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.vasp.outputs import Chgcar
 
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import Icon, MessageBody, MessageContainer, MessageHeader
+from crystal_toolkit.helpers.layouts import (
+    Icon,
+    MessageBody,
+    MessageContainer,
+    MessageHeader,
+)
 
 
 class StructureMoleculeUploadComponent(MPComponent):

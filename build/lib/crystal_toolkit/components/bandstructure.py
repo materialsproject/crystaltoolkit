@@ -20,7 +20,27 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from crystal_toolkit.core.scene import Scene, Lines, Spheres, Convex, Cylinders
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import Column, Columns, Label, Loading, MessageBody, MessageContainer, bandstructure_symm_line, bs, bsml, dcc, density_of_states, dos, dos_select, elements, get_bandstructure_traces, get_data_list, get_dos_traces, html, path_convention
+from crystal_toolkit.helpers.layouts import (
+    Column,
+    Columns,
+    Label,
+    Loading,
+    MessageBody,
+    MessageContainer,
+    bandstructure_symm_line,
+    bs,
+    bsml,
+    dcc,
+    density_of_states,
+    dos,
+    dos_select,
+    elements,
+    get_bandstructure_traces,
+    get_data_list,
+    get_dos_traces,
+    html,
+    path_convention,
+)
 
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov

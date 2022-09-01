@@ -1,9 +1,6 @@
-
-
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
-
 
 
 class SubstitutionTransformationComponent(TransformationComponent):

@@ -14,7 +14,15 @@ from pymatgen.ext.matproj import MPRester
 
 from pymatgen.util.string import unicodeify_spacegroup
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import Button, Control, Field, Icon, MessageBody, MessageContainer, mpids
+from crystal_toolkit.helpers.layouts import (
+    Button,
+    Control,
+    Field,
+    Icon,
+    MessageBody,
+    MessageContainer,
+    mpids,
+)
 from crystal_toolkit import __file__ as module_path
 
 import numpy as np
