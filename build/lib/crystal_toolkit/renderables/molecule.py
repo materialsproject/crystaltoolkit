@@ -26,7 +26,10 @@ def get_scene_from_molecule(self, origin=None, legend: Optional[Legend] = None):
     primitives = defaultdict(list)
 
     for idx, site in enumerate(self):
-        site_scene = site.get_scene(origin=origin, legend=legend,)
+        site_scene = site.get_scene(
+            origin=origin,
+            legend=legend,
+        )
 
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents

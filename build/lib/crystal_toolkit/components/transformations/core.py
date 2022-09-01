@@ -1,17 +1,12 @@
 import traceback
 import warnings
-from ast import literal_eval
-from collections import defaultdict
-from json import JSONDecodeError, loads
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional
 
 import dash
 import dash_core_components as dcc
 import dash_daq as daq
 import dash_html_components as html
-import dash_table as dt
-import numpy as np
-from dash.dependencies import ALL, Input, Output, State
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -24,14 +19,13 @@ from crystal_toolkit.helpers.layouts import (
     MessageContainer,
     MessageHeader,
     Reveal,
-    add_label_help,
 )
 from crystal_toolkit.settings import SETTINGS
 
 try:
-    from typing import Literal
+    pass
 except ImportError:
-    from typing_extensions import Literal
+    pass
 
 
 class TransformationComponent(MPComponent):

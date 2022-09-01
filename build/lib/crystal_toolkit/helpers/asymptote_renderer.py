@@ -12,7 +12,7 @@ from itertools import chain
 
 from jinja2 import Environment
 
-from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.graphs import StructureGraph
 from crystal_toolkit.helpers.utils import update_object_args
 

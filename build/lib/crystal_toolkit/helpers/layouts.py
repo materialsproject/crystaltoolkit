@@ -1,6 +1,5 @@
-import os
 import warnings
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import dash_core_components as dcc
 import dash_html_components as html

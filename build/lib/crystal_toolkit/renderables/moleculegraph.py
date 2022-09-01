@@ -1,7 +1,5 @@
 from collections import defaultdict
-from itertools import combinations
 
-import numpy as np
 from pymatgen.analysis.graphs import MoleculeGraph
 
 from crystal_toolkit.core.scene import Scene

@@ -1,11 +1,10 @@
 # as above
 import dash
 import dash_html_components as html
-import dash_core_components as dcc
 import crystal_toolkit.components as ctc
 
 # standard Dash imports for callbacks (interactivity)
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 from pymatgen.core.structure import Structure

@@ -1,19 +1,14 @@
 # standard Dash imports
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.helpers.layouts import H1, H2, Container
+from crystal_toolkit.helpers.layouts import Container, H1
 
 # import for this example
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.ext.matproj import MPRester
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
 # create Dash app as normal
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
@@ -28,7 +23,10 @@ xrd_component = ctc.XRayDiffractionComponent()
 
 # example layout to demonstrate capabilities of component
 my_layout = Container(
-    [H1("XRDComponent Example (Empty, No Structure Defined)"), xrd_component.layout(),]
+    [
+        H1("XRDComponent Example (Empty, No Structure Defined)"),
+        xrd_component.layout(),
+    ]
 )
 
 # as explained in "preamble" section in documentation

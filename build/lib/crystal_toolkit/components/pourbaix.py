@@ -2,7 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 import numpy as np
@@ -44,8 +44,8 @@ class PourbaixDiagramComponent(MPComponent):
         self.create_store("pourbaix_diagram_options")
         self.create_store("pourbaix_display_options")
         for index in range(SUPPORTED_N_ELEMENTS):
-            self.create_store("concentration-slider-{}".format(index))
-            self.create_store("concentration-slider-{}-div".format(index))
+            self.create_store(f"concentration-slider-{index}")
+            self.create_store(f"concentration-slider-{index}-div")
 
         self.create_store("conc_dict")
         self.create_store("pourbaix_diagram", initial_data=pourbaix_diagram)
@@ -163,9 +163,9 @@ class PourbaixDiagramComponent(MPComponent):
                 ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()
             ):
                 hovertext = [
-                    "∆G<sub>pbx</sub>={:.2f}".format(de_val),
-                    "ph={:.2f}".format(ph_val),
-                    "V={:.2f}".format(v_val),
+                    f"∆G<sub>pbx</sub>={de_val:.2f}",
+                    f"ph={ph_val:.2f}",
+                    f"V={v_val:.2f}",
                 ]
                 hovertext = "<br>".join(hovertext)
                 hovertexts.append(hovertext)
@@ -343,18 +343,18 @@ class PourbaixDiagramComponent(MPComponent):
                 html.Div(
                     children=[
                         html.Div(
-                            "concentration-{}".format(n),
-                            id=self.id("concentration-{}-text".format(n)),
+                            f"concentration-{n}",
+                            id=self.id(f"concentration-{n}-text"),
                         ),
                         dcc.Slider(
-                            id=self.id("concentration-slider-{}".format(n)),
+                            id=self.id(f"concentration-slider-{n}"),
                             min=-8,
                             max=1,
                             step=1,
                             value=-4,
                         ),
                     ],
-                    id=self.id("concentration-slider-{}-div".format(n)),
+                    id=self.id(f"concentration-slider-{n}-div"),
                     style={"display": "none"},
                 )
                 for n in range(SUPPORTED_N_ELEMENTS)
@@ -547,7 +547,7 @@ class PourbaixDiagramComponent(MPComponent):
         # their values.  Renders only the necessary ones visible.
         @app.callback(
             [
-                Output(self.id("concentration-slider-{}-div".format(index)), "style")
+                Output(self.id(f"concentration-slider-{index}-div"), "style")
                 for index in range(SUPPORTED_N_ELEMENTS)
             ],
             [
@@ -570,12 +570,12 @@ class PourbaixDiagramComponent(MPComponent):
         @app.callback(
             [Output(self.id("conc_dict"), "data")]
             + [
-                Output(self.id("concentration-{}-text".format(index)), "children")
+                Output(self.id(f"concentration-{index}-text"), "children")
                 for index in range(SUPPORTED_N_ELEMENTS)
             ],
             [Input(self.id("struct"), "data")]
             + [
-                Input(self.id("concentration-slider-{}".format(index)), "value")
+                Input(self.id(f"concentration-slider-{index}"), "value")
                 for index in range(SUPPORTED_N_ELEMENTS)
             ],
         )
@@ -585,16 +585,16 @@ class PourbaixDiagramComponent(MPComponent):
 
             struct = self.from_data(struct)
             pbx_elts = sorted(
-                [
+
                     str(elt)
                     for elt in struct.composition.keys()
                     if elt not in ELEMENTS_HO
-                ]
+
             )
             conc_dict = {
-                k: 10 ** arg for k, arg in zip(pbx_elts, args[: len(pbx_elts)])
+                k: 10**arg for k, arg in zip(pbx_elts, args[: len(pbx_elts)])
             }
-            conc_text = ["{}: {} M".format(k, v) for k, v in conc_dict.items()]
+            conc_text = [f"{k}: {v} M" for k, v in conc_dict.items()]
             conc_text += [""] * (SUPPORTED_N_ELEMENTS - len(pbx_elts))
             return [conc_dict] + conc_text
 

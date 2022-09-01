@@ -3,7 +3,6 @@ from multiprocessing import cpu_count
 
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
 from dash import callback_context
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
@@ -563,7 +562,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
             with MPRester() as mpr:
                 docs = mpr.query(
-                    {"chemsys": {"$in": all_chemsyses}}, ["task_id", "structure"],
+                    {"chemsys": {"$in": all_chemsyses}},
+                    ["task_id", "structure"],
                 )
             structs.update({d["task_id"]: d["structure"] for d in docs})
             return structs

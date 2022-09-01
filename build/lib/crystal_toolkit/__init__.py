@@ -43,8 +43,8 @@ from the same environment you run \"jupyter lab\". \n
 This only works in Jupyter Lab 3.x or above.\n\n
 """
 
-    help_text_plotly = """If you see this text, the Plotly Jupyter Lab extension 
-is not installed, please consult Plotly documentation for information on how to 
+    help_text_plotly = """If you see this text, the Plotly Jupyter Lab extension
+is not installed, please consult Plotly documentation for information on how to
 install.
 """
 

@@ -10,7 +10,7 @@ from monty.serialization import loadfn
 from itertools import chain
 from collections import defaultdict
 
-from palettable.colorbrewer.qualitative import Set1_9, Set2_8
+from palettable.colorbrewer.qualitative import Set1_9
 from sklearn.preprocessing import LabelEncoder
 from matplotlib.cm import get_cmap
 from webcolors import html5_parse_legacy_color, html5_serialize_simple_color
@@ -160,7 +160,7 @@ class Legend(MSONable):
                 comp.keys() for comp in site_collection.species_and_occu
             )
         )
-        all_elements = sorted([sp.as_dict()["element"] for sp in all_species])
+        all_elements = sorted(sp.as_dict()["element"] for sp in all_species)
 
         # thanks to https://doi.org/10.1038/nmeth.1618
         palette = [

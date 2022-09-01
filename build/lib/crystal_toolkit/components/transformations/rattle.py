@@ -14,10 +14,10 @@ class MonteCarloRattleTransformationComponent(TransformationComponent):
     def description(self):
         return """Uses a Monte Carlo rattle procedure to randomly perturb the sites in a
     structure using the [hiPhive](https://hiphive.materialsmodeling.org) code.
-    
-Rattling atom \` i \` is carried out as a Monte Carlo move that is accepted with
+
+Rattling atom \\` i \\` is carried out as a Monte Carlo move that is accepted with
 a probability determined from the minimum interatomic distance
-\` d\_{ij} \`.  If \` \\\\min(d\_{ij}) \` is smaller than \` d\_{min} \`
+\\` d\\_{ij} \\`.  If \\` \\\\min(d\\_{ij}) \\` is smaller than \\` d\\_{min} \\`
 the move is only accepted with a low probability.
 
 This process is repeated for each atom a number of times meaning
@@ -41,7 +41,7 @@ connected to the rattle amplitude.
             label="Rattle amplitude",
             kwarg_label="rattle_std",
             state=state,
-            help_str="""Rattle amplitude (standard deviation in normal distribution). 
+            help_str="""Rattle amplitude (standard deviation in normal distribution).
 Note: this value is not *directly* connected to the
 final average displacement for the structures""",
             shape=(),

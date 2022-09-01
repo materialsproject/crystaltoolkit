@@ -6,7 +6,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from monty.serialization import loadfn, dumpfn
+from monty.serialization import loadfn
 from pymatgen.core.composition import CompositionError
 from pymatgen.util.string import unicodeify
 from pymatgen.ext.matproj import MPRester
@@ -14,13 +14,11 @@ from pymatgen.ext.matproj import MPRester
 
 from pymatgen.util.string import unicodeify_spacegroup
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import Button, Control, Field, Icon, MessageBody, MessageContainer, mpids
 from crystal_toolkit import __file__ as module_path
 
 import numpy as np
 
-from collections import defaultdict
-from itertools import chain
 from random import choice
 
 

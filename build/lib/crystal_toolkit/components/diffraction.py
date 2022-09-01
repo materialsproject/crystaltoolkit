@@ -1,4 +1,3 @@
-import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import math
@@ -6,11 +5,10 @@ import numpy as np
 from dash import callback_context
 from scipy.special import wofz
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.diffraction.tem import TEMCalculator
 
 
 # Scherrer equation:
@@ -24,7 +22,7 @@ from pymatgen.analysis.diffraction.tem import TEMCalculator
 
 from pymatgen.analysis.diffraction.xrd import XRDCalculator, WAVELENGTHS
 
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 
@@ -112,7 +110,7 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def G(x, c, alpha):
-        """ Return c-centered Gaussian line shape at x with HWHM alpha """
+        """Return c-centered Gaussian line shape at x with HWHM alpha"""
         return (
             np.sqrt(np.log(2) / np.pi)
             / alpha
@@ -121,12 +119,12 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def L(x, c, gamma):
-        """ Return c-centered Lorentzian line shape at x with HWHM gamma """
-        return gamma / (np.pi * ((x - c) ** 2 + gamma ** 2))
+        """Return c-centered Lorentzian line shape at x with HWHM gamma"""
+        return gamma / (np.pi * ((x - c) ** 2 + gamma**2))
 
     @staticmethod
     def V(x, c, alphagamma):
-        """ Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
+        """Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
         alpha = 0.61065 * alphagamma
         gamma = 0.61065 * alphagamma
         sigma = alpha / np.sqrt(2 * np.log(2))
@@ -200,7 +198,6 @@ class XRayDiffractionComponent(MPComponent):
         )
 
         # Broaden peaks
-        broadening_toggle = ...
 
         # Radiation source selector
         rad_source = self.get_choice_input(
@@ -219,11 +216,11 @@ class XRayDiffractionComponent(MPComponent):
             kwarg_label="shape_factor",
             state=state,
             label="Shape Factor",
-            help_str="""The peak profile determines what distribute characterizes the broadening of an XRD pattern. 
-Two extremes are Gaussian distributions, which are useful for peaks with more rounded tops (typically due to strain 
-broadening) and Lorentzian distributions, which are useful for peaks with sharper top (typically due to size 
-distributions and dislocations). In reality, peak shapes usually follow a Voigt distribution, which is a convolution of 
-Gaussian and Lorentzian peak shapes, with the contribution to both Gaussian and Lorentzian components sample and instrument 
+            help_str="""The peak profile determines what distribute characterizes the broadening of an XRD pattern.
+Two extremes are Gaussian distributions, which are useful for peaks with more rounded tops (typically due to strain
+broadening) and Lorentzian distributions, which are useful for peaks with sharper top (typically due to size
+distributions and dislocations). In reality, peak shapes usually follow a Voigt distribution, which is a convolution of
+Gaussian and Lorentzian peak shapes, with the contribution to both Gaussian and Lorentzian components sample and instrument
 dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
         )
 
@@ -232,9 +229,9 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             kwarg_label="peak_profile",
             state=state,
             label="Peak Profile",
-            help_str="""The shape factor K, also known as the “Scherrer constant” is a dimensionless 
-        quantity to obtain an actual particle size from an apparent particle size determined from XRD. The discrepancy is 
-        because the shape of an individual crystallite will change the resulting diffraction broadening. Commonly, a value 
+            help_str="""The shape factor K, also known as the “Scherrer constant” is a dimensionless
+        quantity to obtain an actual particle size from an apparent particle size determined from XRD. The discrepancy is
+        because the shape of an individual crystallite will change the resulting diffraction broadening. Commonly, a value
         of 0.94 for isotropic crystals in a spherical shape is used. However, in practice K can vary from 0.62 to 2.08.""",
             options=[
                 {"label": "Gaussian", "value": "G"},
@@ -262,7 +259,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             label="Scherrer crystallite size / nm",
             state=state,
             help_str="...",
-            marks={i: "{}".format(10 ** i) for i in range(-1, 3)},
+            marks={i: f"{10**i}" for i in range(-1, 3)},
             min=-1,
             max=2,
             step=0.01,
@@ -328,7 +325,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
             x_peak = data["x"]
             y_peak = data["y"]
             d_hkls = data["d_hkls"]
-            grain_size = 10 ** logsize
+            grain_size = 10**logsize
 
             hkl_list = [hkl[0]["hkl"] for hkl in data["hkls"]]
             hkls = [
@@ -349,7 +346,7 @@ dependent. Here, both contributions are equally weighted if Voigt is chosen.""",
 
             # optimal number of points per degree determined through usage experiments
             if logsize > 1:
-                N_density = 150 * (logsize ** 4)  # scaled to log size to the 4th power
+                N_density = 150 * (logsize**4)  # scaled to log size to the 4th power
             else:
                 N_density = 150
 
@@ -459,9 +456,9 @@ class DiffractionPanelComponent(PanelComponent):
             kwarg_label="mode",
             state=state,
             label="Mode",
-            help_str="""Select whether to generate a powder diffraction pattern 
-        (a pattern averaged over all orientations of a polycrystalline material) 
-        or a single crystal diffraction pattern (a diffraction pattern generated 
+            help_str="""Select whether to generate a powder diffraction pattern
+        (a pattern averaged over all orientations of a polycrystalline material)
+        or a single crystal diffraction pattern (a diffraction pattern generated
         from a single crystal structure.""",
             options=[
                 {"value": "powder", "label": "Powder"},

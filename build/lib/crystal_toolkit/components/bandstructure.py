@@ -2,7 +2,6 @@ import itertools
 
 import numpy as np
 import plotly.graph_objs as go
-import plotly.subplots as tls
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
@@ -15,13 +14,13 @@ from pymatgen.electronic_structure.bandstructure import (
 )
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.plotter import BSPlotter, fold_point
+from pymatgen.electronic_structure.plotter import BSPlotter
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 from crystal_toolkit.core.scene import Scene, Lines, Spheres, Convex, Cylinders
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import Column, Columns, Label, Loading, MessageBody, MessageContainer, bandstructure_symm_line, bs, bsml, dcc, density_of_states, dos, dos_select, elements, get_bandstructure_traces, get_data_list, get_dos_traces, html, path_convention
 
 # Author: Jason Munro
 # Contact: jmunro@lbl.gov
@@ -62,7 +61,13 @@ class BandstructureAndDosComponent(MPComponent):
         fig = BandstructureAndDosComponent.get_figure(bs, dos)
         # Main plot
         graph = Loading(
-            [dcc.Graph(figure=fig, config={"displayModeBar": False}, responsive=True,)],
+            [
+                dcc.Graph(
+                    figure=fig,
+                    config={"displayModeBar": False},
+                    responsive=True,
+                )
+            ],
             id=self.id("bsdos-div"),
         )
 
@@ -85,7 +90,10 @@ class BandstructureAndDosComponent(MPComponent):
                     options=[
                         {"label": "Latimer-Munro", "value": "lm"},
                         {"label": "Hinuma et al.", "value": "hin"},
-                        {"label": "Setyawan-Curtarolo", "value": "sc",},
+                        {
+                            "label": "Setyawan-Curtarolo",
+                            "value": "sc",
+                        },
                     ],
                 )
             ],
@@ -106,7 +114,10 @@ class BandstructureAndDosComponent(MPComponent):
                     options=[
                         {"label": "Latimer-Munro", "value": "lm"},
                         {"label": "Hinuma et al.", "value": "hin"},
-                        {"label": "Setyawan-Curtarolo", "value": "sc",},
+                        {
+                            "label": "Setyawan-Curtarolo",
+                            "value": "sc",
+                        },
                     ],
                 )
             ],
@@ -498,8 +509,8 @@ class BandstructureAndDosComponent(MPComponent):
 
         dostraces = []
 
-        dos_max = np.abs((dos.energies - dos.efermi - energy_window[1])).argmin()
-        dos_min = np.abs((dos.energies - dos.efermi - energy_window[0])).argmin()
+        dos_max = np.abs(dos.energies - dos.efermi - energy_window[1]).argmin()
+        dos_min = np.abs(dos.energies - dos.efermi - energy_window[0]).argmin()
 
         # TODO: pymatgen should have a property here
         spin_polarized = len(dos.densities.keys()) == 2
@@ -541,7 +552,7 @@ class BandstructureAndDosComponent(MPComponent):
         dostraces.append(trace_tdos)
 
         ele_dos = dos.get_element_dos()
-        elements = [str(entry) for entry in ele_dos.keys()]
+        [str(entry) for entry in ele_dos.keys()]
 
         if dos_select == "ap":
             proj_data = ele_dos
@@ -683,7 +694,10 @@ class BandstructureAndDosComponent(MPComponent):
             ticks="inside",
             linewidth=2,
             tickwidth=2,
-            range=[-rmax * 1.1 * int(len(bs_data["energy"].keys()) == 2), rmax * 1.1,],
+            range=[
+                -rmax * 1.1 * int(len(bs_data["energy"].keys()) == 2),
+                rmax * 1.1,
+            ],
             linecolor="rgb(71,71,71)",
             gridcolor="white",
             zerolinecolor="white",
@@ -868,7 +882,10 @@ class BandstructureAndDosComponent(MPComponent):
             ],
         )
         def bs_dos_data(
-            data, path_convention, dos_select, label_select,
+            data,
+            path_convention,
+            dos_select,
+            label_select,
         ):
 
             # Obtain bands to plot over and generate traces for bs data:

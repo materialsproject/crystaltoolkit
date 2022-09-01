@@ -85,7 +85,7 @@ def get_site_scene(
 
             name = str(sp)
             if occu != 1.0:
-                name += " ({}% occupancy)".format(occu)
+                name += f" ({occu}% occupancy)"
             name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
 
             sphere = Spheres(
@@ -186,7 +186,7 @@ def get_site_scene(
                     # .vertex_neighbor_vertices = [1, 2, 3, 2, 3, 0, 1, 3, 0, 1, 2, 0]
 
                     vertices_indices = Delaunay(all_positions).convex_hull
-                except Exception as e:
+                except Exception:
                     vertices_indices = []
 
                 vertices = [

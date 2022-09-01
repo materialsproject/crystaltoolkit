@@ -1,4 +1,3 @@
-import os
 
 import dash_core_components as dcc
 import dash_html_components as html
@@ -10,8 +9,8 @@ from dash.exceptions import PreventUpdate
 from pymatgen.ext.matproj import MPRester
 
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent, PanelComponent2
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.core.panelcomponent import PanelComponent
+from crystal_toolkit.helpers.layouts import MessageBody, MessageContainer
 
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov

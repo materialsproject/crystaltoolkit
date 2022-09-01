@@ -1,13 +1,11 @@
 # standard Dash imports
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
 from dash.dependencies import Input, Output
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.helpers.layouts import H1, H2, Container, Button
+from crystal_toolkit.helpers.layouts import Button, Container, H1
 
 # create Dash app as normal
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)

@@ -83,7 +83,9 @@ def get_structure_scene(
 
     primitives = defaultdict(list)
 
-    sites_to_draw = self._get_sites_to_draw(draw_image_atoms=draw_image_atoms,)
+    sites_to_draw = self._get_sites_to_draw(
+        draw_image_atoms=draw_image_atoms,
+    )
 
     for (idx, jimage) in sites_to_draw:
 
@@ -96,7 +98,9 @@ def get_structure_scene(
                 properties=site.properties,
             )
 
-        site_scene = site.get_scene(legend=legend,)
+        site_scene = site.get_scene(
+            legend=legend,
+        )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
 

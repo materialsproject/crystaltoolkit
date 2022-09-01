@@ -1,7 +1,5 @@
 # standard Dash imports
 import dash
-import dash_html_components as html
-import dash_core_components as dcc
 
 # standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
@@ -9,9 +7,6 @@ from crystal_toolkit.settings import SETTINGS
 from crystal_toolkit.helpers.layouts import H1, H3, Container
 
 # import for this example
-from pymatgen.ext.matproj import MPRester
-from pymatgen.analysis.phase_diagram import PhaseDiagram
-from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
 # create Dash app as normal
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)

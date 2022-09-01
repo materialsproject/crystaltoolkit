@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import abstractproperty
 from collections import defaultdict
 from dataclasses import dataclass, field, asdict
 from itertools import chain

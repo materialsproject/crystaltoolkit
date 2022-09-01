@@ -2,8 +2,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
+from dash.dependencies import Input, Output
 from dash_mp_components import JsonView
 
 # import for this example
@@ -59,7 +58,8 @@ ctc.register_crystal_toolkit(app, layout=my_layout)
 
 
 @app.callback(
-    Output("structure_out", "data"), [Input(transformation_component.id(), "data")],
+    Output("structure_out", "data"),
+    [Input(transformation_component.id(), "data")],
 )
 def update_structure(struct):
     return struct

@@ -17,7 +17,7 @@ def test_hello_scientist(dash_duo):
     time.sleep(1)
     dash_duo.percy_snapshot("hello_scientist")
 
-    logs = dash_duo.get_logs()
+    dash_duo.get_logs()
     # assert bool(logs) is False, f"Browser console contains an error: {logs}"
 
 
@@ -28,7 +28,7 @@ def test_hello_structure(dash_duo):
     time.sleep(1)
     dash_duo.percy_snapshot("hello_structure")
 
-    logs = dash_duo.get_logs()
+    dash_duo.get_logs()
     # assert bool(logs) is False, f"Browser console contains an error: {logs}"
 
 
@@ -44,5 +44,5 @@ def test_hello_structure_interactive(dash_duo):
     time.sleep(1)
     dash_duo.percy_snapshot("hello_structure_interactive_on_click")
 
-    logs = dash_duo.get_logs()
+    dash_duo.get_logs()
     # assert bool(logs) is False, f"Browser console contains an error: {logs}"

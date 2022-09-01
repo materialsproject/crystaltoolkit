@@ -7,7 +7,7 @@ from crystal_toolkit import MODULE_PATH
 try:
     from typing import Literal
 except ImportError:
-    from typing_extensions import Literal
+    from typing import Literal
 
 
 class Settings(BaseSettings):

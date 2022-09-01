@@ -1,6 +1,5 @@
 import logging
 import os
-from ast import literal_eval
 from random import choice
 from time import time
 from typing import Optional
@@ -19,7 +18,7 @@ from pymatgen.ext.matproj import MPRester
 import crystal_toolkit.components as ctc
 from crystal_toolkit import __file__ as module_path
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import Box, Column, Columns, Container, Footer, H3, Loading, MessageBody, MessageContainer, MessageHeader, Reveal, Section, dcc, html, warnings
 from crystal_toolkit.settings import SETTINGS
 
 # choose a default structure on load

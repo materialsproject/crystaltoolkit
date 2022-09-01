@@ -1,15 +1,12 @@
-import os
 import re
-import sys
 import warnings
 from collections import OrderedDict
 from itertools import chain, combinations_with_replacement
 from typing import Dict, Optional, Tuple, Union
 
-import dash
 import dash_table as dt
 import numpy as np
-from dash.dependencies import Input, Output, State, MATCH
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
@@ -22,13 +19,13 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
-from crystal_toolkit.helpers.layouts import *
+from crystal_toolkit.helpers.layouts import Button, Control, Field, H2, Icon, dcc, html
 from crystal_toolkit.settings import SETTINGS
 
 try:
     from typing import Literal
 except ImportError:
-    from typing_extensions import Literal
+    from typing import Literal
 
 # TODO: make dangling bonds "stubs"? (fixed length)
 
@@ -201,7 +198,7 @@ class StructureMoleculeComponent(MPComponent):
         app.clientside_callback(
             """
             function (bonding_strategy, custom_cutoffs_rows, unit_cell_choice) {
-            
+
                 const bonding_strategy_kwargs = {}
                 if (bonding_strategy === 'CutOffDictNN') {
                     const cut_off_dict = []
@@ -210,7 +207,7 @@ class StructureMoleculeComponent(MPComponent):
                     })
                     bonding_strategy_kwargs.cut_off_dict = cut_off_dict
                 }
-            
+
                 return {
                     bonding_strategy: bonding_strategy,
                     bonding_strategy_kwargs: bonding_strategy_kwargs,
@@ -244,7 +241,7 @@ class StructureMoleculeComponent(MPComponent):
         app.clientside_callback(
             """
             function (colorScheme, radiusStrategy, drawOptions, displayOptions) {
-            
+
                 const newDisplayOptions = Object.assign({}, displayOptions);
                 newDisplayOptions.color_scheme = colorScheme
                 newDisplayOptions.radius_strategy = radiusStrategy
@@ -400,7 +397,7 @@ class StructureMoleculeComponent(MPComponent):
                 spgrp = struct_or_mol.get_space_group_info()[0]
             else:
                 spgrp = ""
-            request_filename = "{}-{}-crystal-toolkit.png".format(formula, spgrp)
+            request_filename = f"{formula}-{spgrp}-crystal-toolkit.png"
             if not current_requests:
                 n_requests = 1
             else:
@@ -865,10 +862,10 @@ class StructureMoleculeComponent(MPComponent):
                             (x[0], x[1]): x[2]
                             for x in bonding_strategy_kwargs["cut_off_dict"]
                         }
-                bonding_strategy = StructureMoleculeComponent.available_bonding_strategies[
-                    bonding_strategy
-                ](
-                    **bonding_strategy_kwargs
+                bonding_strategy = (
+                    StructureMoleculeComponent.available_bonding_strategies[
+                        bonding_strategy
+                    ](**bonding_strategy_kwargs)
                 )
                 try:
                     with warnings.catch_warnings():

@@ -1,17 +1,9 @@
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table as dt
 
-from dash.dependencies import Input, Output, State
 
-from crystal_toolkit.helpers.layouts import Label
 from crystal_toolkit.components.transformations.core import TransformationComponent
 
-from pymatgen.core.periodic_table import Specie, Element
-from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
-from ast import literal_eval
 
 
 class SubstitutionTransformationComponent(TransformationComponent):
