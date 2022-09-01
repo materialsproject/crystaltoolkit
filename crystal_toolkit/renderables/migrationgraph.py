@@ -1,4 +1,3 @@
-
 import numpy as np
 from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
 
