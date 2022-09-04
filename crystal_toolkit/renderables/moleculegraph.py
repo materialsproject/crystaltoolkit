@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import defaultdict
 
 from pymatgen.analysis.graphs import MoleculeGraph
@@ -18,7 +20,7 @@ def get_molecule_graph_scene(
 
     legend = legend or Legend(self.molecule)
 
-    primitives = defaultdict(list)
+    primitives: dict[str, list] = defaultdict(list)
 
     for idx, site in enumerate(self.molecule):
 

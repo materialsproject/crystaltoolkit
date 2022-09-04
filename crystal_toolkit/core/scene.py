@@ -48,7 +48,7 @@ class Scene:
 
     name: str  # name for the scene, does not have to be unique
     contents: list = field(default_factory=list)
-    origin: list[float] = field(default=(0, 0, 0))
+    origin: tuple[float, float, float] = field(default=(0, 0, 0))
     visible: bool = True
     lattice: list[list[float]] | None = None
     _meta: dict | None = None

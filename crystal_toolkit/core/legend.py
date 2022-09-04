@@ -4,7 +4,7 @@ import os
 import warnings
 from collections import defaultdict
 from itertools import chain
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 from matplotlib.cm import get_cmap
@@ -134,7 +134,7 @@ class Legend(MSONable):
         self.color_scheme = color_scheme
         self.radius_scheme = radius_scheme
         self.cmap = cmap
-        self.cmap_range = cmap_range
+        self.cmap_range = cast(tuple[float, float], cmap_range)
 
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(
@@ -162,12 +162,12 @@ class Legend(MSONable):
             (0, 0, 0),  # 0, black
             (230, 159, 0),  # 1, orange
             (86, 180, 233),  # 2, sky blue
-            (0, 158, 115),  #  3, bluish green
+            (0, 158, 115),  # 3, bluish green
             (240, 228, 66),  # 4, yellow
             (0, 114, 178),  # 5, blue
             (213, 94, 0),  # 6, vermilion
             (204, 121, 167),  # 7, reddish purple
-            (255, 255, 255),  #  8, white
+            (255, 255, 255),  # 8, white
         ]
 
         # similar to CPK, mapping element to palette index
@@ -300,8 +300,7 @@ class Legend(MSONable):
                 cmap = get_cmap(self.cmap)
 
                 # normalize in [0, 1] range, as expected by cmap
-                prop_min = self.cmap_range[0]
-                prop_max = self.cmap_range[1]
+                prop_min, prop_max = self.cmap_range
                 prop_normed = (prop - prop_min) / (prop_max - prop_min)
 
                 color = [int(c * 255) for c in cmap(prop_normed)[0:3]]
