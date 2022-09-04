@@ -12,7 +12,7 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 from palettable.colorbrewer.qualitative import Set1_9
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import Molecule, Site, SiteCollection
 from pymatgen.util.string import unicodeify_species
 from sklearn.preprocessing import LabelEncoder
@@ -255,13 +255,13 @@ class Legend(MSONable):
 
         return color_scheme
 
-    def get_color(self, sp: Specie | Element, site: Site | None = None) -> str:
+    def get_color(self, sp: Species | Element, site: Site | None = None) -> str:
         """
         Get a color to render a specific species. Optionally, you can provide
         a site for context, since ...
 
         Args:
-            sp: Specie or Element
+            sp: Species or Element
             site: Site
 
         Returns: Color
@@ -332,7 +332,7 @@ class Legend(MSONable):
 
         return html5_serialize_simple_color(color)
 
-    def get_radius(self, sp: Specie | Element, site: Site | None = None) -> float:
+    def get_radius(self, sp: Species | Element, site: Site | None = None) -> float:
 
         # allow manual override by user
         if site and "display_radius" in site.properties:
@@ -351,7 +351,7 @@ class Legend(MSONable):
             radius = float(sp.atomic_radius)
         elif (
             self.radius_scheme == "specified_or_average_ionic"
-            and isinstance(sp, Specie)
+            and isinstance(sp, Species)
             and sp.oxi_state
         ):
             radius = float(sp.ionic_radius)
@@ -395,10 +395,10 @@ class Legend(MSONable):
         return dict(site_prop_names)
 
     @staticmethod
-    def get_species_str(sp: Specie | Element) -> str:
+    def get_species_str(sp: Species | Element) -> str:
         """
         Args:
-            sp: Specie or Element
+            sp: Species or Element
 
         Returns: string representation
         """

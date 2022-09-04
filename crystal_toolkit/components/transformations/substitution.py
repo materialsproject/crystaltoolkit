@@ -38,7 +38,7 @@ and copper). Please consult the pymatgen documentation for more information.
             state=state,
             help_str="A mapping from an original species (element or element with oxidation state, e.g. O or O2-) "
             "to a new species (element, element with oxidation state, or a composition, e.g. O or O2- or "
-            '{"Au": 0.5, "Cu": 0.5}). In pymatgen, these are Element, Specie and Composition classes '
+            '{"Au": 0.5, "Cu": 0.5}). In pymatgen, these are Element, Species and Composition classes '
             "respectively.",
             key_name="Original Species",
             value_name="New Species",
