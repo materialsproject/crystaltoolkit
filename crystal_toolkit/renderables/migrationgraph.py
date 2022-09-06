@@ -4,7 +4,7 @@ from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
 from crystal_toolkit.core.scene import Cylinders, Scene
 
 
-def _get_extras_cross_boundary(one_hop, only_wi_structure):
+def _get_extras_cross_boundary(self, one_hop, only_wi_structure):
     extras = []
     working_struct = only_wi_structure.copy()
     wi = working_struct[0].specie.name
@@ -14,7 +14,8 @@ def _get_extras_cross_boundary(one_hop, only_wi_structure):
     working_struct.insert(0, wi, one_hop["epos"])
     shifted_ipos = one_hop["ipos"] - np.array(one_hop["to_jimage"])
     working_struct.insert(0, wi, shifted_ipos)
-    extras.extend([working_struct[0].get_scene(), working_struct[1].get_scene()])
+    sites_contents = [working_struct[0].get_scene(), working_struct[1].get_scene()]
+    extras.extend(sites_contents)
 
     # extra cylinders
     extra_ipos = list(working_struct[0].coords)
@@ -55,7 +56,9 @@ def get_migrationgraph_scene(
         one_hop_contents.append(hop_cyl)
 
         if one_hop["to_jimage"] != (0, 0, 0):
-            extras_cross_boundary = _get_extras_cross_boundary(one_hop, self.only_sites)
+            extras_cross_boundary = self._get_extras_cross_boundary(
+                one_hop, self.only_sites
+            )
             one_hop_contents.extend(extras_cross_boundary)
 
         one_hop_scene = Scene(name=f"hop_{k}", contents=one_hop_contents)
@@ -69,4 +72,5 @@ def get_migrationgraph_scene(
     return result_scene
 
 
+MigrationGraph._get_extras_cross_boundary = _get_extras_cross_boundary
 MigrationGraph.get_scene = get_migrationgraph_scene
