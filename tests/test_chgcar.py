@@ -21,7 +21,7 @@ app.title = "Crystal Toolkit Example Components"
 
 
 def get_mesh(chgcar, data_tag="total", isolvl=2.0, step_size=3):
-    vertices, faces, normals, values = measure.marching_cubes_lewiner(
+    vertices, faces, _normals, _values = measure.marching_cubes_lewiner(
         chgcar.data[data_tag], level=isolvl, step_size=step_size
     )
     vertices = (

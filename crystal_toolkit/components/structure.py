@@ -604,7 +604,7 @@ class StructureMoleculeComponent(MPComponent):
         try:
             formula = Composition.from_dict(legend["composition"]).reduced_formula
         except Exception:
-            # TODO: fix legend for Dummy Specie compositions
+            # TODO: fix legend for DummySpecies compositions
             formula = "Unknown"
 
         legend_colors = OrderedDict(

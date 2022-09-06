@@ -88,7 +88,7 @@ def add_inputs(n_clicks):
 # tell Crystal Toolkit about the app and layout we want to display
 ctc.register_crystal_toolkit(app=app, layout=my_layout, cache=None)
 
-# allow app to be run using "python app.py"
+# run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
 # see Dash documentation for more information
 if __name__ == "__main__":

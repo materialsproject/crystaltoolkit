@@ -27,7 +27,7 @@ my_layout = Container(
 # as explained in "preamble" section in documentation
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
-# allow app to be run using "python structure.py"
+# run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
 # see Dash documentation for more information
 if __name__ == "__main__":

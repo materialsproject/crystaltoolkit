@@ -19,6 +19,28 @@ Following a discussion with a potential contributor, "new contributor" issues ar
 
 [Documentation can be found at docs.crystaltoolkit.org](https://docs.crystaltoolkit.org)
 
+## Example Apps
+
+| Description                                                                                                                                          | Link&emsp;&emsp;&emsp;                                                                                                                                |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`bandstructure.py`**<br>  Demonstrates capabilities of the `BandstructureAndDosComponent` component                                                | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/bandstructure.py)                      |
+| **`basic_hello_structure.py`**<br>  Uses `StructureMoleculeComponent` to show a simple `pymatgen` structure                                          | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/basic_hello_structure.py)              |
+| **`basic_hello_structure_interactive.py`**<br>  Adds a button to the `basic_hello_structure.py` to toggle between two structures interactively       | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/basic_hello_structure_interactive.py)  |
+| **`basic_hello_world.py`**<br>  Bare-bones example showing how to render the text "Hello scientist!" in Dash app                                     | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/basic_hello_world.py)                  |
+| **`diffraction.py`**<br>  Demonstrates capabilities of the `XRayDiffractionComponent` component                                                      | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/diffraction.py)                        |
+| **`diffraction_dynamic.py`**<br>  Adds a button to `diffraction.py` to load a new structure on the fly                                               | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/diffraction_dynamic.py)                |
+| **`diffraction_empty.py`**<br>  Shows `XRayDiffractionComponent` can be mounted without a passing structure                                          | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/diffraction_empty.py)                  |
+| **`kwarg_inputs.py`**<br>  Shows off boolean input (aka toggle), matrix input and slider input components                                            | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/kwarg_inputs.py)                       |
+| **`phase_diagram.py`**<br>  Combines `MPRester.get_entries_in_chemsys()` and the `PhaseDiagram` component to plot the Li-O-Co convex hull            | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/phase_diagram.py)                      |
+| **`pourbaix.py`**<br>  Combines `MPRester.get_pourbaix_entries()` and the `PourbaixDiagramComponent` to plot the Fe-CO Pourbaix diagram              | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/pourbaix.py)                           |
+| **`structure.py`**<br>  Show cases multiple layout options for the `StructureMoleculeComponent`                                                      | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/structure.py)                          |
+| **`structure_magnetic.py`**<br>  Plots a structure with magnetic moments                                                                             | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/structure_magnetic.py)                 |
+| **`transformations.py`**<br>  Combines `StructureMoleculeComponent` and `AllTransformationsComponent` to apply interactive structure transformations | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/transformations.py)                    |
+| **`transformations_minimal.py`**<br>  Shows how to restrict the types of allowed transformations                                                     | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/transformations_minimal.py)            |
+| **`write_structure_screenshot_to_file.py`**<br>  Shows to save interactive structure views as image files                                            | [![View on GitHub]](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/write_structure_screenshot_to_file.py) |
+
+[View on GitHub]: https://img.shields.io/badge/View%20on-GitHub-darkblue?logo=github
+
 ## Team and Contribution Policy
 
 The [Crystal Toolkit Development Team](https://github.com/materialsproject/crystaltoolkit/graphs/contributors) includes:
