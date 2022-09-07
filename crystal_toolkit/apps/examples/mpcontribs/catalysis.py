@@ -34,7 +34,9 @@ logger = logging.getLogger(__name__)
 _CATALYST_SEARCH_FILTER_GROUPS = loadfn(
     MODULE_PATH / "apps/examples/mpcontribs/catalysis_filter_groups.json"
 )
-_CATALYST_SEARCH_COLUMNS = loadfn(MODULE_PATH / "apps/examples/mpcontribs/catalysis_columns.json")
+_CATALYST_SEARCH_COLUMNS = loadfn(
+    MODULE_PATH / "apps/examples/mpcontribs/catalysis_columns.json"
+)
 
 _ADSORBATE_CHOICES = (
     (MODULE_PATH / "apps/examples/mpcontribs/adsorbate_choices.txt")
@@ -358,7 +360,7 @@ class CatalysisApp(MPApp):
             step=0.2,
         )
         additional_data = get_box_title(
-            use_point="CatalysisApp", 
+            use_point="CatalysisApp",
             title="catapp-add-data",
         )
 

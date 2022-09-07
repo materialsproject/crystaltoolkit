@@ -20,7 +20,7 @@ for app_class_name, metadata in APP_METADATA.items():
             set_(APP_TREE, path, {"NAME": app_class_name})
         else:
             get(APP_TREE, path)["NAME"] = app_class_name
-            
+
 # This is currently hard-coded
 _MP_APP_CATEGORY_ORDER = [
     "Explore and Search",
