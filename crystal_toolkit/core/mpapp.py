@@ -1,19 +1,19 @@
 from abc import ABC
 from typing import Optional
 
-from crystal_toolkit.core.mpcomponent import MPComponent
+from dash import html
+from dash.dependencies import Input, Output
 
 import crystal_toolkit.helpers.layouts as ctl
-from dash.dependencies import Input, Output
-from dash import html
-
 from crystal_toolkit.apps.constants import APP_METADATA
+from crystal_toolkit.core.mpcomponent import MPComponent
 
 
 class MPApp(MPComponent, ABC):
     """
     Class to make an app for the Materials Project website.
     """
+
     @property
     def name(self):
         """
@@ -48,7 +48,9 @@ class MPApp(MPComponent, ABC):
         Long description of app (about one paragraph). Formatted as Markdown.
         This will display in the About section of the Documentation drawer.
         """
-        return APP_METADATA.get(self.__class__.__name__, {}).get("long_description", self.description)
+        return APP_METADATA.get(self.__class__.__name__, {}).get(
+            "long_description", self.description
+        )
 
     @property
     def url(self):
@@ -64,7 +66,9 @@ class MPApp(MPComponent, ABC):
         and thus that is the default value if no author exists in the app metadata.
         This will display under the app title as 'App by [author]'.
         """
-        return APP_METADATA.get(self.__class__.__name__, {}).get("author", "Materials Project")
+        return APP_METADATA.get(self.__class__.__name__, {}).get(
+            "author", "Materials Project"
+        )
 
     @property
     def category(self) -> Optional[None]:
@@ -129,18 +133,17 @@ class MPApp(MPComponent, ABC):
             ctl.Container(
                 [
                     html.P(self.description, className="has-text-centered mb-2"),
-                    search_bar
+                    search_bar,
                 ],
-                className="is-max-desktop"
+                className="is-max-desktop",
             ),
-            className="mp-search-bar"
+            className="mp-search-bar",
         )
 
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("mp-app-content"), "children"), [Input("mp-url", "pathname")]
         )
-
         def update_main_content(pathname):
             _, payload = parse_pathname(pathname)
 
