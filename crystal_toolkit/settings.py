@@ -14,10 +14,10 @@ class Settings(BaseSettings):
     TRANSFORMATION_PREVIEWS: bool = False
     REDIS_URL: str = "redis://localhost:6379"
     ASSETS_PATH: str = str(MODULE_PATH / "apps" / "assets")
-    
+
     DEV_LOGIN_DISABLED: bool = True
     LOGIN_ENDPOINT: str = "https://profile.materialsproject.org/"
-    API_KEY: Optional[str] = ""
+    API_KEY = "IVGSPgUkVx6PXqBl2xr4N53jE3y8xoUG"
     API_EXTERNAL_ENDPOINT: str = "https://api.materialsproject.org"
 
     PERSISTENCE: bool = True
