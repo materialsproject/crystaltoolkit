@@ -1,8 +1,12 @@
+import re
 from flask import request, has_request_context
-from typing import Optional, Literal, Any
+from typing import Optional, Any
 from uuid import uuid4
+import numpy as np
+from fractions import Fraction
 
 from dash import html
+from dash import dash_table as dt
 from dash import dcc
 
 from mpcontribs.client import Client as MPContribsClient
@@ -11,9 +15,6 @@ from monty.serialization import loadfn
 
 from crystal_toolkit import MODULE_PATH, _DEFAULTS
 from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.apps.constants import MP_APPS_BY_CATEGORY, APP_METADATA
-
-
 
 def update_object_args(d_args, object_name, allowed_args):
     """Read default properties and overwrite them if user input exists
@@ -31,46 +32,6 @@ def update_object_args(d_args, object_name, allowed_args):
         {k: v for k, v in (d_args or {}).items() if k in allowed_args and v is not None}
     )
     return obj_args
-
-
-def get_mp_app_icon(icon_class_name, is_active=False, mini=False):
-    """
-    Get an MP app icon. This function is for prototyping and intended to be replaced.
-    """
-    if mini:
-        size = "medium"
-    else:
-        size = "large"
-
-    return html.Span(
-        [html.I(className=icon_class_name)], className=f"mp-icon icon is-{size}"
-    )
-
-
-def get_breadcrumb(links):
-    """
-    Creates a styled breadcrumb navbar from a dictionary
-    :param parts: dictionary of link names and link paths
-    :return: html.Nav with breadcrumb links
-    """
-    if not links:
-        return html.Div()
-
-    breadcrumbs = html.Nav(
-        html.Ul(
-            [
-                html.Li(
-                    link,
-                    className=(None if idx != len(links) - 1 else "is-active"),
-                )
-                for idx, link in enumerate(links)
-            ]
-        ),
-        className="breadcrumb",
-    )
-
-    return breadcrumbs
-
 
 def is_logged_in() -> bool:
     """
@@ -127,76 +88,8 @@ def get_consumer():
             headers[name] = value
     return headers
 
-def get_login_endpoints():
-    """
-    Returns the login and logout endpoints in a tuple
-    The login endpoint lives in SETTINGS.LOGIN_ENDPOINT.
-    """
-    if SETTINGS.LOGIN_ENDPOINT:
-        return SETTINGS.LOGIN_ENDPOINT, SETTINGS.LOGIN_ENDPOINT + "/logout"
-    else:
-        logger.error(
-            "Could not find a login endpoint. Please set the MP_LOGIN_ENDPOINT environment variable to the login url."
-        )
-        return None, None
-    
 def is_url(s):
     return s.startswith("http://") or s.startswith("https://")
-
-
-def get_apps_sidebar_item(app_name, current_app):
-    app = APP_METADATA[app_name]
-    is_full_url = is_url(app["url"])
-    item_content = [
-        html.Span(html.I(className=app["icon"]), className="icon"),
-        html.Span(app["name"], className="ellipsis"),
-    ]
-    if is_full_url:
-        item = dcc.Link(
-            item_content,
-            href=app["url"],
-            target=f"_blank",
-            className=f"mp-sidebar-item {'is-active' if current_app == app['name'] else ''}",
-        )
-    else:
-        item = dcc.Link(
-            item_content,
-            href=f'/{app["url"]}',
-            className=f"mp-sidebar-item {'is-active' if current_app == app['name'] else ''}",
-        )
-
-    return item
-
-
-def get_apps_sidebar(current_app):
-    """
-    Generate the sidebar to be displayed while on an app page.
-    This is a function and not a static variable because the current_app name must
-    be passed to the layout to dynamically highlight the active app.
-    Sidebar items are ultimately pulled from APP_METADATA. If an app has a category, it will be included here.
-    """
-    sidebar_items = [get_apps_sidebar_item("OverviewPage", current_app)]
-    for (category, apps) in MP_APPS_BY_CATEGORY.items():
-        sidebar_items.append(
-            html.Div(
-                [
-                    html.Span("—", className="icon"),
-                    html.Span(category, className="menu-label"),
-                ],
-                className="mp-sidebar-item is-label",
-            )
-        )
-        for app_name in apps:
-            item = get_apps_sidebar_item(app_name, current_app)
-            sidebar_items.append(item)
-
-    return html.Div(
-        html.Div(
-            html.Div(sidebar_items, className="mp-sidebar-items"),
-            className="mp-sidebar-items-container",
-        ),
-        className="mp-sidebar is-hidden-touch",
-    )
 
 def get_user_api_key(consumer=None) -> Optional[str]:
     """
@@ -213,7 +106,7 @@ def get_user_api_key(consumer=None) -> Optional[str]:
         return consumer["X-Consumer-Custom-Id"]
     else:
         return None
-    
+
 def get_contribs_client():
     """
     Get an instance of the MPContribsClient that will work
@@ -226,7 +119,7 @@ def get_contribs_client():
         return MPContribsClient(apikey=get_user_api_key())
     else:
         return MPContribsClient(headers=headers)
-    
+
 def get_contribs_api_base_url(request_url=None, deployment="contribs"):
     """Get the MPContribs API endpoint for a specific deployment"""
     if is_localhost() and SETTINGS.API_EXTERNAL_ENDPOINT:
@@ -255,10 +148,11 @@ if SETTINGS.DEBUG_MODE:
             )
 
 
-def get_box_title(title, id=None):
+def get_box_title(use_point: str, title: str, id=None):
     """
     Convenience method to wrap box titles in H5 tags and
     conditionally add a tooltip from HELP_STRINGS.
+    :param use_point: name indicating where the help string is used (top level key)
     :param title: text that displays as title and maps to property in HELP_STRINGS
     :return: H5 title with or without a tooltip
     """
@@ -266,22 +160,22 @@ def get_box_title(title, id=None):
     if id is not None:
         args["id"] = id
 
-    if title not in HELP_STRINGS:
+    if use_point not in HELP_STRINGS:
         return html.H5(title, className="title is-6 mb-2", **args)
     else:
         div = html.H5(
             get_tooltip(
-                tooltip_label=HELP_STRINGS[title]["label"],
-                tooltip_text=HELP_STRINGS[title]["help"],
+                tooltip_label=HELP_STRINGS[use_point][title]["label"],
+                tooltip_text=HELP_STRINGS[use_point][title]["help"],
                 className="has-tooltip-multiline",
             ),
             className="title is-6 mb-2",
             **args,
         )
-        if link := HELP_STRINGS[title]["link"]:
+        if link := HELP_STRINGS[use_point][title]["link"]:
             div = html.A(div, href=link)
         return div
-    
+
 def get_tooltip(
     tooltip_label: Any,
     tooltip_text: str,
@@ -315,3 +209,191 @@ def get_tooltip(
         ],
         className=wrapper_class,
     )
+
+def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book"):
+
+    if (not doi) or cite_text:
+        # TODO: This will get removed, due to addition of new PublicationButton
+        if cite_text:
+            button_contents = [ctl.Icon(kind=icon), html.Span(cite_text)]
+        else:
+            button_contents = ctl.Icon(kind=icon)
+        button = html.Form(
+            [ctl.Button(button_contents, size="small", kind="link",)],
+            # action=f"https://dx.doi.org/{doi}",
+            # method="get",
+            # target="_blank",
+            style={
+                "display": "inline-block",
+                "cursor": "not-allowed",
+                "opacity": "0.5",
+                "textDecoration": "none",
+            },
+        )
+
+# TODO: move to crystal-toolkit when stable
+def get_data_table(
+    df=None, virtualized=True, columns=None, column_widths=None, **kwargs
+):
+    """
+    Returns a nicely styled DataTable with sensible defaults
+    for re-use.
+    :param df: optional pandas DataFrame to populate DataTable
+    :param virtualized: used for large tables, adds filter options
+    :param columns: list of dicts with keys id and name
+    :param column_widths: dict of column id to column width, e.g. "50px"
+    :param kwargs: kwargs to pass to dt.DataTable
+    :return: dt.DataTable
+    """
+
+    datatable_kwargs = dict(
+        sort_action="native",
+        row_selectable="single",
+        style_as_list_view=True,
+        # style_table={"width": "800px"},
+        style_cell={
+            "fontFamily": "Helvetica Neue",
+            "textAlign": "left",
+            "whitespace": "normal",
+        },
+    )
+
+    if virtualized:
+        datatable_kwargs["virtualization"] = True
+        datatable_kwargs["filter_action"] = "native"
+
+    if not columns:
+        columns = [{"id": column, "name": column} for column in df.columns]
+    datatable_kwargs["columns"] = columns
+
+    for k, v in kwargs.items():
+        if k in datatable_kwargs:
+            if isinstance(datatable_kwargs[k], dict):
+                datatable_kwargs[k].update(v)
+            elif isinstance(datatable_kwargs[k], list):
+                datatable_kwargs[k].append(v)
+            else:
+                datatable_kwargs[k] = v
+        else:
+            datatable_kwargs[k] = v
+
+    if df is not None:
+        datatable_kwargs["data"] = df.to_dict("records")
+
+    if column_widths:
+        style_data_conditional = [
+            {"if": {"column_id": column_id}, "width": column_width}
+            for column_id, column_width in column_widths.items()
+        ]
+        if "style_data_conditional" not in datatable_kwargs:
+            datatable_kwargs["style_data_conditional"] = []
+        datatable_kwargs["style_data_conditional"] += style_data_conditional
+
+    if virtualized:
+        return html.Div(
+            [
+                dt.DataTable(**datatable_kwargs),
+                html.Small(
+                    dcc.Markdown(
+                        'Table columns can be filtered by typing in the "filter data..." box. '
+                        "Filter operators `<`, `>`, `=` and `!=` are also supported.",
+                        className="mt-2",
+                    )
+                ),
+            ]
+        )
+    else:
+        return dt.DataTable(**datatable_kwargs)
+
+def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
+    """
+    Helper function to build section headings with docs button.
+    This is used inside of a section layout to build heading section using section data.
+    The app_button_id should be used inside a callback in the section code to populate
+    the app button with its computed button/link (e.g. see synthesis section).
+    """
+
+    app_link = (
+        dcc.Link(
+            [],
+            id=app_button_id,
+            className="section-heading-offset-link is-hidden-mobile",
+            href="",
+        )
+        if app_button_id
+        else None
+    )
+
+def get_matrix_string(matrix, variable_name=None, decimals=4):
+    """
+    Returns a string for use in mpc.Markdown() to render a matrix
+    or vector.
+    :param matrix: list or numpy array
+    :param variable_name: LaTeX-formatted variable name
+    :param decimals: number of decimal places to round to
+    :return: LaTeX-formatted string
+    """
+
+    if decimals:
+        matrix = np.round(matrix, decimals=decimals) + 0
+    else:
+        matrix = np.array(matrix)
+
+    header = "$$\n"
+    if variable_name:
+        header += f"{variable_name} = \\begin{{bmatrix}}\n"
+    else:
+        header += "\\begin{bmatrix}\n"
+
+    footer = "\\end{bmatrix}\n$$"
+
+    matrix_string = ""
+
+    for row in matrix:
+        row_string = ""
+        for idx, value in enumerate(row):
+            row_string += f"{value:.4g}"
+            if idx != len(row) - 1:
+                row_string += " & "
+        row_string += " \\\\ \n"
+        matrix_string += row_string
+
+    return header + matrix_string + footer
+
+def update_css_class(kwargs, class_name):
+    """
+    Convenience function to update className while respecting
+    any additional classNames already set.
+    """
+    if "className" in kwargs:
+        kwargs["className"] += f" {class_name}"
+    else:
+        kwargs["className"] = class_name
+
+def is_mpid(value: str):
+    """
+    Determine if a string is in the MP ID syntax.
+    Checks if the string starts with 'mp-' or 'mvc-'
+    and is followed by only numbers.
+    """
+    if re.match("(mp|mvc)\-\d+$", value):
+        return value
+    else:
+        return False
+
+def pretty_frac_format(x):
+    """
+    Formats a float to a fraction, if the fraction can be
+    expressed without a large denominator.
+    """
+
+    x = x % 1
+    fraction = Fraction(x).limit_denominator(8)
+    if np.allclose(x, 1):
+        x_str = "0"
+    elif not np.allclose(x, float(fraction)):
+        x = np.around(x, decimals=2)
+        x_str = f"{x:.3g}"
+    else:
+        x_str = str(fraction)
+    return x_str

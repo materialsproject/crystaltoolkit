@@ -1,28 +1,19 @@
 import logging
-from itertools import chain
 from typing import List
 
 import dash
 from dash import dcc
 from dash import html
-from crystal_toolkit.core.scene import Scene
-from crystal_toolkit.core.legend import Legend
 
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 import dash_mp_components as mpc
-from urllib.parse import urljoin
-from monty.serialization import loadfn
-from pymatgen.core import Molecule
 from pymatgen.util.string import unicodeify_spacegroup, unicodeify
-
-from mpcontribs.client import Structure
+from urllib.parse import urljoin
 
 import crystal_toolkit.components as ctc
 import crystal_toolkit.helpers.layouts as ctl
 
-from mp_api import MPRester
-from mp_api.core.client import MPRestError
 from crystal_toolkit.core.mpapp import MPApp
 from crystal_toolkit.helpers.utils import (
     get_user_api_key,
@@ -30,12 +21,10 @@ from crystal_toolkit.helpers.utils import (
     get_contribs_api_base_url,
     get_box_title,
 )
-from crystal_toolkit.settings import SETTINGS
 from crystal_toolkit import MODULE_PATH
 import numpy as np
+from monty.serialization import loadfn
 
-# Delete later:
-import pickle
 import pandas as pd
 import plotly
 import plotly.graph_objects as go
@@ -291,46 +280,6 @@ class CatalysisApp(MPApp):
             return table
 
     def get_visualization(self, structure):
-
-        # option for showing a cut-out around molecule
-        # detail_radius = 5
-        # neighbors = structure.get_all_neighbors(
-        #     detail_radius,
-        #     sites=[[site for site in structure if site.properties["tags"] == 2][0]],
-        # )
-        # adsorbate_on_surface = Molecule.from_sites(
-        #     list(chain.from_iterable(neighbors))
-        # ).get_centered_molecule()
-        # adsorbate_on_surface_viewer = ctc.StructureMoleculeComponent(
-        #     adsorbate_on_surface,
-        #     disable_callbacks=True,
-        #     bonding_strategy="MinimumDistanceNN",
-        #     radius_strategy="covalent",
-        #     show_compass=False,
-        # )
-        #
-        # return adsorbate_on_surface_viewer.layout()
-        #
-        # ####
-        #
-        # option to mix/match van der walls radii and molecules
-        #
-        # molecule_scene = Molecule.from_sites(
-        #     [site for site in structure if site.properties["tags"] == 2]
-        # ).get_scene()
-        #
-        # structure = Structure.from_sites(
-        #     [site for site in structure if site.properties["tags"] != 2]
-        # )
-        # legend = Legend(structure, radius_scheme="van_der_waals")
-        # structure_scene = structure.get_scene(legend=legend)
-        #
-        # scene = Scene(name="catalyst", contents=[molecule_scene, structure_scene])
-        #
-        # return CrystalToolkitScene(id=self.id("catalyst"), data=scene.to_json())
-
-        #####
-
         # from the definition supplied by the Open Catalyst Project
         display_text_map = {
             0: "Fixed Surface Atoms",
@@ -409,6 +358,7 @@ class CatalysisApp(MPApp):
             step=0.2,
         )
         additional_data = get_box_title(
+            use_point="CatalysisApp", 
             title="catapp-add-data",
         )
 
