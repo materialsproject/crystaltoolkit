@@ -1,13 +1,12 @@
 from abc import ABC
 from typing import Optional
 
-from crystal_toolkit.core.mpcomponent import MPComponent
+from dash import html
+from dash.dependencies import Input, Output
 
 import crystal_toolkit.helpers.layouts as ctl
-from dash.dependencies import Input, Output
-from dash import html
-
 from crystal_toolkit.apps.constants import APP_METADATA
+from crystal_toolkit.core.mpcomponent import MPComponent
 
 
 class MPApp(MPComponent, ABC):

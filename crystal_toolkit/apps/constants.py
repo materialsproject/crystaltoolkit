@@ -1,7 +1,9 @@
 from collections import defaultdict
+
 from monty.serialization import loadfn
+from pydash import get, set_
+
 from crystal_toolkit import MODULE_PATH
-from pydash import set_, get
 
 APP_METADATA = loadfn(MODULE_PATH / "apps/app_metadata.yaml")
 

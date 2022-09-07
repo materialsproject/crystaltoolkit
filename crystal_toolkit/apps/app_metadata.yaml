@@ -1,7 +1,7 @@
 CatalysisApp:
   author: Open Catalyst Project
   category: Explore and Search
-  credits: 
+  credits:
     - Binary data visualization app contributed by Brook Wander.
   description: 'Search catalysis data from the Open Catalyst 2020 (OC20) Dataset.'
   docs_url: https://next-gen-docs.materialsproject.org/apps/catalysis-explorer
