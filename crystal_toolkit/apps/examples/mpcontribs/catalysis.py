@@ -1,40 +1,38 @@
 import logging
+import re
 from typing import List
-
-import dash
-from dash import dcc
-from dash import html
-
-from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
-import dash_mp_components as mpc
-from pymatgen.util.string import unicodeify_spacegroup, unicodeify
 from urllib.parse import urljoin
 
-import crystal_toolkit.components as ctc
-import crystal_toolkit.helpers.layouts as ctl
-
-from crystal_toolkit.core.mpapp import MPApp
-from crystal_toolkit.helpers.utils import (
-    get_user_api_key,
-    get_contribs_client,
-    get_contribs_api_base_url,
-    get_box_title,
-)
-from crystal_toolkit import MODULE_PATH
+import dash
+import dash_mp_components as mpc
 import numpy as np
-from monty.serialization import loadfn
-
 import pandas as pd
 import plotly
 import plotly.graph_objects as go
-import re
+from dash import dcc, html
+from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
+from monty.serialization import loadfn
+from pymatgen.util.string import unicodeify, unicodeify_spacegroup
+
+import crystal_toolkit.components as ctc
+import crystal_toolkit.helpers.layouts as ctl
+from crystal_toolkit import MODULE_PATH
+from crystal_toolkit.core.mpapp import MPApp
+from crystal_toolkit.helpers.utils import (
+    get_box_title,
+    get_contribs_api_base_url,
+    get_contribs_client,
+    get_user_api_key,
+)
 
 logger = logging.getLogger(__name__)
 _CATALYST_SEARCH_FILTER_GROUPS = loadfn(
     MODULE_PATH / "apps/examples/mpcontribs/catalysis_filter_groups.json"
 )
-_CATALYST_SEARCH_COLUMNS = loadfn(MODULE_PATH / "apps/examples/mpcontribs/catalysis_columns.json")
+_CATALYST_SEARCH_COLUMNS = loadfn(
+    MODULE_PATH / "apps/examples/mpcontribs/catalysis_columns.json"
+)
 
 _ADSORBATE_CHOICES = (
     (MODULE_PATH / "apps/examples/mpcontribs/adsorbate_choices.txt")
@@ -358,7 +356,7 @@ class CatalysisApp(MPApp):
             step=0.2,
         )
         additional_data = get_box_title(
-            use_point="CatalysisApp", 
+            use_point="CatalysisApp",
             title="catapp-add-data",
         )
 

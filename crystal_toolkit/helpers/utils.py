@@ -1,20 +1,19 @@
 import re
-from flask import request, has_request_context
-from typing import Optional, Any
-from uuid import uuid4
-import numpy as np
 from fractions import Fraction
+from typing import Any, Optional
+from uuid import uuid4
 
-from dash import html
-from dash import dash_table as dt
-from dash import dcc
-
-from mpcontribs.client import Client as MPContribsClient
 import dash_mp_components as mpc
+import numpy as np
+from dash import dash_table as dt
+from dash import dcc, html
+from flask import has_request_context, request
 from monty.serialization import loadfn
+from mpcontribs.client import Client as MPContribsClient
 
-from crystal_toolkit import MODULE_PATH, _DEFAULTS
+from crystal_toolkit import _DEFAULTS, MODULE_PATH
 from crystal_toolkit.settings import SETTINGS
+
 
 def update_object_args(d_args, object_name, allowed_args):
     """Read default properties and overwrite them if user input exists
@@ -32,6 +31,7 @@ def update_object_args(d_args, object_name, allowed_args):
         {k: v for k, v in (d_args or {}).items() if k in allowed_args and v is not None}
     )
     return obj_args
+
 
 def is_logged_in() -> bool:
     """
@@ -68,6 +68,7 @@ def is_localhost() -> bool:
         or host.startswith("0.0.0.0:")
     )
 
+
 def get_consumer():
 
     if not has_request_context():
@@ -88,8 +89,10 @@ def get_consumer():
             headers[name] = value
     return headers
 
+
 def is_url(s):
     return s.startswith("http://") or s.startswith("https://")
+
 
 def get_user_api_key(consumer=None) -> Optional[str]:
     """
@@ -107,6 +110,7 @@ def get_user_api_key(consumer=None) -> Optional[str]:
     else:
         return None
 
+
 def get_contribs_client():
     """
     Get an instance of the MPContribsClient that will work
@@ -120,6 +124,7 @@ def get_contribs_client():
     else:
         return MPContribsClient(headers=headers)
 
+
 def get_contribs_api_base_url(request_url=None, deployment="contribs"):
     """Get the MPContribs API endpoint for a specific deployment"""
     if is_localhost() and SETTINGS.API_EXTERNAL_ENDPOINT:
@@ -130,6 +135,7 @@ def get_contribs_api_base_url(request_url=None, deployment="contribs"):
 
     return parse_request_url(request_url, f"{deployment}-api")
 
+
 def parse_request_url(request_url, subdomain):
     parsed_url = urllib.parse.urlparse(request_url)
     pre, suf = parsed_url.netloc.split("next-gen")
@@ -137,6 +143,7 @@ def parse_request_url(request_url, subdomain):
     scheme = "http" if netloc.startswith("localhost.") else "https"
     base_url = f"{scheme}://{netloc}"
     return base_url
+
 
 HELP_STRINGS = loadfn(MODULE_PATH / "apps/help.yaml")
 if SETTINGS.DEBUG_MODE:
@@ -176,6 +183,7 @@ def get_box_title(use_point: str, title: str, id=None):
             div = html.A(div, href=link)
         return div
 
+
 def get_tooltip(
     tooltip_label: Any,
     tooltip_text: str,
@@ -210,6 +218,7 @@ def get_tooltip(
         className=wrapper_class,
     )
 
+
 def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book"):
 
     if (not doi) or cite_text:
@@ -219,7 +228,13 @@ def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book")
         else:
             button_contents = ctl.Icon(kind=icon)
         button = html.Form(
-            [ctl.Button(button_contents, size="small", kind="link",)],
+            [
+                ctl.Button(
+                    button_contents,
+                    size="small",
+                    kind="link",
+                )
+            ],
             # action=f"https://dx.doi.org/{doi}",
             # method="get",
             # target="_blank",
@@ -230,6 +245,7 @@ def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book")
                 "textDecoration": "none",
             },
         )
+
 
 # TODO: move to crystal-toolkit when stable
 def get_data_table(
@@ -305,6 +321,7 @@ def get_data_table(
     else:
         return dt.DataTable(**datatable_kwargs)
 
+
 def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
     """
     Helper function to build section headings with docs button.
@@ -323,6 +340,7 @@ def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
         if app_button_id
         else None
     )
+
 
 def get_matrix_string(matrix, variable_name=None, decimals=4):
     """
@@ -360,6 +378,7 @@ def get_matrix_string(matrix, variable_name=None, decimals=4):
 
     return header + matrix_string + footer
 
+
 def update_css_class(kwargs, class_name):
     """
     Convenience function to update className while respecting
@@ -370,16 +389,18 @@ def update_css_class(kwargs, class_name):
     else:
         kwargs["className"] = class_name
 
+
 def is_mpid(value: str):
     """
     Determine if a string is in the MP ID syntax.
     Checks if the string starts with 'mp-' or 'mvc-'
     and is followed by only numbers.
     """
-    if re.match("(mp|mvc)\-\d+$", value):
+    if re.match(r"(mp|mvc)\-\d+$", value):
         return value
     else:
         return False
+
 
 def pretty_frac_format(x):
     """

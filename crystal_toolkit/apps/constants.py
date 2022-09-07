@@ -1,7 +1,9 @@
 from collections import defaultdict
+
 from monty.serialization import loadfn
+from pydash import get, set_
+
 from crystal_toolkit import MODULE_PATH
-from pydash import set_, get
 
 APP_METADATA = loadfn(MODULE_PATH / "apps/app_metadata.yaml")
 
@@ -20,7 +22,7 @@ for app_class_name, metadata in APP_METADATA.items():
             set_(APP_TREE, path, {"NAME": app_class_name})
         else:
             get(APP_TREE, path)["NAME"] = app_class_name
-            
+
 # This is currently hard-coded
 _MP_APP_CATEGORY_ORDER = [
     "Explore and Search",
