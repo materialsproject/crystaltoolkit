@@ -246,6 +246,16 @@ def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book")
             },
         )
 
+    if doi:
+        # set an id based on the doi, if you don't set a unique id
+        # then React will not update the button appropriately if the
+        # doi is changed via a callback; this may be a bug
+        button = mpc.PublicationButton(doi=doi, id=uuid4().hex)
+
+    if hover_text:
+        button = get_tooltip(button, tooltip_text=hover_text)
+    return button
+
 
 # TODO: move to crystal-toolkit when stable
 def get_data_table(
@@ -341,6 +351,95 @@ def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
         else None
     )
 
+    # TODO: move method buttons into a dropdown
+    methods_button = (
+        html.Div(
+            [
+                mpc.Dropdown(
+                    [
+                        html.Div(
+                            get_reference_button("Methods paper", doi=doi),
+                            className="dropdown-item no-hover",
+                        )
+                        for doi in dois
+                    ],
+                    triggerLabel="Methods",
+                    triggerIcon="fa fa-book",
+                    triggerClassName="button is-small",
+                    isRight=True,
+                ),
+            ],
+            className="level-item",
+        )
+        if dois
+        else None
+    )
+
+    docs_item = (
+        dcc.Link(
+            "Understand this Section",
+            className="dropdown-item is-nowrap",
+            href=docs_url,
+            target="_blank",
+        )
+        if docs_url
+        else None
+    )
+
+    section_actions = mpc.Dropdown(
+        [
+            docs_item,
+            mpc.ModalContextProvider(
+                [
+                    mpc.ModalTrigger("Methods", className="dropdown-item"),
+                    mpc.Modal(
+                        [
+                            html.Div(
+                                [
+                                    html.Div(
+                                        f"{title} Methods", className="panel-heading"
+                                    ),
+                                    html.Div(
+                                        [
+                                            ctl.Box(mpc.CrossrefCard(identifier=doi))
+                                            for doi in dois
+                                        ],
+                                        className="panel-content",
+                                    ),
+                                ],
+                                className="panel",
+                            )
+                        ]
+                    ),
+                ]
+            ),
+            html.Div("Calculations", className="dropdown-item"),
+            app_link,
+        ],
+        triggerIcon="fa fa-ellipsis-h",
+        triggerClassName="button is-small",
+        isArrowless=True,
+        closeOnSelection=False,
+    )
+
+    docs_button = (
+        get_tooltip(
+            dcc.Link(
+                ctl.Icon(kind="info-circle"),
+                href=docs_url,
+                target="_blank",
+                className="inherit-color",
+            ),
+            f"Go to {title} documentation page",
+            underline=False,
+            wrapper_class="ml-2 is-inline-block",
+        )
+        if docs_url
+        else None
+    )
+
+    return ctl.H4([title, docs_button, app_link])
+
 
 def get_matrix_string(matrix, variable_name=None, decimals=4):
     """
@@ -366,6 +465,8 @@ def get_matrix_string(matrix, variable_name=None, decimals=4):
     footer = "\\end{bmatrix}\n$$"
 
     matrix_string = ""
+
+    assert hasattr(matrix, "__iter__"), "The matrix provided was not iterable"
 
     for row in matrix:
         row_string = ""
