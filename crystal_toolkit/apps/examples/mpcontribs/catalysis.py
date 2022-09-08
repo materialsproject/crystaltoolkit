@@ -235,7 +235,6 @@ class CatalysisApp(MPApp):
                 raise PreventUpdate
 
             smile = smile[0]
-            zmin, zmax = mid_E[0] - range_E[0], mid_E[0] + range_E[0]
             df = get_plot_data(smile)
             df_full, df_min_E = self.modify_df(df)
             plot = self.get_plot(df_full, df_min_E, mid_E, range_E, 1)
@@ -246,7 +245,7 @@ class CatalysisApp(MPApp):
             Input(self.id("heat_map"), "clickData"),
         )
         def display_click_data(clickData):
-            if clickData == None:
+            if clickData is None:
                 table = ctl.get_data_list(
                     {
                         "Elements": "None",
