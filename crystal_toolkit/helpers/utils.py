@@ -228,7 +228,13 @@ def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book")
         else:
             button_contents = ctl.Icon(kind=icon)
         button = html.Form(
-            [ctl.Button(button_contents, size="small", kind="link",)],
+            [
+                ctl.Button(
+                    button_contents,
+                    size="small",
+                    kind="link",
+                )
+            ],
             # action=f"https://dx.doi.org/{doi}",
             # method="get",
             # target="_blank",
