@@ -1,4 +1,3 @@
-
 import dash
 from dash import html
 from dash_mp_components import CrystalToolkitScene
