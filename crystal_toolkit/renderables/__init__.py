@@ -1,4 +1,5 @@
 from crystal_toolkit.renderables.lattice import Lattice as Lattice
+from crystal_toolkit.renderables.migrationgraph import MigrationGraph as MigrationGraph
 from crystal_toolkit.renderables.molecule import Molecule as Molecule
 from crystal_toolkit.renderables.moleculegraph import MoleculeGraph as MoleculeGraph
 from crystal_toolkit.renderables.phasediagram import PhaseDiagram as PhaseDiagram
