@@ -1,3 +1,5 @@
+import os
+
 import dash
 from dash import html
 from dash_mp_components import CrystalToolkitScene
@@ -9,7 +11,8 @@ from crystal_toolkit.settings import SETTINGS
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # create the MigrationGraph object
-mg = loadfn("LiMnP2O7_mg.json")
+module_dir = os.path.dirname(os.path.abspath(__file__))
+mg = loadfn(f"{module_dir}/LiMnP2O7_mg.json")
 
 # create the Crystal Toolkit component
 # no MigrationGraph component yet
