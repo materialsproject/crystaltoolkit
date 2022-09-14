@@ -3,8 +3,23 @@ from pymatgen.analysis.diffusion.neb.full_path_mapper import MigrationGraph
 
 from crystal_toolkit.core.scene import Cylinders, Scene
 
+color_scheme = [
+    (32, 178, 170),
+    (0, 255, 127),
+    (47, 79, 79),
+    (30, 144, 255),
+    (138, 43, 226),
+    (186, 85, 211),
+    (199, 21, 133),
+    (255, 20, 147),
+    (250, 235, 215),
+    (160, 82, 45),
+    (244, 164, 96),
+    (176, 196, 222),
+]
 
-def _get_extras_cross_boundary(self, one_hop, only_wi_structure):
+
+def _get_extras_cross_boundary(self, one_hop, only_wi_structure, color_code):
     extras = []
     working_struct = only_wi_structure.copy()
     wi = working_struct[0].specie.name
@@ -23,8 +38,9 @@ def _get_extras_cross_boundary(self, one_hop, only_wi_structure):
     extras.append(
         Cylinders(
             positionPairs=[[extra_ipos, extra_epos]],
-            radius=0.25,
+            radius=0.3,
             clickable=True,
+            color=color_code,
         )
     )
 
@@ -48,16 +64,20 @@ def get_migrationgraph_scene(
 
     for k, one_hop in self.unique_hops.items():
         one_hop_contents = []
+        rgb_code = color_scheme[k % len(color_scheme)]
+        color_code = f"#{rgb_code[0]:02x}{rgb_code[1]:02x}{rgb_code[2]:02x}"
+
         hop_cyl = Cylinders(
             positionPairs=[[list(one_hop["ipos_cart"]), list(one_hop["epos_cart"])]],
-            radius=0.25,
+            radius=0.3,
             clickable=True,
+            color=color_code,
         )
         one_hop_contents.append(hop_cyl)
 
         if one_hop["to_jimage"] != (0, 0, 0):
             extras_cross_boundary = self._get_extras_cross_boundary(
-                one_hop, self.only_sites
+                one_hop, self.only_sites, color_code
             )
             one_hop_contents.extend(extras_cross_boundary)
 
