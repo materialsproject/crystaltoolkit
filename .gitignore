@@ -8,3 +8,6 @@ __pycache__/
 
 # auto-generated documentation
 docs_rst/_build
+build
+dist
+*.egg-info
