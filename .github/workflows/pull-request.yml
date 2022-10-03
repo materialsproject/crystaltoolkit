@@ -2,8 +2,7 @@ name: pytest
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
@@ -25,7 +24,6 @@ jobs:
       - name: Install webdriver and poetry
         run: |
           sudo apt-get update && sudo apt-get install firefox-geckodriver
-          pip install --upgrade pip
           poetry config virtualenvs.in-project false
           poetry config virtualenvs.path ~/.virtualenvs
 
