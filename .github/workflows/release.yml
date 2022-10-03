@@ -23,7 +23,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
           poetry install -E server -E fermi
 
       - name: Build and publish

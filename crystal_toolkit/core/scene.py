@@ -81,7 +81,7 @@ class Scene:
     def to_json(self):
         """
         Convert a Scene into JSON. It will implicitly assume all None values means
-        that that attribute uses its default value, and so will be removed from
+        that attribute uses its default value, and so will be removed from
         the JSON to reduce the file size of the resulting JSON.
 
         Note that this function actually returns a Python dict, but in a format
