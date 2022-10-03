@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crystal_toolkit"
-version = "2022.08.19"
+version = "2022.10.03"
 description = ""
 authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
@@ -12,7 +12,7 @@ plotly = "^5.3.1"
 webcolors = "*"
 crystaltoolkit-extension = "^0.6.0"
 mp-api = "*"
-emmet-core = "^0.32.6"
+emmet-core = ">=0.32.6"
 shapely = "^1.8.0"
 scikit-learn = { version = "*" }
 scikit-image = { version = "*" }
