@@ -34,6 +34,7 @@ habanero = { version = "*", optional = true }
 dash-extensions = { version = "<=0.1.5", optional = true }
 dash-vtk = { version = "^0.0.6", optional = true }
 kaleido = { version = "^0.2.1", optional = true }
+py4DSTEM = "^0.13.7"
 
 [tool.poetry.extras]
 server = [
