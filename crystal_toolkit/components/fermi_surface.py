@@ -12,6 +12,7 @@ class FermiSurfaceComponent(MPComponent):
             MPComponent are included in an app.
         kwargs: Keyword arguments that get passed to MPComponent.
     """
+
     def __init__(
         self,
         fermi_surface=None,
