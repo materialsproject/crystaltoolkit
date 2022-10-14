@@ -3,15 +3,25 @@ from crystal_toolkit.helpers.layouts import Loading, dcc, html
 
 
 class FermiSurfaceComponent(MPComponent):
+    """
+    Component to display FermiSurface objects generated from ifermi.
+
+    Args:
+        fermi_surface (FermiSurface): An IFermi FermiSurface object.
+        id (str or None): A unique id, required if multiple of the same type of
+            MPComponent are included in an app.
+        kwargs: Keyword arguments that get passed to MPComponent.
+    """
     def __init__(
         self,
         fermi_surface=None,
-        id=None,
+        id: str | None = None,
         **kwargs,
     ):
         super().__init__(id=id, default_data=fermi_surface, **kwargs)
 
     def layout(self):
+        """Get a Dash layout for the component."""
         from ifermi.plot import FermiSurfacePlotter
 
         fermi_surface = self.initial_data["default"]
