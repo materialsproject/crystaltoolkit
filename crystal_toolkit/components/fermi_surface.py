@@ -1,9 +1,5 @@
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import (
-    Loading,
-    dcc,
-    html,
-)
+from crystal_toolkit.helpers.layouts import Loading, dcc, html
 
 
 class FermiSurfaceComponent(MPComponent):
