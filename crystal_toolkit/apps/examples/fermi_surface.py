@@ -1,7 +1,6 @@
 import os
 
 import dash
-
 from monty.serialization import loadfn
 
 import crystal_toolkit.components as ctc
