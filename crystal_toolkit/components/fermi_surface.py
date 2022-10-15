@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from dash import Output, Input
+from dash import Input, Output
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Loading, dcc, html
