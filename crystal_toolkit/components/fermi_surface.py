@@ -114,5 +114,5 @@ class FermiSurfaceComponent(MPComponent):
         )
         def update_plot(fermi_surface):
             # if update_plot is slow, an @cache decorator can be added here
-            fermi_surface = self.get_data(fermi_surface)  # converts back to object
+            fermi_surface = self.from_data(fermi_surface)  # converts back to object
             return self.get_figure(fermi_surface)
