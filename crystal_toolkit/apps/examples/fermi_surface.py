@@ -2,7 +2,6 @@ import os
 
 import dash
 
-# dos and bs data from local jsons
 from monty.serialization import loadfn
 
 import crystal_toolkit.components as ctc
@@ -22,10 +21,10 @@ path = os.path.dirname(os.path.realpath(__file__))
 fermi_surface = loadfn(f"{path}/BaFe2As2_fs.json.gz")
 
 # # create the Crystal Toolkit component
-bsdos_component = ctc.FermiSurfaceComponent(fermi_surface, id="fermi_surface")
+fs_component = ctc.FermiSurfaceComponent(fermi_surface, id="fermi_surface")
 
 # example layout to demonstrate capabilities of component
-my_layout = Container([H1("Fermi Surface Example"), bsdos_component.layout()])
+my_layout = Container([H1("Fermi Surface Example"), fs_component.layout()])
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
