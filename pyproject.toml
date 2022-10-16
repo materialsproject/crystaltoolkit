@@ -16,7 +16,6 @@ emmet-core = ">=0.32.6"
 shapely = "^1.8.0"
 scikit-learn = { version = "*" }
 scikit-image = { version = "*" }
-packaging = { version = "*" }
 
 ifermi = { version = "*", optional = true }
 pyfftw = { version = "*", optional = true }
