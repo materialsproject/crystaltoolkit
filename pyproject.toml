@@ -17,6 +17,7 @@ shapely = "^1.8.0"
 scikit-learn = { version = "*" }
 scikit-image = { version = "*" }
 
+packaging = { version = "*", optional = true }
 ifermi = { version = "*", optional = true }
 pyfftw = { version = "*", optional = true }
 
@@ -50,7 +51,7 @@ server = [
     "dscribe",
     "dash-extensions",
 ]
-fermi = ["ifermi", "pyfftw"]
+fermi = ["packaging", "ifermi", "pyfftw"]
 vtk = ["dash-vtk"]
 localenv = ["dscribe"]
 figures = ["kaleido"]
