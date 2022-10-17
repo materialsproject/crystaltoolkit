@@ -79,8 +79,69 @@ class TEMDiffractionComponent(MPComponent):
 
 class TEMDiffractionCalculator(AbstractDiffractionPatternCalculator):
     """
-    Docs
+    Docstring
     """
 
     def __init__(self)->None:
+        self.crystal = None
+
+    def get_plot_2d(
+        self,
+        structure,
+        beam_direction,
+        voltage:float,
+        k_max:float,
+        thickness:float,
+        structure_factor_tol:float=None,
+        use_dynamical:bool=False,
+        dynamical_method=None,
+        DWF:float=None
+        **kwargs)->go:
+        """
+        generate diffraction pattern and return as a plotly graph object
+        """
+
+        # check if cached structure factors are valid, recompute if needed
+        # (and check if dynamical factors are needed)
+        self.update_structure_factors(
+            structure,
+            k_max,
+            structure_factor_tol,
+            use_dynamical,
+            DWF)
+
+        # generate diffraction pattern
+        pattern = self.crystal.generate_diffraction_pattern(
+            zone_axis_lattice=beam_direction)
+
+        # perform dynamical simulation, if Bloch is selected
+        if use_dynamical:
+            pattern = self.crystal.generate_dynamical_diffraction_pattern(
+                pattern,
+                thickness=thickness,
+                zone_axis_lattice=beam_direction)
+
+        # generate plotly spots for each reflection
+        spots = self.pointlist_to_spots(pattern)
+
+        # wrap everything up into a figure
+
+
         pass
+
+    def update_structure_factors(
+        self,
+        new_structure,
+        k_max,
+        structure_factor_tol,
+        use_dynamical,
+        DWF
+        ):
+        pass
+
+    def pointlist_to_spots(
+        self,
+        pattern,
+        ):
+        pass
+
