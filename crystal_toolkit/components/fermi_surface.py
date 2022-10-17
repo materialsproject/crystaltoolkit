@@ -3,12 +3,11 @@ from __future__ import annotations
 import typing
 
 import matplotlib.pyplot as plt
-
 from dash import Input, Output
 from dash.development.base_component import Component
 
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import Loading, dcc, Columns, Column, Box
+from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, dcc
 
 if typing.TYPE_CHECKING:
     from ifermi.surface import FermiSurface
@@ -135,7 +134,7 @@ class FermiSurfaceComponent(MPComponent):
             state=state,
             label="Property colormap",
             help_str="Colormap to use if the Fermi surface has properties (such as "
-                     "group velocity) included",
+            "group velocity) included",
             options=options,
             style={"width": "10rem"},
         )
@@ -175,8 +174,7 @@ class FermiSurfaceComponent(MPComponent):
             [
                 Input(self.id(), "data"),
                 Input(self.get_all_kwargs_id(), "value"),
-            ]
-
+            ],
         )
         def update_plot(fermi_surface, *args):
             # if update_plot is slow, an @cache decorator can be added here
