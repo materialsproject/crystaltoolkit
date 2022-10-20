@@ -28,7 +28,7 @@ jobs:
           poetry config virtualenvs.path ~/.virtualenvs
 
       - name: Install dependencies
-        run: poetry install -E server -E fermi
+        run: poetry install -E server -E fermi -E tem-diff
 
       - name: Test with pytest
         env:
