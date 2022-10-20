@@ -7,7 +7,6 @@ import plotly.graph_objs as go
 from dash import callback_context, dcc, html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
@@ -28,6 +27,7 @@ from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov
+
 
 class XRayDiffractionComponent(MPComponent):
     # TODO: add pole figures for a given single peak for help quantifying texture

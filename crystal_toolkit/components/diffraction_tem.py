@@ -1,15 +1,8 @@
 from __future__ import annotations
 
-import numpy as np
 import plotly.graph_objs as go
-from dash import callback_context, dcc, html
+from dash import dcc, html
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.analysis.diffraction.tem import TEMCalculator
-from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
-from scipy.special import wofz
-import py4DSTEM
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, Reveal
@@ -29,7 +22,7 @@ class TEMDiffractionComponent(MPComponent):
         voltage = self.get_numerical_input(
             kwarg_label="voltage",
             default=200,
-            step=50.,
+            step=50.0,
             label="Voltage / kV",
             help_str="Accelerating voltage for electron beam.",
         )
@@ -62,10 +55,11 @@ class TEMDiffractionComponent(MPComponent):
 
         thickness = self.get_numerical_input(
             kwarg_label="thickness",
-            default=500.,
-            step=10.,
+            default=500.0,
+            step=10.0,
             label="Thickness [Å]",
-            help_str="Sample thickness in Ångströms, for dynamical simulation.")
+            help_str="Sample thickness in Ångströms, for dynamical simulation.",
+        )
 
         # Advanced options
 
@@ -73,38 +67,39 @@ class TEMDiffractionComponent(MPComponent):
             kwarg_label="sigma_excitation_error",
             default=0.02,
             label="Excitation error tolerance [Å-1]",
-            help_str="Standard deviation of Gaussian function for damping")
+            help_str="Standard deviation of Gaussian function for damping",
+        )
 
         Fhkl_tol = self.get_numerical_input(
             kwarg_label="tol_intensity",
-            default=0.,
+            default=0.0,
             step=0.001,
             label="|Fkhl| tolerance",
             help_str="Minimum structure factor intensity to include a reflection.",
         )
 
         absorption_method_names = {
-                "Lobato (Elastic)":"Lobato",
-                "Lobato (Hashimoto absoprtive)": "Lobato-absorptive",
-                "Weickenmeier-Kohl (Elastic)": "WK",
-                "Weickenmeier-Kohl (Core only)": "WK-C",
-                "Weickenmeier-Kohl (Phonon only)": "WK-P",
-                "Weickenmeier-Kohl (Core + Phonon)": "WK-CP"
-            }
+            "Lobato (Elastic)": "Lobato",
+            "Lobato (Hashimoto absoprtive)": "Lobato-absorptive",
+            "Weickenmeier-Kohl (Elastic)": "WK",
+            "Weickenmeier-Kohl (Core only)": "WK-C",
+            "Weickenmeier-Kohl (Phonon only)": "WK-P",
+            "Weickenmeier-Kohl (Core + Phonon)": "WK-CP",
+        }
 
         absorption_methods = self.get_choice_input(
             kwarg_label="dynamical_method",
             label="Scattering Factor Parameterization",
             default="WK-CP",
             help_str="Parameterization of absoprtive scattering factors, used only"
-                    " for dynamical calculations. Kinematic calculations always use Lobato",
+            " for dynamical calculations. Kinematic calculations always use Lobato",
             options=[
                 {
-                    "label":name,
-                    "value":shortname,
+                    "label": name,
+                    "value": shortname,
                 }
                 for name, shortname in absorption_method_names.items()
-            ]
+            ],
         )
 
         DWF = self.get_numerical_input(
@@ -113,7 +108,7 @@ class TEMDiffractionComponent(MPComponent):
             default=0.08,
             step=0.01,
             help_str="RMS atomic displacements used to include thermal smearing of"
-                    "the electrostatic potential when a Weickenmeier-Kohl scattering factor is chosen",
+            "the electrostatic potential when a Weickenmeier-Kohl scattering factor is chosen",
         )
 
         gamma = self.get_numerical_input(
@@ -126,11 +121,17 @@ class TEMDiffractionComponent(MPComponent):
 
         advanced_options = Reveal(
             title="Advanced Options",
-            children=[excitation_tol, html.Br(), 
-                      Fhkl_tol, html.Br(),
-                      absorption_methods, html.Br(),
-                      DWF, html.Br(),
-                      gamma],
+            children=[
+                excitation_tol,
+                html.Br(),
+                Fhkl_tol,
+                html.Br(),
+                absorption_methods,
+                html.Br(),
+                DWF,
+                html.Br(),
+                gamma,
+            ],
             id="tem-advanced-options",
         )
 
@@ -139,11 +140,16 @@ class TEMDiffractionComponent(MPComponent):
                 Column([Box(Loading(id=self.id("tem-plot")))], size=8),
                 Column(
                     [
-                        voltage, html.Br(), 
-                        beam_direction, html.Br(),
-                        k_max, html.Br(),
-                        use_dynamical, html.Br(),
-                        thickness, html.Br(),
+                        voltage,
+                        html.Br(),
+                        beam_direction,
+                        html.Br(),
+                        k_max,
+                        html.Br(),
+                        use_dynamical,
+                        html.Br(),
+                        thickness,
+                        html.Br(),
                         advanced_options,
                     ],
                     size=4,
@@ -169,7 +175,7 @@ class TEMDiffractionComponent(MPComponent):
             print("kwargs", kwargs)
 
             return dcc.Graph(
-                figure=self.calculator.get_plot_2d(structure,**kwargs),
+                figure=self.calculator.get_plot_2d(structure, **kwargs),
                 responsive=False,
                 config=dict(displayModeBar=False, displaylogo=False),
             )
@@ -218,11 +224,10 @@ class TEMDiffractionCalculator:
             )
 
         # generate plotly spots for each reflection
-        spots = self.pointlist_to_spots(pattern)
+        self.pointlist_to_spots(pattern)
 
         # wrap everything up into a figure
 
-        pass
 
     def update_structure_factors(
         self, new_structure, k_max, sigma_excitation_error, use_dynamical, DWF
