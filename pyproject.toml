@@ -34,7 +34,7 @@ habanero = { version = "*", optional = true }
 dash-extensions = { version = "<=0.1.5", optional = true }
 dash-vtk = { version = "^0.0.6", optional = true }
 kaleido = { version = "^0.2.1", optional = true }
-py4DSTEM = "^0.13.7"
+py4DSTEM = { version = "^0.13.7", optional = true }
 
 [tool.poetry.extras]
 server = [
@@ -55,6 +55,7 @@ fermi = ["ifermi", "pyfftw"]
 vtk = ["dash-vtk"]
 localenv = ["dscribe"]
 figures = ["kaleido"]
+tem-diff = ["py4DSTEM"]
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
