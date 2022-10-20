@@ -459,7 +459,6 @@ Sub-layouts:  \n{layouts}"""
                     value=int(value) if value is not None else None,
                     persistence=True,
                     type="number",
-                    step=1,
                     **kwargs,
                 )
 
