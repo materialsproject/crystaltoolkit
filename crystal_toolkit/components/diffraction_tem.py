@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from time import time
+
+import numpy as np
 import plotly.graph_objs as go
+import py4DSTEM
 from dash import dcc, html
 from dash.dependencies import Input, Output
-
-import py4DSTEM
-import numpy as np
-from time import time
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, Reveal
