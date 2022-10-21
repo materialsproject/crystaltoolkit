@@ -72,7 +72,7 @@ class TEMDiffractionComponent(MPComponent):
             default=0.02,
             step=0.02,
             label="Excitation error tolerance [Å-1]",
-            help_str="Standard deviation of Gaussian function for damping",
+            help_str="Standard deviation of Gaussian function for damping reciprocal lattice points.",
         )
 
         Fhkl_tol = self.get_numerical_input(
@@ -80,7 +80,9 @@ class TEMDiffractionComponent(MPComponent):
             default=0.0,
             step=0.001,
             label="|F<sub>khl</sub>| tolerance",
-            help_str="Minimum structure factor intensity to include a reflection.",
+            help_str="Minimum structure factor intensity to include a reflection. Setting"
+            " this value to zero allows kinematically forbidden reflections to be excited"
+            " in Bloch wave calculations, but increases computation time.",
         )
 
         absorption_method_names = {
@@ -97,7 +99,7 @@ class TEMDiffractionComponent(MPComponent):
             label="Scattering Factor Parameterization",
             default="WK-CP",
             help_str="Parameterization of absoprtive scattering factors, used only"
-            " for dynamical calculations. Kinematic calculations always use Lobato",
+            " for dynamical calculations. Kinematic calculations always use Lobato.",
             options=[
                 {
                     "label": name,
@@ -192,6 +194,8 @@ class TEMDiffractionCalculator:
     """
 
     def __init__(self) -> None:
+        # Initialize parameter caches to invalid so that on the first run,
+        # everything gets computed from scratch.
         self.crystal = None
         self.voltage = np.nan
         self.k_max = np.nan
@@ -216,7 +220,7 @@ class TEMDiffractionCalculator:
         # **kwargs,
     ) -> go:
         """
-        generate diffraction pattern and return as a plotly graph object
+        generate diffraction pattern using py4DSTEM and return as a plotly Figure object
         """
         t0 = time()
         # figure out what needs to be recomputed:
@@ -242,9 +246,10 @@ class TEMDiffractionCalculator:
             or self.dynamical_method != dynamical_method
         )
 
-        print(
-            f"Needs structure?\t{needs_structure}\nNeeds SFs?:\t{needs_kinematic_SFs}\nNeeds Ug?:\t{needs_dynamic_SFs}"
-        )
+        # # Check if the cache logic is working
+        # print(
+        #     f"Needs structure?\t{needs_structure}\nNeeds SFs?:\t{needs_kinematic_SFs}\nNeeds Ug?:\t{needs_dynamic_SFs}"
+        # )
 
         if needs_structure:
             self.crystal = py4DSTEM.process.diffraction.Crystal.from_pymatgen_structure(
