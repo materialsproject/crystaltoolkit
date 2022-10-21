@@ -4,6 +4,10 @@ import plotly.graph_objs as go
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
+import py4DSTEM
+import numpy as np
+from time import time
+
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, Reveal
 
@@ -66,15 +70,16 @@ class TEMDiffractionComponent(MPComponent):
         excitation_tol = self.get_numerical_input(
             kwarg_label="sigma_excitation_error",
             default=0.02,
+            step=0.02,
             label="Excitation error tolerance [Å-1]",
             help_str="Standard deviation of Gaussian function for damping",
         )
 
         Fhkl_tol = self.get_numerical_input(
-            kwarg_label="tol_intensity",
+            kwarg_label="tol_structure_factor",
             default=0.0,
             step=0.001,
-            label="|Fkhl| tolerance",
+            label="|F<sub>khl</sub>| tolerance",
             help_str="Minimum structure factor intensity to include a reflection.",
         )
 
@@ -188,6 +193,12 @@ class TEMDiffractionCalculator:
 
     def __init__(self) -> None:
         self.crystal = None
+        self.voltage = np.nan
+        self.k_max = np.nan
+        self.tol_structure_factor = np.nan
+        self.sigma_excitation_error = np.nan
+        self.DWF = np.nan
+        self.dynamical_method = ""
 
     def get_plot_2d(
         self,
@@ -196,26 +207,63 @@ class TEMDiffractionCalculator:
         voltage: float,
         k_max: float,
         thickness: float,
-        sigma_excitation_error: float = None,
-        use_dynamical: bool = False,
-        dynamical_method=None,
-        DWF: float = None,
-        **kwargs,
+        tol_structure_factor: float,
+        sigma_excitation_error: float,
+        use_dynamical: bool,
+        dynamical_method: str,
+        DWF: float,
+        gamma,
+        # **kwargs,
     ) -> go:
         """
         generate diffraction pattern and return as a plotly graph object
         """
-
-        # check if cached structure factors are valid, recompute if needed
-        # (and check if dynamical factors are needed)
-        self.update_structure_factors(
-            structure, k_max, sigma_excitation_error, use_dynamical, DWF
+        t0 = time()
+        # figure out what needs to be recomputed:
+        new_crystal = py4DSTEM.process.diffraction.Crystal.from_pymatgen_structure(
+            structure
         )
+        needs_structure = not self.crystal or not (
+            np.allclose(self.crystal.numbers, new_crystal.numbers)
+            and np.allclose(self.crystal.cell, new_crystal.cell)
+            and np.allclose(self.crystal.positions, new_crystal.positions)
+        )
+
+        needs_kinematic_SFs = (
+            needs_structure
+            or (self.voltage != voltage)
+            or (self.k_max != k_max)
+            or (self.tol_structure_factor != tol_structure_factor)
+        )
+
+        needs_dynamic_SFs = use_dynamical and (
+            needs_structure
+            or self.DWF != DWF
+            or self.dynamical_method != dynamical_method
+        )
+
+        print(
+            f"Needs structure?\t{needs_structure}\nNeeds SFs?:\t{needs_kinematic_SFs}\nNeeds Ug?:\t{needs_dynamic_SFs}"
+        )
+
+        if needs_structure:
+            self.crystal = py4DSTEM.process.diffraction.Crystal.from_pymatgen_structure(
+                structure=structure,
+            )
+
+        if needs_kinematic_SFs:
+            self.update_structure_factors(voltage, k_max, tol_structure_factor)
+
+        if needs_dynamic_SFs:
+            self.update_dynamic_structure_factors(dynamical_method, DWF)
 
         # generate diffraction pattern
         pattern = self.crystal.generate_diffraction_pattern(
             zone_axis_lattice=beam_direction
         )
+
+        # rescale intensities
+        pattern.data["intensity"] /= pattern.data["intensity"].max()
 
         # perform dynamical simulation, if Bloch is selected
         if use_dynamical:
@@ -223,19 +271,91 @@ class TEMDiffractionCalculator:
                 pattern, thickness=thickness, zone_axis_lattice=beam_direction
             )
 
-        # generate plotly spots for each reflection
-        self.pointlist_to_spots(pattern)
+        print(f"Generated pattern in {time()-t0:.3f} seconds")
 
-        # wrap everything up into a figure
-
+        # generate plotly Figure
+        return self.pointlist_to_spots(pattern, beam_direction, gamma)
 
     def update_structure_factors(
-        self, new_structure, k_max, sigma_excitation_error, use_dynamical, DWF
-    ):
-        pass
-
-    def pointlist_to_spots(
         self,
-        pattern,
+        voltage,
+        k_max,
+        tol_structure_factor,
     ):
-        pass
+        self.crystal.setup_diffraction(accelerating_voltage=voltage * 1e3)
+        self.crystal.calculate_structure_factors(
+            k_max=k_max, tol_structure_factor=tol_structure_factor
+        )
+
+        self.voltage = voltage
+        self.k_max = k_max
+        self.tol_structure_factor = tol_structure_factor
+
+    def update_dynamic_structure_factors(
+        self,
+        dynamical_method,
+        DWF,
+    ):
+        self.crystal.calculate_dynamical_structure_factors(
+            accelerating_voltage=self.voltage * 1e3,
+            method=dynamical_method,
+            k_max=self.k_max,
+            thermal_sigma=DWF,
+            recompute_kinematic_structure_factors=False,
+            verbose=False,
+        )
+
+        self.dynamical_method = dynamical_method
+        self.DWF = DWF
+
+    def pointlist_to_spots(self, pattern, beam_direction, gamma):
+        hkl_strings = [f"({r['h']} {r['k']} {r['l']})" for r in pattern.data]
+
+        scaled_intensity = pattern.data["intensity"] ** gamma
+        scaled_intensity /= scaled_intensity.max()
+
+        data = go.Scatter(
+            x=pattern.data["qx"],
+            y=pattern.data["qy"],
+            text=hkl_strings,
+            mode="markers",
+            marker=dict(
+                size=8,
+                cmax=1,
+                cmin=0,
+                color=scaled_intensity,
+                colorscale=[[0, "black"], [1.0, "white"]],
+            ),
+            showlegend=False,
+        )
+
+        plot_max = self.k_max * 1.2
+
+        layout = go.Layout(
+            title="2D Diffraction Pattern<br>Beam Direction: "
+            + "".join(str(e) for e in beam_direction),
+            font=dict(size=14, color="#7f7f7f"),
+            hovermode="closest",
+            xaxis=dict(
+                range=[-plot_max, plot_max],
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks="",
+                showticklabels=False,
+            ),
+            yaxis=dict(
+                range=[-plot_max, plot_max],
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks="",
+                showticklabels=False,
+            ),
+            width=550,
+            height=550,
+            paper_bgcolor="rgba(100,110,110,0.5)",
+            plot_bgcolor="black",
+        )
+        fig = go.Figure(data=data, layout=layout)
+        return fig
