@@ -53,7 +53,6 @@ repos:
     hooks:
       - id: codespell
         stages: [commit, commit-msg]
-        exclude_types: [csv, svg, html, yaml, jupyter]
 
   - repo: https://github.com/PyCQA/autoflake
     rev: v1.6.1
@@ -74,3 +73,9 @@ repos:
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
+
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.5.0
+    hooks:
+      - id: docformatter
+        args: [--config, setup.cfg]
