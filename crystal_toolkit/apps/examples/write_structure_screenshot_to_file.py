@@ -50,7 +50,6 @@ def trigger_image_request(data):
 
 @app.callback(Output(structure_component.id(), "data"), [Input("url", "pathname")])
 def trigger_new_data(url):
-
     mp_id = url[1:]
     with MPRester() as mpr:
         structure = mpr.get_structure_by_material_id(mp_id)

@@ -2,7 +2,7 @@ from crystal_toolkit import _DEFAULTS
 
 
 def update_object_args(d_args, object_name, allowed_args):
-    """Read default properties and overwrite them if user input exists
+    """Read default properties and overwrite them if user input exists.
 
     Arguments:
         d_args {dict} -- User defined properties

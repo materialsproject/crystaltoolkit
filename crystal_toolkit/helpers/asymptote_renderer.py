@@ -1,12 +1,9 @@
-"""
-Export wrapper for asymptote (ASY)
-For creating publication quality plots
-Since ASY does not have the nested tree structure of threejs,
-we just have to traverse the tree and draw each material as we see them.
+"""Export wrapper for asymptote (ASY). For creating publication quality plots. Since ASY does not have
+the nested tree structure of threejs, we just have to traverse the tree and draw each material as we
+see them.
 
 TODO The code should also appends a set of special points at the end in case the user wants to add
 more "hand drawn" features to the plot
-
 """
 import logging
 from itertools import chain
@@ -181,7 +178,7 @@ draw(surface(no_show), surfacepen=m);        // draw i-th triangle
 
 
 def _get_lines(ctk_scene, d_args=None):
-    """return the ASY string output to draw cylinders
+    """return the ASY string output to draw cylinders.
 
     Arguments:
         ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == 'cylinders'
@@ -208,7 +205,7 @@ def _get_lines(ctk_scene, d_args=None):
 
 
 def _get_spheres(ctk_scene, d_args=None):
-    """return the ASY string output to draw the spheres
+    """return the ASY string output to draw the spheres.
 
     Arguments:
         ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == 'spheres'
@@ -239,7 +236,7 @@ def _get_spheres(ctk_scene, d_args=None):
 
 
 def _get_cylinders(ctk_scene, d_args=None):
-    """return the ASY string output to draw cylinders
+    """return the ASY string output to draw cylinders.
 
     Arguments:
         ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == 'cylinders'
@@ -264,7 +261,7 @@ def _get_cylinders(ctk_scene, d_args=None):
 
 
 def _get_surface(ctk_scene, d_args=None):
-    """return the ASY string output to draw cylinders
+    """return the ASY string output to draw cylinders.
 
     Arguments:
         ctk_scene {Scene} -- CTK Scene Object with ctk_scene.type == 'surface'
@@ -314,10 +311,8 @@ def _get_surface(ctk_scene, d_args=None):
 
 
 def asy_write_data(input_scene_comp, fstream):
-    """
-    parse a primitive display object in crystaltoolkit and print it to asymptote
-    input_scene_comp
-    fstream
+    """parse a primitive display object in crystaltoolkit and print it to asymptote input_scene_comp
+    fstream.
     """
     if input_scene_comp.type == "spheres":
         asy_out = _get_spheres(input_scene_comp)
@@ -345,9 +340,7 @@ def asy_write_data(input_scene_comp, fstream):
 
 
 def filter_data(scene_data, fstream):
-    """
-    Recursively traverse the scene_data dictionary to find objects to draw
-    """
+    """Recursively traverse the scene_data dictionary to find objects to draw."""
     if "type" in scene_data:
         asy_write_data(scene_data, fstream)
     else:
@@ -356,9 +349,7 @@ def filter_data(scene_data, fstream):
 
 
 def traverse_scene_object(scene_data, fstream):
-    """
-    Traverse object
-    """
+    """Traverse object."""
     for sub_object in scene_data.contents:
         if isinstance(sub_object, list):
             for iobj in sub_object:
@@ -384,8 +375,7 @@ def write_ctk_scene_to_file(ctk_scene, file_name):
 
 
 def write_asy_file(renderable_object, file_name, **kwargs):
-    """
-    Generate the scene object and write it to file
+    """Generate the scene object and write it to file.
 
     Args:
         renderable_object: Object to be rendered

@@ -145,7 +145,7 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def G(x, c, alpha):
-        """Return c-centered Gaussian line shape at x with HWHM alpha"""
+        """Return c-centered Gaussian line shape at x with HWHM alpha."""
         return (
             np.sqrt(np.log(2) / np.pi)
             / alpha
@@ -154,12 +154,14 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def L(x, c, gamma):
-        """Return c-centered Lorentzian line shape at x with HWHM gamma"""
+        """Return c-centered Lorentzian line shape at x with HWHM gamma."""
         return gamma / (np.pi * ((x - c) ** 2 + gamma**2))
 
     @staticmethod
     def V(x, c, alphagamma):
-        """Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
+        """Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and
+        Lorentzian profiles.
+        """
         alpha = 0.61065 * alphagamma
         gamma = 0.61065 * alphagamma
         sigma = alpha / np.sqrt(2 * np.log(2))

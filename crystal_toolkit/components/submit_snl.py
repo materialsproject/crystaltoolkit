@@ -24,11 +24,10 @@ MP_CLIENT_KEY = os.environ.get("MP_CLIENT_KEY")
 
 
 class SubmitSNLPanel(PanelComponent):
-    """
-    This component is designed solely for use in the Materials Project
-    infrastructure. It requires a component "url.search" in the app
-    layout to work, from which a token will be extracted, and also requires
-    a "SearchComponent_search_container" component.
+    """This component is designed solely for use in the Materials Project infrastructure.
+
+    It requires a component "url.search" in the app layout to work, from which a token will be
+    extracted, and also requires a "SearchComponent_search_container" component.
     """
 
     def __init__(self, *args, url_id=None, **kwargs):

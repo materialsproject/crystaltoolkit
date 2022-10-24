@@ -42,9 +42,7 @@ class TransformationComponent(MPComponent):
 
     @property
     def is_one_to_many(self) -> bool:
-        """
-        This should reflect the underlying transformation.
-        """
+        """This should reflect the underlying transformation."""
         # need to initialize transformation to access property, which isn't
         # possible in all cases without necessary kwargs, which is why
         # we duplicate the property here
@@ -135,9 +133,8 @@ class TransformationComponent(MPComponent):
         return container
 
     def options_layouts(self, state=None, structure=None) -> list[html.Div]:
-        """
-        Return a layout to change the transformation options (that is,
-        that controls the args and kwargs that will be passed to pymatgen).
+        """Return a layout to change the transformation options (that is, that controls the args and
+        kwargs that will be passed to pymatgen).
 
         The "state" option is so that the controls can be populated appropriately
         using existing args and kwargs, e.g. when restoring the control panel
@@ -161,10 +158,9 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     def get_preview_layout(self, struct_in, struct_out):
-        """
-        Override this method to give a layout that previews the transformation.
-        Has beneficial side effect of priming the transformation cache when
-        entire transformation pipeline is enabled.
+        """Override this method to give a layout that previews the transformation. Has beneficial
+        side effect of priming the transformation cache when entire transformation pipeline is
+        enabled.
 
         :param struct_in: input Structure
         :param struct_out: transformed Structure
@@ -276,9 +272,7 @@ class AllTransformationsComponent(MPComponent):
         *args,
         **kwargs,
     ):
-        """
-        Create a component that can manage multiple transformations in a
-        user-defined order.
+        """Create a component that can manage multiple transformations in a user-defined order.
 
         :param transformations: if provided, only offer a subset of available
             transformations, provide as a string of the given transformation name
@@ -417,10 +411,8 @@ class AllTransformationsComponent(MPComponent):
             Input(self.id("choices"), "value"),
         )
         def set_enabled_transformations(value):
-            """
-            This is due to an unfortunate but noisy bug that
-            complains that this specific input is not present
-            in the layout on load.
+            """This is due to an unfortunate but noisy bug that complains that this specific input
+            is not present in the layout on load.
             """
             return value
 

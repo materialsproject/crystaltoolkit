@@ -428,9 +428,8 @@ ctc.register_crystal_toolkit(layout=master_layout, app=app, cache=cache)
 
 @app.callback(Output(search_component.id("input"), "value"), [Input("url", "href")])
 def update_search_term_on_page_load(href: str) -> str:
-    """
-    If an mpid is provided in the url, load that mpid. Otherwise
-    load a random mpid from the DEFAULT_MPIDS global variable.
+    """If an mpid is provided in the url, load that mpid. Otherwise load a random mpid from the
+    DEFAULT_MPIDS global variable.
 
     Args:
         href: e.g. "http://localhost:8050/mp-11358"
@@ -459,10 +458,9 @@ def update_search_term_on_page_load(href: str) -> str:
 def perform_search_on_page_load(
     search_term: str, n_submit: int | None
 ) -> tuple[int, int]:
-    """
-    Loading with an mpid in the URL requires populating the search term with
-    the mpid, this callback forces that search to then take place by force updating
-    n_submit and n_submit_timestamp props.
+    """Loading with an mpid in the URL requires populating the search term with the mpid, this
+    callback forces that search to then take place by force updating n_submit and n_submit_timestamp
+    props.
 
     Args:
         search_term: e.g. mp-11358
@@ -479,9 +477,8 @@ def perform_search_on_page_load(
 
 @app.callback(Output("url", "pathname"), [Input(search_component.id(), "data")])
 def update_url_pathname_from_search_term(mpid: str | None) -> str:
-    """
-    Updates the URL from the search term. Technically a circular callback,
-    this is done to prevent the app seeming inconsistent from the end user.
+    """Updates the URL from the search term. Technically a circular callback, this is done to
+    prevent the app seeming inconsistent from the end user.
 
     Args:
         mpid: mpid
@@ -501,11 +498,9 @@ def update_url_pathname_from_search_term(mpid: str | None) -> str:
 def master_update_structure(
     search_mpid: str | None, upload_data: dict | None
 ) -> Structure:
-    """
-    A new structure is loaded either from the search component or from the
-    upload component. This callback triggers the update, and uses the callback
-    context to determine which should take precedence if there is both a search
-    term and uploaded data present.
+    """A new structure is loaded either from the search component or from the upload component. This
+    callback triggers the update, and uses the callback context to determine which should take
+    precedence if there is both a search term and uploaded data present.
 
     Args:
         search_mpid: e.g. "mp-11358"

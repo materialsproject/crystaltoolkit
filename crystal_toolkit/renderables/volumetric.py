@@ -10,7 +10,7 @@ _ANGS2_TO_BOHR3 = 1.88973**3
 def get_isosurface_scene(
     self, data_key="total", isolvl=0.05, step_size=4, origin=None, **kwargs
 ):
-    """Get the isosurface from a VolumetricData object
+    """Get the isosurface from a VolumetricData object.
 
     Args:
         data_key (str, optional): Use the volumetric data from self.data[data_key]. Defaults to 'total'.
@@ -34,7 +34,7 @@ def get_isosurface_scene(
     )
     # transform to fractional coordinates
     vertices = vertices / (vol_data.shape[0], vol_data.shape[1], vol_data.shape[2])
-    vertices = np.dot(vertices, self.structure.lattice.matrix)  # transform to cartesian
+    vertices = np.dot(vertices, self.structure.lattice.matrix)  # transform to Cartesian
     pos = [vert for triangle in vertices[faces].tolist() for vert in triangle]
     return Scene(
         "isosurface", origin=origin, contents=[Surface(pos, show_edges=False, **kwargs)]
@@ -42,11 +42,11 @@ def get_isosurface_scene(
 
 
 def get_volumetric_scene(self, data_key="total", isolvl=0.02, step_size=3, **kwargs):
-    """Get the Scene object which contains a structure and a isosurface components
+    """Get the Scene object which contains a structure and a isosurface components.
 
     Args:
         data_key (str, optional): Use the volumetric data from self.data[data_key]. Defaults to 'total'.
-        isolvl (float, optional): The cuoff for the isosurface to using the same units as VESTA so e/bhor
+        isolvl (float, optional): The cutoff for the isosurface to using the same units as VESTA so e/bhor
         and kept grid size independent
         step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.
         **kwargs: kwargs for the Structure.get_scene function

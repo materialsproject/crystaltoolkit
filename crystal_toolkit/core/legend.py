@@ -24,15 +24,13 @@ EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
 
 
 class Legend(MSONable):
-    """
-    Help generate a legend (colors and radii) for a Structure or Molecule
-    such that colors and radii can be displayed for the appropriate species.
+    """Help generate a legend (colors and radii) for a Structure or Molecule such that colors and
+    radii can be displayed for the appropriate species.
 
-    Note that species themselves have a color (for example, Oxygen is typically
-    red), but that we might also want to color-code by site properties (for example,
-    magnetic moment), thus this class has to take into account both the species
-    present and its context (the specific site the species is at) to correctly
-    generate the legend.
+    Note that species themselves have a color (for example, Oxygen is typically red), but that we
+    might also want to color-code by site properties (for example, magnetic moment), thus this class
+    has to take into account both the species present and its context (the specific site the species
+    is at) to correctly generate the legend.
     """
 
     default_color_scheme = "Jmol"
@@ -49,10 +47,8 @@ class Legend(MSONable):
         cmap: str = "coolwarm",
         cmap_range: tuple[float, float] | None = None,
     ):
-        """
-        Create a legend for a given SiteCollection to choose how to
-        display colors and radii for the given sites and the species
-        on those sites.
+        """Create a legend for a given SiteCollection to choose how to display colors and radii for
+        the given sites and the species on those sites.
 
         If a site has a "display_color" or "display_radius" site
         property defined, this can be used to manually override the
@@ -140,14 +136,12 @@ class Legend(MSONable):
     def generate_accessible_color_scheme_on_the_fly(
         site_collection: SiteCollection,
     ) -> dict[str, dict[str, tuple[int, int, int]]]:
-        """
-        e.g. for a color scheme more appropriate for people with color blindness
+        """E.g. for a color scheme more appropriate for people with color blindness.
 
         Args:
             site_collection: SiteCollection
 
         Returns: A dictionary in similar format to EL_COLORS
-
         """
 
         color_scheme = {}
@@ -216,14 +210,12 @@ class Legend(MSONable):
     def generate_categorical_color_scheme_on_the_fly(
         site_collection: SiteCollection, site_prop_types
     ) -> dict[str, dict[str, tuple[int, int, int]]]:
-        """
-        e.g. for Wykcoff
+        """e.g. for Wyckoff.
 
         Args:
             site_collection: SiteCollection
 
         Returns: A dictionary in similar format to EL_COLORS
-
         """
 
         color_scheme = {}
@@ -256,16 +248,14 @@ class Legend(MSONable):
         return color_scheme
 
     def get_color(self, sp: Species | Element, site: Site | None = None) -> str:
-        """
-        Get a color to render a specific species. Optionally, you can provide
-        a site for context, since ...
+        """Get a color to render a specific species. Optionally, you can provide a site for context,
+        since ...
 
         Args:
             sp: Species or Element
             site: Site
 
         Returns: Color
-
         """
 
         # allow manual override by user

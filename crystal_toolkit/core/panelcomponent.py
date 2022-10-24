@@ -7,14 +7,11 @@ from crystal_toolkit.helpers.layouts import Reveal
 
 
 class PanelComponent(MPComponent):
-    """
-    A component intended to do wrap another component or set of components
-    inside a panel. The key benefit is that the inner contents of the panel
-    are not loaded until the panel is opened, so can reduce the number of
-    callbacks run until a user initiates interaction.
+    """A component intended to do wrap another component or set of components inside a panel. The
+    key benefit is that the inner contents of the panel are not loaded until the panel is opened, so
+    can reduce the number of callbacks run until a user initiates interaction.
 
-    To use, implement the "contents_layout" method, and add any new
-    callbacks necessary to fill it.
+    To use, implement the "contents_layout" method, and add any new callbacks necessary to fill it.
     """
 
     @property
