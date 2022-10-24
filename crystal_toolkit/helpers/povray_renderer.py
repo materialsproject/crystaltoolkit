@@ -1,7 +1,4 @@
-"""
-Export wrapper for POV-Ray
-For creating publication quality plots
-"""
+"""Export wrapper for POV-Ray. For creating publication quality plots."""
 from jinja2 import Environment
 
 HEAD = """
@@ -133,10 +130,8 @@ sphere {<{{val}}>, 0.02 texture {bbox} no_shadow}
 
 
 def pov_write_data(input_scene_comp, fstream):
-    """
-    parse a primitive display object in crystaltoolkit and print it to POV-Ray
-    input_scene_comp
-    fstream
+    """parse a primitive display object in crystaltoolkit and print it to POV-Ray input_scene_comp
+    fstream.
     """
 
     vect = "{:.4f},{:.4f},{:.4f}"
@@ -193,9 +188,7 @@ def pov_write_data(input_scene_comp, fstream):
 
 
 def filter_data(scene_data, fstream):
-    """
-    Recursively traverse the scene_data dictionary to find objects to draw
-    """
+    """Recursively traverse the scene_data dictionary to find objects to draw."""
     if "type" in scene_data:
         pov_write_data(scene_data, fstream)
     else:
@@ -221,9 +214,7 @@ def write_pov_file(smc, file_name):
 
 
 def get_render_settings(file_name):
-    """
-    Creates a POV-Ray render.ini file
-    """
+    """Creates a POV-Ray render.ini file."""
 
     image_name = f"{file_name[:-4]}.png"
 

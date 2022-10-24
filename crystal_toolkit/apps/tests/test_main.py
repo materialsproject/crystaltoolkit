@@ -5,7 +5,6 @@ from crystal_toolkit.apps.main import app
 
 
 def test_main_app_startup(dash_duo: DashDuo):
-
     dash_duo.start_server(app)
     # dash_duo.clear_storage()
 

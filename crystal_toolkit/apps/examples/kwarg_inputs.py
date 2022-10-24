@@ -60,7 +60,6 @@ my_layout = ctl.Section(
     Output("output", "children"), Input(your_component.get_all_kwargs_id(), "value")
 )
 def show_outputs(*args):
-
     kwargs = your_component.reconstruct_kwargs_from_state()
 
     return str(kwargs)
@@ -70,7 +69,6 @@ def show_outputs(*args):
     Output("dynamic-inputs", "children"), Input("generate-inputs", "n_clicks")
 )
 def add_inputs(n_clicks):
-
     if not n_clicks:
         raise PreventUpdate
 

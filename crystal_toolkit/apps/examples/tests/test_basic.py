@@ -11,7 +11,6 @@ from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
 
 def test_hello_scientist(dash_duo: DashDuo):
-
     dash_duo.start_server(hello_world_app)
     dash_duo.clear_storage()
 

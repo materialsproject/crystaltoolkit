@@ -43,9 +43,7 @@ with open(default_js) as handle:
 
 
 def _repr_mimebundle_(self, include=None, exclude=None):
-    """
-    Render Scenes using crystaltoolkit-extension for Jupyter Lab.
-    """
+    """Render Scenes using crystaltoolkit-extension for Jupyter Lab."""
     # TODO: add Plotly, application/vnd.plotly.v1+json
 
     help_text_ct = """If you see this text, the Crystal Toolkit Jupyter Lab \n
@@ -92,11 +90,9 @@ MSONable.show_json = show_json
 
 
 def _ipython_display_(self):
-    """
-    Render Scenes using crystaltoolkit-extension for Jupyter Lab.
+    """Render Scenes using crystaltoolkit-extension for Jupyter Lab.
 
-    This function ensures that objects are also printed in string format
-    as previously.
+    This function ensures that objects are also printed in string format as previously.
     """
     from IPython.display import publish_display_data
 

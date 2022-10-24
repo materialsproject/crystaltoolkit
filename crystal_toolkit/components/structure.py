@@ -51,9 +51,8 @@ DEFAULTS: dict[str, str | bool] = {
 
 
 class StructureMoleculeComponent(MPComponent):
-    """
-    A component to display pymatgen Structure, Molecule, StructureGraph
-    and MoleculeGraph objects.
+    """A component to display pymatgen Structure, Molecule, StructureGraph and MoleculeGraph
+    objects.
     """
 
     available_bonding_strategies = {

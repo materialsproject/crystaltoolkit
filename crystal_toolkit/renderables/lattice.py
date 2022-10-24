@@ -79,7 +79,6 @@ def _axes_from_lattice(
 
 
 def get_lattice_scene(self, origin=None, show_axes=False, **kwargs):
-
     o = -np.array((0, 0, 0))
     a, b, c = self.matrix[0], self.matrix[1], self.matrix[2]
     line_pairs = [

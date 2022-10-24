@@ -54,9 +54,8 @@ except ImportError:
 
 
 def _get_local_order_parameters(structure_graph, n):
-    """
-    A copy of the method in pymatgen.analysis.local_env which
-    can operate on StructureGraph directly.
+    """A copy of the method in pymatgen.analysis.local_env which can operate on StructureGraph
+    directly.
 
     Calculate those local structure order parameters for
     the given site whose ideal CN corresponds to the

@@ -278,8 +278,7 @@ class PourbaixDiagramComponent(MPComponent):
     def get_figure(
         pourbaix_diagram: PourbaixDiagram, heatmap_entry=None, show_water_lines=True
     ) -> go.Figure:
-        """
-        Static method for getting plotly figure from a Pourbaix diagram.
+        """Static method for getting plotly figure from a Pourbaix diagram.
 
         Args:
             pourbaix_diagram (PourbaixDiagram): Pourbaix diagram to plot
@@ -288,7 +287,6 @@ class PourbaixDiagramComponent(MPComponent):
 
         Returns:
             (dict) figure layout
-
         """
         data = []
 
@@ -421,9 +419,7 @@ class PourbaixDiagramComponent(MPComponent):
             #     return font_color
 
             def get_text_size(available_vertical_space):
-                """
-                Set text size based on available vertical space
-                """
+                """Set text size based on available vertical space."""
                 return min(max(6 * available_vertical_space, 12), 20)
 
             annotations = [

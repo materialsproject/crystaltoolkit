@@ -32,9 +32,9 @@ CT_NAMESPACE = "CT"
 
 
 class MPComponent(ABC):
-    """
-    The abstract base class for an MPComponent. MPComponent
-    is designed to help render an MSONable object.
+    """The abstract base class for an MPComponent.
+
+    MPComponent is designed to help render an MSONable object.
     """
 
     # reference to global Dash app
@@ -57,13 +57,10 @@ class MPComponent(ABC):
 
     @staticmethod
     def register_app(app: dash.Dash):
-        """
-        This method must be called at least once in your Crystal
-        Toolkit Dash app if you want to enable interactivity with the
-        MPComponents. The "app" variable is a special global
-        variable used by Dash/Flask, and registering it with
-        MPComponent allows callbacks to be registered with the
-        app on instantiation.
+        """This method must be called at least once in your Crystal Toolkit Dash app if you want to
+        enable interactivity with the MPComponents. The "app" variable is a special global variable
+        used by Dash/Flask, and registering it with MPComponent allows callbacks to be registered
+        with the app on instantiation.
 
         Args:
             app: a Dash app instance
@@ -82,13 +79,9 @@ class MPComponent(ABC):
 
     @staticmethod
     def register_cache(cache: Cache) -> None:
-        """
-        This method must be called at least once in your
-        Crystal Toolkit Dash app if you want to enable
-        callback caching. Callback caching is one of the
-        easiest ways to see significant performance
-        improvements, especially for callbacks that are
-        computationally expensive.
+        """This method must be called at least once in your Crystal Toolkit Dash app if you want to
+        enable callback caching. Callback caching is one of the easiest ways to see significant
+        performance improvements, especially for callbacks that are computationally expensive.
 
         Args:
             cache: a flask_caching Cache instance
@@ -136,11 +129,8 @@ class MPComponent(ABC):
 
     @staticmethod
     def all_app_stores() -> html.Div:
-        """
-        This must be included somewhere in your
-        Crystal Toolkit Dash app's layout for
-        interactivity to work. This is a hidden element
-        that contains the MSON for each MPComponent.
+        """This must be included somewhere in your Crystal Toolkit Dash app's layout for
+        interactivity to work. This is a hidden element that contains the MSON for each MPComponent.
 
         Returns: a html.Div Dash Layout
         """
@@ -156,8 +146,7 @@ class MPComponent(ABC):
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
     ):
-        """
-        The abstract base class for an MPComponent.
+        """The abstract base class for an MPComponent.
 
         The MPComponent is designed to help render any MSONable object,
         for example many of the objects in pymatgen (Structure, PhaseDiagram, etc.)
@@ -242,10 +231,8 @@ class MPComponent(ABC):
         hint=None,
         is_store: bool = False,
     ) -> str | dict[str, str]:
-        """
-        Generate an id from a name combined with the
-        base id of the MPComponent itself, useful for generating
-        ids of individual components in the layout.
+        """Generate an id from a name combined with the base id of the MPComponent itself, useful
+        for generating ids of individual components in the layout.
 
         In the special case of the id of an element that is used to re-construct
         a keyword argument for a specific class, it will store information necessary
@@ -298,10 +285,8 @@ class MPComponent(ABC):
         storage_type: Literal["memory", "local", "session"] = "memory",
         debug_clear: bool = False,
     ) -> None:
-        """
-        Generate a dcc.Store to hold something (MSONable object, Dict
-        or string), and register it so that it will be included in the
-        Dash app automatically.
+        """Generate a dcc.Store to hold something (MSONable object, Dict or string), and register it
+        so that it will be included in the Dash app automatically.
 
         The initial data will be stored in a class attribute as
         self._initial_data[name].
@@ -338,8 +323,8 @@ class MPComponent(ABC):
 
     @staticmethod
     def from_data(data: dict[str, Any]) -> MPComponent:
-        """
-        Converts the contents of a dcc.Store back into a Python object.
+        """Converts the contents of a dcc.Store back into a Python object.
+
         :param data: contents of a dcc.Store created by to_data
         :return: a Python object
         """
@@ -380,10 +365,8 @@ Sub-layouts:  \n{layouts}"""
 
     @property
     def _sub_layouts(self) -> dict[str, dash.development.base_component.Component]:
-        """
-        Layouts associated with this component, available for book-keeping
-        if your component is complex, so that the layout() method is just
-        assembles individual sub-layouts.
+        """Layouts associated with this component, available for book-keeping if your component is
+        complex, so that the layout() method is just assembles individual sub-layouts.
 
         :return: A dictionary with names of layouts as keys (str) and Dash
         layouts (e.g. html.Div) as values.
@@ -398,11 +381,11 @@ Sub-layouts:  \n{layouts}"""
         return html.Div(list(self._sub_layouts.values()))
 
     def generate_callbacks(self, app, cache) -> None:
-        """
-        Generate all callbacks associated with the layouts in this app. Assume
-        that "suppress_callback_exceptions" is True, since it is not always
-        guaranteed that all layouts will be displayed to the end user at all
-        times, but it's important the callbacks are defined on the server.
+        """Generate all callbacks associated with the layouts in this app.
+
+        Assume that "suppress_callback_exceptions" is True, since it is not always guaranteed that
+        all layouts will be displayed to the end user at all times, but it's important the callbacks
+        are defined on the server.
         """
         return None
 
@@ -417,9 +400,8 @@ Sub-layouts:  \n{layouts}"""
         shape: tuple[int, ...] = (),
         **kwargs,
     ) -> html.Div:
-        """
-        For Python classes which take matrices as inputs, this will generate
-        a corresponding Dash input layout.
+        """For Python classes which take matrices as inputs, this will generate a corresponding Dash
+        input layout.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
@@ -551,9 +533,8 @@ Sub-layouts:  \n{layouts}"""
         help_str: str = None,
         **kwargs,
     ):
-        """
-        For Python classes which take boolean values as inputs, this will generate
-        a corresponding Dash input layout.
+        """For Python classes which take boolean values as inputs, this will generate a
+        corresponding Dash input layout.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
@@ -590,9 +571,8 @@ Sub-layouts:  \n{layouts}"""
         clearable: bool = False,
         **kwargs,
     ):
-        """
-        For Python classes which take pre-defined values as inputs, this will generate
-        a corresponding input layout using mpc.Select.
+        """For Python classes which take pre-defined values as inputs, this will generate a
+        corresponding input layout using mpc.Select.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
@@ -684,8 +664,7 @@ Sub-layouts:  \n{layouts}"""
         )[kwarg_name]
 
     def reconstruct_kwargs_from_state(self, state=None, kwarg_labels=None) -> dict:
-        """
-        Generate
+        """Generate.
 
         :param state: optional, a Dash callback context input or state
         :param kwarg_labels: optional, parse only a specific kwarg or list of kwargs
@@ -805,8 +784,7 @@ Sub-layouts:  \n{layouts}"""
         return f"data:image/{fmt};base64,{image}"
 
     def get_figure_placeholder(self, figure_id: str) -> html.Div:
-        """
-        Get a layout to act as a placeholder for an interactive figure.
+        """Get a layout to act as a placeholder for an interactive figure.
 
         When used with `generate_static_figure_callbacks`, and assuming
         kaleido is installed on the server, a static image placeholder will

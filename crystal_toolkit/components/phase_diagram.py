@@ -407,8 +407,7 @@ class PhaseDiagramComponent(MPComponent):
 
     @staticmethod
     def ternary_plot(plot_data):
-        """
-        Return a ternary phase diagram in a two-dimensional plot.
+        """Return a ternary phase diagram in a two-dimensional plot.
 
         Args:
             plot_data: plot data from PDPlotter
@@ -718,8 +717,8 @@ class PhaseDiagramComponent(MPComponent):
         def get_chemsys_from_mpid_or_chemsys(
             mpid: str, chemsys_external: str
         ) -> str | None:
-            """Get the chemical system as a string of elements sorted alphabetically and joined by dashes,
-            by convention for use in database keys.
+            """Get the chemical system as a string of elements sorted alphabetically and joined by
+            dashes, by convention for use in database keys.
 
             Args:
                 mpid (str): MP material ID.
