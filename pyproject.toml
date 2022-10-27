@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crystal_toolkit"
-version = "2022.10.03"
+version = "2022.10.27"
 description = ""
 authors = ["Matthew Horton <mkhorton@lbl.gov>"]
 
@@ -14,9 +14,9 @@ crystaltoolkit-extension = "^0.6.0"
 mp-api = "*"
 emmet-core = ">=0.32.6"
 shapely = "^1.8.0"
+packaging = { version = "*" }
 scikit-learn = { version = "*" }
 scikit-image = { version = "*" }
-packaging = { version = "*" }
 
 ifermi = { version = "*", optional = true }
 pyfftw = { version = "*", optional = true }

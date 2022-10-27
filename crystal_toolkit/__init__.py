@@ -20,7 +20,7 @@ from crystal_toolkit.renderables import (
     VolumetricData,
 )
 
-__version__ = "2022.10.03"
+__version__ = "2022.10.27"
 
 MODULE_PATH = Path(__file__).parents[0]
 
@@ -62,7 +62,6 @@ install.
     # and .return_annotation is either a Scene or a go.Figure respectively
     # and also check all .parameters .kind.name have no POSITIONAL_ONLY
     # in practice, fairly unlikely this will cause issues without strict checking
-
     if hasattr(self, "get_scene"):
         return {
             "application/vnd.mp.ctk+json": self.get_scene().to_json(),
