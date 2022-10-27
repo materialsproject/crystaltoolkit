@@ -31,7 +31,7 @@ gevent = { version = "*", optional = true }
 dash-mp-components = "^0.4.1"
 robocrys = { version = "*", optional = true }
 habanero = { version = "*", optional = true }
-dash-extensions = { version = "*", optional = true }
+dash-extensions = { version = "<=0.1.5", optional = true }
 dash-vtk = { version = "^0.0.6", optional = true }
 kaleido = { version = "^0.2.1", optional = true }
 
