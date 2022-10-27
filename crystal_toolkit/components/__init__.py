@@ -14,6 +14,9 @@ from crystal_toolkit.components.diffraction import (
 from crystal_toolkit.components.diffraction import (
     XRayDiffractionComponent as XRayDiffractionComponent,
 )
+from crystal_toolkit.components.fermi_surface import (
+    FermiSurfaceComponent as FermiSurfaceComponent,
+)
 from crystal_toolkit.components.phase_diagram import (
     PhaseDiagramComponent as PhaseDiagramComponent,
 )
