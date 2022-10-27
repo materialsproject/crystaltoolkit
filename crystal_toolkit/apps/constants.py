@@ -3,7 +3,6 @@ from collections import defaultdict
 from monty.serialization import loadfn
 from pydash import get, set_
 
-from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.settings import SETTINGS
 
 APP_METADATA = loadfn(SETTINGS.APP_METADATA)
