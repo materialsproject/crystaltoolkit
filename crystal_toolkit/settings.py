@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     TRANSFORMATION_PREVIEWS: bool = False
     REDIS_URL: str = "redis://localhost:6379"
     ASSETS_PATH: str = str(MODULE_PATH / "apps" / "assets")
+    APP_METADATA: str = str(MODULE_PATH / "apps" / "app_metadata.yaml")
 
     DEV_LOGIN_DISABLED: bool = True
     LOGIN_ENDPOINT: str = "https://profile.materialsproject.org/"
