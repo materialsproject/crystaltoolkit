@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install -E server -E fermi
+          poetry install -E server
 
       - name: Build and publish
         run: |
