@@ -4,8 +4,9 @@ from monty.serialization import loadfn
 from pydash import get, set_
 
 from crystal_toolkit import MODULE_PATH
+from crystal_toolkit.settings import SETTINGS
 
-APP_METADATA = loadfn(MODULE_PATH / "apps/app_metadata.yaml")
+APP_METADATA = loadfn(SETTINGS.APP_METADATA)
 
 # List of URLs available in the website
 _BASE_URL = "https://materialsproject.org/"
