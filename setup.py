@@ -54,12 +54,9 @@ setup(
             "black",
             "pre-commit",
             "dash[testing]<2.6",
-            "pytest",
-            "sphinx",
             "sphinx_rtd_theme",
             "recommonmark",
             "dephell",
-            "mistune<2",
             "jinja2<3.1"
 
         ]
