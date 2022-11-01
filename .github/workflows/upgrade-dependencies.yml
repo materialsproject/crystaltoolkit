@@ -25,6 +25,8 @@ jobs:
         run: |
           pip install -U pip pip-tools
           pip-compile --upgrade
+          pip-compile --extra server --upgrade -o requirements-server.txt
+          pip-compile --extra dev --upgrade -o requirements-dev.txt
       - name: Detect changes
         id: changes
         run:
