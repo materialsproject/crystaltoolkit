@@ -26,14 +26,9 @@ setup(
     packages=find_namespace_packages(include=["crystal_toolkit.*"]),
     install_requires=[
         "pymatgen",
-        "pydantic",
-        "plotly",
         "webcolors",
         "crystaltoolkit-extension",
-        "mp-api",
-        "emmet-core",
         "shapely",
-        "packaging",
         "scikit-learn",
         "scikit-image"
     ],
