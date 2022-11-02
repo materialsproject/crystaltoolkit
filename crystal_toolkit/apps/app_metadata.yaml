@@ -1,0 +1,15 @@
+CatalysisApp:
+  author: Open Catalyst Project
+  category: Explore and Search
+  credits:
+    - Binary data visualization app contributed by Brook Wander.
+  description: 'Search catalysis data from the Open Catalyst 2020 (OC20) Dataset.'
+  docs_url: https://next-gen-docs.materialsproject.org/apps/catalysis-explorer
+  dois: [10.1021/acscatal.0c04525]
+  external_links:
+    - href: https://opencatalystproject.org
+      label: Open Catalyst Project
+  icon: icon-fontastic-catalysis
+  login_required: true
+  name: Catalysis Explorer
+  url: catalysis
