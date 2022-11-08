@@ -57,8 +57,7 @@ setup(
             "sphinx_rtd_theme",
             "recommonmark",
             "dephell",
-            "jinja2<3.1"
-
+            "jinja2<3.1",
         ]
     },
     python_requires=">=3.8,<3.11",
