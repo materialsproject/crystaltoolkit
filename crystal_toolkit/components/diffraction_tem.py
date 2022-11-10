@@ -314,14 +314,17 @@ class TEMDiffractionCalculator:
         self.DWF = DWF
 
     def pointlist_to_spots(self, pattern, beam_direction, gamma):
-        hkl_strings = [f"({r['h']} {r['k']} {r['l']})<br>I: {r['intensity']:.3e}" for r in pattern.data]
+        hkl_strings = [
+            f"({r['h']} {r['k']} {r['l']})<br>I: {r['intensity']:.3e}"
+            for r in pattern.data
+        ]
 
         scaled_intensity = pattern.data["intensity"] ** gamma
         scaled_intensity /= scaled_intensity.max()
 
         data = go.Scatter(
-            x=np.round(pattern.data["qx"],3),
-            y=np.round(pattern.data["qy"],3),
+            x=np.round(pattern.data["qx"], 3),
+            y=np.round(pattern.data["qy"], 3),
             hovertemplate="%{text}<br>q<sub>x</sub>: %{x:.2f} Å⁻¹<br>q<sub>y</sub>: %{y:.2f}Å⁻¹<extra></extra>",
             text=hkl_strings,
             mode="markers",
@@ -339,7 +342,8 @@ class TEMDiffractionCalculator:
 
         layout = go.Layout(
             title="2D Diffraction Pattern<br>Beam Direction: ("
-            + "".join(str(int(e)) for e in beam_direction) + ")",
+            + "".join(str(int(e)) for e in beam_direction)
+            + ")",
             font=dict(size=14, color="#7f7f7f"),
             hovermode="closest",
             xaxis=dict(
@@ -347,11 +351,11 @@ class TEMDiffractionCalculator:
                 range=[-plot_max, plot_max],
                 showgrid=False,
                 zeroline=False,
-                tickmode='linear',
+                tickmode="linear",
                 dtick=0.5,
                 showticklabels=True,
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
                 linecolor="#444",
             ),
@@ -360,11 +364,11 @@ class TEMDiffractionCalculator:
                 range=[-plot_max, plot_max],
                 showgrid=False,
                 zeroline=False,
-                tickmode='linear',
+                tickmode="linear",
                 dtick=0.5,
                 showticklabels=True,
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
                 linecolor="#444",
             ),
