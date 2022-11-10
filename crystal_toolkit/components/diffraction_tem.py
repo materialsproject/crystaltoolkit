@@ -26,7 +26,7 @@ class TEMDiffractionComponent(MPComponent):
         voltage = self.get_numerical_input(
             kwarg_label="voltage",
             default=200,
-            step=50.0,
+            step=10.0,
             label="Voltage / kV",
             help_str="Accelerating voltage for electron beam.",
         )
@@ -60,7 +60,7 @@ class TEMDiffractionComponent(MPComponent):
         thickness = self.get_numerical_input(
             kwarg_label="thickness",
             default=500.0,
-            step=10.0,
+            step=1.0,
             label="Thickness [Å]",
             help_str="Sample thickness in Ångströms, for dynamical simulation.",
         )
@@ -70,8 +70,8 @@ class TEMDiffractionComponent(MPComponent):
         excitation_tol = self.get_numerical_input(
             kwarg_label="sigma_excitation_error",
             default=0.02,
-            step=0.02,
-            label="Excitation error tolerance [Å-1]",
+            step=0.001,
+            label="Excitation error tolerance [Å⁻¹]",
             help_str="Standard deviation of Gaussian function for damping reciprocal lattice points.",
         )
 
@@ -121,7 +121,7 @@ class TEMDiffractionComponent(MPComponent):
         gamma = self.get_numerical_input(
             kwarg_label="gamma",
             label="Display Gamma",
-            default=1.0,
+            default=0.5,
             step=0.1,
             help_str="Power for scaling intensities in the displayed pattern",
         )
@@ -314,14 +314,15 @@ class TEMDiffractionCalculator:
         self.DWF = DWF
 
     def pointlist_to_spots(self, pattern, beam_direction, gamma):
-        hkl_strings = [f"({r['h']} {r['k']} {r['l']})" for r in pattern.data]
+        hkl_strings = [f"({r['h']} {r['k']} {r['l']})<br>I: {r['intensity']:.3e}" for r in pattern.data]
 
         scaled_intensity = pattern.data["intensity"] ** gamma
         scaled_intensity /= scaled_intensity.max()
 
         data = go.Scatter(
-            x=pattern.data["qx"],
-            y=pattern.data["qy"],
+            x=np.round(pattern.data["qx"],3),
+            y=np.round(pattern.data["qy"],3),
+            hovertemplate="%{text}<br>q<sub>x</sub>: %{x:.2f} Å⁻¹<br>q<sub>y</sub>: %{y:.2f}Å⁻¹<extra></extra>",
             text=hkl_strings,
             mode="markers",
             marker=dict(
@@ -329,7 +330,7 @@ class TEMDiffractionCalculator:
                 cmax=1,
                 cmin=0,
                 color=scaled_intensity,
-                colorscale=[[0, "black"], [1.0, "white"]],
+                colorscale="gray",
             ),
             showlegend=False,
         )
