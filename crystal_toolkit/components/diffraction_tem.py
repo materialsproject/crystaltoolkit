@@ -44,7 +44,7 @@ class TEMDiffractionComponent(MPComponent):
             kwarg_label="k_max",
             default=1.5,
             step=0.25,
-            label="Maximum Scattering Angle [Å<sup>-1</sup>]",
+            label="Maximum Scattering Angle [Å⁻¹]",
             help_str="Maximum scattering angle to compute reciprocal lattice.",
         )
 
@@ -326,11 +326,11 @@ class TEMDiffractionCalculator:
             text=hkl_strings,
             mode="markers",
             marker=dict(
-                size=8,
+                size=12,
                 cmax=1,
                 cmin=0,
                 color=scaled_intensity,
-                colorscale="gray",
+                colorscale="gray_r",
             ),
             showlegend=False,
         )
@@ -338,30 +338,40 @@ class TEMDiffractionCalculator:
         plot_max = self.k_max * 1.2
 
         layout = go.Layout(
-            title="2D Diffraction Pattern<br>Beam Direction: "
-            + "".join(str(e) for e in beam_direction),
+            title="2D Diffraction Pattern<br>Beam Direction: ("
+            + "".join(str(int(e)) for e in beam_direction) + ")",
             font=dict(size=14, color="#7f7f7f"),
             hovermode="closest",
             xaxis=dict(
+                title="q<sub>x</sub> [Å<sup>-1</sup>]",
                 range=[-plot_max, plot_max],
                 showgrid=False,
                 zeroline=False,
-                showline=False,
-                ticks="",
-                showticklabels=False,
+                tickmode='linear',
+                dtick=0.5,
+                showticklabels=True,
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor="#444",
             ),
             yaxis=dict(
+                title="q<sub>y</sub> [Å<sup>-1</sup>]",
                 range=[-plot_max, plot_max],
                 showgrid=False,
                 zeroline=False,
-                showline=False,
-                ticks="",
-                showticklabels=False,
+                tickmode='linear',
+                dtick=0.5,
+                showticklabels=True,
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor="#444",
             ),
             width=550,
             height=550,
-            paper_bgcolor="rgba(100,110,110,0.5)",
-            plot_bgcolor="black",
+            paper_bgcolor="white",
+            plot_bgcolor="white",
         )
         fig = go.Figure(data=data, layout=layout)
         return fig
