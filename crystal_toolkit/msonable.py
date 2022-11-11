@@ -67,4 +67,3 @@ def _ipython_display_(self):
 
 
 MSONable._ipython_display_ = _ipython_display_
-
