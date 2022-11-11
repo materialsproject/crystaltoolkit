@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from setuptools import find_namespace_packages, setup
 from crystal_toolkit._version import __version__ as fallback_version
 
@@ -30,7 +29,7 @@ setup(
         "crystaltoolkit-extension",
         "shapely",
         "scikit-learn",
-        "scikit-image"
+        "scikit-image",
     ],
     extras_require={
         "server": [
@@ -58,7 +57,7 @@ setup(
             "recommonmark",
             "dephell",
             "jinja2<3.1",
-        ]
+        ],
     },
     python_requires=">=3.8,<3.11",
     license="modified BSD",
