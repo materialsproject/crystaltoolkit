@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.9
 LABEL maintainer="mkhorton@lbl.gov"
 
 RUN apt-get update && apt-get install vim gfortran povray -y
@@ -20,7 +20,7 @@ RUN git clone --recursive https://github.com/msg-byu/enumlib.git && \
 WORKDIR /home/app
 
 RUN pip install --upgrade --no-cache-dir pip && \
-    pip install -r requirements-server.txt
+    pip install -r requirements/ubuntu-latest_py3.9_extras.txt
 
 # whether to embed in materialsproject.org or not
 ENV CRYSTAL_TOOLKIT_MP_EMBED_MODE=False
