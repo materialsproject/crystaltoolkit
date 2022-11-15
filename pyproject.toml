@@ -1,0 +1,58 @@
+[project]
+name = "crystal_toolkit"
+description = """Crystal Toolkit is a web app framework from the Materials Project allowing Python
+developers to easily make an interactive web app to display materials science information. As a
+showcase of the framework’s capabilities, the Crystal Toolkit app allows you to import, view,
+analyze and transform crystal structures and molecules."""
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8,<3.11"
+authors = [{name = "Matt Horton", email = "mkhorton@lbl.gov"}]
+
+dependencies =  [
+    "pymatgen",
+    "webcolors",
+    "crystaltoolkit-extension",
+    "shapely",
+    "scikit-learn",
+    "scikit-image",
+]
+
+[project.optional-dependencies]
+server = [
+    "dash<2.6",
+    "dash-daq",
+    "gunicorn[gevent]",
+    "redis",
+    "Flask-Caching",
+    "dash-mp-components",
+    "robocrys",
+    "habanero",
+    "hiphive",
+    "dscribe",
+    "dash-extensions<=0.1.5",
+]
+fermi = ["ifermi", "pyfftw"]
+vtk = ["dash-vtk"]
+localenv = ["dscribe"]
+figures = ["kaleido"]
+dev = [
+    "black",
+    "pre-commit",
+    "dash[testing]<2.6",
+    "sphinx_rtd_theme",
+    "recommonmark",
+    "dephell",
+    "jinja2<3.1",
+]
+
+[project.urls]
+homepage = "https://github.com/materialsproject/crystaltoolkit"
+
+[tool.setuptools_scm]
+write_to = "crystal_toolkit/_version.py"
+write_to_template = '__version__ = "{version}"'
+
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+
