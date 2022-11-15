@@ -25,7 +25,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install firefox-geckodriver
       - name: Install dependencies
         run: |
-          python${{ matrix.python-version }} -m pip install --upgrade pip pip-tools numpy
+          python${{ matrix.python-version }} -m pip install --user --upgrade pip pip-tools numpy
           python${{ matrix.python-version }} -m piptools sync --user requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
           python${{ matrix.python-version }} -m pip install --user --no-deps .
       - name: Test with pytest
