@@ -11,8 +11,9 @@ from flask import has_request_context, request
 from monty.serialization import loadfn
 from mpcontribs.client import Client as MPContribsClient
 
-from crystal_toolkit import _DEFAULTS, MODULE_PATH
+from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.settings import SETTINGS
+from crystal_toolkit.defaults import _DEFAULTS
 
 
 def update_object_args(d_args, object_name, allowed_args):
