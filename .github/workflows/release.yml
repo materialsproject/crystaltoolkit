@@ -14,7 +14,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: create tag
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: '**/pyproject.toml'
+
+      - name: bump version and create tag
         env:
           DATE_FORMAT: "%Y.%m.%d"
         run: |
@@ -28,19 +34,20 @@ jobs:
             NEXT_RELEASE=${MAJOR_LAST_RELEASE}.$((MINOR_LAST_RELEASE + 1))
           fi
           echo "Next release: ${NEXT_RELEASE}"
+          git config --local user.email "feedback@materialsproject.org"
+          git config --local user.name "materialsproject"
+          python${{ matrix.python-version }} -m pip install --user --upgrade pip build setuptools setuptools_scm wheel
+          SETUPTOOLS_SCM_PRETEND_VERSION=${NEXT_RELEASE} python${{ matrix.python-version }} -m setuptools_scm
+          git add crystal_toolkit/_version.py
+          git commit -m "version bump: ${NEXT_RELEASE}"
+          git push
           git tag ${NEXT_RELEASE}
           git push --tags
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-          cache-dependency-path: '**/pyproject.toml'
-
       - name: Install dependencies
         run: |
-          python${{ matrix.python-version }} -m pip install --upgrade pip pip-tools build setuptools setuptools_scm wheel numpy
-          python${{ matrix.python-version }} -m piptools sync --user requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
+          python${{ matrix.python-version }} -m pip install --user `grep numpy requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
+          python${{ matrix.python-version }} -m pip install --user requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
           python${{ matrix.python-version }} -m pip install --user --no-deps .[server]
 
       - name: Build package
