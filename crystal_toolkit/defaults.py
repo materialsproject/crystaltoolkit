@@ -1,9 +1,8 @@
 """Populate the default values from the JSON file"""
 import json
 import os as _os
-
-from typing import Any
 from collections import defaultdict
+from typing import Any
 
 _DEFAULTS: dict[str, Any] = defaultdict()
 default_js = _os.path.join(

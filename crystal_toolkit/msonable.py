@@ -1,6 +1,7 @@
 """pleasant hack to support MSONable objects in Dash callbacks natively"""
-from monty.json import MSONable
 from __future__ import annotations
+
+from monty.json import MSONable
 
 
 def to_plotly_json(self):

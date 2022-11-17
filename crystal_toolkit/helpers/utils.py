@@ -12,8 +12,8 @@ from monty.serialization import loadfn
 from mpcontribs.client import Client as MPContribsClient
 
 from crystal_toolkit import MODULE_PATH
-from crystal_toolkit.settings import SETTINGS
 from crystal_toolkit.defaults import _DEFAULTS
+from crystal_toolkit.settings import SETTINGS
 
 
 def update_object_args(d_args, object_name, allowed_args):
