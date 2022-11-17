@@ -36,6 +36,7 @@ jobs:
           echo "Next release: ${NEXT_RELEASE}"
           git config --local user.email "feedback@materialsproject.org"
           git config --local user.name "materialsproject"
+          python${{ matrix.python-version }} -m pip install --upgrade pip
           python${{ matrix.python-version }} -m pip install --user --upgrade pip build setuptools setuptools_scm wheel
           SETUPTOOLS_SCM_PRETEND_VERSION=${NEXT_RELEASE} python${{ matrix.python-version }} -m setuptools_scm
           git add crystal_toolkit/_version.py
