@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT }}
 
       - uses: actions/setup-python@v4
         with:
@@ -34,8 +35,8 @@ jobs:
             NEXT_RELEASE=${MAJOR_LAST_RELEASE}.$((MINOR_LAST_RELEASE + 1))
           fi
           echo "Next release: ${NEXT_RELEASE}"
-          git config --local user.email "feedback@materialsproject.org"
-          git config --local user.name "materialsproject"
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "github-actions"
           python${{ matrix.python-version }} -m pip install --upgrade pip
           python${{ matrix.python-version }} -m pip install --user --upgrade pip build setuptools setuptools_scm wheel
           SETUPTOOLS_SCM_PRETEND_VERSION=${NEXT_RELEASE} python${{ matrix.python-version }} -m setuptools_scm
