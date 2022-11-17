@@ -49,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: |
           python${{ matrix.python-version }} -m pip install --user `grep numpy== requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
-          python${{ matrix.python-version }} -m pip install --user requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
+          python${{ matrix.python-version }} -m pip install --user -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
           python${{ matrix.python-version }} -m pip install --user --no-deps .[server]
 
       - name: Build package
