@@ -14,13 +14,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Calver Release
-        uses: StephaneBour/actions-calver@v1.5
-        id: calver
-        with:
-          date_format: "%Y.%m.%d"
+      - name: create tag
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+          DATE_FORMAT: "%Y.%m.%d"
+        run: |
+          NEXT_RELEASE=$(date "+${DATE_FORMAT}")
+          LAST_RELEASE=$(git tag --sort=v:refname | grep "^20[^\-]*$" | tail -n 1)
+          echo "Last release : ${LAST_RELEASE}"
+          MAJOR_LAST_RELEASE=$(echo "${LAST_RELEASE}" | awk -v l=${#NEXT_RELEASE} '{ string=substr($0, 1, l); print string; }')
+          echo "Last major release : ${MAJOR_LAST_RELEASE}"
+          if [ "${MAJOR_LAST_RELEASE}" = "${NEXT_RELEASE}" ]; then
+            MINOR_LAST_RELEASE="$(echo "${LAST_RELEASE}" | awk -v l=$((${#NEXT_RELEASE} + 2)) '{ string=substr($0, l); print string; }')"
+            NEXT_RELEASE=${MAJOR_LAST_RELEASE}.$((MINOR_LAST_RELEASE + 1))
+          fi
+          echo "Next release: ${NEXT_RELEASE}"
+          git tag ${NEXT_RELEASE}
+          git push --tags
 
       - uses: actions/setup-python@v4
         with:
