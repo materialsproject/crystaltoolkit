@@ -51,7 +51,7 @@ dev = [
 homepage = "https://github.com/materialsproject/crystaltoolkit"
 
 [tool.setuptools.packages.find]
-where = ["crystal_toolkit"]  # list of folders that contain the packages (["."] by default)
+exclude = ["docs_rst"]
 
 [tool.setuptools_scm]
 write_to = "crystal_toolkit/_version.py"
