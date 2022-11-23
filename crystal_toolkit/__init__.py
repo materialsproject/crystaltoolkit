@@ -10,6 +10,16 @@ except ImportError:
     MSONable = None
 
 if MSONable:
+    from crystal_toolkit.renderables import (
+        Lattice,
+        Molecule,
+        MoleculeGraph,
+        PhaseDiagram,
+        Site,
+        Structure,
+        StructureGraph,
+        VolumetricData
+    )
     from crystal_toolkit.msonable import (
         _ipython_display_,
         _repr_mimebundle_,
