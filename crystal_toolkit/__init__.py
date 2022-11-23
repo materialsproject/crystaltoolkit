@@ -10,6 +10,12 @@ except ImportError:
     MSONable = None
 
 if MSONable:
+    from crystal_toolkit.msonable import (
+        _ipython_display_,
+        _repr_mimebundle_,
+        show_json,
+        to_plotly_json,
+    )
     from crystal_toolkit.renderables import (
         Lattice,
         Molecule,
@@ -18,13 +24,7 @@ if MSONable:
         Site,
         Structure,
         StructureGraph,
-        VolumetricData
-    )
-    from crystal_toolkit.msonable import (
-        _ipython_display_,
-        _repr_mimebundle_,
-        show_json,
-        to_plotly_json,
+        VolumetricData,
     )
 
     MSONable.to_plotly_json = to_plotly_json
