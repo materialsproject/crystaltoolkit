@@ -4,14 +4,19 @@ from pathlib import Path
 
 from pkg_resources import DistributionNotFound, get_distribution
 
-
 try:
     from monty.json import MSONable
 except ImportError:
     MSONable = None
 
 if MSONable:
-    from crystaltoolkit.msonable import to_plotly_json, _repr_mimebundle_, show_json, _ipython_display_
+    from crystaltoolkit.msonable import (
+        _ipython_display_,
+        _repr_mimebundle_,
+        show_json,
+        to_plotly_json,
+    )
+
     MSONable.to_plotly_json = to_plotly_json
     MSONable._repr_mimebundle_ = _repr_mimebundle_
     MSONable.show_json = show_json
