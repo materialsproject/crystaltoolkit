@@ -10,7 +10,7 @@ except ImportError:
     MSONable = None
 
 if MSONable:
-    from crystaltoolkit.msonable import (
+    from crystal_toolkit.msonable import (
         _ipython_display_,
         _repr_mimebundle_,
         show_json,
