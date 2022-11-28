@@ -66,7 +66,7 @@ app.clientside_callback(
 
 @app.callback(
     Output(structure_component_transformed.id(), "data"),
-    [Input(transformation_component.id(), "data")],
+    Input(transformation_component.id(), "data"),
 )
 def update_structure(struct):
     return struct

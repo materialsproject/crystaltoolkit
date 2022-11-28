@@ -634,7 +634,7 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("element_specific_controls"), "children"),
             Input(self.id(), "data"),
             Input(self.get_kwarg_id("heatmap_choice"), "value"),
-            [State(self.get_kwarg_id("show_heatmap"), "value")],
+            State(self.get_kwarg_id("show_heatmap"), "value"),
         )
         def update_element_specific_sliders(entries, heatmap_choice, show_heatmap):
 
@@ -742,10 +742,8 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph"), "figure"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_all_kwargs_id(), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def make_figure(pourbaix_entries, *args) -> go.Figure:
 

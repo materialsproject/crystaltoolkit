@@ -62,7 +62,7 @@ class StructureMoleculeUploadComponent(MPComponent):
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("upload_label"), "children"),
-            [Input(self.id("upload_data"), "filename")],
+            Input(self.id("upload_data"), "filename"),
         )
         def show_filename_on_upload(filename):
             if not filename:
@@ -71,7 +71,7 @@ class StructureMoleculeUploadComponent(MPComponent):
 
         @app.callback(
             Output(self.id("error_message_container"), "children"),
-            [Input(self.id(), "data")],
+            Input(self.id(), "data"),
         )
         def update_error_message(data):
             if not data:
@@ -92,11 +92,9 @@ class StructureMoleculeUploadComponent(MPComponent):
 
         @app.callback(
             Output(self.id(), "data"),
-            [
-                Input(self.id("upload_data"), "contents"),
-                Input(self.id("upload_data"), "filename"),
-                Input(self.id("upload_data"), "last_modified"),
-            ],
+            Input(self.id("upload_data"), "contents"),
+            Input(self.id("upload_data"), "filename"),
+            Input(self.id("upload_data"), "last_modified"),
         )
         def callback_update_structure(contents, filename, last_modified):
 

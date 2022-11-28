@@ -171,10 +171,8 @@ class FermiSurfaceComponent(MPComponent):
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("fermi-surface-graph"), "figure"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_all_kwargs_id(), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def update_plot(fermi_surface, *args):
             # if update_plot is slow, an @cache decorator can be added here
