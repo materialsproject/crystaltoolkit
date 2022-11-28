@@ -18,7 +18,9 @@ structures = [
 ]
 
 # we show the first structure by default
-structure_component = ctc.StructureMoleculeComponent(structures[0], id="hello_structure")
+structure_component = ctc.StructureMoleculeComponent(
+    structures[0], id="hello_structure"
+)
 
 # and we create a button for user interaction
 my_button = html.Button("Swap Structure", id="change_structure_button")
