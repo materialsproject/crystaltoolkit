@@ -22,7 +22,7 @@ jobs:
           cache: 'pip'
           cache-dependency-path: '**/pyproject.toml'
       - name: Install webdriver
-        run: sudo apt-get update && sudo apt-get install firefox-geckodriver
+        run: sudo apt-get update && sudo apt-get install firefox-geckodriver chromium-chromedriver
       - name: Install dependencies
         run: |
           python${{ matrix.python-version }} -m pip install --user --upgrade pip pip-tools numpy
@@ -31,4 +31,4 @@ jobs:
       - name: Test with pytest
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-        run: pytest --color=yes --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
+        run: pytest --color=yes --webdriver Chrome --headless crystal_toolkit/apps/examples/tests/
