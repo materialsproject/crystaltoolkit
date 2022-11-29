@@ -33,7 +33,7 @@ ctc.register_crystal_toolkit(app=app, layout=my_layout)
 # for the interactivity, we use a standard Dash callback
 @app.callback(
     Output(structure_component.id(), "data"),
-    [Input("change_structure_button", "n_clicks")],
+    Input("change_structure_button", "n_clicks"),
 )
 def update_structure(n_clicks):
     return structures[n_clicks % 2]

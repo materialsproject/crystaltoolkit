@@ -142,7 +142,7 @@ class MPApp(MPComponent, ABC):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("mp-app-content"), "children"), [Input("mp-url", "pathname")]
+            Output(self.id("mp-app-content"), "children"), Input("mp-url", "pathname")
         )
         def update_main_content(pathname):
             _, payload = parse_pathname(pathname)

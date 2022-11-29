@@ -41,14 +41,14 @@ def get_structure_for_mpid(mpid):
 
 @app.callback(
     Output(structure_component.id("scene"), "imageRequest"),
-    [Input(structure_component.id("graph"), "data")],
+    Input(structure_component.id("graph"), "data"),
 )
 def trigger_image_request(data):
     sleep(1)
     return {"filetype": "png"}
 
 
-@app.callback(Output(structure_component.id(), "data"), [Input("url", "pathname")])
+@app.callback(Output(structure_component.id(), "data"), Input("url", "pathname"))
 def trigger_new_data(url):
     mp_id = url[1:]
     with MPRester() as mpr:
@@ -60,8 +60,9 @@ def trigger_new_data(url):
 
 @app.callback(
     Output("dummy-output", "children"),
-    [Input(structure_component.id("scene"), "imageDataTimestamp")],
-    [State("url", "pathname"), State(structure_component.id("scene"), "imageData")],
+    Input(structure_component.id("scene"), "imageDataTimestamp"),
+    State("url", "pathname"),
+    State(structure_component.id("scene"), "imageData"),
 )
 def save_image(image_data_timestamp, url, image_data):
     if image_data:

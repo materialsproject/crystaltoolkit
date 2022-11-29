@@ -52,8 +52,8 @@ class PanelComponent(MPComponent):
 
         @app.callback(
             Output(self.id("contents"), "children"),
-            [Input(self.id("panel_summary"), "n_clicks")],
-            [State(self.id("contents"), "children")],
+            Input(self.id("panel_summary"), "n_clicks"),
+            State(self.id("contents"), "children"),
         )
         def load_panel(panel_n_clicks, current_contents):
 

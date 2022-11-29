@@ -136,7 +136,8 @@ class CatalysisApp(MPApp):
                 z=grid,
                 customdata=customdata,
                 text=add_data,
-                hovertemplate="<b>number of calculations</b>: %{customdata[0]} <br><br><b> Open Catalyst Project IDs: </b> %{customdata[1]} <extra></extra>",
+                hovertemplate="<b>number of calculations</b>: %{customdata[0]} <br><br><b> Open Catalyst Project IDs: "
+                "</b> %{customdata[1]} <extra></extra>",
                 colorscale=plotly.colors.cyclical.Twilight,
                 zmin=float(target_E[0]) - float(range_E[0]),
                 zmax=float(target_E[0]) + float(range_E[0]),
@@ -155,7 +156,8 @@ class CatalysisApp(MPApp):
                 self.search_bar_container(
                     mpc.SearchUISearchBar(
                         placeholder="e.g. Al3Pt5 or mp-10025",
-                        errorMessage='Please enter a valid bulk formula (e.g. "Ti5Ge4") or Material ID (e.g. "mp-1501").',
+                        errorMessage='Please enter a valid bulk formula (e.g. "Ti5Ge4") or Material ID '
+                        '(e.g. "mp-1501").',
                         periodicTableMode="none",
                         allowedInputTypesMap={
                             "formula": {"field": "data__bulkFormula__exact"},
@@ -220,12 +222,10 @@ class CatalysisApp(MPApp):
 
         @app.callback(
             Output(self.id("heat_map"), "figure"),
-            [
-                Input(self.get_kwarg_id("smiles"), "value"),
-                Input(self.get_kwarg_id("targetE"), "value"),
-                Input(self.get_kwarg_id("range_E"), "value"),
-                Input(self.id("tabs"), "value"),
-            ],
+            Input(self.get_kwarg_id("smiles"), "value"),
+            Input(self.get_kwarg_id("targetE"), "value"),
+            Input(self.get_kwarg_id("range_E"), "value"),
+            Input(self.id("tabs"), "value"),
         )
         @cache.memoize(timeout=60 * 60 * 24)
         def update_figure(smile, mid_E, range_E, active_tab):
@@ -441,6 +441,9 @@ class CatalysisApp(MPApp):
             logger.error(ex)
             raise PreventUpdate
 
+        bulk_formula = contribution["data"]["bulkFormula"]
+        adsorbate_smiles = contribution["data"]["adsorbateSmiles"]
+
         contribution_data = {
             "Bulk Formula": unicodeify(contribution["data"]["bulkFormula"]),
             "Surface Formula": unicodeify(contribution["formula"]),
@@ -448,7 +451,7 @@ class CatalysisApp(MPApp):
                 contribution["data"]["mpid"],
                 href=f'/materials/{contribution["data"]["mpid"]}',
             ),
-            "Adsorbate SMILES": contribution["data"]["adsorbateSmiles"],
+            "Adsorbate SMILES": adsorbate_smiles,
             "Adsorbate IUPAC Formula": contribution["data"]["adsorbateIUPACFormula"],
             "Adsorption Energy": contribution["data"]["adsorptionEnergy"]["value"],
             "Miller Index": unicodeify_spacegroup(
@@ -474,9 +477,7 @@ class CatalysisApp(MPApp):
 
         return ctl.Container(
             [
-                ctl.H2(
-                    f'{unicodeify(contribution["data"]["adsorbateSmiles"])} on {unicodeify(contribution["data"]["bulkFormula"])}'
-                ),
+                ctl.H2(f"{unicodeify(adsorbate_smiles)} on {unicodeify(bulk_formula)}"),
                 ctl.H4(f"OCP ID: {payload}", subtitle=True),
                 ctl.Columns(
                     [

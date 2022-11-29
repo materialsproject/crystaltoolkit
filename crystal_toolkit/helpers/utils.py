@@ -1,3 +1,4 @@
+import logging
 import re
 from fractions import Fraction
 from typing import Any, Optional
@@ -14,6 +15,8 @@ from mpcontribs.client import Client as MPContribsClient
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.defaults import _DEFAULTS
 from crystal_toolkit.settings import SETTINGS
+
+logger = logging.getLogger(__name__)
 
 
 def update_object_args(d_args, object_name, allowed_args):
