@@ -1,14 +1,9 @@
 """pleasant hack to support MSONable objects in Dash callbacks natively"""
 from __future__ import annotations
 
-from monty.json import MSONable
-
 
 def to_plotly_json(self):
     return self.as_dict()
-
-
-MSONable.to_plotly_json = to_plotly_json
 
 
 def _repr_mimebundle_(self, include=None, exclude=None):
@@ -45,16 +40,10 @@ install.
         return {"application/json": self.as_dict(), "text/plain": repr(self)}
 
 
-MSONable._repr_mimebundle_ = _repr_mimebundle_
-
-
 def show_json(self):
     from IPython.display import display_json
 
     return display_json(self.as_dict(), raw=True)
-
-
-MSONable.show_json = show_json
 
 
 def _ipython_display_(self):
@@ -65,6 +54,3 @@ def _ipython_display_(self):
     from IPython.display import publish_display_data
 
     publish_display_data(self._repr_mimebundle_())
-
-
-MSONable._ipython_display_ = _ipython_display_
