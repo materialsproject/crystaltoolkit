@@ -199,7 +199,8 @@ class TransformationComponent(MPComponent):
 
             @app.callback(
                 Output(self.id("preview"), "children"),
-                [Input(self.id(), "data"), Input(self.id("input_structure"), "data")],
+                Input(self.id(), "data"),
+                Input(self.id("input_structure"), "data"),
             )
             def update_preview(transformation_data, input_structure):
                 if (not transformation_data) or (not input_structure):
@@ -216,14 +217,12 @@ class TransformationComponent(MPComponent):
                 return self.get_preview_layout(input_structure, output_structure)
 
         @app.callback(
-            [
-                Output(self.id(), "data"),
-                Output(self.id("container"), "className"),
-                Output(self.id("message"), "children"),
-                Output(self.get_all_kwargs_id(), "disabled"),
-            ],
-            [Input(self.id("enable_transformation"), "on")],
-            [State(self.get_all_kwargs_id(), "value")],
+            Output(self.id(), "data"),
+            Output(self.id("container"), "className"),
+            Output(self.id("message"), "children"),
+            Output(self.get_all_kwargs_id(), "disabled"),
+            Input(self.id("enable_transformation"), "on"),
+            State(self.get_all_kwargs_id(), "value"),
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
@@ -380,11 +379,9 @@ class AllTransformationsComponent(MPComponent):
 
         @app.callback(
             Output(self.id("transformation_options"), "children"),
-            [
-                Input(self.id("input_structure"), "data"),
-                Input(self.id("choices"), "value"),
-            ],
-            [State(t.id(), "data") for t in self.transformations.values()],
+            Input(self.id("input_structure"), "data"),
+            Input(self.id("choices"), "value"),
+            *[State(t.id(), "data") for t in self.transformations.values()],
         )
         def show_transformation_options(structure, values, *args):
 
@@ -419,14 +416,11 @@ class AllTransformationsComponent(MPComponent):
         # TODO: make an error store too
 
         @app.callback(
-            # [
             Output(self.id(), "data"),
-            # Output(self.id("error"), "children")],
-            [Input(t.id(), "data") for t in self.transformations.values()]
-            + [
-                Input(self.id("input_structure"), "data"),
-                Input(self.id("enabled-transformations"), "data"),
-            ],
+            # Output(self.id("error"), "children"),
+            *[Input(t.id(), "data") for t in self.transformations.values()],
+            Input(self.id("input_structure"), "data"),
+            Input(self.id("enabled-transformations"), "data"),
         )
         def run_transformations(*args):
 

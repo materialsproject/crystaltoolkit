@@ -18,7 +18,9 @@ structures = [
 ]
 
 # we show the first structure by default
-structure_component = ctc.StructureMoleculeComponent(structures[0], id="my_structure")
+structure_component = ctc.StructureMoleculeComponent(
+    structures[0], id="hello_structure"
+)
 
 # and we create a button for user interaction
 my_button = html.Button("Swap Structure", id="change_structure_button")
@@ -33,7 +35,7 @@ ctc.register_crystal_toolkit(app=app, layout=my_layout)
 # for the interactivity, we use a standard Dash callback
 @app.callback(
     Output(structure_component.id(), "data"),
-    [Input("change_structure_button", "n_clicks")],
+    Input("change_structure_button", "n_clicks"),
 )
 def update_structure(n_clicks):
     return structures[n_clicks % 2]

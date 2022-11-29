@@ -69,10 +69,8 @@ class TEMDiffractionComponent(MPComponent):
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("tem-plot"), "children"),
-            [
-                Input(self.id("structure"), "data"),
-                Input(self.get_all_kwargs_id(), "value"),
-            ],
+            Input(self.id("structure"), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def generate_diffraction_pattern(structure, *args):
 
@@ -457,14 +455,12 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("xrd-plot"), "figure"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_kwarg_id("crystallite_size"), "value"),
-                Input(self.get_kwarg_id("rad_source"), "value"),
-                Input(self.get_kwarg_id("peak_profile"), "value"),
-                Input(self.get_kwarg_id("shape_factor"), "value"),
-                Input(self.get_kwarg_id("x_axis"), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_kwarg_id("crystallite_size"), "value"),
+            Input(self.get_kwarg_id("rad_source"), "value"),
+            Input(self.get_kwarg_id("peak_profile"), "value"),
+            Input(self.get_kwarg_id("shape_factor"), "value"),
+            Input(self.get_kwarg_id("x_axis"), "value"),
         )
         def update_graph(data, logsize, rad_source, peak_profile, K, x_axis):
 
@@ -504,10 +500,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         @app.callback(
             Output(self.id(), "data"),
-            [
-                Input(self.id("structure"), "data"),
-                Input(self.get_kwarg_id("rad_source"), "value"),
-            ],
+            Input(self.id("structure"), "data"),
+            Input(self.get_kwarg_id("rad_source"), "value"),
         )
         def pattern_from_struct(struct, rad_source):
 
@@ -534,7 +528,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         # @app.callback(
         #     Output(self.id("static-image"), "src"),
-        #     [Input(self.id("xrd-plot"), "figure")]
+        #     Input(self.id("xrd-plot"), "figure")
         # )
         # def update_static_image(data):
         #

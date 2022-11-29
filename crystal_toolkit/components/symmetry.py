@@ -79,11 +79,9 @@ class SymmetryPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("analysis"), "children"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_kwarg_id("symprec"), "value"),
-                Input(self.get_kwarg_id("angle_tolerance"), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_kwarg_id("symprec"), "value"),
+            Input(self.get_kwarg_id("angle_tolerance"), "value"),
         )
         def update_contents(data, symprec, angle_tolerance):
 

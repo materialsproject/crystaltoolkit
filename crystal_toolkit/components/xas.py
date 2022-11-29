@@ -105,9 +105,7 @@ class XASComponent(MPComponent):
         )
 
     def generate_callbacks(self, app, cache):
-        @app.callback(
-            Output(self.id("xas-div"), "children"), [Input(self.id(), "data")]
-        )
+        @app.callback(Output(self.id("xas-div"), "children"), Input(self.id(), "data"))
         def update_graph(plotdata):
             if not plotdata:
                 raise PreventUpdate
@@ -134,10 +132,11 @@ class XASComponent(MPComponent):
                 ]
 
         @app.callback(
-            [Output(self.id(), "data"), Output(self.id("elements"), "data")][
-                Input(self.id("element-selector"), "value")
-            ],
-            [State(self.id("mpid"), "data"), State(self.id("elements"), "data")],
+            Output(self.id(), "data"),
+            Output(self.id("elements"), "data"),
+            Input(self.id("element-selector"), "value"),
+            State(self.id("mpid"), "data"),
+            State(self.id("elements"), "data"),
         )
         def pattern_from_mpid(element, mpid, elements):
             if not element or not elements:
@@ -172,14 +171,14 @@ class XASComponent(MPComponent):
 
         @app.callback(
             Output(self.id("element-selector"), "options"),
-            [Input(self.id("elements"), "data")],
+            Input(self.id("elements"), "data"),
         )
         def generate_element_options(elements):
             return [{"label": i, "value": i} for i in elements]
 
         @app.callback(
             Output(self.id("element-selector"), "value"),
-            [Input(self.id("element-selector"), "options")],
+            Input(self.id("element-selector"), "options"),
         )
         def set_xas_value(options):
             if not options or not options[0]:
@@ -220,7 +219,7 @@ class XASPanelComponent(PanelComponent):
     #     super().generate_callbacks(app, cache)
     #
     #     @app.callback(
-    #         Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
+    #         Output(self.id("inner_contents"), "children"), Input(self.id(), "data")
     #     )
     #     def add_xas(mpid):
     #         if not mpid:

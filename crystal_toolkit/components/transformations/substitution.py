@@ -51,7 +51,7 @@ and copper). Please consult the pymatgen documentation for more information.
         #
         # @app.callback(
         #     Output(self.id("transformation_args_kwargs"), "data"),
-        #     [Input(self.id("species_mapping"), "data")],
+        #     Input(self.id("species_mapping"), "data"),
         # )
         # def update_transformation_kwargs(rows):
         #     def get_el_occu(string):

@@ -810,14 +810,10 @@ class BandstructureAndDosComponent(MPComponent):
             ]
 
         @app.callback(
-            [
-                Output(self.id("label-select"), "value"),
-                Output(self.id("label-container"), "style"),
-            ],
-            [
-                Input(self.id("mpid"), "data"),
-                Input(self.id("path-convention"), "value"),
-            ],
+            Output(self.id("label-select"), "value"),
+            Output(self.id("label-container"), "style"),
+            Input(self.id("mpid"), "data"),
+            Input(self.id("path-convention"), "value"),
         )
         def update_label_select(mpid, path_convention):
             if not mpid:
@@ -830,12 +826,11 @@ class BandstructureAndDosComponent(MPComponent):
                 return [label_value, label_style]
 
         @app.callback(
-            [
-                Output(self.id("dos-select"), "options"),
-                Output(self.id("path-convention"), "options"),
-                Output(self.id("path-container"), "style"),
-            ],
-            [Input(self.id("elements"), "data"), Input(self.id("mpid"), "data")],
+            Output(self.id("dos-select"), "options"),
+            Output(self.id("path-convention"), "options"),
+            Output(self.id("path-container"), "style"),
+            Input(self.id("elements"), "data"),
+            Input(self.id("mpid"), "data"),
         )
         def update_select(elements, mpid):
             if elements is None:
@@ -881,13 +876,12 @@ class BandstructureAndDosComponent(MPComponent):
                 return [dos_options, path_options, path_style]
 
         @app.callback(
-            [Output(self.id("traces"), "data"), Output(self.id("elements"), "data")],
-            [
-                Input(self.id(), "data"),
-                Input(self.id("path-convention"), "value"),
-                Input(self.id("dos-select"), "value"),
-                Input(self.id("label-select"), "value"),
-            ],
+            Output(self.id("traces"), "data"),
+            Output(self.id("elements"), "data"),
+            Input(self.id(), "data"),
+            Input(self.id("path-convention"), "value"),
+            Input(self.id("dos-select"), "value"),
+            Input(self.id("label-select"), "value"),
         )
         def bs_dos_data(data, path_convention, dos_select, label_select):
 
