@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from monty.json import MSONable
 from pkg_resources import DistributionNotFound, get_distribution
 
-from monty.json import MSONable
 from crystal_toolkit.msonable import (
     _ipython_display_,
     _repr_mimebundle_,
