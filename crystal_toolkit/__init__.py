@@ -4,6 +4,7 @@ from pathlib import Path
 
 from pkg_resources import DistributionNotFound, get_distribution
 
+from monty.json import MSONable
 from crystal_toolkit.msonable import (
     _ipython_display_,
     _repr_mimebundle_,
