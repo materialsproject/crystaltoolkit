@@ -6,9 +6,9 @@ developers to easily make an interactive web app to display materials science in
 showcase of the framework’s capabilities, the Crystal Toolkit app allows you to import, view,
 analyze and transform crystal structures and molecules."""
 readme = "README.md"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 requires-python = ">=3.8,<3.11"
-authors = [{name = "Matt Horton", email = "mkhorton@lbl.gov"}]
+authors = [{ name = "Matt Horton", email = "mkhorton@lbl.gov" }]
 
 dependencies = [
     "pymatgen",
@@ -16,7 +16,7 @@ dependencies = [
     "crystaltoolkit-extension",
     "shapely",
     "scikit-learn",
-    "scikit-image"
+    "scikit-image",
 ]
 
 [project.optional-dependencies]
@@ -30,8 +30,7 @@ server = [
     "robocrys",
     "habanero",
     "hiphive",
-    "dscribe",
-    "dash-extensions<=0.1.5"
+    "dash-extensions<=0.1.5",
 ]
 fermi = ["ifermi", "pyfftw"]
 vtk = ["dash-vtk"]
@@ -44,7 +43,7 @@ dev = [
     "sphinx_rtd_theme",
     "recommonmark",
     "dephell",
-    "jinja2<3.1"
+    "jinja2<3.1",
 ]
 
 [project.urls]
