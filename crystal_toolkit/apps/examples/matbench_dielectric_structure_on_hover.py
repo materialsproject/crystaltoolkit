@@ -12,6 +12,7 @@ from crystal_toolkit.apps.examples.utils import (
     load_and_store_matbench_dataset,
     matbench_dielectric_desc,
 )
+from crystal_toolkit.helpers.utils import get_data_table
 from crystal_toolkit.settings import SETTINGS
 
 pio.templates.default = "plotly_white"
@@ -84,17 +85,20 @@ hover_click_dropdown = html.Div(
 struct_title = html.H2(
     "Try hovering on a point in the plot to see its corresponding structure",
     id="struct-title",
-    style=dict(position="absolute", padding="1ex 1em"),
+    style=dict(position="absolute", padding="1ex 1em", maxWidth="25em"),
 )
 graph_structure_div = html.Div(
     [
         graph,
         html.Div([struct_title, structure_component.layout()]),
     ],
-    style=dict(display="flex", gap="2em"),
+    style=dict(display="flex", gap="2em", margin="2em 0"),
+)
+table = get_data_table(
+    df_diel.drop(columns="structure").reset_index(), id="data-table", virtualized=False
 )
 app.layout = html.Div(
-    [hover_click_dropdown, graph_structure_div, matbench_dielectric_desc],
+    [hover_click_dropdown, graph_structure_div, table, matbench_dielectric_desc],
     style=dict(margin="2em", padding="1em"),
 )
 ctc.register_crystal_toolkit(app=app, layout=app.layout)
@@ -102,18 +106,19 @@ ctc.register_crystal_toolkit(app=app, layout=app.layout)
 
 @app.callback(
     Output(structure_component.id(), "data"),
-    Output(struct_title.id, "children"),
-    Input(graph.id, "hoverData"),
-    Input(graph.id, "clickData"),
-    State(hover_click_dd.id, "value"),
+    Output(struct_title, "children"),
+    Output(table, "style_data_conditional"),
+    Input(graph, "hoverData"),
+    Input(graph, "clickData"),
+    State(hover_click_dd, "value"),
 )
 def update_structure(
     hover_data: dict[str, list[dict[str, Any]]],
     click_data: dict[str, list[dict[str, Any]]],  # needed as callback trigger
     dropdown_value: str,
 ) -> tuple[Structure, str]:
-    """Update StructureMoleculeComponent with pymatgen structure when user clicks on
-    new scatter point.
+    """Update StructureMoleculeComponent with pymatgen structure when user clicks or hovers
+    a scatter point.
     """
     triggered = dash.callback_context.triggered[0]
     if dropdown_value == "click" and triggered["prop_id"].endswith(".hoverData"):
@@ -128,7 +133,14 @@ def update_structure(
     structure = df_diel.structure[material_id]
     formula = df_diel.formula[material_id]
 
-    return structure, formula
+    # highlight corresponding row in table
+    style_data_conditional = {
+        "if": {"row_index": material_id},
+        "backgroundColor": "#3D9970",
+        "color": "white",
+    }
+
+    return structure, formula, [style_data_conditional]
 
 
 if __name__ == "__main__":

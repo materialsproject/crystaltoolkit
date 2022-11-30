@@ -261,7 +261,6 @@ def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book")
     return button
 
 
-# TODO: move to crystal-toolkit when stable
 def get_data_table(
     df=None, virtualized=True, columns=None, column_widths=None, **kwargs
 ):
