@@ -51,9 +51,8 @@ DEFAULTS: dict[str, str | bool] = {
 
 
 class StructureMoleculeComponent(MPComponent):
-    """
-    A component to display pymatgen Structure, Molecule, StructureGraph
-    and MoleculeGraph objects.
+    """A component to display pymatgen Structure, Molecule, StructureGraph and MoleculeGraph
+    objects.
     """
 
     available_bonding_strategies = {
@@ -115,33 +114,40 @@ class StructureMoleculeComponent(MPComponent):
         show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
     ):
-        """
-        Create a StructureMoleculeComponent from a structure or molecule.
+        """Create a StructureMoleculeComponent from a structure or molecule.
 
-        :param struct_or_mol: input structure or molecule
-        :param id: canonical id
-        :param scene_additions: extra geometric elements to add to the 3D scene
-        :param bonding_strategy: bonding strategy from pymatgen NearNeighbors class
-        :param bonding_strategy_kwargs: options for the bonding strategy
-        :param color_scheme: color scheme, see Legend class
-        :param color_scale: color scale, see Legend class
-        :param radius_strategy: radius strategy, see Legend class
-        :param draw_image_atoms: whether to draw repeats of atoms on periodic images
-        :param bonded_sites_outside_unit_cell: whether to draw sites bonded outside the unit cell
-        :param hide_incomplete_bonds: whether to hide or show incomplete bonds
-        :param show_compass: whether to hide or show the compass
-        :param scene_settings: scene settings (lighting etc.) to pass to CrystalToolkitScene
-        :param group_by_site_property: a site property used for grouping of atoms for mouseover/interaction,
-        :param show_legend: show or hide legend panel within the scene
-        :param show_controls: show or hide scene control bar
-        :param show_expand_button: show or hide the full screen button within the scene control bar
-        :param show_image_button: show or hide the image download button within the scene control bar
-        :param show_export_button: show or hide the file export button within the scene control bar
-        :param show_position_button: show or hide the revert position button within the scene control bar
-        e.g. Wyckoff label
-        :param kwargs: extra keyword arguments to pass to MPComponent
+        Args:
+            struct_or_mol (None |, optional): input structure or molecule. Defaults to None.
+            id (str, optional): canonical id. Defaults to None.
+            className (str, optional): extra geometric elements to add to the 3D scene. Defaults to "box".
+            scene_additions (Scene | None, optional): bonding strategy from pymatgen NearNeighbors class.
+                Defaults to None.
+            bonding_strategy (str, optional): options for the bonding strategy.
+            bonding_strategy_kwargs (dict | None, optional): color scheme, see Legend class.
+                Defaults to None.
+            color_scheme (str, optional): color scale, see Legend class.
+            color_scale (str | None, optional): radius strategy, see Legend class.
+                Defaults to None.
+            radius_strategy (str, optional):  optional): radius strategy, see Legend class.
+            unit_cell_choice (str, optional): whether to draw repeats of atoms on periodic images.
+            draw_image_atoms (bool, optional): whether to draw sites bonded outside the unit cell.
+            bonded_sites_outside_unit_cell (bool, optional): whether to hide or show incomplete bonds.
+                Defaults to DEFAULTS[ "bonded_sites_outside_unit_cell" ].
+            hide_incomplete_bonds (bool, optional): whether to hide or show the compass.
+            show_compass (bool, optional): scene settings (lighting etc.) to pass to CrystalToolkitScene.
+            scene_settings (dict | None, optional): a site property used for grouping of atoms for
+                mouseover/interaction. Defaults to None.
+            group_by_site_property (str | None, optional): a site property used for grouping of atoms for
+                mouseover/interaction. Defaults to None.
+            show_legend (bool, optional):  optional): show or hide legend panel within the scene.
+            show_settings (bool, optional): show or hide scene control bar.
+            show_controls (bool, optional): show or hide the full screen button within the scene control bar.
+            show_expand_button (bool, optional): show or hide the image download button within the scene control bar.
+            show_image_button (bool, optional): show or hide the file export button within the scene control bar.
+            show_export_button (bool, optional): show or hide the revert position button within the scene control bar.
+            show_position_button (bool, optional): extra keyword arguments to pass to MPComponent. e.g. Wyckoff label.
+            **kwargs: a CSS dimension specifying width/height of Div.
         """
-
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
         self.className = className
         self.show_legend = show_legend
@@ -312,11 +318,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph"), "data"),
-            [
-                Input(self.id("graph_generation_options"), "data"),
-                Input(self.id(), "data"),
-            ],
-            [State(self.id("graph"), "data")],
+            Input(self.id("graph_generation_options"), "data"),
+            Input(self.id(), "data"),
+            State(self.id("graph"), "data"),
         )
         @cache.memoize()
         def update_graph(graph_generation_options, struct_or_mol, current_graph):
@@ -352,11 +356,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("scene"), "data"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-                Input(self.id("scene_additions"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
+            Input(self.id("scene_additions"), "data"),
         )
         @cache.memoize()
         def update_scene(graph, display_options, scene_additions):
@@ -371,11 +373,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("legend_data"), "data"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-                Input(self.id("scene_additions"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
+            Input(self.id("scene_additions"), "data"),
         )
         @cache.memoize()
         def update_legend_and_colors(graph, display_options, scene_additions):
@@ -390,7 +390,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("color-scheme"), "options"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         def update_color_options(legend_data):
 
@@ -433,10 +433,8 @@ class StructureMoleculeComponent(MPComponent):
         @app.callback(
             Output(self.id("download-image"), "data"),
             Input(self.id("scene"), "imageDataTimestamp"),
-            [
-                State(self.id("scene"), "imageData"),
-                State(self.id(), "data"),
-            ],
+            State(self.id("scene"), "imageData"),
+            State(self.id(), "data"),
         )
         def download_image(image_data_timestamp, image_data, data):
             if not image_data_timestamp:
@@ -465,10 +463,8 @@ class StructureMoleculeComponent(MPComponent):
         @app.callback(
             Output(self.id("download-structure"), "data"),
             Input(self.id("scene"), "fileTimestamp"),
-            [
-                State(self.id("scene"), "fileType"),
-                State(self.id(), "data"),
-            ],
+            State(self.id("scene"), "fileType"),
+            State(self.id(), "data"),
         )
         def download_structure(file_timestamp, download_option, data):
             if not file_timestamp:
@@ -524,7 +520,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("title_container"), "children"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         @cache.memoize()
         def update_title(legend):
@@ -538,7 +534,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("legend_container"), "children"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         @cache.memoize()
         def update_legend(legend):
@@ -551,15 +547,11 @@ class StructureMoleculeComponent(MPComponent):
             return self._make_legend(legend)
 
         @app.callback(
-            [
-                Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
-                Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
-            ],
-            [Input(self.id("bonding_algorithm"), "value")],
-            [
-                State(self.id("graph"), "data"),
-                State(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
-            ],
+            Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
+            Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
+            Input(self.id("bonding_algorithm"), "value"),
+            State(self.id("graph"), "data"),
+            State(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
         )
         @cache.memoize()
         def update_custom_bond_options(bonding_algorithm, graph, current_style):
@@ -597,7 +589,7 @@ class StructureMoleculeComponent(MPComponent):
         try:
             formula = Composition.from_dict(legend["composition"]).reduced_formula
         except Exception:
-            # TODO: fix legend for Dummy Specie compositions
+            # TODO: fix legend for DummySpecies compositions
             formula = "Unknown"
 
         legend_colors = OrderedDict(
@@ -651,7 +643,7 @@ class StructureMoleculeComponent(MPComponent):
                     for part in formula_parts
                 ]
             except Exception:
-                formula_components = list(map(str, composition.keys()))
+                formula_components = list(map(str, composition))
 
         return H2(
             formula_components, id=self.id("title"), style={"display": "inline-block"}
@@ -666,9 +658,7 @@ class StructureMoleculeComponent(MPComponent):
         species = set(
             map(
                 str,
-                chain.from_iterable(
-                    [list(c.keys()) for c in struct_or_mol.species_and_occu]
-                ),
+                chain.from_iterable([list(c) for c in struct_or_mol.species_and_occu]),
             )
         )
         rows = [
@@ -879,7 +869,7 @@ class StructureMoleculeComponent(MPComponent):
                     data=self.initial_data["scene"],
                     settings=self.initial_scene_settings,
                     sceneSize="100%",
-                    fileOptions=list(self.download_options["Structure"].keys()),
+                    fileOptions=list(self.download_options["Structure"]),
                     showControls=self.show_controls,
                     showExpandButton=self.show_expand_button,
                     showImageButton=self.show_image_button,
@@ -900,9 +890,13 @@ class StructureMoleculeComponent(MPComponent):
         }
 
     def layout(self, size: str = "500px") -> html.Div:
-        """
-        :param size: a CSS dimension specifying width/height of Div
-        :return: A html.Div containing the 3D structure or molecule
+        """Get the layout for this component.
+
+        Args:
+            size (str, optional): a CSS dimension specifying width/height of Div. Defaults to "500px".
+
+        Returns:
+            html.Div: A html.Div containing the 3D structure or molecule
         """
         return html.Div(
             self._sub_layouts["struct"], style={"width": size, "height": size}
@@ -964,7 +958,7 @@ class StructureMoleculeComponent(MPComponent):
         else:
             if (
                 bonding_strategy
-                not in StructureMoleculeComponent.available_bonding_strategies.keys()
+                not in StructureMoleculeComponent.available_bonding_strategies
             ):
                 valid_subclasses = ", ".join(
                     StructureMoleculeComponent.available_bonding_strategies

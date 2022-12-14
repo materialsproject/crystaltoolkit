@@ -278,8 +278,7 @@ class PourbaixDiagramComponent(MPComponent):
     def get_figure(
         pourbaix_diagram: PourbaixDiagram, heatmap_entry=None, show_water_lines=True
     ) -> go.Figure:
-        """
-        Static method for getting plotly figure from a Pourbaix diagram.
+        """Static method for getting plotly figure from a Pourbaix diagram.
 
         Args:
             pourbaix_diagram (PourbaixDiagram): Pourbaix diagram to plot
@@ -288,7 +287,6 @@ class PourbaixDiagramComponent(MPComponent):
 
         Returns:
             (dict) figure layout
-
         """
         data = []
 
@@ -421,9 +419,7 @@ class PourbaixDiagramComponent(MPComponent):
             #     return font_color
 
             def get_text_size(available_vertical_space):
-                """
-                Set text size based on available vertical space
-                """
+                """Set text size based on available vertical space."""
                 return min(max(6 * available_vertical_space, 12), 20)
 
             annotations = [
@@ -638,7 +634,7 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("element_specific_controls"), "children"),
             Input(self.id(), "data"),
             Input(self.get_kwarg_id("heatmap_choice"), "value"),
-            [State(self.get_kwarg_id("show_heatmap"), "value")],
+            State(self.get_kwarg_id("show_heatmap"), "value"),
         )
         def update_element_specific_sliders(entries, heatmap_choice, show_heatmap):
 
@@ -746,12 +742,10 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph"), "figure"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_all_kwargs_id(), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
-        def make_figure(pourbaix_entries, *args):
+        def make_figure(pourbaix_entries, *args) -> go.Figure:
 
             if pourbaix_entries is None:
                 raise PreventUpdate

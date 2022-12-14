@@ -42,9 +42,7 @@ class TransformationComponent(MPComponent):
 
     @property
     def is_one_to_many(self) -> bool:
-        """
-        This should reflect the underlying transformation.
-        """
+        """This should reflect the underlying transformation."""
         # need to initialize transformation to access property, which isn't
         # possible in all cases without necessary kwargs, which is why
         # we duplicate the property here
@@ -135,9 +133,8 @@ class TransformationComponent(MPComponent):
         return container
 
     def options_layouts(self, state=None, structure=None) -> list[html.Div]:
-        """
-        Return a layout to change the transformation options (that is,
-        that controls the args and kwargs that will be passed to pymatgen).
+        """Return a layout to change the transformation options (that is, that controls the args and
+        kwargs that will be passed to pymatgen).
 
         The "state" option is so that the controls can be populated appropriately
         using existing args and kwargs, e.g. when restoring the control panel
@@ -161,10 +158,9 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     def get_preview_layout(self, struct_in, struct_out):
-        """
-        Override this method to give a layout that previews the transformation.
-        Has beneficial side effect of priming the transformation cache when
-        entire transformation pipeline is enabled.
+        """Override this method to give a layout that previews the transformation. Has beneficial
+        side effect of priming the transformation cache when entire transformation pipeline is
+        enabled.
 
         :param struct_in: input Structure
         :param struct_out: transformed Structure
@@ -183,7 +179,7 @@ class TransformationComponent(MPComponent):
                 struct = transformation.apply_transformation(struct)
             except Exception as exc:
                 error_title = (
-                    f'Failed to apply "{transformation.__class__.__name__}" '
+                    f'Failed to apply "{type(transformation).__name__}" '
                     f"transformation: {exc}"
                 )
                 traceback_info = Reveal(
@@ -203,7 +199,8 @@ class TransformationComponent(MPComponent):
 
             @app.callback(
                 Output(self.id("preview"), "children"),
-                [Input(self.id(), "data"), Input(self.id("input_structure"), "data")],
+                Input(self.id(), "data"),
+                Input(self.id("input_structure"), "data"),
             )
             def update_preview(transformation_data, input_structure):
                 if (not transformation_data) or (not input_structure):
@@ -220,14 +217,12 @@ class TransformationComponent(MPComponent):
                 return self.get_preview_layout(input_structure, output_structure)
 
         @app.callback(
-            [
-                Output(self.id(), "data"),
-                Output(self.id("container"), "className"),
-                Output(self.id("message"), "children"),
-                Output(self.get_all_kwargs_id(), "disabled"),
-            ],
-            [Input(self.id("enable_transformation"), "on")],
-            [State(self.get_all_kwargs_id(), "value")],
+            Output(self.id(), "data"),
+            Output(self.id("container"), "className"),
+            Output(self.id("message"), "children"),
+            Output(self.get_all_kwargs_id(), "disabled"),
+            Input(self.id("enable_transformation"), "on"),
+            State(self.get_all_kwargs_id(), "value"),
         )
         @cache.memoize(
             timeout=60 * 60 * 24,
@@ -276,12 +271,10 @@ class AllTransformationsComponent(MPComponent):
         *args,
         **kwargs,
     ):
-        """
-        Create a component that can manage multiple transformations in a
-        user-defined order.
+        """Create a component that can manage multiple transformations in a user-defined order.
 
         :param transformations: if provided, only offer a subset of available
-            transformaitons, provide as a string of the given transformation name
+            transformations, provide as a string of the given transformation name
         :param input_structure_component: will supply the structure to transform
         """
 
@@ -311,7 +304,7 @@ class AllTransformationsComponent(MPComponent):
             t(input_structure_component_id=self.id("input_structure"))
             for t in transformations
         ]
-        self.transformations = {t.__class__.__name__: t for t in transformations}
+        self.transformations = {type(t).__name__: t for t in transformations}
 
     @property
     def _sub_layouts(self):
@@ -372,7 +365,7 @@ class AllTransformationsComponent(MPComponent):
                 struct = transformation.apply_transformation(struct)
             except Exception as exc:
                 error_title = html.Span(
-                    f'Failed to apply "{transformation.__class__.__name__}" '
+                    f'Failed to apply "{type(transformation).__name__}" '
                     f"transformation: {exc}"
                 )
                 traceback_info = Reveal(
@@ -386,11 +379,9 @@ class AllTransformationsComponent(MPComponent):
 
         @app.callback(
             Output(self.id("transformation_options"), "children"),
-            [
-                Input(self.id("input_structure"), "data"),
-                Input(self.id("choices"), "value"),
-            ],
-            [State(t.id(), "data") for t in self.transformations.values()],
+            Input(self.id("input_structure"), "data"),
+            Input(self.id("choices"), "value"),
+            *[State(t.id(), "data") for t in self.transformations.values()],
         )
         def show_transformation_options(structure, values, *args):
 
@@ -417,24 +408,19 @@ class AllTransformationsComponent(MPComponent):
             Input(self.id("choices"), "value"),
         )
         def set_enabled_transformations(value):
-            """
-            This is due to an unfortunate but noisy bug that
-            complains that this specific input is not present
-            in the layout on load.
+            """This is due to an unfortunate but noisy bug that complains that this specific input
+            is not present in the layout on load.
             """
             return value
 
         # TODO: make an error store too
 
         @app.callback(
-            # [
             Output(self.id(), "data"),
-            # Output(self.id("error"), "children")],
-            [Input(t.id(), "data") for t in self.transformations.values()]
-            + [
-                Input(self.id("input_structure"), "data"),
-                Input(self.id("enabled-transformations"), "data"),
-            ],
+            # Output(self.id("error"), "children"),
+            *[Input(t.id(), "data") for t in self.transformations.values()],
+            Input(self.id("input_structure"), "data"),
+            Input(self.id("enabled-transformations"), "data"),
         )
         def run_transformations(*args):
 

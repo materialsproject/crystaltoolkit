@@ -11,8 +11,7 @@ def get_plot(
     process_attributes=False,
     label_uncertainties=False,
 ):
-    """
-    Plot a PhaseDiagram.
+    """Plot a PhaseDiagram.
 
     :param show_unstable: Whether unstable (above the hull) phases will be
         plotted. If a number > 0 is entered, all phases with

@@ -1,10 +1,10 @@
 import time
 
 from crystal_toolkit.apps.examples.bandstructure import app
+from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
 
-def test_bs(dash_duo):
-
+def test_bs(dash_duo: DashDuo) -> None:
     dash_duo.start_server(app)
     dash_duo.clear_storage()
 
@@ -27,4 +27,4 @@ def test_bs(dash_duo):
     # dash_duo.percy_snapshot("example_bsdos_projection_index_2")
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Browser console should not contain errors: {logs}"
+    assert logs == [], f"Unexpected browser {logs=}"

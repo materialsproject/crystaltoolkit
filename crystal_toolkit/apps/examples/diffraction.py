@@ -4,12 +4,10 @@ import dash
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 from crystal_toolkit.helpers.layouts import H1, H3, Container
 from crystal_toolkit.settings import SETTINGS
 
-# create Dash app as normal
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 
@@ -29,7 +27,7 @@ my_layout = Container(
 # as explained in "preamble" section in documentation
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
-# allow app to be run using "python structure.py"
+# run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
 # see Dash documentation for more information
 if __name__ == "__main__":

@@ -1,70 +1,33 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>crystal_toolkit.components.search &mdash; Crystal Toolkit  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
     <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/search.html"/>
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
-          
-
-          
             <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -72,18 +35,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://next-gen.materialsproject.org/toolkit">Try The App!</a></li>
@@ -96,96 +48,53 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Crystal Toolkit</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
           <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
-        
       <li>crystal_toolkit.components.search</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for crystal_toolkit.components.search</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
-
-<span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">dcc</span>
-<span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">html</span>
-
-<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
-<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
-
-<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span><span class="p">,</span> <span class="n">dumpfn</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">CompositionError</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify</span>
-<span class="kn">from</span> <span class="nn">mp_api</span> <span class="kn">import</span> <span class="n">MPRester</span>
-
-
-<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify_spacegroup</span>
-<span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
-<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">crystal_toolkit</span> <span class="kn">import</span> <span class="vm">__file__</span> <span class="k">as</span> <span class="n">module_path</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">dcc</span><span class="p">,</span> <span class="n">html</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+<span class="kn">from</span> <span class="nn">monty.serialization</span> <span class="kn">import</span> <span class="n">loadfn</span>
+<span class="kn">from</span> <span class="nn">mp_api.client</span> <span class="kn">import</span> <span class="n">MPRester</span><span class="p">,</span> <span class="n">MPRestError</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify</span><span class="p">,</span> <span class="n">unicodeify_spacegroup</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
-<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit</span> <span class="kn">import</span> <span class="vm">__file__</span> <span class="k">as</span> <span class="n">module_path</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Button</span><span class="p">,</span>
+    <span class="n">Control</span><span class="p">,</span>
+    <span class="n">Field</span><span class="p">,</span>
+    <span class="n">Icon</span><span class="p">,</span>
+    <span class="n">MessageBody</span><span class="p">,</span>
+    <span class="n">MessageContainer</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="SearchComponent"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.search.html#crystal_toolkit.components.search.SearchComponent">[docs]</a><span class="k">class</span> <span class="nc">SearchComponent</span><span class="p">(</span><span class="n">MPComponent</span><span class="p">):</span>
@@ -291,44 +200,42 @@
 
             <span class="k">with</span> <span class="n">MPRester</span><span class="p">()</span> <span class="k">as</span> <span class="n">mpr</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">entries</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-                        <span class="n">search_term</span><span class="p">,</span>
+                    <span class="n">entries</span> <span class="o">=</span> <span class="n">mpr</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">search_summary_docs</span><span class="p">(</span>
+                        <span class="n">formula</span><span class="o">=</span><span class="n">search_term</span><span class="p">,</span>
                         <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
-                            <span class="s2">&quot;task_id&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;material_id&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;formula_pretty&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;e_above_hull&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;energy_above_hull&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;symmetry&quot;</span><span class="p">,</span>
                         <span class="p">],</span>
                     <span class="p">)</span>
-                <span class="k">except</span> <span class="n">CompositionError</span><span class="p">:</span>
+                <span class="k">except</span> <span class="n">MPRestError</span><span class="p">:</span>
                     <span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search: no results for </span><span class="si">{</span><span class="n">search_term</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;No results found for </span><span class="si">{</span><span class="n">search_term</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">}</span>
 
-            <span class="c1"># sort by e_above_hull if a normal query, or by Levenshtein distance</span>
-            <span class="c1"># if fuzzy matching (order of mpids list if present matches Levenshtein distance)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">mpids</span><span class="p">:</span>
-                <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;e_above_hull&quot;</span><span class="p">])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">mpids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]))</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">energy_above_hull</span><span class="p">)</span>
 
+            <span class="n">human_readable_hull_labels</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
-                <span class="n">e_hull</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull&quot;</span><span class="p">]</span>
+                <span class="n">e_hull</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">energy_above_hull</span>
                 <span class="k">if</span> <span class="n">e_hull</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull_human&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;predicted stable phase&quot;</span>
+                    <span class="n">human_readable_hull_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;predicted stable phase&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">e_hull</span> <span class="o">&gt;=</span> <span class="mf">0.01</span><span class="p">:</span>
-                    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull_human&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">e_hull</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> eV/atom&quot;</span>
+                    <span class="n">human_readable_hull_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">e_hull</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> eV/atom&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">e_hull_str</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">format_float_scientific</span><span class="p">(</span><span class="n">e_hull</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-                    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;e_above_hull_human&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">e_hull_str</span><span class="si">}</span><span class="s2"> eV/atom&quot;</span>
+                    <span class="n">human_readable_hull_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;+</span><span class="si">{</span><span class="n">e_hull_str</span><span class="si">}</span><span class="s2"> eV/atom&quot;</span><span class="p">)</span>
 
             <span class="n">human_readable_results</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unicodeify</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;pretty_formula&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">unicodeify_spacegroup</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;spacegroup.symbol&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">) &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;e_above_hull_human&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span>
+                <span class="n">entry</span><span class="o">.</span><span class="n">material_id</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unicodeify</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">formula_pretty</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">unicodeify_spacegroup</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">symmetry</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span><span class="si">}</span><span class="s2">) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">human_readable_hull_label</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">entry</span><span class="p">,</span> <span class="n">human_readable_hull_label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">entries</span><span class="p">,</span> <span class="n">human_readable_hull_labels</span>
+                <span class="p">)</span>
             <span class="p">}</span>
 
             <span class="k">return</span> <span class="n">human_readable_results</span>
@@ -365,7 +272,7 @@
         <span class="k">def</span> <span class="nf">update_dropdown_value</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span> <span class="ow">or</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">PreventUpdate</span>
-            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;dropdown-container&quot;</span><span class="p">),</span> <span class="s2">&quot;style&quot;</span><span class="p">),</span>
@@ -400,46 +307,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2019, Crystal Toolkit Development Team.
-
-    </p>
+    <p>&#169; Copyright 2019, Crystal Toolkit Development Team.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

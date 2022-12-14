@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 
 import numpy as np
@@ -33,7 +35,7 @@ class TEMDiffractionComponent(MPComponent):
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
 
-    def layout(self):
+    def layout(self) -> Columns:
 
         voltage = self.get_numerical_input(
             kwarg_label="voltage",
@@ -67,10 +69,8 @@ class TEMDiffractionComponent(MPComponent):
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("tem-plot"), "children"),
-            [
-                Input(self.id("structure"), "data"),
-                Input(self.get_all_kwargs_id(), "value"),
-            ],
+            Input(self.id("structure"), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def generate_diffraction_pattern(structure, *args):
 
@@ -84,7 +84,7 @@ class TEMDiffractionComponent(MPComponent):
             return dcc.Graph(
                 figure=calculator.get_plot_2d(structure),
                 responsive=False,
-                config={"displayModeBar": False, "displaylogo": False},
+                config=dict(displayModeBar=False, displaylogo=False),
             )
 
 
@@ -143,7 +143,7 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def G(x, c, alpha):
-        """Return c-centered Gaussian line shape at x with HWHM alpha"""
+        """Return c-centered Gaussian line shape at x with HWHM alpha."""
         return (
             np.sqrt(np.log(2) / np.pi)
             / alpha
@@ -152,12 +152,14 @@ class XRayDiffractionComponent(MPComponent):
 
     @staticmethod
     def L(x, c, gamma):
-        """Return c-centered Lorentzian line shape at x with HWHM gamma"""
+        """Return c-centered Lorentzian line shape at x with HWHM gamma."""
         return gamma / (np.pi * ((x - c) ** 2 + gamma**2))
 
     @staticmethod
     def V(x, c, alphagamma):
-        """Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and Lorentzian profiles."""
+        """Return the c-centered Voigt line shape at x, scaled to match HWHM of Gaussian and
+        Lorentzian profiles.
+        """
         alpha = 0.61065 * alphagamma
         gamma = 0.61065 * alphagamma
         sigma = alpha / np.sqrt(2 * np.log(2))
@@ -166,32 +168,39 @@ class XRayDiffractionComponent(MPComponent):
         )
 
     @staticmethod
-    def twotheta_to_q(twotheta, xray_wavelength):
-        """
-        Convert twotheta to Q.
+    def two_theta_to_q(two_theta: float, xray_wavelength: float) -> float:
+        """Angular conversion from 2*theta to q in small-angle scattering (SAS).
 
-        :param twotheta: in degrees
-        :param xray_wavelength: in Ångstroms
-        :return:
+        Args:
+            two_theta (float): in degrees
+            xray_wavelength (float): in Ångstroms
+
+        Returns:
+            float: Q in Ångstroms^-1
         """
         # thanks @rwoodsrobinson
-        return (4 * np.pi / xray_wavelength) * np.sin(np.deg2rad(twotheta) / 2)
+        return (4 * np.pi / xray_wavelength) * np.sin(np.deg2rad(two_theta) / 2)
 
     @staticmethod
-    def grain_to_hwhm(tau, two_theta, K=0.9, wavelength="CuKa"):
-        """
-        :param tau: grain size in nm
-        :param two_theta: angle (in 2-theta)
-        :param K: shape factor (default 0.9)
-        :param wavelength: wavelength radiation in nm
-        :return: half-width half-max (alpha or gamma), for line profile
+    def grain_to_hwhm(
+        tau: float, two_theta: float, K: float = 0.9, wavelength: float | str = "CuKa"
+    ) -> float:
+        """_summary_
+
+        Args:
+            tau (float): grain size in nm
+            two_theta (float): angle (in 2-theta)
+            K (float, optional): shape factor (default 0.9). Defaults to 0.9.
+            wavelength (float | str, optional): wavelength radiation in nm. Defaults to "CuKa".
+
+        Returns:
+            float: half-width half-max (alpha or gamma), for line profile
         """
         if isinstance(wavelength, str):
             wavelength = WAVELENGTHS[wavelength]
+        # Scherrer equation for half-width half max
         # factor of 0.1 to convert wavelength to nm
-        return (
-            0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
-        )  # Scherrer equation for half-width half max
+        return 0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
 
     @property
     def _sub_layouts(self):
@@ -200,7 +209,7 @@ class XRayDiffractionComponent(MPComponent):
             "peak_profile": "G",
             "shape_factor": 0.94,
             "rad_source": "CuKa",
-            "x_axis": "twotheta",
+            "x_axis": "two_theta",
             "crystallite_size": 0.1,
         }
 
@@ -288,7 +297,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                     help_str="Can choose between 2𝜃 or Q, where Q is the magnitude of the reciprocal lattice and "
                     "independent of radiation source.",  # TODO: improve
                     options=[
-                        {"label": "2𝜃", "value": "twotheta"},
+                        {"label": "2𝜃", "value": "two_theta"},
                         {"label": "Q", "value": "Q"},
                     ],
                 )
@@ -323,14 +332,16 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             "static_image": static_image,
         }
 
-    def layout(self, static_image=False):
-        """
-        Get the standard XRD diffraction pattern layout.
+    def layout(self, static_image: bool = False) -> Columns:
+        """Get the standard XRD diffraction pattern layout.
 
-        :param static_image: If True, will show a static image instead of an interactive graph.
-        :return:
-        """
+        Args:
+            static_image (bool, optional): If True, will show a static image instead of an interactive graph.
+                Defaults to False.
 
+        Returns:
+            Columns: from crystal_toolkit.helpers.layouts
+        """
         sub_layouts = self._sub_layouts
         if static_image:
             inner = sub_layouts["static_image"]
@@ -364,7 +375,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
         hkls = [
-            "hkl: (" + " ".join([str(i) for i in hkl]) + ")" for hkl in hkl_list
+            f"hkl: ({' '.join([str(i) for i in hkl])})" for hkl in hkl_list
         ]  # convert to (h k l) format
 
         annotations = [
@@ -415,10 +426,10 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         layout = XRayDiffractionComponent.default_xrd_plot_style
 
         if x_axis == "Q":
-            x_peak = XRayDiffractionComponent.twotheta_to_q(
+            x_peak = XRayDiffractionComponent.two_theta_to_q(
                 x_peak, WAVELENGTHS[rad_source]
             )
-            x = XRayDiffractionComponent.twotheta_to_q(x, WAVELENGTHS[rad_source])
+            x = XRayDiffractionComponent.two_theta_to_q(x, WAVELENGTHS[rad_source])
             layout["xaxis"]["title"] = "Q / Å⁻¹"
         else:
             layout["xaxis"]["title"] = "2𝜃 / º"
@@ -444,14 +455,12 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("xrd-plot"), "figure"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_kwarg_id("crystallite_size"), "value"),
-                Input(self.get_kwarg_id("rad_source"), "value"),
-                Input(self.get_kwarg_id("peak_profile"), "value"),
-                Input(self.get_kwarg_id("shape_factor"), "value"),
-                Input(self.get_kwarg_id("x_axis"), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_kwarg_id("crystallite_size"), "value"),
+            Input(self.get_kwarg_id("rad_source"), "value"),
+            Input(self.get_kwarg_id("peak_profile"), "value"),
+            Input(self.get_kwarg_id("shape_factor"), "value"),
+            Input(self.get_kwarg_id("x_axis"), "value"),
         )
         def update_graph(data, logsize, rad_source, peak_profile, K, x_axis):
 
@@ -491,10 +500,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         @app.callback(
             Output(self.id(), "data"),
-            [
-                Input(self.id("structure"), "data"),
-                Input(self.get_kwarg_id("rad_source"), "value"),
-            ],
+            Input(self.id("structure"), "data"),
+            Input(self.get_kwarg_id("rad_source"), "value"),
         )
         def pattern_from_struct(struct, rad_source):
 
@@ -521,7 +528,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         # @app.callback(
         #     Output(self.id("static-image"), "src"),
-        #     [Input(self.id("xrd-plot"), "figure")]
+        #     Input(self.id("xrd-plot"), "figure")
         # )
         # def update_static_image(data):
         #
@@ -529,4 +536,4 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         #     output = scope.transform(data, format="png", width=600, height=400, scale=4)
         #     image = b64encode(output).decode('ascii')
         #
-        #     return "data:image/png;base64," + image
+        #     return f"data:image/png;base64,{image}"

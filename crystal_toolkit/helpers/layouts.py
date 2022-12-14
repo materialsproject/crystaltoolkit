@@ -29,9 +29,8 @@ Helper methods to make working with Bulma classes easier.
 
 
 def _update_css_class(kwargs, class_name):
-    """
-    Convenience function to update className while respecting
-    any additional classNames already set.
+    """Convenience function to update className while respecting any additional classNames already
+    set.
     """
     if "className" in kwargs:
         kwargs["className"] += f" {class_name}"
@@ -128,9 +127,9 @@ class MessageBody(html.Div):
 
 class Icon(html.Span):
     def __init__(self, kind="download", fill="s", *args, **kwargs):
-        """
-        Font-awesome icon. Good options for kind are "info-circle",
-        "question-circle", "book", "code".
+        """Font-awesome icon.
+
+        Good options for kind are "info-circle", "question-circle", "book", "code".
         """
         _update_css_class(kwargs, "icon")
         if "fontastic" not in kind:
@@ -314,10 +313,7 @@ class Field(html.Div):
 
 
 class Control(html.Div):
-    """
-    Control tag to wrap form elements,
-    see https://bulma.io/documentation/form/general/
-    """
+    """Control tag to wrap form elements, see https://bulma.io/documentation/form/general/"""
 
     def __init__(self, *args, **kwargs):
         _update_css_class(kwargs, "control")
@@ -332,9 +328,9 @@ def get_tooltip(
     wrapper_class: str = None,
     **kwargs,
 ):
-    """
-    Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
+    """Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
     This component uses react-tooltip under the hood.
+
     :param tooltip_label: text or component to display and apply hover behavior to
     :param tooltip_text: text to show on hover
     :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
@@ -361,8 +357,8 @@ def get_tooltip(
 
 
 def get_data_list(data: dict[str, str]):
-    """
-    Show a formatted table of data items.
+    """Show a formatted table of data items.
+
     :param data: dictionary of label, value pairs
     :return: html.Div
     """
@@ -382,8 +378,8 @@ def get_data_list(data: dict[str, str]):
 
 
 def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Table:
-    """
-    Create a HTML table from a list of elements.
+    """Create a HTML table from a list of elements.
+
     :param rows: list of list of cell contents
     :return: html.Table
     """
@@ -403,8 +399,8 @@ DOI_CACHE = loadfn(MODULE_PATH / "apps/assets/doi_cache.json")
 def cite_me(
     doi: str = None, manual_ref: str = None, cite_text: str = "Cite me"
 ) -> html.Div:
-    """
-    Create a button to show users how to cite a particular resource.
+    """Create a button to show users how to cite a particular resource.
+
     :param doi: DOI
     :param manual_ref: If DOI not available
     :param cite_text: Text to show as button label
@@ -421,11 +417,8 @@ def cite_me(
     return component
 
 
-def add_label_help(input, label, help):
-    """
-    Combine an input, label, and tooltip text into a
-    single consistent component.
-    """
+def add_label_help(input, label, help) -> mpc.FilterField:
+    """Combine an input, label, and tooltip text into a single consistent component."""
     return mpc.FilterField(input, id=uuid4().hex, label=label, tooltip=help)
 
 
@@ -438,7 +431,6 @@ class Loading(dcc.Loading):
 
 
 def get_breadcrumb(parts):
-
     if not parts:
         return html.Div()
 

@@ -5,12 +5,11 @@ import dash
 # dos and bs data from local jsons
 from monty.serialization import loadfn
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
 from crystal_toolkit.helpers.layouts import H1, Container
 from crystal_toolkit.settings import SETTINGS
 
-# create Dash app as normal, assets folder set for visual styles only
+# assets folder set for visual styles only
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # If callbacks created dynamically they cannot be statically checked at app startup.
@@ -20,8 +19,8 @@ app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 # app.config["suppress_callback_exceptions"] = True
 
 path = os.path.dirname(os.path.realpath(__file__))
-bandstructure_symm_line = loadfn(path + "/GaN_bs.json")
-density_of_states = loadfn(path + "/GaN_dos.json")
+bandstructure_symm_line = loadfn(f"{path}/GaN_bs.json")
+density_of_states = loadfn(f"{path}/GaN_dos.json")
 
 # # create the Crystal Toolkit component
 bsdos_component = ctc.BandstructureAndDosComponent(
@@ -40,7 +39,7 @@ my_layout = Container(
 ctc.register_crystal_toolkit(app, layout=my_layout)
 
 
-# allow app to be run using "python structure.py"
+# run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
 # see Dash documentation for more information
 if __name__ == "__main__":

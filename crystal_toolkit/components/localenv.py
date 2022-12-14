@@ -54,9 +54,8 @@ except ImportError:
 
 
 def _get_local_order_parameters(structure_graph, n):
-    """
-    A copy of the method in pymatgen.analysis.local_env which
-    can operate on StructureGraph directly.
+    """A copy of the method in pymatgen.analysis.local_env which can operate on StructureGraph
+    directly.
 
     Calculate those local structure order parameters for
     the given site whose ideal CN corresponds to the
@@ -75,8 +74,8 @@ def _get_local_order_parameters(structure_graph, n):
     # code from @nisse3000, moved here from graphs to avoid circular
     # import, also makes sense to have this as a general NN method
     cn = structure_graph.get_coordination_of_site(n)
-    if cn in [int(k_cn) for k_cn in cn_opt_params.keys()]:
-        names = [k for k in cn_opt_params[cn].keys()]
+    if cn in [int(k_cn) for k_cn in cn_opt_params]:
+        names = [k for k in cn_opt_params[cn]]
         types = []
         params = []
         for name in names:
@@ -204,7 +203,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("analysis"), "children"),
-            [Input(self.get_kwarg_id("algorithm"), "value")],
+            Input(self.get_kwarg_id("algorithm"), "value"),
         )
         def run_algorithm(algorithm):
 
@@ -530,7 +529,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("soap_analysis"), "children"),
-            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_analysis(struct, all_kwargs):
 
@@ -581,7 +581,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("soap_similarities"), "children"),
-            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_similarities(struct, all_kwargs):
 
@@ -645,7 +646,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 if mpid != "input"
             }
 
-            sorted_mpids = sorted(similarities.keys(), key=lambda x: -similarities[x])
+            sorted_mpids = sorted(similarities, key=lambda x: -similarities[x])
 
             print("Generating similarity graphs")
             # TODO: was much slower using px.imshow (see prev commit)
@@ -668,7 +669,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("localenv_analysis"), "children"),
-            [Input(self.id("graph"), "data")],
+            Input(self.id("graph"), "data"),
         )
         def update_localenv_analysis(graph):
 
@@ -687,10 +688,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("bondinggraph_analysis"), "children"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
         )
         def update_bondinggraph_analysis(graph, display_options):
 
@@ -728,11 +727,9 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("chemenv_analysis"), "children"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_kwarg_id("distance_cutoff"), "value"),
-                Input(self.get_kwarg_id("angle_cutoff"), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_kwarg_id("distance_cutoff"), "value"),
+            Input(self.get_kwarg_id("angle_cutoff"), "value"),
         )
         def get_chemenv_analysis(struct, distance_cutoff, angle_cutoff):
 

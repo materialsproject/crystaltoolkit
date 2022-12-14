@@ -1,70 +1,33 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>crystal_toolkit.components.bandstructure &mdash; Crystal Toolkit  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
     <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/bandstructure.html"/>
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
-          
-
-          
             <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -72,18 +35,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://next-gen.materialsproject.org/toolkit">Try The App!</a></li>
@@ -96,96 +48,64 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Crystal Toolkit</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
           <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
-        
       <li>crystal_toolkit.components.bandstructure</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for crystal_toolkit.components.bandstructure</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">itertools</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
-<span class="kn">import</span> <span class="nn">plotly.subplots</span> <span class="k">as</span> <span class="nn">tls</span>
 <span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span>
 <span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
-
 <span class="kn">from</span> <span class="nn">dash_mp_components</span> <span class="kn">import</span> <span class="n">CrystalToolkitScene</span>
-<span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">BandStructureSymmLine</span><span class="p">,</span>
     <span class="n">BandStructure</span><span class="p">,</span>
+    <span class="n">BandStructureSymmLine</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">CompleteDos</span>
-<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="kn">import</span> <span class="n">BSPlotter</span><span class="p">,</span> <span class="n">fold_point</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="kn">import</span> <span class="n">BSPlotter</span>
+<span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="kn">import</span> <span class="n">HighSymmKpath</span>
 
-<span class="kn">from</span> <span class="nn">crystal_toolkit.core.scene</span> <span class="kn">import</span> <span class="n">Scene</span><span class="p">,</span> <span class="n">Lines</span><span class="p">,</span> <span class="n">Spheres</span><span class="p">,</span> <span class="n">Convex</span><span class="p">,</span> <span class="n">Cylinders</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.panelcomponent</span> <span class="kn">import</span> <span class="n">PanelComponent</span>
-<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.core.scene</span> <span class="kn">import</span> <span class="n">Convex</span><span class="p">,</span> <span class="n">Cylinders</span><span class="p">,</span> <span class="n">Lines</span><span class="p">,</span> <span class="n">Scene</span><span class="p">,</span> <span class="n">Spheres</span>
+<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Column</span><span class="p">,</span>
+    <span class="n">Columns</span><span class="p">,</span>
+    <span class="n">Label</span><span class="p">,</span>
+    <span class="n">Loading</span><span class="p">,</span>
+    <span class="n">MessageBody</span><span class="p">,</span>
+    <span class="n">MessageContainer</span><span class="p">,</span>
+    <span class="n">dcc</span><span class="p">,</span>
+    <span class="n">get_data_list</span><span class="p">,</span>
+    <span class="n">html</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># Author: Jason Munro</span>
 <span class="c1"># Contact: jmunro@lbl.gov</span>
@@ -226,7 +146,13 @@
         <span class="n">fig</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">dos</span><span class="p">)</span>
         <span class="c1"># Main plot</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">Loading</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span><span class="p">,)],</span>
+            <span class="p">[</span>
+                <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span>
+                    <span class="n">figure</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;displayModeBar&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                    <span class="n">responsive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
             <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;bsdos-div&quot;</span><span class="p">),</span>
         <span class="p">)</span>
 
@@ -249,7 +175,10 @@
                     <span class="n">options</span><span class="o">=</span><span class="p">[</span>
                         <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Latimer-Munro&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">},</span>
                         <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Hinuma et al.&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;hin&quot;</span><span class="p">},</span>
-                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,},</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,</span>
+                        <span class="p">},</span>
                     <span class="p">],</span>
                 <span class="p">)</span>
             <span class="p">],</span>
@@ -270,7 +199,10 @@
                     <span class="n">options</span><span class="o">=</span><span class="p">[</span>
                         <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Latimer-Munro&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;lm&quot;</span><span class="p">},</span>
                         <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Hinuma et al.&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;hin&quot;</span><span class="p">},</span>
-                        <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,},</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Setyawan-Curtarolo&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;sc&quot;</span><span class="p">,</span>
+                        <span class="p">},</span>
                     <span class="p">],</span>
                 <span class="p">)</span>
             <span class="p">],</span>
@@ -302,24 +234,25 @@
         <span class="p">}</span>
 
 <div class="viewcode-block" id="BandstructureAndDosComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sub_layouts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span>
         <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="n">Columns</span><span class="p">([</span><span class="n">Column</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">]])]),</span>
+                <span class="n">Columns</span><span class="p">([</span><span class="n">Column</span><span class="p">([</span><span class="n">sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">]])]),</span>
                 <span class="n">Columns</span><span class="p">(</span>
                     <span class="p">[</span>
                         <span class="n">Column</span><span class="p">(</span>
                             <span class="p">[</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;convention&quot;</span><span class="p">],</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;label-select&quot;</span><span class="p">],</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;dos-select&quot;</span><span class="p">],</span>
+                                <span class="n">sub_layouts</span><span class="p">[</span><span class="s2">&quot;convention&quot;</span><span class="p">],</span>
+                                <span class="n">sub_layouts</span><span class="p">[</span><span class="s2">&quot;label-select&quot;</span><span class="p">],</span>
+                                <span class="n">sub_layouts</span><span class="p">[</span><span class="s2">&quot;dos-select&quot;</span><span class="p">],</span>
                             <span class="p">]</span>
                         <span class="p">)</span>
                     <span class="p">]</span>
                 <span class="p">),</span>
                 <span class="n">Columns</span><span class="p">(</span>
                     <span class="p">[</span>
-                        <span class="n">Column</span><span class="p">([</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Summary&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]]),</span>
-                        <span class="n">Column</span><span class="p">([</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Brillouin Zone&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;zone&quot;</span><span class="p">]]),</span>
+                        <span class="n">Column</span><span class="p">([</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Summary&quot;</span><span class="p">),</span> <span class="n">sub_layouts</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]]),</span>
+                        <span class="n">Column</span><span class="p">([</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Brillouin Zone&quot;</span><span class="p">),</span> <span class="n">sub_layouts</span><span class="p">[</span><span class="s2">&quot;zone&quot;</span><span class="p">]]),</span>
                     <span class="p">]</span>
                 <span class="p">),</span>
             <span class="p">]</span>
@@ -338,7 +271,7 @@
         <span class="n">bandstructure_symm_line</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bandstructure_symm_line&quot;</span><span class="p">)</span>
         <span class="n">density_of_states</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;density_of_states&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">mpid</span> <span class="ow">and</span> <span class="p">(</span><span class="n">bandstructure_symm_line</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">density_of_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mpid</span> <span class="ow">and</span> <span class="n">bandstructure_symm_line</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">density_of_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">mpid</span><span class="p">:</span>
@@ -509,7 +442,7 @@
                 <span class="p">):</span>
                     <span class="n">bands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">band_num</span><span class="p">)</span>
 
-        <span class="n">bstraces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bs_traces</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">cbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_cbm</span><span class="p">()</span>
         <span class="n">vbm</span> <span class="o">=</span> <span class="n">bs</span><span class="o">.</span><span class="n">get_vbm</span><span class="p">()</span>
@@ -563,7 +496,7 @@
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bands</span>
                 <span class="p">]</span>
 
-            <span class="n">bstraces</span> <span class="o">+=</span> <span class="n">traces_for_segment</span>
+            <span class="n">bs_traces</span> <span class="o">+=</span> <span class="n">traces_for_segment</span>
 
             <span class="n">bar_loc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist_val</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
@@ -586,7 +519,7 @@
         <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">entry_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">])):</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">str_replace</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">str_replace</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]:</span>
                     <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span><span class="n">entry_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">][</span>
                         <span class="n">entry_num</span>
@@ -607,7 +540,7 @@
             <span class="k">for</span> <span class="n">x_point</span> <span class="ow">in</span> <span class="n">bar_loc</span>
         <span class="p">]</span>
 
-        <span class="n">bstraces</span> <span class="o">+=</span> <span class="n">vert_traces</span>
+        <span class="n">bs_traces</span> <span class="o">+=</span> <span class="n">vert_traces</span>
 
         <span class="c1"># Dots for cbm and vbm</span>
 
@@ -624,9 +557,7 @@
                 <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;hovertemplate&quot;</span><span class="p">:</span> <span class="s2">&quot;CBM: k = </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2"> eV&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="nb">list</span><span class="p">(</span><span class="n">cbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span> <span class="n">cbm</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
-                <span class="p">),</span>
+                <span class="s2">&quot;hovertemplate&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;CBM: k = </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">cbm</span><span class="p">[</span><span class="s1">&#39;kpoint&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">cbm</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
             <span class="p">}</span>
@@ -644,29 +575,27 @@
                 <span class="s2">&quot;showlegend&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="s2">&quot;hoverinfo&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;hovertemplate&quot;</span><span class="p">:</span> <span class="s2">&quot;VBM: k = </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2"> eV&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="nb">list</span><span class="p">(</span><span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;kpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">),</span> <span class="n">vbm</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
-                <span class="p">),</span>
+                <span class="s2">&quot;hovertemplate&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;VBM: k = </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">vbm</span><span class="p">[</span><span class="s1">&#39;kpoint&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">vbm</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">x_point</span><span class="p">,</span> <span class="n">y_point</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">vbm_new</span><span class="p">)</span>
         <span class="p">]</span>
 
-        <span class="n">bstraces</span> <span class="o">+=</span> <span class="n">dot_traces</span>
+        <span class="n">bs_traces</span> <span class="o">+=</span> <span class="n">dot_traces</span>
 
-        <span class="k">return</span> <span class="n">bstraces</span><span class="p">,</span> <span class="n">bs_data</span></div>
+        <span class="k">return</span> <span class="n">bs_traces</span><span class="p">,</span> <span class="n">bs_data</span></div>
 
 <div class="viewcode-block" id="BandstructureAndDosComponent.get_dos_traces"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.bandstructure.html#crystal_toolkit.components.bandstructure.BandstructureAndDosComponent.get_dos_traces">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_dos_traces</span><span class="p">(</span><span class="n">dos</span><span class="p">,</span> <span class="n">dos_select</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)):</span>
 
         <span class="n">dostraces</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">dos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-        <span class="n">dos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+        <span class="n">dos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+        <span class="n">dos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">energies</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span> <span class="o">-</span> <span class="n">energy_window</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
 
         <span class="c1"># TODO: pymatgen should have a property here</span>
-        <span class="n">spin_polarized</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="n">spin_polarized</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
 
         <span class="k">if</span> <span class="n">spin_polarized</span><span class="p">:</span>
             <span class="c1"># Add second spin data if available</span>
@@ -704,11 +633,10 @@
 
         <span class="n">dostraces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trace_tdos</span><span class="p">)</span>
 
-        <span class="n">ele_dos</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_dos</span><span class="p">()</span>
-        <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ele_dos</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
-
-        <span class="k">if</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;ap&quot;</span><span class="p">:</span>
-            <span class="n">proj_data</span> <span class="o">=</span> <span class="n">ele_dos</span>
+        <span class="k">if</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;tot&quot;</span><span class="p">:</span>
+            <span class="n">proj_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">elif</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;ap&quot;</span><span class="p">:</span>
+            <span class="n">proj_data</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_element_dos</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">dos_select</span> <span class="o">==</span> <span class="s2">&quot;op&quot;</span><span class="p">:</span>
             <span class="n">proj_data</span> <span class="o">=</span> <span class="n">dos</span><span class="o">.</span><span class="n">get_spd_dos</span><span class="p">()</span>
         <span class="k">elif</span> <span class="s2">&quot;orb&quot;</span> <span class="ow">in</span> <span class="n">dos_select</span><span class="p">:</span>
@@ -728,21 +656,21 @@
             <span class="s2">&quot;#e377c2&quot;</span><span class="p">,</span>  <span class="c1"># raspberry yogurt pink</span>
         <span class="p">]</span>
 
-        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">proj_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">proj_data</span><span class="p">:</span>
 
             <span class="k">if</span> <span class="n">spin_polarized</span><span class="p">:</span>
                 <span class="n">trace</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">proj_data</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">densities</span><span class="p">[</span><span class="n">Spin</span><span class="o">.</span><span class="n">down</span><span class="p">][</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">],</span>
                     <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">dos</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="n">dos_min</span><span class="p">:</span><span class="n">dos_max</span><span class="p">]</span> <span class="o">-</span> <span class="n">dos</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span>
                     <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (spin ↓)&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (spin ↓)&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">count</span><span class="p">],</span> <span class="n">dash</span><span class="o">=</span><span class="s2">&quot;dot&quot;</span><span class="p">),</span>
                     <span class="s2">&quot;xaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;yaxis&quot;</span><span class="p">:</span> <span class="s2">&quot;y2&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
 
                 <span class="n">dostraces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
-                <span class="n">spin_up_label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (spin ↑)&quot;</span>
+                <span class="n">spin_up_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (spin ↑)&quot;</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">spin_up_label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
@@ -779,99 +707,111 @@
 
             <span class="k">return</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">empty_plot_style</span><span class="p">)</span>
 
+        <span class="c1"># -- Add trace data to plots</span>
+
+        <span class="n">traces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">xaxis_style</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">yaxis_style</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">xaxis_style_dos</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">yaxis_style_dos</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">bs</span><span class="p">:</span>
-            <span class="n">bstraces</span><span class="p">,</span> <span class="n">bs_data</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">get_bandstructure_traces</span><span class="p">(</span>
+            <span class="n">bs_traces</span><span class="p">,</span> <span class="n">bs_data</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">get_bandstructure_traces</span><span class="p">(</span>
                 <span class="n">bs</span><span class="p">,</span> <span class="n">path_convention</span><span class="o">=</span><span class="n">path_convention</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="n">energy_window</span>
+            <span class="p">)</span>
+            <span class="n">traces</span> <span class="o">+=</span> <span class="n">bs_traces</span>
+
+            <span class="n">xaxis_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Wave Vector&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
+                <span class="n">tickmode</span><span class="o">=</span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+                <span class="n">tickvals</span><span class="o">=</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;distance&quot;</span><span class="p">],</span>
+                <span class="n">ticktext</span><span class="o">=</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
+                <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+                <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+                <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">mirror</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;distance&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+                <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
+                <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">yaxis_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;E−E&lt;sub&gt;fermi&lt;/sub&gt; (eV)&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
+                <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+                <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">zeroline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">mirror</span><span class="o">=</span><span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
+                <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+                <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
+                <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dos</span><span class="p">:</span>
             <span class="n">dostraces</span> <span class="o">=</span> <span class="n">BandstructureAndDosComponent</span><span class="o">.</span><span class="n">get_dos_traces</span><span class="p">(</span>
                 <span class="n">dos</span><span class="p">,</span> <span class="n">dos_select</span><span class="o">=</span><span class="n">dos_select</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="n">energy_window</span>
             <span class="p">)</span>
+            <span class="n">traces</span> <span class="o">+=</span> <span class="n">dostraces</span>
 
-        <span class="c1"># TODO: add logic to handle if bstraces and/or dostraces not present</span>
-
-        <span class="n">rmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-            <span class="p">[</span>
+            <span class="n">list_max</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="nb">max</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]),</span>
                 <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">])),</span>
-                <span class="nb">max</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]),</span>
-                <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">])),</span>
             <span class="p">]</span>
-        <span class="p">)</span>
 
-        <span class="c1"># -- Add trace data to plots</span>
+            <span class="c1"># check the max of the second dos trace only if spin polarized</span>
+            <span class="n">spin_polarized</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">spin_polarized</span><span class="p">:</span>
+                <span class="n">list_max</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="nb">max</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]),</span>
+                        <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dostraces</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">])),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="n">rmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">list_max</span><span class="p">)</span>
 
-        <span class="n">xaxis_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Wave Vector&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
-            <span class="n">tickmode</span><span class="o">=</span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
-            <span class="n">tickvals</span><span class="o">=</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;distance&quot;</span><span class="p">],</span>
-            <span class="n">ticktext</span><span class="o">=</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
-            <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
-            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
-            <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">mirror</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;ticks&quot;</span><span class="p">][</span><span class="s2">&quot;distance&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
-            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
-            <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="n">xaxis_style_dos</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Density of States&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
+                <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+                <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">mirror</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">rmax</span> <span class="o">*</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dos</span><span class="o">.</span><span class="n">densities</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">),</span> <span class="n">rmax</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">],</span>
+                <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
+                <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="n">yaxis_style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;E−E&lt;sub&gt;fermi&lt;/sub&gt; (eV)&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
-            <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
-            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">zeroline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">mirror</span><span class="o">=</span><span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
-            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
-            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
-            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
-            <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-            <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">xaxis_style_dos</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Density of States&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)),</span>
-            <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
-            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">mirror</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
-            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">rmax</span> <span class="o">*</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bs_data</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">),</span> <span class="n">rmax</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,],</span>
-            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
-            <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-            <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-            <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">yaxis_style_dos</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
-            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">zeroline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">showticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">mirror</span><span class="o">=</span><span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
-            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
-            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
-            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
-            <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-            <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-            <span class="n">matches</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
-            <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;x2&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="n">yaxis_style_dos</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">tickfont</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+                <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">zeroline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">showticklabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">mirror</span><span class="o">=</span><span class="s2">&quot;ticks&quot;</span><span class="p">,</span>
+                <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">tickwidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">zerolinewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+                <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;rgb(71,71,71)&quot;</span><span class="p">,</span>
+                <span class="n">gridcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                <span class="n">zerolinecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                <span class="n">matches</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+                <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;x2&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="n">layout</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -889,7 +829,7 @@
             <span class="c1"># clickmode=&quot;event+select&quot;</span>
         <span class="p">)</span>
 
-        <span class="n">figure</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">bstraces</span> <span class="o">+</span> <span class="n">dostraces</span><span class="p">,</span> <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="n">layout</span><span class="p">}</span>
+        <span class="n">figure</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">traces</span><span class="p">,</span> <span class="s2">&quot;layout&quot;</span><span class="p">:</span> <span class="n">layout</span><span class="p">}</span>
 
         <span class="n">legend</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">x</span><span class="o">=</span><span class="mf">1.02</span><span class="p">,</span>
@@ -926,18 +866,12 @@
         <span class="k">def</span> <span class="nf">update_graph</span><span class="p">(</span><span class="n">traces</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="n">traces</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
-                <span class="n">search_error</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">MessageContainer</span><span class="p">(</span>
-                        <span class="p">[</span>
-                            <span class="n">MessageBody</span><span class="p">(</span>
-                                <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span>
-                                    <span class="s2">&quot;Band structure and density of states not available for this selection.&quot;</span>
-                                <span class="p">)</span>
-                            <span class="p">)</span>
-                        <span class="p">],</span>
-                        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
-                    <span class="p">),</span>
+                <span class="n">body</span> <span class="o">=</span> <span class="n">MessageBody</span><span class="p">(</span>
+                    <span class="n">dcc</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span>
+                        <span class="s2">&quot;Band structure and density of states not available for this selection.&quot;</span>
+                    <span class="p">)</span>
                 <span class="p">)</span>
+                <span class="n">search_error</span> <span class="o">=</span> <span class="n">MessageContainer</span><span class="p">([</span><span class="n">body</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">search_error</span>
 
             <span class="k">if</span> <span class="n">traces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -988,8 +922,8 @@
                     <span class="o">+</span> <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - Total&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">}]</span>
                     <span class="o">+</span> <span class="p">[</span>
                         <span class="p">{</span>
-                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
-                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;orb&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Orbital Projected - </span><span class="si">{</span><span class="n">ele_label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;orb</span><span class="si">{</span><span class="n">ele_label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                         <span class="p">}</span>
                         <span class="k">for</span> <span class="n">ele_label</span> <span class="ow">in</span> <span class="n">elements</span>
                     <span class="p">]</span>
@@ -1005,8 +939,8 @@
                     <span class="o">+</span> <span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - Total&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">}]</span>
                     <span class="o">+</span> <span class="p">[</span>
                         <span class="p">{</span>
-                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Orbital Projected - &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
-                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;orb&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ele_label</span><span class="p">),</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Orbital Projected - </span><span class="si">{</span><span class="n">ele_label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;orb</span><span class="si">{</span><span class="n">ele_label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                         <span class="p">}</span>
                         <span class="k">for</span> <span class="n">ele_label</span> <span class="ow">in</span> <span class="n">elements</span>
                     <span class="p">]</span>
@@ -1031,9 +965,7 @@
                 <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;label-select&quot;</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">bs_dos_data</span><span class="p">(</span>
-            <span class="n">data</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">,</span> <span class="n">dos_select</span><span class="p">,</span> <span class="n">label_select</span><span class="p">,</span>
-        <span class="p">):</span>
+        <span class="k">def</span> <span class="nf">bs_dos_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">,</span> <span class="n">dos_select</span><span class="p">,</span> <span class="n">label_select</span><span class="p">):</span>
 
             <span class="c1"># Obtain bands to plot over and generate traces for bs data:</span>
             <span class="n">energy_window</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
@@ -1041,10 +973,10 @@
             <span class="n">traces</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">if</span> <span class="n">bandstructure_symm_line</span><span class="p">:</span>
-                <span class="n">bstraces</span> <span class="o">=</span> <span class="n">get_bandstructure_traces</span><span class="p">(</span>
+                <span class="n">bs_traces</span> <span class="o">=</span> <span class="n">get_bandstructure_traces</span><span class="p">(</span>
                     <span class="n">bsml</span><span class="p">,</span> <span class="n">path_convention</span><span class="p">,</span> <span class="n">energy_window</span><span class="o">=</span><span class="n">energy_window</span>
                 <span class="p">)</span>
-                <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bstraces</span><span class="p">)</span>
+                <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bs_traces</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">density_of_states</span><span class="p">:</span>
                 <span class="n">dostraces</span> <span class="o">=</span> <span class="n">get_dos_traces</span><span class="p">(</span>
@@ -1052,7 +984,7 @@
                 <span class="p">)</span>
                 <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dostraces</span><span class="p">)</span>
 
-            <span class="c1"># traces = [bstraces, dostraces, bs_data]</span>
+            <span class="c1"># traces = [bs_traces, dostraces, bs_data]</span>
 
             <span class="k">return</span> <span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">elements</span><span class="p">)</span></div></div>
 
@@ -1086,46 +1018,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2019, Crystal Toolkit Development Team.
-
-    </p>
+    <p>&#169; Copyright 2019, Crystal Toolkit Development Team.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

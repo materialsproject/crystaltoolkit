@@ -100,7 +100,7 @@ Since callbacks do not rely on any external state, they are easy to cache.
 Caching is supported by many Crystal Toolkit components, but by default
 caching is in-memory only and not thread safe.
 
-Any `Flask-Caching <https://pythonhosted.org/Flask-Caching/>`_
+Any `Flask-Caching <https://pythonhosted.org/Flask-Cache>`_
 backend is supported, we recommend ``RedisCache``:
 
 ::

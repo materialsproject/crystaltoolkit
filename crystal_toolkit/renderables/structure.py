@@ -12,9 +12,7 @@ from crystal_toolkit.core.scene import Scene
 
 
 def _get_sites_to_draw(self, draw_image_atoms=True):
-    """
-    Returns a list of site indices and image vectors.
-    """
+    """Returns a list of site indices and image vectors."""
 
     sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(self))]
 

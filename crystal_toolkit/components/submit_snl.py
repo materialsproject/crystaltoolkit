@@ -3,7 +3,7 @@ from urllib import parse
 import requests
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from mp_api import MPRester
+from mp_api.client import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.util.provenance import StructureNL
 
@@ -24,11 +24,10 @@ MP_CLIENT_KEY = os.environ.get("MP_CLIENT_KEY")
 
 
 class SubmitSNLPanel(PanelComponent):
-    """
-    This component is designed solely for use in the Materials Project
-    infrastructure. It requires a component "url.search" in the app
-    layout to work, from which a token will be extracted, and also requires
-    a "SearchComponent_search_container" component.
+    """This component is designed solely for use in the Materials Project infrastructure.
+
+    It requires a component "url.search" in the app layout to work, from which a token will be
+    extracted, and also requires a "SearchComponent_search_container" component.
     """
 
     def __init__(self, *args, url_id=None, **kwargs):
@@ -85,12 +84,10 @@ class SubmitSNLPanel(PanelComponent):
             return contents
 
         @app.callback(
-            [
-                Output(self.id("panel"), "style"),
-                # for MP Crystal Toolkit app only, this is brittle(!)
-                Output("SearchComponent_search_container", "style"),
-            ],
-            [Input("url", "search")],
+            Output(self.id("panel"), "style"),
+            # for MP Crystal Toolkit app only, this is brittle(!)
+            Output("SearchComponent_search_container", "style"),
+            Input("url", "search"),
         )
         def hide_panel_if_no_token(url):
 
@@ -103,12 +100,10 @@ class SubmitSNLPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("info"), "children"),
-            [
-                Input(self.id(), "data"),
-                Input(self.id("comments"), "value"),
-                Input(self.id("panel"), "open"),
-                Input("url", "search"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.id("comments"), "value"),
+            Input(self.id("panel"), "open"),
+            Input("url", "search"),
         )
         def generate_description(structure, comments, panel_open, url):
 
@@ -141,12 +136,10 @@ For more information, see the Materials Project
 
         @app.callback(
             Output(self.id("confirmation"), "children"),
-            [Input(self.id("submit"), "n_clicks")],
-            [
-                State(self.id(), "data"),
-                State(self.id("comments"), "value"),
-                State("url", "search"),
-            ],
+            Input(self.id("submit"), "n_clicks"),
+            State(self.id(), "data"),
+            State(self.id("comments"), "value"),
+            State("url", "search"),
         )
         def submit_snl(n_clicks, structure, comments, url):
 

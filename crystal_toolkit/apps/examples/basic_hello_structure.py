@@ -5,9 +5,9 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
 import crystal_toolkit.components as ctc
+from crystal_toolkit.settings import SETTINGS
 
-# app = dash.Dash(external_stylesheets=['https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css'])
-app = dash.Dash()
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # create our crystal structure using pymatgen
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])

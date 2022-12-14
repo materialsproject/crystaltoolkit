@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.9
 LABEL maintainer="mkhorton@lbl.gov"
 
 RUN apt-get update && apt-get install vim gfortran povray -y
@@ -20,10 +20,7 @@ RUN git clone --recursive https://github.com/msg-byu/enumlib.git && \
 WORKDIR /home/app
 
 RUN pip install --upgrade --no-cache-dir pip && \
-    pip install --no-cache-dir poetry
-
-ADD poetry.lock pyproject.toml /home/app/
-RUN mkdir /home/.cache && poetry config virtualenvs.path /home/.cache/ && poetry install -E server && poetry update
+    pip install -r requirements/ubuntu-latest_py3.9_extras.txt
 
 # whether to embed in materialsproject.org or not
 ENV CRYSTAL_TOOLKIT_MP_EMBED_MODE=False
@@ -42,4 +39,4 @@ ENV CRYSTAL_TOOLKIT_DEBUG_MODE=False
 ADD . /home/app
 
 EXPOSE 8000
-CMD poetry run gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 crystal_toolkit.apps.main:server
+CMD gunicorn --workers=$CRYSTAL_TOOLKIT_NUM_WORKERS --timeout=300 --bind=0.0.0.0 crystal_toolkit.apps.main:server

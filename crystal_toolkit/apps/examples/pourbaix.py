@@ -2,11 +2,10 @@ import dash
 from dash import html
 from pymatgen.ext.matproj import MPRester
 
-# standard Crystal Toolkit import
 import crystal_toolkit.components as ctc
+from crystal_toolkit.settings import SETTINGS
 
-# create Dash app as normal
-app = dash.Dash()
+app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # If callbacks created dynamically they cannot be statically checked at app startup.
 # For this simple example this is not a problem, but if creating a complicated,
@@ -27,12 +26,13 @@ my_layout = html.Div(
         html.Button("Get Pourbaix Diagram", id="get-pourbaix"),
         pourbaix_component.layout(),
         html.Div(id="pourbaix-output"),
-    ]
+    ],
+    style=dict(maxWidth="90vw", margin="2em auto"),
 )
 
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
-# allow app to be run using "python structure.py"
+# run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
 # see Dash documentation for more information
 if __name__ == "__main__":

@@ -443,7 +443,7 @@ class BandstructureAndDosComponent(MPComponent):
         }
 
         for entry_num in range(len(bs_data["ticks"]["label"])):
-            for key in str_replace.keys():
+            for key in str_replace:
                 if key in bs_data["ticks"]["label"][entry_num]:
                     bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
                         entry_num
@@ -519,7 +519,7 @@ class BandstructureAndDosComponent(MPComponent):
         dos_min = np.abs(dos.energies - dos.efermi - energy_window[0]).argmin()
 
         # TODO: pymatgen should have a property here
-        spin_polarized = len(dos.densities.keys()) == 2
+        spin_polarized = len(dos.densities) == 2
 
         if spin_polarized:
             # Add second spin data if available
@@ -580,21 +580,21 @@ class BandstructureAndDosComponent(MPComponent):
             "#e377c2",  # raspberry yogurt pink
         ]
 
-        for label in proj_data.keys():
+        for label in proj_data:
 
             if spin_polarized:
                 trace = {
                     "x": -1.0 * proj_data[label].densities[Spin.down][dos_min:dos_max],
                     "y": dos.energies[dos_min:dos_max] - dos.efermi,
                     "mode": "lines",
-                    "name": str(label) + " (spin ↓)",
+                    "name": f"{label} (spin ↓)",
                     "line": dict(width=3, color=colors[count], dash="dot"),
                     "xaxis": "x2",
                     "yaxis": "y2",
                 }
 
                 dostraces.append(trace)
-                spin_up_label = str(label) + " (spin ↑)"
+                spin_up_label = f"{label} (spin ↑)"
 
             else:
                 spin_up_label = str(label)
@@ -691,7 +691,7 @@ class BandstructureAndDosComponent(MPComponent):
             ]
 
             # check the max of the second dos trace only if spin polarized
-            spin_polarized = len(dos.densities.keys()) == 2
+            spin_polarized = len(dos.densities) == 2
             if spin_polarized:
                 list_max.extend(
                     [
@@ -810,14 +810,10 @@ class BandstructureAndDosComponent(MPComponent):
             ]
 
         @app.callback(
-            [
-                Output(self.id("label-select"), "value"),
-                Output(self.id("label-container"), "style"),
-            ],
-            [
-                Input(self.id("mpid"), "data"),
-                Input(self.id("path-convention"), "value"),
-            ],
+            Output(self.id("label-select"), "value"),
+            Output(self.id("label-container"), "style"),
+            Input(self.id("mpid"), "data"),
+            Input(self.id("path-convention"), "value"),
         )
         def update_label_select(mpid, path_convention):
             if not mpid:
@@ -830,12 +826,11 @@ class BandstructureAndDosComponent(MPComponent):
                 return [label_value, label_style]
 
         @app.callback(
-            [
-                Output(self.id("dos-select"), "options"),
-                Output(self.id("path-convention"), "options"),
-                Output(self.id("path-container"), "style"),
-            ],
-            [Input(self.id("elements"), "data"), Input(self.id("mpid"), "data")],
+            Output(self.id("dos-select"), "options"),
+            Output(self.id("path-convention"), "options"),
+            Output(self.id("path-container"), "style"),
+            Input(self.id("elements"), "data"),
+            Input(self.id("mpid"), "data"),
         )
         def update_select(elements, mpid):
             if elements is None:
@@ -846,8 +841,8 @@ class BandstructureAndDosComponent(MPComponent):
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
                     + [
                         {
-                            "label": "Orbital Projected - " + str(ele_label),
-                            "value": "orb" + str(ele_label),
+                            "label": f"Orbital Projected - {ele_label}",
+                            "value": f"orb{ele_label}",
                         }
                         for ele_label in elements
                     ]
@@ -863,8 +858,8 @@ class BandstructureAndDosComponent(MPComponent):
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
                     + [
                         {
-                            "label": "Orbital Projected - " + str(ele_label),
-                            "value": "orb" + str(ele_label),
+                            "label": f"Orbital Projected - {ele_label}",
+                            "value": f"orb{ele_label}",
                         }
                         for ele_label in elements
                     ]
@@ -881,13 +876,12 @@ class BandstructureAndDosComponent(MPComponent):
                 return [dos_options, path_options, path_style]
 
         @app.callback(
-            [Output(self.id("traces"), "data"), Output(self.id("elements"), "data")],
-            [
-                Input(self.id(), "data"),
-                Input(self.id("path-convention"), "value"),
-                Input(self.id("dos-select"), "value"),
-                Input(self.id("label-select"), "value"),
-            ],
+            Output(self.id("traces"), "data"),
+            Output(self.id("elements"), "data"),
+            Input(self.id(), "data"),
+            Input(self.id("path-convention"), "value"),
+            Input(self.id("dos-select"), "value"),
+            Input(self.id("label-select"), "value"),
         )
         def bs_dos_data(data, path_convention, dos_select, label_select):
 
