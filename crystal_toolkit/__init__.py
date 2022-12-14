@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
 from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
 
 from monty.json import MSONable
 
