@@ -417,7 +417,7 @@ Sub-layouts:  \n{layouts}"""
         """
 
         state = state or {}
-        default = np.full(shape, default or state.get(kwarg_label))
+        default = np.full(shape, state.get(kwarg_label) if default is None else default)
         default = np.reshape(default, shape)
 
         style = {
@@ -459,7 +459,6 @@ Sub-layouts:  \n{layouts}"""
                     value=int(value) if value is not None else None,
                     persistence=True,
                     type="number",
-                    step=1,
                     **kwargs,
                 )
 

@@ -60,6 +60,7 @@ The [Crystal Toolkit Development Team](https://github.com/materialsproject/cryst
 * [Stephen Weitzner](https://github.com/sweitzner) contributed POV-Ray integration (in progress)
 * [Richard Tran](https://github.com/CifLord) for contributing plotly-powered Wulff shapes to pymatgen, which Crystal Toolkit uses
 * [Guy Moore](https://github.com/guymoore13) for contributing magnetic moment visualization
+* [Steve Zeltmann](https://github.com/sezelt) for contributing electron diffraction
 
 New contributors are welcome, please see our [Code of Conduct.](code-of-conduct.md) If you are a new contributor please modify this README in your Pull Request to add your name to the list.
 
