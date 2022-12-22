@@ -14,7 +14,7 @@ The catalysis app has two primary tabs:
 2. The binary visualization tab
 For ease of understanding and modularity, each tab has a function defined to get the layout: ``get_search_layout`` and ``get_visualization_layout``. There is a third function called ``get_layout``, which is actually called to establish the layout for the app and calls the two other functions.
 
-The app queries the OC20 dataset from MPContribs. An example of this is within ``get_plot_data`` for the binary visualization. 
+The app queries the OC20 dataset from MPContribs. An example of this is within ``get_plot_data`` for the binary visualization.
 
 To support interactivity with the binary visualization, the app uses two different callbacks, which are contained within the ``generate_callbacks`` function. The first, ``update_figure``, handles the querying of data presentation of it in the plot. The second, ``display_click_data`` updates a supplementary table of information when the user clicks on a grid point. ``generate_callbacks`` is a good example of how to establish callbacks, how to use the decorator for callbacks (``@app.callback()``), and how to establish data caching with the ``@cache.memoize()`` decorator when it is advantageous to do so.
 
