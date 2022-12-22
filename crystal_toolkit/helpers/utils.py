@@ -1,3 +1,4 @@
+import logging
 import re
 from fractions import Fraction
 from typing import Any, Optional
@@ -11,8 +12,11 @@ from flask import has_request_context, request
 from monty.serialization import loadfn
 from mpcontribs.client import Client as MPContribsClient
 
-from crystal_toolkit import _DEFAULTS, MODULE_PATH
+from crystal_toolkit import MODULE_PATH
+from crystal_toolkit.defaults import _DEFAULTS
 from crystal_toolkit.settings import SETTINGS
+
+logger = logging.getLogger(__name__)
 
 
 def update_object_args(d_args, object_name, allowed_args):
@@ -257,7 +261,6 @@ def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book")
     return button
 
 
-# TODO: move to crystal-toolkit when stable
 def get_data_table(
     df=None, virtualized=True, columns=None, column_widths=None, **kwargs
 ):

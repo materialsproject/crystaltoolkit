@@ -203,7 +203,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("analysis"), "children"),
-            [Input(self.get_kwarg_id("algorithm"), "value")],
+            Input(self.get_kwarg_id("algorithm"), "value"),
         )
         def run_algorithm(algorithm):
 
@@ -529,7 +529,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("soap_analysis"), "children"),
-            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_analysis(struct, all_kwargs):
 
@@ -580,7 +581,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("soap_similarities"), "children"),
-            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_similarities(struct, all_kwargs):
 
@@ -667,7 +669,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("localenv_analysis"), "children"),
-            [Input(self.id("graph"), "data")],
+            Input(self.id("graph"), "data"),
         )
         def update_localenv_analysis(graph):
 
@@ -686,10 +688,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("bondinggraph_analysis"), "children"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
         )
         def update_bondinggraph_analysis(graph, display_options):
 
@@ -727,11 +727,9 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("chemenv_analysis"), "children"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_kwarg_id("distance_cutoff"), "value"),
-                Input(self.get_kwarg_id("angle_cutoff"), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_kwarg_id("distance_cutoff"), "value"),
+            Input(self.get_kwarg_id("angle_cutoff"), "value"),
         )
         def get_chemenv_analysis(struct, distance_cutoff, angle_cutoff):
 

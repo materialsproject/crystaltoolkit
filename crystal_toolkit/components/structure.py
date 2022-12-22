@@ -318,11 +318,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph"), "data"),
-            [
-                Input(self.id("graph_generation_options"), "data"),
-                Input(self.id(), "data"),
-            ],
-            [State(self.id("graph"), "data")],
+            Input(self.id("graph_generation_options"), "data"),
+            Input(self.id(), "data"),
+            State(self.id("graph"), "data"),
         )
         @cache.memoize()
         def update_graph(graph_generation_options, struct_or_mol, current_graph):
@@ -358,11 +356,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("scene"), "data"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-                Input(self.id("scene_additions"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
+            Input(self.id("scene_additions"), "data"),
         )
         @cache.memoize()
         def update_scene(graph, display_options, scene_additions):
@@ -377,11 +373,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("legend_data"), "data"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-                Input(self.id("scene_additions"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
+            Input(self.id("scene_additions"), "data"),
         )
         @cache.memoize()
         def update_legend_and_colors(graph, display_options, scene_additions):
@@ -396,7 +390,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("color-scheme"), "options"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         def update_color_options(legend_data):
 
@@ -439,10 +433,8 @@ class StructureMoleculeComponent(MPComponent):
         @app.callback(
             Output(self.id("download-image"), "data"),
             Input(self.id("scene"), "imageDataTimestamp"),
-            [
-                State(self.id("scene"), "imageData"),
-                State(self.id(), "data"),
-            ],
+            State(self.id("scene"), "imageData"),
+            State(self.id(), "data"),
         )
         def download_image(image_data_timestamp, image_data, data):
             if not image_data_timestamp:
@@ -471,10 +463,8 @@ class StructureMoleculeComponent(MPComponent):
         @app.callback(
             Output(self.id("download-structure"), "data"),
             Input(self.id("scene"), "fileTimestamp"),
-            [
-                State(self.id("scene"), "fileType"),
-                State(self.id(), "data"),
-            ],
+            State(self.id("scene"), "fileType"),
+            State(self.id(), "data"),
         )
         def download_structure(file_timestamp, download_option, data):
             if not file_timestamp:
@@ -530,7 +520,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("title_container"), "children"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         @cache.memoize()
         def update_title(legend):
@@ -544,7 +534,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("legend_container"), "children"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         @cache.memoize()
         def update_legend(legend):
@@ -557,15 +547,11 @@ class StructureMoleculeComponent(MPComponent):
             return self._make_legend(legend)
 
         @app.callback(
-            [
-                Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
-                Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
-            ],
-            [Input(self.id("bonding_algorithm"), "value")],
-            [
-                State(self.id("graph"), "data"),
-                State(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
-            ],
+            Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
+            Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
+            Input(self.id("bonding_algorithm"), "value"),
+            State(self.id("graph"), "data"),
+            State(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
         )
         @cache.memoize()
         def update_custom_bond_options(bonding_algorithm, graph, current_style):

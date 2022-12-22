@@ -84,12 +84,10 @@ class SubmitSNLPanel(PanelComponent):
             return contents
 
         @app.callback(
-            [
-                Output(self.id("panel"), "style"),
-                # for MP Crystal Toolkit app only, this is brittle(!)
-                Output("SearchComponent_search_container", "style"),
-            ],
-            [Input("url", "search")],
+            Output(self.id("panel"), "style"),
+            # for MP Crystal Toolkit app only, this is brittle(!)
+            Output("SearchComponent_search_container", "style"),
+            Input("url", "search"),
         )
         def hide_panel_if_no_token(url):
 
@@ -102,12 +100,10 @@ class SubmitSNLPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("info"), "children"),
-            [
-                Input(self.id(), "data"),
-                Input(self.id("comments"), "value"),
-                Input(self.id("panel"), "open"),
-                Input("url", "search"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.id("comments"), "value"),
+            Input(self.id("panel"), "open"),
+            Input("url", "search"),
         )
         def generate_description(structure, comments, panel_open, url):
 
@@ -140,12 +136,10 @@ For more information, see the Materials Project
 
         @app.callback(
             Output(self.id("confirmation"), "children"),
-            [Input(self.id("submit"), "n_clicks")],
-            [
-                State(self.id(), "data"),
-                State(self.id("comments"), "value"),
-                State("url", "search"),
-            ],
+            Input(self.id("submit"), "n_clicks"),
+            State(self.id(), "data"),
+            State(self.id("comments"), "value"),
+            State("url", "search"),
         )
         def submit_snl(n_clicks, structure, comments, url):
 

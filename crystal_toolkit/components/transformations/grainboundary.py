@@ -234,8 +234,8 @@ to colour-code the top and bottom grains."""
 
         @app.callback(
             Output(self.id("sigma"), "options"),
-            [Input(self.get_kwarg_id("rotation_axis"), "value")],
-            [State(self.id("input_structure"), "data")],
+            Input(self.get_kwarg_id("rotation_axis"), "value"),
+            State(self.id("input_structure"), "data"),
         )
         def update_sigma_options(rotation_axis, structure):
 
@@ -256,11 +256,9 @@ to colour-code the top and bottom grains."""
 
         @app.callback(
             Output(self.id("rotation_angle", is_kwarg=True, hint="literal"), "options"),
-            [
-                Input(self.id("sigma"), "value"),
-                Input(self.get_kwarg_id("rotation_axis"), "value"),
-            ],
-            [State(self.id("input_structure"), "data")],
+            Input(self.id("sigma"), "value"),
+            Input(self.get_kwarg_id("rotation_axis"), "value"),
+            State(self.id("input_structure"), "data"),
         )
         def update_rotation_angle_options(sigma, rotation_axis, structure):
 
@@ -290,11 +288,10 @@ to colour-code the top and bottom grains."""
 
         # TODO: make client-side callback
         @app.callback(
-            [Output(self.id("sigma"), "value"), Output(self.id("sigma"), "disabled")],
-            [
-                Input(self.id("sigma"), "options"),
-                Input(self.id("enable_transformation"), "on"),
-            ],
+            Output(self.id("sigma"), "value"),
+            Output(self.id("sigma"), "disabled"),
+            Input(self.id("sigma"), "options"),
+            Input(self.id("enable_transformation"), "on"),
         )
         def update_default_value(options, enabled):
             if not options:
@@ -304,11 +301,7 @@ to colour-code the top and bottom grains."""
         # TODO: make client-side callback, or just combine all callbacks here
         @app.callback(
             Output(self.id("rotation_angle", is_kwarg=True, hint="literal"), "value"),
-            [
-                Input(
-                    self.id("rotation_angle", is_kwarg=True, hint="literal"), "options"
-                )
-            ],
+            Input(self.id("rotation_angle", is_kwarg=True, hint="literal"), "options"),
         )
         def update_default_value(options):
             if not options:

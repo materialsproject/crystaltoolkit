@@ -1,0 +1,15 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "waitFor": "onCreateCommand",
+  "updateContentCommand": "pip install .[server]",
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "crystal_toolkit/apps/examples/basic_hello_structure_interactive.py"
+      ]
+    },
+    "vscode": {
+      "extensions": ["ms-toolsai.jupyter", "ms-python.python"]
+    }
+  }
+}

@@ -27,9 +27,7 @@ class RobocrysComponent(PanelComponent):
 
         super().generate_callbacks(app, cache)
 
-        @app.callback(
-            Output(self.id("robocrys"), "children"), [Input(self.id(), "data")]
-        )
+        @app.callback(Output(self.id("robocrys"), "children"), Input(self.id(), "data"))
         @cache.memoize()
         def run_robocrys_analysis(new_store_contents):
 

@@ -31,4 +31,4 @@ def test_structure(dash_duo: DashDuo) -> None:
     sleep(1)
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Browser console should not contain errors: {logs}"
+    assert logs == [], f"Unexpected browser {logs=}"

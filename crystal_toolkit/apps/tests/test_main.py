@@ -14,6 +14,5 @@ def test_main_app_startup(dash_duo: DashDuo):
     dash_duo.percy_snapshot("main_app_startup-layout")
     dash_duo.take_snapshot("main_app_startup-layout")
 
-    assert (
-        dash_duo.get_logs() == []
-    ), f"Browser console should not contain errors: {dash_duo.get_logs()}"
+    logs = dash_duo.get_logs()
+    assert logs == [], f"Unexpected browser {logs=}"

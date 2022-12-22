@@ -166,8 +166,9 @@ class SearchComponent(MPComponent):
 
         @app.callback(
             Output(self.id("results"), "data"),
-            [Input(self.id("input"), "n_submit"), Input(self.id("button"), "n_clicks")],
-            [State(self.id("input"), "value")],
+            Input(self.id("input"), "n_submit"),
+            Input(self.id("button"), "n_clicks"),
+            State(self.id("input"), "value"),
         )
         def update_results(n_submit, n_clicks, search_term):
 
@@ -183,7 +184,7 @@ class SearchComponent(MPComponent):
             return results
 
         @app.callback(
-            Output(self.id("dropdown"), "options"), [Input(self.id("results"), "data")]
+            Output(self.id("dropdown"), "options"), Input(self.id("results"), "data")
         )
         def update_dropdown_options(results):
             if not results or "error" in results:
@@ -191,7 +192,7 @@ class SearchComponent(MPComponent):
             return [{"value": mpid, "label": label} for mpid, label in results.items()]
 
         @app.callback(
-            Output(self.id("dropdown"), "value"), [Input(self.id("results"), "data")]
+            Output(self.id("dropdown"), "value"), Input(self.id("results"), "data")
         )
         def update_dropdown_value(results):
             if not results or "error" in results:
@@ -200,7 +201,7 @@ class SearchComponent(MPComponent):
 
         @app.callback(
             Output(self.id("dropdown-container"), "style"),
-            [Input(self.id("results"), "data")],
+            Input(self.id("results"), "data"),
         )
         def hide_show_dropdown(results):
             if not results or len(results) <= 1:
@@ -209,7 +210,7 @@ class SearchComponent(MPComponent):
                 return {}
 
         @app.callback(
-            Output(self.id("warning"), "children"), [Input(self.id("results"), "data")]
+            Output(self.id("warning"), "children"), Input(self.id("results"), "data")
         )
         def show_warning(results):
             if results and "error" in results:
@@ -219,12 +220,12 @@ class SearchComponent(MPComponent):
 
         @app.callback(
             Output(self.id("search_container"), "children"),
-            [Input(self.id("random"), "n_clicks")],
+            Input(self.id("random"), "n_clicks"),
         )
         def update_displayed_mpid(random_n_clicks):
             # TODO: this is a really awkward solution to a complex callback chain, improve in future?
             return self._make_search_box(search_term=choice(self.mpid_cache))
 
-        @app.callback(Output(self.id(), "data"), [Input(self.id("dropdown"), "value")])
+        @app.callback(Output(self.id(), "data"), Input(self.id("dropdown"), "value"))
         def update_store_from_value(mpid):
             return mpid

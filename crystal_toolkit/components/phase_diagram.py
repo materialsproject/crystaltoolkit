@@ -549,7 +549,7 @@ class PhaseDiagramComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("pd-div"), "children"), [Input(self.id("figure"), "data")]
+            Output(self.id("pd-div"), "children"), Input(self.id("figure"), "data")
         )
         def update_graph(figure):
             if figure is None:
@@ -634,7 +634,7 @@ class PhaseDiagramComponent(MPComponent):
 
             return fig
 
-        @app.callback(Output(self.id(), "data"), [Input(self.id("entries"), "data")])
+        @app.callback(Output(self.id(), "data"), Input(self.id("entries"), "data"))
         def create_pd_object(entries):
             if entries is None or not entries:
                 raise PreventUpdate
@@ -645,7 +645,7 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("entries"), "data"),
-            [Input(self.id("entry-table"), "derived_virtual_data")],
+            Input(self.id("entry-table"), "derived_virtual_data"),
         )
         def update_entries_store(rows):
             if rows is None:
@@ -674,12 +674,11 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("entry-table"), "data"),
-            [
-                Input(self.id("chemsys-internal"), "data"),
-                Input(self.id(), "modified_timestamp"),
-                Input(self.id("editing-rows-button"), "n_clicks"),
-            ],
-            [State(self.id(), "data"), State(self.id("entry-table"), "data")],
+            Input(self.id("chemsys-internal"), "data"),
+            Input(self.id(), "modified_timestamp"),
+            Input(self.id("editing-rows-button"), "n_clicks"),
+            State(self.id(), "data"),
+            State(self.id("entry-table"), "data"),
         )
         def create_table(chemsys, pd_time, n_clicks, pd, rows):
 
@@ -709,10 +708,8 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("chemsys-internal"), "data"),
-            [
-                Input(self.id("mpid"), "data"),
-                Input(self.id("chemsys-external"), "data"),
-            ],
+            Input(self.id("mpid"), "data"),
+            Input(self.id("chemsys-external"), "data"),
         )
         def get_chemsys_from_mpid_or_chemsys(
             mpid: str, chemsys_external: str

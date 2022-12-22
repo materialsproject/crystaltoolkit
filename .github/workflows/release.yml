@@ -5,28 +5,58 @@ on: workflow_dispatch
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
 
-      - name: Install poetry
-        # install poetry before setup-python to enable cache retrieval
-        run: pipx install poetry
-
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.8
-          cache: poetry
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: '**/pyproject.toml'
+
+      - name: bump version and create tag
+        env:
+          DATE_FORMAT: "%Y.%m.%d"
+        run: |
+          NEXT_RELEASE=$(date "+${DATE_FORMAT}")
+          LAST_RELEASE=$(git tag --sort=v:refname | grep "^20[^\-]*$" | tail -n 1)
+          echo "Last release : ${LAST_RELEASE}"
+          MAJOR_LAST_RELEASE=$(echo "${LAST_RELEASE}" | awk -v l=${#NEXT_RELEASE} '{ string=substr($0, 1, l); print string; }')
+          echo "Last major release : ${MAJOR_LAST_RELEASE}"
+          if [ "${MAJOR_LAST_RELEASE}" = "${NEXT_RELEASE}" ]; then
+            MINOR_LAST_RELEASE="$(echo "${LAST_RELEASE}" | awk -v l=$((${#NEXT_RELEASE} + 2)) '{ string=substr($0, l); print string; }')"
+            NEXT_RELEASE=${MAJOR_LAST_RELEASE}.$((MINOR_LAST_RELEASE + 1))
+          fi
+          echo "Next release: ${NEXT_RELEASE}"
+          git config --local user.email "github-actions@github.com"
+          git config --local user.name "github-actions"
+          python${{ matrix.python-version }} -m pip install --upgrade pip
+          python${{ matrix.python-version }} -m pip install --user --upgrade pip build setuptools setuptools_scm wheel
+          SETUPTOOLS_SCM_PRETEND_VERSION=${NEXT_RELEASE} python${{ matrix.python-version }} -m setuptools_scm
+          git add crystal_toolkit/_version.py
+          git commit -m "version bump: ${NEXT_RELEASE}"
+          git push
+          git tag ${NEXT_RELEASE}
+          git push --tags
 
       - name: Install dependencies
         run: |
-          poetry install -E server
+          python${{ matrix.python-version }} -m pip install --user `grep numpy== requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
+          python${{ matrix.python-version }} -m pip install --user -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
+          python${{ matrix.python-version }} -m pip install --user --no-deps .[server]
 
-      - name: Build and publish
-        run: |
-          poetry build
-          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-          poetry publish
+      - name: Build package
+        run: python${{ matrix.python-version }} -m build
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@release/v1.5
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
