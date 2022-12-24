@@ -10,11 +10,17 @@ Following a discussion with a potential contributor, "new contributor" issues ar
 
 ## Status
 
-[![Pytest Status](https://github.com/materialsproject/crystaltoolkit/workflows/pytest_and_docs/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions?query=workflow%3Apytest_and_docs)
+[![Tests](https://github.com/materialsproject/crystaltoolkit/actions/workflows/pytest-docs.yml/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions/workflows/pytest-docs.yml)
 [![Visual Regression Test Status](https://percy.io/static/images/percy-badge.svg)](https://percy.io/Materials-Project/crystaltoolkit)
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/materialsproject/crystaltoolkit)](https://hub.docker.com/repository/docker/materialsproject/crystaltoolkit/general)
-[![Release](https://github.com/materialsproject/crystaltoolkit/workflows/release/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions?query=workflow%3Arelease)
+[![Release](https://github.com/materialsproject/crystaltoolkit/actions/workflows/release.yml/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions/workflows/release.yml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/materialsproject/crystaltoolkit/main.svg)](https://results.pre-commit.ci/latest/github/materialsproject/crystaltoolkit/main)
+
+## Installation
+
+```sh
+pip install crystal-toolkit
+```
 
 ## Documentation
 
