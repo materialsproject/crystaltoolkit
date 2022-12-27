@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 from time import time
+from warnings import warn
 
 import numpy as np
 import plotly.graph_objs as go
-import py4DSTEM
+
+try:
+    import py4DSTEM
+except ImportError:
+    warn("The TEMDiffractionComponent requires the py4DSTEM package.")
+    py4DSTEM = None
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
@@ -22,6 +28,14 @@ class TEMDiffractionComponent(MPComponent):
         self.calculator = TEMDiffractionCalculator()
 
     def layout(self) -> Columns:
+        if not py4DSTEM:
+            return Columns(
+                [
+                    Column(
+                        "This feature will not work unless py4DSTEM is installed on the server."
+                    )
+                ]
+            )
 
         voltage = self.get_numerical_input(
             kwarg_label="voltage",
