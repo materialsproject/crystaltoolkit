@@ -511,7 +511,12 @@ class BandstructureAndDosComponent(MPComponent):
         return bs_traces, bs_data
 
     @staticmethod
-    def get_dos_traces(dos, dos_select, energy_window=(-6.0, 10.0)):
+    def get_dos_traces(dos, dos_select, energy_window=(-6.0, 10.0), horizontal=False):
+
+        if horizontal:
+            dos_axis, en_axis = "y", "x"
+        else:
+            dos_axis, en_axis = "x", "y"
 
         dostraces = []
 
@@ -524,12 +529,12 @@ class BandstructureAndDosComponent(MPComponent):
         if spin_polarized:
             # Add second spin data if available
             trace_tdos = {
-                "x": -1.0 * dos.densities[Spin.down][dos_min:dos_max],
-                "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                dos_axis: -1.0 * dos.densities[Spin.down][dos_min:dos_max],
+                en_axis: dos.energies[dos_min:dos_max] - dos.efermi,
                 "mode": "lines",
                 "name": "Total DOS (spin ↓)",
                 "line": go.scatter.Line(color="#444444", dash="dot"),
-                "fill": "tozerox",
+                "fill": f"tozero{dos_axis}",
                 "fillcolor": "#C4C4C4",
                 "xaxis": "x2",
                 "yaxis": "y2",
@@ -543,12 +548,12 @@ class BandstructureAndDosComponent(MPComponent):
 
         # Total DOS
         trace_tdos = {
-            "x": dos.densities[Spin.up][dos_min:dos_max],
-            "y": dos.energies[dos_min:dos_max] - dos.efermi,
+            dos_axis: dos.densities[Spin.up][dos_min:dos_max],
+            en_axis: dos.energies[dos_min:dos_max] - dos.efermi,
             "mode": "lines",
             "name": tdos_label,
             "line": go.scatter.Line(color="#444444"),
-            "fill": "tozerox",
+            "fill": f"tozero{dos_axis}",
             "fillcolor": "#C4C4C4",
             "legendgroup": "spinup",
             "xaxis": "x2",
@@ -584,8 +589,9 @@ class BandstructureAndDosComponent(MPComponent):
 
             if spin_polarized:
                 trace = {
-                    "x": -1.0 * proj_data[label].densities[Spin.down][dos_min:dos_max],
-                    "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                    dos_axis: -1.0
+                    * proj_data[label].densities[Spin.down][dos_min:dos_max],
+                    en_axis: dos.energies[dos_min:dos_max] - dos.efermi,
                     "mode": "lines",
                     "name": f"{label} (spin ↓)",
                     "line": dict(width=3, color=colors[count], dash="dot"),
@@ -600,8 +606,8 @@ class BandstructureAndDosComponent(MPComponent):
                 spin_up_label = str(label)
 
             trace = {
-                "x": proj_data[label].densities[Spin.up][dos_min:dos_max],
-                "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                dos_axis: proj_data[label].densities[Spin.up][dos_min:dos_max],
+                en_axis: dos.energies[dos_min:dos_max] - dos.efermi,
                 "mode": "lines",
                 "name": spin_up_label,
                 "line": dict(width=2, color=colors[count]),
@@ -617,7 +623,14 @@ class BandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def get_figure(
-        bs, dos, path_convention="sc", dos_select="ap", energy_window=(-6.0, 10.0)
+        bs,
+        dos,
+        path_convention="sc",
+        dos_select="ap",
+        energy_window=(-6.0, 10.0),
+        horizontal_dos=False,
+        bs_domain=None,
+        dos_domain=None,
     ):
 
         if (not dos) and (not bs):
@@ -638,6 +651,8 @@ class BandstructureAndDosComponent(MPComponent):
         yaxis_style = {}
         xaxis_style_dos = {}
         yaxis_style_dos = {}
+
+        y_title = dict(text="E−E<sub>fermi</sub> (eV)", font=dict(size=16))
         if bs:
             bs_traces, bs_data = BandstructureAndDosComponent.get_bandstructure_traces(
                 bs, path_convention=path_convention, energy_window=energy_window
@@ -663,7 +678,7 @@ class BandstructureAndDosComponent(MPComponent):
             )
 
             yaxis_style = dict(
-                title=dict(text="E−E<sub>fermi</sub> (eV)", font=dict(size=16)),
+                title=y_title,
                 tickfont=dict(size=16),
                 showgrid=False,
                 showline=True,
@@ -681,7 +696,10 @@ class BandstructureAndDosComponent(MPComponent):
 
         if dos:
             dostraces = BandstructureAndDosComponent.get_dos_traces(
-                dos, dos_select=dos_select, energy_window=energy_window
+                dos,
+                dos_select=dos_select,
+                energy_window=energy_window,
+                horizontal=horizontal_dos,
             )
             traces += dostraces
 
@@ -716,14 +734,16 @@ class BandstructureAndDosComponent(MPComponent):
                 gridcolor="white",
                 zerolinecolor="white",
                 zerolinewidth=2,
+                anchor="x2" if horizontal_dos else None,
             )
 
             yaxis_style_dos = dict(
+                title=y_title if bs is None or horizontal_dos else None,
                 tickfont=dict(size=16),
                 showgrid=False,
                 showline=True,
                 zeroline=True,
-                showticklabels=False,
+                showticklabels=bs is None or horizontal_dos,
                 mirror="ticks",
                 ticks="inside",
                 linewidth=2,
@@ -733,9 +753,12 @@ class BandstructureAndDosComponent(MPComponent):
                 linecolor="rgb(71,71,71)",
                 gridcolor="white",
                 zerolinecolor="white",
-                matches="y",
+                matches="y" if not horizontal_dos else None,
                 anchor="x2",
             )
+
+            if horizontal_dos:
+                xaxis_style_dos, yaxis_style_dos = yaxis_style_dos, xaxis_style_dos
 
         layout = dict(
             title="",
@@ -767,8 +790,26 @@ class BandstructureAndDosComponent(MPComponent):
 
         figure["layout"]["legend"] = legend
 
-        figure["layout"]["xaxis1"]["domain"] = [0.0, 0.7]
-        figure["layout"]["xaxis2"]["domain"] = [0.73, 1.0]
+        if bs and dos:
+            if horizontal_dos:
+                # some additional space for the y axis label of the dos
+                bs_domain = bs_domain or [0, 0.67]
+                dos_domain = dos_domain or [0.73, 1.0]
+            else:
+                bs_domain = bs_domain or [0, 0.7]
+                dos_domain = dos_domain or [0.73, 1.0]
+        elif bs:
+            bs_domain = bs_domain or [0, 1.0]
+            dos_domain = dos_domain or [1.0, 1.0]
+        elif dos:
+            bs_domain = bs_domain or [0, 0]
+            if horizontal_dos:
+                dos_domain = dos_domain or [0, 1.0]
+            else:
+                dos_domain = dos_domain or [0, 0.3]
+
+        figure["layout"]["xaxis1"]["domain"] = bs_domain
+        figure["layout"]["xaxis2"]["domain"] = dos_domain
 
         return figure
 

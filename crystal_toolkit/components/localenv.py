@@ -305,7 +305,7 @@ class LocalEnvironmentPanel(PanelComponent):
                     "lmax": 2,
                     "sigma": 0.2,
                     "crossover": True,
-                    "average": False,
+                    "average": "off",
                     "rbf": "gto",
                     "alpha": 0.1,
                     "threshold": 1e-4,
@@ -385,11 +385,23 @@ class LocalEnvironmentPanel(PanelComponent):
                     help_str="If enabled, the power spectrum will include all combinations of elements present.",
                 )
 
-                average = self.get_bool_input(
+                average = self.get_choice_input(
                     label="Average",
                     kwarg_label="average",
                     state=state,
-                    help_str="If enabled, the SOAP vector will be averaged across all sites.",
+                    help_str="The averaging mode over the centers of interest",
+                    options=[
+                        {"label": "No averaging", "value": "off"},
+                        {
+                            "label": "Inner: Averaging over sites before summing up the magnetic quantum numbers",
+                            "value": "inner",
+                        },
+                        {
+                            "label": "Outer: Averaging over the power spectrum of different sites",
+                            "value": "outer",
+                        },
+                    ],
+                    style={"width": "16rem"},  # TODO: remove in-line style
                 )
 
                 alpha = self.get_numerical_input(
@@ -560,7 +572,11 @@ class LocalEnvironmentPanel(PanelComponent):
 
             adaptor = AseAtomsAdaptor()
             atoms = adaptor.get_atoms(struct)
-            feature = normalize(desc.create(atoms, n_jobs=cpu_count()))
+
+            # make a 2D vector even when it is averaged
+            soap_output = desc.create(atoms, n_jobs=cpu_count())
+            soap_output = soap_output.reshape((-1, soap_output.shape[-1]))
+            feature = normalize(soap_output)
 
             return _get_soap_graph(feature, "SOAP vector for this material")
 
@@ -625,10 +641,13 @@ class LocalEnvironmentPanel(PanelComponent):
             }
 
             print(f"Calculating {len(atomss)} SOAP vectors")
-            features = {
-                mpid: normalize(desc.create(atoms, n_jobs=cpu_count()))
-                for mpid, atoms in atomss.items()
-            }
+            features = {}
+            for mpid, atoms in atomss.items():
+                # make a 2D vector even when it is averaged
+                soap_output = desc.create(atoms, n_jobs=cpu_count())
+                soap_output = soap_output.reshape((-1, soap_output.shape[-1]))
+                feature = normalize(soap_output)
+                features[mpid] = feature
 
             re = REMatchKernel(
                 metric=kwargs["metric"],

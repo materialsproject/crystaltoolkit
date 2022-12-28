@@ -87,7 +87,8 @@ class MPComponent(ABC):
             cache: a flask_caching Cache instance
         """
         if SETTINGS.DEBUG_MODE:
-            cache = null_cache
+            MPComponent.cache = null_cache
+            MPComponent.cache.init_app(MPComponent.app.server)
         elif cache:
             MPComponent.cache = cache
         else:
