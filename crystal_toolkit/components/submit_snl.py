@@ -35,11 +35,11 @@ class SubmitSNLPanel(PanelComponent):
         super().__init__(*args, **kwargs)
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Submit to Materials Project"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
             "Help us complete our database by submitting your structure to "
             "MPComplete where we will add your structure to our calculation queue."

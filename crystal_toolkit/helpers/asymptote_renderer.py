@@ -2,8 +2,8 @@
 the nested tree structure of threejs, we just have to traverse the tree and draw each material as we
 see them.
 
-TODO The code should also appends a set of special points at the end in case the user wants to add
-more "hand drawn" features to the plot
+TODO The code should also append a set of special points at the end in case the user wants to add
+more "hand drawn" features to the plot.
 """
 import logging
 from itertools import chain
@@ -297,8 +297,7 @@ def _get_surface(ctk_scene, d_args=None):
             ]
         )
     )
-    #
-    # # write the data array
+    # write the data array
     data_array_asy = (
         Environment()
         .from_string(TEMP_SURF)
