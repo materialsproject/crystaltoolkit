@@ -25,16 +25,16 @@ and copper). Please consult the pymatgen documentation for more information.
 
         if structure and structure.is_ordered:
             species_mapping = {
-                el: None for el in [str(el) for el in structure.types_of_specie]
+                el: el for el in [str(el) for el in structure.types_of_specie]
             }
         else:
-            species_mapping = None
+            species_mapping = {}
 
-        state = state or {"species_mapping": species_mapping}
+        state = state or {"species_map": species_mapping}
 
         species_mapping = self.get_dict_input(
             label="Species Mapping",
-            kwarg_label="species_mapping",
+            kwarg_label="species_map",
             state=state,
             help_str="A mapping from an original species (element or element with oxidation state, e.g. O or O2-) "
             "to a new species (element, element with oxidation state, or a composition, e.g. O or O2- or "
