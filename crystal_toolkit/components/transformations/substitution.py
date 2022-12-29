@@ -25,7 +25,7 @@ and copper). Please consult the pymatgen documentation for more information.
 
         if structure and structure.is_ordered:
             species_mapping = {
-                el: el for el in [str(el) for el in structure.types_of_specie]
+                el: el for el in map(str, structure.types_of_specie)
             }
         else:
             species_mapping = {}
