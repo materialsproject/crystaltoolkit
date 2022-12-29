@@ -22,7 +22,7 @@ path = os.path.dirname(os.path.realpath(__file__))
 bandstructure_symm_line = loadfn(f"{path}/GaN_bs.json")
 density_of_states = loadfn(f"{path}/GaN_dos.json")
 
-# # create the Crystal Toolkit component
+# create the Crystal Toolkit component
 bsdos_component = ctc.BandstructureAndDosComponent(
     bandstructure_symm_line=bandstructure_symm_line,
     density_of_states=density_of_states,
@@ -41,6 +41,6 @@ ctc.register_crystal_toolkit(app, layout=my_layout)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
-# see Dash documentation for more information
+# see Dash docs for more info
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

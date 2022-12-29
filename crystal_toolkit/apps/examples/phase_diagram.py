@@ -60,6 +60,6 @@ app.layout = ctc.crystal_toolkit_layout(my_layout)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
-# see Dash documentation for more information
+# see Dash docs for more info
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)
