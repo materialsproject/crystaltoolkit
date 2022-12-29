@@ -29,9 +29,8 @@ Helper methods to make working with Bulma classes easier.
 
 
 def _update_css_class(kwargs, class_name):
-    """
-    Convenience function to update className while respecting
-    any additional classNames already set.
+    """Convenience function to update className while respecting any additional classNames already
+    set.
     """
     if "className" in kwargs:
         kwargs["className"] += f" {class_name}"
@@ -40,19 +39,19 @@ def _update_css_class(kwargs, class_name):
 
 
 class Section(html.Div):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "section")
         super().__init__(*args, **kwargs)
 
 
 class Container(html.Div):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "container")
         super().__init__(*args, **kwargs)
 
 
 class Block(html.Div):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "block")
         super().__init__(*args, **kwargs)
 
@@ -80,7 +79,9 @@ class Columns(html.Div):
 
 
 class Column(html.Div):
-    def __init__(self, *args, size=None, offset=None, narrow=False, **kwargs):
+    def __init__(
+        self, *args, size: str = None, offset=None, narrow: bool = False, **kwargs
+    ) -> None:
         _update_css_class(kwargs, "column")
         if size:
             kwargs["className"] += f" is-{size}"
@@ -92,7 +93,9 @@ class Column(html.Div):
 
 
 class Button(html.Button):
-    def __init__(self, *args, kind=None, size="normal", **kwargs):
+    def __init__(
+        self, *args, kind: str | None = None, size: str = "normal", **kwargs
+    ) -> None:
         _update_css_class(kwargs, f"button is-{size}")
         if kind:
             kwargs["className"] += f" is-{kind}"
@@ -100,13 +103,15 @@ class Button(html.Button):
 
 
 class Error(html.Div):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "notification is-danger")
         super().__init__(*args, **kwargs)
 
 
 class MessageContainer(html.Article):
-    def __init__(self, *args, kind="warning", size="normal", **kwargs):
+    def __init__(
+        self, *args, kind: str = "warning", size: str = "normal", **kwargs
+    ) -> None:
         if kind:
             _update_css_class(kwargs, f"message is-{kind} is-{size}")
         else:
@@ -115,22 +120,24 @@ class MessageContainer(html.Article):
 
 
 class MessageHeader(html.Div):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "message-header")
         super().__init__(*args, **kwargs)
 
 
 class MessageBody(html.Div):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "message-body")
         super().__init__(*args, **kwargs)
 
 
 class Icon(html.Span):
-    def __init__(self, kind="download", fill="s", *args, **kwargs):
-        """
-        Font-awesome icon. Good options for kind are "info-circle",
-        "question-circle", "book", "code".
+    def __init__(
+        self, kind: str = "download", fill: str = "s", *args, **kwargs
+    ) -> None:
+        """Font-awesome icon.
+
+        Good options for kind are "info-circle", "question-circle", "book", "code".
         """
         _update_css_class(kwargs, "icon")
         if "fontastic" not in kind:
@@ -142,13 +149,13 @@ class Icon(html.Span):
 
 
 class Footer(html.Footer):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "footer")
         super().__init__(*args, **kwargs)
 
 
 class Spinner(html.Button):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "button is-primary is-loading")
         kwargs["style"] = {"width": "35px", "height": "35px", "borderRadius": "35px"}
         kwargs["aria-label"] = "Loading"
@@ -156,13 +163,13 @@ class Spinner(html.Button):
 
 
 class Box(html.Div):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "box")
         super().__init__(*args, **kwargs)
 
 
 class H1(html.H1):
-    def __init__(self, *args, subtitle=False, **kwargs):
+    def __init__(self, *args, subtitle: bool = False, **kwargs) -> None:
         if subtitle:
             _update_css_class(kwargs, "subtitle is-1")
         else:
@@ -171,7 +178,7 @@ class H1(html.H1):
 
 
 class H2(html.H2):
-    def __init__(self, *args, subtitle=False, **kwargs):
+    def __init__(self, *args, subtitle: bool = False, **kwargs) -> None:
         if subtitle:
             _update_css_class(kwargs, "subtitle is-2")
         else:
@@ -180,7 +187,7 @@ class H2(html.H2):
 
 
 class H3(html.H3):
-    def __init__(self, *args, subtitle=False, **kwargs):
+    def __init__(self, *args, subtitle: bool = False, **kwargs) -> None:
         if subtitle:
             _update_css_class(kwargs, "subtitle is-3")
         else:
@@ -189,7 +196,7 @@ class H3(html.H3):
 
 
 class H4(html.H4):
-    def __init__(self, *args, subtitle=False, **kwargs):
+    def __init__(self, *args, subtitle: bool = False, **kwargs) -> None:
         if subtitle:
             _update_css_class(kwargs, "subtitle is-4")
         else:
@@ -198,7 +205,7 @@ class H4(html.H4):
 
 
 class H5(html.H5):
-    def __init__(self, *args, subtitle=False, **kwargs):
+    def __init__(self, *args, subtitle: bool = False, **kwargs) -> None:
         if subtitle:
             _update_css_class(kwargs, "subtitle is-5")
         else:
@@ -207,7 +214,7 @@ class H5(html.H5):
 
 
 class H6(html.H6):
-    def __init__(self, *args, subtitle=False, **kwargs):
+    def __init__(self, *args, subtitle: bool = False, **kwargs) -> None:
         if subtitle:
             _update_css_class(kwargs, "subtitle is-6")
         else:
@@ -222,10 +229,10 @@ class Tag(html.Div):
         tag_type="primary",
         tag_addon=None,
         tag_addon_type="primary",
-        size="normal",
+        size: str = "normal",
         *args,
         **kwargs,
-    ):
+    ) -> None:
         _update_css_class(kwargs, "tags")
         tags = [html.Span(tag, className=f"tag is-{tag_type} is-{size}")]
         if tag_addon:
@@ -237,20 +244,22 @@ class Tag(html.Div):
 
 
 class TagContainer(html.Div):
-    def __init__(self, tags: list[Tag], *args, **kwargs):
+    def __init__(self, tags: list[Tag], *args, **kwargs) -> None:
         _update_css_class(kwargs, "field is-grouped is-grouped-multiline")
         tags = [html.Div(tag, className="control") for tag in tags]
         super().__init__(tags, *args, **kwargs)
 
 
 class Textarea(html.Textarea):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "textarea")
         super().__init__(*args, **kwargs)
 
 
 class Reveal(html.Details):
-    def __init__(self, children=None, id=None, summary_id=None, title=None, **kwargs):
+    def __init__(
+        self, children=None, id=None, summary_id=None, title=None, **kwargs
+    ) -> None:
         if children is None:
             children = ["Loading..."]
         if id is None and isinstance(title, str):
@@ -277,13 +286,15 @@ class Reveal(html.Details):
 
 
 class Label(html.Label):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "label")
         super().__init__(*args, **kwargs)
 
 
 class Modal(html.Div):
-    def __init__(self, children=None, id=None, active=False, **kwargs):
+    def __init__(
+        self, children: list = None, id: str = None, active: bool = False, **kwargs
+    ) -> None:
         _update_css_class(kwargs, "modal")
         if active:
             kwargs["className"] += " is-active"
@@ -301,8 +312,13 @@ class Modal(html.Div):
 
 class Field(html.Div):
     def __init__(
-        self, *args, addons=False, grouped=False, grouped_multiline=False, **kwargs
-    ):
+        self,
+        *args,
+        addons: bool = False,
+        grouped: bool = False,
+        grouped_multiline: bool = False,
+        **kwargs,
+    ) -> None:
         _update_css_class(kwargs, "field")
         if addons:
             kwargs["className"] += " has-addons"
@@ -314,12 +330,9 @@ class Field(html.Div):
 
 
 class Control(html.Div):
-    """
-    Control tag to wrap form elements,
-    see https://bulma.io/documentation/form/general/
-    """
+    """Control tag to wrap form elements, see https://bulma.io/documentation/form/general/"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "control")
         super().__init__(*args, **kwargs)
 
@@ -332,9 +345,9 @@ def get_tooltip(
     wrapper_class: str = None,
     **kwargs,
 ):
-    """
-    Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
+    """Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
     This component uses react-tooltip under the hood.
+
     :param tooltip_label: text or component to display and apply hover behavior to
     :param tooltip_text: text to show on hover
     :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
@@ -361,8 +374,8 @@ def get_tooltip(
 
 
 def get_data_list(data: dict[str, str]):
-    """
-    Show a formatted table of data items.
+    """Show a formatted table of data items.
+
     :param data: dictionary of label, value pairs
     :return: html.Div
     """
@@ -375,8 +388,8 @@ def get_data_list(data: dict[str, str]):
 
 
 def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Table:
-    """
-    Create a HTML table from a list of elements.
+    """Create a HTML table from a list of elements.
+
     :param rows: list of list of cell contents
     :return: html.Table
     """
@@ -396,8 +409,8 @@ DOI_CACHE = loadfn(MODULE_PATH / "apps/assets/doi_cache.json")
 def cite_me(
     doi: str = None, manual_ref: str = None, cite_text: str = "Cite me"
 ) -> html.Div:
-    """
-    Create a button to show users how to cite a particular resource.
+    """Create a button to show users how to cite a particular resource.
+
     :param doi: DOI
     :param manual_ref: If DOI not available
     :param cite_text: Text to show as button label
@@ -414,16 +427,13 @@ def cite_me(
     return component
 
 
-def add_label_help(input, label, help):
-    """
-    Combine an input, label, and tooltip text into a
-    single consistent component.
-    """
+def add_label_help(input, label, help) -> mpc.FilterField:
+    """Combine an input, label, and tooltip text into a single consistent component."""
     return mpc.FilterField(input, id=uuid4().hex, label=label, tooltip=help)
 
 
 class Loading(dcc.Loading):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
 
         super().__init__(
             *args, color=PRIMARY_COLOR, type="dot", debug=SETTINGS.DEBUG_MODE, **kwargs
@@ -431,7 +441,6 @@ class Loading(dcc.Loading):
 
 
 def get_breadcrumb(parts):
-
     if not parts:
         return html.Div()
 

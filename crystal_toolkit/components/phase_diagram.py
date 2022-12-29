@@ -1,7 +1,6 @@
 import dash
-import dash_table
 import plotly.graph_objs as go
-from dash import dcc, html
+from dash import dash_table, dcc, html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
@@ -23,7 +22,7 @@ from crystal_toolkit.helpers.layouts import (
 
 
 class PhaseDiagramComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("chemsys-internal")
@@ -408,8 +407,7 @@ class PhaseDiagramComponent(MPComponent):
 
     @staticmethod
     def ternary_plot(plot_data):
-        """
-        Return a ternary phase diagram in a two-dimensional plot.
+        """Return a ternary phase diagram in a two-dimensional plot.
 
         Args:
             plot_data: plot data from PDPlotter
@@ -420,7 +418,7 @@ class PhaseDiagramComponent(MPComponent):
         go.Scatterternary(
             {
                 "mode": "markers",
-                "a": list_of_a_comp,
+                "a": ...,  # list_of_a_comp
                 "b": ...,
                 "c": ...,
                 "text": ...,
@@ -551,7 +549,7 @@ class PhaseDiagramComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("pd-div"), "children"), [Input(self.id("figure"), "data")]
+            Output(self.id("pd-div"), "children"), Input(self.id("figure"), "data")
         )
         def update_graph(figure):
             if figure is None:
@@ -636,7 +634,7 @@ class PhaseDiagramComponent(MPComponent):
 
             return fig
 
-        @app.callback(Output(self.id(), "data"), [Input(self.id("entries"), "data")])
+        @app.callback(Output(self.id(), "data"), Input(self.id("entries"), "data"))
         def create_pd_object(entries):
             if entries is None or not entries:
                 raise PreventUpdate
@@ -647,7 +645,7 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("entries"), "data"),
-            [Input(self.id("entry-table"), "derived_virtual_data")],
+            Input(self.id("entry-table"), "derived_virtual_data"),
         )
         def update_entries_store(rows):
             if rows is None:
@@ -676,12 +674,11 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("entry-table"), "data"),
-            [
-                Input(self.id("chemsys-internal"), "data"),
-                Input(self.id(), "modified_timestamp"),
-                Input(self.id("editing-rows-button"), "n_clicks"),
-            ],
-            [State(self.id(), "data"), State(self.id("entry-table"), "data")],
+            Input(self.id("chemsys-internal"), "data"),
+            Input(self.id(), "modified_timestamp"),
+            Input(self.id("editing-rows-button"), "n_clicks"),
+            State(self.id(), "data"),
+            State(self.id("entry-table"), "data"),
         )
         def create_table(chemsys, pd_time, n_clicks, pd, rows):
 
@@ -693,10 +690,10 @@ class PhaseDiagramComponent(MPComponent):
             trigger = ctx.triggered[0]
 
             # PD update trigger
-            if trigger["prop_id"] == self.id() + ".modified_timestamp":
+            if trigger["prop_id"] == f"{self.id()}.modified_timestamp":
                 table_content = self.create_table_content(self.from_data(pd))
                 return table_content
-            elif trigger["prop_id"] == self.id("editing-rows-button") + ".n_clicks":
+            elif trigger["prop_id"] == f"{self.id('editing-rows-button')}.n_clicks":
                 if n_clicks > 0 and rows:
                     rows.append(self.empty_row)
                     return rows
@@ -711,16 +708,24 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("chemsys-internal"), "data"),
-            [
-                Input(self.id("mpid"), "data"),
-                Input(self.id("chemsys-external"), "data"),
-            ],
+            Input(self.id("mpid"), "data"),
+            Input(self.id("chemsys-external"), "data"),
         )
-        def get_chemsys_from_mpid_or_chemsys(mpid, chemsys_external: str):
-            """
-            :param mpid: mpid
-            :param chemsys_external: chemsys, e.g. "Co-O"
-            :return: chemsys
+        def get_chemsys_from_mpid_or_chemsys(
+            mpid: str, chemsys_external: str
+        ) -> str | None:
+            """Get the chemical system as a string of elements sorted alphabetically and joined by
+            dashes, by convention for use in database keys.
+
+            Args:
+                mpid (str): MP material ID.
+                chemsys_external (str): chemsys, e.g. "Co-O"
+
+            Raises:
+                PreventUpdate: ctx is None or not triggered or trigger["value"] is None.
+
+            Returns:
+                str | None: chemical system, e.g. "O-Si" for SiO2.
             """
             ctx = dash.callback_context
 
@@ -735,21 +740,21 @@ class PhaseDiagramComponent(MPComponent):
             chemsys = None
 
             # get entries by mpid
-            if trigger["prop_id"] == self.id("mpid") + ".data":
+            if trigger["prop_id"] == f"{self.id('mpid')}.data":
                 with MPRester() as mpr:
                     entry = mpr.get_entry_by_material_id(mpid)
 
                 chemsys = entry.composition.chemical_system
 
             # get entries by chemsys
-            if trigger["prop_id"] == self.id("chemsys-external") + ".data":
+            if trigger["prop_id"] == f"{self.id('chemsys-external')}.data":
                 chemsys = chemsys_external
 
             return chemsys
 
 
 class PhaseDiagramPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.pd_component = PhaseDiagramComponent()
         self.pd_component.attach_from(self, this_store_name="struct")

@@ -4,7 +4,7 @@ import os
 import warnings
 from collections import defaultdict
 from itertools import chain
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 from matplotlib.cm import get_cmap
@@ -12,7 +12,7 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 from palettable.colorbrewer.qualitative import Set1_9
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Species
 from pymatgen.core.structure import Molecule, Site, SiteCollection
 from pymatgen.util.string import unicodeify_species
 from sklearn.preprocessing import LabelEncoder
@@ -24,15 +24,13 @@ EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
 
 
 class Legend(MSONable):
-    """
-    Help generate a legend (colors and radii) for a Structure or Molecule
-    such that colors and radii can be displayed for the appropriate species.
+    """Help generate a legend (colors and radii) for a Structure or Molecule such that colors and
+    radii can be displayed for the appropriate species.
 
-    Note that species themselves have a color (for example, Oxygen is typically
-    red), but that we might also want to color-code by site properties (for example,
-    magnetic moment), thus this class has to take into account both the species
-    present and its context (the specific site the species is at) to correctly
-    generate the legend.
+    Note that species themselves have a color (for example, Oxygen is typically red), but that we
+    might also want to color-code by site properties (for example, magnetic moment), thus this class
+    has to take into account both the species present and its context (the specific site the species
+    is at) to correctly generate the legend.
     """
 
     default_color_scheme = "Jmol"
@@ -48,11 +46,9 @@ class Legend(MSONable):
         radius_scheme: str = "uniform",
         cmap: str = "coolwarm",
         cmap_range: tuple[float, float] | None = None,
-    ):
-        """
-        Create a legend for a given SiteCollection to choose how to
-        display colors and radii for the given sites and the species
-        on those sites.
+    ) -> None:
+        """Create a legend for a given SiteCollection to choose how to display colors and radii for
+        the given sites and the species on those sites.
 
         If a site has a "display_color" or "display_radius" site
         property defined, this can be used to manually override the
@@ -134,28 +130,24 @@ class Legend(MSONable):
         self.color_scheme = color_scheme
         self.radius_scheme = radius_scheme
         self.cmap = cmap
-        self.cmap_range = cmap_range
+        self.cmap_range = cast(tuple[float, float], cmap_range)
 
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(
         site_collection: SiteCollection,
     ) -> dict[str, dict[str, tuple[int, int, int]]]:
-        """
-        e.g. for a color scheme more appropriate for people with color blindness
+        """E.g. for a color scheme more appropriate for people with color blindness.
 
         Args:
             site_collection: SiteCollection
 
         Returns: A dictionary in similar format to EL_COLORS
-
         """
 
         color_scheme = {}
 
         all_species = set(
-            chain.from_iterable(
-                comp.keys() for comp in site_collection.species_and_occu
-            )
+            chain.from_iterable(comp for comp in site_collection.species_and_occu)
         )
         all_elements = sorted(sp.as_dict()["element"] for sp in all_species)
 
@@ -164,12 +156,12 @@ class Legend(MSONable):
             (0, 0, 0),  # 0, black
             (230, 159, 0),  # 1, orange
             (86, 180, 233),  # 2, sky blue
-            (0, 158, 115),  #  3, bluish green
+            (0, 158, 115),  # 3, bluish green
             (240, 228, 66),  # 4, yellow
             (0, 114, 178),  # 5, blue
             (213, 94, 0),  # 6, vermilion
             (204, 121, 167),  # 7, reddish purple
-            (255, 255, 255),  #  8, white
+            (255, 255, 255),  # 8, white
         ]
 
         # similar to CPK, mapping element to palette index
@@ -194,7 +186,7 @@ class Legend(MSONable):
             )
 
         preferred_elements_present = [
-            el for el in all_elements if el in preferred_colors.keys()
+            el for el in all_elements if el in preferred_colors
         ]
 
         colors_assigned = []
@@ -203,9 +195,7 @@ class Legend(MSONable):
                 color_scheme[el] = palette[preferred_colors[el]]
                 colors_assigned.append(preferred_colors[el])
 
-        remaining_elements = [
-            el for el in all_elements if el not in color_scheme.keys()
-        ]
+        remaining_elements = [el for el in all_elements if el not in color_scheme]
         remaining_palette = [
             c for idx, c in enumerate(palette) if idx not in colors_assigned
         ]
@@ -220,14 +210,12 @@ class Legend(MSONable):
     def generate_categorical_color_scheme_on_the_fly(
         site_collection: SiteCollection, site_prop_types
     ) -> dict[str, dict[str, tuple[int, int, int]]]:
-        """
-        e.g. for Wykcoff
+        """e.g. for Wyckoff.
 
         Args:
             site_collection: SiteCollection
 
         Returns: A dictionary in similar format to EL_COLORS
-
         """
 
         color_scheme = {}
@@ -259,17 +247,15 @@ class Legend(MSONable):
 
         return color_scheme
 
-    def get_color(self, sp: Specie | Element, site: Site | None = None) -> str:
-        """
-        Get a color to render a specific species. Optionally, you can provide
-        a site for context, since ...
+    def get_color(self, sp: Species | Element, site: Site | None = None) -> str:
+        """Get a color to render a specific species. Optionally, you can provide a site for context,
+        since ...
 
         Args:
-            sp: Specie or Element
+            sp: Species or Element
             site: Site
 
         Returns: Color
-
         """
 
         # allow manual override by user
@@ -304,8 +290,7 @@ class Legend(MSONable):
                 cmap = get_cmap(self.cmap)
 
                 # normalize in [0, 1] range, as expected by cmap
-                prop_min = self.cmap_range[0]
-                prop_max = self.cmap_range[1]
+                prop_min, prop_max = self.cmap_range
                 prop_normed = (prop - prop_min) / (prop_max - prop_min)
 
                 color = [int(c * 255) for c in cmap(prop_normed)[0:3]]
@@ -337,7 +322,7 @@ class Legend(MSONable):
 
         return html5_serialize_simple_color(color)
 
-    def get_radius(self, sp: Specie | Element, site: Site | None = None) -> float:
+    def get_radius(self, sp: Species | Element, site: Site | None = None) -> float:
 
         # allow manual override by user
         if site and "display_radius" in site.properties:
@@ -356,7 +341,7 @@ class Legend(MSONable):
             radius = float(sp.atomic_radius)
         elif (
             self.radius_scheme == "specified_or_average_ionic"
-            and isinstance(sp, Specie)
+            and isinstance(sp, Species)
             and sp.oxi_state
         ):
             radius = float(sp.ionic_radius)
@@ -372,8 +357,8 @@ class Legend(MSONable):
 
         if (not radius) or (not isinstance(radius, float)):
             warnings.warn(
-                "Radius unknown for {} and strategy {}, "
-                "setting to 0.5.".format(sp, self.radius_scheme)
+                f"Radius unknown for {sp} and strategy {self.radius_scheme}, "
+                "setting to 0.5."
             )
             radius = self.fallback_radius
 
@@ -400,10 +385,10 @@ class Legend(MSONable):
         return dict(site_prop_names)
 
     @staticmethod
-    def get_species_str(sp: Specie | Element) -> str:
+    def get_species_str(sp: Species | Element) -> str:
         """
         Args:
-            sp: Specie or Element
+            sp: Species or Element
 
         Returns: string representation
         """

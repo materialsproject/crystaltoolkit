@@ -1,0 +1,34 @@
+name: pytest
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: '**/pyproject.toml'
+      - name: Install webdriver
+        run: sudo apt-get update && sudo apt-get install firefox-geckodriver chromium-chromedriver
+      - name: Install dependencies
+        run: |
+          python -m pip install --user --upgrade pip pip-tools numpy
+          python -m piptools sync --user requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
+          python -m pip install --user --no-deps .
+      - name: Test with pytest
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+        run: pytest --color=yes --webdriver Chrome --headless crystal_toolkit/apps/examples/tests/

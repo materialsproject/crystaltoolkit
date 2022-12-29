@@ -47,7 +47,7 @@ class BandstructureAndDosComponent(MPComponent):
         density_of_states=None,
         id=None,
         **kwargs,
-    ):
+    ) -> None:
 
         # this is a compound component, can be fed by mpid or
         # by the BandStructure itself
@@ -336,7 +336,7 @@ class BandstructureAndDosComponent(MPComponent):
                 ):
                     bands.append(band_num)
 
-        bstraces = []
+        bs_traces = []
 
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -388,7 +388,7 @@ class BandstructureAndDosComponent(MPComponent):
                     for i in bands
                 ]
 
-            bstraces += traces_for_segment
+            bs_traces += traces_for_segment
 
         for entry_num in range(len(bs_data["ticks"]["label"])):
             for key in pretty_labels.keys():
@@ -416,8 +416,7 @@ class BandstructureAndDosComponent(MPComponent):
                     "yaxis": "y",
                 }
             ]
-
-            bstraces += vert_trace
+            bs_traces += vert_trace
 
         # Dots for cbm and vbm
 
@@ -434,9 +433,7 @@ class BandstructureAndDosComponent(MPComponent):
                 "showlegend": False,
                 "hoverinfo": "text",
                 "name": "",
-                "hovertemplate": "CBM: k = {}, {} eV".format(
-                    list(cbm["kpoint"].frac_coords), cbm["energy"]
-                ),
+                "hovertemplate": f"CBM: k = {list(cbm['kpoint'].frac_coords)}, {cbm['energy']} eV",
                 "xaxis": "x",
                 "yaxis": "y",
             }
@@ -454,21 +451,24 @@ class BandstructureAndDosComponent(MPComponent):
                 "showlegend": False,
                 "hoverinfo": "text",
                 "name": "",
-                "hovertemplate": "VBM: k = {}, {} eV".format(
-                    list(vbm["kpoint"].frac_coords), vbm["energy"]
-                ),
+                "hovertemplate": f"VBM: k = {list(vbm['kpoint'].frac_coords)}, {vbm['energy']} eV",
                 "xaxis": "x",
                 "yaxis": "y",
             }
             for (x_point, y_point) in set(vbm_new)
         ]
 
-        bstraces += dot_traces
+        bs_traces += dot_traces
 
-        return bstraces, bs_data
+        return bs_traces, bs_data
 
     @staticmethod
-    def get_dos_traces(dos, dos_select, energy_window=(-6.0, 10.0)):
+    def get_dos_traces(dos, dos_select, energy_window=(-6.0, 10.0), horizontal=False):
+
+        if horizontal:
+            dos_axis, en_axis = "y", "x"
+        else:
+            dos_axis, en_axis = "x", "y"
 
         dostraces = []
 
@@ -476,17 +476,17 @@ class BandstructureAndDosComponent(MPComponent):
         dos_min = np.abs(dos.energies - dos.efermi - energy_window[0]).argmin()
 
         # TODO: pymatgen should have a property here
-        spin_polarized = len(dos.densities.keys()) == 2
+        spin_polarized = len(dos.densities) == 2
 
         if spin_polarized:
             # Add second spin data if available
             trace_tdos = {
-                "x": -1.0 * dos.densities[Spin.down][dos_min:dos_max],
-                "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                dos_axis: -1.0 * dos.densities[Spin.down][dos_min:dos_max],
+                en_axis: dos.energies[dos_min:dos_max] - dos.efermi,
                 "mode": "lines",
                 "name": "Total DOS (spin ↓)",
                 "line": go.scatter.Line(color="#444444", dash="dot"),
-                "fill": "tozerox",
+                "fill": f"tozero{dos_axis}",
                 "fillcolor": "#C4C4C4",
                 "xaxis": "x2",
                 "yaxis": "y2",
@@ -500,12 +500,12 @@ class BandstructureAndDosComponent(MPComponent):
 
         # Total DOS
         trace_tdos = {
-            "x": dos.densities[Spin.up][dos_min:dos_max],
-            "y": dos.energies[dos_min:dos_max] - dos.efermi,
+            dos_axis: dos.densities[Spin.up][dos_min:dos_max],
+            en_axis: dos.energies[dos_min:dos_max] - dos.efermi,
             "mode": "lines",
             "name": tdos_label,
             "line": go.scatter.Line(color="#444444"),
-            "fill": "tozerox",
+            "fill": f"tozero{dos_axis}",
             "fillcolor": "#C4C4C4",
             "legendgroup": "spinup",
             "xaxis": "x2",
@@ -537,28 +537,29 @@ class BandstructureAndDosComponent(MPComponent):
             "#e377c2",  # raspberry yogurt pink
         ]
 
-        for label in proj_data.keys():
+        for label in proj_data:
 
             if spin_polarized:
                 trace = {
-                    "x": -1.0 * proj_data[label].densities[Spin.down][dos_min:dos_max],
-                    "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                    dos_axis: -1.0
+                    * proj_data[label].densities[Spin.down][dos_min:dos_max],
+                    en_axis: dos.energies[dos_min:dos_max] - dos.efermi,
                     "mode": "lines",
-                    "name": str(label) + " (spin ↓)",
+                    "name": f"{label} (spin ↓)",
                     "line": dict(width=3, color=colors[count], dash="dot"),
                     "xaxis": "x2",
                     "yaxis": "y2",
                 }
 
                 dostraces.append(trace)
-                spin_up_label = str(label) + " (spin ↑)"
+                spin_up_label = f"{label} (spin ↑)"
 
             else:
                 spin_up_label = str(label)
 
             trace = {
-                "x": proj_data[label].densities[Spin.up][dos_min:dos_max],
-                "y": dos.energies[dos_min:dos_max] - dos.efermi,
+                dos_axis: proj_data[label].densities[Spin.up][dos_min:dos_max],
+                en_axis: dos.energies[dos_min:dos_max] - dos.efermi,
                 "mode": "lines",
                 "name": spin_up_label,
                 "line": dict(width=2, color=colors[count]),
@@ -574,7 +575,14 @@ class BandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def get_figure(
-        bs, dos, path_convention="sc", dos_select="ap", energy_window=(-6.0, 10.0)
+        bs,
+        dos,
+        path_convention="sc",
+        dos_select="ap",
+        energy_window=(-6.0, 10.0),
+        horizontal_dos=False,
+        bs_domain=None,
+        dos_domain=None,
     ):
 
         if (not dos) and (not bs):
@@ -595,11 +603,13 @@ class BandstructureAndDosComponent(MPComponent):
         yaxis_style = {}
         xaxis_style_dos = {}
         yaxis_style_dos = {}
+
+        y_title = dict(text="E−E<sub>fermi</sub> (eV)", font=dict(size=16))
         if bs:
-            bstraces, bs_data = BandstructureAndDosComponent.get_bandstructure_traces(
+            bs_traces, bs_data = BandstructureAndDosComponent.get_bandstructure_traces(
                 bs, path_convention=path_convention, energy_window=energy_window
             )
-            traces += bstraces
+            traces += bs_traces
 
             xaxis_style = dict(
                 title=dict(text="Wave Vector", font=dict(size=16)),
@@ -620,7 +630,7 @@ class BandstructureAndDosComponent(MPComponent):
             )
 
             yaxis_style = dict(
-                title=dict(text="E−E<sub>fermi</sub> (eV)", font=dict(size=16)),
+                title=y_title,
                 tickfont=dict(size=16),
                 showgrid=False,
                 showline=True,
@@ -638,7 +648,10 @@ class BandstructureAndDosComponent(MPComponent):
 
         if dos:
             dostraces = BandstructureAndDosComponent.get_dos_traces(
-                dos, dos_select=dos_select, energy_window=energy_window
+                dos,
+                dos_select=dos_select,
+                energy_window=energy_window,
+                horizontal=horizontal_dos,
             )
             traces += dostraces
 
@@ -648,7 +661,7 @@ class BandstructureAndDosComponent(MPComponent):
             ]
 
             # check the max of the second dos trace only if spin polarized
-            spin_polarized = len(dos.densities.keys()) == 2
+            spin_polarized = len(dos.densities) == 2
             if spin_polarized:
                 list_max.extend(
                     [
@@ -668,22 +681,21 @@ class BandstructureAndDosComponent(MPComponent):
                 ticks="inside",
                 linewidth=2,
                 tickwidth=2,
-                range=[
-                    -rmax * 1.1 * int(len(dos.densities) == 2),
-                    rmax * 1.1,
-                ],
+                range=[-rmax * 1.1 * int(len(dos.densities) == 2), rmax * 1.1],
                 linecolor="rgb(71,71,71)",
                 gridcolor="white",
                 zerolinecolor="white",
                 zerolinewidth=2,
+                anchor="x2" if horizontal_dos else None,
             )
 
             yaxis_style_dos = dict(
+                title=y_title if bs is None or horizontal_dos else None,
                 tickfont=dict(size=16),
                 showgrid=False,
                 showline=True,
                 zeroline=True,
-                showticklabels=False,
+                showticklabels=bs is None or horizontal_dos,
                 mirror="ticks",
                 ticks="inside",
                 linewidth=2,
@@ -693,9 +705,12 @@ class BandstructureAndDosComponent(MPComponent):
                 linecolor="rgb(71,71,71)",
                 gridcolor="white",
                 zerolinecolor="white",
-                matches="y",
+                matches="y" if not horizontal_dos else None,
                 anchor="x2",
             )
+
+            if horizontal_dos:
+                xaxis_style_dos, yaxis_style_dos = yaxis_style_dos, xaxis_style_dos
 
         layout = dict(
             title="",
@@ -727,8 +742,26 @@ class BandstructureAndDosComponent(MPComponent):
 
         figure["layout"]["legend"] = legend
 
-        figure["layout"]["xaxis1"]["domain"] = [0.0, 0.7]
-        figure["layout"]["xaxis2"]["domain"] = [0.73, 1.0]
+        if bs and dos:
+            if horizontal_dos:
+                # some additional space for the y axis label of the dos
+                bs_domain = bs_domain or [0, 0.67]
+                dos_domain = dos_domain or [0.73, 1.0]
+            else:
+                bs_domain = bs_domain or [0, 0.7]
+                dos_domain = dos_domain or [0.73, 1.0]
+        elif bs:
+            bs_domain = bs_domain or [0, 1.0]
+            dos_domain = dos_domain or [1.0, 1.0]
+        elif dos:
+            bs_domain = bs_domain or [0, 0]
+            if horizontal_dos:
+                dos_domain = dos_domain or [0, 1.0]
+            else:
+                dos_domain = dos_domain or [0, 0.3]
+
+        figure["layout"]["xaxis1"]["domain"] = bs_domain
+        figure["layout"]["xaxis2"]["domain"] = dos_domain
 
         return figure
 
@@ -770,14 +803,10 @@ class BandstructureAndDosComponent(MPComponent):
             ]
 
         @app.callback(
-            [
-                Output(self.id("label-select"), "value"),
-                Output(self.id("label-container"), "style"),
-            ],
-            [
-                Input(self.id("mpid"), "data"),
-                Input(self.id("path-convention"), "value"),
-            ],
+            Output(self.id("label-select"), "value"),
+            Output(self.id("label-container"), "style"),
+            Input(self.id("mpid"), "data"),
+            Input(self.id("path-convention"), "value"),
         )
         def update_label_select(mpid, path_convention):
             if not mpid:
@@ -790,12 +819,11 @@ class BandstructureAndDosComponent(MPComponent):
                 return [label_value, label_style]
 
         @app.callback(
-            [
-                Output(self.id("dos-select"), "options"),
-                Output(self.id("path-convention"), "options"),
-                Output(self.id("path-container"), "style"),
-            ],
-            [Input(self.id("elements"), "data"), Input(self.id("mpid"), "data")],
+            Output(self.id("dos-select"), "options"),
+            Output(self.id("path-convention"), "options"),
+            Output(self.id("path-container"), "style"),
+            Input(self.id("elements"), "data"),
+            Input(self.id("mpid"), "data"),
         )
         def update_select(elements, mpid):
             if elements is None:
@@ -806,8 +834,8 @@ class BandstructureAndDosComponent(MPComponent):
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
                     + [
                         {
-                            "label": "Orbital Projected - " + str(ele_label),
-                            "value": "orb" + str(ele_label),
+                            "label": f"Orbital Projected - {ele_label}",
+                            "value": f"orb{ele_label}",
                         }
                         for ele_label in elements
                     ]
@@ -823,8 +851,8 @@ class BandstructureAndDosComponent(MPComponent):
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
                     + [
                         {
-                            "label": "Orbital Projected - " + str(ele_label),
-                            "value": "orb" + str(ele_label),
+                            "label": f"Orbital Projected - {ele_label}",
+                            "value": f"orb{ele_label}",
                         }
                         for ele_label in elements
                     ]
@@ -841,13 +869,12 @@ class BandstructureAndDosComponent(MPComponent):
                 return [dos_options, path_options, path_style]
 
         @app.callback(
-            [Output(self.id("traces"), "data"), Output(self.id("elements"), "data")],
-            [
-                Input(self.id(), "data"),
-                Input(self.id("path-convention"), "value"),
-                Input(self.id("dos-select"), "value"),
-                Input(self.id("label-select"), "value"),
-            ],
+            Output(self.id("traces"), "data"),
+            Output(self.id("elements"), "data"),
+            Input(self.id(), "data"),
+            Input(self.id("path-convention"), "value"),
+            Input(self.id("dos-select"), "value"),
+            Input(self.id("label-select"), "value"),
         )
         def bs_dos_data(data, path_convention, dos_select, label_select):
 
@@ -857,10 +884,10 @@ class BandstructureAndDosComponent(MPComponent):
             traces = []
 
             if bandstructure_symm_line:
-                bstraces = get_bandstructure_traces(
+                bs_traces = get_bandstructure_traces(
                     bsml, path_convention, energy_window=energy_window
                 )
-                traces.append(bstraces)
+                traces.append(bs_traces)
 
             if density_of_states:
                 dostraces = get_dos_traces(
@@ -868,13 +895,13 @@ class BandstructureAndDosComponent(MPComponent):
                 )
                 traces.append(dostraces)
 
-            # traces = [bstraces, dostraces, bs_data]
+            # traces = [bs_traces, dostraces, bs_data]
 
             return (traces, elements)
 
 
 class BandstructureAndDosPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.bs = BandstructureAndDosComponent()
         self.bs.attach_from(self, this_store_name="mpid")

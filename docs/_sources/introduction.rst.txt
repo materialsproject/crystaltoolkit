@@ -24,7 +24,7 @@ Toolkit" app `available here <https://next-gen.materialsproject.org/toolkit>`_.
 Crystal Toolkit Web Framework
 -----------------------------
 
-Crystal Toolkit is designed as a modular, object-orientated suite of UI components
+Crystal Toolkit is designed as a modular, object-oriented suite of UI components
 built upon the `Dash framework by Plotly <https://dash.plot.ly>`_. The Crystal Toolkit web app is just
 one example of using these components.
 
@@ -42,24 +42,6 @@ Installation
 You can ``pip install crystal-toolkit``.
 
 For Jupyter integration, please see the `additional installation steps <jupyter>`_.
-
-
-Running the App Locally
------------------------
-
-If the web app is offline or undergoing maintenance, you can also run the
-web app locally using `Docker <https://www.docker.com>`_. After you've
-installed Docker, run the following:
-
-::
-
-    docker container run -p 8000:8000 -e PMG_MAPI_KEY=YOUR_API_KEY_HERE materialsproject/crystal_toolkit
-
-The app should then be available at `<http://localhost:8000>`_.
-
-Make sure to set your ``PMG_MAPI_KEY`` appropriately.
-If you need a Materials Project API key, please get a free account on
-`Materials Project <https://materialsproject.org>`_ and access your dashboard.
 
 
 Dash 2.x Migration
@@ -88,7 +70,7 @@ Contributors
 * `Matt McDermott <https://github.com/mattmcdermott>`_ contributed phase diagram, X-ray Diffraction, X-ray Absorption Spectrum components
 * `Jason Munro <https://github.com/munrojm>`_ contributed band structure component
 * `Stephen Weitzner <https://github.com/sweitzner>`_ contributed POV-Ray integration (in progress)
-* `Richard Tran <https://github.com/richardtran415>`_ for contributing plotly-powered Wulff shapes to pymatgen, which Crystal Toolkit uses
+* `Richard Tran <https://github.com/CifLord>`_ for contributing plotly-powered Wulff shapes to pymatgen, which Crystal Toolkit uses
 * `Guy Moore <https://github.com/guymoore13>`_ for contributing magnetic moment visualization
 
 

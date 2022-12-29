@@ -12,6 +12,7 @@ from typing import Any, Literal
 import dash
 import dash_mp_components as mpc
 import numpy as np
+import plotly.graph_objects as go
 from dash import dash_table as dt
 from dash import dcc, html
 from dash.dependencies import ALL
@@ -31,9 +32,9 @@ CT_NAMESPACE = "CT"
 
 
 class MPComponent(ABC):
-    """
-    The abstract base class for an MPComponent. MPComponent
-    is designed to help render an MSONable object.
+    """The abstract base class for an MPComponent.
+
+    MPComponent is designed to help render an MSONable object.
     """
 
     # reference to global Dash app
@@ -56,13 +57,10 @@ class MPComponent(ABC):
 
     @staticmethod
     def register_app(app: dash.Dash):
-        """
-        This method must be called at least once in your Crystal
-        Toolkit Dash app if you want to enable interactivity with the
-        MPComponents. The "app" variable is a special global
-        variable used by Dash/Flask, and registering it with
-        MPComponent allows callbacks to be registered with the
-        app on instantiation.
+        """This method must be called at least once in your Crystal Toolkit Dash app if you want to
+        enable interactivity with the MPComponents. The "app" variable is a special global variable
+        used by Dash/Flask, and registering it with MPComponent allows callbacks to be registered
+        with the app on instantiation.
 
         Args:
             app: a Dash app instance
@@ -80,19 +78,18 @@ class MPComponent(ABC):
             app.title = "Crystal Toolkit"
 
     @staticmethod
-    def register_cache(cache: Cache):
-        """
-        This method must be called at least once in your
-        Crystal Toolkit Dash app if you want to enable
-        callback caching. Callback caching is one of the
-        easiest ways to see significant performance
-        improvements, especially for callbacks that are
-        computationally expensive.
+    def register_cache(cache: Cache) -> None:
+        """This method must be called at least once in your Crystal Toolkit Dash app if you want to
+        enable callback caching. Callback caching is one of the easiest ways to see significant
+        performance improvements, especially for callbacks that are computationally expensive.
 
         Args:
             cache: a flask_caching Cache instance
         """
-        if cache:
+        if SETTINGS.DEBUG_MODE:
+            MPComponent.cache = null_cache
+            MPComponent.cache.init_app(MPComponent.app.server)
+        elif cache:
             MPComponent.cache = cache
         else:
             MPComponent.cache = Cache(
@@ -104,8 +101,7 @@ class MPComponent(ABC):
 
         if not MPComponent.app:
             raise ValueError(
-                "Please register the Dash app with Crystal Toolkit "
-                "using register_app()."
+                "Please register the Dash app with Crystal Toolkit using register_app()."
             )
 
         # layout_str = str(layout)
@@ -134,11 +130,8 @@ class MPComponent(ABC):
 
     @staticmethod
     def all_app_stores() -> html.Div:
-        """
-        This must be included somewhere in your
-        Crystal Toolkit Dash app's layout for
-        interactivity to work. This is a hidden element
-        that contains the MSON for each MPComponent.
+        """This must be included somewhere in your Crystal Toolkit Dash app's layout for
+        interactivity to work. This is a hidden element that contains the MSON for each MPComponent.
 
         Returns: a html.Div Dash Layout
         """
@@ -153,9 +146,8 @@ class MPComponent(ABC):
         links: dict[str, str] | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
-    ):
-        """
-        The abstract base class for an MPComponent.
+    ) -> None:
+        """The abstract base class for an MPComponent.
 
         The MPComponent is designed to help render any MSONable object,
         for example many of the objects in pymatgen (Structure, PhaseDiagram, etc.)
@@ -240,10 +232,8 @@ class MPComponent(ABC):
         hint=None,
         is_store: bool = False,
     ) -> str | dict[str, str]:
-        """
-        Generate an id from a name combined with the
-        base id of the MPComponent itself, useful for generating
-        ids of individual components in the layout.
+        """Generate an id from a name combined with the base id of the MPComponent itself, useful
+        for generating ids of individual components in the layout.
 
         In the special case of the id of an element that is used to re-construct
         a keyword argument for a specific class, it will store information necessary
@@ -295,11 +285,9 @@ class MPComponent(ABC):
         initial_data: MSONable | dict | str | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         debug_clear: bool = False,
-    ):
-        """
-        Generate a dcc.Store to hold something (MSONable object, Dict
-        or string), and register it so that it will be included in the
-        Dash app automatically.
+    ) -> None:
+        """Generate a dcc.Store to hold something (MSONable object, Dict or string), and register it
+        so that it will be included in the Dash app automatically.
 
         The initial data will be stored in a class attribute as
         self._initial_data[name].
@@ -327,7 +315,7 @@ class MPComponent(ABC):
         MPComponent._app_stores_dict[self.id()].append(store)
 
     @property
-    def initial_data(self):
+    def initial_data(self) -> dict[str, Any]:
         """
         :return: Initial data for all the stores defined by component,
         keyed by store name.
@@ -335,9 +323,9 @@ class MPComponent(ABC):
         return self._initial_data
 
     @staticmethod
-    def from_data(data):
-        """
-        Converts the contents of a dcc.Store back into a Python object.
+    def from_data(data: dict[str, Any]) -> MPComponent:
+        """Converts the contents of a dcc.Store back into a Python object.
+
         :param data: contents of a dcc.Store created by to_data
         :return: a Python object
         """
@@ -348,7 +336,7 @@ class MPComponent(ABC):
         """
         :return: List of all store ids generated by this component
         """
-        return list(self._stores.keys())
+        return list(self._stores)
 
     @property
     def all_ids(self) -> list[str]:
@@ -361,17 +349,15 @@ class MPComponent(ABC):
             if component_id not in self.all_stores
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.id()}<{type(self).__name__}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         ids = "\n".join(
             [f"* {component_id}  " for component_id in sorted(self.all_ids)]
         )
         stores = "\n".join([f"* {store}  " for store in sorted(self.all_stores)])
-        layouts = "\n".join(
-            [f"* {layout}  " for layout in sorted(self._sub_layouts.keys())]
-        )
+        layouts = "\n".join([f"* {layout}  " for layout in sorted(self._sub_layouts)])
 
         return f"""{self.id()}<{type(self).__name__}>  \n
 IDs:  \n{ids}  \n
@@ -379,11 +365,9 @@ Stores:  \n{stores}  \n
 Sub-layouts:  \n{layouts}"""
 
     @property
-    def _sub_layouts(self):
-        """
-        Layouts associated with this component, available for book-keeping
-        if your component is complex, so that the layout() method is just
-        assembles individual sub-layouts.
+    def _sub_layouts(self) -> dict[str, dash.development.base_component.Component]:
+        """Layouts associated with this component, available for book-keeping if your component is
+        complex, so that the layout() method is just assembles individual sub-layouts.
 
         :return: A dictionary with names of layouts as keys (str) and Dash
         layouts (e.g. html.Div) as values.
@@ -397,12 +381,12 @@ Sub-layouts:  \n{layouts}"""
         """
         return html.Div(list(self._sub_layouts.values()))
 
-    def generate_callbacks(self, app, cache):
-        """
-        Generate all callbacks associated with the layouts in this app. Assume
-        that "suppress_callback_exceptions" is True, since it is not always
-        guaranteed that all layouts will be displayed to the end user at all
-        times, but it's important the callbacks are defined on the server.
+    def generate_callbacks(self, app, cache) -> None:
+        """Generate all callbacks associated with the layouts in this app.
+
+        Assume that "suppress_callback_exceptions" is True, since it is not always guaranteed that
+        all layouts will be displayed to the end user at all times, but it's important the callbacks
+        are defined on the server.
         """
         return None
 
@@ -416,10 +400,9 @@ Sub-layouts:  \n{layouts}"""
         is_int: bool = False,
         shape: tuple[int, ...] = (),
         **kwargs,
-    ):
-        """
-        For Python classes which take matrices as inputs, this will generate
-        a corresponding Dash input layout.
+    ) -> html.Div:
+        """For Python classes which take matrices as inputs, this will generate a corresponding Dash
+        input layout.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
@@ -435,7 +418,7 @@ Sub-layouts:  \n{layouts}"""
         """
 
         state = state or {}
-        default = np.full(shape, default or state.get(kwarg_label))
+        default = np.full(shape, state.get(kwarg_label) if default is None else default)
         default = np.reshape(default, shape)
 
         style = {
@@ -477,7 +460,6 @@ Sub-layouts:  \n{layouts}"""
                     value=int(value) if value is not None else None,
                     persistence=True,
                     type="number",
-                    step=1,
                     **kwargs,
                 )
 
@@ -497,10 +479,11 @@ Sub-layouts:  \n{layouts}"""
 
         # arrange the input boxes in two dimensions (rows, columns)
         matrix_div_contents = []
-        for columns in sorted(matrix_contents.values()):
+        print("matrix_contents", matrix_contents)
+        for column_idx in sorted(matrix_contents):
             row = []
-            for element in sorted(columns.values()):
-                row.append(element)
+            for row_idx in sorted(matrix_contents[column_idx]):
+                row.append(matrix_contents[column_idx][row_idx])
             matrix_div_contents.append(html.Div(row))
 
         matrix = html.Div(matrix_div_contents)
@@ -519,6 +502,7 @@ Sub-layouts:  \n{layouts}"""
     ):
 
         state = state or {}
+        # TODO: bug if default == 0
         default = default or state.get(kwarg_label)
 
         # mpc.RangeSlider requires a domain to be specified
@@ -549,9 +533,8 @@ Sub-layouts:  \n{layouts}"""
         help_str: str = None,
         **kwargs,
     ):
-        """
-        For Python classes which take boolean values as inputs, this will generate
-        a corresponding Dash input layout.
+        """For Python classes which take boolean values as inputs, this will generate a
+        corresponding Dash input layout.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
@@ -585,11 +568,11 @@ Sub-layouts:  \n{layouts}"""
         label: str | None = None,
         help_str: str = None,
         options: list[dict] | None = None,
+        clearable: bool = False,
         **kwargs,
     ):
-        """
-        For Python classes which take pre-defined values as inputs, this will generate
-        a corresponding input layout using mpc.Select.
+        """For Python classes which take pre-defined values as inputs, this will generate a
+        corresponding input layout using mpc.Select.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
@@ -600,6 +583,7 @@ Sub-layouts:  \n{layouts}"""
         `state` if you want to set defaults for multiple inputs from a single dictionary.
         :param help_str: Text for a tooltip when hovering over label.
         :param options: Options to choose from, as per dcc.Dropdown
+        :param clearable: If True, will allow Dropdown to be cleared after a selection is made.
         :return: a Dash layout
         """
 
@@ -610,7 +594,7 @@ Sub-layouts:  \n{layouts}"""
             id=self.id(kwarg_label, is_kwarg=True, hint="literal"),
             options=options if options else [],
             value=default,
-            isClearable=False,
+            isClearable=clearable,
             arbitraryProps={**kwargs},
         )
 
@@ -654,7 +638,7 @@ Sub-layouts:  \n{layouts}"""
 
         return add_label_help(dict_input, label, help_str)
 
-    def get_kwarg_id(self, kwarg_name) -> dict:
+    def get_kwarg_id(self, kwarg_name) -> dict[str, str]:
         """
 
         :param kwarg_name:
@@ -667,7 +651,7 @@ Sub-layouts:  \n{layouts}"""
             "hint": ALL,
         }
 
-    def get_all_kwargs_id(self) -> dict:
+    def get_all_kwargs_id(self) -> dict[str, str]:
         """
 
         :return:
@@ -680,8 +664,7 @@ Sub-layouts:  \n{layouts}"""
         )[kwarg_name]
 
     def reconstruct_kwargs_from_state(self, state=None, kwarg_labels=None) -> dict:
-        """
-        Generate
+        """Generate.
 
         :param state: optional, a Dash callback context input or state
         :param kwarg_labels: optional, parse only a specific kwarg or list of kwargs
@@ -745,7 +728,7 @@ Sub-layouts:  \n{layouts}"""
 
                     try:
                         kwargs[kwarg_label] = literal_eval(str(v))
-                    except ValueError:
+                    except (ValueError, SyntaxError):
                         kwargs[kwarg_label] = str(v)
 
                 elif k_type == "bool":
@@ -771,20 +754,25 @@ Sub-layouts:  \n{layouts}"""
         return kwargs
 
     @staticmethod
-    def datauri_from_fig(
-        fig, fmt: str = "png", width: int = 600, height: int = 400, scale: int = 4
+    def data_uri_from_fig(
+        fig: go.Figure,
+        fmt: str = "png",
+        width: int = 600,
+        height: int = 400,
+        scale: int = 4,
     ) -> str:
-        """
-        Generate a data URI from a Plotly Figure.
+        """Generate a data URI from a Plotly Figure.
 
-        :param fig: Plotly Figure object or corresponding dictionary
-        :param fmt: "png", "jpg", etc. (see PlotlyScope for supported formats)
-        :param width: width in pixels
-        :param height: height in pixels
-        :param scale: scale factor
-        :return:
-        """
+        Args:
+            fig (Figure): Plotly Figure object or corresponding dictionary
+            fmt (str, optional): "png", "jpg", etc. (see PlotlyScope for supported formats). Defaults to "png".
+            width (int, optional): width in pixels. Defaults to 600.
+            height (int, optional): height in pixels. Defaults to 400.
+            scale (int, optional): scale factor. Defaults to 4.
 
+        Returns:
+            str: Data URI containing base64-encoded image.
+        """
         from kaleido.scopes.plotly import PlotlyScope
 
         scope = PlotlyScope()
@@ -796,8 +784,7 @@ Sub-layouts:  \n{layouts}"""
         return f"data:image/{fmt};base64,{image}"
 
     def get_figure_placeholder(self, figure_id: str) -> html.Div:
-        """
-        Get a layout to act as a placeholder for an interactive figure.
+        """Get a layout to act as a placeholder for an interactive figure.
 
         When used with `generate_static_figure_callbacks`, and assuming
         kaleido is installed on the server, a static image placeholder will

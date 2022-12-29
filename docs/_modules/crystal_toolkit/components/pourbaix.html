@@ -1,70 +1,33 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>crystal_toolkit.components.pourbaix &mdash; Crystal Toolkit  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
     <link rel="canonical" href="https://crystaltoolkit.org_modules/crystal_toolkit/components/pourbaix.html"/>
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
-          
-
-          
             <a href="../../../index.html" class="icon icon-home"> Crystal Toolkit
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -72,18 +35,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://next-gen.materialsproject.org/toolkit">Try The App!</a></li>
@@ -96,97 +48,46 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../source/crystal_toolkit.html">API Docs</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,162,135,1) 0%, rgba(0,192,136,1) 100%)" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Crystal Toolkit</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content style-external-links">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
           <li><a href="../../crystal_toolkit.html">crystal_toolkit</a> &raquo;</li>
-        
       <li>crystal_toolkit.components.pourbaix</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for crystal_toolkit.components.pourbaix</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">dash</span>
-<span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">dcc</span>
-<span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">html</span>
-<span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
-<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
-<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">matplotlib.cm</span> <span class="kn">import</span> <span class="n">get_cmap</span>
-
+<span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">from</span> <span class="nn">dash</span> <span class="kn">import</span> <span class="n">dcc</span><span class="p">,</span> <span class="n">html</span>
+<span class="kn">from</span> <span class="nn">dash.dependencies</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dash.exceptions</span> <span class="kn">import</span> <span class="n">PreventUpdate</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="kn">import</span> <span class="n">ELEMENTS_HO</span><span class="p">,</span> <span class="n">PREFAC</span><span class="p">,</span> <span class="n">PourbaixDiagram</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string</span> <span class="kn">import</span> <span class="n">unicodeify</span>
 <span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span><span class="p">,</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.ext.matproj</span> <span class="kn">import</span> <span class="n">MPRester</span>
-<span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix_diagram</span> <span class="kn">import</span> <span class="n">PourbaixDiagram</span><span class="p">,</span> <span class="n">ELEMENTS_HO</span><span class="p">,</span> <span class="n">PREFAC</span>
 
-<span class="kn">from</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">MessageContainer</span><span class="p">,</span>
-    <span class="n">MessageBody</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">import</span> <span class="nn">crystal_toolkit.helpers.layouts</span> <span class="k">as</span> <span class="nn">ctl</span>
 <span class="kn">from</span> <span class="nn">crystal_toolkit.core.mpcomponent</span> <span class="kn">import</span> <span class="n">MPComponent</span>
-<span class="kn">from</span> <span class="nn">crystal_toolkit.core.panelcomponent</span> <span class="kn">import</span> <span class="n">PanelComponent</span>
-
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Joseph Montoya&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;joseph.montoya@tri.global&quot;</span>
@@ -321,9 +222,9 @@
     <span class="c1">#             ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()</span>
     <span class="c1">#         ):</span>
     <span class="c1">#             hovertext = [</span>
-    <span class="c1">#                 &quot;∆G&lt;sub&gt;pbx&lt;/sub&gt;={:.2f}&quot;.format(de_val),</span>
-    <span class="c1">#                 &quot;ph={:.2f}&quot;.format(ph_val),</span>
-    <span class="c1">#                 &quot;V={:.2f}&quot;.format(v_val),</span>
+    <span class="c1">#                 f&quot;∆G&lt;sub&gt;pbx&lt;/sub&gt;={de_val:.2f}&quot;,</span>
+    <span class="c1">#                 f&quot;ph={ph_val:.2f}&quot;,</span>
+    <span class="c1">#                 f&quot;V={v_val:.2f}&quot;,</span>
     <span class="c1">#             ]</span>
     <span class="c1">#             hovertext = &quot;&lt;br&gt;&quot;.join(hovertext)</span>
     <span class="c1">#             hovertexts.append(hovertext)</span>
@@ -398,7 +299,10 @@
     <span class="c1">#         if heatmap_entry is None:</span>
     <span class="c1">#             fillcolor = &quot;White&quot; if &quot;Ion&quot; in entry.phase_type else &quot;PaleTurquoise&quot;</span>
     <span class="c1">#             shape = go.layout.Shape(</span>
-    <span class="c1">#                 type=&quot;path&quot;, path=path, fillcolor=fillcolor, layer=&quot;below&quot;,</span>
+    <span class="c1">#                 type=&quot;path&quot;,</span>
+    <span class="c1">#                 path=path,</span>
+    <span class="c1">#                 fillcolor=fillcolor,</span>
+    <span class="c1">#                 layer=&quot;below&quot;,</span>
     <span class="c1">#             )</span>
     <span class="c1">#             shapes.append(shape)</span>
     <span class="c1">#</span>
@@ -553,7 +457,11 @@
                 <span class="n">line</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;Black&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
 
             <span class="n">shape</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span>
-                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="n">line</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;path&quot;</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;rgba(0,0,0,0)&quot;</span><span class="p">,</span>
+                <span class="n">opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">line</span><span class="o">=</span><span class="n">line</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
 
@@ -630,9 +538,9 @@
                 <span class="n">ph_mesh</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">v_mesh</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">decomposition_e</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
             <span class="p">):</span>
                 <span class="n">hovertext</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="s2">&quot;∆G&lt;sub&gt;pbx&lt;/sub&gt;=</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">de_val</span><span class="p">),</span>
-                    <span class="s2">&quot;ph=</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ph_val</span><span class="p">),</span>
-                    <span class="s2">&quot;V=</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v_val</span><span class="p">),</span>
+                    <span class="sa">f</span><span class="s2">&quot;∆G&lt;sub&gt;pbx&lt;/sub&gt;=</span><span class="si">{</span><span class="n">de_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;ph=</span><span class="si">{</span><span class="n">ph_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;V=</span><span class="si">{</span><span class="n">v_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">]</span>
                 <span class="n">hovertext</span> <span class="o">=</span> <span class="s2">&quot;&lt;br&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">hovertext</span><span class="p">)</span>
                 <span class="n">hovertexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hovertext</span><span class="p">)</span>
@@ -651,7 +559,10 @@
                 <span class="n">z</span><span class="o">=</span><span class="n">decomposition_e</span><span class="p">,</span>
                 <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">ph_range</span><span class="p">),</span>
                 <span class="n">y</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">v_range</span><span class="p">),</span>
-                <span class="n">colorbar</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;∆G&lt;sub&gt;pbx&lt;/sub&gt; (eV/atom)&quot;</span><span class="p">,</span> <span class="s2">&quot;titleside&quot;</span><span class="p">:</span> <span class="s2">&quot;right&quot;</span><span class="p">,},</span>
+                <span class="n">colorbar</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;∆G&lt;sub&gt;pbx&lt;/sub&gt; (eV/atom)&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;titleside&quot;</span><span class="p">:</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
                 <span class="n">colorscale</span><span class="o">=</span><span class="n">PourbaixDiagramComponent</span><span class="o">.</span><span class="n">colorscale</span><span class="p">,</span>  <span class="c1"># or magma</span>
                 <span class="n">zmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                 <span class="n">zmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -764,7 +675,10 @@
 
 <div class="viewcode-block" id="PourbaixDiagramComponent.layout"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.layout">[docs]</a>    <span class="k">def</span> <span class="nf">layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-            <span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">],]</span>
+            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sub_layouts</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">],</span>
+            <span class="p">]</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="PourbaixDiagramComponent.generate_callbacks"><a class="viewcode-back" href="../../../source/crystal_toolkit.components.pourbaix.html#crystal_toolkit.components.pourbaix.PourbaixDiagramComponent.generate_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
@@ -895,9 +809,9 @@
                 <span class="n">formula</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span>
                     <span class="n">comp</span><span class="o">.</span><span class="n">get_integer_formula_and_factor</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">reduced_formula</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Small</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid composition selected.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">}</span>
+                    <span class="s2">&quot;Invalid composition selected.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">}</span>
                 <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">html</span><span class="o">.</span><span class="n">Small</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pourbaix composition set to </span><span class="si">{</span><span class="n">unicodeify</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
@@ -908,7 +822,10 @@
 
         <span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
             <span class="n">Output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;figure&quot;</span><span class="p">),</span>
-            <span class="p">[</span><span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_kwargs_id</span><span class="p">(),</span> <span class="s2">&quot;value&quot;</span><span class="p">),],</span>
+            <span class="p">[</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(),</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+                <span class="n">Input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_kwargs_id</span><span class="p">(),</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
         <span class="p">)</span>
         <span class="k">def</span> <span class="nf">make_figure</span><span class="p">(</span><span class="n">pourbaix_entries</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 
@@ -971,7 +888,10 @@
                 <span class="n">comp_dict</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(</span><span class="n">pourbaix_diagram</span><span class="p">,</span> <span class="n">heatmap_entry</span><span class="o">=</span><span class="n">heatmap_entry</span><span class="p">,)</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_figure</span><span class="p">(</span>
+                <span class="n">pourbaix_diagram</span><span class="p">,</span>
+                <span class="n">heatmap_entry</span><span class="o">=</span><span class="n">heatmap_entry</span><span class="p">,</span>
+            <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">fig</span></div></div>
 
@@ -981,46 +901,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2019, Crystal Toolkit Development Team.
-
-    </p>
+    <p>&#169; Copyright 2019, Crystal Toolkit Development Team.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

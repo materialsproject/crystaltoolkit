@@ -12,7 +12,7 @@ from crystal_toolkit.helpers.layouts import MessageBody, MessageContainer
 
 
 class XASComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("elements")
@@ -105,9 +105,7 @@ class XASComponent(MPComponent):
         )
 
     def generate_callbacks(self, app, cache):
-        @app.callback(
-            Output(self.id("xas-div"), "children"), [Input(self.id(), "data")]
-        )
+        @app.callback(Output(self.id("xas-div"), "children"), Input(self.id(), "data"))
         def update_graph(plotdata):
             if not plotdata:
                 raise PreventUpdate
@@ -134,18 +132,19 @@ class XASComponent(MPComponent):
                 ]
 
         @app.callback(
-            [Output(self.id(), "data"), Output(self.id("elements"), "data")][
-                Input(self.id("element-selector"), "value")
-            ],
-            [State(self.id("mpid"), "data"), State(self.id("elements"), "data")],
+            Output(self.id(), "data"),
+            Output(self.id("elements"), "data"),
+            Input(self.id("element-selector"), "value"),
+            State(self.id("mpid"), "data"),
+            State(self.id("elements"), "data"),
         )
         def pattern_from_mpid(element, mpid, elements):
             if not element or not elements:
                 raise PreventUpdate
 
-            url_path = "/materials/" + mpid["mpid"] + "/xas/" + element
+            url_path = f"/materials/{mpid['mpid']}/xas/{element}"
 
-            from mp_api.matproj import MPRester
+            from mp_api.client import MPRester
 
             with MPRester() as mpr:
                 data = mpr._make_request(url_path)  # querying MP database via MAPI
@@ -172,14 +171,14 @@ class XASComponent(MPComponent):
 
         @app.callback(
             Output(self.id("element-selector"), "options"),
-            [Input(self.id("elements"), "data")],
+            Input(self.id("elements"), "data"),
         )
         def generate_element_options(elements):
             return [{"label": i, "value": i} for i in elements]
 
         @app.callback(
             Output(self.id("element-selector"), "value"),
-            [Input(self.id("element-selector"), "options")],
+            Input(self.id("element-selector"), "options"),
         )
         def set_xas_value(options):
             if not options or not options[0]:
@@ -188,7 +187,7 @@ class XASComponent(MPComponent):
 
 
 class XASPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.xas = XASComponent()
         self.xas.attach_from(self, this_store_name="mpid")
@@ -220,7 +219,7 @@ class XASPanelComponent(PanelComponent):
     #     super().generate_callbacks(app, cache)
     #
     #     @app.callback(
-    #         Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
+    #         Output(self.id("inner_contents"), "children"), Input(self.id(), "data")
     #     )
     #     def add_xas(mpid):
     #         if not mpid:

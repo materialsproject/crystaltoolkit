@@ -1,0 +1,20 @@
+name: Check URLs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lychee-link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+
+      - name: Check for broken links
+        uses: lycheeverse/lychee-action@v1
+        with:
+          # --exclude-loopback ensures we don't check localhost URLs
+          args: --exclude-loopback './**/*.md' './**/*.rst'
