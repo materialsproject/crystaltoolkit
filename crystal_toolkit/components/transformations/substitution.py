@@ -24,9 +24,7 @@ and copper). Please consult the pymatgen documentation for more information.
     def options_layouts(self, state=None, structure=None):
 
         if structure and structure.is_ordered:
-            species_mapping = {
-                el: el for el in map(str, structure.types_of_specie)
-            }
+            species_mapping = {el: el for el in map(str, structure.types_of_specie)}
         else:
             species_mapping = {}
 
