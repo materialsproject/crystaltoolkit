@@ -390,7 +390,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
     @staticmethod
     def get_ph_dos_traces(dos: CompletePhononDos, freq_range: tuple[float, float]):
 
-        dostraces = []
+        dos_traces = []
 
         dos_max = np.abs(dos.frequencies - freq_range[1]).argmin()
         dos_min = np.abs(dos.frequencies - freq_range[0]).argmin()
@@ -411,7 +411,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             "yaxis": "y2",
         }
 
-        dostraces.append(trace_tdos)
+        dos_traces.append(trace_tdos)
 
         # Projected DOS
         count = 0
@@ -440,11 +440,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 "yaxis": "y2",
             }
 
-            dostraces.append(trace)
+            dos_traces.append(trace)
 
             count += 1
 
-        return dostraces
+        return dos_traces
 
     @staticmethod
     def get_figure(ph_bs, ph_dos, freq_range=(None, None)):
@@ -470,25 +470,25 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         if ph_bs:
             (
-                bstraces,
+                bs_traces,
                 bs_data,
             ) = PhononBandstructureAndDosComponent.get_ph_bandstructure_traces(
                 ph_bs, freq_range=y_range
             )
 
         if ph_dos:
-            dostraces = PhononBandstructureAndDosComponent.get_ph_dos_traces(
+            dos_traces = PhononBandstructureAndDosComponent.get_ph_dos_traces(
                 ph_dos, freq_range=y_range
             )
 
-        # TODO: add logic to handle if bstraces and/or dostraces not present
+        # TODO: add logic to handle if bs_traces and/or dos_traces not present
 
         rmax = max(
             [
-                max(dostraces[0]["x"]),
-                abs(min(dostraces[0]["x"])),
-                max(dostraces[1]["x"]),
-                abs(min(dostraces[1]["x"])),
+                max(dos_traces[0]["x"]),
+                abs(min(dos_traces[0]["x"])),
+                max(dos_traces[1]["x"]),
+                abs(min(dos_traces[1]["x"])),
             ]
         )
 
@@ -564,7 +564,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             # clickmode="event+select"
         )
 
-        figure = {"data": bstraces + dostraces, "layout": layout}
+        figure = {"data": bs_traces + dos_traces, "layout": layout}
 
         legend = dict(
             x=1.02,
@@ -701,10 +701,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
             bsml, density_of_states = self._get_ph_bs_dos(data)
 
             if self.bandstructure_symm_line:
-                bstraces = self.get_ph_bandstructure_traces(
+                bs_traces = self.get_ph_bandstructure_traces(
                     bsml, freq_range=energy_window
                 )
-                traces.append(bstraces)
+                traces.append(bs_traces)
 
             if self.density_of_states:
                 dos_traces = self.get_ph_dos_traces(
@@ -712,11 +712,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 )
                 traces.append(dos_traces)
 
-            # traces = [bstraces, dostraces, bs_data]
+            # traces = [bs_traces, dos_traces, bs_data]
 
             # TODO: not tested if this is correct way to get element list
-            ele_dos = density_of_states.get_element_dos()
-            elements = [str(entry) for entry in ele_dos.keys()]
+            elements = list(map(str, density_of_states.get_element_dos()))
 
             return traces, elements
 

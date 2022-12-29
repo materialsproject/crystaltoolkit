@@ -1,14 +1,11 @@
-# standard Dash imports
 import os
 
 import dash
 
-# dos and bs data from local json files
+# for loading DOS and BS data from json files
 from monty.serialization import loadfn
 
 from crystal_toolkit.components import register_crystal_toolkit
-
-# standard Crystal Toolkit import
 from crystal_toolkit.components.phonon import PhononBandstructureAndDosComponent
 from crystal_toolkit.helpers.layouts import H1, Container
 from crystal_toolkit.settings import SETTINGS
@@ -26,7 +23,7 @@ path = os.path.dirname(os.path.realpath(__file__))
 bandstructure_symm_line = loadfn(f"{path}/BaTiO3_ph_bs.json")
 density_of_states = loadfn(f"{path}/BaTiO3_ph_dos.json")
 
-# # create the Crystal Toolkit component
+# create the Crystal Toolkit component
 ph_bs_dos_component = PhononBandstructureAndDosComponent(
     bandstructure_symm_line=bandstructure_symm_line,
     density_of_states=density_of_states,
@@ -42,8 +39,8 @@ my_layout = Container([page_title, ph_bs_dos_component.layout()])
 register_crystal_toolkit(app, layout=my_layout)
 
 
-# allow app to be run using "python structure.py"
+# run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
-# see Dash documentation for more information
+# see Dash docs for more info
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

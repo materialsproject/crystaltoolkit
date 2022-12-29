@@ -470,7 +470,7 @@ class BandstructureAndDosComponent(MPComponent):
         else:
             dos_axis, en_axis = "x", "y"
 
-        dostraces = []
+        dos_traces = []
 
         dos_max = np.abs(dos.energies - dos.efermi - energy_window[1]).argmin()
         dos_min = np.abs(dos.energies - dos.efermi - energy_window[0]).argmin()
@@ -492,7 +492,7 @@ class BandstructureAndDosComponent(MPComponent):
                 "yaxis": "y2",
             }
 
-            dostraces.append(trace_tdos)
+            dos_traces.append(trace_tdos)
 
             tdos_label = "Total DOS (spin ↑)"
         else:
@@ -512,7 +512,7 @@ class BandstructureAndDosComponent(MPComponent):
             "yaxis": "y2",
         }
 
-        dostraces.append(trace_tdos)
+        dos_traces.append(trace_tdos)
 
         if dos_select == "tot":
             proj_data = {}
@@ -551,7 +551,7 @@ class BandstructureAndDosComponent(MPComponent):
                     "yaxis": "y2",
                 }
 
-                dostraces.append(trace)
+                dos_traces.append(trace)
                 spin_up_label = f"{label} (spin ↑)"
 
             else:
@@ -567,11 +567,11 @@ class BandstructureAndDosComponent(MPComponent):
                 "yaxis": "y2",
             }
 
-            dostraces.append(trace)
+            dos_traces.append(trace)
 
             count += 1
 
-        return dostraces
+        return dos_traces
 
     @staticmethod
     def get_figure(
@@ -647,17 +647,17 @@ class BandstructureAndDosComponent(MPComponent):
             )
 
         if dos:
-            dostraces = BandstructureAndDosComponent.get_dos_traces(
+            dos_traces = BandstructureAndDosComponent.get_dos_traces(
                 dos,
                 dos_select=dos_select,
                 energy_window=energy_window,
                 horizontal=horizontal_dos,
             )
-            traces += dostraces
+            traces += dos_traces
 
             list_max = [
-                max(dostraces[0]["x"]),
-                abs(min(dostraces[0]["x"])),
+                max(dos_traces[0]["x"]),
+                abs(min(dos_traces[0]["x"])),
             ]
 
             # check the max of the second dos trace only if spin polarized
@@ -665,8 +665,8 @@ class BandstructureAndDosComponent(MPComponent):
             if spin_polarized:
                 list_max.extend(
                     [
-                        max(dostraces[1]["x"]),
-                        abs(min(dostraces[1]["x"])),
+                        max(dos_traces[1]["x"]),
+                        abs(min(dos_traces[1]["x"])),
                     ]
                 )
             rmax = max(list_max)
@@ -890,14 +890,14 @@ class BandstructureAndDosComponent(MPComponent):
                 traces.append(bs_traces)
 
             if density_of_states:
-                dostraces = get_dos_traces(
+                dos_traces = get_dos_traces(
                     density_of_states, energy_window=energy_window, spin_polarized=...
                 )
-                traces.append(dostraces)
+                traces.append(dos_traces)
 
-            # traces = [bs_traces, dostraces, bs_data]
+            # traces = [bs_traces, dos_traces, bs_data]
 
-            return (traces, elements)
+            return traces, elements
 
 
 class BandstructureAndDosPanelComponent(PanelComponent):
