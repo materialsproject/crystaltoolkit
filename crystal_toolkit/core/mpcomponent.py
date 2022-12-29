@@ -610,7 +610,7 @@ Sub-layouts:  \n{layouts}"""
         key_name: str = "key",
         value_name: str = "value",
         **kwargs,
-    ):
+    ) -> mpc.FilterField:
         """For Python classes which take dictionaries as inputs. The keys are fixed and only
          the values can be modified. This will generate a corresponding Dash input layout.
 
