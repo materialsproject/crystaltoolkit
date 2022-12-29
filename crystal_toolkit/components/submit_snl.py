@@ -1,3 +1,4 @@
+import os
 from urllib import parse
 
 import requests
@@ -16,7 +17,6 @@ from crystal_toolkit.helpers.layouts import (
     MessageHeader,
     dcc,
     html,
-    os,
 )
 
 # ask Donny Winston
@@ -30,7 +30,7 @@ class SubmitSNLPanel(PanelComponent):
     extracted, and also requires a "SearchComponent_search_container" component.
     """
 
-    def __init__(self, *args, url_id=None, **kwargs):
+    def __init__(self, *args, url_id: str | None = None, **kwargs) -> None:
         self.url_id = url_id
         super().__init__(*args, **kwargs)
 
@@ -168,12 +168,12 @@ For more information, see the Materials Project
             # check if structure already exists on MP
 
             with MPRester() as mpr:
-                mpids = mpr.find_structure(structure)
+                mp_ids = mpr.find_structure(structure)
 
-            if mpids:
+            if mp_ids:
                 message = (
                     f"Similar structures are already available on "
-                    f"the Materials Project, see: {', '.join(mpids)}"
+                    f"the Materials Project, see: {', '.join(mp_ids)}"
                 )
                 return MessageContainer(message, kind="warning")
 

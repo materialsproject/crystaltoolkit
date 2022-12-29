@@ -113,7 +113,7 @@ class StructureMoleculeComponent(MPComponent):
         show_export_button: bool = DEFAULTS["show_export_button"],
         show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
-    ):
+    ) -> None:
         """Create a StructureMoleculeComponent from a structure or molecule.
 
         Args:

@@ -78,7 +78,9 @@ def _axes_from_lattice(
     )
 
 
-def get_lattice_scene(self, origin=None, show_axes=False, **kwargs):
+def get_lattice_scene(
+    self: Lattice, origin=None, show_axes: bool = False, **kwargs
+) -> Scene:
     o = -np.array((0, 0, 0))
     a, b, c = self.matrix[0], self.matrix[1], self.matrix[2]
     line_pairs = [
@@ -109,10 +111,9 @@ def get_lattice_scene(self, origin=None, show_axes=False, **kwargs):
     ]
     line_pairs = [line.tolist() for line in line_pairs]
 
-    name = (
-        f"a={self.a}, b={self.b}, c={self.c}, "
-        f"alpha={self.alpha}, beta={self.beta}, gamma={self.gamma}"
-    )
+    a, b, c = self.abc
+    alpha, beta, gamma = self.angles
+    name = f"{a=}, {b=}, {c=}, {alpha=}, {beta=}, {gamma=}"
 
     contents = [Lines(line_pairs, **kwargs)]
 

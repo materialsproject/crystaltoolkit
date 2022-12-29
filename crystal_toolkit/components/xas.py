@@ -12,7 +12,7 @@ from crystal_toolkit.helpers.layouts import MessageBody, MessageContainer
 
 
 class XASComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("elements")
@@ -187,7 +187,7 @@ class XASComponent(MPComponent):
 
 
 class XASPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.xas = XASComponent()
         self.xas.attach_from(self, this_store_name="mpid")

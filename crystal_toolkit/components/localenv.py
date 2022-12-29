@@ -101,7 +101,7 @@ def _get_local_order_parameters(structure_graph, n):
 
 
 class LocalEnvironmentPanel(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("graph")
         self.create_store(

@@ -8,6 +8,7 @@ from dash import callback_context, dcc, html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
+from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
 
@@ -32,7 +33,7 @@ from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 class XRayDiffractionComponent(MPComponent):
     # TODO: add pole figures for a given single peak for help quantifying texture
 
-    def __init__(self, *args, initial_structure=None, **kwargs):
+    def __init__(self, *args, initial_structure: Structure = None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
 

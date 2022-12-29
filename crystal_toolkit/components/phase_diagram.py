@@ -22,7 +22,7 @@ from crystal_toolkit.helpers.layouts import (
 
 
 class PhaseDiagramComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("chemsys-internal")
@@ -754,7 +754,7 @@ class PhaseDiagramComponent(MPComponent):
 
 
 class PhaseDiagramPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.pd_component = PhaseDiagramComponent()
         self.pd_component.attach_from(self, this_store_name="struct")

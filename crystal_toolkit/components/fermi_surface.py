@@ -30,7 +30,7 @@ class FermiSurfaceComponent(MPComponent):
         fermi_surface: FermiSurface = None,
         id: str | None = None,
         **kwargs,
-    ):
+    ) -> None:
         super().__init__(id=id, default_data=fermi_surface, **kwargs)
 
     @staticmethod

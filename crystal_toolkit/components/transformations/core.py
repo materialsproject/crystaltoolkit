@@ -23,7 +23,7 @@ from crystal_toolkit.settings import SETTINGS
 
 
 class TransformationComponent(MPComponent):
-    def __init__(self, input_structure_component_id: str, *args, **kwargs):
+    def __init__(self, input_structure_component_id: str, *args, **kwargs) -> None:
 
         if type(self).__name__ != f"{self.transformation.__name__}Component":
             # sanity check, enforcing conventions
@@ -270,7 +270,7 @@ class AllTransformationsComponent(MPComponent):
         input_structure_component: MPComponent | None = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Create a component that can manage multiple transformations in a user-defined order.
 
         :param transformations: if provided, only offer a subset of available

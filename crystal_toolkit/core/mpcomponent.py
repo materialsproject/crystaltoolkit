@@ -146,7 +146,7 @@ class MPComponent(ABC):
         links: dict[str, str] | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
-    ):
+    ) -> None:
         """The abstract base class for an MPComponent.
 
         The MPComponent is designed to help render any MSONable object,

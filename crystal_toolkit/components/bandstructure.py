@@ -46,7 +46,7 @@ class BandstructureAndDosComponent(MPComponent):
         density_of_states=None,
         id=None,
         **kwargs,
-    ):
+    ) -> None:
 
         # this is a compound component, can be fed by mpid or
         # by the BandStructure itself
@@ -949,7 +949,7 @@ class BandstructureAndDosComponent(MPComponent):
 
 
 class BandstructureAndDosPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.bs = BandstructureAndDosComponent()
         self.bs.attach_from(self, this_store_name="mpid")
