@@ -7,7 +7,7 @@ from crystal_toolkit.settings import SETTINGS
 
 APP_METADATA = loadfn(SETTINGS.APP_METADATA)
 
-# List of URLs available in the website
+# list of URLs available in the website
 _BASE_URL = "https://materialsproject.org/"
 _apps_sitemap = []
 
@@ -15,7 +15,7 @@ _apps_sitemap = []
 # based on their urls, used for About page etc.
 APP_TREE = {}
 for app_class_name, metadata in APP_METADATA.items():
-    if metadata["url"] and (not metadata["url"].startswith("http")):
+    if metadata["url"] and not metadata["url"].startswith("http"):
         _apps_sitemap.append(_BASE_URL + metadata["url"])
         path = metadata["url"].replace("/", ".")
         if not get(APP_TREE, path):
