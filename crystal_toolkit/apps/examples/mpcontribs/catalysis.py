@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import logging
 import re
-from typing import List
 from urllib.parse import urljoin
 
 import dash
@@ -43,7 +44,7 @@ _ADSORBATE_CHOICES = (
 
 class CatalysisApp(MPApp):
     @staticmethod
-    def modify_df(dataframe: pd.DataFrame) -> List[pd.DataFrame]:
+    def modify_df(dataframe: pd.DataFrame) -> list[pd.DataFrame]:
         """
         Filter DataFrame for binary visualization.
         :param dataframe:

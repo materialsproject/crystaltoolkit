@@ -2,7 +2,7 @@ import logging
 import re
 import urllib.parse
 from fractions import Fraction
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import dash_mp_components as mpc
@@ -12,6 +12,7 @@ from dash import dcc, html
 from flask import has_request_context, request
 from monty.serialization import loadfn
 
+import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.defaults import _DEFAULTS
 from crystal_toolkit.settings import SETTINGS
@@ -25,7 +26,7 @@ def update_object_args(d_args, object_name, allowed_args):
     Arguments:
         d_args {dict} -- User defined properties
         object_name {str} -- Name of object
-        allowed_kwargs {List[str]} -- Used to limit the data that is passed to pythreejs
+        allowed_kwargs {list[str]} -- Used to limit the data that is passed to pythreejs
 
     Returns:
         Dictionary -- Properties of object after userinput and default values are considered
@@ -66,14 +67,10 @@ def is_localhost() -> bool:
         return True
 
     host = request.headers.get("Host", "")
-    return bool(
-        host.startswith("localhost:")
-        or host.startswith("127.0.0.1:")
-        or host.startswith("0.0.0.0:")
-    )
+    return host.startswith(("localhost:", "127.0.0.1:", "0.0.0.0:"))
 
 
-def get_consumer():
+def get_consumer() -> dict[str, str]:
 
     if not has_request_context():
         return {}
@@ -95,10 +92,10 @@ def get_consumer():
 
 
 def is_url(s):
-    return s.startswith("http://") or s.startswith("https://")
+    return s.startswith(("http://", "https://"))
 
 
-def get_user_api_key(consumer=None) -> Optional[str]:
+def get_user_api_key(consumer=None) -> str | None:
     """
     Get the api key that belongs to the current user
     If running on localhost, api key is obtained from
@@ -205,7 +202,8 @@ def get_tooltip(
     :param tooltip_text: text to show on hover
     :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
     :param wrapper_class: class to add to the span that wraps all the returned tooltip components (label + content)
-    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props.
+    :param kwargs: additional props added to Tooltip component. See the components js file in
+        dash-mp-components for a full list of props.
     :return: html.Span
     """
     if not tooltip_id:

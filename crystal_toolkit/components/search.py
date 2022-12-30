@@ -118,7 +118,7 @@ class SearchComponent(MPComponent):
             if search_term.startswith("mp") and "-" not in search_term:
                 search_term = f"mp-{search_term.split('mp')[1]}"
 
-            if search_term.startswith("mp-") or search_term.startswith("mvc-"):
+            if search_term.startswith(("mp-", "mvc-")):
                 # no need to actually search, support multiple mp-ids (space separated)
                 return {mpid: mpid for mpid in search_term.split(" ")}
 
