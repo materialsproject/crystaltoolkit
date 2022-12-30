@@ -60,7 +60,7 @@ def _get_sites_to_draw(
     if bonded_sites_outside_unit_cell:
 
         sites_to_append = []
-        for (n, jimage) in sites_to_draw:
+        for n, jimage in sites_to_draw:
             connected_sites = self.get_connected_sites(n, jimage=jimage)
             for connected_site in connected_sites:
                 if connected_site.jimage != (0, 0, 0):
@@ -137,7 +137,7 @@ def get_structure_graph_scene(
         # this then changes mouseover/interaction behavior with this scene
         grouped_atom_scene_contents = defaultdict(list)
 
-    for (idx, jimage) in sites_to_draw:
+    for idx, jimage in sites_to_draw:
 
         site = self.structure[idx]
         if jimage != (0, 0, 0):

@@ -1,7 +1,6 @@
 import dash
 import numpy as np
 from pymatgen.io.vasp import Chgcar
-from skimage import measure
 
 import crystal_toolkit.components as ctc
 import crystal_toolkit.core.scene as cts
@@ -17,19 +16,17 @@ app.title = "Crystal Toolkit Example Components"
 # so that Crystal Toolkit can create callbacks
 # ctc.register_app(app)
 
-# StructureMoleculeComponent
-
 
 def get_mesh(chgcar, data_tag="total", isolvl=2.0, step_size=3):
-    vertices, faces, _normals, _values = measure.marching_cubes_lewiner(
+    import skimage.measure
+
+    vertices, faces, _normals, _values = skimage.measure.marching_cubes_lewiner(
         chgcar.data[data_tag], level=isolvl, step_size=step_size
     )
-    vertices = (
-        vertices / chgcar.data[data_tag].shape
-    )  # transform to fractional coordinates
-    vertices = np.dot(
-        vertices - 0.5, cc.structure.lattice.matrix
-    )  # transform to cartesian
+    # transform to fractional coordinates
+    vertices = vertices / chgcar.data[data_tag].shape
+    # transform to Cartesian
+    vertices = np.dot(vertices - 0.5, cc.structure.lattice.matrix)
     return vertices, faces
 
 

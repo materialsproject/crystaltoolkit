@@ -84,7 +84,7 @@ def get_structure_scene(
 
     sites_to_draw = self._get_sites_to_draw(draw_image_atoms=draw_image_atoms)
 
-    for (idx, jimage) in sites_to_draw:
+    for idx, jimage in sites_to_draw:
 
         site = self[idx]
         if jimage != (0, 0, 0):
