@@ -1,12 +1,16 @@
+from __future__ import annotations
+
 import itertools
 from typing import Any
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
+from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -19,15 +23,14 @@ from crystal_toolkit.helpers.layouts import (
     Column,
     Columns,
     Label,
-    Loading,
     MessageBody,
     MessageContainer,
     get_data_list,
 )
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
-# Author: Jason Munro
-# Contact: jmunro@lbl.gov
+# Author: Jason Munro, Janosh Riebesell
+# Contact: jmunro@lbl.gov, janosh@lbl.gov
 
 
 # TODOs:
@@ -41,12 +44,12 @@ from crystal_toolkit.helpers.pretty_labels import pretty_labels
 class PhononBandstructureAndDosComponent(MPComponent):
     def __init__(
         self,
-        mpid=None,
-        bandstructure_symm_line=None,
-        density_of_states=None,
-        id=None,
+        mpid: str = None,
+        bandstructure_symm_line: BandStructureSymmLine = None,
+        density_of_states: CompleteDos = None,
+        id: str = None,
         **kwargs,
-    ):
+    ) -> None:
 
         # this is a compound component, can be fed by mpid or
         # by the BandStructure itself
@@ -61,7 +64,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         # defaults
         state = {"label-select": "sc", "dos-select": "ap"}
@@ -71,9 +74,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
         fig = PhononBandstructureAndDosComponent.get_figure(bs, dos)
         # Main plot
-        graph = Loading(
-            [dcc.Graph(figure=fig, config={"displayModeBar": False}, responsive=True)],
-            id=self.id("ph-bsdos-div"),
+        graph = dcc.Graph(
+            figure=fig,
+            config={"displayModeBar": False},
+            responsive=True,
+            id=self.id("ph-bsdos-graph"),
         )
 
         # Brillouin zone
@@ -84,6 +89,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # on-the-fly only supported for bandstructures retrieved from MP
         show_path_options = bool(self.initial_data["default"]["mpid"])
 
+        options = [
+            {"label": "Latimer-Munro", "value": "lm"},
+            {"label": "Hinuma et al.", "value": "hin"},
+            {"label": "Setyawan-Curtarolo", "value": "sc"},
+        ]
         # Convention selection for band structure
         convention = html.Div(
             [
@@ -92,14 +102,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     state=state,
                     label="Path convention",
                     help_str="Convention to choose path in k-space",
-                    options=[
-                        {"label": "Latimer-Munro", "value": "lm"},
-                        {"label": "Hinuma et al.", "value": "hin"},
-                        {
-                            "label": "Setyawan-Curtarolo",
-                            "value": "sc",
-                        },
-                    ],
+                    options=options,
                 )
             ],
             style={"width": "200px"}
@@ -116,14 +119,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     state=state,
                     label="Label convention",
                     help_str="Convention to choose labels for path in k-space",
-                    options=[
-                        {"label": "Latimer-Munro", "value": "lm"},
-                        {"label": "Hinuma et al.", "value": "hin"},
-                        {
-                            "label": "Setyawan-Curtarolo",
-                            "value": "sc",
-                        },
-                    ],
+                    options=options,
                 )
             ],
             style={"width": "200px"}
@@ -154,7 +150,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             "table": summary_table,
         }
 
-    def layout(self):
+    def layout(self) -> html.Div:
         return html.Div(
             [
                 Columns([Column([self._sub_layouts["graph"]])]),
@@ -187,7 +183,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         # this component can be loaded either from mpid or
         # directly from BandStructureSymmLine or CompleteDos objects
-        # if mpid is supplied, this is preferred
+        # if mpid is supplied, it takes precedence
 
         mpid = data.get("mpid")
         bandstructure_symm_line = data.get("bandstructure_symm_line")
@@ -447,7 +443,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
         return dos_traces
 
     @staticmethod
-    def get_figure(ph_bs, ph_dos, freq_range=(None, None)):
+    def get_figure(
+        ph_bs: PhononBandStructureSymmLine | None = None,
+        ph_dos: CompletePhononDos | None = None,
+        freq_range: tuple[float, float] | tuple[None, None] = (None, None),
+    ) -> go.Figure:
 
         y_range = list(freq_range)
 
@@ -585,8 +585,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("ph-bsdos-div"), "children"),
-            [Input(self.id("traces"), "data")],
+            Output(self.id("ph-bsdos-graph"), "figure"),
+            Input(self.id("traces"), "data"),
         )
         def update_graph(traces):
 
@@ -609,17 +609,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 figure=figure, config={"displayModeBar": False}, responsive=True
             )
 
-            return [graph]
+            return graph
 
         @app.callback(
-            [
-                Output(self.id("label-select"), "value"),
-                Output(self.id("label-container"), "style"),
-            ],
-            [
-                Input(self.id("mpid"), "data"),
-                Input(self.id("path-convention"), "value"),
-            ],
+            Output(self.id("label-select"), "value"),
+            Output(self.id("label-container"), "style"),
+            Input(self.id("mpid"), "data"),
+            Input(self.id("path-convention"), "value"),
         )
         def update_label_select(mpid, path_convention):
             if not mpid:
@@ -629,15 +625,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 label_value = path_convention
                 label_style = {"maxWidth": "200"}
 
-                return [label_value, label_style]
+                return label_value, label_style
 
         @app.callback(
-            [
-                Output(self.id("dos-select"), "options"),
-                Output(self.id("path-convention"), "options"),
-                Output(self.id("path-container"), "style"),
-            ],
-            [Input(self.id("elements"), "data"), Input(self.id("mpid"), "data")],
+            Output(self.id("dos-select"), "options"),
+            Output(self.id("path-convention"), "options"),
+            Output(self.id("path-container"), "style"),
+            Input(self.id("elements"), "data"),
+            Input(self.id("mpid"), "data"),
         )
         def update_select(elements, mpid):
             if elements is None:
@@ -658,7 +653,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 path_options = [{"label": "N/A", "value": "sc"}]
                 path_style = {"maxWidth": "200", "display": "none"}
 
-                return [dos_options, path_options, path_style]
+                return dos_options, path_options, path_style
             else:
                 dos_options = (
                     [{"label": "Element Projected", "value": "ap"}]
@@ -680,16 +675,15 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
                 path_style = {"maxWidth": "200"}
 
-                return [dos_options, path_options, path_style]
+                return dos_options, path_options, path_style
 
         @app.callback(
-            [Output(self.id("traces"), "data"), Output(self.id("elements"), "data")],
-            [
-                Input(self.id(), "data"),
-                Input(self.id("path-convention"), "value"),
-                Input(self.id("dos-select"), "value"),
-                Input(self.id("label-select"), "value"),
-            ],
+            Output(self.id("traces"), "data"),
+            Output(self.id("elements"), "data"),
+            Input(self.id(), "data"),
+            Input(self.id("path-convention"), "value"),
+            Input(self.id("dos-select"), "value"),
+            Input(self.id("label-select"), "value"),
         )
         def bs_dos_data(data, dos_select, label_select):
 
@@ -720,32 +714,41 @@ class PhononBandstructureAndDosComponent(MPComponent):
             return traces, elements
 
         @app.callback(
-            Output(self.id("brillouin-zone"), "data"), Input(self.id(), "data")
+            Output(self.id("brillouin-zone"), "data"),
+            Input(self.id("ph-bsdos-graph"), "hoverData"),
+            Input(self.id("ph-bsdos-graph"), "clickData"),
         )
-        def highlight_bz_on_hover_bs(data, dos_select, label_select):
-            """Highlight the corresponding point/edge of the Brillouin Zone when hover the band structure plot."""
+        def highlight_bz_on_hover_bs(hover_data, click_data, label_select):
+            """Highlight the corresponding point/edge of the Brillouin Zone when hovering
+            the band structure plot.
+            """
+
+            # TODO: figure out what to return (CSS?) to highlight BZ edge/point
+            return
 
             # TODO: figure out what to return (CSS?) to highlight BZ edge/point
             return
 
 
 class PhononBandstructureAndDosPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.bs = PhononBandstructureAndDosComponent()
         self.bs.attach_from(self, this_store_name="mpid")
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Band Structure and Density of States"
 
     @property
-    def description(self):
-        return "Display the band structure and density of states for this structure \
-        if it has been calculated by the Materials Project."
+    def description(self) -> str:
+        return (
+            "Display the band structure and density of states for this structure "
+            "if it has been calculated by the Materials Project."
+        )
 
     @property
-    def initial_contents(self):
+    def initial_contents(self) -> html.Div:
         return html.Div(
             [
                 super().initial_contents,
@@ -753,5 +756,5 @@ class PhononBandstructureAndDosPanelComponent(PanelComponent):
             ]
         )
 
-    def update_contents(self, new_store_contents, *args):
+    def update_contents(self, new_store_contents, *args) -> html.Div:
         return self.bs.standard_layout

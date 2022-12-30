@@ -32,11 +32,11 @@ ph_bs_dos_component = PhononBandstructureAndDosComponent(
 
 # example layout to demonstrate capabilities of component
 page_title = H1("Phonon Band Structure and Density of States Example")
-my_layout = Container([page_title, ph_bs_dos_component.layout()])
+layout = Container([page_title, ph_bs_dos_component.layout()])
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
-register_crystal_toolkit(app, layout=my_layout)
+register_crystal_toolkit(app, layout=layout)
 
 
 # run this app with "python path/to/this/file.py"
