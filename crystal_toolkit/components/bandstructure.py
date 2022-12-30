@@ -485,7 +485,7 @@ class BandstructureAndDosComponent(MPComponent):
                 "xaxis": "x",
                 "yaxis": "y",
             }
-            for (x_point, y_point) in set(cbm_new)
+            for x_point, y_point in set(cbm_new)
         ] + [
             {
                 "x": [x_point],
@@ -503,7 +503,7 @@ class BandstructureAndDosComponent(MPComponent):
                 "xaxis": "x",
                 "yaxis": "y",
             }
-            for (x_point, y_point) in set(vbm_new)
+            for x_point, y_point in set(vbm_new)
         ]
 
         bs_traces += dot_traces

@@ -1,7 +1,5 @@
 import dash
 from dash.dependencies import Input, Output
-
-# create our crystal structure using pymatgen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 

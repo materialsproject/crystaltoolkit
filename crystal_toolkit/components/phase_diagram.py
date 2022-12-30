@@ -317,7 +317,7 @@ class PhaseDiagramComponent(MPComponent):
 
         dim = pd.dim
 
-        for (unstable_entry, unstable_coord) in plotter.pd_plot_data[2].items():
+        for unstable_entry, unstable_coord in plotter.pd_plot_data[2].items():
             x_list.append(unstable_coord[0])
             y_list.append(unstable_coord[1])
             if dim == 4:

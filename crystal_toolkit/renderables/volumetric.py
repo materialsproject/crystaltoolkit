@@ -1,6 +1,5 @@
 import numpy as np
 from pymatgen.io.vasp import VolumetricData
-from skimage import measure
 
 from crystal_toolkit.core.scene import Scene, Surface
 
@@ -21,6 +20,8 @@ def get_isosurface_scene(
     Returns:
         [type]: [description]
     """
+    import skimage.measure
+
     origin = origin or list(
         -self.structure.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
     )
@@ -29,7 +30,7 @@ def get_isosurface_scene(
     vol_data = vol_data / vol / _ANGS2_TO_BOHR3
 
     padded_data = np.pad(vol_data, (0, 1), "wrap")
-    vertices, faces, normals, values = measure.marching_cubes(
+    vertices, faces, normals, values = skimage.measure.marching_cubes(
         padded_data, level=isolvl, step_size=step_size, method="lewiner"
     )
     # transform to fractional coordinates
