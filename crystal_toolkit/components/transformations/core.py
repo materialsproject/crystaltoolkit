@@ -326,7 +326,7 @@ class AllTransformationsComponent(MPComponent):
             value=[],
             placeholder="Select one or more transformations...",
             id=self.id("choices"),
-            style={"max-width": "65vmin"},
+            style={"maxWidth": "65vmin"},
             persistence=True,
         )
 

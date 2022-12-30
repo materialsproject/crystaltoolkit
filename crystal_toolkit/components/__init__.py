@@ -9,13 +9,14 @@ from crystal_toolkit.components.diffraction_tem import (
     TEMDiffractionComponent as TEMDiffractionComponent,
 )
 from crystal_toolkit.components.fermi_surface import FermiSurfaceComponent
-from crystal_toolkit.components.fermi_surface import (
-    FermiSurfaceComponent as FermiSurfaceComponent,
-)
 from crystal_toolkit.components.localenv import LocalEnvironmentPanel
 from crystal_toolkit.components.phase_diagram import (
     PhaseDiagramComponent,
     PhaseDiagramPanelComponent,
+)
+from crystal_toolkit.components.phonon import (
+    PhononBandstructureAndDosComponent,
+    PhononBandstructureAndDosPanelComponent,
 )
 from crystal_toolkit.components.pourbaix import PourbaixDiagramComponent
 from crystal_toolkit.components.robocrys import RobocrysComponent
