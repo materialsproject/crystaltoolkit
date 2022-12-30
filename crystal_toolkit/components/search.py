@@ -3,7 +3,7 @@ from random import choice
 
 import numpy as np
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from monty.serialization import loadfn
 from mp_api.client import MPRester, MPRestError
@@ -79,7 +79,7 @@ class SearchComponent(MPComponent):
         )
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         search = html.Div(self._make_search_box(), id=self.id("search_container"))
 

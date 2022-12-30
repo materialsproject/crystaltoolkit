@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import itertools
 
 import numpy as np
-import plotly.graph_objs as go
-from dash.dependencies import Input, Output
+import plotly.graph_objects as go
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
 from pymatgen.core.periodic_table import Element
@@ -43,9 +45,9 @@ class BandstructureAndDosComponent(MPComponent):
     def __init__(
         self,
         mpid=None,
-        bandstructure_symm_line=None,
-        density_of_states=None,
-        id=None,
+        bandstructure_symm_line: BandStructureSymmLine = None,
+        density_of_states: CompleteDos = None,
+        id: str = None,
         **kwargs,
     ) -> None:
 
@@ -62,7 +64,7 @@ class BandstructureAndDosComponent(MPComponent):
         )
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         # defaults
         state = {"label-select": "lm", "dos-select": "ap"}
@@ -146,7 +148,7 @@ class BandstructureAndDosComponent(MPComponent):
             "table": table,
         }
 
-    def layout(self):
+    def layout(self) -> html.Div:
         sub_layouts = self._sub_layouts
         return html.Div(
             [
@@ -172,13 +174,14 @@ class BandstructureAndDosComponent(MPComponent):
         )
 
     @staticmethod
-    def _get_bs_dos(data):
-
+    def _get_bs_dos(
+        data: dict | None,
+    ) -> tuple[BandStructureSymmLine, CompleteDos] | tuple[None, None]:
         data = data or {}
 
         # this component can be loaded either from mpid or
         # directly from BandStructureSymmLine or CompleteDos objects
-        # if mpid is supplied, this is preferred
+        # if mpid is supplied, it takes precedence
 
         mpid = data.get("mpid")
         bandstructure_symm_line = data.get("bandstructure_symm_line")
@@ -319,7 +322,9 @@ class BandstructureAndDosComponent(MPComponent):
         return Scene(name="brillouin_zone", contents=contents)
 
     @staticmethod
-    def get_bandstructure_traces(bs, path_convention, energy_window=(-6.0, 10.0)):
+    def get_bandstructure_traces(
+        bs, path_convention: str, energy_window: tuple[float, float] = (-6.0, 10.0)
+    ) -> tuple:
 
         if path_convention == "lm":
             bs = HighSymmKpath.get_continuous_path(bs)
@@ -463,7 +468,12 @@ class BandstructureAndDosComponent(MPComponent):
         return bs_traces, bs_data
 
     @staticmethod
-    def get_dos_traces(dos, dos_select, energy_window=(-6.0, 10.0), horizontal=False):
+    def get_dos_traces(
+        dos,
+        dos_select,
+        energy_window: tuple[float, float] = (-6.0, 10.0),
+        horizontal: bool = False,
+    ) -> list:
 
         if horizontal:
             dos_axis, en_axis = "y", "x"
@@ -583,7 +593,7 @@ class BandstructureAndDosComponent(MPComponent):
         horizontal_dos=False,
         bs_domain=None,
         dos_domain=None,
-    ):
+    ) -> go.Figure:
 
         if (not dos) and (not bs):
 

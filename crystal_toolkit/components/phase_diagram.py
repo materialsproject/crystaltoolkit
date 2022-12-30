@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import dash
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import dash_table, dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
 from pymatgen.core.composition import Composition
@@ -464,7 +466,7 @@ class PhaseDiagramComponent(MPComponent):
         return go.Figure()
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         graph = html.Div(
             [

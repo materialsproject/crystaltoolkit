@@ -2,7 +2,7 @@ from base64 import b64decode
 from tempfile import NamedTemporaryFile
 
 from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from monty.serialization import loadfn
 from pymatgen.core.structure import Molecule, Structure
@@ -19,7 +19,7 @@ from crystal_toolkit.helpers.layouts import (
 
 class StructureMoleculeUploadComponent(MPComponent):
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         # this is a very custom component based on Bulma css styles
         upload_layout = html.Div(

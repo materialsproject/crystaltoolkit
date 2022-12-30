@@ -11,7 +11,7 @@ from typing import Literal
 
 import numpy as np
 from dash import dash_table as dt
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
 from emmet.core.settings import EmmetSettings
@@ -668,7 +668,7 @@ class StructureMoleculeComponent(MPComponent):
         return rows
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         title_layout = html.Div(
             self._make_title(self._initial_data["legend_data"]),

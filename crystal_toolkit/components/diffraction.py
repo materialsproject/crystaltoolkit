@@ -3,9 +3,9 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import callback_context, dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
 from pymatgen.core import Structure
@@ -145,7 +145,7 @@ class XRayDiffractionComponent(MPComponent):
         return 0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         state = {
             "peak_profile": "G",
@@ -313,7 +313,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
     @staticmethod
     def get_figure(
         peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis
-    ):
+    ) -> go.Figure:
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
         hkls = [

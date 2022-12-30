@@ -373,7 +373,7 @@ def get_tooltip(
     )
 
 
-def get_data_list(data: dict[str, str]):
+def get_data_list(data: dict[str, str | int | float | list[str | int | float]]):
     """Show a formatted table of data items.
 
     :param data: dictionary of label, value pairs
