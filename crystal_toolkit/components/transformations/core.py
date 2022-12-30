@@ -6,7 +6,7 @@ import warnings
 import dash
 import dash_daq as daq
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
@@ -49,7 +49,7 @@ class TransformationComponent(MPComponent):
         return False
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         enable = daq.BooleanSwitch(
             id=self.id("enable_transformation"),
@@ -307,7 +307,7 @@ class AllTransformationsComponent(MPComponent):
         self.transformations = {type(t).__name__: t for t in transformations}
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
         layouts = super()._sub_layouts
 
         all_transformations = html.Div(

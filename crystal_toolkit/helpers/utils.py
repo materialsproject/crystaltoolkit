@@ -1,5 +1,6 @@
 import logging
 import re
+import urllib.parse
 from fractions import Fraction
 from typing import Any, Optional
 from uuid import uuid4
@@ -10,7 +11,6 @@ from dash import dash_table as dt
 from dash import dcc, html
 from flask import has_request_context, request
 from monty.serialization import loadfn
-from mpcontribs.client import Client as MPContribsClient
 
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.defaults import _DEFAULTS
@@ -121,12 +121,14 @@ def get_contribs_client():
     in either production or a dev environment.
     Client uses MPCONTRIBS_API_HOST by default.
     """
+    from mpcontribs.client import Client
+
     headers = get_consumer()
 
     if is_localhost():
-        return MPContribsClient(apikey=get_user_api_key())
+        return Client(apikey=get_user_api_key())
     else:
-        return MPContribsClient(headers=headers)
+        return Client(headers=headers)
 
 
 def get_contribs_api_base_url(request_url=None, deployment="contribs"):
@@ -141,7 +143,7 @@ def get_contribs_api_base_url(request_url=None, deployment="contribs"):
 
 
 def parse_request_url(request_url, subdomain):
-    parsed_url = urllib.parse.urlparse(request_url)
+    parsed_url = urllib.parse.urlsplit(request_url)
     pre, suf = parsed_url.netloc.split("next-gen")
     netloc = pre + subdomain + suf
     scheme = "http" if netloc.startswith("localhost.") else "https"

@@ -1,6 +1,8 @@
-import plotly.graph_objs as go
+from __future__ import annotations
+
+import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from crystal_toolkit.core.mpcomponent import MPComponent
@@ -72,7 +74,7 @@ class XASComponent(MPComponent):
     }
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         graph = html.Div(
             [
@@ -165,7 +167,7 @@ class XASComponent(MPComponent):
             with MPRester() as mpr:
                 entry = mpr.get_entry_by_material_id(mpid["mpid"])
             comp = entry.composition
-            elem_options = [str(comp.elements[i]) for i in range(0, len(comp))]
+            elem_options = [str(comp.elements[i]) for i in range(len(comp))]
 
             return plotdata, elem_options
 

@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import re
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.pourbaix_diagram import ELEMENTS_HO, PREFAC, PourbaixDiagram
 from pymatgen.core import Composition
@@ -543,7 +545,7 @@ class PourbaixDiagramComponent(MPComponent):
         return clean_formula
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         options = html.Div(
             [
