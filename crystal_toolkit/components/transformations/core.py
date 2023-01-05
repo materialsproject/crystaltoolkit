@@ -150,11 +150,11 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     @property
-    def title(self):
+    def title(self) -> str:
         raise NotImplementedError
 
     @property
-    def description(self):
+    def description(self) -> str:
         raise NotImplementedError
 
     def get_preview_layout(self, struct_in, struct_out):
@@ -212,7 +212,7 @@ class TransformationComponent(MPComponent):
                 if len(output_structure) > 64:
                     warning = html.Span(
                         f"The transformed crystal structure has {len(output_structure)} atoms "
-                        f"and might take a moment to display."
+                        "and might take a moment to display."
                     )
                 return self.get_preview_layout(input_structure, output_structure)
 
@@ -401,7 +401,7 @@ class AllTransformationsComponent(MPComponent):
                 ]
             )
 
-            return [transformation_options]
+            return transformation_options
 
         @app.callback(
             Output(self.id("enabled-transformations"), "data"),

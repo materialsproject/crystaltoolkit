@@ -5,11 +5,11 @@ from crystal_toolkit.components.transformations.core import TransformationCompon
 
 class SubstitutionTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Substitute one species for another"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """Replace one species in your structure (\"Previous Species\")
 with another species (\"New Species\"). The new species can be specified as an
 element (for example, O), as an element with an oxidation state (for example, O2-)

@@ -7,11 +7,11 @@ from crystal_toolkit.components.transformations.core import TransformationCompon
 
 class CubicSupercellTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Make nearly cubic supercell"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """A transformation that aims to generate a nearly cubic supercell structure
 from a structure.
 
@@ -69,4 +69,4 @@ and the number of atoms in the supercell falls in the range specified.
             help_str="""If enabled, return a transformation with a diagonal transformation matrix.""",
         )
 
-        return [max_atoms, min_atoms, min_length, force_diagonal]
+        return max_atoms, min_atoms, min_length, force_diagonal

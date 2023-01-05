@@ -101,7 +101,7 @@ class XASComponent(MPComponent):
         return {"graph": graph, "element_selector": element_selector}
 
     @property
-    def layout(self):
+    def layout(self) -> html.Div:
         return html.Div(
             [self._sub_layouts["graph"], self._sub_layouts["element_selector"]]
         )
@@ -126,12 +126,10 @@ class XASComponent(MPComponent):
                 )
                 return search_error
             else:
-                return [
-                    dcc.Graph(
-                        figure=go.Figure(data=plotdata, layout=self.default_xas_layout),
-                        config={"displayModeBar": False},
-                    )
-                ]
+                return dcc.Graph(
+                    figure=go.Figure(data=plotdata, layout=self.default_xas_layout),
+                    config={"displayModeBar": False},
+                )
 
         @app.callback(
             Output(self.id(), "data"),
@@ -152,24 +150,19 @@ class XASComponent(MPComponent):
                 data = mpr._make_request(url_path)  # querying MP database via MAPI
 
             if len(data) == 0:
-                plotdata = "error"
+                plot_data = "error"
             else:
                 x = data[0]["spectrum"].x
                 y = data[0]["spectrum"].y
-                plotdata = [
-                    go.Scatter(
-                        x=x,
-                        y=y,
-                        line=dict(color=self.line_colors[elements.index(element)]),
-                    )
-                ]
+                line = dict(color=self.line_colors[elements.index(element)])
+                plot_data = [go.Scatter(x=x, y=y, line=line)]
 
             with MPRester() as mpr:
                 entry = mpr.get_entry_by_material_id(mpid["mpid"])
             comp = entry.composition
             elem_options = [str(comp.elements[i]) for i in range(len(comp))]
 
-            return plotdata, elem_options
+            return plot_data, elem_options
 
         @app.callback(
             Output(self.id("element-selector"), "options"),
@@ -195,22 +188,22 @@ class XASPanelComponent(PanelComponent):
         self.xas.attach_from(self, this_store_name="mpid")
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "X-Ray Absorption Spectra"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
             "Display the K-edge X-Ray Absorption Near Edge Structure (XANES) for this structure, "
             "if it has been calculated by the Materials Project."
         )
 
     @property
-    def loading_text(self):
+    def loading_text(self) -> str:
         return "Searching for calculated XANES pattern on Materials Project..."
 
     @property
-    def initial_contents(self):
+    def initial_contents(self) -> html.Div:
         return html.Div([super().initial_contents, html.Div([self.xas.layout])])
 
     def update_contents(self, new_store_contents, *args):

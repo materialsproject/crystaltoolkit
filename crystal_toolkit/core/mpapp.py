@@ -36,7 +36,7 @@ class MPApp(MPComponent, ABC):
         )
 
     @property
-    def description(self):
+    def description(self) -> str:
         """
         Short description of app (aim for max 140 characters). Formatted as Markdown.
         This will display above the search bar.
@@ -148,4 +148,4 @@ class MPApp(MPComponent, ABC):
         def update_main_content(pathname):
             _, payload = parse_pathname(pathname)
 
-            return (self.get_layout(payload=payload),)
+            return self.get_layout(payload=payload)

@@ -15,11 +15,11 @@ class PanelComponent(MPComponent):
     """
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Untitled Panel"
 
     @property
-    def description(self):
+    def description(self) -> str | None:
         return None
 
     def panel_layout(self, open_by_default=False):

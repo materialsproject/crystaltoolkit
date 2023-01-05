@@ -762,11 +762,11 @@ class PhaseDiagramPanelComponent(PanelComponent):
         self.pd_component.attach_from(self, this_store_name="struct")
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Phase Diagram"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
             "Display the compositional phase diagram for the"
             " chemical system containing this structure (between 2-4 species)."

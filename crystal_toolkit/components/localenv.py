@@ -110,11 +110,11 @@ class LocalEnvironmentPanel(PanelComponent):
         )
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Local Environments"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return "Analyze the local chemical environments in your crystal."
 
     @property

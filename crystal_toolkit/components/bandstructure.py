@@ -826,7 +826,7 @@ class BandstructureAndDosComponent(MPComponent):
                 label_value = path_convention
                 label_style = {"maxWidth": "200"}
 
-                return [label_value, label_style]
+                return label_value, label_style
 
         @app.callback(
             Output(self.id("dos-select"), "options"),
@@ -876,7 +876,7 @@ class BandstructureAndDosComponent(MPComponent):
 
                 path_style = {"maxWidth": "200"}
 
-                return [dos_options, path_options, path_style]
+                return dos_options, path_options, path_style
 
         @app.callback(
             Output(self.id("traces"), "data"),
@@ -917,11 +917,11 @@ class BandstructureAndDosPanelComponent(PanelComponent):
         self.bs.attach_from(self, this_store_name="mpid")
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Band Structure and Density of States"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return "Display the band structure and density of states for this structure \
         if it has been calculated by the Materials Project."
 

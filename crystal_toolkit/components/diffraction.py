@@ -316,9 +316,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
     ) -> go.Figure:
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
-        hkls = [
-            f"hkl: ({' '.join([str(i) for i in hkl])})" for hkl in hkl_list
-        ]  # convert to (h k l) format
+        # convert to (h k l) format
+        hkls = [f"hkl: ({' '.join(map(str, hkl))})" for hkl in hkl_list]
 
         annotations = [
             f"2𝜃: {round(peak_x, 3)}<br>Intensity: {round(peak_y, 3)}<br>{hkl} <br>d: {round(d, 3)}"

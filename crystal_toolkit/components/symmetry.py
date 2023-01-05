@@ -33,11 +33,11 @@ class SymmetryPanel(PanelComponent):
         return x_str
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Symmetry"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return "Analyze the symmetry of your crystal structure or molecule."
 
     def contents_layout(self):

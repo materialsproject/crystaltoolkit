@@ -212,7 +212,7 @@ class PourbaixDiagramComponent(MPComponent):
     #         # Move to first point
     #         path = "M {},{}".format(*vertices[0])
     #         # Draw lines to each other point
-    #         path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
+    #         path += "".join("L {},{}".format(*vertex) for vertex in vertices[1:])
     #         # Close path
     #         path += "Z"
     #
@@ -369,7 +369,7 @@ class PourbaixDiagramComponent(MPComponent):
             # Move to first point
             path = "M {},{}".format(*vertices[0])
             # Draw lines to each other point
-            path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
+            path += "".join("L {},{}".format(*vertex) for vertex in vertices[1:])
             # Close path
             path += "Z"
 
@@ -381,11 +381,7 @@ class PourbaixDiagramComponent(MPComponent):
                 line = {"color": "Black", "width": 1}
 
             shape = go.layout.Shape(
-                type="path",
-                path=path,
-                fillcolor="rgba(0,0,0,0)",
-                opacity=1,
-                line=line,
+                type="path", path=path, fillcolor="rgba(0,0,0,0)", opacity=1, line=line
             )
             shapes.append(shape)
 

@@ -356,8 +356,8 @@ class MPComponent(ABC):
         ids = "\n".join(
             [f"* {component_id}  " for component_id in sorted(self.all_ids)]
         )
-        stores = "\n".join([f"* {store}  " for store in sorted(self.all_stores)])
-        layouts = "\n".join([f"* {layout}  " for layout in sorted(self._sub_layouts)])
+        stores = "\n".join(f"* {store}  " for store in sorted(self.all_stores))
+        layouts = "\n".join(f"* {layout}  " for layout in sorted(self._sub_layouts))
 
         return f"""{self.id()}<{type(self).__name__}>  \n
 IDs:  \n{ids}  \n
