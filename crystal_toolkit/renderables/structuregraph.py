@@ -111,12 +111,13 @@ def get_structure_graph_scene(
     :param bond_radius: Radius of bonds.
     :param site_get_scene_kwargs: Keyword arguments to pass to
         `Site.get_scene`.
-    
+
     :return: Scene containing a representation of the StructureGraph.
     """
 
-
-    site_get_scene_kwargs = site_get_scene_kwargs if site_get_scene_kwargs is not None else {}
+    site_get_scene_kwargs = (
+        site_get_scene_kwargs if site_get_scene_kwargs is not None else {}
+    )
     origin = origin or list(
         -self.structure.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
     )
