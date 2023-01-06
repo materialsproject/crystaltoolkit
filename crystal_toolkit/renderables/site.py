@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from itertools import chain
+from typing import Sequence
 
 import numpy as np
 from pymatgen.analysis.graphs import ConnectedSite
@@ -32,7 +33,7 @@ def get_site_scene(
     incomplete_edge_length_scale: float | None = 1.0,
     connected_sites_colors: list[str] | None = None,
     connected_sites_not_drawn_colors: list[str] | None = None,
-    origin: list[float] | None = None,
+    origin: Sequence[float] | None = None,
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
     bond_radius: float = 0.1,
@@ -54,7 +55,7 @@ def get_site_scene(
         incomplete_edge_length_scale:
         connected_sites_colors:
         connected_sites_not_drawn_colors:
-        origin:
+        origin: x,y,z fractional coordinates of the origin
         explicitly_calculate_polyhedra_hull:
         legend:
     Returns:

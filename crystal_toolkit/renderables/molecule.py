@@ -13,7 +13,7 @@ def get_scene_from_molecule(self, origin=None, legend: Legend | None = None):
     Create CTK objects for the lattice and sties
     Args:
         self:  Structure object
-        origin: fractional coordinate of the origin
+        origin: x,y,z fractional coordinates of the origin
         legend: Legend for the sites
 
     Returns:
@@ -24,7 +24,7 @@ def get_scene_from_molecule(self, origin=None, legend: Legend | None = None):
 
     legend = legend or Legend(self)
 
-    primitives = defaultdict(list)
+    primitives: dict[str, list] = defaultdict(list)
 
     for site in self:
         site_scene = site.get_scene(origin=origin, legend=legend)
