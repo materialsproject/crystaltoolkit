@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 from dash import html
 from pymatgen.ext.matproj import MPRester

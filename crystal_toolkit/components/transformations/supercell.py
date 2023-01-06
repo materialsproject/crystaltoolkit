@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dash import html
 from dash_mp_components import CrystalToolkitScene
 from pymatgen.transformations.standard_transformations import SupercellTransformation

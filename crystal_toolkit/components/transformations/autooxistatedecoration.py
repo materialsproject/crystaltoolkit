@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
 )

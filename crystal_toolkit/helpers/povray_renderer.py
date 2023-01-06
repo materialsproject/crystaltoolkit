@@ -1,4 +1,6 @@
 """Export wrapper for POV-Ray. For creating publication quality plots."""
+from __future__ import annotations
+
 from jinja2 import Environment
 
 HEAD = """

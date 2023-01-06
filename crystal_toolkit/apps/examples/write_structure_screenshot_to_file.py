@@ -1,5 +1,7 @@
 # This example is used to write structures to images in an automated manner.
 # It is a very specific script! Not intended for general use.
+from __future__ import annotations
+
 import urllib
 from pathlib import Path
 from time import sleep

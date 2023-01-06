@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dash import html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 
 # create our crystal structure using pymatgen

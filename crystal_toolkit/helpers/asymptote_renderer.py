@@ -5,6 +5,8 @@ see them.
 TODO The code should also append a set of special points at the end in case the user wants to add
 more "hand drawn" features to the plot.
 """
+from __future__ import annotations
+
 import logging
 from itertools import chain
 

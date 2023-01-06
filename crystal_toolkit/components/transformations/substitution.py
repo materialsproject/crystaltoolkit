@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
 from crystal_toolkit.components.transformations.core import TransformationComponent

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 from dash import dcc, html
 from pymatgen.analysis.phase_diagram import PhaseDiagram

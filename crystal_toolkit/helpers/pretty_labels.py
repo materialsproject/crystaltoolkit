@@ -1,6 +1,8 @@
 # strip latex math wrapping for labels
 # (since MathJax isn't yet supported in hover labels, see https://github.com/plotly/plotly.js/issues/559)
 # TODO: add this to string utils in pymatgen
+from __future__ import annotations
+
 pretty_labels = {
     "$": "",
     "\\mid": "|",
