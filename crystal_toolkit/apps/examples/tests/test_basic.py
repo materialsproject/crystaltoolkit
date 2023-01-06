@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 
 from crystal_toolkit.apps.examples.basic_hello_structure import (

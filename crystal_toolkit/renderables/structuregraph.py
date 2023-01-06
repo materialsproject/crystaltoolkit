@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from itertools import combinations
+from typing import Sequence
 
 import numpy as np
 from matplotlib.cm import get_cmap
@@ -78,19 +79,43 @@ def _get_sites_to_draw(
 
 def get_structure_graph_scene(
     self,
-    origin=None,
-    draw_image_atoms=True,
-    bonded_sites_outside_unit_cell=True,
-    hide_incomplete_edges=False,
+    origin: Sequence[float] = None,
+    draw_image_atoms: bool = True,
+    bonded_sites_outside_unit_cell: bool = True,
+    hide_incomplete_edges: bool = False,
     incomplete_edge_length_scale=0.3,
-    color_edges_by_edge_weight=False,
-    edge_weight_color_scale="coolwarm",
-    explicitly_calculate_polyhedra_hull=False,
+    color_edges_by_edge_weight: bool = False,
+    edge_weight_color_scale: str = "coolwarm",
+    explicitly_calculate_polyhedra_hull: bool = False,
     legend: Legend | None = None,
     group_by_site_property: str | None = None,
     bond_radius: float = 0.1,
+    site_get_scene_kwargs: dict | None = None,
 ) -> Scene:
+    """Returns a Scene containing a representation of the StructureGraph.
 
+    Args:
+        origin (list[float], optional): origin: x,y,z coordinates of the scene's origin. Defaults to None.
+        draw_image_atoms (bool, optional): Whether to draw atoms in periodic images. Defaults to True.
+        bonded_sites_outside_unit_cell (bool, optional): Whether to draw bonds to atoms outside the
+            unit cell. Defaults to True.
+        hide_incomplete_edges (bool, optional): Whether to hide edges that are not complete (i.e. do
+            not connect to another edge). Defaults to False.
+        incomplete_edge_length_scale (float, optional): Scale factor for incomplete edges. Defaults to 0.3.
+        color_edges_by_edge_weight (bool, optional): Whether to color edges by their weight. Defaults to False.
+        edge_weight_color_scale (str, optional): Color scale to use for edge weights. Defaults to "coolwarm".
+        explicitly_calculate_polyhedra_hull (bool, optional): Whether to explicitly calculate the
+            convex hull of the polyhedra. Defaults to False.
+        legend (Legend | None, optional): Legend to use for the Scene. Defaults to None.
+        group_by_site_property (str | None, optional): If provided, will group sites by the value
+            of this property. Defaults to None.
+        bond_radius (float, optional): Radius of bonds. Defaults to 0.1.
+        site_get_scene_kwargs (dict | None, optional): Keyword arguments to pass to `Site.get_scene`
+            Defaults to None.
+
+    Returns:
+        Scene: containing a representation of the StructureGraph.
+    """
     origin = origin or list(
         -self.structure.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
     )
@@ -99,7 +124,7 @@ def get_structure_graph_scene(
 
     # we get primitives from each site individually, then
     # combine into one big Scene
-    primitives = defaultdict(list)
+    primitives: dict[str, list] = defaultdict(list)
 
     sites_to_draw = self._get_sites_to_draw(
         draw_image_atoms=draw_image_atoms,
@@ -135,7 +160,7 @@ def get_structure_graph_scene(
         # for example, if the Structure has a "wyckoff" site property
         # this might be used to allow grouping by Wyckoff position,
         # this then changes mouseover/interaction behavior with this scene
-        grouped_atom_scene_contents = defaultdict(list)
+        grouped_atom_scene_contents: dict[str, list] = defaultdict(list)
 
     for idx, jimage in sites_to_draw:
 
@@ -182,6 +207,7 @@ def get_structure_graph_scene(
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             legend=legend,
             bond_radius=bond_radius,
+            **(site_get_scene_kwargs or {}),
         )
 
         for scene in site_scene.contents:

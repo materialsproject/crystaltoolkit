@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from time import sleep
 
 from crystal_toolkit.apps.examples.structure import app

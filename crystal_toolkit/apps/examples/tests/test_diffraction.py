@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from time import sleep
 
 from selenium.webdriver.common.keys import Keys
