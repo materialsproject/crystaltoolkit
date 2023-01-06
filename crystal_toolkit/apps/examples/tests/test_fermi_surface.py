@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from crystal_toolkit.apps.examples.fermi_surface import app
 from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
