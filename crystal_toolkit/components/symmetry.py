@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from fractions import Fraction
 
 import numpy as np

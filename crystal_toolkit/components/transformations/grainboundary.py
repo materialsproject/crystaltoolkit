@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 from dash import dcc
 from dash.dependencies import Input, Output, State

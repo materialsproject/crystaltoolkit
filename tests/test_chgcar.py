@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 import numpy as np
 from pymatgen.io.vasp import Chgcar
