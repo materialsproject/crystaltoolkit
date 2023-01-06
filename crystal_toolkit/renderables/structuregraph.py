@@ -93,30 +93,28 @@ def get_structure_graph_scene(
 ) -> Scene:
     """Returns a Scene containing a representation of the StructureGraph.
 
-    :param origin: Origin of the Scene.
-    :param draw_image_atoms: Whether to draw atoms in periodic images.
-    :param bonded_sites_outside_unit_cell: Whether to draw bonds to atoms
-        outside the unit cell.
-    :param hide_incomplete_edges: Whether to hide edges that are not
-        complete (i.e. do not connect to another edge).
-    :param incomplete_edge_length_scale: Scale factor for incomplete edges.
-    :param color_edges_by_edge_weight: Whether to color edges by their
-        weight.
-    :param edge_weight_color_scale: Color scale to use for edge weights.
-    :param explicitly_calculate_polyhedra_hull: Whether to explicitly
-        calculate the convex hull of the polyhedra.
-    :param legend: Legend to use for the Scene.
-    :param group_by_site_property: If provided, will group sites by the
-        value of this property.
-    :param bond_radius: Radius of bonds.
-    :param site_get_scene_kwargs: Keyword arguments to pass to
-        `Site.get_scene`.
-    
-    :return: Scene containing a representation of the StructureGraph.
+    Args:
+        origin: Origin of the Scene.
+        draw_image_atoms: Whether to draw atoms in periodic images.
+        bonded_sites_outside_unit_cell: Whether to draw bonds to atoms
+            outside the unit cell.
+        hide_incomplete_edges: Whether to hide edges that are not
+            complete (i.e. do not connect to another edge).
+        incomplete_edge_length_scale: Scale factor for incomplete edges.
+        color_edges_by_edge_weight: Whether to color edges by their
+            weight.
+        edge_weight_color_scale: Color scale to use for edge weights.
+        explicitly_calculate_polyhedra_hull: Whether to explicitly
+            calculate the convex hull of the polyhedra.
+        legend: Legend to use for the Scene.
+        group_by_site_property: If provided, will group sites by the
+            value of this property.
+        bond_radius: Radius of bonds.
+        site_get_scene_kwargs: Keyword arguments to pass to
+            `Site.get_scene`.
+    Returns:
+        Scene containing a representation of the StructureGraph.
     """
-
-
-    site_get_scene_kwargs = site_get_scene_kwargs if site_get_scene_kwargs is not None else {}
     origin = origin or list(
         -self.structure.lattice.get_cartesian_coords([0.5, 0.5, 0.5])
     )
@@ -208,7 +206,7 @@ def get_structure_graph_scene(
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             legend=legend,
             bond_radius=bond_radius,
-            **site_get_scene_kwargs,
+            **(site_get_scene_kwargs or {}),
         )
 
         for scene in site_scene.contents:
