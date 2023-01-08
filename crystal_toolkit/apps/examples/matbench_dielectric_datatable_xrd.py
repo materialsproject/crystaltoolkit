@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 import plotly.io as pio
 from dash import dash_table, html

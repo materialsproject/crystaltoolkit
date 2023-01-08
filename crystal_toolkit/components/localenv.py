@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import itertools
 from multiprocessing import cpu_count
 from warnings import warn

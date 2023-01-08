@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from itertools import combinations
+from typing import Sequence
 
 import numpy as np
 from pymatgen.core.sites import PeriodicSite
@@ -59,7 +60,7 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
 
 def get_structure_scene(
     self,
-    origin: list[float] = None,
+    origin: Sequence[float] = None,
     legend: Legend | None = None,
     draw_image_atoms: bool = True,
 ) -> Scene:
@@ -67,7 +68,7 @@ def get_structure_scene(
     Create CTK objects for the lattice and sties
     Args:
         self:  Structure object
-        origin: fractional coordinate of the origin
+        origin: x,y,z fractional coordinates of the origin
         legend: Legend for the sites
         draw_image_atoms: If true draw image atoms that are just outside the
         periodic boundary

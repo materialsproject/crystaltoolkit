@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )

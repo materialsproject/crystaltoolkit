@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dash import html
 from pymatgen.transformations.advanced_transformations import SlabTransformation
 

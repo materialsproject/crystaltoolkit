@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from crystal_toolkit.components.bandstructure import (
     BandstructureAndDosComponent,
     BandstructureAndDosPanelComponent,
