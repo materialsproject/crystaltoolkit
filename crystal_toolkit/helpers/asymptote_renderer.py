@@ -7,8 +7,10 @@ more "hand drawn" features to the plot.
 """
 
 from __future__ import annotations
-from abc import ABC, abstractmethod
+
 import logging
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from itertools import chain
 from typing import IO, Any
 
@@ -16,10 +18,8 @@ from jinja2 import Environment
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core.structure import Structure
 
-from crystal_toolkit.helpers.utils import update_object_args
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.defaults import _DEFAULTS
-from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -235,9 +235,12 @@ class AsyLine(AsyObject):
         fpos = map(tuple, ctk_scene.positions[1::2])
         posPairs = [*zip(ipos, fpos)]
 
-        linewidth = _read_properties(ctk_scene, property="linewidth", user_settings=user_settings)
+        linewidth = _read_properties(
+            ctk_scene, property="linewidth", user_settings=user_settings
+        )
         color = _read_color(ctk_scene, user_settings=user_settings)
         return cls(pos_pairs=posPairs, color=color, linewidth=linewidth)
+
 
 @dataclass
 class AsySphere(AsyObject):
@@ -287,10 +290,16 @@ class AsySphere(AsyObject):
             AsySphere: The AsySphere object.
         """
         positions = [tuple(pos) for pos in ctk_scene.positions]
-        radius = _read_properties(ctk_scene, property="radius", user_settings=user_settings)
+        radius = _read_properties(
+            ctk_scene, property="radius", user_settings=user_settings
+        )
         color = _read_color(ctk_scene, user_settings=user_settings)
-        opacity = _read_properties(ctk_scene, property="opacity", user_settings=user_settings)
-        light = _read_properties(ctk_scene, property="light", user_settings=user_settings)
+        opacity = _read_properties(
+            ctk_scene, property="opacity", user_settings=user_settings
+        )
+        light = _read_properties(
+            ctk_scene, property="light", user_settings=user_settings
+        )
 
         # TODO: Implement partial spheres later
         if ctk_scene.phiStart or ctk_scene.phiEnd:
@@ -358,10 +367,16 @@ class AsyCylinder(AsyObject):
         posPairs = [
             [tuple(ipos), tuple(fpos)] for ipos, fpos in ctk_scene.positionPairs
         ]
-        radius = _read_properties(ctk_scene, property="radius", user_settings=user_settings)
+        radius = _read_properties(
+            ctk_scene, property="radius", user_settings=user_settings
+        )
         color = _read_color(ctk_scene, user_settings=user_settings)
-        opacity = _read_properties(ctk_scene, property="opacity", user_settings=user_settings)
-        light = _read_properties(ctk_scene, property="light", user_settings=user_settings)
+        opacity = _read_properties(
+            ctk_scene, property="opacity", user_settings=user_settings
+        )
+        light = _read_properties(
+            ctk_scene, property="light", user_settings=user_settings
+        )
         return cls(
             pos_pairs=posPairs,
             radius=radius,
@@ -369,6 +384,7 @@ class AsyCylinder(AsyObject):
             opac=opacity,
             light=light,
         )
+
 
 @dataclass
 class AsySurface(AsyObject):
@@ -416,12 +432,14 @@ class AsySurface(AsyObject):
         """
         if len(ctk_scene.positions) < 1:
             return ""
-        
+
         num_triangle = len(ctk_scene.positions) / 3.0
         # sanity check the mesh must be triangles
         if not num_triangle.is_integer():
             raise ValueError("Surface mesh must be triangles")
-        positions = tuple(map(lambda x: f"{{{x[0]}, {x[1]}, {x[2]}}}", ctk_scene.positions))
+        positions = tuple(
+            map(lambda x: f"{{{x[0]}, {x[1]}, {x[2]}}}", ctk_scene.positions)
+        )
 
         # asymptote just needs the xyz positions
         num_triangle = int(num_triangle)
@@ -435,14 +453,19 @@ class AsySurface(AsyObject):
         )
 
         color = _read_color(ctk_scene, user_settings=user_settings)
-        opacity = _read_properties(ctk_scene, property="opacity", user_settings=user_settings)
-        light = _read_properties(ctk_scene, property="light", user_settings=user_settings)
+        opacity = _read_properties(
+            ctk_scene, property="opacity", user_settings=user_settings
+        )
+        light = _read_properties(
+            ctk_scene, property="light", user_settings=user_settings
+        )
         return cls(
             positions=pos_xyz,
             color=color,
             opac=opacity,
             light=light,
         )
+
 
 ASY_OBJS = {
     "lines": AsyLine,
@@ -451,8 +474,11 @@ ASY_OBJS = {
     "surface": AsySurface,
 }
 
+
 def _read_properties(
-    ctk_scene: Scene, property: str, user_settings: dict | None = None,
+    ctk_scene: Scene,
+    property: str,
+    user_settings: dict | None = None,
 ) -> Any:
     """Read the settings for the Asy object from the ctk scene or the user settings.
 
@@ -470,31 +496,32 @@ def _read_properties(
     """
     # prefer the user settings over the ctk scene settings
     scene_name = ctk_scene.type
-    
+
     # user settings
     if user_settings is not None:
         s_ = user_settings.get(scene_name, {})
         s_ = s_.get(property, None)
         if s_ is not None:
             return s_
-    
+
     # meta attribute
     ctk_meta = getattr(ctk_scene, "_meta", None)
     if ctk_meta is not None:
         s_ = ctk_meta.get("asy", {}).get(property, None)
         if s_ is not None:
             return s_
-    # property attribute 
+    # property attribute
     ctk_att = getattr(ctk_scene, property, None)
     if ctk_att is not None:
         return ctk_att
-    
+
     # default settings
     return _DEFAULTS["scene"].get(scene_name, {}).get(property, None)
 
+
 def _read_color(ctk_scene: Scene, user_settings: dict | None = None) -> str:
     """Read the color from the ctk scene or the user settings.
-    
+
     Args:
         ctk_scene (Scene): The ctk scene.
         user_settings (AsySetting, optional): The user settings. Defaults to None.
@@ -503,14 +530,17 @@ def _read_color(ctk_scene: Scene, user_settings: dict | None = None) -> str:
     # strip the # from the color if it exists
     if color is None:
         return
-    
+
     # if is string
     if isinstance(color, str):
         if color.startswith("#"):
             return color[1:]
         return color
-    
-    raise ValueError(f"Color {color} is not a valid color. Please use a hex color string.")
+
+    raise ValueError(
+        f"Color {color} is not a valid color. Please use a hex color string."
+    )
+
 
 def update_scene_asy_settings(ctk_scene: Scene, user_settings: dict) -> Scene:
     """Update the scene's asy settings with the user settings.
@@ -533,6 +563,7 @@ def update_scene_asy_settings(ctk_scene: Scene, user_settings: dict) -> Scene:
             for child in ctk_scene.contents
         ]
 
+
 def asy_write_data(
     input_scene_comp: Scene,
     fstream: IO,
@@ -553,9 +584,7 @@ def asy_write_data(
         return
 
     asy_obj = ASY_OBJS[scene_obj_type]
-    asy_out = asy_obj.from_ctk(
-        ctk_scene=input_scene_comp, user_settings=user_settings
-    )
+    asy_out = asy_obj.from_ctk(ctk_scene=input_scene_comp, user_settings=user_settings)
     fstream.write(str(asy_out))
 
     # TODO we can make the line solide for the foreground and dashed for the background
@@ -565,7 +594,7 @@ def asy_write_data(
     # normalized vertex contains the three lines that should be dashed
 
 
-def traverse_scene_object(scene_data, fstream, user_settings=None):
+def traverse_scene_object(scene_data, fstream, user_settings=None) -> None:
     """Traverse object."""
     for sub_object in scene_data.contents:
         if isinstance(sub_object, list):
@@ -573,19 +602,17 @@ def traverse_scene_object(scene_data, fstream, user_settings=None):
                 traverse_scene_object(iobj)
             continue
         elif hasattr(sub_object, "type"):
-            asy_write_data(
-                sub_object, fstream, user_settings=user_settings
-            )
+            asy_write_data(sub_object, fstream, user_settings=user_settings)
         else:
-            traverse_scene_object(
-                sub_object, fstream, user_settings=user_settings
-            )
+            traverse_scene_object(sub_object, fstream, user_settings=user_settings)
 
 
 def write_ctk_scene_to_file(ctk_scene, file_name, **kwargs):
-    """
-    ctk_scene : Scene object from crystaltoolkit
-    filename : Output asymptote file and location
+    """Write the ctk scene to file.
+
+    Args:
+        ctk_scene: Scene object from crystaltoolkit
+        file_name: Output asymptote file and location
     """
     fstream = open(file_name, "w")
     target = tuple(-ii for ii in ctk_scene.origin)
@@ -607,4 +634,3 @@ def write_asy_file(renderable_object, file_name, **kwargs):
     ):
         kwargs["explicitly_calculate_polyhedra_hull"] = True
     write_ctk_scene_to_file(renderable_object.get_scene(**kwargs), file_name)
-
