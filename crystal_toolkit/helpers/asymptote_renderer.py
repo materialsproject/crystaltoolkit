@@ -607,3 +607,4 @@ def write_asy_file(renderable_object, file_name, **kwargs):
     ):
         kwargs["explicitly_calculate_polyhedra_hull"] = True
     write_ctk_scene_to_file(renderable_object.get_scene(**kwargs), file_name)
+
