@@ -1,7 +1,12 @@
 # conftest file for pytest
+from __future__ import annotations
+
 from pathlib import Path
-from crystal_toolkit.core.scene import Spheres, Lines, Cylinders, Surface
+
 import pytest
+
+from crystal_toolkit.core.scene import Cylinders, Lines, Spheres, Surface
+
 
 @pytest.fixture(scope="session")
 def test_files():
@@ -17,9 +22,8 @@ def standard_scenes():
             radius=0.3,
         ),
         "cylinders": Cylinders(
-            positionPairs=[[[0, 0, 0], [1, 1, 1]]], 
-            radius=0.3, 
-            color=None),
+            positionPairs=[[[0, 0, 0], [1, 1, 1]]], radius=0.3, color=None
+        ),
         "lines": Lines(
             positions=[[0, 0, 0], [1, 1, 1]],
             color=None,
@@ -27,5 +31,5 @@ def standard_scenes():
         "surface": Surface(
             positions=[[0, 0, 0], [1, 1, 1], [2, 2, 2]],
             color=None,
-        )
+        ),
     }

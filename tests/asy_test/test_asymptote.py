@@ -1,6 +1,11 @@
-import pytest
-from crystal_toolkit.helpers.asymptote_renderer import _read_properties, _read_color, ASY_OBJS
-from crystal_toolkit.core.scene import Scene
+from __future__ import annotations
+
+from crystal_toolkit.helpers.asymptote_renderer import (
+    ASY_OBJS,
+    _read_color,
+    _read_properties,
+)
+
 
 def test_read_properties(standard_scenes):
     def _set_and_read_properties(scene):
@@ -10,7 +15,7 @@ def test_read_properties(standard_scenes):
 
         scene.prop0 = "scene"
         scene._meta["prop0"] = "meta"
-        user_setting = {scene.type : {"prop0": "user"}}
+        user_setting = {scene.type: {"prop0": "user"}}
         p0 = _read_properties(scene, property="prop0", user_settings=user_setting)
         assert p0 == "user"
 
@@ -21,12 +26,12 @@ def test_read_properties(standard_scenes):
 
     for k, v in standard_scenes.items():
         _set_and_read_properties(v)
-        # Default color is used 
+        # Default color is used
         assert _read_color(v) is not None
+
 
 def test_asymptote_renderer(standard_scenes):
     for k in ["lines", "spheres", "cylinders", "surface"]:
         asy_obj = ASY_OBJS[k].from_ctk(standard_scenes[k])
         asy_out = str(asy_obj)
         assert "draw" in asy_out.lower()
-    

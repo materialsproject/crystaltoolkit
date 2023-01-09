@@ -32,6 +32,6 @@ jobs:
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
         run: pytest --color=yes --webdriver Chrome --headless crystal_toolkit/apps/examples/tests/
-      
+
       - name: Test other modules with pytest
         run: pytest ./tests
