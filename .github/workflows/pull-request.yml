@@ -21,6 +21,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
           cache-dependency-path: '**/pyproject.toml'
+      - name: Test modules with pytest
+        run: pytest ./tests
       - name: Install webdriver
         run: sudo apt-get update && sudo apt-get install firefox-geckodriver chromium-chromedriver
       - name: Install dependencies
@@ -32,6 +34,3 @@ jobs:
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
         run: pytest --color=yes --webdriver Chrome --headless crystal_toolkit/apps/examples/tests/
-
-      - name: Test other modules with pytest
-        run: pytest ./tests
