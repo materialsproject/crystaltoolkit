@@ -12,3 +12,4 @@ docs_rst/_build
 build/*
 *.egg-info
 dist/*
+.vscode
