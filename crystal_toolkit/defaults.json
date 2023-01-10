@@ -13,7 +13,7 @@
         },
         "surface": {
             "color": "#6495ed",
-            "edge_width" : 0.2,
+            "edge_width": 0.2,
             "light": true,
             "opacity": 0.5
         },

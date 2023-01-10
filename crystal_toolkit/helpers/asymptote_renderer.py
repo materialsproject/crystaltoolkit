@@ -488,34 +488,34 @@ def _read_properties(
         4. Default settings.
 
     Args:
-        ctk_scene (Scene): The ctk scene.
-        property (str): The property to read from the ctk scene.
+        ctk_scene (Scene): The CTK scene.
+        property (str): The property to read from the CTK scene.
         user_settings (dict, optional): User settings for different
-            objects, keyed by the ctk object type.
+            objects, keyed by the CTK object type.
     """
-    # prefer the user settings over the ctk scene settings
+    # prefer the user settings over the CTK scene settings
     scene_name = ctk_scene.type
 
     # user settings
     if user_settings is not None:
         s_ = user_settings.get(scene_name, {})
-        s_ = s_.get(property, None)
+        s_ = s_.get(property)
         if s_ is not None:
             return s_
 
     # meta attribute
-    ctk_meta = getattr(ctk_scene, "_meta", None)
+    ctk_meta = ctk_scene._meta
     if ctk_meta is not None:
-        s_ = ctk_meta.get("asy", {}).get(property, None)
+        s_ = ctk_meta.get("asy", {}).get(property)
         if s_ is not None:
             return s_
     # property attribute
-    ctk_att = getattr(ctk_scene, property, None)
+    ctk_att = getattr(ctk_scene, property)
     if ctk_att is not None:
         return ctk_att
 
     # default settings
-    return _DEFAULTS["scene"].get(scene_name, {}).get(property, None)
+    return _DEFAULTS["scene"].get(scene_name, {}).get(property)
 
 
 def _read_color(ctk_scene: Scene, user_settings: dict | None = None) -> str:
@@ -578,7 +578,7 @@ def asy_write_data(
         fstream (IO): File stream to write to
     """
     scene_obj_type = input_scene_comp.type
-    if ASY_OBJS.get(scene_obj_type, None) is None:
+    if ASY_OBJS.get(scene_obj_type) is None:
         print(scene_obj_type)
         return
 
