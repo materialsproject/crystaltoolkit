@@ -11,15 +11,15 @@ from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
 from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
+
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import (
     Box,
     Column,
     Columns,
     Loading,
-    MessageContainer,
-    MessageHeader,
     MessageBody,
+    MessageContainer,
 )
 
 # Scherrer equation: Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years:
@@ -337,7 +337,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         d_hkls,
         hkls,
         x_axis,
-        broadening=True
+        broadening=True,
     ) -> go.Figure:
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
