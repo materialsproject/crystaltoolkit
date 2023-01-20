@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from itertools import chain
+from typing import Sequence
 
 import numpy as np
 from pymatgen.analysis.graphs import ConnectedSite
@@ -28,32 +29,36 @@ def get_site_scene(
     # connected_sites_to_draw,
     connected_sites_not_drawn: list[ConnectedSite] = None,
     hide_incomplete_edges: bool = False,
+    site_idx: int | None = 0,
     incomplete_edge_length_scale: float | None = 1.0,
     connected_sites_colors: list[str] | None = None,
     connected_sites_not_drawn_colors: list[str] | None = None,
-    origin: list[float] | None = None,
+    origin: Sequence[float] | None = None,
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
     bond_radius: float = 0.1,
     draw_magmoms: bool = True,
+    show_atom_idx: bool = False,
+    show_atom_coord: bool = True,
+    show_bond_order: bool = True,
+    show_bond_length: bool = False,
+    visualize_bond_orders: bool = False,
     magmom_scale: float = 1.0,
     legend: Legend | None = None,
 ) -> Scene:
     """
-
     Args:
         connected_sites:
         connected_sites_not_drawn:
         hide_incomplete_edges:
+        site_idx:
         incomplete_edge_length_scale:
         connected_sites_colors:
         connected_sites_not_drawn_colors:
-        origin:
+        origin: x,y,z fractional coordinates of the origin
         explicitly_calculate_polyhedra_hull:
         legend:
-
     Returns:
-
     """
 
     atoms = []
@@ -74,7 +79,6 @@ def get_site_scene(
     max_radius = float(min(radii))
 
     for sp, occu in self.species.items():
-
         if isinstance(sp, DummySpecie):
 
             cube = Cubes(
@@ -101,7 +105,12 @@ def get_site_scene(
             name = str(sp)
             if occu != 1.0:
                 name += f" ({occu}% occupancy)"
-            name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
+
+            if show_atom_coord:
+                name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
+
+            if show_atom_idx:
+                name += "\n" + "index:" + str(site_idx)
 
             if self.properties:
                 for k, v in self.properties.items():
@@ -157,8 +166,19 @@ def get_site_scene(
         # TODO: can cause a bug if all vertices almost co-planar
         # necessary to include center site in case it's outside polyhedra
         all_positions = [self.coords]
+        name_cyl = " "
 
         for idx, connected_site in enumerate(connected_sites):
+
+            if show_bond_order:
+                if connected_site.weight is not None:
+                    name_cyl = "bond order:" + str(f"{connected_site.weight:.2f}")
+
+            if show_bond_length:
+                if connected_site.dist is not None:
+                    name_cyl += (
+                        "\n" + "bond length:" + str(f"{connected_site.dist:.3f}")
+                    )
 
             connected_position = connected_site.site.coords
             bond_midpoint = np.add(position, connected_position) / 2
@@ -168,12 +188,47 @@ def get_site_scene(
             else:
                 color = site_color
 
-            cylinder = Cylinders(
-                positionPairs=[[position, bond_midpoint.tolist()]],
-                color=color,
-                radius=bond_radius,
-            )
-            bonds.append(cylinder)
+            if visualize_bond_orders:
+                cylinders = []
+
+                if connected_site.weight is not None:
+
+                    if connected_site.weight > 1:
+                        trans_vector = 0.0
+                        for _bond in range(connected_site.weight):
+                            pos_r_1 = [i + trans_vector for i in position]
+                            pos_r_2 = [i + trans_vector for i in bond_midpoint.tolist()]
+                            cylinders.append(
+                                Cylinders(
+                                    positionPairs=[[pos_r_1, pos_r_2]],
+                                    color=color,
+                                    radius=bond_radius / 2,
+                                    clickable=True,
+                                    tooltip=name_cyl,
+                                )
+                            )
+                            trans_vector = trans_vector + 0.25 * max_radius
+                        for cylinder in cylinders:
+                            bonds.append(cylinder)
+                    else:
+                        cylinder = Cylinders(
+                            positionPairs=[[position, bond_midpoint.tolist()]],
+                            color=color,
+                            radius=bond_radius,
+                            clickable=True,
+                            tooltip=name_cyl,
+                        )
+                        bonds.append(cylinder)
+
+            else:
+                cylinder = Cylinders(
+                    positionPairs=[[position, bond_midpoint.tolist()]],
+                    color=color,
+                    radius=bond_radius,
+                    clickable=True,
+                    tooltip=name_cyl,
+                )
+                bonds.append(cylinder)
             all_positions.append(connected_position.tolist())
 
         if connected_sites_not_drawn and not hide_incomplete_edges:

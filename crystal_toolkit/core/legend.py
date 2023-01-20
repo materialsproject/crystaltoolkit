@@ -46,7 +46,7 @@ class Legend(MSONable):
         radius_scheme: str = "uniform",
         cmap: str = "coolwarm",
         cmap_range: tuple[float, float] | None = None,
-    ):
+    ) -> None:
         """Create a legend for a given SiteCollection to choose how to display colors and radii for
         the given sites and the species on those sites.
 

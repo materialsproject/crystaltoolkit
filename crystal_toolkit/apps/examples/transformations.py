@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 from dash import html
 from dash.dependencies import Input, Output
@@ -66,7 +68,7 @@ app.clientside_callback(
 
 @app.callback(
     Output(structure_component_transformed.id(), "data"),
-    [Input(transformation_component.id(), "data")],
+    Input(transformation_component.id(), "data"),
 )
 def update_structure(struct):
     return struct
@@ -74,6 +76,6 @@ def update_structure(struct):
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
-# see Dash documentation for more information
+# see Dash docs for more info
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

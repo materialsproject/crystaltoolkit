@@ -3,12 +3,12 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import callback_context, dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
-from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
+from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
 from crystal_toolkit.core.mpcomponent import MPComponent
@@ -39,68 +39,10 @@ from crystal_toolkit.helpers.layouts import (
 SITES_LIMIT = 25
 
 
-class TEMDiffractionComponent(MPComponent):
-    def __init__(self, *args, initial_structure=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.create_store("structure", initial_data=initial_structure)
-
-    def layout(self) -> Columns:
-
-        voltage = self.get_numerical_input(
-            kwarg_label="voltage",
-            default=200,
-            label="Voltage / kV",
-            help_str="The incident wavelength with which to generate the diffraction pattern, "
-            "typically corresponding to a TEM microscope’s voltage.",
-        )
-
-        beam_direction = self.get_numerical_input(
-            kwarg_label="beam_direction",
-            default=[0, 0, 1],
-            label="Beam Direction",
-            help_str="The direction of the electron beam fired onto the sample.",
-            shape=(3,),
-            is_int=True,
-        )
-
-        # TODO: add additional kwargs for TemCalculator, or switch to an alternative solution
-
-        return Columns(
-            [
-                Column([Box(Loading(id=self.id("tem-plot")))], size=8),
-                Column(
-                    [voltage, html.Br(), beam_direction],
-                    size=4,
-                ),
-            ],
-        )
-
-    def generate_callbacks(self, app, cache):
-        @app.callback(
-            Output(self.id("tem-plot"), "children"),
-            [
-                Input(self.id("structure"), "data"),
-                Input(self.get_all_kwargs_id(), "value"),
-            ],
-        )
-        def generate_diffraction_pattern(structure, *args):
-
-            structure = self.from_data(structure)
-            kwargs = self.reconstruct_kwargs_from_state()
-
-            calculator = TEMCalculator(**kwargs)
-
-            return dcc.Graph(
-                figure=calculator.get_plot_2d(structure),
-                responsive=False,
-                config=dict(displayModeBar=False, displaylogo=False),
-            )
-
-
 class XRayDiffractionComponent(MPComponent):
     # TODO: add pole figures for a given single peak for help quantifying texture
 
-    def __init__(self, *args, initial_structure=None, **kwargs):
+    def __init__(self, *args, initial_structure: Structure = None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
 
@@ -212,7 +154,7 @@ class XRayDiffractionComponent(MPComponent):
         return 0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         state = {
             "peak_profile": "G",
@@ -395,13 +337,12 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         d_hkls,
         hkls,
         x_axis,
-        broadening=True,
-    ):
+        broadening=True
+    ) -> go.Figure:
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
-        hkls = [
-            f"hkl: ({' '.join([str(i) for i in hkl])})" for hkl in hkl_list
-        ]  # convert to (h k l) format
+        # convert to (h k l) format
+        hkls = [f"hkl: ({' '.join(map(str, hkl))})" for hkl in hkl_list]
 
         annotations = [
             f"2𝜃: {round(peak_x, 3)}<br>Intensity: {round(peak_y, 3)}<br>{hkl} <br>d: {round(d, 3)}"

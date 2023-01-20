@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import dash
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import dash_table, dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
 from pymatgen.core.composition import Composition
@@ -22,7 +24,7 @@ from crystal_toolkit.helpers.layouts import (
 
 
 class PhaseDiagramComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("chemsys-internal")
@@ -317,7 +319,7 @@ class PhaseDiagramComponent(MPComponent):
 
         dim = pd.dim
 
-        for (unstable_entry, unstable_coord) in plotter.pd_plot_data[2].items():
+        for unstable_entry, unstable_coord in plotter.pd_plot_data[2].items():
             x_list.append(unstable_coord[0])
             y_list.append(unstable_coord[1])
             if dim == 4:
@@ -464,7 +466,7 @@ class PhaseDiagramComponent(MPComponent):
         return go.Figure()
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         graph = html.Div(
             [
@@ -549,7 +551,7 @@ class PhaseDiagramComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("pd-div"), "children"), [Input(self.id("figure"), "data")]
+            Output(self.id("pd-div"), "children"), Input(self.id("figure"), "data")
         )
         def update_graph(figure):
             if figure is None:
@@ -634,7 +636,7 @@ class PhaseDiagramComponent(MPComponent):
 
             return fig
 
-        @app.callback(Output(self.id(), "data"), [Input(self.id("entries"), "data")])
+        @app.callback(Output(self.id(), "data"), Input(self.id("entries"), "data"))
         def create_pd_object(entries):
             if entries is None or not entries:
                 raise PreventUpdate
@@ -645,7 +647,7 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("entries"), "data"),
-            [Input(self.id("entry-table"), "derived_virtual_data")],
+            Input(self.id("entry-table"), "derived_virtual_data"),
         )
         def update_entries_store(rows):
             if rows is None:
@@ -674,12 +676,11 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("entry-table"), "data"),
-            [
-                Input(self.id("chemsys-internal"), "data"),
-                Input(self.id(), "modified_timestamp"),
-                Input(self.id("editing-rows-button"), "n_clicks"),
-            ],
-            [State(self.id(), "data"), State(self.id("entry-table"), "data")],
+            Input(self.id("chemsys-internal"), "data"),
+            Input(self.id(), "modified_timestamp"),
+            Input(self.id("editing-rows-button"), "n_clicks"),
+            State(self.id(), "data"),
+            State(self.id("entry-table"), "data"),
         )
         def create_table(chemsys, pd_time, n_clicks, pd, rows):
 
@@ -709,10 +710,8 @@ class PhaseDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("chemsys-internal"), "data"),
-            [
-                Input(self.id("mpid"), "data"),
-                Input(self.id("chemsys-external"), "data"),
-            ],
+            Input(self.id("mpid"), "data"),
+            Input(self.id("chemsys-external"), "data"),
         )
         def get_chemsys_from_mpid_or_chemsys(
             mpid: str, chemsys_external: str
@@ -757,17 +756,17 @@ class PhaseDiagramComponent(MPComponent):
 
 
 class PhaseDiagramPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.pd_component = PhaseDiagramComponent()
         self.pd_component.attach_from(self, this_store_name="struct")
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Phase Diagram"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
             "Display the compositional phase diagram for the"
             " chemical system containing this structure (between 2-4 species)."

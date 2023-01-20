@@ -87,7 +87,8 @@ class MPComponent(ABC):
             cache: a flask_caching Cache instance
         """
         if SETTINGS.DEBUG_MODE:
-            cache = null_cache
+            MPComponent.cache = null_cache
+            MPComponent.cache.init_app(MPComponent.app.server)
         elif cache:
             MPComponent.cache = cache
         else:
@@ -145,7 +146,7 @@ class MPComponent(ABC):
         links: dict[str, str] | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
-    ):
+    ) -> None:
         """The abstract base class for an MPComponent.
 
         The MPComponent is designed to help render any MSONable object,
@@ -355,8 +356,8 @@ class MPComponent(ABC):
         ids = "\n".join(
             [f"* {component_id}  " for component_id in sorted(self.all_ids)]
         )
-        stores = "\n".join([f"* {store}  " for store in sorted(self.all_stores)])
-        layouts = "\n".join([f"* {layout}  " for layout in sorted(self._sub_layouts)])
+        stores = "\n".join(f"* {store}  " for store in sorted(self.all_stores))
+        layouts = "\n".join(f"* {layout}  " for layout in sorted(self._sub_layouts))
 
         return f"""{self.id()}<{type(self).__name__}>  \n
 IDs:  \n{ids}  \n
@@ -417,7 +418,7 @@ Sub-layouts:  \n{layouts}"""
         """
 
         state = state or {}
-        default = np.full(shape, default or state.get(kwarg_label))
+        default = np.full(shape, state.get(kwarg_label) if default is None else default)
         default = np.reshape(default, shape)
 
         style = {
@@ -459,7 +460,6 @@ Sub-layouts:  \n{layouts}"""
                     value=int(value) if value is not None else None,
                     persistence=True,
                     type="number",
-                    step=1,
                     **kwargs,
                 )
 

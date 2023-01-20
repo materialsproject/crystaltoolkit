@@ -1,6 +1,8 @@
-import plotly.graph_objs as go
+from __future__ import annotations
+
+import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from crystal_toolkit.core.mpcomponent import MPComponent
@@ -12,7 +14,7 @@ from crystal_toolkit.helpers.layouts import MessageBody, MessageContainer
 
 
 class XASComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("mpid")
         self.create_store("elements")
@@ -72,7 +74,7 @@ class XASComponent(MPComponent):
     }
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         graph = html.Div(
             [
@@ -99,15 +101,13 @@ class XASComponent(MPComponent):
         return {"graph": graph, "element_selector": element_selector}
 
     @property
-    def layout(self):
+    def layout(self) -> html.Div:
         return html.Div(
             [self._sub_layouts["graph"], self._sub_layouts["element_selector"]]
         )
 
     def generate_callbacks(self, app, cache):
-        @app.callback(
-            Output(self.id("xas-div"), "children"), [Input(self.id(), "data")]
-        )
+        @app.callback(Output(self.id("xas-div"), "children"), Input(self.id(), "data"))
         def update_graph(plotdata):
             if not plotdata:
                 raise PreventUpdate
@@ -126,18 +126,17 @@ class XASComponent(MPComponent):
                 )
                 return search_error
             else:
-                return [
-                    dcc.Graph(
-                        figure=go.Figure(data=plotdata, layout=self.default_xas_layout),
-                        config={"displayModeBar": False},
-                    )
-                ]
+                return dcc.Graph(
+                    figure=go.Figure(data=plotdata, layout=self.default_xas_layout),
+                    config={"displayModeBar": False},
+                )
 
         @app.callback(
-            [Output(self.id(), "data"), Output(self.id("elements"), "data")][
-                Input(self.id("element-selector"), "value")
-            ],
-            [State(self.id("mpid"), "data"), State(self.id("elements"), "data")],
+            Output(self.id(), "data"),
+            Output(self.id("elements"), "data"),
+            Input(self.id("element-selector"), "value"),
+            State(self.id("mpid"), "data"),
+            State(self.id("elements"), "data"),
         )
         def pattern_from_mpid(element, mpid, elements):
             if not element or not elements:
@@ -151,35 +150,30 @@ class XASComponent(MPComponent):
                 data = mpr._make_request(url_path)  # querying MP database via MAPI
 
             if len(data) == 0:
-                plotdata = "error"
+                plot_data = "error"
             else:
                 x = data[0]["spectrum"].x
                 y = data[0]["spectrum"].y
-                plotdata = [
-                    go.Scatter(
-                        x=x,
-                        y=y,
-                        line=dict(color=self.line_colors[elements.index(element)]),
-                    )
-                ]
+                line = dict(color=self.line_colors[elements.index(element)])
+                plot_data = [go.Scatter(x=x, y=y, line=line)]
 
             with MPRester() as mpr:
                 entry = mpr.get_entry_by_material_id(mpid["mpid"])
             comp = entry.composition
-            elem_options = [str(comp.elements[i]) for i in range(0, len(comp))]
+            elem_options = [str(comp.elements[i]) for i in range(len(comp))]
 
-            return plotdata, elem_options
+            return plot_data, elem_options
 
         @app.callback(
             Output(self.id("element-selector"), "options"),
-            [Input(self.id("elements"), "data")],
+            Input(self.id("elements"), "data"),
         )
         def generate_element_options(elements):
             return [{"label": i, "value": i} for i in elements]
 
         @app.callback(
             Output(self.id("element-selector"), "value"),
-            [Input(self.id("element-selector"), "options")],
+            Input(self.id("element-selector"), "options"),
         )
         def set_xas_value(options):
             if not options or not options[0]:
@@ -188,28 +182,28 @@ class XASComponent(MPComponent):
 
 
 class XASPanelComponent(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.xas = XASComponent()
         self.xas.attach_from(self, this_store_name="mpid")
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "X-Ray Absorption Spectra"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return (
             "Display the K-edge X-Ray Absorption Near Edge Structure (XANES) for this structure, "
             "if it has been calculated by the Materials Project."
         )
 
     @property
-    def loading_text(self):
+    def loading_text(self) -> str:
         return "Searching for calculated XANES pattern on Materials Project..."
 
     @property
-    def initial_contents(self):
+    def initial_contents(self) -> html.Div:
         return html.Div([super().initial_contents, html.Div([self.xas.layout])])
 
     def update_contents(self, new_store_contents, *args):
@@ -220,7 +214,7 @@ class XASPanelComponent(PanelComponent):
     #     super().generate_callbacks(app, cache)
     #
     #     @app.callback(
-    #         Output(self.id("inner_contents"), "children"), [Input(self.id(), "data")]
+    #         Output(self.id("inner_contents"), "children"), Input(self.id(), "data")
     #     )
     #     def add_xas(mpid):
     #         if not mpid:

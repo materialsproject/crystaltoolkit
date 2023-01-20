@@ -403,7 +403,7 @@ master_layout = Container(
                                 ),
                                 action_div,
                             ],
-                            style={"width": box_size, "max-width": box_size},
+                            style={"width": box_size, "maxWidth": box_size},
                         ),
                     ],
                     desktop_only=False,
@@ -448,12 +448,10 @@ def update_search_term_on_page_load(href: str) -> str:
 
 
 @app.callback(
-    [
-        Output(search_component.id("input"), "n_submit"),
-        Output(search_component.id("input"), "n_submit_timestamp"),
-    ],
-    [Input(search_component.id("input"), "value")],
-    [State(search_component.id("input"), "n_submit")],
+    Output(search_component.id("input"), "n_submit"),
+    Output(search_component.id("input"), "n_submit_timestamp"),
+    Input(search_component.id("input"), "value"),
+    State(search_component.id("input"), "n_submit"),
 )
 def perform_search_on_page_load(
     search_term: str, n_submit: int | None
@@ -475,7 +473,7 @@ def perform_search_on_page_load(
         raise PreventUpdate
 
 
-@app.callback(Output("url", "pathname"), [Input(search_component.id(), "data")])
+@app.callback(Output("url", "pathname"), Input(search_component.id(), "data"))
 def update_url_pathname_from_search_term(mpid: str | None) -> str:
     """Updates the URL from the search term. Technically a circular callback, this is done to
     prevent the app seeming inconsistent from the end user.
@@ -493,7 +491,8 @@ def update_url_pathname_from_search_term(mpid: str | None) -> str:
 
 @app.callback(
     Output(transformation_component.id("input_structure"), "data"),
-    [Input(search_component.id(), "data"), Input(upload_component.id(), "data")],
+    Input(search_component.id(), "data"),
+    Input(upload_component.id(), "data"),
 )
 def master_update_structure(
     search_mpid: str | None, upload_data: dict | None

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Literal
 
 from pydantic import BaseSettings
@@ -14,6 +16,12 @@ class Settings(BaseSettings):
     TRANSFORMATION_PREVIEWS: bool = False
     REDIS_URL: str = "redis://localhost:6379"
     ASSETS_PATH: str = str(MODULE_PATH / "apps" / "assets")
+    APP_METADATA: str = str(MODULE_PATH / "apps" / "app_metadata.yaml")
+
+    DEV_LOGIN_DISABLED: bool = True
+    LOGIN_ENDPOINT: str = "https://profile.materialsproject.org/"
+    API_KEY: str | None = ""
+    API_EXTERNAL_ENDPOINT: str = "https://api.materialsproject.org"
 
     PERSISTENCE: bool = True
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"

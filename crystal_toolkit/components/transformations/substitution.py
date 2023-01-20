@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 
 from crystal_toolkit.components.transformations.core import TransformationComponent
@@ -5,11 +7,11 @@ from crystal_toolkit.components.transformations.core import TransformationCompon
 
 class SubstitutionTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Substitute one species for another"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """Replace one species in your structure (\"Previous Species\")
 with another species (\"New Species\"). The new species can be specified as an
 element (for example, O), as an element with an oxidation state (for example, O2-)
@@ -51,7 +53,7 @@ and copper). Please consult the pymatgen documentation for more information.
         #
         # @app.callback(
         #     Output(self.id("transformation_args_kwargs"), "data"),
-        #     [Input(self.id("species_mapping"), "data")],
+        #     Input(self.id("species_mapping"), "data"),
         # )
         # def update_transformation_kwargs(rows):
         #     def get_el_occu(string):

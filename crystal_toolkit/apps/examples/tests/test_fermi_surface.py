@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from crystal_toolkit.apps.examples.fermi_surface import app
 from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
@@ -12,4 +14,4 @@ def test_diffraction(dash_duo: DashDuo) -> None:
     assert "dash-graph" in node.get_attribute("class")
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Browser console should not contain errors: {logs}"
+    assert logs == [], f"Unexpected browser {logs=}"

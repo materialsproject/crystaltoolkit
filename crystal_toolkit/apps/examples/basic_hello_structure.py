@@ -1,6 +1,9 @@
-# as explained in "preamble" section in documentation
+from __future__ import annotations
+
 import dash
 from dash import html
+
+# create our crystal structure using pymatgen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -9,7 +12,6 @@ from crystal_toolkit.settings import SETTINGS
 
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
-# create our crystal structure using pymatgen
 structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
 # create the Crystal Toolkit component

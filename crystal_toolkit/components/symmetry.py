@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from fractions import Fraction
 
 import numpy as np
@@ -33,11 +35,11 @@ class SymmetryPanel(PanelComponent):
         return x_str
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Symmetry"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return "Analyze the symmetry of your crystal structure or molecule."
 
     def contents_layout(self):
@@ -79,11 +81,9 @@ class SymmetryPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("analysis"), "children"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_kwarg_id("symprec"), "value"),
-                Input(self.get_kwarg_id("angle_tolerance"), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_kwarg_id("symprec"), "value"),
+            Input(self.get_kwarg_id("angle_tolerance"), "value"),
         )
         def update_contents(data, symprec, angle_tolerance):
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
 )
@@ -7,11 +9,11 @@ from crystal_toolkit.components.transformations.core import TransformationCompon
 
 class AutoOxiStateDecorationTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Detect likely oxidation states"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """Annotate the crystal structure with likely oxidation states
 using a bond valence approach. This transformation can fail if it cannot find
 a satisfactory combination of oxidation states, and might be slow for large
@@ -68,4 +70,4 @@ structures.
             shape=(),
         )
 
-        return [symm_tol, max_radius, max_permutations, distance_scale_factor]
+        return symm_tol, max_radius, max_permutations, distance_scale_factor

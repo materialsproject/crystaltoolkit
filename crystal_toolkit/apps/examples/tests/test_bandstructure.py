@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 
 from crystal_toolkit.apps.examples.bandstructure import app
@@ -27,4 +29,4 @@ def test_bs(dash_duo: DashDuo) -> None:
     # dash_duo.percy_snapshot("example_bsdos_projection_index_2")
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Browser console should not contain errors: {logs}"
+    assert logs == [], f"Unexpected browser {logs=}"

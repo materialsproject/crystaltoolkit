@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 
 from crystal_toolkit.apps.examples.tests.typing import DashDuo
@@ -14,6 +16,5 @@ def test_main_app_startup(dash_duo: DashDuo):
     dash_duo.percy_snapshot("main_app_startup-layout")
     dash_duo.take_snapshot("main_app_startup-layout")
 
-    assert (
-        dash_duo.get_logs() == []
-    ), f"Browser console should not contain errors: {dash_duo.get_logs()}"
+    logs = dash_duo.get_logs()
+    assert logs == [], f"Unexpected browser {logs=}"

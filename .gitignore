@@ -8,3 +8,8 @@ __pycache__/
 
 # auto-generated documentation
 docs_rst/_build
+
+build/*
+*.egg-info
+dist/*
+.vscode

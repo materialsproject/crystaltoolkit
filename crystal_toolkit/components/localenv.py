@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import itertools
 from multiprocessing import cpu_count
 from warnings import warn
@@ -101,7 +103,7 @@ def _get_local_order_parameters(structure_graph, n):
 
 
 class LocalEnvironmentPanel(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("graph")
         self.create_store(
@@ -110,11 +112,11 @@ class LocalEnvironmentPanel(PanelComponent):
         )
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Local Environments"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return "Analyze the local chemical environments in your crystal."
 
     @property
@@ -203,7 +205,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("analysis"), "children"),
-            [Input(self.get_kwarg_id("algorithm"), "value")],
+            Input(self.get_kwarg_id("algorithm"), "value"),
         )
         def run_algorithm(algorithm):
 
@@ -305,7 +307,7 @@ class LocalEnvironmentPanel(PanelComponent):
                     "lmax": 2,
                     "sigma": 0.2,
                     "crossover": True,
-                    "average": False,
+                    "average": "off",
                     "rbf": "gto",
                     "alpha": 0.1,
                     "threshold": 1e-4,
@@ -385,11 +387,23 @@ class LocalEnvironmentPanel(PanelComponent):
                     help_str="If enabled, the power spectrum will include all combinations of elements present.",
                 )
 
-                average = self.get_bool_input(
+                average = self.get_choice_input(
                     label="Average",
                     kwarg_label="average",
                     state=state,
-                    help_str="If enabled, the SOAP vector will be averaged across all sites.",
+                    help_str="The averaging mode over the centers of interest",
+                    options=[
+                        {"label": "No averaging", "value": "off"},
+                        {
+                            "label": "Inner: Averaging over sites before summing up the magnetic quantum numbers",
+                            "value": "inner",
+                        },
+                        {
+                            "label": "Outer: Averaging over the power spectrum of different sites",
+                            "value": "outer",
+                        },
+                    ],
+                    style={"width": "16rem"},  # TODO: remove in-line style
                 )
 
                 alpha = self.get_numerical_input(
@@ -529,7 +543,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("soap_analysis"), "children"),
-            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_analysis(struct, all_kwargs):
 
@@ -559,7 +574,11 @@ class LocalEnvironmentPanel(PanelComponent):
 
             adaptor = AseAtomsAdaptor()
             atoms = adaptor.get_atoms(struct)
-            feature = normalize(desc.create(atoms, n_jobs=cpu_count()))
+
+            # make a 2D vector even when it is averaged
+            soap_output = desc.create(atoms, n_jobs=cpu_count())
+            soap_output = soap_output.reshape((-1, soap_output.shape[-1]))
+            feature = normalize(soap_output)
 
             return _get_soap_graph(feature, "SOAP vector for this material")
 
@@ -580,7 +599,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("soap_similarities"), "children"),
-            [Input(self.id(), "data"), Input(self.get_all_kwargs_id(), "value")],
+            Input(self.id(), "data"),
+            Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_similarities(struct, all_kwargs):
 
@@ -623,10 +643,13 @@ class LocalEnvironmentPanel(PanelComponent):
             }
 
             print(f"Calculating {len(atomss)} SOAP vectors")
-            features = {
-                mpid: normalize(desc.create(atoms, n_jobs=cpu_count()))
-                for mpid, atoms in atomss.items()
-            }
+            features = {}
+            for mpid, atoms in atomss.items():
+                # make a 2D vector even when it is averaged
+                soap_output = desc.create(atoms, n_jobs=cpu_count())
+                soap_output = soap_output.reshape((-1, soap_output.shape[-1]))
+                feature = normalize(soap_output)
+                features[mpid] = feature
 
             re = REMatchKernel(
                 metric=kwargs["metric"],
@@ -667,7 +690,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("localenv_analysis"), "children"),
-            [Input(self.id("graph"), "data")],
+            Input(self.id("graph"), "data"),
         )
         def update_localenv_analysis(graph):
 
@@ -686,10 +709,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("bondinggraph_analysis"), "children"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
         )
         def update_bondinggraph_analysis(graph, display_options):
 
@@ -727,11 +748,9 @@ class LocalEnvironmentPanel(PanelComponent):
 
         @app.callback(
             Output(self.id("chemenv_analysis"), "children"),
-            [
-                Input(self.id(), "data"),
-                Input(self.get_kwarg_id("distance_cutoff"), "value"),
-                Input(self.get_kwarg_id("angle_cutoff"), "value"),
-            ],
+            Input(self.id(), "data"),
+            Input(self.get_kwarg_id("distance_cutoff"), "value"),
+            Input(self.get_kwarg_id("angle_cutoff"), "value"),
         )
         def get_chemenv_analysis(struct, distance_cutoff, angle_cutoff):
 

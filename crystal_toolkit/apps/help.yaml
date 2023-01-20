@@ -1,0 +1,5 @@
+CatalysisApp:
+  catapp-add-data:
+    help: Click on a point in the figure to view additional information.
+    label: Additional Data
+    link: null

@@ -11,7 +11,7 @@ from typing import Literal
 
 import numpy as np
 from dash import dash_table as dt
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
 from emmet.core.settings import EmmetSettings
@@ -113,7 +113,7 @@ class StructureMoleculeComponent(MPComponent):
         show_export_button: bool = DEFAULTS["show_export_button"],
         show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
-    ):
+    ) -> None:
         """Create a StructureMoleculeComponent from a structure or molecule.
 
         Args:
@@ -318,11 +318,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph"), "data"),
-            [
-                Input(self.id("graph_generation_options"), "data"),
-                Input(self.id(), "data"),
-            ],
-            [State(self.id("graph"), "data")],
+            Input(self.id("graph_generation_options"), "data"),
+            Input(self.id(), "data"),
+            State(self.id("graph"), "data"),
         )
         @cache.memoize()
         def update_graph(graph_generation_options, struct_or_mol, current_graph):
@@ -358,11 +356,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("scene"), "data"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-                Input(self.id("scene_additions"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
+            Input(self.id("scene_additions"), "data"),
         )
         @cache.memoize()
         def update_scene(graph, display_options, scene_additions):
@@ -377,11 +373,9 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("legend_data"), "data"),
-            [
-                Input(self.id("graph"), "data"),
-                Input(self.id("display_options"), "data"),
-                Input(self.id("scene_additions"), "data"),
-            ],
+            Input(self.id("graph"), "data"),
+            Input(self.id("display_options"), "data"),
+            Input(self.id("scene_additions"), "data"),
         )
         @cache.memoize()
         def update_legend_and_colors(graph, display_options, scene_additions):
@@ -396,7 +390,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("color-scheme"), "options"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         def update_color_options(legend_data):
 
@@ -439,10 +433,8 @@ class StructureMoleculeComponent(MPComponent):
         @app.callback(
             Output(self.id("download-image"), "data"),
             Input(self.id("scene"), "imageDataTimestamp"),
-            [
-                State(self.id("scene"), "imageData"),
-                State(self.id(), "data"),
-            ],
+            State(self.id("scene"), "imageData"),
+            State(self.id(), "data"),
         )
         def download_image(image_data_timestamp, image_data, data):
             if not image_data_timestamp:
@@ -471,10 +463,8 @@ class StructureMoleculeComponent(MPComponent):
         @app.callback(
             Output(self.id("download-structure"), "data"),
             Input(self.id("scene"), "fileTimestamp"),
-            [
-                State(self.id("scene"), "fileType"),
-                State(self.id(), "data"),
-            ],
+            State(self.id("scene"), "fileType"),
+            State(self.id(), "data"),
         )
         def download_structure(file_timestamp, download_option, data):
             if not file_timestamp:
@@ -530,7 +520,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("title_container"), "children"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         @cache.memoize()
         def update_title(legend):
@@ -544,7 +534,7 @@ class StructureMoleculeComponent(MPComponent):
 
         @app.callback(
             Output(self.id("legend_container"), "children"),
-            [Input(self.id("legend_data"), "data")],
+            Input(self.id("legend_data"), "data"),
         )
         @cache.memoize()
         def update_legend(legend):
@@ -557,15 +547,11 @@ class StructureMoleculeComponent(MPComponent):
             return self._make_legend(legend)
 
         @app.callback(
-            [
-                Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
-                Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
-            ],
-            [Input(self.id("bonding_algorithm"), "value")],
-            [
-                State(self.id("graph"), "data"),
-                State(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
-            ],
+            Output(self.id("bonding_algorithm_custom_cutoffs"), "data"),
+            Output(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
+            Input(self.id("bonding_algorithm"), "value"),
+            State(self.id("graph"), "data"),
+            State(self.id("bonding_algorithm_custom_cutoffs_container"), "style"),
         )
         @cache.memoize()
         def update_custom_bond_options(bonding_algorithm, graph, current_style):
@@ -682,7 +668,7 @@ class StructureMoleculeComponent(MPComponent):
         return rows
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         title_layout = html.Div(
             self._make_title(self._initial_data["legend_data"]),
@@ -923,6 +909,12 @@ class StructureMoleculeComponent(MPComponent):
             "input", "primitive", "conventional", "reduced_niggli", "reduced_lll"
         ] = "input",
     ):
+        if isinstance(struct_or_mol, StructureGraph) and unit_cell_choice != "input":
+            # if a user is visualizing a StructureGraph, but wants to change the unit cell
+            # convention, currently this means we have to convert the StructureGraph back 
+            # to a Structure; this will remove all bonding information and mean bonding 
+            # will also have to be re-calculated
+            struct_or_mol = struct_or_mol.structure
         if isinstance(struct_or_mol, Structure):
             if unit_cell_choice != "input":
                 if unit_cell_choice == "primitive":

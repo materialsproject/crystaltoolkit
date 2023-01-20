@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from base64 import b64decode
 from tempfile import NamedTemporaryFile
 
 from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from monty.serialization import loadfn
 from pymatgen.core.structure import Molecule, Structure
@@ -19,7 +21,7 @@ from crystal_toolkit.helpers.layouts import (
 
 class StructureMoleculeUploadComponent(MPComponent):
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         # this is a very custom component based on Bulma css styles
         upload_layout = html.Div(
@@ -45,8 +47,8 @@ class StructureMoleculeUploadComponent(MPComponent):
                 className="file-label",
             ),
             className="file is-boxed",
-            # TODO: CSS set sensible max-width, don't hard-code
-            style={"max-width": "312px"},
+            # TODO: CSS set sensible maxWidth, don't hard-code
+            style={"maxWidth": "312px"},
         )
 
         upload = html.Div(
@@ -62,7 +64,7 @@ class StructureMoleculeUploadComponent(MPComponent):
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("upload_label"), "children"),
-            [Input(self.id("upload_data"), "filename")],
+            Input(self.id("upload_data"), "filename"),
         )
         def show_filename_on_upload(filename):
             if not filename:
@@ -71,7 +73,7 @@ class StructureMoleculeUploadComponent(MPComponent):
 
         @app.callback(
             Output(self.id("error_message_container"), "children"),
-            [Input(self.id(), "data")],
+            Input(self.id(), "data"),
         )
         def update_error_message(data):
             if not data:
@@ -92,11 +94,9 @@ class StructureMoleculeUploadComponent(MPComponent):
 
         @app.callback(
             Output(self.id(), "data"),
-            [
-                Input(self.id("upload_data"), "contents"),
-                Input(self.id("upload_data"), "filename"),
-                Input(self.id("upload_data"), "last_modified"),
-            ],
+            Input(self.id("upload_data"), "contents"),
+            Input(self.id("upload_data"), "filename"),
+            Input(self.id("upload_data"), "last_modified"),
         )
         def callback_update_structure(contents, filename, last_modified):
 

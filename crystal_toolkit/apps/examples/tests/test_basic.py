@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 
 from crystal_toolkit.apps.examples.basic_hello_structure import (
@@ -17,7 +19,7 @@ def test_hello_scientist(dash_duo: DashDuo):
     dash_duo.percy_snapshot("hello_scientist")
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Browser console should not contain errors: {logs}"
+    assert logs == [], f"Unexpected browser {logs=}"
 
 
 def test_hello_structure(dash_duo: DashDuo) -> None:
@@ -28,7 +30,7 @@ def test_hello_structure(dash_duo: DashDuo) -> None:
     dash_duo.percy_snapshot("hello_structure")
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Browser console should not contain errors: {logs}"
+    assert logs == [], f"Unexpected browser {logs=}"
 
 
 def test_hello_structure_interactive(dash_duo: DashDuo) -> None:
@@ -42,4 +44,4 @@ def test_hello_structure_interactive(dash_duo: DashDuo) -> None:
     dash_duo.percy_snapshot("hello_structure_interactive_on_click")
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Browser console should not contain errors: {logs}"
+    assert logs == [], f"Unexpected browser {logs=}"
