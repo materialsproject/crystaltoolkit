@@ -22,7 +22,7 @@ jobs:
           cache: 'pip'
           cache-dependency-path: '**/pyproject.toml'
       - name: Install webdriver
-        run: sudo apt-get update && sudo apt-get install firefox-geckodriver chromium-chromedriver
+        run: sudo apt-get update && sudo apt-get install chromium-chromedriver
       - name: Install dependencies
         run: |
           python -m pip install --user --upgrade pip pip-tools numpy
