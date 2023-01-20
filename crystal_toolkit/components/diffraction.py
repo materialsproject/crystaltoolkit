@@ -11,9 +11,8 @@ from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
-
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
+from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, MessageContainer, MessageHeader, MessageBody
 
 # Scherrer equation: Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years:
 # a survey and some new results in the determination of crystallite size." Journal of
@@ -29,6 +28,7 @@ from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov
 
+SITES_LIMIT = 25
 
 class TEMDiffractionComponent(MPComponent):
     def __init__(self, *args, initial_structure=None, **kwargs):
@@ -80,8 +80,6 @@ class TEMDiffractionComponent(MPComponent):
             kwargs = self.reconstruct_kwargs_from_state()
 
             calculator = TEMCalculator(**kwargs)
-
-            print("kwargs", kwargs)
 
             return dcc.Graph(
                 figure=calculator.get_plot_2d(structure),
@@ -331,7 +329,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             "peak_profile": peak_profile,
             "shape_factor": shape_factor,
             "crystallite_size": crystallite_size,
-            "static_image": static_image,
+            "static_image": static_image
         }
 
     def layout(self, static_image: bool = False) -> Columns:
@@ -364,6 +362,10 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                         sub_layouts["shape_factor"],
                         sub_layouts["peak_profile"],
                         sub_layouts["crystallite_size"],
+                        html.Div(id=self.id("large_cell_note"),
+                                 style={'marginTop': '20px',
+                                        'marginRight': '10px',
+                                        },)
                     ],
                     size=4,
                 ),
@@ -372,7 +374,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
     @staticmethod
     def get_figure(
-        peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis
+        peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis, broadening=True
     ):
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
@@ -400,30 +402,32 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             N_density = 150
 
         N = int(N_density * domain)  # num total points
+
         x = np.linspace(first, last, N).tolist()
         y = np.zeros(len(x)).tolist()
 
-        for xp, yp in zip(x_peak, y_peak):
-            alpha = XRayDiffractionComponent.grain_to_hwhm(
-                grain_size, math.radians(xp / 2), K=float(K), wavelength=rad_source
-            )
-            sigma = (alpha / np.sqrt(2 * np.log(2))).item()
-
-            center_idx = int(round((xp - first) * N_density))
-            half_window = int(
-                round(num_sigma * sigma * N_density)
-            )  # i.e. total window of 2 * num_sigma
-
-            lb = max([0, (center_idx - half_window)])
-            ub = min([N, (center_idx + half_window)])
-
-            G0 = getattr(XRayDiffractionComponent, peak_profile)(0, 0, alpha)
-            for i, j in zip(range(lb, ub), range(lb, ub)):
-                y[j] += (
-                    yp
-                    * getattr(XRayDiffractionComponent, peak_profile)(x[i], xp, alpha)
-                    / G0
+        if broadening:
+            for xp, yp in zip(x_peak, y_peak):
+                alpha = XRayDiffractionComponent.grain_to_hwhm(
+                    grain_size, math.radians(xp / 2), K=float(K), wavelength=rad_source
                 )
+                sigma = (alpha / np.sqrt(2 * np.log(2))).item()
+
+                center_idx = int(round((xp - first) * N_density))
+                half_window = int(
+                    round(num_sigma * sigma * N_density)
+                )  # i.e. total window of 2 * num_sigma
+
+                lb = max([0, (center_idx - half_window)])
+                ub = min([N, (center_idx + half_window)])
+
+                G0 = getattr(XRayDiffractionComponent, peak_profile)(0, 0, alpha)
+                for i, j in zip(range(lb, ub), range(lb, ub)):
+                    y[j] += (
+                        yp
+                        * getattr(XRayDiffractionComponent, peak_profile)(x[i], xp, alpha)
+                        / G0
+                    )
 
         layout = XRayDiffractionComponent.default_xrd_plot_style
 
@@ -447,9 +451,10 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 text=annotations,
                 opacity=0.8,
                 marker={"color": "black"},
-            ),
-            go.Scatter(x=x, y=y, hoverinfo="none"),
-        ]
+            )]
+        if broadening:
+            plotdata.append(go.Scatter(x=x, y=y, hoverinfo="none"))
+
         plot = go.Figure(data=plotdata, layout=layout)
 
         return plot
@@ -464,9 +469,10 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 Input(self.get_kwarg_id("peak_profile"), "value"),
                 Input(self.get_kwarg_id("shape_factor"), "value"),
                 Input(self.get_kwarg_id("x_axis"), "value"),
+                Input(self.id("structure"), "data")
             ],
         )
-        def update_graph(data, logsize, rad_source, peak_profile, K, x_axis):
+        def update_graph(data, logsize, rad_source, peak_profile, K, x_axis, structure):
 
             if not data:
                 raise PreventUpdate
@@ -487,6 +493,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             y_peak = data["y"]
             d_hkls = data["d_hkls"]
             hkls = data["hkls"]
+            # suppress broadening for larger cell
+            broadening = len(self.from_data(structure).sites) < SITES_LIMIT
 
             plot = self.get_figure(
                 peak_profile,
@@ -498,6 +506,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 d_hkls,
                 hkls,
                 x_axis,
+                broadening
             )
 
             return plot
@@ -531,6 +540,20 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             data = xrdc.get_pattern(struct, two_theta_range=None)
 
             return data.as_dict()
+
+        @app.callback(
+            Output(self.id("large_cell_note"), "children"),
+            Input(self.id("structure"), "data"),
+        )
+        def update_message(structure):
+            if len(self.from_data(structure).sites) < SITES_LIMIT:
+                return html.Div([])
+            else:
+                return MessageContainer(
+                    MessageBody("Peak broadening is currently disabled for materials with "
+                                "more than 25 sites due to long compute time. Please contact "
+                                "feedback@materialsproject.org if you need assistance with the graph.")
+                )
 
         # @app.callback(
         #     Output(self.id("static-image"), "src"),
