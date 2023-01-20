@@ -12,7 +12,15 @@ from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, MessageContainer, MessageHeader, MessageBody
+from crystal_toolkit.helpers.layouts import (
+    Box,
+    Column,
+    Columns,
+    Loading,
+    MessageContainer,
+    MessageHeader,
+    MessageBody,
+)
 
 # Scherrer equation: Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years:
 # a survey and some new results in the determination of crystallite size." Journal of
@@ -29,6 +37,7 @@ from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, Messa
 # Contact: mcdermott@lbl.gov
 
 SITES_LIMIT = 25
+
 
 class TEMDiffractionComponent(MPComponent):
     def __init__(self, *args, initial_structure=None, **kwargs):
@@ -329,7 +338,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             "peak_profile": peak_profile,
             "shape_factor": shape_factor,
             "crystallite_size": crystallite_size,
-            "static_image": static_image
+            "static_image": static_image,
         }
 
     def layout(self, static_image: bool = False) -> Columns:
@@ -362,10 +371,13 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                         sub_layouts["shape_factor"],
                         sub_layouts["peak_profile"],
                         sub_layouts["crystallite_size"],
-                        html.Div(id=self.id("large_cell_note"),
-                                 style={'marginTop': '20px',
-                                        'marginRight': '10px',
-                                        },)
+                        html.Div(
+                            id=self.id("large_cell_note"),
+                            style={
+                                "marginTop": "20px",
+                                "marginRight": "10px",
+                            },
+                        ),
                     ],
                     size=4,
                 ),
@@ -374,7 +386,16 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
     @staticmethod
     def get_figure(
-        peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis, broadening=True
+        peak_profile,
+        K,
+        rad_source,
+        grain_size,
+        x_peak,
+        y_peak,
+        d_hkls,
+        hkls,
+        x_axis,
+        broadening=True,
     ):
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
@@ -425,7 +446,9 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 for i, j in zip(range(lb, ub), range(lb, ub)):
                     y[j] += (
                         yp
-                        * getattr(XRayDiffractionComponent, peak_profile)(x[i], xp, alpha)
+                        * getattr(XRayDiffractionComponent, peak_profile)(
+                            x[i], xp, alpha
+                        )
                         / G0
                     )
 
@@ -451,7 +474,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 text=annotations,
                 opacity=0.8,
                 marker={"color": "black"},
-            )]
+            )
+        ]
         if broadening:
             plotdata.append(go.Scatter(x=x, y=y, hoverinfo="none"))
 
@@ -469,7 +493,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 Input(self.get_kwarg_id("peak_profile"), "value"),
                 Input(self.get_kwarg_id("shape_factor"), "value"),
                 Input(self.get_kwarg_id("x_axis"), "value"),
-                Input(self.id("structure"), "data")
+                Input(self.id("structure"), "data"),
             ],
         )
         def update_graph(data, logsize, rad_source, peak_profile, K, x_axis, structure):
@@ -506,7 +530,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 d_hkls,
                 hkls,
                 x_axis,
-                broadening
+                broadening,
             )
 
             return plot
@@ -550,9 +574,11 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 return html.Div([])
             else:
                 return MessageContainer(
-                    MessageBody("Peak broadening is currently disabled for materials with "
-                                "more than 25 sites due to long compute time. Please contact "
-                                "feedback@materialsproject.org if you need assistance with the graph.")
+                    MessageBody(
+                        "Peak broadening is currently disabled for materials with "
+                        "more than 25 sites due to long compute time. Please contact "
+                        "feedback@materialsproject.org if you need assistance with the graph."
+                    )
                 )
 
         # @app.callback(
