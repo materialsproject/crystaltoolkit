@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import re
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.pourbaix_diagram import ELEMENTS_HO, PREFAC, PourbaixDiagram
 from pymatgen.core import Composition
@@ -210,7 +212,7 @@ class PourbaixDiagramComponent(MPComponent):
     #         # Move to first point
     #         path = "M {},{}".format(*vertices[0])
     #         # Draw lines to each other point
-    #         path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
+    #         path += "".join("L {},{}".format(*vertex) for vertex in vertices[1:])
     #         # Close path
     #         path += "Z"
     #
@@ -367,7 +369,7 @@ class PourbaixDiagramComponent(MPComponent):
             # Move to first point
             path = "M {},{}".format(*vertices[0])
             # Draw lines to each other point
-            path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
+            path += "".join("L {},{}".format(*vertex) for vertex in vertices[1:])
             # Close path
             path += "Z"
 
@@ -379,11 +381,7 @@ class PourbaixDiagramComponent(MPComponent):
                 line = {"color": "Black", "width": 1}
 
             shape = go.layout.Shape(
-                type="path",
-                path=path,
-                fillcolor="rgba(0,0,0,0)",
-                opacity=1,
-                line=line,
+                type="path", path=path, fillcolor="rgba(0,0,0,0)", opacity=1, line=line
             )
             shapes.append(shape)
 
@@ -543,7 +541,7 @@ class PourbaixDiagramComponent(MPComponent):
         return clean_formula
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         options = html.Div(
             [

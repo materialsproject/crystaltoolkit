@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 import dash
@@ -114,7 +116,7 @@ ctc.register_crystal_toolkit(app=app, layout=app.layout)
 )
 def update_structure(
     hover_data: dict[str, list[dict[str, Any]]],
-    click_data: dict[str, list[dict[str, Any]]],  # needed as callback trigger
+    click_data: dict[str, list[dict[str, Any]]],  # needed only as callback trigger
     dropdown_value: str,
 ) -> tuple[Structure, str]:
     """Update StructureMoleculeComponent with pymatgen structure when user clicks or hovers

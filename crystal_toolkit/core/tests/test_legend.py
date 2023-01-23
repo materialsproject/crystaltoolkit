@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 

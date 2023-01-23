@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import os
 from random import choice
 
 import numpy as np
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from monty.serialization import loadfn
 from mp_api.client import MPRester, MPRestError
@@ -22,7 +24,7 @@ from crystal_toolkit.helpers.layouts import (
 
 
 class SearchComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("results")
 
@@ -79,7 +81,7 @@ class SearchComponent(MPComponent):
         )
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         search = html.Div(self._make_search_box(), id=self.id("search_container"))
 
@@ -118,7 +120,7 @@ class SearchComponent(MPComponent):
             if search_term.startswith("mp") and "-" not in search_term:
                 search_term = f"mp-{search_term.split('mp')[1]}"
 
-            if search_term.startswith("mp-") or search_term.startswith("mvc-"):
+            if search_term.startswith(("mp-", "mvc-")):
                 # no need to actually search, support multiple mp-ids (space separated)
                 return {mpid: mpid for mpid in search_term.split(" ")}
 

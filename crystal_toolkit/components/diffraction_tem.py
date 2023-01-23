@@ -4,25 +4,26 @@ from time import time
 from warnings import warn
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
+from dash import dcc, html
+from dash.dependencies import Input, Output
+from pymatgen.core import Structure
+
+from crystal_toolkit.core.mpcomponent import MPComponent
+from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, Reveal
 
 try:
     import py4DSTEM
 except ImportError:
     warn("The TEMDiffractionComponent requires the py4DSTEM package.")
     py4DSTEM = None
-from dash import dcc, html
-from dash.dependencies import Input, Output
-
-from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, Reveal
 
 # Author: Steven Zeltmann
 # Contact: steven.zeltmann@lbl.gov
 
 
 class TEMDiffractionComponent(MPComponent):
-    def __init__(self, *args, initial_structure=None, **kwargs):
+    def __init__(self, *args, initial_structure: Structure = None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
         self.calculator = TEMDiffractionCalculator()
@@ -101,7 +102,7 @@ class TEMDiffractionComponent(MPComponent):
 
         absorption_method_names = {
             "Lobato (Elastic)": "Lobato",
-            "Lobato (Hashimoto absoprtive)": "Lobato-absorptive",
+            "Lobato (Hashimoto absorptive)": "Lobato-absorptive",
             "Weickenmeier-Kohl (Elastic)": "WK",
             "Weickenmeier-Kohl (Core only)": "WK-C",
             "Weickenmeier-Kohl (Phonon only)": "WK-P",
@@ -112,7 +113,7 @@ class TEMDiffractionComponent(MPComponent):
             kwarg_label="dynamical_method",
             label="Scattering Factor Parameterization",
             default="WK-CP",
-            help_str="Parameterization of absoprtive scattering factors, used only"
+            help_str="Parameterization of absorptive scattering factors, used only"
             " for dynamical calculations. Kinematic calculations always use Lobato.",
             options=[
                 {

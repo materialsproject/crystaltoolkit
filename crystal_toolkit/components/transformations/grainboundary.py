@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 from dash import dcc
 from dash.dependencies import Input, Output, State
@@ -14,11 +16,11 @@ from crystal_toolkit.helpers.layouts import add_label_help
 
 class GrainBoundaryTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Make a grain boundary"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """Create a grain boundary within a periodic supercell. This transformation
 requires sensible inputs, and will be slow to run in certain cases.
 

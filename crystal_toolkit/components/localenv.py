@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import itertools
 from multiprocessing import cpu_count
 from warnings import warn
@@ -101,7 +103,7 @@ def _get_local_order_parameters(structure_graph, n):
 
 
 class LocalEnvironmentPanel(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("graph")
         self.create_store(
@@ -110,11 +112,11 @@ class LocalEnvironmentPanel(PanelComponent):
         )
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Local Environments"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return "Analyze the local chemical environments in your crystal."
 
     @property

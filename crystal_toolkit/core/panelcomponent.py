@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dash import html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -15,11 +17,11 @@ class PanelComponent(MPComponent):
     """
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Untitled Panel"
 
     @property
-    def description(self):
+    def description(self) -> str | None:
         return None
 
     def panel_layout(self, open_by_default=False):

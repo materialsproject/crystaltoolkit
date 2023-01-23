@@ -3,11 +3,12 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import callback_context, dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
+from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
 
@@ -32,7 +33,7 @@ from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 class XRayDiffractionComponent(MPComponent):
     # TODO: add pole figures for a given single peak for help quantifying texture
 
-    def __init__(self, *args, initial_structure=None, **kwargs):
+    def __init__(self, *args, initial_structure: Structure = None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
 
@@ -144,7 +145,7 @@ class XRayDiffractionComponent(MPComponent):
         return 0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         state = {
             "peak_profile": "G",
@@ -312,12 +313,11 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
     @staticmethod
     def get_figure(
         peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis
-    ):
+    ) -> go.Figure:
 
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
-        hkls = [
-            f"hkl: ({' '.join([str(i) for i in hkl])})" for hkl in hkl_list
-        ]  # convert to (h k l) format
+        # convert to (h k l) format
+        hkls = [f"hkl: ({' '.join(map(str, hkl))})" for hkl in hkl_list]
 
         annotations = [
             f"2𝜃: {round(peak_x, 3)}<br>Intensity: {round(peak_y, 3)}<br>{hkl} <br>d: {round(d, 3)}"

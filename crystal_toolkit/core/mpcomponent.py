@@ -145,7 +145,7 @@ class MPComponent(ABC):
         links: dict[str, str] | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
-    ):
+    ) -> None:
         """The abstract base class for an MPComponent.
 
         The MPComponent is designed to help render any MSONable object,
@@ -355,8 +355,8 @@ class MPComponent(ABC):
         ids = "\n".join(
             [f"* {component_id}  " for component_id in sorted(self.all_ids)]
         )
-        stores = "\n".join([f"* {store}  " for store in sorted(self.all_stores)])
-        layouts = "\n".join([f"* {layout}  " for layout in sorted(self._sub_layouts)])
+        stores = "\n".join(f"* {store}  " for store in sorted(self.all_stores))
+        layouts = "\n".join(f"* {layout}  " for layout in sorted(self._sub_layouts))
 
         return f"""{self.id()}<{type(self).__name__}>  \n
 IDs:  \n{ids}  \n

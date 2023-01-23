@@ -6,7 +6,7 @@ import warnings
 import dash
 import dash_daq as daq
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
@@ -23,7 +23,7 @@ from crystal_toolkit.settings import SETTINGS
 
 
 class TransformationComponent(MPComponent):
-    def __init__(self, input_structure_component_id: str, *args, **kwargs):
+    def __init__(self, input_structure_component_id: str, *args, **kwargs) -> None:
 
         if type(self).__name__ != f"{self.transformation.__name__}Component":
             # sanity check, enforcing conventions
@@ -49,7 +49,7 @@ class TransformationComponent(MPComponent):
         return False
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         enable = daq.BooleanSwitch(
             id=self.id("enable_transformation"),
@@ -150,11 +150,11 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     @property
-    def title(self):
+    def title(self) -> str:
         raise NotImplementedError
 
     @property
-    def description(self):
+    def description(self) -> str:
         raise NotImplementedError
 
     def get_preview_layout(self, struct_in, struct_out):
@@ -212,7 +212,7 @@ class TransformationComponent(MPComponent):
                 if len(output_structure) > 64:
                     warning = html.Span(
                         f"The transformed crystal structure has {len(output_structure)} atoms "
-                        f"and might take a moment to display."
+                        "and might take a moment to display."
                     )
                 return self.get_preview_layout(input_structure, output_structure)
 
@@ -270,7 +270,7 @@ class AllTransformationsComponent(MPComponent):
         input_structure_component: MPComponent | None = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Create a component that can manage multiple transformations in a user-defined order.
 
         :param transformations: if provided, only offer a subset of available
@@ -307,7 +307,7 @@ class AllTransformationsComponent(MPComponent):
         self.transformations = {type(t).__name__: t for t in transformations}
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
         layouts = super()._sub_layouts
 
         all_transformations = html.Div(
@@ -326,7 +326,7 @@ class AllTransformationsComponent(MPComponent):
             value=[],
             placeholder="Select one or more transformations...",
             id=self.id("choices"),
-            style={"max-width": "65vmin"},
+            style={"maxWidth": "65vmin"},
             persistence=True,
         )
 
@@ -401,7 +401,7 @@ class AllTransformationsComponent(MPComponent):
                 ]
             )
 
-            return [transformation_options]
+            return transformation_options
 
         @app.callback(
             Output(self.id("enabled-transformations"), "data"),

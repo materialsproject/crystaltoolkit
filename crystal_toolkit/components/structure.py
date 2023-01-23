@@ -11,7 +11,7 @@ from typing import Literal
 
 import numpy as np
 from dash import dash_table as dt
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
 from emmet.core.settings import EmmetSettings
@@ -113,7 +113,7 @@ class StructureMoleculeComponent(MPComponent):
         show_export_button: bool = DEFAULTS["show_export_button"],
         show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
-    ):
+    ) -> None:
         """Create a StructureMoleculeComponent from a structure or molecule.
 
         Args:
@@ -668,7 +668,7 @@ class StructureMoleculeComponent(MPComponent):
         return rows
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
 
         title_layout = html.Div(
             self._make_title(self._initial_data["legend_data"]),
@@ -909,6 +909,12 @@ class StructureMoleculeComponent(MPComponent):
             "input", "primitive", "conventional", "reduced_niggli", "reduced_lll"
         ] = "input",
     ):
+        if isinstance(struct_or_mol, StructureGraph) and unit_cell_choice != "input":
+            # if a user is visualizing a StructureGraph, but wants to change the unit cell
+            # convention, currently this means we have to convert the StructureGraph back 
+            # to a Structure; this will remove all bonding information and mean bonding 
+            # will also have to be re-calculated
+            struct_or_mol = struct_or_mol.structure
         if isinstance(struct_or_mol, Structure):
             if unit_cell_choice != "input":
                 if unit_cell_choice == "primitive":

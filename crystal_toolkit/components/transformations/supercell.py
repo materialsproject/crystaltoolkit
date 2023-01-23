@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dash import html
 from dash_mp_components import CrystalToolkitScene
 from pymatgen.transformations.standard_transformations import SupercellTransformation
@@ -8,11 +10,11 @@ from crystal_toolkit.core.scene import Scene
 
 class SupercellTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Make a supercell"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """Create a supercell by providing a scaling matrix that transforms
 input lattice vectors a, b and c into transformed lattice vectors a', b' and c'.
 
@@ -40,7 +42,7 @@ integers."""
             shape=(3, 3),
         )
 
-        return [options]
+        return options
 
     def get_preview_layout(self, struct_in, struct_out):
 

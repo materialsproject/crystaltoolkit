@@ -11,7 +11,7 @@ from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, dcc
 
 if typing.TYPE_CHECKING:
     from ifermi.surface import FermiSurface
-    from plotly.graph_objs import Figure
+    from plotly.graph_objects import Figure
 
 
 class FermiSurfaceComponent(MPComponent):
@@ -30,7 +30,7 @@ class FermiSurfaceComponent(MPComponent):
         fermi_surface: FermiSurface = None,
         id: str | None = None,
         **kwargs,
-    ):
+    ) -> None:
         super().__init__(id=id, default_data=fermi_surface, **kwargs)
 
     @staticmethod
@@ -88,7 +88,7 @@ class FermiSurfaceComponent(MPComponent):
         return fig
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
         if fermi_surface := self.initial_data["default"]:
             figure = self.get_figure(fermi_surface, color_properties=False)
         else:

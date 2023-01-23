@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.analysis.phase_diagram import PDPlotter, PhaseDiagram
 
 
