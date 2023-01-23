@@ -629,9 +629,7 @@ Sub-layouts:  \n{layouts}"""
         """
 
         state = state or {}
-        default = state.get(kwarg_label) if default is None else default
-        if default is None:
-            default = state.get(kwarg_label, {})
+        default = default or state.get(kwarg_label, {})
 
         dict_size = len(default) or dict_size or 0
 
@@ -643,8 +641,7 @@ Sub-layouts:  \n{layouts}"""
             "height": "36px",
         }
         if "style" in kwargs:
-            style.update(kwargs["style"])
-            del kwargs["style"]
+            style.update(kwargs.pop("style"))
 
         def pair_element(idx, key=None, value=None):
             # TODO: maybe move element out of the name
