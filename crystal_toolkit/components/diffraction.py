@@ -376,22 +376,18 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 sigma = (alpha / np.sqrt(2 * np.log(2))).item()
 
                 center_idx = int(round((xp - first) * N_density))
-                half_window = int(
-                    round(num_sigma * sigma * N_density)
-                )  # i.e. total window of 2 * num_sigma
+                # total broadening window of 2 * num_sigma
+                half_window = int(round(num_sigma * sigma * N_density))
 
-                lb = max([0, (center_idx - half_window)])
-                ub = min([N, (center_idx + half_window)])
+                lb = max(0, (center_idx - half_window))
+                ub = min(N, (center_idx + half_window))
 
                 G0 = getattr(XRayDiffractionComponent, peak_profile)(0, 0, alpha)
-                for i, j in zip(range(lb, ub), range(lb, ub)):
-                    y[j] += (
-                        yp
-                        * getattr(XRayDiffractionComponent, peak_profile)(
-                            x[i], xp, alpha
-                        )
-                        / G0
+                for ii, jj in zip(range(lb, ub), range(lb, ub)):
+                    Gi = getattr(XRayDiffractionComponent, peak_profile)(
+                        x[ii], xp, alpha
                     )
+                    y[jj] += yp * Gi / G0
 
         layout = XRayDiffractionComponent.default_xrd_plot_style
 
@@ -517,7 +513,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 return MessageContainer(
                     MessageBody(
                         "Peak broadening is currently disabled for materials with "
-                        "more than 25 sites due to long compute time. Please contact "
+                        f"more than {SITES_LIMIT} sites due to long compute time. Please contact "
                         "feedback@materialsproject.org if you need assistance with the graph."
                     )
                 )

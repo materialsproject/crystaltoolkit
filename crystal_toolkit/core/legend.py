@@ -111,7 +111,7 @@ class Legend(MSONable):
                     if p is not None
                 ]
             )
-            prop_max = max([abs(min(props)), max(props)])
+            prop_max = max(abs(min(props)), max(props))
             prop_min = -prop_max
             cmap_range = (prop_min, prop_max)
 
