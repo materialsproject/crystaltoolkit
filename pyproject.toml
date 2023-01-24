@@ -32,7 +32,7 @@ server = [
     "hiphive",
     "dash-extensions<=0.1.5",
 ]
-temdiff = ["py4DSTEM"]
+temdiff = ["py4DSTEM>=0.13.11"]
 fermi = ["ifermi", "pyfftw"]
 vtk = ["dash-vtk"]
 localenv = ["dscribe"]
