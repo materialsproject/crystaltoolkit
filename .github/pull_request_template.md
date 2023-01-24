@@ -1,11 +1,11 @@
 <!--
 
 All previous Crystal Toolkit contributors/co-authors are encouraged to merge their own PRs once CI passes.
-Crystal Toolkit is a community project, and merging your own PRs is encouraged to help 
-maintain the overall health of the code. If you do not have the required permissions to merge 
+Crystal Toolkit is a community project, and merging your own PRs is encouraged to help
+maintain the overall health of the code. If you do not have the required permissions to merge
 your PR, contact @mkhorton or another repository admin.
 
-If you have concerns about your PR, or if it has expansive changes, please request review 
+If you have concerns about your PR, or if it has expansive changes, please request review
 from @mkhorton or another active contributor.
 
 If you are a new contributor, your PR will be fully reviewed before merging by a previous
