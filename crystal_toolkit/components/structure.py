@@ -911,8 +911,8 @@ class StructureMoleculeComponent(MPComponent):
     ):
         if isinstance(struct_or_mol, StructureGraph) and unit_cell_choice != "input":
             # if a user is visualizing a StructureGraph, but wants to change the unit cell
-            # convention, currently this means we have to convert the StructureGraph back 
-            # to a Structure; this will remove all bonding information and mean bonding 
+            # convention, currently this means we have to convert the StructureGraph back
+            # to a Structure; this will remove all bonding information and mean bonding
             # will also have to be re-calculated
             struct_or_mol = struct_or_mol.structure
         if isinstance(struct_or_mol, Structure):
