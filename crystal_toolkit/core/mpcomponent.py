@@ -678,44 +678,6 @@ Sub-layouts:  \n{layouts}"""
 
         return add_label_help(dict_input, label, help_str)
 
-    # def get_dict_input(
-    #     self,
-    #     kwarg_label: str,
-    #     default: Any | None = None,
-    #     state: dict | None = None,
-    #     label: str | None = None,
-    #     help_str: str = None,
-    #     key_name: str = "key",
-    #     value_name: str = "value",
-    # ):
-    #     """
-    #
-    #     :param kwarg_label:
-    #     :param default:
-    #     :param state:
-    #     :param label:
-    #     :param help_str:
-    #     :param key_name:
-    #     :param value_name:
-    #     :return:
-    #     """
-    #
-    #     state = state or {}
-    #     default = default or state.get(kwarg_label) or {}
-    #
-    #     dict_input = dt.DataTable(
-    #         id=self.id(kwarg_label, is_kwarg=True, hint="dict"),
-    #         columns=[
-    #             {"id": "key", "name": key_name},
-    #             {"id": "value", "name": value_name},
-    #         ],
-    #         data=[{"key": k, "value": v} for k, v in default.items()],
-    #         editable=True,
-    #         persistence=False,
-    #     )
-    #
-    #     return add_label_help(dict_input, label, help_str)
-
     def get_kwarg_id(self, kwarg_name) -> dict[str, str]:
         """
 
