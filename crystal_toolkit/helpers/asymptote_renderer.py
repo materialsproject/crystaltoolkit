@@ -510,7 +510,10 @@ def _read_properties(
         if s_ is not None:
             return s_
     # property attribute
-    ctk_att = getattr(ctk_scene, property)
+    try:
+        ctk_att = getattr(ctk_scene, property)
+    except AttributeError:
+        ctk_att = None
     if ctk_att is not None:
         return ctk_att
 

@@ -26,12 +26,12 @@ def update_object_args(d_args, object_name, allowed_args):
     """Read default properties and overwrite them if user input exists.
 
     Arguments:
-        d_args {dict} -- User defined properties
-        object_name {str} -- Name of object
-        allowed_kwargs {list[str]} -- Used to limit the data that is passed to pythreejs
+        d_args (dict): User defined properties
+        object_name (str): Name of object
+        allowed_kwargs (list[str]): Used to limit the data that is passed to pythreejs
 
     Returns:
-        Dictionary -- Properties of object after userinput and default values are considered
+        dict: Properties of object after user input and default values are considered
     """
     obj_args = {k: v for k, v in (_DEFAULTS["scene"][object_name] or {}).items()}
     obj_args.update(
