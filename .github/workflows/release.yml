@@ -45,6 +45,7 @@ jobs:
           git push
           git tag ${NEXT_RELEASE}
           git push --tags
+          echo "NEXT_RELEASE=${NEXT_RELEASE}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
@@ -53,7 +54,7 @@ jobs:
           python -m pip install --user --no-deps .[server]
 
       - name: Build package
-        run: python -m build
+        run: SETUPTOOLS_SCM_PRETEND_VERSION=${{env.NEXT_RELEASE}} python -m build
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1.5
