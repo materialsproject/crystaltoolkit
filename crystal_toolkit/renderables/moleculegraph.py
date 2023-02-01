@@ -27,9 +27,11 @@ def get_molecule_graph_scene(
     Args:
         show_atom_idx: Defaults to True, shows the site index of each atom in the molecule
         show_atom_coord: Defaults to True, shows the 3D coordinates of each atom in the molecule
-        show_bond_order: Defaults to True, shows the calculated bond order in the chosen local environment strategy
+        show_bond_order: Defaults to True, shows the calculated bond order in the chosen local
+            environment strategy
         show_bond_length: Defaults to False, shows the calculated length between two connected atoms
-        visualize_bpnd_orders: Defaults False, will show the 'integral' number of bonds calculated from the OpenBabelNN strategy in the Molecule Graph
+        visualize_bpnd_orders: Defaults False, will show the 'integral' number of bonds calculated
+            from the OpenBabelNN strategy in the Molecule Graph
     Returns:
         A Molecule Graph scene
     """

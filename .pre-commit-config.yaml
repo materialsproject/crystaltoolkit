@@ -1,6 +1,6 @@
 ci:
   autoupdate_schedule: quarterly
-  skip: [mypy, flake8]
+  skip: [mypy, flake8, docformatter]
 
 default_stages: [commit]
 
