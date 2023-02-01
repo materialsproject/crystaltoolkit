@@ -97,7 +97,6 @@ class MPComponent(ABC):
 
     @staticmethod
     def crystal_toolkit_layout(layout: html.Div) -> html.Div:
-
         if not MPComponent.app:
             raise ValueError(
                 "Please register the Dash app with Crystal Toolkit using register_app()."
@@ -121,7 +120,6 @@ class MPComponent(ABC):
 
     @staticmethod
     def register_crystal_toolkit(app, layout, cache=None):
-
         MPComponent.register_app(app)
         MPComponent.register_cache(cache)
         app.config["suppress_callback_exceptions"] = True
@@ -499,7 +497,6 @@ Sub-layouts:  \n{layouts}"""
         multiple: bool = False,
         **kwargs,
     ):
-
         state = state or {}
         # TODO: bug if default == 0
         default = default or state.get(kwarg_label)
@@ -718,7 +715,6 @@ Sub-layouts:  \n{layouts}"""
 
         kwargs = {}
         for k, v in state.items():
-
             # TODO: hopefully this will be less hacky in future Dash versions
             # remove trailing ".value" and convert back into dictionary
             # need to sort k somehow ...
@@ -741,7 +737,6 @@ Sub-layouts:  \n{layouts}"""
             idx = literal_eval(d["idx"])
 
             try:
-
                 if isinstance(k_type, tuple):
                     # matrix or vector
                     if kwarg_label not in kwargs:
@@ -765,7 +760,6 @@ Sub-layouts:  \n{layouts}"""
                         kwargs[kwarg_label] = None
 
                 elif k_type == "literal":
-
                     try:
                         kwargs[kwarg_label] = literal_eval(str(v))
                     except (ValueError, SyntaxError):

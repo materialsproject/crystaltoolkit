@@ -18,9 +18,7 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
     sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(self))]
 
     if draw_image_atoms:
-
         for idx, site in enumerate(self):
-
             zero_elements = [
                 idx
                 for idx, f in enumerate(site.frac_coords)
@@ -86,7 +84,6 @@ def get_structure_scene(
     sites_to_draw = self._get_sites_to_draw(draw_image_atoms=draw_image_atoms)
 
     for idx, jimage in sites_to_draw:
-
         site = self[idx]
         if jimage != (0, 0, 0):
             site = PeriodicSite(

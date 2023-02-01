@@ -50,7 +50,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         id: str = None,
         **kwargs,
     ) -> None:
-
         # this is a compound component, can be fed by mpid or
         # by the BandStructure itself
         super().__init__(
@@ -65,7 +64,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-
         # defaults
         state = {"label-select": "sc", "dos-select": "ap"}
 
@@ -178,7 +176,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
     def _get_ph_bs_dos(
         data: dict[str, Any] | None
     ) -> tuple[PhononBandStructureSymmLine, CompletePhononDos]:
-
         data = data or {}
 
         # this component can be loaded either from mpid or
@@ -193,9 +190,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             return None, None
 
         if mpid:
-
             with MPRester() as mpr:
-
                 try:
                     bandstructure_symm_line = (
                         mpr.get_phonon_bandstructure_by_material_id(mpid)
@@ -211,7 +206,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     density_of_states = None
 
         else:
-
             if bandstructure_symm_line and isinstance(bandstructure_symm_line, dict):
                 bandstructure_symm_line = PhononBandStructureSymmLine.from_dict(
                     bandstructure_symm_line
@@ -224,7 +218,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def get_brillouin_zone_scene(bs: PhononBandStructureSymmLine) -> Scene:
-
         if not bs:
             return Scene(name="brillouin_zone", contents=[])
 
@@ -281,7 +274,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def get_ph_bandstructure_traces(bs, freq_range):
-
         bs_reg_plot = PhononBSPlotter(bs)
 
         bs_data = bs_reg_plot.bs_plot_data()
@@ -297,7 +289,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         bs_traces = []
 
         for d, dist_val in enumerate(bs_data["distances"]):
-
             x_dat = dist_val
 
             traces_for_segment = []
@@ -357,7 +348,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
     def _get_data_list_dict(
         bs: PhononBandStructureSymmLine, dos: CompletePhononDos
     ) -> dict[str, str | bool | int]:
-
         bs_minpoint, bs_min_freq = bs.min_freq()
         min_freq_report = (
             f"{bs_min_freq:.2f} THz at frac. coords. {bs_minpoint.frac_coords}"
@@ -385,7 +375,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def get_ph_dos_traces(dos: CompletePhononDos, freq_range: tuple[float, float]):
-
         dos_traces = []
 
         dos_max = np.abs(dos.frequencies - freq_range[1]).argmin()
@@ -423,7 +412,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         ele_dos = dos.get_element_dos()  # project DOS onto elements
         for label in ele_dos:
-
             spin_up_label = str(label)
 
             trace = {
@@ -448,7 +436,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         ph_dos: CompletePhononDos | None = None,
         freq_range: tuple[float, float] | tuple[None, None] = (None, None),
     ) -> go.Figure:
-
         y_range = list(freq_range)
 
         if freq_range[0] is None:
@@ -458,7 +445,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             y_range[1] = np.max(ph_bs.bands) * 1.05
 
         if (not ph_dos) and (not ph_bs):
-
             empty_plot_style = {
                 "xaxis": {"visible": False},
                 "yaxis": {"visible": False},
@@ -589,7 +575,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             Input(self.id("traces"), "data"),
         )
         def update_graph(traces):
-
             if traces == "error":
                 msg_body = MessageBody(
                     dcc.Markdown(
@@ -621,7 +606,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             if not mpid:
                 raise PreventUpdate
             else:
-
                 label_value = path_convention
                 label_style = {"maxWidth": "200"}
 
@@ -686,7 +670,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             Input(self.id("label-select"), "value"),
         )
         def bs_dos_data(data, dos_select, label_select):
-
             # Obtain bands to plot over and generate traces for bs data:
             energy_window = (-6.0, 10.0)
 

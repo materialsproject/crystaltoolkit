@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Union
 
 from pydantic import BaseSettings
 
@@ -8,7 +8,6 @@ from crystal_toolkit import MODULE_PATH
 
 
 class Settings(BaseSettings):
-
     DEBUG_MODE: bool = False
     MP_EMBED_MODE: bool = False
     TEST_MODE: bool = False
@@ -20,7 +19,7 @@ class Settings(BaseSettings):
 
     DEV_LOGIN_DISABLED: bool = True
     LOGIN_ENDPOINT: str = "https://profile.materialsproject.org/"
-    API_KEY: str | None = ""
+    API_KEY: Union[str, None] = ""
     API_EXTERNAL_ENDPOINT: str = "https://api.materialsproject.org"
 
     PERSISTENCE: bool = True

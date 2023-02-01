@@ -124,7 +124,6 @@ class LocalEnvironmentPanel(PanelComponent):
         return "Analyzing environments"
 
     def contents_layout(self) -> html.Div:
-
         algorithm_choices = self.get_choice_input(
             label="Analysis method",
             kwarg_label="algorithm",
@@ -145,7 +144,6 @@ class LocalEnvironmentPanel(PanelComponent):
 
     @staticmethod
     def get_graph_data(graph, display_options):
-
         color_scheme = display_options.get("color_scheme", "Jmol")
 
         nodes = []
@@ -155,7 +153,6 @@ class LocalEnvironmentPanel(PanelComponent):
         legend = Legend(struct_or_mol, color_scheme=color_scheme)
 
         for idx, node in enumerate(graph.graph.nodes()):
-
             # TODO: fix for disordered
             node_color = legend.get_color(
                 struct_or_mol[node].species.elements[0], site=struct_or_mol[node]
@@ -171,7 +168,6 @@ class LocalEnvironmentPanel(PanelComponent):
             )
 
         for u, v, d in graph.graph.edges(data=True):
-
             edge = {"from": u, "to": v, "arrows": ""}
 
             to_jimage = d.get("to_jimage", (0, 0, 0))
@@ -200,7 +196,6 @@ class LocalEnvironmentPanel(PanelComponent):
         return {"nodes": nodes, "edges": edges}
 
     def generate_callbacks(self, app, cache):
-
         super().generate_callbacks(app, cache)
 
         @app.callback(
@@ -208,13 +203,11 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.get_kwarg_id("algorithm"), "value"),
         )
         def run_algorithm(algorithm):
-
             algorithm = self.reconstruct_kwarg_from_state(
                 callback_context.inputs, "algorithm"
             )
 
             if algorithm == "chemenv":
-
                 state = {"distance_cutoff": 1.4, "angle_cutoff": 0.3}
 
                 description = (
@@ -261,7 +254,6 @@ class LocalEnvironmentPanel(PanelComponent):
                 )
 
             elif algorithm == "localenv":
-
                 description = (
                     "The LocalEnv algorithm is developed by Nils Zimmerman et al. whereby "
                     "an 'order parameter' is calculated that measures how well that "
@@ -283,7 +275,6 @@ class LocalEnvironmentPanel(PanelComponent):
                 )
 
             elif algorithm == "bondinggraph":
-
                 description = (
                     "This is an alternative way to display the same bonds present in the "
                     "visualizer. Here, the bonding is displayed as a crystal graph, with "
@@ -300,7 +291,6 @@ class LocalEnvironmentPanel(PanelComponent):
                 )
 
             elif algorithm == "soap":
-
                 state = {
                     "rcut": 5.0,
                     "nmax": 2,
@@ -490,7 +480,6 @@ class LocalEnvironmentPanel(PanelComponent):
                 )
 
         def _get_soap_graph(feature, label):
-
             spectrum = {
                 "data": [
                     {
@@ -547,7 +536,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_analysis(struct, all_kwargs):
-
             if not struct:
                 raise PreventUpdate
 
@@ -603,7 +591,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_similarities(struct, all_kwargs):
-
             if not struct:
                 raise PreventUpdate
 
@@ -693,7 +680,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.id("graph"), "data"),
         )
         def update_localenv_analysis(graph):
-
             if not graph:
                 raise PreventUpdate
 
@@ -713,7 +699,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.id("display_options"), "data"),
         )
         def update_bondinggraph_analysis(graph, display_options):
-
             if not graph:
                 raise PreventUpdate
 
@@ -753,7 +738,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.get_kwarg_id("angle_cutoff"), "value"),
         )
         def get_chemenv_analysis(struct, distance_cutoff, angle_cutoff):
-
             if not struct:
                 raise PreventUpdate
 
@@ -802,7 +786,6 @@ class LocalEnvironmentPanel(PanelComponent):
             unknown_sites = []
 
             for index, wyckoff in zip(inequivalent_indices, wyckoffs):
-
                 datalist = {
                     "Site": unicodeify_species(struct[index].species_string),
                     "Wyckoff Label": wyckoff,

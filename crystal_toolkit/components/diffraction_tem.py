@@ -188,7 +188,6 @@ class TEMDiffractionComponent(MPComponent):
             ],
         )
         def generate_diffraction_pattern(structure, *args):
-
             structure = self.from_data(structure)
             kwargs = self.reconstruct_kwargs_from_state()
 

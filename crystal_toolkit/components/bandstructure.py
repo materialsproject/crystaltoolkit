@@ -50,7 +50,6 @@ class BandstructureAndDosComponent(MPComponent):
         id: str = None,
         **kwargs,
     ) -> None:
-
         # this is a compound component, can be fed by mpid or
         # by the BandStructure itself
         super().__init__(
@@ -65,7 +64,6 @@ class BandstructureAndDosComponent(MPComponent):
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-
         # defaults
         state = {"label-select": "lm", "dos-select": "ap"}
 
@@ -191,9 +189,7 @@ class BandstructureAndDosComponent(MPComponent):
             return None, None
 
         if mpid:
-
             with MPRester() as mpr:
-
                 try:
                     bandstructure_symm_line = mpr.get_bandstructure_by_material_id(mpid)
                 except Exception as exc:
@@ -207,7 +203,6 @@ class BandstructureAndDosComponent(MPComponent):
                     density_of_states = None
 
         else:
-
             if bandstructure_symm_line and isinstance(bandstructure_symm_line, dict):
                 bandstructure_symm_line = BandStructureSymmLine.from_dict(
                     bandstructure_symm_line
@@ -224,7 +219,6 @@ class BandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def get_brillouin_zone_scene(bs: BandStructureSymmLine) -> Scene:
-
         if not bs:
             return Scene(name="brillouin_zone", contents=[])
 
@@ -281,7 +275,6 @@ class BandstructureAndDosComponent(MPComponent):
         vbm = bs.get_vbm()["kpoint"]
 
         if cbm and vbm:
-
             if cbm.label:
                 cbm_label = cbm.label
                 for orig, new in pretty_labels.items():
@@ -325,7 +318,6 @@ class BandstructureAndDosComponent(MPComponent):
     def get_bandstructure_traces(
         bs, path_convention: str, energy_window: tuple[float, float] = (-6.0, 10.0)
     ) -> tuple:
-
         if path_convention == "lm":
             bs = HighSymmKpath.get_continuous_path(bs)
 
@@ -350,7 +342,6 @@ class BandstructureAndDosComponent(MPComponent):
         vbm_new = bs_data["vbm"]
 
         for d, dist_val in enumerate(bs_data["distances"]):
-
             x_dat = dist_val
 
             traces_for_segment = []
@@ -474,7 +465,6 @@ class BandstructureAndDosComponent(MPComponent):
         energy_window: tuple[float, float] = (-6.0, 10.0),
         horizontal: bool = False,
     ) -> list:
-
         if horizontal:
             dos_axis, en_axis = "y", "x"
         else:
@@ -548,7 +538,6 @@ class BandstructureAndDosComponent(MPComponent):
         ]
 
         for label in proj_data:
-
             if spin_polarized:
                 trace = {
                     dos_axis: -1.0
@@ -594,9 +583,7 @@ class BandstructureAndDosComponent(MPComponent):
         bs_domain=None,
         dos_domain=None,
     ) -> go.Figure:
-
         if (not dos) and (not bs):
-
             empty_plot_style = {
                 "xaxis": {"visible": False},
                 "yaxis": {"visible": False},
@@ -777,7 +764,6 @@ class BandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def _get_data_list_dict(bs, dos):
-
         return {
             "Band Gap": "... eV",
             "Direct Gap": "...",
@@ -791,7 +777,6 @@ class BandstructureAndDosComponent(MPComponent):
             Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
         )
         def update_graph(traces):
-
             if traces == "error":
                 body = MessageBody(
                     dcc.Markdown(
@@ -822,7 +807,6 @@ class BandstructureAndDosComponent(MPComponent):
             if not mpid:
                 raise PreventUpdate
             else:
-
                 label_value = path_convention
                 label_style = {"maxWidth": "200"}
 
@@ -887,7 +871,6 @@ class BandstructureAndDosComponent(MPComponent):
             Input(self.id("label-select"), "value"),
         )
         def bs_dos_data(data, path_convention, dos_select, label_select):
-
             # Obtain bands to plot over and generate traces for bs data:
             energy_window = (-6.0, 10.0)
 

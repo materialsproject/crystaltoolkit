@@ -320,7 +320,6 @@ class Cylinders(Primitive):
 
     @classmethod
     def merge(cls, cylinder_list):
-
         new_positionPairs = list(
             chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
         )

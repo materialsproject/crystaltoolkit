@@ -33,7 +33,6 @@ class RobocrysComponent(PanelComponent):
             struct = self.from_data(new_store_contents)
 
             try:
-
                 condenser = StructureCondenser()
                 describer = StructureDescriber(fmt="unicode")
 
@@ -42,7 +41,6 @@ class RobocrysComponent(PanelComponent):
                 description = describer.describe(condensed_structure)
 
             except Exception as exc:
-
                 description = str(exc)
 
             repo_link = html.A(

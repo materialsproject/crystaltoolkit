@@ -32,7 +32,6 @@ and the number of atoms in the supercell falls in the range specified.
         return CubicSupercellTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {
             "max_atoms": 100,
             "min_atoms": len(structure) if structure else 50,

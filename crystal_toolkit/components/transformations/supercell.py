@@ -30,7 +30,6 @@ integers."""
         return SupercellTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {"scaling_matrix": ((1, 0, 0), (0, 1, 0), (0, 0, 1))}
 
         options = self.get_numerical_input(
@@ -45,7 +44,6 @@ integers."""
         return options
 
     def get_preview_layout(self, struct_in, struct_out):
-
         if struct_in.lattice == struct_out.lattice:
             return html.Div()
 

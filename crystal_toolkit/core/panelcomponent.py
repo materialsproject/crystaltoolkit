@@ -25,7 +25,6 @@ class PanelComponent(MPComponent):
         return None
 
     def panel_layout(self, open_by_default=False):
-
         message = html.Div(id=self.id("message"))
 
         description = html.Div(
@@ -58,7 +57,6 @@ class PanelComponent(MPComponent):
             State(self.id("contents"), "children"),
         )
         def load_panel(panel_n_clicks, current_contents):
-
             if current_contents or panel_n_clicks is None:
                 raise PreventUpdate
 

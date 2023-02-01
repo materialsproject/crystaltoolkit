@@ -22,7 +22,6 @@ from crystal_toolkit.helpers.layouts import (
 class StructureMoleculeUploadComponent(MPComponent):
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-
         # this is a very custom component based on Bulma css styles
         upload_layout = html.Div(
             html.Label(
@@ -99,7 +98,6 @@ class StructureMoleculeUploadComponent(MPComponent):
             Input(self.id("upload_data"), "last_modified"),
         )
         def callback_update_structure(contents, filename, last_modified):
-
             if not contents:
                 raise PreventUpdate
 

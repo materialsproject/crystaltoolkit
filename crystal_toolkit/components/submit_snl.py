@@ -64,7 +64,6 @@ class SubmitSNLPanel(PanelComponent):
         )
 
     def generate_callbacks(self, app, cache):
-
         super().generate_callbacks(app, cache)
 
         def parse_token(url):
@@ -77,7 +76,6 @@ class SubmitSNLPanel(PanelComponent):
 
         @cache.memoize(timeout=60 * 60 * 24)
         def get_token_response(token):
-
             url = "https://materialsproject.org/rest/v2/snl/get_user_info"
             payload = {"token": token, "client_key": MP_CLIENT_KEY}
 
@@ -92,7 +90,6 @@ class SubmitSNLPanel(PanelComponent):
             Input("url", "search"),
         )
         def hide_panel_if_no_token(url):
-
             token = parse_token(url)
 
             if not token:
@@ -108,7 +105,6 @@ class SubmitSNLPanel(PanelComponent):
             Input("url", "search"),
         )
         def generate_description(structure, comments, panel_open, url):
-
             token = parse_token(url)
 
             if not token:
@@ -144,7 +140,6 @@ For more information, see the Materials Project
             State("url", "search"),
         )
         def submit_snl(n_clicks, structure, comments, url):
-
             if not n_clicks:
                 raise PreventUpdate
 

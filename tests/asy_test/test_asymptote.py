@@ -24,10 +24,10 @@ def test_read_properties(standard_scenes):
         p1 = _read_properties(scene, property="prop1")
         assert p1 == "meta"
 
-    for k, v in standard_scenes.items():
-        _set_and_read_properties(v)
+    for val in standard_scenes.values():
+        _set_and_read_properties(val)
         # Default color is used
-        assert _read_color(v) is not None
+        assert _read_color(val) is not None
 
 
 def test_asymptote_renderer(standard_scenes):

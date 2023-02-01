@@ -28,7 +28,6 @@ WIDTH = 700  # in px
 
 
 class PourbaixDiagramComponent(MPComponent):
-
     default_state = {"filter_solids": True, "show_heatmap": False}
 
     default_plot_style = dict(
@@ -542,7 +541,6 @@ class PourbaixDiagramComponent(MPComponent):
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-
         options = html.Div(
             [
                 self.get_bool_input(
@@ -605,7 +603,6 @@ class PourbaixDiagramComponent(MPComponent):
             Input(self.id(), "data"),
         )
         def update_heatmap_choices(entries):
-
             if not entries:
                 raise PreventUpdate
 
@@ -635,7 +632,6 @@ class PourbaixDiagramComponent(MPComponent):
             State(self.get_kwarg_id("show_heatmap"), "value"),
         )
         def update_element_specific_sliders(entries, heatmap_choice, show_heatmap):
-
             if not entries:
                 raise PreventUpdate
 
@@ -709,7 +705,6 @@ class PourbaixDiagramComponent(MPComponent):
             Input(self.get_all_kwargs_id(), "value"),
         )
         def update_displayed_composition(*args):
-
             kwargs = self.reconstruct_kwargs_from_state()
 
             comp_dict = {}
@@ -744,7 +739,6 @@ class PourbaixDiagramComponent(MPComponent):
             Input(self.get_all_kwargs_id(), "value"),
         )
         def make_figure(pourbaix_entries, *args) -> go.Figure:
-
             if pourbaix_entries is None:
                 raise PreventUpdate
 
@@ -754,7 +748,6 @@ class PourbaixDiagramComponent(MPComponent):
 
             # Get heatmap id
             if kwargs["show_heatmap"] and kwargs.get("heatmap_choice"):
-
                 # get Entry object based on the heatmap_choice, which is entry_id string
                 heatmap_entry = next(
                     entry

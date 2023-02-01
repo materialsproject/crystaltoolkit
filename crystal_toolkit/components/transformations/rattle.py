@@ -32,7 +32,6 @@ connected to the rattle amplitude.
         return MonteCarloRattleTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {
             "rattle_std": 0.2,
             "min_distance": 0.1,

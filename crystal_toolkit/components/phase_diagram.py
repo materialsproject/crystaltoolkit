@@ -467,7 +467,6 @@ class PhaseDiagramComponent(MPComponent):
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-
         graph = html.Div(
             [
                 dcc.Graph(
@@ -683,7 +682,6 @@ class PhaseDiagramComponent(MPComponent):
             State(self.id("entry-table"), "data"),
         )
         def create_table(chemsys, pd_time, n_clicks, pd, rows):
-
             ctx = dash.callback_context
 
             if ctx is None or not ctx.triggered or chemsys is None:
