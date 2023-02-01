@@ -434,7 +434,6 @@ def add_label_help(input, label, help) -> mpc.FilterField:
 
 class Loading(dcc.Loading):
     def __init__(self, *args, **kwargs) -> None:
-
         super().__init__(
             *args, color=PRIMARY_COLOR, type="dot", debug=SETTINGS.DEBUG_MODE, **kwargs
         )

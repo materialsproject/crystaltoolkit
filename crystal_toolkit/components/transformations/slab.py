@@ -23,7 +23,6 @@ vacuum inserted so that the properties of the crystal surface can be studied.
         return SlabTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {
             "miller_index": (0, 0, 1),
             "min_slab_size": 4,

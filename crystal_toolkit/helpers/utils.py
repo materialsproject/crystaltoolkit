@@ -73,7 +73,6 @@ def is_localhost() -> bool:
 
 
 def get_consumer() -> dict[str, str]:
-
     if not has_request_context():
         return {}
 
@@ -226,7 +225,6 @@ def get_tooltip(
 
 
 def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book"):
-
     if (not doi) or cite_text:
         # TODO: This will get removed, due to addition of new PublicationButton
         if cite_text:

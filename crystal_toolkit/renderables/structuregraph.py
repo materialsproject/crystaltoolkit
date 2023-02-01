@@ -21,9 +21,7 @@ def _get_sites_to_draw(
     sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(self.structure))]
 
     if draw_image_atoms:
-
         for idx, site in enumerate(self.structure):
-
             zero_elements = [
                 idx
                 for idx, f in enumerate(site.frac_coords)
@@ -59,7 +57,6 @@ def _get_sites_to_draw(
                 )
 
     if bonded_sites_outside_unit_cell:
-
         sites_to_append = []
         for n, jimage in sites_to_draw:
             connected_sites = self.get_connected_sites(n, jimage=jimage)
@@ -133,12 +130,10 @@ def get_structure_graph_scene(
 
     color_edges = False
     if color_edges_by_edge_weight:
-
         weights = [e[2].get("weight") for e in self.graph.edges(data=True)]
         weights = np.array([w for w in weights if w])
 
         if any(weights):
-
             cmap = get_cmap(edge_weight_color_scale)
 
             # try to keep color scheme symmetric around 0
@@ -163,7 +158,6 @@ def get_structure_graph_scene(
         grouped_atom_scene_contents: dict[str, list] = defaultdict(list)
 
     for idx, jimage in sites_to_draw:
-
         site = self.structure[idx]
         if jimage != (0, 0, 0):
             connected_sites = self.get_connected_sites(idx, jimage=jimage)
@@ -184,7 +178,6 @@ def get_structure_graph_scene(
         ]
 
         if color_edges:
-
             connected_sites_colors = [
                 get_weight_color(cs.weight) for cs in connected_sites
             ]
@@ -193,7 +186,6 @@ def get_structure_graph_scene(
             ]
 
         else:
-
             connected_sites_colors = None
             connected_sites_not_drawn_colors = None
 
@@ -211,15 +203,12 @@ def get_structure_graph_scene(
         )
 
         for scene in site_scene.contents:
-
             if group_by_site_property and scene.name == "atoms":
-
                 group_name = f"{site.properties[group_by_site_property]}"
                 scene.contents[0].tooltip = group_name
                 grouped_atom_scene_contents[group_name] += scene.contents
 
             else:
-
                 primitives[scene.name] += scene.contents
 
     if group_by_site_property:

@@ -23,7 +23,6 @@ def get_molecule_graph_scene(
     show_bond_length=False,
     visualize_bond_orders=False,
 ) -> Scene:
-
     """
     Args:
         show_atom_idx: Defaults to True, shows the site index of each atom in the molecule
@@ -41,7 +40,6 @@ def get_molecule_graph_scene(
     primitives: dict[str, list] = defaultdict(list)
 
     for idx, site in enumerate(self.molecule):
-
         if visualize_bond_orders:
             connected_sites = vis_mol_graph.get_connected_sites(idx)
         else:

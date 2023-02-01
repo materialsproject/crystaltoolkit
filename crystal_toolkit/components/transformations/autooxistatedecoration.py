@@ -25,7 +25,6 @@ structures.
         return AutoOxiStateDecorationTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {
             "symm_tol": 0.1,
             "max_radius": 4,

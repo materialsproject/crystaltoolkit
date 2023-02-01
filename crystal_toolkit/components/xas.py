@@ -75,7 +75,6 @@ class XASComponent(MPComponent):
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-
         graph = html.Div(
             [
                 dcc.Graph(

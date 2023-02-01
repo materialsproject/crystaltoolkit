@@ -230,7 +230,6 @@ class CatalysisApp(MPApp):
         )
         @cache.memoize(timeout=60 * 60 * 24)
         def update_figure(smile, mid_E, range_E, active_tab):
-
             # guard statement to ensure callback is not triggered unless viewing visualization
             if active_tab != "visualization":
                 raise PreventUpdate
@@ -302,7 +301,6 @@ class CatalysisApp(MPApp):
         ).layout()
 
     def get_layout(self, payload=None):
-
         tabs = dcc.Tabs(
             [
                 dcc.Tab(
@@ -413,7 +411,6 @@ class CatalysisApp(MPApp):
         return viz_div
 
     def get_search_layout(self, payload=None):
-
         if not payload:
             return self.get_catalysis_explorer()
 

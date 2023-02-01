@@ -155,7 +155,6 @@ class XRayDiffractionComponent(MPComponent):
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-
         state = {
             "peak_profile": "G",
             "shape_factor": 0.94,
@@ -339,7 +338,6 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         x_axis,
         broadening=True,
     ) -> go.Figure:
-
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
         # convert to (h k l) format
         hkls = [f"hkl: ({' '.join(map(str, hkl))})" for hkl in hkl_list]
@@ -434,7 +432,6 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             ],
         )
         def update_graph(data, logsize, rad_source, peak_profile, K, x_axis, structure):
-
             if not data:
                 raise PreventUpdate
 
@@ -480,7 +477,6 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             ],
         )
         def pattern_from_struct(struct, rad_source):
-
             if struct is None or not rad_source:
                 raise PreventUpdate
 

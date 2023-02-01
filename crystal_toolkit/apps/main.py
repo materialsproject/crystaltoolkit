@@ -184,7 +184,6 @@ panels = [
 if SETTINGS.MP_EMBED_MODE:
     mp_section: tuple[Any, ...] = (html.Div(),)
 else:
-
     # bsdos_component = ctc.BandstructureAndDosPanelComponent(
     #     origin_component=search_component
     # )
@@ -527,7 +526,6 @@ def master_update_structure(
     upload_data = upload_data or {}
 
     if load_by == "mpid":
-
         if search_mpid is None:
             raise PreventUpdate
 
@@ -540,7 +538,6 @@ def master_update_structure(
                 struct = mpr.get_structure_by_material_id(search_mpid)
                 print("Struct from material.")
     else:
-
         struct = MPComponent.from_data(upload_data["data"])
 
     return struct
