@@ -12,12 +12,12 @@ exclude: ^(docs/.+|.*lock.*|jupyterlab-extension/.+|.*\.(svg|js|css))$
 
 repos:
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.1.0
     hooks:
       - id: black-jupyter
 
@@ -55,12 +55,12 @@ repos:
         stages: [commit, commit-msg]
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.0.0
+    rev: v2.0.1
     hooks:
       - id: autoflake
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.6.0
+    rev: 1.6.1
     hooks:
       - id: nbqa-pyupgrade
         args: [--py38-plus]
@@ -75,7 +75,7 @@ repos:
         args: [--drop-empty-cells, --keep-output]
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.1
+    rev: v1.6.0.rc1
     hooks:
       - id: docformatter
         args: [--config, setup.cfg]
