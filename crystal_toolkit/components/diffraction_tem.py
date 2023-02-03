@@ -203,9 +203,7 @@ class TEMDiffractionComponent(MPComponent):
 
 
 class TEMDiffractionCalculator:
-    """
-    Docstring
-    """
+    """Docstring."""
 
     def __init__(self) -> None:
         # Initialize parameter caches to invalid so that on the first run,
@@ -233,9 +231,7 @@ class TEMDiffractionCalculator:
         gamma,
         # **kwargs,
     ) -> go:
-        """
-        generate diffraction pattern using py4DSTEM and return as a plotly Figure object
-        """
+        """Generate diffraction pattern using py4DSTEM and return as a plotly Figure object."""
         t0 = time()
         # figure out what needs to be recomputed:
         new_crystal = py4DSTEM.process.diffraction.Crystal.from_pymatgen_structure(

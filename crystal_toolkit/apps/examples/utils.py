@@ -9,8 +9,8 @@ from tqdm import tqdm
 
 
 def load_and_store_matbench_dataset(dataset_name: str) -> pd.DataFrame:
-    """Load, process and save Matbench datasets to disk to avoid having to re-process
-    on subsequent app runs.
+    """Load, process and save Matbench datasets to disk to avoid having to re-process on subsequent
+    app runs.
     """
     data_path = os.path.join(os.path.dirname(__file__), f"{dataset_name}.json.gz")
 

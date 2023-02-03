@@ -15,8 +15,7 @@ if typing.TYPE_CHECKING:
 
 
 class FermiSurfaceComponent(MPComponent):
-    """
-    Component to display FermiSurface objects generated from ifermi.
+    """Component to display FermiSurface objects generated from ifermi.
 
     Args:
         fermi_surface: An ifermi FermiSurface object.
@@ -35,8 +34,7 @@ class FermiSurfaceComponent(MPComponent):
 
     @staticmethod
     def get_figure(fermi_surface: FermiSurface, **kwargs) -> Figure:
-        """
-        Get a fermi surface figure.
+        """Get a fermi surface figure.
 
         Args:
             fermi_surface: An ifermi FermiSurface object.

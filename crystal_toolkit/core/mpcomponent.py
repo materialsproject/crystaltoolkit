@@ -608,8 +608,8 @@ Sub-layouts:  \n{layouts}"""
         value_name: str = "value",
         **kwargs,
     ) -> mpc.FilterField:
-        """For Python classes which take dictionaries as inputs. The keys are fixed and only
-         the values can be modified. This will generate a corresponding Dash input layout.
+        """For Python classes which take dictionaries as inputs. The keys are fixed and only the
+        values can be modified. This will generate a corresponding Dash input layout.
 
         :param kwarg_label: The name of the corresponding Python input, this is used
         to name the component.
@@ -668,7 +668,7 @@ Sub-layouts:  \n{layouts}"""
         # arrange the input boxes in two columns
         dict_div_contents = [html.Div(H6(f"{key_name}: {value_name}"))]
         # dict_div_contents = []
-        for n_idx, k in zip_longest(range(dict_size), default.keys()):
+        for n_idx, k in zip_longest(range(dict_size), default):
             dict_div_contents.append(html.Div(pair_element(n_idx, k, default.get(k))))
 
         dict_input = html.Div(dict_div_contents)

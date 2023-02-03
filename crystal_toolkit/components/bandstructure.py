@@ -263,7 +263,7 @@ class BandstructureAndDosComponent(MPComponent):
             )
             path += [start, end]
             cylinder_pairs += [[start, end]]
-        # path_lines = Lines(positions=path, color="#ff4b5c",)
+        # path_lines = Lines(positions=path, color="#ff4b5c")
         path_lines = Cylinders(
             positionPairs=cylinder_pairs, color="#5EB1BF", radius=0.01
         )
@@ -387,7 +387,7 @@ class BandstructureAndDosComponent(MPComponent):
             bs_traces += traces_for_segment
 
         for entry_num in range(len(bs_data["ticks"]["label"])):
-            for key in pretty_labels.keys():
+            for key in pretty_labels:
                 if key in bs_data["ticks"]["label"][entry_num]:
                     bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
                         entry_num

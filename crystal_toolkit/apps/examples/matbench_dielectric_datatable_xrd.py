@@ -64,11 +64,11 @@ ctc.register_crystal_toolkit(app=app, layout=app.layout)
     Output(structure_component.id(), "data"),
     # currently broken due to internal callback in XRayDiffractionComponent
     # Output(xrd_component.id(), "data"),
-    Input(datatable_diel.id, "active_cell"),
+    Input(datatable_diel, "active_cell"),
 )
 def update_structure(active_cell: dict[str, int | str]) -> Structure:
-    """Update StructureMoleculeComponent with pymatgen structure when user clicks on
-    new scatter point.
+    """Update StructureMoleculeComponent with pymatgen structure when user clicks on new scatter
+    point.
     """
     row_idx = active_cell["row"]
     structure = df_diel.structure[row_idx]

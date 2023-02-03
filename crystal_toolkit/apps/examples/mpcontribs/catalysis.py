@@ -46,9 +46,14 @@ class CatalysisApp(MPApp):
     @staticmethod
     def modify_df(dataframe: pd.DataFrame) -> list[pd.DataFrame]:
         """
-        Filter DataFrame for binary visualization.
-        :param dataframe:
-        :return:
+        Filter DataFrame for unary+binary materials visualization.
+
+        Args:
+          dataframe (pd.DataFrame): the dataframe that you want to modify
+
+        Returns:
+            list[pd.Dataframe): two dataframes, the input df filtered to unary or binary materials
+                and one with the minimum energy of each material
         """
 
         # Extract the elements and number of them from formula
@@ -79,8 +84,8 @@ class CatalysisApp(MPApp):
         range_E,
         user_options,
     ) -> go.Figure:
-        """
-        Generate a 2D plot for binary visualization.
+        """Generate a 2D plot for binary visualization.
+
         :param df_all_data:
         :param df_min_E:
         :param target_E:
@@ -100,7 +105,7 @@ class CatalysisApp(MPApp):
             custom_data = np.zeros((grid_dim, grid_dim), dtype=object)
             add_data = np.zeros((grid_dim, grid_dim), dtype=object)
             lookup_dict = df_min_E.set_index("element_tup").to_dict()
-            el_combos = list(lookup_dict["energy"].keys())
+            el_combos = list(lookup_dict["energy"])
             for i in range(len(labels)):
                 for k in range(len(labels)):
                     if i == k:

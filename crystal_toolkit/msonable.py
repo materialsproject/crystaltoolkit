@@ -1,4 +1,5 @@
-"""pleasant hack to support MSONable objects in Dash callbacks natively"""
+"""Pleasant hack to support MSONable objects in Dash callbacks natively."""
+
 from __future__ import annotations
 
 

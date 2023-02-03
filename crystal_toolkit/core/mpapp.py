@@ -11,15 +11,11 @@ from crystal_toolkit.core.mpcomponent import MPComponent
 
 
 class MPApp(MPComponent, ABC):
-    """
-    Class to make an app for the Materials Project website.
-    """
+    """Class to make an app for the Materials Project website."""
 
     @property
     def name(self):
-        """
-        Name of your app, will be included in navigation menu
-        """
+        """Name of your app, will be included in navigation menu."""
         return APP_METADATA.get(self.__class__.__name__, {}).get(
             "name", "Name Not Defined"
         )

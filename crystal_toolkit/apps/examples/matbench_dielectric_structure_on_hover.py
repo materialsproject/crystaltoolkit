@@ -119,8 +119,8 @@ def update_structure(
     click_data: dict[str, list[dict[str, Any]]],  # needed only as callback trigger
     dropdown_value: str,
 ) -> tuple[Structure, str]:
-    """Update StructureMoleculeComponent with pymatgen structure when user clicks or hovers
-    a scatter point.
+    """Update StructureMoleculeComponent with pymatgen structure when user clicks or hovers a
+    scatter point.
     """
     triggered = dash.callback_context.triggered[0]
     if dropdown_value == "click" and triggered["prop_id"].endswith(".hoverData"):

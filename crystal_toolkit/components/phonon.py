@@ -262,7 +262,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             )
             path += [start, end]
             cylinder_pairs += [[start, end]]
-        # path_lines = Lines(positions=path, color="#ff4b5c",)
+        # path_lines = Lines(positions=path, color="#ff4b5c")
         path_lines = Cylinders(
             positionPairs=cylinder_pairs, color="#5EB1BF", radius=0.01
         )
@@ -314,7 +314,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             bs_traces += traces_for_segment
 
         for entry_num in range(len(bs_data["ticks"]["label"])):
-            for key in pretty_labels.keys():
+            for key in pretty_labels:
                 if key in bs_data["ticks"]["label"][entry_num]:
                     bs_data["ticks"]["label"][entry_num] = bs_data["ticks"]["label"][
                         entry_num
@@ -702,8 +702,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
             Input(self.id("ph-bsdos-graph"), "clickData"),
         )
         def highlight_bz_on_hover_bs(hover_data, click_data, label_select):
-            """Highlight the corresponding point/edge of the Brillouin Zone when hovering
-            the band structure plot.
+            """Highlight the corresponding point/edge of the Brillouin Zone when hovering the band
+            structure plot.
             """
 
             # TODO: figure out what to return (CSS?) to highlight BZ edge/point

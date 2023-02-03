@@ -54,8 +54,7 @@ ctc.register_crystal_toolkit(app, layout=my_layout)
 
 
 @app.callback(
-    Output("structure_out", "data"),
-    Input(transformation_component.id(), "data"),
+    Output("structure_out", "data"), Input(transformation_component.id(), "data")
 )
 def update_structure(struct):
     return struct

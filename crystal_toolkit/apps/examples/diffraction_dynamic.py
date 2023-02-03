@@ -22,7 +22,7 @@ my_layout = Container([page_title, xrd_component.layout(), load_btn])
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
 
-@app.callback(Output(xrd_component.id(), "data"), Input(load_btn.id, "n_clicks"))
+@app.callback(Output(xrd_component.id(), "data"), Input(load_btn, "n_clicks"))
 def load_structure(n_clicks: int) -> Structure:
     structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
     return structure
