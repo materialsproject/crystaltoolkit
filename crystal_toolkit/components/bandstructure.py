@@ -774,7 +774,7 @@ class BandstructureAndDosComponent(MPComponent):
 
     def generate_callbacks(self, app, cache):
         @app.callback(
-            Output(self.id("bsdos-div"), "children"), [Input(self.id("traces"), "data")]
+            Output(self.id("bsdos-div"), "children"), Input(self.id("traces"), "data")
         )
         def update_graph(traces):
             if traces == "error":

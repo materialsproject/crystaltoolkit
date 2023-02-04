@@ -366,7 +366,7 @@ class Legend(MSONable):
         # (implicitly assumes all site props for a given key are same type)
         site_prop_names = defaultdict(list)
         for name, props in site_collection.site_properties.items():
-            if isinstance(props[0], float) or isinstance(props[0], int):
+            if isinstance(props[0], (int, float)):
                 site_prop_names["scalar"].append(name)
             elif isinstance(props[0], list) and len(props[0]) == 3:
                 if isinstance(props[0][0], list) and len(props[0][0]) == 3:

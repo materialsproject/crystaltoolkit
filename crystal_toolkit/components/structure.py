@@ -61,9 +61,8 @@ class StructureMoleculeComponent(MPComponent):
 
     default_scene_settings = {
         "extractAxis": True,
-        # For visual diff testing, we change the renderer
-        # to SVG since this WebGL support is more difficult
-        # in headless browsers / CI.
+        # For visual diff testing, we change the renderer to SVG since this WebGL
+        # support is more difficult in headless browsers / CI.
         "renderer": "svg" if SETTINGS.TEST_MODE else "webgl",
         "secondaryObjectView": False,
     }
@@ -235,9 +234,7 @@ class StructureMoleculeComponent(MPComponent):
         self._initial_data["scene"] = scene
 
         # hide axes inset for molecules
-        if isinstance(struct_or_mol, Molecule) or isinstance(
-            struct_or_mol, MoleculeGraph
-        ):
+        if isinstance(struct_or_mol, (Molecule, MoleculeGraph)):
             self.scene_kwargs = {"axisView": "HIDDEN"}
         else:
             self.scene_kwargs = {}
@@ -268,11 +265,9 @@ class StructureMoleculeComponent(MPComponent):
             }
             """,
             Output(self.id("graph_generation_options"), "data"),
-            [
-                Input(self.id("bonding_algorithm"), "value"),
-                Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
-                Input(self.id("unit-cell-choice"), "value"),
-            ],
+            Input(self.id("bonding_algorithm"), "value"),
+            Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
+            Input(self.id("unit-cell-choice"), "value"),
         )
 
         app.clientside_callback(
@@ -286,8 +281,8 @@ class StructureMoleculeComponent(MPComponent):
             }
             """,
             Output(self.id("scene"), "toggleVisibility"),
-            [Input(self.id("hide-show"), "value")],
-            [State(self.id("hide-show"), "options")],
+            Input(self.id("hide-show"), "value"),
+            State(self.id("hide-show"), "options"),
         )
 
         app.clientside_callback(
@@ -307,12 +302,10 @@ class StructureMoleculeComponent(MPComponent):
             }
             """,
             Output(self.id("display_options"), "data"),
-            [
-                Input(self.id("color-scheme"), "value"),
-                Input(self.id("radius_strategy"), "value"),
-                Input(self.id("draw_options"), "value"),
-            ],
-            [State(self.id("display_options"), "data")],
+            Input(self.id("color-scheme"), "value"),
+            Input(self.id("radius_strategy"), "value"),
+            Input(self.id("draw_options"), "value"),
+            State(self.id("display_options"), "data"),
         )
 
         @app.callback(
@@ -411,20 +404,16 @@ class StructureMoleculeComponent(MPComponent):
         # app.clientside_callback(
         #     """
         #     function (legendData) {
-        #
-        #         var colorOptions = [
+        #         const colorOptions = [
         #             {label: "Jmol", value: "Jmol"},
         #             {label: "VESTA", value: "VESTA"},
         #             {label: "Accessible", value: "accessible"},
         #         ]
-        #
-        #
-        #
         #         return colorOptions
         #     }
         #     """,
         #     Output(self.id("color-scheme"), "options"),
-        #     [Input(self.id("legend_data"), "data")]
+        #     Input(self.id("legend_data"), "data"),
         # )
 
         @app.callback(
@@ -945,7 +934,7 @@ class StructureMoleculeComponent(MPComponent):
         # we assume most uses of this class will give a structure as an input argument,
         # meaning we have to calculate the graph for bonding information, however if
         # the graph is already known and supplied, we will use that
-        if isinstance(input, StructureGraph) or isinstance(input, MoleculeGraph):
+        if isinstance(input, (StructureGraph, MoleculeGraph)):
             graph = input
         else:
             if (
@@ -1001,7 +990,7 @@ class StructureMoleculeComponent(MPComponent):
             return graph.structure
         elif isinstance(graph, MoleculeGraph):
             return graph.molecule
-        elif isinstance(graph, Structure) or isinstance(graph, Molecule):
+        elif isinstance(graph, (Structure, Molecule)):
             return graph
         else:
             raise ValueError

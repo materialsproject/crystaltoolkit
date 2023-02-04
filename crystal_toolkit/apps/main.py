@@ -425,7 +425,7 @@ ctc.register_crystal_toolkit(layout=master_layout, app=app, cache=cache)
 ################################################################################
 
 
-@app.callback(Output(search_component.id("input"), "value"), [Input("url", "href")])
+@app.callback(Output(search_component.id("input"), "value"), Input("url", "href"))
 def update_search_term_on_page_load(href: str) -> str:
     """If an mpid is provided in the url, load that mpid. Otherwise load a random mpid from the
     DEFAULT_MPIDS global variable.

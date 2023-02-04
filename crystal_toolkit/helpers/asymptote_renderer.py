@@ -631,8 +631,6 @@ def write_asy_file(renderable_object, file_name, **kwargs):
         renderable_object: Object to be rendered
         file_name: name of file
     """
-    if isinstance(renderable_object, Structure) or isinstance(
-        renderable_object, StructureGraph
-    ):
+    if isinstance(renderable_object, (Structure, StructureGraph)):
         kwargs["explicitly_calculate_polyhedra_hull"] = True
     write_ctk_scene_to_file(renderable_object.get_scene(**kwargs), file_name)

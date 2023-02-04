@@ -579,7 +579,7 @@ class PhaseDiagramComponent(MPComponent):
                 ]
                 return plot
 
-        @app.callback(Output(self.id("figure"), "data"), [Input(self.id(), "data")])
+        @app.callback(Output(self.id("figure"), "data"), Input(self.id(), "data"))
         def make_figure(pd):
             if pd is None:
                 raise PreventUpdate
