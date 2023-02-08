@@ -39,7 +39,7 @@ from crystal_toolkit.helpers.layouts import (
     Label,
     Loading,
     cite_me,
-    get_data_list,
+    get_table,
     get_tooltip,
 )
 
@@ -786,10 +786,10 @@ class LocalEnvironmentPanel(PanelComponent):
             unknown_sites = []
 
             for index, wyckoff in zip(inequivalent_indices, wyckoffs):
-                datalist = {
-                    "Site": unicodeify_species(struct[index].species_string),
-                    "Wyckoff Label": wyckoff,
-                }
+                datalist = [
+                    ["Site", unicodeify_species(struct[index].species_string)],
+                    ["Wyckoff Label", wyckoff],
+                ]
 
                 if not lse.neighbors_sets[index]:
                     unknown_sites.append(f"{struct[index].species_string} ({wyckoff})")
@@ -822,11 +822,11 @@ class LocalEnvironmentPanel(PanelComponent):
                 if co.alternative_names:
                     name += f" (also known as {', '.join(co.alternative_names)})"
 
-                datalist.update(
-                    {
-                        "Environment": name,
-                        "IUPAC Symbol": co.IUPAC_symbol_str,
-                        get_tooltip(
+                datalist.extend(
+                    [
+                        ["Environment", name],
+                        ["IUPAC Symbol", co.IUPAC_symbol_str],
+                        [get_tooltip(
                             "CSM",
                             "The continuous symmetry measure (CSM) describes the similarity to an "
                             "ideal coordination environment. It can be understood as a 'distance' to "
@@ -834,12 +834,12 @@ class LocalEnvironmentPanel(PanelComponent):
                             "coordination environment that is exactly identical to the ideal one. A "
                             "CSM larger than 5.0 already indicates a relatively strong distortion of "
                             "the investigated coordination environment.",
-                        ): f"{env[0]['csm']:.2f}",
-                        "Interactive View": view,
-                    }
+                        ), f"{env[0]['csm']:.2f}"],
+                        ["Interactive View", view],
+                    ]
                 )
 
-                envs.append(get_data_list(datalist))
+                envs.append(get_table(rows=datalist))
 
             # TODO: switch to tiles?
             envs_grouped = [envs[i : i + 2] for i in range(0, len(envs), 2)]
