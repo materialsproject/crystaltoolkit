@@ -37,7 +37,9 @@ def get_molecule_graph_scene(
     """
 
     if visualize_bond_orders:
-        vis_mol_graph = MoleculeGraph.with_local_env_strategy(self.molecule, OpenBabelNN())
+        vis_mol_graph = MoleculeGraph.with_local_env_strategy(
+            self.molecule, OpenBabelNN()
+        )
     else:
         vis_mol_graph = self
     legend = legend or Legend(self.molecule)
