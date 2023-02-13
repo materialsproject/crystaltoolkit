@@ -1,20 +1,22 @@
+from __future__ import annotations
+
 from base64 import b64encode
-from string import Template
 
 import dash_mp_components as mpc
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from dash import dcc, html, Input, Output, no_update
+from dash import Input, Output, dcc, html, no_update
 from dash.exceptions import PreventUpdate
 from emmet.core.tasks import TaskDoc
 from emmet.core.vasp.material import MaterialsDoc
-from mp_api.client import MPRestError, MPRester
+from mp_api.client import MPRester, MPRestError
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Kpoints_supported_modes
 
 import crystal_toolkit.components as ctc
 import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit.helpers.utils import get_box_title
+
 
 class VaspTasksComponent(ctc.MPComponent):
     """
@@ -249,7 +251,6 @@ class VaspTasksComponent(ctc.MPComponent):
     def get_table_with_overview_data(
         self, task_doc: TaskDoc, materials_doc: MaterialsDoc
     ) -> html.Div:
-
         overview_data = {}
 
         overview_data["Type"] = html.A(
@@ -357,10 +358,10 @@ class VaspTasksComponent(ctc.MPComponent):
         # TODO: use pymatgen.symmetry.analyzer to determine the structure object symmetry
 
         output_data = {
-            "Total energy": "{:.2f} eV".format(total_energy),
+            "Total energy": f"{total_energy:.2f} eV",
             # see also: material details page density
-            "Density": html.Span(["{:.3f} g·cm".format(density), html.Sup("-3")]),
-            "Band gap": "{:.2f} eV".format(bandgap),
+            "Density": html.Span([f"{density:.3f} g·cm", html.Sup("-3")]),
+            "Band gap": f"{bandgap:.2f} eV",
         }
 
         output_list = ctl.Block(
@@ -484,7 +485,6 @@ class VaspTasksComponent(ctc.MPComponent):
 
     @staticmethod
     def get_task_doc(task_data, fields=None):
-
         if not task_data:
             return None
 
