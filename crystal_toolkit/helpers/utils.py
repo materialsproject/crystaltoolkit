@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import logging
 import re
+import urllib.parse
 from fractions import Fraction
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import dash_mp_components as mpc
@@ -10,8 +13,8 @@ from dash import dash_table as dt
 from dash import dcc, html
 from flask import has_request_context, request
 from monty.serialization import loadfn
-from mpcontribs.client import Client as MPContribsClient
 
+import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.defaults import _DEFAULTS
 from crystal_toolkit.settings import SETTINGS
@@ -23,12 +26,12 @@ def update_object_args(d_args, object_name, allowed_args):
     """Read default properties and overwrite them if user input exists.
 
     Arguments:
-        d_args {dict} -- User defined properties
-        object_name {str} -- Name of object
-        allowed_kwargs {List[str]} -- Used to limit the data that is passed to pythreejs
+        d_args (dict): User defined properties
+        object_name (str): Name of object
+        allowed_kwargs (list[str]): Used to limit the data that is passed to pythreejs
 
     Returns:
-        Dictionary -- Properties of object after userinput and default values are considered
+        dict: Properties of object after user input and default values are considered
     """
     obj_args = {k: v for k, v in (_DEFAULTS["scene"][object_name] or {}).items()}
     obj_args.update(
@@ -38,8 +41,8 @@ def update_object_args(d_args, object_name, allowed_args):
 
 
 def is_logged_in() -> bool:
-    """
-    Check if user is logged in using request headers.
+    """Check if user is logged in using request headers.
+
     For testing on localhost, will return True if SETTINGS.DEV_LOGIN_DISABLED=True.
     """
     is_dev_login_disabled = SETTINGS.DEV_LOGIN_DISABLED and is_localhost()
@@ -47,9 +50,7 @@ def is_logged_in() -> bool:
 
 
 def is_logged_in_user(consumer=None) -> bool:
-    """
-    Check if the client has the necessary headers for an authenticated user
-    """
+    """Check if the client has the necessary headers for an authenticated user."""
     if not consumer:
         consumer = get_consumer()
     return bool(
@@ -58,23 +59,17 @@ def is_logged_in_user(consumer=None) -> bool:
 
 
 def is_localhost() -> bool:
-    """
-    Returns True if the host in the web address starts with
-    any of the following local names: localhost, 127.0.0.1, or 0.0.0.0
+    """Returns True if the host in the web address starts with any of the following local names:
+    localhost, 127.0.0.1, or 0.0.0.0.
     """
     if not has_request_context():
         return True
 
     host = request.headers.get("Host", "")
-    return bool(
-        host.startswith("localhost:")
-        or host.startswith("127.0.0.1:")
-        or host.startswith("0.0.0.0:")
-    )
+    return host.startswith(("localhost:", "127.0.0.1:", "0.0.0.0:"))
 
 
-def get_consumer():
-
+def get_consumer() -> dict[str, str]:
     if not has_request_context():
         return {}
 
@@ -95,14 +90,12 @@ def get_consumer():
 
 
 def is_url(s):
-    return s.startswith("http://") or s.startswith("https://")
+    return s.startswith(("http://", "https://"))
 
 
-def get_user_api_key(consumer=None) -> Optional[str]:
-    """
-    Get the api key that belongs to the current user
-    If running on localhost, api key is obtained from
-    the environment variable MP_API_KEY
+def get_user_api_key(consumer=None) -> str | None:
+    """Get the api key that belongs to the current user If running on localhost, api key is obtained
+    from the environment variable MP_API_KEY.
     """
     if not consumer:
         consumer = get_consumer()
@@ -116,21 +109,23 @@ def get_user_api_key(consumer=None) -> Optional[str]:
 
 
 def get_contribs_client():
-    """
-    Get an instance of the MPContribsClient that will work
-    in either production or a dev environment.
+    """Get an instance of the MPContribsClient that will work in either production or a dev
+    environment.
+
     Client uses MPCONTRIBS_API_HOST by default.
     """
+    from mpcontribs.client import Client
+
     headers = get_consumer()
 
     if is_localhost():
-        return MPContribsClient(apikey=get_user_api_key())
+        return Client(apikey=get_user_api_key())
     else:
-        return MPContribsClient(headers=headers)
+        return Client(headers=headers)
 
 
 def get_contribs_api_base_url(request_url=None, deployment="contribs"):
-    """Get the MPContribs API endpoint for a specific deployment"""
+    """Get the MPContribs API endpoint for a specific deployment."""
     if is_localhost() and SETTINGS.API_EXTERNAL_ENDPOINT:
         return f"https://{deployment}-api.materialsproject.org"
 
@@ -141,7 +136,7 @@ def get_contribs_api_base_url(request_url=None, deployment="contribs"):
 
 
 def parse_request_url(request_url, subdomain):
-    parsed_url = urllib.parse.urlparse(request_url)
+    parsed_url = urllib.parse.urlsplit(request_url)
     pre, suf = parsed_url.netloc.split("next-gen")
     netloc = pre + subdomain + suf
     scheme = "http" if netloc.startswith("localhost.") else "https"
@@ -160,9 +155,9 @@ if SETTINGS.DEBUG_MODE:
 
 
 def get_box_title(use_point: str, title: str, id=None):
-    """
-    Convenience method to wrap box titles in H5 tags and
-    conditionally add a tooltip from HELP_STRINGS.
+    """Convenience method to wrap box titles in H5 tags and conditionally add a tooltip from
+    HELP_STRINGS.
+
     :param use_point: name indicating where the help string is used (top level key)
     :param title: text that displays as title and maps to property in HELP_STRINGS
     :return: H5 title with or without a tooltip
@@ -196,14 +191,15 @@ def get_tooltip(
     wrapper_class: str = None,
     **kwargs,
 ):
-    """
-    Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
+    """Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
     This component uses react-tooltip under the hood.
+
     :param tooltip_label: text or component to display and apply hover behavior to
     :param tooltip_text: text to show on hover
     :param tooltip_id: unique id of the tooltip (will generate one if not supplied)
     :param wrapper_class: class to add to the span that wraps all the returned tooltip components (label + content)
-    :param kwargs: additional props added to Tooltip component. See the components js file in dash-mp-components for a full list of props.
+    :param kwargs: additional props added to Tooltip component. See the components js file in
+        dash-mp-components for a full list of props.
     :return: html.Span
     """
     if not tooltip_id:
@@ -224,7 +220,6 @@ def get_tooltip(
 
 
 def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book"):
-
     if (not doi) or cite_text:
         # TODO: This will get removed, due to addition of new PublicationButton
         if cite_text:
@@ -264,9 +259,8 @@ def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book")
 def get_data_table(
     df=None, virtualized=True, columns=None, column_widths=None, **kwargs
 ):
-    """
-    Returns a nicely styled DataTable with sensible defaults
-    for re-use.
+    """Returns a nicely styled DataTable with sensible defaults for re-use.
+
     :param df: optional pandas DataFrame to populate DataTable
     :param virtualized: used for large tables, adds filter options
     :param columns: list of dicts with keys id and name
@@ -336,11 +330,11 @@ def get_data_table(
 
 
 def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
-    """
-    Helper function to build section headings with docs button.
-    This is used inside of a section layout to build heading section using section data.
-    The app_button_id should be used inside a callback in the section code to populate
-    the app button with its computed button/link (e.g. see synthesis section).
+    """Helper function to build section headings with docs button.
+
+    This is used inside of a section layout to build heading section using section data. The
+    app_button_id should be used inside a callback in the section code to populate the app button
+    with its computed button/link (e.g. see synthesis section).
     """
 
     app_link = (
@@ -445,9 +439,8 @@ def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
 
 
 def get_matrix_string(matrix, variable_name=None, decimals=4):
-    """
-    Returns a string for use in mpc.Markdown() to render a matrix
-    or vector.
+    """Returns a string for use in mpc.Markdown() to render a matrix or vector.
+
     :param matrix: list or numpy array
     :param variable_name: LaTeX-formatted variable name
     :param decimals: number of decimal places to round to
@@ -484,9 +477,8 @@ def get_matrix_string(matrix, variable_name=None, decimals=4):
 
 
 def update_css_class(kwargs, class_name):
-    """
-    Convenience function to update className while respecting
-    any additional classNames already set.
+    """Convenience function to update className while respecting any additional classNames already
+    set.
     """
     if "className" in kwargs:
         kwargs["className"] += f" {class_name}"
@@ -495,10 +487,9 @@ def update_css_class(kwargs, class_name):
 
 
 def is_mpid(value: str):
-    """
-    Determine if a string is in the MP ID syntax.
-    Checks if the string starts with 'mp-' or 'mvc-'
-    and is followed by only numbers.
+    """Determine if a string is in the MP ID syntax.
+
+    Checks if the string starts with 'mp-' or 'mvc-' and is followed by only numbers.
     """
     if re.match(r"(mp|mvc)\-\d+$", value):
         return value
@@ -507,9 +498,8 @@ def is_mpid(value: str):
 
 
 def pretty_frac_format(x):
-    """
-    Formats a float to a fraction, if the fraction can be
-    expressed without a large denominator.
+    """Formats a float to a fraction, if the fraction can be expressed without a large
+    denominator.
     """
 
     x = x % 1

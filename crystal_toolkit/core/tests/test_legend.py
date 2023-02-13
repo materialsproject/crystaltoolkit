@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -6,7 +8,6 @@ from crystal_toolkit.core.legend import Legend
 
 class TestLegend:
     def setup_method(self, method):
-
         self.struct = Structure(
             Lattice.cubic(5),
             ["H", "O", "In"],
@@ -45,7 +46,6 @@ class TestLegend:
         )
 
     def test_get_color(self):
-
         # test default
 
         legend = Legend(self.struct, color_scheme="VESTA")
@@ -151,7 +151,6 @@ class TestLegend:
         }
 
     def test_get_radius(self):
-
         legend = Legend(self.struct, radius_scheme="uniform")
 
         assert legend.get_radius(sp=self.sp0) == 0.5
@@ -165,7 +164,6 @@ class TestLegend:
         assert legend.get_radius(sp=self.sp2) == 0.94
 
     def test_msonable(self):
-
         legend = Legend(self.struct)
         legend_dict = legend.as_dict()
         legend_from_dict = Legend.from_dict(legend_dict)

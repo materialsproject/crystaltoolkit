@@ -1,1 +1,3 @@
-__version__ = "2022.11.30.dev8"
+from __future__ import annotations
+
+__version__ = "2023.02.01"

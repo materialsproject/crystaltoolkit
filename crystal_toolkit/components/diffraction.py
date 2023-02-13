@@ -3,17 +3,24 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import callback_context, dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
-from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
+from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
 
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
+from crystal_toolkit.helpers.layouts import (
+    Box,
+    Column,
+    Columns,
+    Loading,
+    MessageBody,
+    MessageContainer,
+)
 
 # Scherrer equation: Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years:
 # a survey and some new results in the determination of crystallite size." Journal of
@@ -29,69 +36,13 @@ from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading
 # Author: Matthew McDermott
 # Contact: mcdermott@lbl.gov
 
-
-class TEMDiffractionComponent(MPComponent):
-    def __init__(self, *args, initial_structure=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.create_store("structure", initial_data=initial_structure)
-
-    def layout(self) -> Columns:
-
-        voltage = self.get_numerical_input(
-            kwarg_label="voltage",
-            default=200,
-            label="Voltage / kV",
-            help_str="The incident wavelength with which to generate the diffraction pattern, "
-            "typically corresponding to a TEM microscope’s voltage.",
-        )
-
-        beam_direction = self.get_numerical_input(
-            kwarg_label="beam_direction",
-            default=[0, 0, 1],
-            label="Beam Direction",
-            help_str="The direction of the electron beam fired onto the sample.",
-            shape=(3,),
-            is_int=True,
-        )
-
-        # TODO: add additional kwargs for TemCalculator, or switch to an alternative solution
-
-        return Columns(
-            [
-                Column([Box(Loading(id=self.id("tem-plot")))], size=8),
-                Column(
-                    [voltage, html.Br(), beam_direction],
-                    size=4,
-                ),
-            ],
-        )
-
-    def generate_callbacks(self, app, cache):
-        @app.callback(
-            Output(self.id("tem-plot"), "children"),
-            Input(self.id("structure"), "data"),
-            Input(self.get_all_kwargs_id(), "value"),
-        )
-        def generate_diffraction_pattern(structure, *args):
-
-            structure = self.from_data(structure)
-            kwargs = self.reconstruct_kwargs_from_state()
-
-            calculator = TEMCalculator(**kwargs)
-
-            print("kwargs", kwargs)
-
-            return dcc.Graph(
-                figure=calculator.get_plot_2d(structure),
-                responsive=False,
-                config=dict(displayModeBar=False, displaylogo=False),
-            )
+SITES_LIMIT = 25
 
 
 class XRayDiffractionComponent(MPComponent):
     # TODO: add pole figures for a given single peak for help quantifying texture
 
-    def __init__(self, *args, initial_structure=None, **kwargs):
+    def __init__(self, *args, initial_structure: Structure = None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
 
@@ -203,8 +154,7 @@ class XRayDiffractionComponent(MPComponent):
         return 0.5 * K * 0.1 * wavelength / (tau * abs(np.cos(two_theta / 2)))
 
     @property
-    def _sub_layouts(self):
-
+    def _sub_layouts(self) -> dict[str, Component]:
         state = {
             "peak_profile": "G",
             "shape_factor": 0.94,
@@ -362,6 +312,13 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                         sub_layouts["shape_factor"],
                         sub_layouts["peak_profile"],
                         sub_layouts["crystallite_size"],
+                        html.Div(
+                            id=self.id("large_cell_note"),
+                            style={
+                                "marginTop": "20px",
+                                "marginRight": "10px",
+                            },
+                        ),
                     ],
                     size=4,
                 ),
@@ -370,13 +327,20 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
     @staticmethod
     def get_figure(
-        peak_profile, K, rad_source, grain_size, x_peak, y_peak, d_hkls, hkls, x_axis
-    ):
-
+        peak_profile,
+        K,
+        rad_source,
+        grain_size,
+        x_peak,
+        y_peak,
+        d_hkls,
+        hkls,
+        x_axis,
+        broadening=True,
+    ) -> go.Figure:
         hkl_list = [hkl[0]["hkl"] for hkl in hkls]
-        hkls = [
-            f"hkl: ({' '.join([str(i) for i in hkl])})" for hkl in hkl_list
-        ]  # convert to (h k l) format
+        # convert to (h k l) format
+        hkls = [f"hkl: ({' '.join(map(str, hkl))})" for hkl in hkl_list]
 
         annotations = [
             f"2𝜃: {round(peak_x, 3)}<br>Intensity: {round(peak_y, 3)}<br>{hkl} <br>d: {round(d, 3)}"
@@ -398,30 +362,30 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             N_density = 150
 
         N = int(N_density * domain)  # num total points
+
         x = np.linspace(first, last, N).tolist()
         y = np.zeros(len(x)).tolist()
 
-        for xp, yp in zip(x_peak, y_peak):
-            alpha = XRayDiffractionComponent.grain_to_hwhm(
-                grain_size, math.radians(xp / 2), K=float(K), wavelength=rad_source
-            )
-            sigma = (alpha / np.sqrt(2 * np.log(2))).item()
-
-            center_idx = int(round((xp - first) * N_density))
-            half_window = int(
-                round(num_sigma * sigma * N_density)
-            )  # i.e. total window of 2 * num_sigma
-
-            lb = max([0, (center_idx - half_window)])
-            ub = min([N, (center_idx + half_window)])
-
-            G0 = getattr(XRayDiffractionComponent, peak_profile)(0, 0, alpha)
-            for i, j in zip(range(lb, ub), range(lb, ub)):
-                y[j] += (
-                    yp
-                    * getattr(XRayDiffractionComponent, peak_profile)(x[i], xp, alpha)
-                    / G0
+        if broadening:
+            for xp, yp in zip(x_peak, y_peak):
+                alpha = XRayDiffractionComponent.grain_to_hwhm(
+                    grain_size, math.radians(xp / 2), K=float(K), wavelength=rad_source
                 )
+                sigma = (alpha / np.sqrt(2 * np.log(2))).item()
+
+                center_idx = int(round((xp - first) * N_density))
+                # total broadening window of 2 * num_sigma
+                half_window = int(round(num_sigma * sigma * N_density))
+
+                lb = max(0, (center_idx - half_window))
+                ub = min(N, (center_idx + half_window))
+
+                G0 = getattr(XRayDiffractionComponent, peak_profile)(0, 0, alpha)
+                for ii, jj in zip(range(lb, ub), range(lb, ub)):
+                    Gi = getattr(XRayDiffractionComponent, peak_profile)(
+                        x[ii], xp, alpha
+                    )
+                    y[jj] += yp * Gi / G0
 
         layout = XRayDiffractionComponent.default_xrd_plot_style
 
@@ -445,9 +409,11 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 text=annotations,
                 opacity=0.8,
                 marker={"color": "black"},
-            ),
-            go.Scatter(x=x, y=y, hoverinfo="none"),
+            )
         ]
+        if broadening:
+            plotdata.append(go.Scatter(x=x, y=y, hoverinfo="none"))
+
         plot = go.Figure(data=plotdata, layout=layout)
 
         return plot
@@ -455,15 +421,17 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
     def generate_callbacks(self, app, cache):
         @app.callback(
             Output(self.id("xrd-plot"), "figure"),
-            Input(self.id(), "data"),
-            Input(self.get_kwarg_id("crystallite_size"), "value"),
-            Input(self.get_kwarg_id("rad_source"), "value"),
-            Input(self.get_kwarg_id("peak_profile"), "value"),
-            Input(self.get_kwarg_id("shape_factor"), "value"),
-            Input(self.get_kwarg_id("x_axis"), "value"),
+            [
+                Input(self.id(), "data"),
+                Input(self.get_kwarg_id("crystallite_size"), "value"),
+                Input(self.get_kwarg_id("rad_source"), "value"),
+                Input(self.get_kwarg_id("peak_profile"), "value"),
+                Input(self.get_kwarg_id("shape_factor"), "value"),
+                Input(self.get_kwarg_id("x_axis"), "value"),
+                Input(self.id("structure"), "data"),
+            ],
         )
-        def update_graph(data, logsize, rad_source, peak_profile, K, x_axis):
-
+        def update_graph(data, logsize, rad_source, peak_profile, K, x_axis, structure):
             if not data:
                 raise PreventUpdate
 
@@ -483,6 +451,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             y_peak = data["y"]
             d_hkls = data["d_hkls"]
             hkls = data["hkls"]
+            # suppress broadening for larger cell
+            broadening = len(self.from_data(structure).sites) < SITES_LIMIT
 
             plot = self.get_figure(
                 peak_profile,
@@ -494,17 +464,19 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 d_hkls,
                 hkls,
                 x_axis,
+                broadening,
             )
 
             return plot
 
         @app.callback(
             Output(self.id(), "data"),
-            Input(self.id("structure"), "data"),
-            Input(self.get_kwarg_id("rad_source"), "value"),
+            [
+                Input(self.id("structure"), "data"),
+                Input(self.get_kwarg_id("rad_source"), "value"),
+            ],
         )
         def pattern_from_struct(struct, rad_source):
-
             if struct is None or not rad_source:
                 raise PreventUpdate
 
@@ -526,14 +498,29 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
             return data.as_dict()
 
+        @app.callback(
+            Output(self.id("large_cell_note"), "children"),
+            Input(self.id("structure"), "data"),
+        )
+        def update_message(structure):
+            if len(self.from_data(structure).sites) < SITES_LIMIT:
+                return html.Div([])
+            else:
+                return MessageContainer(
+                    MessageBody(
+                        "Peak broadening is currently disabled for materials with "
+                        f"more than {SITES_LIMIT} sites due to long compute time. Please contact "
+                        "feedback@materialsproject.org if you need assistance with the graph."
+                    )
+                )
+
         # @app.callback(
-        #     Output(self.id("static-image"), "src"),
-        #     Input(self.id("xrd-plot"), "figure")
+        #     Output(self.id("static-image"), "src"), Input(self.id("xrd-plot"), "figure")
         # )
         # def update_static_image(data):
-        #
+
         #     scope = PlotlyScope()
         #     output = scope.transform(data, format="png", width=600, height=400, scale=4)
-        #     image = b64encode(output).decode('ascii')
-        #
+        #     image = b64encode(output).decode("ascii")
+
         #     return f"data:image/png;base64,{image}"

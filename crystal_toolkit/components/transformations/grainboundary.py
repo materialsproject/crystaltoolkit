@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dash
 from dash import dcc
 from dash.dependencies import Input, Output, State
@@ -14,11 +16,11 @@ from crystal_toolkit.helpers.layouts import add_label_help
 
 class GrainBoundaryTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Make a grain boundary"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """Create a grain boundary within a periodic supercell. This transformation
 requires sensible inputs, and will be slow to run in certain cases.
 
@@ -30,7 +32,6 @@ to colour-code the top and bottom grains."""
         return GrainBoundaryTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {
             "rotation_axis": [0, 0, 1],
             "rotation_angle": None,
@@ -167,7 +168,6 @@ to colour-code the top and bottom grains."""
 
     @staticmethod
     def _get_sigmas_options_and_ratio(structure, rotation_axis):
-
         rotation_axis = [int(i) for i in rotation_axis]
 
         lat_type = (
@@ -229,7 +229,6 @@ to colour-code the top and bottom grains."""
         return sigmas, options, ratio
 
     def generate_callbacks(self, app, cache):
-
         super().generate_callbacks(app, cache)
 
         @app.callback(
@@ -238,7 +237,6 @@ to colour-code the top and bottom grains."""
             State(self.id("input_structure"), "data"),
         )
         def update_sigma_options(rotation_axis, structure):
-
             rotation_axis = self.reconstruct_kwarg_from_state(
                 dash.callback_context.inputs, "rotation_axis"
             )
@@ -261,7 +259,6 @@ to colour-code the top and bottom grains."""
             State(self.id("input_structure"), "data"),
         )
         def update_rotation_angle_options(sigma, rotation_axis, structure):
-
             if not sigma:
                 raise PreventUpdate
 

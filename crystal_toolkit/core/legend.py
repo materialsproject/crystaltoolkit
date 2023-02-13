@@ -46,7 +46,7 @@ class Legend(MSONable):
         radius_scheme: str = "uniform",
         cmap: str = "coolwarm",
         cmap_range: tuple[float, float] | None = None,
-    ):
+    ) -> None:
         """Create a legend for a given SiteCollection to choose how to display colors and radii for
         the given sites and the species on those sites.
 
@@ -111,7 +111,7 @@ class Legend(MSONable):
                     if p is not None
                 ]
             )
-            prop_max = max([abs(min(props)), max(props)])
+            prop_max = max(abs(min(props)), max(props))
             prop_min = -prop_max
             cmap_range = (prop_min, prop_max)
 
@@ -223,7 +223,6 @@ class Legend(MSONable):
         palette = Set1_9.colors
 
         for site_prop_name in site_prop_types.get("categorical", []):
-
             props = np.array(site_collection.site_properties[site_prop_name])
             props[props is None] = "None"
 
@@ -276,7 +275,6 @@ class Legend(MSONable):
             )
 
         elif self.color_scheme in self.site_prop_types.get("scalar", []):
-
             if not site:
                 raise ValueError(
                     "Requires a site for context to get the "
@@ -286,7 +284,6 @@ class Legend(MSONable):
             prop = site.properties[self.color_scheme]
 
             if prop:
-
                 cmap = get_cmap(self.cmap)
 
                 # normalize in [0, 1] range, as expected by cmap
@@ -296,12 +293,10 @@ class Legend(MSONable):
                 color = [int(c * 255) for c in cmap(prop_normed)[0:3]]
 
             else:
-
                 # fallback if site prop is None
                 color = self.default_color
 
         elif self.color_scheme in self.site_prop_types.get("categorical", []):
-
             if not site:
                 raise ValueError(
                     "Requires a site for context to get the "
@@ -315,7 +310,6 @@ class Legend(MSONable):
             )
 
         else:
-
             raise ValueError(
                 f"Unknown color for {sp} and color scheme {self.color_scheme}."
             )
@@ -323,7 +317,6 @@ class Legend(MSONable):
         return html5_serialize_simple_color(color)
 
     def get_radius(self, sp: Species | Element, site: Site | None = None) -> float:
-
         # allow manual override by user
         if site and "display_radius" in site.properties:
             return site.properties["display_radius"]
@@ -373,7 +366,7 @@ class Legend(MSONable):
         # (implicitly assumes all site props for a given key are same type)
         site_prop_names = defaultdict(list)
         for name, props in site_collection.site_properties.items():
-            if isinstance(props[0], float) or isinstance(props[0], int):
+            if isinstance(props[0], (int, float)):
                 site_prop_names["scalar"].append(name)
             elif isinstance(props[0], list) and len(props[0]) == 3:
                 if isinstance(props[0][0], list) and len(props[0][0]) == 3:
@@ -397,7 +390,6 @@ class Legend(MSONable):
         return unicodeify_species(str(sp))
 
     def get_legend(self) -> dict[str, Any]:
-
         # decide what we want the labels to be
         if self.color_scheme in ("Jmol", "VESTA", "accessible"):
             label = lambda site, sp: self.get_species_str(sp)

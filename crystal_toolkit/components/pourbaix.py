@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import re
 
 import numpy as np
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.pourbaix_diagram import ELEMENTS_HO, PREFAC, PourbaixDiagram
 from pymatgen.core import Composition
@@ -26,7 +28,6 @@ WIDTH = 700  # in px
 
 
 class PourbaixDiagramComponent(MPComponent):
-
     default_state = {"filter_solids": True, "show_heatmap": False}
 
     default_plot_style = dict(
@@ -210,7 +211,7 @@ class PourbaixDiagramComponent(MPComponent):
     #         # Move to first point
     #         path = "M {},{}".format(*vertices[0])
     #         # Draw lines to each other point
-    #         path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
+    #         path += "".join("L {},{}".format(*vertex) for vertex in vertices[1:])
     #         # Close path
     #         path += "Z"
     #
@@ -367,7 +368,7 @@ class PourbaixDiagramComponent(MPComponent):
             # Move to first point
             path = "M {},{}".format(*vertices[0])
             # Draw lines to each other point
-            path += "".join(["L {},{}".format(*vertex) for vertex in vertices[1:]])
+            path += "".join("L {},{}".format(*vertex) for vertex in vertices[1:])
             # Close path
             path += "Z"
 
@@ -379,11 +380,7 @@ class PourbaixDiagramComponent(MPComponent):
                 line = {"color": "Black", "width": 1}
 
             shape = go.layout.Shape(
-                type="path",
-                path=path,
-                fillcolor="rgba(0,0,0,0)",
-                opacity=1,
-                line=line,
+                type="path", path=path, fillcolor="rgba(0,0,0,0)", opacity=1, line=line
             )
             shapes.append(shape)
 
@@ -543,8 +540,7 @@ class PourbaixDiagramComponent(MPComponent):
         return clean_formula
 
     @property
-    def _sub_layouts(self):
-
+    def _sub_layouts(self) -> dict[str, Component]:
         options = html.Div(
             [
                 self.get_bool_input(
@@ -607,7 +603,6 @@ class PourbaixDiagramComponent(MPComponent):
             Input(self.id(), "data"),
         )
         def update_heatmap_choices(entries):
-
             if not entries:
                 raise PreventUpdate
 
@@ -637,7 +632,6 @@ class PourbaixDiagramComponent(MPComponent):
             State(self.get_kwarg_id("show_heatmap"), "value"),
         )
         def update_element_specific_sliders(entries, heatmap_choice, show_heatmap):
-
             if not entries:
                 raise PreventUpdate
 
@@ -711,7 +705,6 @@ class PourbaixDiagramComponent(MPComponent):
             Input(self.get_all_kwargs_id(), "value"),
         )
         def update_displayed_composition(*args):
-
             kwargs = self.reconstruct_kwargs_from_state()
 
             comp_dict = {}
@@ -746,7 +739,6 @@ class PourbaixDiagramComponent(MPComponent):
             Input(self.get_all_kwargs_id(), "value"),
         )
         def make_figure(pourbaix_entries, *args) -> go.Figure:
-
             if pourbaix_entries is None:
                 raise PreventUpdate
 
@@ -756,7 +748,6 @@ class PourbaixDiagramComponent(MPComponent):
 
             # Get heatmap id
             if kwargs["show_heatmap"] and kwargs.get("heatmap_choice"):
-
                 # get Entry object based on the heatmap_choice, which is entry_id string
                 heatmap_entry = next(
                     entry

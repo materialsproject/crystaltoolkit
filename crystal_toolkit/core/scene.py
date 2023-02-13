@@ -5,7 +5,7 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from itertools import chain
 from json import dump
-from typing import Any
+from typing import Any, Sequence
 
 """
 This module gives a Python interface to generate JSON for the
@@ -47,7 +47,7 @@ class Scene:
 
     name: str  # name for the scene, does not have to be unique
     contents: list = field(default_factory=list)
-    origin: tuple[float, float, float] = field(default=(0, 0, 0))
+    origin: Sequence[float] = field(default=(0, 0, 0))
     visible: bool = True
     lattice: list[list[float]] | None = None
     _meta: dict | None = None
@@ -320,7 +320,6 @@ class Cylinders(Primitive):
 
     @classmethod
     def merge(cls, cylinder_list):
-
         new_positionPairs = list(
             chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
         )

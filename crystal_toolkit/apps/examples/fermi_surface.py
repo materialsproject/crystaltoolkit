@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 import dash
@@ -19,7 +21,7 @@ app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 path = os.path.dirname(os.path.realpath(__file__))
 fermi_surface = loadfn(f"{path}/BaFe2As2_fs.json.gz")
 
-# # create the Crystal Toolkit component
+# create the Crystal Toolkit component
 fs_component = ctc.FermiSurfaceComponent(fermi_surface, id="fermi_surface")
 
 # example layout to demonstrate capabilities of component
@@ -31,6 +33,6 @@ ctc.register_crystal_toolkit(app, layout=my_layout)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
-# see Dash documentation for more information
+# see Dash docs for more info
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

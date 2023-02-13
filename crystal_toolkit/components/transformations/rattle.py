@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.transformations.advanced_transformations import (
     MonteCarloRattleTransformation,
 )
@@ -7,11 +9,11 @@ from crystal_toolkit.components.transformations.core import TransformationCompon
 
 class MonteCarloRattleTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Rattle a supercell"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """Uses a Monte Carlo rattle procedure to randomly perturb the sites in a
     structure using the [hiPhive](https://hiphive.materialsmodeling.org) code.
 
@@ -30,7 +32,6 @@ connected to the rattle amplitude.
         return MonteCarloRattleTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {
             "rattle_std": 0.2,
             "min_distance": 0.1,
@@ -68,4 +69,4 @@ to be deterministic.""",
             is_int=True,
         )
 
-        return [rattle_std, min_distance, seed]
+        return rattle_std, min_distance, seed

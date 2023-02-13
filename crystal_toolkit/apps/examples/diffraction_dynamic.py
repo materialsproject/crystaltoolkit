@@ -1,7 +1,7 @@
+from __future__ import annotations
+
 import dash
 from dash.dependencies import Input, Output
-
-# create our crystal structure using pymatgen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -22,7 +22,7 @@ my_layout = Container([page_title, xrd_component.layout(), load_btn])
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 
 
-@app.callback(Output(xrd_component.id(), "data"), Input(load_btn.id, "n_clicks"))
+@app.callback(Output(xrd_component.id(), "data"), Input(load_btn, "n_clicks"))
 def load_structure(n_clicks: int) -> Structure:
     structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
     return structure
@@ -30,6 +30,6 @@ def load_structure(n_clicks: int) -> Structure:
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
-# see Dash documentation for more information
+# see Dash docs for more info
 if __name__ == "__main__":
     app.run_server(debug=True, port=8050)

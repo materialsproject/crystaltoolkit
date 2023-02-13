@@ -23,29 +23,31 @@ def get_molecule_graph_scene(
     show_bond_length=False,
     visualize_bond_orders=False,
 ) -> Scene:
-
     """
     Args:
         show_atom_idx: Defaults to True, shows the site index of each atom in the molecule
         show_atom_coord: Defaults to True, shows the 3D coordinates of each atom in the molecule
-        show_bond_order: Defaults to True, shows the calculated bond order in the chosen local environment strategy
+        show_bond_order: Defaults to True, shows the calculated bond order in the chosen local
+            environment strategy
         show_bond_length: Defaults to False, shows the calculated length between two connected atoms
-        visualize_bpnd_orders: Defaults False, will show the 'integral' number of bonds calculated from the OpenBabelNN strategy in the Molecule Graph
+        visualize_bpnd_orders: Defaults False, will show the 'integral' number of bonds calculated
+            from the OpenBabelNN strategy in the Molecule Graph
     Returns:
         A Molecule Graph scene
     """
 
-    vis_mol_graph = MoleculeGraph.with_local_env_strategy(self.molecule, OpenBabelNN())
+    if visualize_bond_orders:
+        vis_mol_graph = MoleculeGraph.with_local_env_strategy(
+            self.molecule, OpenBabelNN()
+        )
+    else:
+        vis_mol_graph = self
     legend = legend or Legend(self.molecule)
 
     primitives: dict[str, list] = defaultdict(list)
 
     for idx, site in enumerate(self.molecule):
-
-        if visualize_bond_orders:
-            connected_sites = vis_mol_graph.get_connected_sites(idx)
-        else:
-            connected_sites = self.get_connected_sites(idx)
+        connected_sites = vis_mol_graph.get_connected_sites(idx)
 
         site_scene = site.get_scene(
             site_idx=idx,

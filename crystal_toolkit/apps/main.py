@@ -184,7 +184,6 @@ panels = [
 if SETTINGS.MP_EMBED_MODE:
     mp_section: tuple[Any, ...] = (html.Div(),)
 else:
-
     # bsdos_component = ctc.BandstructureAndDosPanelComponent(
     #     origin_component=search_component
     # )
@@ -403,7 +402,7 @@ master_layout = Container(
                                 ),
                                 action_div,
                             ],
-                            style={"width": box_size, "max-width": box_size},
+                            style={"width": box_size, "maxWidth": box_size},
                         ),
                     ],
                     desktop_only=False,
@@ -426,7 +425,7 @@ ctc.register_crystal_toolkit(layout=master_layout, app=app, cache=cache)
 ################################################################################
 
 
-@app.callback(Output(search_component.id("input"), "value"), [Input("url", "href")])
+@app.callback(Output(search_component.id("input"), "value"), Input("url", "href"))
 def update_search_term_on_page_load(href: str) -> str:
     """If an mpid is provided in the url, load that mpid. Otherwise load a random mpid from the
     DEFAULT_MPIDS global variable.
@@ -527,7 +526,6 @@ def master_update_structure(
     upload_data = upload_data or {}
 
     if load_by == "mpid":
-
         if search_mpid is None:
             raise PreventUpdate
 
@@ -540,7 +538,6 @@ def master_update_structure(
                 struct = mpr.get_structure_by_material_id(search_mpid)
                 print("Struct from material.")
     else:
-
         struct = MPComponent.from_data(upload_data["data"])
 
     return struct

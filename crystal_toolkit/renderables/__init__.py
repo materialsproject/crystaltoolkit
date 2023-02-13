@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from crystal_toolkit.renderables.lattice import Lattice as Lattice
 from crystal_toolkit.renderables.molecule import Molecule as Molecule
 from crystal_toolkit.renderables.moleculegraph import MoleculeGraph as MoleculeGraph

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import itertools
 from multiprocessing import cpu_count
 from warnings import warn
@@ -37,7 +39,7 @@ from crystal_toolkit.helpers.layouts import (
     Label,
     Loading,
     cite_me,
-    get_data_list,
+    get_table,
     get_tooltip,
 )
 
@@ -101,7 +103,7 @@ def _get_local_order_parameters(structure_graph, n):
 
 
 class LocalEnvironmentPanel(PanelComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("graph")
         self.create_store(
@@ -110,11 +112,11 @@ class LocalEnvironmentPanel(PanelComponent):
         )
 
     @property
-    def title(self):
+    def title(self) -> str:
         return "Local Environments"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return "Analyze the local chemical environments in your crystal."
 
     @property
@@ -122,7 +124,6 @@ class LocalEnvironmentPanel(PanelComponent):
         return "Analyzing environments"
 
     def contents_layout(self) -> html.Div:
-
         algorithm_choices = self.get_choice_input(
             label="Analysis method",
             kwarg_label="algorithm",
@@ -143,7 +144,6 @@ class LocalEnvironmentPanel(PanelComponent):
 
     @staticmethod
     def get_graph_data(graph, display_options):
-
         color_scheme = display_options.get("color_scheme", "Jmol")
 
         nodes = []
@@ -153,7 +153,6 @@ class LocalEnvironmentPanel(PanelComponent):
         legend = Legend(struct_or_mol, color_scheme=color_scheme)
 
         for idx, node in enumerate(graph.graph.nodes()):
-
             # TODO: fix for disordered
             node_color = legend.get_color(
                 struct_or_mol[node].species.elements[0], site=struct_or_mol[node]
@@ -169,7 +168,6 @@ class LocalEnvironmentPanel(PanelComponent):
             )
 
         for u, v, d in graph.graph.edges(data=True):
-
             edge = {"from": u, "to": v, "arrows": ""}
 
             to_jimage = d.get("to_jimage", (0, 0, 0))
@@ -198,7 +196,6 @@ class LocalEnvironmentPanel(PanelComponent):
         return {"nodes": nodes, "edges": edges}
 
     def generate_callbacks(self, app, cache):
-
         super().generate_callbacks(app, cache)
 
         @app.callback(
@@ -206,13 +203,11 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.get_kwarg_id("algorithm"), "value"),
         )
         def run_algorithm(algorithm):
-
             algorithm = self.reconstruct_kwarg_from_state(
                 callback_context.inputs, "algorithm"
             )
 
             if algorithm == "chemenv":
-
                 state = {"distance_cutoff": 1.4, "angle_cutoff": 0.3}
 
                 description = (
@@ -259,7 +254,6 @@ class LocalEnvironmentPanel(PanelComponent):
                 )
 
             elif algorithm == "localenv":
-
                 description = (
                     "The LocalEnv algorithm is developed by Nils Zimmerman et al. whereby "
                     "an 'order parameter' is calculated that measures how well that "
@@ -281,7 +275,6 @@ class LocalEnvironmentPanel(PanelComponent):
                 )
 
             elif algorithm == "bondinggraph":
-
                 description = (
                     "This is an alternative way to display the same bonds present in the "
                     "visualizer. Here, the bonding is displayed as a crystal graph, with "
@@ -298,14 +291,13 @@ class LocalEnvironmentPanel(PanelComponent):
                 )
 
             elif algorithm == "soap":
-
                 state = {
                     "rcut": 5.0,
                     "nmax": 2,
                     "lmax": 2,
                     "sigma": 0.2,
                     "crossover": True,
-                    "average": False,
+                    "average": "off",
                     "rbf": "gto",
                     "alpha": 0.1,
                     "threshold": 1e-4,
@@ -385,11 +377,23 @@ class LocalEnvironmentPanel(PanelComponent):
                     help_str="If enabled, the power spectrum will include all combinations of elements present.",
                 )
 
-                average = self.get_bool_input(
+                average = self.get_choice_input(
                     label="Average",
                     kwarg_label="average",
                     state=state,
-                    help_str="If enabled, the SOAP vector will be averaged across all sites.",
+                    help_str="The averaging mode over the centers of interest",
+                    options=[
+                        {"label": "No averaging", "value": "off"},
+                        {
+                            "label": "Inner: Averaging over sites before summing up the magnetic quantum numbers",
+                            "value": "inner",
+                        },
+                        {
+                            "label": "Outer: Averaging over the power spectrum of different sites",
+                            "value": "outer",
+                        },
+                    ],
+                    style={"width": "16rem"},  # TODO: remove in-line style
                 )
 
                 alpha = self.get_numerical_input(
@@ -476,7 +480,6 @@ class LocalEnvironmentPanel(PanelComponent):
                 )
 
         def _get_soap_graph(feature, label):
-
             spectrum = {
                 "data": [
                     {
@@ -533,7 +536,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_analysis(struct, all_kwargs):
-
             if not struct:
                 raise PreventUpdate
 
@@ -560,7 +562,11 @@ class LocalEnvironmentPanel(PanelComponent):
 
             adaptor = AseAtomsAdaptor()
             atoms = adaptor.get_atoms(struct)
-            feature = normalize(desc.create(atoms, n_jobs=cpu_count()))
+
+            # make a 2D vector even when it is averaged
+            soap_output = desc.create(atoms, n_jobs=cpu_count())
+            soap_output = soap_output.reshape((-1, soap_output.shape[-1]))
+            feature = normalize(soap_output)
 
             return _get_soap_graph(feature, "SOAP vector for this material")
 
@@ -585,7 +591,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.get_all_kwargs_id(), "value"),
         )
         def update_soap_similarities(struct, all_kwargs):
-
             if not struct:
                 raise PreventUpdate
 
@@ -625,10 +630,13 @@ class LocalEnvironmentPanel(PanelComponent):
             }
 
             print(f"Calculating {len(atomss)} SOAP vectors")
-            features = {
-                mpid: normalize(desc.create(atoms, n_jobs=cpu_count()))
-                for mpid, atoms in atomss.items()
-            }
+            features = {}
+            for mpid, atoms in atomss.items():
+                # make a 2D vector even when it is averaged
+                soap_output = desc.create(atoms, n_jobs=cpu_count())
+                soap_output = soap_output.reshape((-1, soap_output.shape[-1]))
+                feature = normalize(soap_output)
+                features[mpid] = feature
 
             re = REMatchKernel(
                 metric=kwargs["metric"],
@@ -672,7 +680,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.id("graph"), "data"),
         )
         def update_localenv_analysis(graph):
-
             if not graph:
                 raise PreventUpdate
 
@@ -692,7 +699,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.id("display_options"), "data"),
         )
         def update_bondinggraph_analysis(graph, display_options):
-
             if not graph:
                 raise PreventUpdate
 
@@ -732,7 +738,6 @@ class LocalEnvironmentPanel(PanelComponent):
             Input(self.get_kwarg_id("angle_cutoff"), "value"),
         )
         def get_chemenv_analysis(struct, distance_cutoff, angle_cutoff):
-
             if not struct:
                 raise PreventUpdate
 
@@ -781,11 +786,10 @@ class LocalEnvironmentPanel(PanelComponent):
             unknown_sites = []
 
             for index, wyckoff in zip(inequivalent_indices, wyckoffs):
-
-                datalist = {
-                    "Site": unicodeify_species(struct[index].species_string),
-                    "Wyckoff Label": wyckoff,
-                }
+                datalist = [
+                    ["Site", unicodeify_species(struct[index].species_string)],
+                    ["Wyckoff Label", wyckoff],
+                ]
 
                 if not lse.neighbors_sets[index]:
                     unknown_sites.append(f"{struct[index].species_string} ({wyckoff})")
@@ -818,24 +822,27 @@ class LocalEnvironmentPanel(PanelComponent):
                 if co.alternative_names:
                     name += f" (also known as {', '.join(co.alternative_names)})"
 
-                datalist.update(
-                    {
-                        "Environment": name,
-                        "IUPAC Symbol": co.IUPAC_symbol_str,
-                        get_tooltip(
-                            "CSM",
-                            "The continuous symmetry measure (CSM) describes the similarity to an "
-                            "ideal coordination environment. It can be understood as a 'distance' to "
-                            "a shape and ranges from 0 to 100 in which 0 corresponds to a "
-                            "coordination environment that is exactly identical to the ideal one. A "
-                            "CSM larger than 5.0 already indicates a relatively strong distortion of "
-                            "the investigated coordination environment.",
-                        ): f"{env[0]['csm']:.2f}",
-                        "Interactive View": view,
-                    }
+                datalist.extend(
+                    [
+                        ["Environment", name],
+                        ["IUPAC Symbol", co.IUPAC_symbol_str],
+                        [
+                            get_tooltip(
+                                "CSM",
+                                "The continuous symmetry measure (CSM) describes the similarity to an "
+                                "ideal coordination environment. It can be understood as a 'distance' to "
+                                "a shape and ranges from 0 to 100 in which 0 corresponds to a "
+                                "coordination environment that is exactly identical to the ideal one. A "
+                                "CSM larger than 5.0 already indicates a relatively strong distortion of "
+                                "the investigated coordination environment.",
+                            ),
+                            f"{env[0]['csm']:.2f}",
+                        ],
+                        ["Interactive View", view],
+                    ]
                 )
 
-                envs.append(get_data_list(datalist))
+                envs.append(get_table(rows=datalist))
 
             # TODO: switch to tiles?
             envs_grouped = [envs[i : i + 2] for i in range(0, len(envs), 2)]

@@ -1,16 +1,24 @@
+from __future__ import annotations
+
 from crystal_toolkit.components.bandstructure import (
     BandstructureAndDosComponent,
     BandstructureAndDosPanelComponent,
 )
 from crystal_toolkit.components.diffraction import (
-    TEMDiffractionComponent,
-    XRayDiffractionComponent,
+    XRayDiffractionComponent as XRayDiffractionComponent,
+)
+from crystal_toolkit.components.diffraction_tem import (
+    TEMDiffractionComponent as TEMDiffractionComponent,
 )
 from crystal_toolkit.components.fermi_surface import FermiSurfaceComponent
 from crystal_toolkit.components.localenv import LocalEnvironmentPanel
 from crystal_toolkit.components.phase_diagram import (
     PhaseDiagramComponent,
     PhaseDiagramPanelComponent,
+)
+from crystal_toolkit.components.phonon import (
+    PhononBandstructureAndDosComponent,
+    PhononBandstructureAndDosPanelComponent,
 )
 from crystal_toolkit.components.pourbaix import PourbaixDiagramComponent
 from crystal_toolkit.components.robocrys import RobocrysComponent

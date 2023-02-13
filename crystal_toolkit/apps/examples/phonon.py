@@ -4,14 +4,15 @@ import os
 
 import dash
 
-# dos and bs data from local jsons
+# for loading DOS and BS data from json files
 from monty.serialization import loadfn
 
-import crystal_toolkit.components as ctc
+from crystal_toolkit.components import register_crystal_toolkit
+from crystal_toolkit.components.phonon import PhononBandstructureAndDosComponent
 from crystal_toolkit.helpers.layouts import H1, Container
 from crystal_toolkit.settings import SETTINGS
 
-# assets folder set for visual styles only
+# create Dash app as normal, assets folder set for visual styles only
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 # If callbacks created dynamically they cannot be statically checked at app startup.
@@ -21,24 +22,23 @@ app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 # app.config["suppress_callback_exceptions"] = True
 
 path = os.path.dirname(os.path.realpath(__file__))
-bandstructure_symm_line = loadfn(f"{path}/GaN_bs.json")
-density_of_states = loadfn(f"{path}/GaN_dos.json")
+bandstructure_symm_line = loadfn(f"{path}/BaTiO3_ph_bs.json")
+density_of_states = loadfn(f"{path}/BaTiO3_ph_dos.json")
 
 # create the Crystal Toolkit component
-bsdos_component = ctc.BandstructureAndDosComponent(
+ph_bs_dos_component = PhononBandstructureAndDosComponent(
     bandstructure_symm_line=bandstructure_symm_line,
     density_of_states=density_of_states,
-    id="bs_dos",
+    id="ph_bs_dos",
 )
 
 # example layout to demonstrate capabilities of component
-my_layout = Container(
-    [H1("Band Structure and Density of States Example"), bsdos_component.layout()]
-)
+page_title = H1("Phonon Band Structure and Density of States Example")
+layout = Container([page_title, ph_bs_dos_component.layout()])
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
-ctc.register_crystal_toolkit(app, layout=my_layout)
+register_crystal_toolkit(app, layout=layout)
 
 
 # run this app with "python path/to/this/file.py"

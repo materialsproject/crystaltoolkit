@@ -6,7 +6,7 @@ import warnings
 import dash
 import dash_daq as daq
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
@@ -23,8 +23,7 @@ from crystal_toolkit.settings import SETTINGS
 
 
 class TransformationComponent(MPComponent):
-    def __init__(self, input_structure_component_id: str, *args, **kwargs):
-
+    def __init__(self, input_structure_component_id: str, *args, **kwargs) -> None:
         if type(self).__name__ != f"{self.transformation.__name__}Component":
             # sanity check, enforcing conventions
             raise NameError(
@@ -49,8 +48,7 @@ class TransformationComponent(MPComponent):
         return False
 
     @property
-    def _sub_layouts(self):
-
+    def _sub_layouts(self) -> dict[str, Component]:
         enable = daq.BooleanSwitch(
             id=self.id("enable_transformation"),
             style={"display": "inline-block", "vertical-align": "middle"},
@@ -150,11 +148,11 @@ class TransformationComponent(MPComponent):
         raise NotImplementedError
 
     @property
-    def title(self):
+    def title(self) -> str:
         raise NotImplementedError
 
     @property
-    def description(self):
+    def description(self) -> str:
         raise NotImplementedError
 
     def get_preview_layout(self, struct_in, struct_out):
@@ -171,7 +169,6 @@ class TransformationComponent(MPComponent):
     def generate_callbacks(self, app, cache):
         @cache.memoize()
         def apply_transformation(transformation_data, struct):
-
             transformation = self.from_data(transformation_data)
             error = None
 
@@ -191,7 +188,6 @@ class TransformationComponent(MPComponent):
             return struct, error
 
         if SETTINGS.TRANSFORMATION_PREVIEWS:
-
             # Transformation previews need to be included in layout too (see preview sublayout)
             # Transformation previews need a full transformation pipeline replica (I/O heavy)
             # Might abandon.
@@ -212,7 +208,7 @@ class TransformationComponent(MPComponent):
                 if len(output_structure) > 64:
                     warning = html.Span(
                         f"The transformed crystal structure has {len(output_structure)} atoms "
-                        f"and might take a moment to display."
+                        "and might take a moment to display."
                     )
                 return self.get_preview_layout(input_structure, output_structure)
 
@@ -229,7 +225,6 @@ class TransformationComponent(MPComponent):
             make_name=lambda x: f"{type(self).__name__}_{x}_cached",
         )
         def update_transformation(enabled, states):
-
             # TODO: move callback inside AllTransformationsComponent for efficiency?
 
             kwargs = self.reconstruct_kwargs_from_state(dash.callback_context.states)
@@ -250,7 +245,6 @@ class TransformationComponent(MPComponent):
                 error = str(exception)
 
             if error:
-
                 return (
                     trans,
                     "message is-warning",
@@ -259,7 +253,6 @@ class TransformationComponent(MPComponent):
                 )
 
             else:
-
                 return trans, "message is-success", html.Div(), input_state
 
 
@@ -270,7 +263,7 @@ class AllTransformationsComponent(MPComponent):
         input_structure_component: MPComponent | None = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Create a component that can manage multiple transformations in a user-defined order.
 
         :param transformations: if provided, only offer a subset of available
@@ -307,7 +300,7 @@ class AllTransformationsComponent(MPComponent):
         self.transformations = {type(t).__name__: t for t in transformations}
 
     @property
-    def _sub_layouts(self):
+    def _sub_layouts(self) -> dict[str, Component]:
         layouts = super()._sub_layouts
 
         all_transformations = html.Div(
@@ -326,7 +319,7 @@ class AllTransformationsComponent(MPComponent):
             value=[],
             placeholder="Select one or more transformations...",
             id=self.id("choices"),
-            style={"max-width": "65vmin"},
+            style={"maxWidth": "65vmin"},
             persistence=True,
         )
 
@@ -335,7 +328,6 @@ class AllTransformationsComponent(MPComponent):
         return layouts
 
     def layout(self):
-
         return html.Div(
             [
                 html.Div(
@@ -352,7 +344,6 @@ class AllTransformationsComponent(MPComponent):
     def generate_callbacks(self, app, cache):
         @cache.memoize()
         def apply_transformation(transformation_data, struct):
-
             transformation = self.from_data(transformation_data)
             error = None
 
@@ -384,7 +375,6 @@ class AllTransformationsComponent(MPComponent):
             *[State(t.id(), "data") for t in self.transformations.values()],
         )
         def show_transformation_options(structure, values, *args):
-
             # for debug
             # print(dash.callback_context.triggered)
 
@@ -401,7 +391,7 @@ class AllTransformationsComponent(MPComponent):
                 ]
             )
 
-            return [transformation_options]
+            return transformation_options
 
         @app.callback(
             Output(self.id("enabled-transformations"), "data"),
@@ -423,7 +413,6 @@ class AllTransformationsComponent(MPComponent):
             Input(self.id("enabled-transformations"), "data"),
         )
         def run_transformations(*args):
-
             # do not update if we don't have a Structure to transform
             if not args[-2]:
                 raise PreventUpdate
@@ -445,7 +434,6 @@ class AllTransformationsComponent(MPComponent):
                 return struct  # , html.Div()
 
             for transformation_data in transformations:
-
                 # following our naming convention, only apply transformations
                 # that are user visible
                 # TODO: this should be changed
@@ -453,7 +441,6 @@ class AllTransformationsComponent(MPComponent):
                     f"{transformation_data['@class']}Component"
                     in user_visible_transformations
                 ):
-
                     struct, error = apply_transformation(transformation_data, struct)
 
                     if error:

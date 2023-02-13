@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import os
 from random import choice
 
 import numpy as np
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from monty.serialization import loadfn
 from mp_api.client import MPRester, MPRestError
@@ -22,12 +24,11 @@ from crystal_toolkit.helpers.layouts import (
 
 
 class SearchComponent(MPComponent):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("results")
 
     def _get_mpid_cache(self):
-
         path = os.path.join(os.path.dirname(module_path), "mpid_cache.json")
 
         if os.path.isfile(path):
@@ -55,7 +56,6 @@ class SearchComponent(MPComponent):
         self.mpid_cache = mpid_cache
 
     def _make_search_box(self, search_term=None):
-
         search_field = dcc.Input(
             id=self.id("input"),
             className="input",
@@ -79,8 +79,7 @@ class SearchComponent(MPComponent):
         )
 
     @property
-    def _sub_layouts(self):
-
+    def _sub_layouts(self) -> dict[str, Component]:
         search = html.Div(self._make_search_box(), id=self.id("search_container"))
 
         random_link = html.A(
@@ -106,19 +105,17 @@ class SearchComponent(MPComponent):
         return html.Div([self._sub_layouts["search"]])
 
     def generate_callbacks(self, app, cache):
-
         self._get_mpid_cache()
 
         @cache.memoize(timeout=0)
         def get_human_readable_results_from_search_term(search_term):
-
             # common confusables
             if search_term.isnumeric() and str(int(search_term)) == search_term:
                 search_term = f"mp-{search_term}"
             if search_term.startswith("mp") and "-" not in search_term:
                 search_term = f"mp-{search_term.split('mp')[1]}"
 
-            if search_term.startswith("mp-") or search_term.startswith("mvc-"):
+            if search_term.startswith(("mp-", "mvc-")):
                 # no need to actually search, support multiple mp-ids (space separated)
                 return {mpid: mpid for mpid in search_term.split(" ")}
 
@@ -171,7 +168,6 @@ class SearchComponent(MPComponent):
             State(self.id("input"), "value"),
         )
         def update_results(n_submit, n_clicks, search_term):
-
             if not search_term:
                 raise PreventUpdate
 

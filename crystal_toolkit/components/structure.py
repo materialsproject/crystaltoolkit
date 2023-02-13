@@ -11,7 +11,7 @@ from typing import Literal
 
 import numpy as np
 from dash import dash_table as dt
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
 from emmet.core.settings import EmmetSettings
@@ -61,9 +61,8 @@ class StructureMoleculeComponent(MPComponent):
 
     default_scene_settings = {
         "extractAxis": True,
-        # For visual diff testing, we change the renderer
-        # to SVG since this WebGL support is more difficult
-        # in headless browsers / CI.
+        # For visual diff testing, we change the renderer to SVG since this WebGL
+        # support is more difficult in headless browsers / CI.
         "renderer": "svg" if SETTINGS.TEST_MODE else "webgl",
         "secondaryObjectView": False,
     }
@@ -113,7 +112,7 @@ class StructureMoleculeComponent(MPComponent):
         show_export_button: bool = DEFAULTS["show_export_button"],
         show_position_button: bool = DEFAULTS["show_position_button"],
         **kwargs,
-    ):
+    ) -> None:
         """Create a StructureMoleculeComponent from a structure or molecule.
 
         Args:
@@ -235,15 +234,12 @@ class StructureMoleculeComponent(MPComponent):
         self._initial_data["scene"] = scene
 
         # hide axes inset for molecules
-        if isinstance(struct_or_mol, Molecule) or isinstance(
-            struct_or_mol, MoleculeGraph
-        ):
+        if isinstance(struct_or_mol, (Molecule, MoleculeGraph)):
             self.scene_kwargs = {"axisView": "HIDDEN"}
         else:
             self.scene_kwargs = {}
 
     def generate_callbacks(self, app, cache):
-
         # a lot of the verbosity in this callback is to support custom bonding
         # this is not the format CutOffDictNN expects (since that is not JSON
         # serializable), so we store as a list of tuples instead
@@ -269,11 +265,9 @@ class StructureMoleculeComponent(MPComponent):
             }
             """,
             Output(self.id("graph_generation_options"), "data"),
-            [
-                Input(self.id("bonding_algorithm"), "value"),
-                Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
-                Input(self.id("unit-cell-choice"), "value"),
-            ],
+            Input(self.id("bonding_algorithm"), "value"),
+            Input(self.id("bonding_algorithm_custom_cutoffs"), "data"),
+            Input(self.id("unit-cell-choice"), "value"),
         )
 
         app.clientside_callback(
@@ -287,8 +281,8 @@ class StructureMoleculeComponent(MPComponent):
             }
             """,
             Output(self.id("scene"), "toggleVisibility"),
-            [Input(self.id("hide-show"), "value")],
-            [State(self.id("hide-show"), "options")],
+            Input(self.id("hide-show"), "value"),
+            State(self.id("hide-show"), "options"),
         )
 
         app.clientside_callback(
@@ -308,12 +302,10 @@ class StructureMoleculeComponent(MPComponent):
             }
             """,
             Output(self.id("display_options"), "data"),
-            [
-                Input(self.id("color-scheme"), "value"),
-                Input(self.id("radius_strategy"), "value"),
-                Input(self.id("draw_options"), "value"),
-            ],
-            [State(self.id("display_options"), "data")],
+            Input(self.id("color-scheme"), "value"),
+            Input(self.id("radius_strategy"), "value"),
+            Input(self.id("draw_options"), "value"),
+            State(self.id("display_options"), "data"),
         )
 
         @app.callback(
@@ -324,7 +316,6 @@ class StructureMoleculeComponent(MPComponent):
         )
         @cache.memoize()
         def update_graph(graph_generation_options, struct_or_mol, current_graph):
-
             if not struct_or_mol:
                 raise PreventUpdate
 
@@ -393,7 +384,6 @@ class StructureMoleculeComponent(MPComponent):
             Input(self.id("legend_data"), "data"),
         )
         def update_color_options(legend_data):
-
             # TODO: make client-side
             color_options = [
                 {"label": "Jmol", "value": "Jmol"},
@@ -414,20 +404,16 @@ class StructureMoleculeComponent(MPComponent):
         # app.clientside_callback(
         #     """
         #     function (legendData) {
-        #
-        #         var colorOptions = [
+        #         const colorOptions = [
         #             {label: "Jmol", value: "Jmol"},
         #             {label: "VESTA", value: "VESTA"},
         #             {label: "Accessible", value: "accessible"},
         #         ]
-        #
-        #
-        #
         #         return colorOptions
         #     }
         #     """,
         #     Output(self.id("color-scheme"), "options"),
-        #     [Input(self.id("legend_data"), "data")]
+        #     Input(self.id("legend_data"), "data"),
         # )
 
         @app.callback(
@@ -477,7 +463,6 @@ class StructureMoleculeComponent(MPComponent):
             file_prefix = structure.composition.reduced_formula
 
             if "VASP" not in download_option:
-
                 extension = self.download_options["Structure"][download_option]["fmt"]
                 options = self.download_options["Structure"][download_option]
 
@@ -497,7 +482,6 @@ class StructureMoleculeComponent(MPComponent):
                 }
 
             else:
-
                 if "Relax" in download_option:
                     vis = MPRelaxSet(structure)
                     expected_filename = "MPRelaxSet.zip"
@@ -524,7 +508,6 @@ class StructureMoleculeComponent(MPComponent):
         )
         @cache.memoize()
         def update_title(legend):
-
             if not legend:
                 raise PreventUpdate
 
@@ -538,7 +521,6 @@ class StructureMoleculeComponent(MPComponent):
         )
         @cache.memoize()
         def update_legend(legend):
-
             if not legend:
                 raise PreventUpdate
 
@@ -555,7 +537,6 @@ class StructureMoleculeComponent(MPComponent):
         )
         @cache.memoize()
         def update_custom_bond_options(bonding_algorithm, graph, current_style):
-
             if not graph:
                 raise PreventUpdate
 
@@ -573,7 +554,6 @@ class StructureMoleculeComponent(MPComponent):
             return rows, style
 
     def _make_legend(self, legend):
-
         if not legend:
             return html.Div(id=self.id("legend"))
 
@@ -615,13 +595,11 @@ class StructureMoleculeComponent(MPComponent):
         )
 
     def _make_title(self, legend):
-
         if not legend or (not legend.get("composition", None)):
             return H2(self.default_title, id=self.id("title"))
 
         composition = legend["composition"]
         if isinstance(composition, dict):
-
             try:
                 composition = Composition.from_dict(composition)
 
@@ -668,8 +646,7 @@ class StructureMoleculeComponent(MPComponent):
         return rows
 
     @property
-    def _sub_layouts(self):
-
+    def _sub_layouts(self) -> dict[str, Component]:
         title_layout = html.Div(
             self._make_title(self._initial_data["legend_data"]),
             id=self.id("title_container"),
@@ -909,6 +886,12 @@ class StructureMoleculeComponent(MPComponent):
             "input", "primitive", "conventional", "reduced_niggli", "reduced_lll"
         ] = "input",
     ):
+        if isinstance(struct_or_mol, StructureGraph) and unit_cell_choice != "input":
+            # if a user is visualizing a StructureGraph, but wants to change the unit cell
+            # convention, currently this means we have to convert the StructureGraph back
+            # to a Structure; this will remove all bonding information and mean bonding
+            # will also have to be re-calculated
+            struct_or_mol = struct_or_mol.structure
         if isinstance(struct_or_mol, Structure):
             if unit_cell_choice != "input":
                 if unit_cell_choice == "primitive":
@@ -932,9 +915,7 @@ class StructureMoleculeComponent(MPComponent):
         bonding_strategy: str = DEFAULTS["bonding_strategy"],
         bonding_strategy_kwargs: dict | None = None,
     ) -> StructureGraph | MoleculeGraph:
-
         if isinstance(input, Structure):
-
             # ensure fractional coordinates are normalized to be in [0,1)
             # (this is actually not guaranteed by Structure)
             try:
@@ -953,7 +934,7 @@ class StructureMoleculeComponent(MPComponent):
         # we assume most uses of this class will give a structure as an input argument,
         # meaning we have to calculate the graph for bonding information, however if
         # the graph is already known and supplied, we will use that
-        if isinstance(input, StructureGraph) or isinstance(input, MoleculeGraph):
+        if isinstance(input, (StructureGraph, MoleculeGraph)):
             graph = input
         else:
             if (
@@ -1009,7 +990,7 @@ class StructureMoleculeComponent(MPComponent):
             return graph.structure
         elif isinstance(graph, MoleculeGraph):
             return graph.molecule
-        elif isinstance(graph, Structure) or isinstance(graph, Molecule):
+        elif isinstance(graph, (Structure, Molecule)):
             return graph
         else:
             raise ValueError
@@ -1028,7 +1009,6 @@ class StructureMoleculeComponent(MPComponent):
         show_compass=DEFAULTS["show_compass"],
         group_by_site_property=None,
     ) -> tuple[Scene, dict[str, str]]:
-
         scene = Scene(name="StructureMoleculeComponentScene")
 
         if graph is None:

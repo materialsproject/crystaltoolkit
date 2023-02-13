@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on: workflow_dispatch
 
@@ -37,23 +37,24 @@ jobs:
           echo "Next release: ${NEXT_RELEASE}"
           git config --local user.email "github-actions@github.com"
           git config --local user.name "github-actions"
-          python${{ matrix.python-version }} -m pip install --upgrade pip
-          python${{ matrix.python-version }} -m pip install --user --upgrade pip build setuptools setuptools_scm wheel
-          SETUPTOOLS_SCM_PRETEND_VERSION=${NEXT_RELEASE} python${{ matrix.python-version }} -m setuptools_scm
+          python -m pip install --upgrade pip
+          python -m pip install --user --upgrade pip build setuptools setuptools_scm wheel
+          SETUPTOOLS_SCM_PRETEND_VERSION=${NEXT_RELEASE} python -m setuptools_scm
           git add crystal_toolkit/_version.py
           git commit -m "version bump: ${NEXT_RELEASE}"
           git push
           git tag ${NEXT_RELEASE}
           git push --tags
+          echo "NEXT_RELEASE=${NEXT_RELEASE}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
-          python${{ matrix.python-version }} -m pip install --user `grep numpy== requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
-          python${{ matrix.python-version }} -m pip install --user -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
-          python${{ matrix.python-version }} -m pip install --user --no-deps .[server]
+          python -m pip install --user `grep numpy== requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
+          python -m pip install --user -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
+          python -m pip install --user --no-deps .[server]
 
       - name: Build package
-        run: python${{ matrix.python-version }} -m build
+        run: SETUPTOOLS_SCM_PRETEND_VERSION=${{env.NEXT_RELEASE}} python -m build
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1.5

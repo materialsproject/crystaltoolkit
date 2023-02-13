@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from itertools import chain
+from typing import Sequence
 
 import numpy as np
 from pymatgen.analysis.graphs import ConnectedSite
@@ -32,7 +33,7 @@ def get_site_scene(
     incomplete_edge_length_scale: float | None = 1.0,
     connected_sites_colors: list[str] | None = None,
     connected_sites_not_drawn_colors: list[str] | None = None,
-    origin: list[float] | None = None,
+    origin: Sequence[float] | None = None,
     draw_polyhedra: bool = True,
     explicitly_calculate_polyhedra_hull: bool = False,
     bond_radius: float = 0.1,
@@ -54,7 +55,7 @@ def get_site_scene(
         incomplete_edge_length_scale:
         connected_sites_colors:
         connected_sites_not_drawn_colors:
-        origin:
+        origin: x,y,z fractional coordinates of the origin
         explicitly_calculate_polyhedra_hull:
         legend:
     Returns:
@@ -79,14 +80,12 @@ def get_site_scene(
 
     for sp, occu in self.species.items():
         if isinstance(sp, DummySpecie):
-
             cube = Cubes(
                 positions=[position], color=legend.get_color(sp, site=self), width=0.4
             )
             atoms.append(cube)
 
         else:
-
             color = legend.get_color(sp, site=self)
             radius = legend.get_radius(sp, site=self)
 
@@ -157,7 +156,6 @@ def get_site_scene(
         atoms.append(sphere)
 
     if connected_sites:
-
         # TODO: more graceful solution here
         # if ambiguous (disordered), re-use last color used
         site_color = color
@@ -168,7 +166,6 @@ def get_site_scene(
         name_cyl = " "
 
         for idx, connected_site in enumerate(connected_sites):
-
             if show_bond_order:
                 if connected_site.weight is not None:
                     name_cyl = "bond order:" + str(f"{connected_site.weight:.2f}")
@@ -191,7 +188,6 @@ def get_site_scene(
                 cylinders = []
 
                 if connected_site.weight is not None:
-
                     if connected_site.weight > 1:
                         trans_vector = 0.0
                         for _bond in range(connected_site.weight):
@@ -231,9 +227,7 @@ def get_site_scene(
             all_positions.append(connected_position.tolist())
 
         if connected_sites_not_drawn and not hide_incomplete_edges:
-
             for idx, connected_site in enumerate(connected_sites_not_drawn):
-
                 connected_position = connected_site.site.coords
                 bond_midpoint = (
                     incomplete_edge_length_scale
@@ -269,9 +263,7 @@ def get_site_scene(
             and not any(not_most_electro_negative)
         ):
             if explicitly_calculate_polyhedra_hull:
-
                 try:
-
                     # all_positions = [[0, 0, 0], [0, 0, 10], [0, 10, 0], [10, 0, 0]]
                     # gives...
                     # .convex_hull = [[2, 3, 0], [1, 3, 0], [1, 2, 0], [1, 2, 3]]
@@ -288,7 +280,6 @@ def get_site_scene(
                 polyhedron = [Surface(positions=vertices, color=site_color)]
 
             else:
-
                 polyhedron = [Convex(positions=all_positions, color=site_color)]
 
     return Scene(

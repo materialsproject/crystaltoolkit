@@ -5,7 +5,7 @@ from abc import ABC
 from ast import literal_eval
 from base64 import b64encode
 from collections import defaultdict
-from itertools import chain
+from itertools import chain, zip_longest
 from json import JSONDecodeError, dumps, loads
 from typing import Any, Literal
 
@@ -13,14 +13,13 @@ import dash
 import dash_mp_components as mpc
 import numpy as np
 import plotly.graph_objects as go
-from dash import dash_table as dt
 from dash import dcc, html
 from dash.dependencies import ALL
 from flask_caching import Cache
 from monty.json import MontyDecoder, MSONable
 
 from crystal_toolkit import __version__ as ct_version
-from crystal_toolkit.helpers.layouts import Button, Icon, Loading, add_label_help
+from crystal_toolkit.helpers.layouts import H6, Button, Icon, Loading, add_label_help
 from crystal_toolkit.settings import SETTINGS
 
 # fallback cache if Redis etc. isn't set up
@@ -87,7 +86,8 @@ class MPComponent(ABC):
             cache: a flask_caching Cache instance
         """
         if SETTINGS.DEBUG_MODE:
-            cache = null_cache
+            MPComponent.cache = null_cache
+            MPComponent.cache.init_app(MPComponent.app.server)
         elif cache:
             MPComponent.cache = cache
         else:
@@ -97,7 +97,6 @@ class MPComponent(ABC):
 
     @staticmethod
     def crystal_toolkit_layout(layout: html.Div) -> html.Div:
-
         if not MPComponent.app:
             raise ValueError(
                 "Please register the Dash app with Crystal Toolkit using register_app()."
@@ -121,7 +120,6 @@ class MPComponent(ABC):
 
     @staticmethod
     def register_crystal_toolkit(app, layout, cache=None):
-
         MPComponent.register_app(app)
         MPComponent.register_cache(cache)
         app.config["suppress_callback_exceptions"] = True
@@ -145,7 +143,7 @@ class MPComponent(ABC):
         links: dict[str, str] | None = None,
         storage_type: Literal["memory", "local", "session"] = "memory",
         disable_callbacks: bool = False,
-    ):
+    ) -> None:
         """The abstract base class for an MPComponent.
 
         The MPComponent is designed to help render any MSONable object,
@@ -355,8 +353,8 @@ class MPComponent(ABC):
         ids = "\n".join(
             [f"* {component_id}  " for component_id in sorted(self.all_ids)]
         )
-        stores = "\n".join([f"* {store}  " for store in sorted(self.all_stores)])
-        layouts = "\n".join([f"* {layout}  " for layout in sorted(self._sub_layouts)])
+        stores = "\n".join(f"* {store}  " for store in sorted(self.all_stores))
+        layouts = "\n".join(f"* {layout}  " for layout in sorted(self._sub_layouts))
 
         return f"""{self.id()}<{type(self).__name__}>  \n
 IDs:  \n{ids}  \n
@@ -417,7 +415,7 @@ Sub-layouts:  \n{layouts}"""
         """
 
         state = state or {}
-        default = np.full(shape, default or state.get(kwarg_label))
+        default = np.full(shape, state.get(kwarg_label) if default is None else default)
         default = np.reshape(default, shape)
 
         style = {
@@ -459,7 +457,6 @@ Sub-layouts:  \n{layouts}"""
                     value=int(value) if value is not None else None,
                     persistence=True,
                     type="number",
-                    step=1,
                     **kwargs,
                 )
 
@@ -500,7 +497,6 @@ Sub-layouts:  \n{layouts}"""
         multiple: bool = False,
         **kwargs,
     ):
-
         state = state or {}
         # TODO: bug if default == 0
         default = default or state.get(kwarg_label)
@@ -603,38 +599,79 @@ Sub-layouts:  \n{layouts}"""
     def get_dict_input(
         self,
         kwarg_label: str,
-        default: Any | None = None,
+        default: dict | None = None,
         state: dict | None = None,
         label: str | None = None,
         help_str: str = None,
+        dict_size: int | None = None,
         key_name: str = "key",
         value_name: str = "value",
-    ):
-        """
+        **kwargs,
+    ) -> mpc.FilterField:
+        """For Python classes which take dictionaries as inputs. The keys are fixed and only the
+        values can be modified. This will generate a corresponding Dash input layout.
 
-        :param kwarg_label:
-        :param default:
-        :param state:
-        :param label:
-        :param help_str:
-        :param key_name:
-        :param value_name:
-        :return:
+        :param kwarg_label: The name of the corresponding Python input, this is used
+        to name the component.
+        :param label: A description for this input.
+        :param default: A default value for this input.
+        :param state: Used to set default state for this input, use a dict with the kwarg_label as a key
+        and the default value as a value. Ignored if `default` is set. It can be useful to use
+        `state` if you want to set defaults for multiple inputs from a single dictionary.
+        :param help_str: Text for a tooltip when hovering over label.
+        :param dict_size: size of the dict. Can be specified in case there is no initial default or state.
+        :param key_name: name describing the keys of the dictionary.
+        :param value_name: name describing the values of the dictionary.
+        :return: a Dash layout
         """
 
         state = state or {}
-        default = default or state.get(kwarg_label) or {}
+        default = default or state.get(kwarg_label, {})
 
-        dict_input = dt.DataTable(
-            id=self.id(kwarg_label, is_kwarg=True, hint="dict"),
-            columns=[
-                {"id": "key", "name": key_name},
-                {"id": "value", "name": value_name},
-            ],
-            data=[{"key": k, "value": v} for k, v in default.items()],
-            editable=True,
-            persistence=False,
-        )
+        dict_size = len(default) or dict_size or 0
+
+        style = {
+            "textAlign": "center",
+            "width": "20rem",
+            "marginRight": "0.2rem",
+            "marginBottom": "0.2rem",
+            "height": "36px",
+        }
+        if "style" in kwargs:
+            style.update(kwargs.pop("style"))
+
+        def pair_element(idx, key=None, value=None):
+            # TODO: maybe move element out of the name
+            kid = self.id(kwarg_label, is_kwarg=True, idx=("k", idx), hint="dict")
+            key_in = dcc.Input(
+                id=kid,
+                debounce=True,
+                className="input",
+                style=style,
+                value=value,
+                persistence=True,
+                **kwargs,
+            )
+            vid = self.id(kwarg_label, is_kwarg=True, idx=("v", idx), hint="dict")
+            value_in = dcc.Input(
+                id=vid,
+                debounce=True,
+                className="input",
+                style=style,
+                value=value,
+                persistence=True,
+                **kwargs,
+            )
+
+            return [key_in, value_in]
+
+        # arrange the input boxes in two columns
+        dict_div_contents = [html.Div(H6(f"{key_name}: {value_name}"))]
+        # dict_div_contents = []
+        for n_idx, k in zip_longest(range(dict_size), default):
+            dict_div_contents.append(html.Div(pair_element(n_idx, k, default.get(k))))
+
+        dict_input = html.Div(dict_div_contents)
 
         return add_label_help(dict_input, label, help_str)
 
@@ -678,7 +715,6 @@ Sub-layouts:  \n{layouts}"""
 
         kwargs = {}
         for k, v in state.items():
-
             # TODO: hopefully this will be less hacky in future Dash versions
             # remove trailing ".value" and convert back into dictionary
             # need to sort k somehow ...
@@ -701,7 +737,6 @@ Sub-layouts:  \n{layouts}"""
             idx = literal_eval(d["idx"])
 
             try:
-
                 if isinstance(k_type, tuple):
                     # matrix or vector
                     if kwarg_label not in kwargs:
@@ -725,7 +760,6 @@ Sub-layouts:  \n{layouts}"""
                         kwargs[kwarg_label] = None
 
                 elif k_type == "literal":
-
                     try:
                         kwargs[kwarg_label] = literal_eval(str(v))
                     except (ValueError, SyntaxError):
@@ -738,7 +772,18 @@ Sub-layouts:  \n{layouts}"""
                     kwargs[kwarg_label] = v
 
                 elif k_type == "dict":
-                    pass
+                    # Build a temporary dictionary here to accumulate all the data.
+                    # The real dictionary will be reconstructed at the end
+                    if kwarg_label not in kwargs:
+                        kwargs[kwarg_label] = {"_tmp_dict": {"k": {}, "v": {}}}
+
+                    try:
+                        v = literal_eval(str(v))
+                    except ValueError:
+                        pass
+
+                    d = kwargs[kwarg_label]["_tmp_dict"]
+                    d[idx[0]][idx[1]] = v
 
             except Exception as exc:
                 # Not raised intentionally but if you notice this in logs please investigate.
@@ -747,6 +792,15 @@ Sub-layouts:  \n{layouts}"""
         for k, v in kwargs.items():
             if isinstance(v, np.ndarray):
                 kwargs[k] = v.tolist()
+            elif isinstance(v, dict) and "_tmp_dict" in v:
+                # reconstruct the real dict in the case hint=dict
+                full_dict = {}
+                for kv_index, k_dict in v["_tmp_dict"]["k"].items():
+                    # Ignore if the key is None
+                    if k_dict is not None:
+                        full_dict[k_dict] = v["_tmp_dict"]["v"][kv_index]
+
+                kwargs[k] = full_dict
 
         if SETTINGS.DEBUG_MODE:
             print(type(self).__name__, "kwargs", kwargs)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pymatgen.transformations.advanced_transformations import (
     CubicSupercellTransformation,
 )
@@ -7,11 +9,11 @@ from crystal_toolkit.components.transformations.core import TransformationCompon
 
 class CubicSupercellTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Make nearly cubic supercell"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """A transformation that aims to generate a nearly cubic supercell structure
 from a structure.
 
@@ -30,7 +32,6 @@ and the number of atoms in the supercell falls in the range specified.
         return CubicSupercellTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {
             "max_atoms": 100,
             "min_atoms": len(structure) if structure else 50,
@@ -69,4 +70,4 @@ and the number of atoms in the supercell falls in the range specified.
             help_str="""If enabled, return a transformation with a diagonal transformation matrix.""",
         )
 
-        return [max_atoms, min_atoms, min_length, force_diagonal]
+        return max_atoms, min_atoms, min_length, force_diagonal

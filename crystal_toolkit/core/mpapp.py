@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from abc import ABC
-from typing import Optional
 
 from dash import html
 from dash.dependencies import Input, Output
@@ -10,15 +11,11 @@ from crystal_toolkit.core.mpcomponent import MPComponent
 
 
 class MPApp(MPComponent, ABC):
-    """
-    Class to make an app for the Materials Project website.
-    """
+    """Class to make an app for the Materials Project website."""
 
     @property
     def name(self):
-        """
-        Name of your app, will be included in navigation menu
-        """
+        """Name of your app, will be included in navigation menu."""
         return APP_METADATA.get(self.__class__.__name__, {}).get(
             "name", "Name Not Defined"
         )
@@ -35,12 +32,12 @@ class MPApp(MPComponent, ABC):
         )
 
     @property
-    def description(self):
+    def description(self) -> str:
         """
         Short description of app (aim for max 140 characters). Formatted as Markdown.
         This will display above the search bar.
         """
-        return APP_METADATA.get(self.__class__.__name__, {}).get("description", None)
+        return APP_METADATA.get(self.__class__.__name__, {}).get("description")
 
     @property
     def long_description(self):
@@ -60,7 +57,7 @@ class MPApp(MPComponent, ABC):
         return APP_METADATA[self.__class__.__name__]["url"]
 
     @property
-    def author(self) -> Optional[str]:
+    def author(self) -> str | None:
         """
         Name of the author to attribute this app to. First-party apps are authored by 'Materials Project'
         and thus that is the default value if no author exists in the app metadata.
@@ -71,52 +68,52 @@ class MPApp(MPComponent, ABC):
         )
 
     @property
-    def category(self) -> Optional[None]:
+    def category(self) -> str | None:
         """
         Category of the app. This will change how it is grouped in the app overview and
         navigation.
         :return:
         """
-        return APP_METADATA.get(self.__class__.__name__, {}).get("category", None)
+        return APP_METADATA.get(self.__class__.__name__, {}).get("category")
 
     @property
-    def credits(self) -> Optional[None]:
+    def credits(self) -> str | None:
         """
         Credit lines associated with this app, to specifically credit individuals or funders
         not otherwise credited by reference to an appropriate publication.
         :return:
         """
-        return APP_METADATA.get(self.__class__.__name__, {}).get("credits", None)
+        return APP_METADATA.get(self.__class__.__name__, {}).get("credits")
 
     @property
-    def icon(self) -> Optional[str]:
+    def icon(self) -> str | None:
         """
         Full class name(s) for the icon that represents this app.
         Fontastic icons use the "icon-fontastic-" prefix (e.g. "icon-fontastic-molecules")
         Font awesome icons use the "fa" or "fas" class plus the "fa-" prefix (e.g. "fa fa-user")
         """
-        return APP_METADATA.get(self.__class__.__name__, {}).get("icon", None)
+        return APP_METADATA.get(self.__class__.__name__, {}).get("icon")
 
     @property
-    def dois(self):
+    def dois(self) -> list[str]:
         """
         :return: A list of DOI(s) to cite when using this app
         """
         return APP_METADATA.get(self.__class__.__name__, {}).get("dois", [])
 
     @property
-    def docs_url(self) -> Optional[str]:
+    def docs_url(self) -> str | None:
         """
         URL of the official Materials Project documentation page for this app
         """
-        return APP_METADATA.get(self.__class__.__name__, {}).get("docs_url", None)
+        return APP_METADATA.get(self.__class__.__name__, {}).get("docs_url")
 
     @property
     def external_links(self):
         """
         :return: A list of external links to display with this app
         """
-        return APP_METADATA.get(self.__class__.__name__, {}).get("external_links", None)
+        return APP_METADATA.get(self.__class__.__name__, {}).get("external_links")
 
     @property
     def use_cache(self) -> bool:
@@ -147,4 +144,4 @@ class MPApp(MPComponent, ABC):
         def update_main_content(pathname):
             _, payload = parse_pathname(pathname)
 
-            return (self.get_layout(payload=payload),)
+            return self.get_layout(payload=payload)

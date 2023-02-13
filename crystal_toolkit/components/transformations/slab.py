@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dash import html
 from pymatgen.transformations.advanced_transformations import SlabTransformation
 
@@ -6,11 +8,11 @@ from crystal_toolkit.components.transformations.core import TransformationCompon
 
 class SlabTransformationComponent(TransformationComponent):
     @property
-    def title(self):
+    def title(self) -> str:
         return "Make a slab"
 
     @property
-    def description(self):
+    def description(self) -> str:
         return """Create a slab from a structure, where a "slab" is a crystal
 surface that is still periodic in all three dimensions but has a large artificial
 vacuum inserted so that the properties of the crystal surface can be studied.
@@ -21,7 +23,6 @@ vacuum inserted so that the properties of the crystal surface can be studied.
         return SlabTransformation
 
     def options_layouts(self, state=None, structure=None):
-
         state = state or {
             "miller_index": (0, 0, 1),
             "min_slab_size": 4,
