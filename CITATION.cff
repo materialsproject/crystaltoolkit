@@ -1,0 +1,85 @@
+cff-version: 1.2.0
+title: Crystal Toolkit - A Web App Framework to Improve Usability and Accessibility of Materials Science Research Algorithms
+message: If you use this software, please cite it as below.
+authors:
+  - family-names: Horton
+    given-names: Matthew
+    affiliation: Lawrence Berkeley National Laboratory
+    orcid: 0000-0001-7777-8871
+  - family-names: Shen
+    given-names: Jimmy-Xuan
+    affiliation: UC Berkeley, LBL
+    orcid: 0000-0002-2743-7531
+  - family-names: Burns
+    given-names: Jordan
+  - family-names: Cohen
+    given-names: Orion
+    affiliation: UC Berkeley, Lawrence Berkeley National Laboratory
+  - family-names: Chabbey
+    given-names: François
+  - family-names: Ganose
+    given-names: Alex
+    affiliation: Lawrence Berkeley National Laboratory
+    orcid: 0000-0002-4486-3321
+  - family-names: Guha
+    given-names: Rishabh
+  - family-names: Huck
+    given-names: Patrick
+    affiliation: Lawrence Berkeley National Laboratory
+  - family-names: Li
+    given-names: Hamming Howard
+  - family-names: McDermott
+    given-names: Matthew
+    affiliation: Lawrence Berkeley National Laboratory, University of California Berkeley
+  - family-names: Montoya
+    given-names: Joseph
+    affiliation: Toyota Research Institute
+    orcid: 0000-0001-5760-2860
+  - family-names: Moore
+    given-names: Guy
+    affiliation: Lawrence Berkeley National Laboratory, University of California Berkeley
+  - family-names: Munro
+    given-names: Jason
+    affiliation: Lawrence Berkeley National Laboratory
+  - family-names: O'Donnell
+    given-names: Cody
+  - family-names: Ophus
+    given-names: Colin
+  - family-names: Petretto
+    given-names: Guido
+    affiliation: Université catholique de Louvain
+  - family-names: Riebesell
+    given-names: Janosh
+    affiliation: University of Cambridge, Lawrence Berkeley National Laboratory
+    orcid: 0000-0001-5233-3462
+  - family-names: Wetizner
+    given-names: Steven
+  - family-names: Wander
+    given-names: Brook
+  - family-names: Winston
+    given-names: Donny
+    affiliation: Consulting at donnywinston.com
+    orcid: 0000-0002-8424-0604
+  - family-names: Yang
+    given-names: Ruoxi
+    affiliation: Lawrence Berkeley National Laboratory
+    orcid: 0000-0001-8225-5856
+  - family-names: Zeltmann
+    given-names: Steven
+  - family-names: Jain
+    given-names: Anubhav
+    affiliation: Lawrence Berkeley National Laboratory
+    orcid: 0000-0001-5893-9967
+  - family-names: Persson
+    given-names: Kristin A.
+    affiliation: Lawrence Berkeley National Laboratory
+    orcid: 0000-0003-2495-5509
+license: MIT
+license-url: https://github.com/materialsproject/crystaltoolkit/blob/main/LICENSE
+repository-code: https://github.com/materialsproject/crystaltoolkit
+type: software
+url: https://docs.crystaltoolkit.org
+arxiv: https://arxiv.org/abs/2302.06147
+doi: 10.48550/arXiv.2302.06147
+version: 2023.02.01 # replace with whatever version you use
+date-released: 2023-02-13
