@@ -2,7 +2,7 @@
 
 ## Interested in contributing?
 
-A current list of new contributor issues can be seen [here](https://github.com/materialsproject/crystaltoolkit/labels/new-contributor). 
+A current list of new contributor issues can be seen [here](https://github.com/materialsproject/crystaltoolkit/labels/new-contributor).
 If you would like a new contributor issue assigned, get in touch with project maintainers!
 
 ## Status
