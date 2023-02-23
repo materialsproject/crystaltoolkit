@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 import warnings
 from base64 import b64encode
-from collections import OrderedDict
 from itertools import chain, combinations_with_replacement
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -433,10 +432,11 @@ class StructureMoleculeComponent(MPComponent):
                 formula = struct_or_mol.molecule.composition.reduced_Formula
             else:
                 formula = struct_or_mol.composition.reduced_formula
-            if hasattr(struct_or_mol, "get_space_group_info"):
-                spgrp = struct_or_mol.get_space_group_info()[0]
-            else:
-                spgrp = ""
+            spgrp = (
+                struct_or_mol.get_space_group_info()[0]
+                if hasattr(struct_or_mol, "get_space_group_info")
+                else ""
+            )
             request_filename = f"{formula}-{spgrp}-crystal-toolkit.png"
 
             return {
@@ -560,10 +560,11 @@ class StructureMoleculeComponent(MPComponent):
         def get_font_color(hex_code):
             # ensures contrasting font color for background color
             c = tuple(int(hex_code[1:][i : i + 2], 16) for i in (0, 2, 4))
-            if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5:
-                font_color = "#000000"
-            else:
-                font_color = "#ffffff"
+            font_color = (
+                "#000000"
+                if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5
+                else "#ffffff"
+            )
             return font_color
 
         try:
@@ -572,8 +573,8 @@ class StructureMoleculeComponent(MPComponent):
             # TODO: fix legend for DummySpecies compositions
             formula = "Unknown"
 
-        legend_colors = OrderedDict(
-            sorted(list(legend["colors"].items()), key=lambda x: formula.find(x[1]))
+        legend_colors = dict(
+            sorted(legend["colors"].items(), key=lambda x: formula.find(x[1]))
         )
 
         legend_elements = [
@@ -695,7 +696,7 @@ class StructureMoleculeComponent(MPComponent):
         if self.show_settings:
             options_layout = Field(
                 [
-                    #  TODO: hide if molecule
+                    # TODO: hide if molecule
                     html.Label("Change unit cell:", className="mpc-label"),
                     html.Div(
                         dcc.Dropdown(
@@ -892,21 +893,20 @@ class StructureMoleculeComponent(MPComponent):
             # to a Structure; this will remove all bonding information and mean bonding
             # will also have to be re-calculated
             struct_or_mol = struct_or_mol.structure
-        if isinstance(struct_or_mol, Structure):
-            if unit_cell_choice != "input":
-                if unit_cell_choice == "primitive":
-                    struct_or_mol = struct_or_mol.get_primitive_structure()
-                elif unit_cell_choice == "conventional":
-                    sga = SpacegroupAnalyzer(struct_or_mol)
-                    struct_or_mol = sga.get_conventional_standard_structure()
-                elif unit_cell_choice == "reduced_niggli":
-                    struct_or_mol = struct_or_mol.get_reduced_structure(
-                        reduction_algo="niggli"
-                    )
-                elif unit_cell_choice == "reduced_lll":
-                    struct_or_mol = struct_or_mol.get_reduced_structure(
-                        reduction_algo="LLL"
-                    )
+        if isinstance(struct_or_mol, Structure) and unit_cell_choice != "input":
+            if unit_cell_choice == "primitive":
+                struct_or_mol = struct_or_mol.get_primitive_structure()
+            elif unit_cell_choice == "conventional":
+                sga = SpacegroupAnalyzer(struct_or_mol)
+                struct_or_mol = sga.get_conventional_standard_structure()
+            elif unit_cell_choice == "reduced_niggli":
+                struct_or_mol = struct_or_mol.get_reduced_structure(
+                    reduction_algo="niggli"
+                )
+            elif unit_cell_choice == "reduced_lll":
+                struct_or_mol = struct_or_mol.get_reduced_structure(
+                    reduction_algo="LLL"
+                )
         return struct_or_mol
 
     @staticmethod
@@ -950,13 +950,15 @@ class StructureMoleculeComponent(MPComponent):
                 )
             else:
                 bonding_strategy_kwargs = bonding_strategy_kwargs or {}
-                if bonding_strategy == "CutOffDictNN":
-                    if "cut_off_dict" in bonding_strategy_kwargs:
-                        # TODO: remove this hack by making args properly JSON serializable
-                        bonding_strategy_kwargs["cut_off_dict"] = {
-                            (x[0], x[1]): x[2]
-                            for x in bonding_strategy_kwargs["cut_off_dict"]
-                        }
+                if (
+                    bonding_strategy == "CutOffDictNN"
+                    and "cut_off_dict" in bonding_strategy_kwargs
+                ):
+                    # TODO: remove this hack by making args properly JSON serializable
+                    bonding_strategy_kwargs["cut_off_dict"] = {
+                        (x[0], x[1]): x[2]
+                        for x in bonding_strategy_kwargs["cut_off_dict"]
+                    }
                 bonding_strategy = (
                     StructureMoleculeComponent.available_bonding_strategies[
                         bonding_strategy
@@ -1052,7 +1054,5 @@ class StructureMoleculeComponent(MPComponent):
         return scene_json, legend.get_legend()
 
     def title_layout(self):
-        """
-        :return: A layout including the composition of the structure/molecule as a title.
-        """
+        """A layout including the composition of the structure/molecule as a title."""
         return self._sub_layouts["title"]

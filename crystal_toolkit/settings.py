@@ -8,6 +8,8 @@ from crystal_toolkit import MODULE_PATH
 
 
 class Settings(BaseSettings):
+    """Crystal Toolkit settings class."""
+
     DEBUG_MODE: bool = False
     MP_EMBED_MODE: bool = False
     TEST_MODE: bool = False
@@ -26,6 +28,8 @@ class Settings(BaseSettings):
     PERSISTENCE_TYPE: Literal["memory", "session", "local"] = "local"
 
     class Config:
+        """Crystal Toolkit environment variable config class."""
+
         env_prefix = "CT_"
 
 

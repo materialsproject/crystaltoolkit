@@ -82,10 +82,7 @@ class TransformationComponent(MPComponent):
         }
 
     def container_layout(self, state=None, structure=None) -> html.Div:
-        """
-        :return: Layout defining transformation and its options.
-        """
-
+        """Layout defining transformation and its options."""
         container = MessageContainer(
             [
                 MessageHeader(
@@ -139,7 +136,6 @@ class TransformationComponent(MPComponent):
         from a previous state.
 
         :param state: existing state in format {"args": [], "kwargs": {}}
-        :return:
         """
         return [html.Div()]
 
@@ -162,7 +158,6 @@ class TransformationComponent(MPComponent):
 
         :param struct_in: input Structure
         :param struct_out: transformed Structure
-        :return:
         """
         return html.Div()
 
@@ -210,7 +205,9 @@ class TransformationComponent(MPComponent):
                         f"The transformed crystal structure has {len(output_structure)} atoms "
                         "and might take a moment to display."
                     )
-                return self.get_preview_layout(input_structure, output_structure)
+                return self.get_preview_layout(
+                    input_structure, output_structure, warning
+                )
 
         @app.callback(
             Output(self.id(), "data"),
@@ -270,7 +267,6 @@ class AllTransformationsComponent(MPComponent):
             transformations, provide as a string of the given transformation name
         :param input_structure_component: will supply the structure to transform
         """
-
         # get available transformations
         subclasses = TransformationComponent.__subclasses__()
         subclass_names = [s.__name__ for s in subclasses]
@@ -447,22 +443,16 @@ class AllTransformationsComponent(MPComponent):
                         errors += error
 
             if not errors:
-                error_msg = html.Div()
+                html.Div()
             else:
                 errors = [
                     dcc.Markdown(
-                        "Crystal Toolkit encountered an error when trying to "
-                        "applying your chosen transformations. This is usually "
-                        "because either the input crystal structure is not "
-                        "suitable for the transformation, or the choice of "
-                        "transformation settings is not appropriate. Consult "
-                        "the pymatgen documentation for more information.  \n"
-                        ""
-                        "If you think this is a bug please report it.  \n"
-                        ""
-                    )
-                ] + errors
-                error_msg = html.Div(
+                        "Crystal Toolkit encountered an error when trying to applying your chosen "
+                        "transformations. This is usually because either the input crystal structure is not suitable for the transformation, or the choice of transformation settings is not appropriate. Consult the pymatgen documentation for more information.  \nIf you think this is a bug please report it.  \n"
+                    ),
+                    *errors,
+                ]
+                html.Div(
                     [
                         MessageContainer(
                             [

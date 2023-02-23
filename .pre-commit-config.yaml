@@ -1,6 +1,6 @@
 ci:
   autoupdate_schedule: quarterly
-  skip: [mypy, flake8, docformatter]
+  skip: [mypy]
 
 default_stages: [commit]
 
@@ -11,28 +11,16 @@ default_install_hook_types: [pre-commit, commit-msg]
 exclude: ^(docs/.+|.*lock.*|jupyterlab-extension/.+|.*\.(svg|js|css))$
 
 repos:
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.252
     hooks:
-      - id: isort
+      - id: ruff
+        args: [--fix, --ignore, D]
 
   - repo: https://github.com/psf/black
     rev: 23.1.0
     hooks:
       - id: black-jupyter
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-        additional_dependencies: [flake8-bugbear]
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
-    hooks:
-      - id: pyupgrade
-        args: [--py38-plus]
-        exclude: ^crystal_toolkit/settings.py$
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.991
@@ -54,29 +42,15 @@ repos:
     hooks:
       - id: codespell
         stages: [commit, commit-msg]
-
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.0.1
-    hooks:
-      - id: autoflake
+        args: [--ignore-words-list, "nd,te"]
 
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.6.1
     hooks:
-      - id: nbqa-pyupgrade
-        args: [--py38-plus]
-      - id: nbqa-isort
-      - id: nbqa-flake8
-        args: [--ignore=E402]
+      - id: nbqa-ruff
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.6.1
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
-
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.6.0.rc1
-    hooks:
-      - id: docformatter
-        args: [--config, setup.cfg]

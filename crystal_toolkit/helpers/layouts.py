@@ -330,7 +330,7 @@ class Field(html.Div):
 
 
 class Control(html.Div):
-    """Control tag to wrap form elements, see https://bulma.io/documentation/form/general/"""
+    """Control tag to wrap form elements, see https://bulma.io/documentation/form/general/."""
 
     def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "control")
@@ -381,9 +381,8 @@ def get_data_list(data: dict[str, str | int | float | list[str | int | float]]):
     """
     contents = []
     for title, value in data.items():
-        if isinstance(title, str):
-            title = Label(title)
-        contents.append(html.Tr([html.Td(title), html.Td(str(value))]))
+        label = Label(title) if isinstance(title, str) else title
+        contents.append(html.Tr([html.Td(label), html.Td(str(value))]))
     return html.Table([html.Tbody(contents)], className="table")
 
 

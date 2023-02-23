@@ -9,17 +9,15 @@ from crystal_toolkit.core.scene import Scene
 
 
 def get_scene_from_molecule(self, origin=None, legend: Legend | None = None):
-    """
-    Create CTK objects for the lattice and sties
+    """Create CTK objects for the lattice and sties
     Args:
         self:  Structure object
         origin: x,y,z fractional coordinates of the origin
-        legend: Legend for the sites
+        legend: Legend for the sites.
 
     Returns:
         CTK scene object to be rendered
     """
-
     origin = origin if origin else (0, 0, 0)
 
     legend = legend or Legend(self)

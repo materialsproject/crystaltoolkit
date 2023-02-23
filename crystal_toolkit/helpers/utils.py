@@ -222,10 +222,11 @@ def get_tooltip(
 def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book"):
     if (not doi) or cite_text:
         # TODO: This will get removed, due to addition of new PublicationButton
-        if cite_text:
-            button_contents = [ctl.Icon(kind=icon), html.Span(cite_text)]
-        else:
-            button_contents = ctl.Icon(kind=icon)
+        button_contents = (
+            [ctl.Icon(kind=icon), html.Span(cite_text)]
+            if cite_text
+            else ctl.Icon(kind=icon)
+        )
         button = html.Form(
             [
                 ctl.Button(
@@ -268,7 +269,6 @@ def get_data_table(
     :param kwargs: kwargs to pass to dt.DataTable
     :return: dt.DataTable
     """
-
     datatable_kwargs = dict(
         sort_action="native",
         row_selectable="single",
@@ -336,7 +336,6 @@ def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
     app_button_id should be used inside a callback in the section code to populate the app button
     with its computed button/link (e.g. see synthesis section).
     """
-
     app_link = (
         dcc.Link(
             [],
@@ -349,7 +348,7 @@ def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
     )
 
     # TODO: move method buttons into a dropdown
-    methods_button = (
+    (
         html.Div(
             [
                 mpc.Dropdown(
@@ -383,7 +382,7 @@ def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
         else None
     )
 
-    section_actions = mpc.Dropdown(
+    mpc.Dropdown(
         [
             docs_item,
             mpc.ModalContextProvider(
@@ -446,11 +445,7 @@ def get_matrix_string(matrix, variable_name=None, decimals=4):
     :param decimals: number of decimal places to round to
     :return: LaTeX-formatted string
     """
-
-    if decimals:
-        matrix = np.round(matrix, decimals=decimals) + 0
-    else:
-        matrix = np.array(matrix)
+    matrix = np.round(matrix, decimals=decimals) + 0 if decimals else np.array(matrix)
 
     header = "$$\n"
     if variable_name:
@@ -501,7 +496,6 @@ def pretty_frac_format(x):
     """Formats a float to a fraction, if the fraction can be expressed without a large
     denominator.
     """
-
     x = x % 1
     fraction = Fraction(x).limit_denominator(8)
     if np.allclose(x, 1):
