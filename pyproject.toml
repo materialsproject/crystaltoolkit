@@ -51,7 +51,6 @@ dev = [
 repo = "https://github.com/materialsproject/crystaltoolkit"
 docs = "https://docs.crystaltoolkit.org"
 
-
 [tool.setuptools.packages.find]
 exclude = ["docs_rst"]
 
@@ -108,7 +107,6 @@ isort.known-third-party = ["wandb"]
 "crystal_toolkit/settings.py" = ["UP007"]
 # TODO fix all undefined variables in bandstructure.py
 "crystal_toolkit/components/bandstructure.py" = ["F821"]
-
 
 [tool.pytest.ini_options]
 addopts = "-p no:warnings"
