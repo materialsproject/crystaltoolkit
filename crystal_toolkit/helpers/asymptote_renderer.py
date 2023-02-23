@@ -436,9 +436,7 @@ class AsySurface(AsyObject):
         # sanity check the mesh must be triangles
         if not num_triangle.is_integer():
             raise ValueError("Surface mesh must be triangles")
-        positions = tuple(
-            map(lambda x: f"{{{x[0]}, {x[1]}, {x[2]}}}", ctk_scene.positions)
-        )
+        positions = tuple(f"{{{x[0]}, {x[1]}, {x[2]}}}" for x in ctk_scene.positions)
 
         # asymptote just needs the xyz positions
         num_triangle = int(num_triangle)

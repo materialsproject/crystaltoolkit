@@ -136,7 +136,8 @@ class XRayDiffractionComponent(MPComponent):
     def grain_to_hwhm(
         tau: float, two_theta: float, K: float = 0.9, wavelength: float | str = "CuKa"
     ) -> float:
-        """_summary_
+        """Calculate the half-width half-max (alpha or gamma) for a given grain size and
+        angle.
 
         Args:
             tau (float): grain size in nm
@@ -197,7 +198,7 @@ class XRayDiffractionComponent(MPComponent):
             help_str="This defines the wavelength of the incident X-ray radiation.",
             options=[
                 {
-                    "label": f'{name.replace("a", "α").replace("b", "β")} ({wavelength:.3f} Å)',
+                    "label": f'{name.replace("a", "α").replace("b", "β")} ({wavelength:.3f} Å)',  # noqa: RUF001
                     "value": name,
                 }
                 for name, wavelength in WAVELENGTHS.items()
@@ -243,7 +244,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 self.get_choice_input(
                     kwarg_label="x_axis",
                     state=state,
-                    label="Choice of 𝑥 axis",
+                    label="Choice of x axis",
                     help_str="Can choose between 2𝜃 or Q, where Q is the magnitude of the reciprocal lattice and "
                     "independent of radiation source.",  # TODO: improve
                     options=[
@@ -293,10 +294,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             Columns: from crystal_toolkit.helpers.layouts
         """
         sub_layouts = self._sub_layouts
-        if static_image:
-            inner = sub_layouts["static_image"]
-        else:
-            inner = sub_layouts["graph"]
+        inner = sub_layouts["static_image"] if static_image else sub_layouts["graph"]
 
         return Columns(
             [
@@ -355,11 +353,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         num_sigma = {"G": 5, "L": 12, "V": 12}[peak_profile]
 
         # optimal number of points per degree determined through usage experiments
-        if grain_size > 10:
-            # scaled to log size to the 4th power
-            N_density = 150 * (math.log10(grain_size) ** 4)
-        else:
-            N_density = 150
+        # scaled to log size to the 4th power
+        N_density = 150 * (math.log10(grain_size) ** 4) if grain_size > 10 else 150
 
         N = int(N_density * domain)  # num total points
 

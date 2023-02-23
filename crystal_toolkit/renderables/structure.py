@@ -14,7 +14,6 @@ from crystal_toolkit.core.scene import Scene
 
 def _get_sites_to_draw(self, draw_image_atoms=True):
     """Returns a list of site indices and image vectors."""
-
     sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(self))]
 
     if draw_image_atoms:
@@ -62,19 +61,17 @@ def get_structure_scene(
     legend: Legend | None = None,
     draw_image_atoms: bool = True,
 ) -> Scene:
-    """
-    Create CTK objects for the lattice and sties
+    """Create CTK objects for the lattice and sties
     Args:
         self:  Structure object
         origin: x,y,z fractional coordinates of the origin
         legend: Legend for the sites
         draw_image_atoms: If true draw image atoms that are just outside the
-        periodic boundary
+        periodic boundary.
 
     Returns:
         CTK scene object to be rendered
     """
-
     origin = origin or list(-self.lattice.get_cartesian_coords([0.5, 0.5, 0.5]))
 
     legend = legend or Legend(self)

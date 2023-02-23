@@ -705,7 +705,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             """Highlight the corresponding point/edge of the Brillouin Zone when hovering the band
             structure plot.
             """
-
             # TODO: figure out what to return (CSS?) to highlight BZ edge/point
             return
 

@@ -416,7 +416,6 @@ class PhaseDiagramComponent(MPComponent):
 
         Returns: go.Figure
         """
-
         go.Scatterternary(
             {
                 "mode": "markers",
@@ -656,10 +655,11 @@ class PhaseDiagramComponent(MPComponent):
                 try:
                     comp = Composition(row["Formula"])
                     energy = row["Formation Energy (eV/atom)"]
-                    if row["Material ID"] is None:
-                        attribute = "Custom Entry"
-                    else:
-                        attribute = row["Material ID"]
+                    attribute = (
+                        "Custom Entry"
+                        if row["Material ID"] is None
+                        else row["Material ID"]
+                    )
                     # create new entry object containing mpid as attribute (to combine with custom entries)
                     entry = PDEntry(
                         comp, float(energy) * comp.num_atoms, attribute=attribute
@@ -693,10 +693,13 @@ class PhaseDiagramComponent(MPComponent):
             if trigger["prop_id"] == f"{self.id()}.modified_timestamp":
                 table_content = self.create_table_content(self.from_data(pd))
                 return table_content
-            elif trigger["prop_id"] == f"{self.id('editing-rows-button')}.n_clicks":
-                if n_clicks > 0 and rows:
-                    rows.append(self.empty_row)
-                    return rows
+            elif (
+                trigger["prop_id"] == f"{self.id('editing-rows-button')}.n_clicks"
+                and n_clicks > 0
+                and rows
+            ):
+                rows.append(self.empty_row)
+                return rows
 
             with MPRester() as mpr:
                 entries = mpr.get_entries_in_chemsys(chemsys)

@@ -30,7 +30,6 @@ def get_plot(
         backend only). For binaries, this also shades the hull with the
         uncertainty window
     """
-
     plotter = PDPlotter(self, backend="plotly", show_unstable=show_unstable)
 
     return plotter.get_plot(

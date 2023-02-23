@@ -64,6 +64,7 @@ def _get_local_order_parameters(structure_graph, n):
     underlying motif (e.g., CN=4, then calculate the
     square planar, tetrahedral, see-saw-like,
     rectangular see-saw-like order parameters).
+
     Args:
         structure_graph: StructureGraph object
         n (int): site index.
@@ -77,7 +78,7 @@ def _get_local_order_parameters(structure_graph, n):
     # import, also makes sense to have this as a general NN method
     cn = structure_graph.get_coordination_of_site(n)
     if cn in [int(k_cn) for k_cn in cn_opt_params]:
-        names = [k for k in cn_opt_params[cn]]
+        names = list(cn_opt_params[cn])
         types = []
         params = []
         for name in names:
@@ -92,7 +93,7 @@ def _get_local_order_parameters(structure_graph, n):
             for connected_site in structure_graph.get_connected_sites(n)
         ]
         lostop_vals = lostops.get_order_parameters(
-            sites, 0, indices_neighs=[i for i in range(1, cn + 1)]
+            sites, 0, indices_neighs=list(range(1, cn + 1))
         )
         d = {}
         for i, lostop in enumerate(lostop_vals):
@@ -436,7 +437,7 @@ class LocalEnvironmentPanel(PanelComponent):
                     style={"width": "16rem"},  # TODO: remove in-line style
                 )
 
-                normalize_kernel = self.get_bool_input(
+                _normalize_kernel = self.get_bool_input(
                     label="Normalize",
                     kwarg_label="normalize_kernel",
                     state=state,
@@ -797,7 +798,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
                 # represent the local environment as a molecule
                 mol = Molecule.from_sites(
-                    [struct[index]] + lse.neighbors_sets[index][0].neighb_sites
+                    [struct[index], *lse.neighbors_sets[index][0].neighb_sites]
                 )
                 mol = mol.get_centered_molecule()
                 mg = MoleculeGraph.with_empty_graph(molecule=mol)

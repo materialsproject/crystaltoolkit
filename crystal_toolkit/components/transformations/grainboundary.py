@@ -300,7 +300,7 @@ to colour-code the top and bottom grains."""
             Output(self.id("rotation_angle", is_kwarg=True, hint="literal"), "value"),
             Input(self.id("rotation_angle", is_kwarg=True, hint="literal"), "options"),
         )
-        def update_default_value(options):
+        def update_default_value(options):  # noqa: F811
             if not options:
                 raise PreventUpdate
             return options[0]["value"]

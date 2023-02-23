@@ -303,7 +303,7 @@ footer = html.Footer(
 panel_choices = dcc.Dropdown(
     options=[{"label": panel.title, "value": idx} for idx, panel in enumerate(panels)],
     multi=True,
-    value=[idx for idx in range(len(panels))],
+    value=list(range(len(panels))),
     id="panel-choices",
 )
 
@@ -506,19 +506,18 @@ def master_update_structure(
 
     Returns: an encoded Structure
     """
-
     if not search_mpid and not upload_data:
         raise PreventUpdate
 
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
-    if len(dash.callback_context.triggered) > 1:
-        # triggered by both on initial load
-        load_by = "mpid"
-    elif (
-        dash.callback_context.triggered[0]["prop_id"] == f"{search_component.id()}.data"
+    if (
+        len(dash.callback_context.triggered) > 1
+        or dash.callback_context.triggered[0]["prop_id"]
+        == f"{search_component.id()}.data"
     ):
+        # triggered by both on initial load
         load_by = "mpid"
     else:
         load_by = "uploaded"
