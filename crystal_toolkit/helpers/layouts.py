@@ -65,7 +65,7 @@ class Columns(html.Div):
         gapless=False,
         multiline=False,
         **kwargs,
-    ):
+    ) -> None:
         _update_css_class(kwargs, "columns")
         if desktop_only:
             kwargs["className"] += " is-desktop"

@@ -20,7 +20,7 @@ def get_isosurface_scene(
         step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.
 
     Returns:
-        [type]: [description]
+        Scene: object containing the isosurface component
     """
     import skimage.measure
 
@@ -52,10 +52,10 @@ def get_volumetric_scene(self, data_key="total", isolvl=0.02, step_size=3, **kwa
         isolvl (float, optional): The cutoff for the isosurface to using the same units as VESTA so e/bhor
         and kept grid size independent
         step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.
-        **kwargs: kwargs for the Structure.get_scene function
+        **kwargs: Passed to the Structure.get_scene() function.
 
     Returns:
-        [type]: [description]
+        Scene: object containing the structure and isosurface components
     """
     struct_scene = self.structure.get_scene(**kwargs)
     iso_scene = self.get_isosurface_scene(

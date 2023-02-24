@@ -101,27 +101,39 @@ class XASComponent(MPComponent):
 
     @property
     def layout(self) -> html.Div:
+        """Main layout for XAS component."""
         return html.Div(
             [self._sub_layouts["graph"], self._sub_layouts["element_selector"]]
         )
 
     def generate_callbacks(self, app, cache):
+        """Generate callbacks for XAS component.
+
+        Args:
+            app (dash.Dash): Dash app to generate callbacks for.
+            cache (_type_): _description_
+
+        Raises:
+            PreventUpdate: If no data is available.
+
+        Returns:
+            dcc.Graph | MessageContainer: XAS plot or error message.
+        """
+
         @app.callback(Output(self.id("xas-div"), "children"), Input(self.id(), "data"))
         def update_graph(plotdata):
             if not plotdata:
                 raise PreventUpdate
             if plotdata == "error":
-                search_error = (
-                    MessageContainer(
-                        [
-                            MessageBody(
-                                dcc.Markdown(
-                                    "XANES pattern not available for this selection."
-                                )
+                search_error = MessageContainer(
+                    [
+                        MessageBody(
+                            dcc.Markdown(
+                                "XANES pattern not available for this selection."
                             )
-                        ],
-                        kind="warning",
-                    ),
+                        )
+                    ],
+                    kind="warning",
                 )
                 return search_error
             else:

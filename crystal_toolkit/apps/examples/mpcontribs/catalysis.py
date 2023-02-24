@@ -151,7 +151,8 @@ class CatalysisApp(MPApp):
 
         return fig
 
-    def get_catalysis_explorer(self):
+    def get_catalysis_explorer(self) -> mpc.SearchUIContainer:
+        """Get the Catalysis Explorer app."""
         return mpc.SearchUIContainer(
             [
                 self.search_bar_container(

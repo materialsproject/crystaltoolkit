@@ -40,6 +40,7 @@ ctc.register_crystal_toolkit(app=app, layout=my_layout)
     Input("change_structure_button", "n_clicks"),
 )
 def update_structure(n_clicks):
+    """Toggle between hexagonal and cubic structures on button click."""
     return structures[n_clicks % 2]
 
 
