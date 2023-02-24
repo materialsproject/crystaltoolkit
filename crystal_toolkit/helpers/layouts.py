@@ -382,7 +382,7 @@ def get_data_list(data: dict[str, str | int | float | list[str | int | float]]):
     contents = []
     for title, value in data.items():
         label = Label(title) if isinstance(title, str) else title
-        contents.append(html.Tr([html.Td(label), html.Td(str(value))]))
+        contents.append(html.Tr([html.Td(label), html.Td(value)]))
     return html.Table([html.Tbody(contents)], className="table")
 
 
