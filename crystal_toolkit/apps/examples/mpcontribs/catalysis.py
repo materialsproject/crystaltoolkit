@@ -415,14 +415,10 @@ class CatalysisApp(MPApp):
         client = get_contribs_client()
 
         # Fetch contribution-level data
-        # TODO use client._get_per_page_default_max?
-
-        contributions_resp = client.contributions.get_entries(
-            identifier=payload,
-            project="open_catalyst_project",
-            _fields=["id", "identifier", "project", "formula", "data", "structures"],
-            per_page=1,
-        ).result()
+        contributions_resp = client.query_contributions(
+            query={"project": "open_catalyst_project", "identifier": payload},
+            fields=["id", "identifier", "project", "formula", "data", "structures"],
+        )
 
         if not contributions_resp["data"]:
             logger.error(f"Failed to load contribution for {payload}")
