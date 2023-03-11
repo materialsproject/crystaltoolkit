@@ -3,7 +3,7 @@
 ## Interested in contributing?
 
 A current list of new contributor issues can be seen [here](https://github.com/materialsproject/crystaltoolkit/labels/new-contributor).
-If you would like a new contributor issue assigned, get in touch with project maintainers!
+If you would like a new-contributor issue assigned, get in touch with project maintainers!
 
 ## Status
 
@@ -21,7 +21,7 @@ pip install crystal-toolkit
 
 ## Documentation
 
-[Documentation can be found at docs.crystaltoolkit.org](https://docs.crystaltoolkit.org)
+Documentation can be found at [docs.crystaltoolkit.org](https://docs.crystaltoolkit.org).
 
 ## Example Apps
 
@@ -60,13 +60,14 @@ The [Crystal Toolkit Development Team](https://github.com/materialsproject/cryst
 * [Donny Winston](https://github.com/dwinston), assisted by [Tyler Huntington](https://github.com/tylerhuntington), for helping embed Crystal Toolkit in a Django app
 * [Matt McDermott](https://github.com/mattmcdermott) contributed phase diagram, X-ray Diffraction, X-ray Absorption Spectrum components
 * [Jason Munro](https://github.com/munrojm) contributed band structure component
+* [Janosh Riebesell](https://github.com/janosh) contributed Phonon band structure component, [3 example apps](https://github.com/materialsproject/crystaltoolkit/blob/main/crystal_toolkit/apps/examples/matbench_dielectric_structure_on_hover.py), tests
 * [Stephen Weitzner](https://github.com/sweitzner) contributed POV-Ray integration (in progress)
 * [Richard Tran](https://github.com/CifLord) for contributing plotly-powered Wulff shapes to pymatgen, which Crystal Toolkit uses
 * [Guy Moore](https://github.com/guymoore13) for contributing magnetic moment visualization
 * [Steve Zeltmann](https://github.com/sezelt) for contributing electron diffraction
 * [Patrick Huck](https://github.com/tschaume), releases, operations, bugfixes and POC for MP / MPContribs
 
-New contributors are welcome, please see our [Code of Conduct.](code-of-conduct.md) If you are a new contributor please modify this README in your Pull Request to add your name to the list.
+New contributors are welcome, please see our [Code of Conduct](code-of-conduct.md). If you are a new contributor please modify this README in your Pull Request to add your name to the list.
 
 ## Future of This Repository
 
@@ -82,10 +83,8 @@ Thank you to all the authors and maintainers of the libraries Crystal Toolkit
 depends upon, and in particular [pymatgen](http://pymatgen.org) for crystallographic
 analysis and [Dash from Plotly](https://plot.ly/products/dash/) for their web app framework.
 
-Thank you to the [NERSC Spin](https://www.nersc.gov/systems/spin) service for
+Thank you to the [NERSC Spin](https://nersc.gov/systems/spin) service for
 hosting the app and for their technical support.
-
-Cross-browser Testing Platform and Open Source <3 generously provided by [Sauce Labs](https://saucelabs.com)
 
 ## Contact
 
