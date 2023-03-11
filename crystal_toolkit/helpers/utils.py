@@ -522,7 +522,27 @@ def hook_up_fig_with_ctk_struct_viewer(
     validate_id: Callable[[str], bool] = lambda id: True,
 ) -> Dash:
     """Create a Dash app that hooks up a Plotly figure with a Crystal Toolkit structure
-    component.
+    component. See https://github.com/materialsproject/crystaltoolkit/pull/320 for
+    screen recording of example app.
+
+    Usage example:
+        import random
+
+        import pandas as pd
+        import plotly.express as px
+        from crystal_toolkit.helpers.utils import hook_up_fig_with_ctk_struct_viewer
+        from pymatgen.ext.matproj import MPRester
+
+        # Get random structures from the Materials Project
+        mp_ids = [f"mp-{random.randint(1, 10000)}" for _ in range(100)]
+        structures = MPRester(use_document_model=False).summary.search(material_ids=mp_ids)
+
+        df = pd.DataFrame(structures)
+        id_col = "material_id"
+
+        fig = px.scatter(df, x="nsites", y="volume", hover_name=id_col, template="plotly_white")
+        app = hook_up_fig_with_ctk_struct_viewer(fig, df.set_index(id_col))
+        app.run_server(port=8000)
 
     Args:
         fig (Figure): Plotly figure to be hooked up with the structure component. The
