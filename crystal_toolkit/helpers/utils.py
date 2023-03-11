@@ -4,17 +4,23 @@ import logging
 import re
 import urllib.parse
 from fractions import Fraction
-from typing import Any
+from typing import Any, Callable
 from uuid import uuid4
 
+import dash
 import dash_mp_components as mpc
 import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+from dash import Dash, dcc, html
 from dash import dash_table as dt
-from dash import dcc, html
+from dash.dependencies import Input, Output, State
 from flask import has_request_context, request
 from monty.serialization import loadfn
 from numpy.typing import ArrayLike
+from pymatgen.core import Structure
 
+import crystal_toolkit.components as ctc
 import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.defaults import _DEFAULTS
@@ -507,3 +513,107 @@ def pretty_frac_format(x: float) -> str:
     else:
         x_str = str(fraction)
     return x_str
+
+
+def hook_up_fig_with_ctk_struct_viewer(
+    fig: go.Figure,
+    df: pd.DataFrame,
+    struct_col: str = "structure",
+    validate_id: Callable[[str], bool] = lambda id: True,
+) -> Dash:
+    """Create a Dash app that hooks up a Plotly figure with a Crystal Toolkit structure
+    component.
+
+    Args:
+        fig (Figure): Plotly figure to be hooked up with the structure component. The
+            figure must have hover_name set to the index of the data frame to identify
+            dataframe rows with plot points.
+        df (pd.DataFrame): Data frame from which to pull the structure corresponding to
+            a hovered/clicked point in the plot.
+        struct_col (str, optional): Name of the column in the data frame that contains
+            the structures. Defaults to 'structure'. Can be instances of
+            pymatgen.core.Structure or dicts created with Structure.as_dict().
+        validate_id (Callable[[str], bool], optional): Function that takes a string
+            extracted from the hovertext key of a hoverData event payload and returns
+            True if the string is a valid df row index. Defaults to lambda
+            id: True. Useful for not running the update-structure
+            callback on unexpected data.
+
+    Returns:
+        Dash: The interactive Dash app to be run with app.run_server().
+    """
+    structure_component = ctc.StructureMoleculeComponent(id="structure")
+
+    app = Dash(prevent_initial_callbacks=True, assets_folder=SETTINGS.ASSETS_PATH)
+    graph = dcc.Graph(id="plot", figure=fig, style={"width": "90vh"})
+    hover_click_dd = dcc.Dropdown(
+        id="hover-click-dropdown",
+        options=["hover", "click"],
+        value="click",
+        clearable=False,
+        style=dict(minWidth="5em"),
+    )
+    hover_click_dropdown = html.Div(
+        [
+            html.Label("Update structure on:", style=dict(fontWeight="bold")),
+            hover_click_dd,
+        ],
+        style=dict(
+            display="flex",
+            placeContent="center",
+            placeItems="center",
+            gap="1em",
+            margin="1em",
+        ),
+    )
+    struct_title = html.H2(
+        "Try hovering on a point in the plot to see its corresponding structure",
+        id="struct-title",
+        style=dict(position="absolute", padding="1ex 1em", maxWidth="25em"),
+    )
+    graph_structure_div = html.Div(
+        [graph, html.Div([struct_title, structure_component.layout()])],
+        style=dict(display="flex", gap="2em", margin="2em 0"),
+    )
+    app.layout = html.Div(
+        [hover_click_dropdown, graph_structure_div],
+        style=dict(margin="2em", padding="1em"),
+    )
+    ctc.register_crystal_toolkit(app=app, layout=app.layout)
+
+    @app.callback(
+        Output(structure_component.id(), "data"),
+        Output(struct_title, "children"),
+        Input(graph, "hoverData"),
+        Input(graph, "clickData"),
+        State(hover_click_dd, "value"),
+    )
+    def update_structure(
+        hover_data: dict[str, list[dict[str, Any]]],
+        click_data: dict[str, list[dict[str, Any]]],  # needed only as callback trigger
+        dropdown_value: str,
+    ) -> tuple[Structure, str] | tuple[None, None]:
+        """Update StructureMoleculeComponent with pymatgen structure when user clicks or
+        hovers a plot point.
+        """
+        triggered = dash.callback_context.triggered[0]
+        if dropdown_value == "click" and triggered["prop_id"].endswith(".hoverData"):
+            # do nothing if we're in update-on-click mode but callback was triggered by
+            # hover event
+            raise dash.exceptions.PreventUpdate
+
+        # hover_data and click_data are identical since a hover event always precedes a
+        # click so we always use hover_data
+        material_id = hover_data["points"][0]["hovertext"]
+        if not validate_id(material_id):
+            print(f"bad {material_id=}")
+            raise dash.exceptions.PreventUpdate
+
+        struct = df[struct_col][material_id]
+        if isinstance(struct, dict):
+            struct = Structure.from_dict(struct)
+        struct_title = f"{material_id} ({struct.formula})"
+
+        return struct, struct_title
+
+    return app
