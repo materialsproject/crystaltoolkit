@@ -13,6 +13,7 @@ from dash import dash_table as dt
 from dash import dcc, html
 from flask import has_request_context, request
 from monty.serialization import loadfn
+from numpy.typing import ArrayLike
 
 import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit import MODULE_PATH
@@ -437,8 +438,10 @@ def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
     return ctl.H4([title, docs_button, app_link])
 
 
-def get_matrix_string(matrix, variable_name=None, decimals=4):
-    """Returns a string for use in mpc.Markdown() to render a matrix or vector.
+def get_matrix_string(
+    matrix: ArrayLike, variable_name: str = None, decimals: int = 4
+) -> str:
+    """Returns a LaTeX-formatted string for use in mpc.Markdown() to render a matrix or vector.
 
     :param matrix: list or numpy array
     :param variable_name: LaTeX-formatted variable name
@@ -455,23 +458,21 @@ def get_matrix_string(matrix, variable_name=None, decimals=4):
 
     footer = "\\end{bmatrix}\n$$"
 
-    matrix_string = ""
-
-    assert hasattr(matrix, "__iter__"), "The matrix provided was not iterable"
+    matrix_str = ""
 
     for row in matrix:
-        row_string = ""
+        row_str = ""
         for idx, value in enumerate(row):
-            row_string += f"{value:.4g}"
+            row_str += f"{value:.4g}"
             if idx != len(row) - 1:
-                row_string += " & "
-        row_string += " \\\\ \n"
-        matrix_string += row_string
+                row_str += " & "
+        row_str += " \\\\ \n"
+        matrix_str += row_str
 
-    return header + matrix_string + footer
+    return header + matrix_str + footer
 
 
-def update_css_class(kwargs, class_name):
+def update_css_class(kwargs: dict[str, Any], class_name: str) -> None:
     """Convenience function to update className while respecting any additional classNames already
     set.
     """
@@ -481,7 +482,7 @@ def update_css_class(kwargs, class_name):
         kwargs["className"] = class_name
 
 
-def is_mpid(value: str):
+def is_mpid(value: str) -> str | bool:
     """Determine if a string is in the MP ID syntax.
 
     Checks if the string starts with 'mp-' or 'mvc-' and is followed by only numbers.
@@ -492,7 +493,7 @@ def is_mpid(value: str):
         return False
 
 
-def pretty_frac_format(x):
+def pretty_frac_format(x: float) -> str:
     """Formats a float to a fraction, if the fraction can be expressed without a large
     denominator.
     """
