@@ -17,10 +17,10 @@ contributor/co-author.
 
 Work-in-progress pull requests are encouraged but please [mark your PR as draft](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft).
 
-Usually the following items should be checked before merging a PR:
+Usually, the following items should be checked before merging a PR:
 
 - [ ] Doc strings have been added in the [Google docstring format](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).
-- [ ] Type annotations are *highly* encouraged. Run [`mypy path/to/file.py`](https://github.com/python/mypy) to type check your code. Type checks are run in CI.
+- [ ] Type annotations are *highly* encouraged. Run [`mypy path/to/file.py`](https://github.com/python/mypy) to type-check your code. Type checks are run in CI.
 - [ ] Tests for any new functionality as well as bug fixes, where appropriate.
 - [ ] Create a new [Issue](https://github.com/materialsproject/crystaltoolkit/issues) for any TODO items that will result from merging the PR.
 
