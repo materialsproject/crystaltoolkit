@@ -67,7 +67,7 @@ build-backend = "setuptools.build_meta"
 target-version = "py38"
 select = [
     "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
+    "C40", # flake8-comprehensions
     "D",   # pydocstyle
     "E",   # pycodestyle
     "F",   # pyflakes

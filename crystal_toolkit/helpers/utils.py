@@ -515,7 +515,7 @@ def pretty_frac_format(x: float) -> str:
     return x_str
 
 
-def hook_up_fig_with_ctk_struct_viewer(
+def hook_up_fig_with_struct_viewer(
     fig: go.Figure,
     df: pd.DataFrame,
     struct_col: str = "structure",
@@ -534,15 +534,16 @@ def hook_up_fig_with_ctk_struct_viewer(
         from pymatgen.ext.matproj import MPRester
 
         # Get random structures from the Materials Project
-        mp_ids = [f"mp-{random.randint(1, 10000)}" for _ in range(100)]
-        structures = MPRester(use_document_model=False).summary.search(material_ids=mp_ids)
+        mp_ids = [f"mp-{random.randint(1, 10_000)}" for _ in range(100)]
+        docs = MPRester(use_document_model=False).summary.search(material_ids=mp_ids)
 
-        df = pd.DataFrame(structures)
+        df = pd.DataFrame(docs)
         id_col = "material_id"
 
         fig = px.scatter(df, x="nsites", y="volume", hover_name=id_col, template="plotly_white")
         app = hook_up_fig_with_ctk_struct_viewer(fig, df.set_index(id_col))
         app.run_server(port=8000)
+
 
     Args:
         fig (Figure): Plotly figure to be hooked up with the structure component. The

@@ -224,8 +224,8 @@ class MPComponent(ABC):
         self,
         name: str = "default",
         is_kwarg: bool = False,
-        idx=False,
-        hint=None,
+        idx: bool | int = False,
+        hint: str = None,
         is_store: bool = False,
     ) -> str | dict[str, str]:
         """Generate an id from a name combined with the base id of the MPComponent itself, useful
@@ -241,9 +241,13 @@ class MPComponent(ABC):
         to parse a boolean value. In future iterations, we may be able to replace this with native
         Python type hints. The problem here is being able to specify array shape where appropriate.
 
-
         Args:
-            name: e.g. "default"
+            name (str): The name of the element, e.g. "graph", "structure". Defaults to "default".
+            is_kwarg (bool): If True, return a dict with information necessary to reconstruct
+                the keyword argument for a specific class.
+            idx (bool | int): The index to return if is_kwarg is True. Defaults to False.
+            hint (str): The type hint to return if is_kwarg is True. Defaults to None.
+            is_store (bool): If True, return the id of the store, otherwise return a dict
 
         Returns: e.g. "MPComponent_default"
         """
