@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
+from numpy.typing import ArrayLike
 from pymatgen.io.vasp import VolumetricData
 
 from crystal_toolkit.core.scene import Scene, Surface
@@ -9,15 +12,22 @@ _ANGS2_TO_BOHR3 = 1.88973**3
 
 
 def get_isosurface_scene(
-    self, data_key="total", isolvl=0.05, step_size=4, origin=None, **kwargs
-):
+    self,
+    data_key: str = "total",
+    isolvl: float = 0.05,
+    step_size: int = 4,
+    origin: ArrayLike = None,
+    **kwargs: Any,
+) -> Scene:
     """Get the isosurface from a VolumetricData object.
 
     Args:
         data_key (str, optional): Use the volumetric data from self.data[data_key]. Defaults to 'total'.
         isolvl (float, optional): The cutoff for the isosurface to using the same units as VESTA so
-        e/bohr and kept grid size independent
+            e/bohr and kept grid size independent
         step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.
+        origin (ArrayLike, optional): The origin of the isosurface. Defaults to None.
+        **kwargs: Passed to the Surface object.
 
     Returns:
         Scene: object containing the isosurface component

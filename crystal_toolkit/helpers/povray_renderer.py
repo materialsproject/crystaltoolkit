@@ -135,8 +135,8 @@ sphere {<{{val}}>, 0.02 texture {bbox} no_shadow}
 
 
 def pov_write_data(input_scene_comp, fstream):
-    """parse a primitive display object in crystaltoolkit and print it to POV-Ray input_scene_comp
-    fstream.
+    """Parse a primitive display object in crystaltoolkit and print it to POV-Ray
+    input_scene_comp fstream.
     """
     vect = "{:.4f},{:.4f},{:.4f}"
 
