@@ -33,4 +33,4 @@ ctc.register_crystal_toolkit(app=app, layout=my_layout)
 # in production, deploy behind gunicorn or similar
 # see Dash docs for more info
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8050)
+    app.run(debug=True, port=8050)

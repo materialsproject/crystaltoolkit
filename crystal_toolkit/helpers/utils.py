@@ -542,7 +542,7 @@ def hook_up_fig_with_struct_viewer(
 
         fig = px.scatter(df, x="nsites", y="volume", hover_name=id_col, template="plotly_white")
         app = hook_up_fig_with_ctk_struct_viewer(fig, df.set_index(id_col))
-        app.run_server(port=8000)
+        app.run(port=8000)
 
 
     Args:
@@ -561,7 +561,7 @@ def hook_up_fig_with_struct_viewer(
             callback on unexpected data.
 
     Returns:
-        Dash: The interactive Dash app to be run with app.run_server().
+        Dash: The interactive Dash app to be run with app.run().
     """
     structure_component = ctc.StructureMoleculeComponent(id="structure")
 

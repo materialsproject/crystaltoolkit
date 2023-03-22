@@ -109,7 +109,7 @@ else:
         app.server,
         config={
             "CACHE_TYPE": "redis",
-            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", SETTINGS.REDIS_URL),
+            "CACHE_REDIS_URL": os.getenv("REDIS_URL", SETTINGS.REDIS_URL),
         },
     )
 
@@ -550,4 +550,4 @@ def master_update_structure(
 
 
 if __name__ == "__main__":
-    app.run_server(debug=SETTINGS.DEBUG_MODE, port=8051)
+    app.run(debug=SETTINGS.DEBUG_MODE, port=8051)

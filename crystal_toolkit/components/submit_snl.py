@@ -21,8 +21,8 @@ from crystal_toolkit.helpers.layouts import (
     html,
 )
 
-# ask Donny Winston
-MP_CLIENT_KEY = os.environ.get("MP_CLIENT_KEY")
+# ask Patrick phuck@lbl.gov
+MP_CLIENT_KEY = os.getenv("MP_CLIENT_KEY")
 
 
 class SubmitSNLPanel(PanelComponent):
