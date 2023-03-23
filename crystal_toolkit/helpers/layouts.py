@@ -439,20 +439,24 @@ class Loading(dcc.Loading):
 
 
 def get_breadcrumb(parts):
-    if not parts:
-        return html.Div()
+    """Create a breadcrumb navigation bar.
 
-    breadcrumbs = html.Nav(
-        html.Ul(
-            [
-                html.Li(
-                    dcc.Link(name, href=link),
-                    className=(None if idx != len(parts) - 1 else "is-active"),
-                )
-                for idx, (name, link) in enumerate(parts.items())
-            ]
-        ),
-        className="breadcrumb",
-    )
+    Args:
+        parts (dict): Dictionary of name, link pairs.
+
+    Returns:
+        html.Nav: Breadcrumb navigation bar.
+    """
+    if not parts:
+        return html.Nav()
+
+    links = [
+        html.Li(
+            dcc.Link(name, href=link),
+            className="is-active" if idx == len(parts) - 1 else None,
+        )
+        for idx, (name, link) in enumerate(parts.items())
+    ]
+    breadcrumbs = html.Nav(html.Ul(links), className="breadcrumb")
 
     return breadcrumbs
