@@ -11,27 +11,21 @@ requires-python = ">=3.8"
 authors = [{ name = "Matt Horton", email = "mkhorton@lbl.gov" }]
 
 dependencies = [
-    "pymatgen",
-    "webcolors",
     "crystaltoolkit-extension",
-    "shapely",
-    "scikit-learn",
+    "dash-daq",
+    "dash-mp-components",
+    "dash",
+    "flask-caching",
+    "pymatgen",
     "scikit-image",
+    "scikit-learn",
+    "shapely",
+    "webcolors",
 ]
 
 [project.optional-dependencies]
-server = [
-    "dash<2.6",
-    "dash-daq",
-    "gunicorn[gevent]",
-    "redis",
-    "Flask-Caching",
-    "dash-mp-components",
-    "robocrys",
-    "habanero",
-    "hiphive",
-    "dash-extensions<=0.1.5",
-]
+server = ["dash-extensions", "gunicorn[gevent]", "habanero", "hiphive", "redis"]
+robocrys = ["robocrys"]
 temdiff = ["py4DSTEM>=0.13.11"]
 fermi = ["ifermi", "pyfftw"]
 vtk = ["dash-vtk"]
@@ -39,12 +33,12 @@ localenv = ["dscribe"]
 figures = ["kaleido"]
 dev = [
     "black",
-    "pre-commit",
-    "dash[testing]<2.6",
-    "sphinx_rtd_theme",
-    "recommonmark",
+    "dash[testing]",
     "dephell",
-    "jinja2<3.1",
+    "jinja2",
+    "pre-commit",
+    "recommonmark",
+    "sphinx_rtd_theme",
 ]
 
 [project.urls]
