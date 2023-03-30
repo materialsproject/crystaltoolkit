@@ -64,6 +64,7 @@ def _get_local_order_parameters(structure_graph, n):
     underlying motif (e.g., CN=4, then calculate the
     square planar, tetrahedral, see-saw-like,
     rectangular see-saw-like order parameters).
+
     Args:
         structure_graph: StructureGraph object
         n (int): site index.
@@ -77,7 +78,7 @@ def _get_local_order_parameters(structure_graph, n):
     # import, also makes sense to have this as a general NN method
     cn = structure_graph.get_coordination_of_site(n)
     if cn in [int(k_cn) for k_cn in cn_opt_params]:
-        names = [k for k in cn_opt_params[cn]]
+        names = list(cn_opt_params[cn])
         types = []
         params = []
         for name in names:
@@ -92,7 +93,7 @@ def _get_local_order_parameters(structure_graph, n):
             for connected_site in structure_graph.get_connected_sites(n)
         ]
         lostop_vals = lostops.get_order_parameters(
-            sites, 0, indices_neighs=[i for i in range(1, cn + 1)]
+            sites, 0, indices_neighs=list(range(1, cn + 1))
         )
         d = {}
         for i, lostop in enumerate(lostop_vals):
@@ -103,6 +104,8 @@ def _get_local_order_parameters(structure_graph, n):
 
 
 class LocalEnvironmentPanel(PanelComponent):
+    """A panel to analyze the local chemical environments in a crystal."""
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("graph")
@@ -113,17 +116,21 @@ class LocalEnvironmentPanel(PanelComponent):
 
     @property
     def title(self) -> str:
+        """Title of the panel."""
         return "Local Environments"
 
     @property
     def description(self) -> str:
+        """Description of the panel."""
         return "Analyze the local chemical environments in your crystal."
 
     @property
     def loading_text(self):
+        """Text to display while loading."""
         return "Analyzing environments"
 
     def contents_layout(self) -> html.Div:
+        """HTML layout of the panel contents."""
         algorithm_choices = self.get_choice_input(
             label="Analysis method",
             kwarg_label="algorithm",
@@ -144,6 +151,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
     @staticmethod
     def get_graph_data(graph, display_options):
+        """Get the data for the graph visualization."""
         color_scheme = display_options.get("color_scheme", "Jmol")
 
         nodes = []
@@ -196,6 +204,7 @@ class LocalEnvironmentPanel(PanelComponent):
         return {"nodes": nodes, "edges": edges}
 
     def generate_callbacks(self, app, cache):
+        """Generate the callbacks for the panel interactions."""
         super().generate_callbacks(app, cache)
 
         @app.callback(
@@ -436,7 +445,7 @@ class LocalEnvironmentPanel(PanelComponent):
                     style={"width": "16rem"},  # TODO: remove in-line style
                 )
 
-                normalize_kernel = self.get_bool_input(
+                _normalize_kernel = self.get_bool_input(
                     label="Normalize",
                     kwarg_label="normalize_kernel",
                     state=state,
@@ -797,7 +806,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
                 # represent the local environment as a molecule
                 mol = Molecule.from_sites(
-                    [struct[index]] + lse.neighbors_sets[index][0].neighb_sites
+                    [struct[index], *lse.neighbors_sets[index][0].neighb_sites]
                 )
                 mol = mol.get_centered_molecule()
                 mg = MoleculeGraph.with_empty_graph(molecule=mol)
@@ -826,15 +835,18 @@ class LocalEnvironmentPanel(PanelComponent):
                     [
                         ["Environment", name],
                         ["IUPAC Symbol", co.IUPAC_symbol_str],
-                        [get_tooltip(
-                            "CSM",
-                            "The continuous symmetry measure (CSM) describes the similarity to an "
-                            "ideal coordination environment. It can be understood as a 'distance' to "
-                            "a shape and ranges from 0 to 100 in which 0 corresponds to a "
-                            "coordination environment that is exactly identical to the ideal one. A "
-                            "CSM larger than 5.0 already indicates a relatively strong distortion of "
-                            "the investigated coordination environment.",
-                        ), f"{env[0]['csm']:.2f}"],
+                        [
+                            get_tooltip(
+                                "CSM",
+                                "The continuous symmetry measure (CSM) describes the similarity to an "
+                                "ideal coordination environment. It can be understood as a 'distance' to "
+                                "a shape and ranges from 0 to 100 in which 0 corresponds to a "
+                                "coordination environment that is exactly identical to the ideal one. A "
+                                "CSM larger than 5.0 already indicates a relatively strong distortion of "
+                                "the investigated coordination environment.",
+                            ),
+                            f"{env[0]['csm']:.2f}",
+                        ],
                         ["Interactive View", view],
                     ]
                 )

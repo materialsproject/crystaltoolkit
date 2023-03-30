@@ -65,7 +65,7 @@ class Columns(html.Div):
         gapless=False,
         multiline=False,
         **kwargs,
-    ):
+    ) -> None:
         _update_css_class(kwargs, "columns")
         if desktop_only:
             kwargs["className"] += " is-desktop"
@@ -330,7 +330,7 @@ class Field(html.Div):
 
 
 class Control(html.Div):
-    """Control tag to wrap form elements, see https://bulma.io/documentation/form/general/"""
+    """Control tag to wrap form elements, see https://bulma.io/documentation/form/general/."""
 
     def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "control")
@@ -381,9 +381,8 @@ def get_data_list(data: dict[str, str | int | float | list[str | int | float]]):
     """
     contents = []
     for title, value in data.items():
-        if isinstance(title, str):
-            title = Label(title)
-        contents.append(html.Tr([html.Td(title), html.Td(str(value))]))
+        label = Label(title) if isinstance(title, str) else title
+        contents.append(html.Tr([html.Td(label), html.Td(value)]))
     return html.Table([html.Tbody(contents)], className="table")
 
 
@@ -440,20 +439,24 @@ class Loading(dcc.Loading):
 
 
 def get_breadcrumb(parts):
-    if not parts:
-        return html.Div()
+    """Create a breadcrumb navigation bar.
 
-    breadcrumbs = html.Nav(
-        html.Ul(
-            [
-                html.Li(
-                    dcc.Link(name, href=link),
-                    className=(None if idx != len(parts) - 1 else "is-active"),
-                )
-                for idx, (name, link) in enumerate(parts.items())
-            ]
-        ),
-        className="breadcrumb",
-    )
+    Args:
+        parts (dict): Dictionary of name, link pairs.
+
+    Returns:
+        html.Nav: Breadcrumb navigation bar.
+    """
+    if not parts:
+        return html.Nav()
+
+    links = [
+        html.Li(
+            dcc.Link(name, href=link),
+            className="is-active" if idx == len(parts) - 1 else None,
+        )
+        for idx, (name, link) in enumerate(parts.items())
+    ]
+    breadcrumbs = html.Nav(html.Ul(links), className="breadcrumb")
 
     return breadcrumbs

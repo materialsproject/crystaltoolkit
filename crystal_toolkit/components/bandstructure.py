@@ -601,7 +601,7 @@ class BandstructureAndDosComponent(MPComponent):
         xaxis_style_dos = {}
         yaxis_style_dos = {}
 
-        y_title = dict(text="E−E<sub>fermi</sub> (eV)", font=dict(size=16))
+        y_title = dict(text="E-E<sub>fermi</sub> (eV)", font=dict(size=16))
         if bs:
             bs_traces, bs_data = BandstructureAndDosComponent.get_bandstructure_traces(
                 bs, path_convention=path_convention, energy_window=energy_window
@@ -752,10 +752,9 @@ class BandstructureAndDosComponent(MPComponent):
             dos_domain = dos_domain or [1.0, 1.0]
         elif dos:
             bs_domain = bs_domain or [0, 0]
-            if horizontal_dos:
-                dos_domain = dos_domain or [0, 1.0]
-            else:
-                dos_domain = dos_domain or [0, 0.3]
+            dos_domain = (
+                dos_domain or [0, 1.0] if horizontal_dos else dos_domain or [0, 0.3]
+            )
 
         figure["layout"]["xaxis1"]["domain"] = bs_domain
         figure["layout"]["xaxis2"]["domain"] = dos_domain

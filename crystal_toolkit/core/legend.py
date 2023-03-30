@@ -72,17 +72,18 @@ class Legend(MSONable):
             property, defines the minimum and maximum values of the
             color scape
         """
-
         if isinstance(site_collection, Site):
             site_collection = Molecule.from_sites([site_collection])
 
         site_prop_types = self.analyze_site_props(site_collection)
 
-        self.allowed_color_schemes = (
-            ["VESTA", "Jmol", "accessible"]
-            + site_prop_types.get("scalar", [])
-            + site_prop_types.get("categorical", [])
-        )
+        self.allowed_color_schemes = [
+            "VESTA",
+            "Jmol",
+            "accessible",
+            *site_prop_types.get("scalar", []),
+            *site_prop_types.get("categorical", []),
+        ]
 
         self.allowed_radius_schemes = (
             "atomic",
@@ -143,7 +144,6 @@ class Legend(MSONable):
 
         Returns: A dictionary in similar format to EL_COLORS
         """
-
         color_scheme = {}
 
         all_species = set(
@@ -208,16 +208,16 @@ class Legend(MSONable):
 
     @staticmethod
     def generate_categorical_color_scheme_on_the_fly(
-        site_collection: SiteCollection, site_prop_types
+        site_collection: SiteCollection, site_prop_types: dict[str, list[str]]
     ) -> dict[str, dict[str, tuple[int, int, int]]]:
-        """e.g. for Wyckoff.
+        """E.g. for Wyckoff.
 
         Args:
-            site_collection: SiteCollection
+            site_collection (SiteCollection): The sites to generate a color scheme for.
+            site_prop_types (dict[str, list[str]]): The categorical site property types.
 
         Returns: A dictionary in similar format to EL_COLORS
         """
-
         color_scheme = {}
 
         palette = Set1_9.colors
@@ -226,9 +226,9 @@ class Legend(MSONable):
             props = np.array(site_collection.site_properties[site_prop_name])
             props[props is None] = "None"
 
-            le = LabelEncoder()
-            le.fit(props)
-            transformed_props = le.transform(props)
+            label_enc = LabelEncoder()
+            label_enc.fit(props)
+            transformed_props = label_enc.transform(props)
 
             # if we have more categories than available colors,
             # arbitrarily group some categories together
@@ -256,7 +256,6 @@ class Legend(MSONable):
 
         Returns: Color
         """
-
         # allow manual override by user
         if site and "display_color" in site.properties:
             color = site.properties["display_color"]
@@ -359,9 +358,8 @@ class Legend(MSONable):
 
     @staticmethod
     def analyze_site_props(site_collection: SiteCollection) -> dict[str, list[str]]:
-        """
-        Returns: A dictionary with keys "scalar", "matrix", "vector", "categorical"
-        and values of a list of site property names corresponding to each type
+        """A dictionary with keys "scalar", "matrix", "vector", "categorical"
+        and values of a list of site property names corresponding to each type.
         """
         # (implicitly assumes all site props for a given key are same type)
         site_prop_names = defaultdict(list)
@@ -379,9 +377,8 @@ class Legend(MSONable):
 
     @staticmethod
     def get_species_str(sp: Species | Element) -> str:
-        """
-        Args:
-            sp: Species or Element
+        """Args:
+            sp: Species or Element.
 
         Returns: string representation
         """
@@ -407,7 +404,7 @@ class Legend(MSONable):
             for sp in site.species:
                 legend[self.get_color(sp, site)].append(label(site, sp))
 
-        legend = {k: ", ".join(sorted(list(set(v)))) for k, v in legend.items()}
+        legend = {k: ", ".join(sorted(set(v))) for k, v in legend.items()}
 
         color_options = []
         for site_prop_type in ("scalar", "categorical"):

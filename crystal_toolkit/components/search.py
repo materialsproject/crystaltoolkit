@@ -31,10 +31,7 @@ class SearchComponent(MPComponent):
     def _get_mpid_cache(self):
         path = os.path.join(os.path.dirname(module_path), "mpid_cache.json")
 
-        if os.path.isfile(path):
-            mpid_cache = loadfn(path)
-        else:
-            mpid_cache = []
+        mpid_cache = loadfn(path) if os.path.isfile(path) else []
         # else:
         #     try:
         #         with MPRester() as mpr:

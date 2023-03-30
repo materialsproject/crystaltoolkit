@@ -46,21 +46,32 @@ def get_site_scene(
     magmom_scale: float = 1.0,
     legend: Legend | None = None,
 ) -> Scene:
-    """
-    Args:
-        connected_sites:
-        connected_sites_not_drawn:
-        hide_incomplete_edges:
-        site_idx:
-        incomplete_edge_length_scale:
-        connected_sites_colors:
-        connected_sites_not_drawn_colors:
-        origin: x,y,z fractional coordinates of the origin
-        explicitly_calculate_polyhedra_hull:
-        legend:
-    Returns:
-    """
+    """Get a Scene object for a Site.
 
+    Args:
+        connected_sites (list[ConnectedSite], optional): Defaults to None.
+        connected_sites_not_drawn (list[ConnectedSite], optional): Defaults to None.
+        hide_incomplete_edges (bool, optional): Defaults to False.
+        site_idx (int | None, optional): Defaults to 0.
+        incomplete_edge_length_scale (float | None, optional): Defaults to 1.0.
+        connected_sites_colors (list[str] | None, optional): Defaults to None.
+        connected_sites_not_drawn_colors (list[str] | None, optional): Defaults to None.
+        origin (Sequence[float] | None, optional): Defaults to None.
+        draw_polyhedra (bool, optional): Defaults to True.
+        explicitly_calculate_polyhedra_hull (bool, optional): Defaults to False.
+        bond_radius (float, optional): Defaults to 0.1.
+        draw_magmoms (bool, optional): Defaults to True.
+        show_atom_idx (bool, optional): Defaults to False.
+        show_atom_coord (bool, optional): Defaults to True.
+        show_bond_order (bool, optional): Defaults to True.
+        show_bond_length (bool, optional): Defaults to False.
+        visualize_bond_orders (bool, optional): Defaults to False.
+        magmom_scale (float, optional): Defaults to 1.0.
+        legend (Legend | None, optional): Defaults to None.
+
+    Returns:
+        Scene: The scene object containing atoms, bonds, polyhedra, magmoms.
+    """
     atoms = []
     bonds = []
     polyhedron = []
@@ -126,23 +137,22 @@ def get_site_scene(
             atoms.append(sphere)
 
         # Add magmoms
-        if draw_magmoms:
-            if magmom := self.properties.get("magmom"):
-                # enforce type
-                magmom = np.array(Magmom(magmom).get_moment())
-                magmom = 2 * magmom_scale * max_radius * magmom
-                tail = np.array(position) - 0.5 * np.array(magmom)
-                head = np.array(position) + 0.5 * np.array(magmom)
+        if draw_magmoms and (magmom := self.properties.get("magmom")):
+            # enforce type
+            magmom = np.array(Magmom(magmom).get_moment())
+            magmom = 2 * magmom_scale * max_radius * magmom
+            tail = np.array(position) - 0.5 * np.array(magmom)
+            head = np.array(position) + 0.5 * np.array(magmom)
 
-                arrow = Arrows(
-                    positionPairs=[[tail, head]],
-                    color="red",
-                    radius=0.20,
-                    headLength=0.5,
-                    headWidth=0.4,
-                    clickable=True,
-                )
-                magmoms.append(arrow)
+            arrow = Arrows(
+                positionPairs=[[tail, head]],
+                color="red",
+                radius=0.20,
+                headLength=0.5,
+                headWidth=0.4,
+                clickable=True,
+            )
+            magmoms.append(arrow)
 
     if not is_ordered and not np.isclose(phiEnd, np.pi * 2):
         # if site occupancy doesn't sum to 100%, cap sphere
@@ -166,23 +176,18 @@ def get_site_scene(
         name_cyl = " "
 
         for idx, connected_site in enumerate(connected_sites):
-            if show_bond_order:
-                if connected_site.weight is not None:
-                    name_cyl = "bond order:" + str(f"{connected_site.weight:.2f}")
+            if show_bond_order and connected_site.weight is not None:
+                name_cyl = "bond order:" + str(f"{connected_site.weight:.2f}")
 
-            if show_bond_length:
-                if connected_site.dist is not None:
-                    name_cyl += (
-                        "\n" + "bond length:" + str(f"{connected_site.dist:.3f}")
-                    )
+            if show_bond_length and connected_site.dist is not None:
+                name_cyl += "\n" + "bond length:" + str(f"{connected_site.dist:.3f}")
 
             connected_position = connected_site.site.coords
             bond_midpoint = np.add(position, connected_position) / 2
 
-            if connected_sites_colors:
-                color = connected_sites_colors[idx]
-            else:
-                color = site_color
+            color = (
+                connected_sites_colors[idx] if connected_sites_colors else site_color
+            )
 
             if visualize_bond_orders:
                 cylinders = []
@@ -235,10 +240,11 @@ def get_site_scene(
                     / 2
                 )
 
-                if connected_sites_not_drawn_colors:
-                    color = connected_sites_not_drawn_colors[idx]
-                else:
-                    color = site_color
+                color = (
+                    connected_sites_not_drawn_colors[idx]
+                    if connected_sites_not_drawn_colors
+                    else site_color
+                )
 
                 cylinder = Cylinders(
                     positionPairs=[[position, bond_midpoint.tolist()]],
@@ -249,9 +255,9 @@ def get_site_scene(
                 all_positions.append(connected_position.tolist())
 
         # ensure intersecting polyhedra are not shown, defaults to choose by electronegativity
-        not_most_electro_negative = map(
-            lambda x: (x.site.specie < self.specie) or (x.site.specie == self.specie),
-            connected_sites,
+        not_most_electro_negative = (
+            (x.site.specie < self.specie) or (x.site.specie == self.specie)
+            for x in connected_sites
         )
 
         all_positions = [list(p) for p in all_positions]

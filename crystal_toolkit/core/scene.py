@@ -58,7 +58,6 @@ class Scene:
         No good way to decide what origin to set for the new scene.
 
         :param other: another Scene
-        :return:
         """
         return Scene(
             name=f"{self.name}_{other.name}",
@@ -88,7 +87,6 @@ class Scene:
         :param scene: A Scene object
         :return: dict in a format that can be parsed by CrystalToolkitSceneComponent
         """
-
         merged_scene = Scene(
             name=self.name,
             contents=self.merge_primitives(self.contents),
@@ -99,16 +97,16 @@ class Scene:
         def remove_defaults(scene_dict):
             """Reduce file size of JSON by removing any key which is just its default value."""
             trimmed_dict = {}
-            for k, v in scene_dict.items():
-                if isinstance(v, dict):
-                    v = remove_defaults(v)
-                elif isinstance(v, list):
-                    trimmed_dict[k] = [
+            for key, val in scene_dict.items():
+                if isinstance(val, dict):
+                    val = remove_defaults(val)  # noqa: PLW2901
+                elif isinstance(val, list):
+                    trimmed_dict[key] = [
                         remove_defaults(item) if isinstance(item, dict) else item
-                        for item in v
+                        for item in val
                     ]
-                elif v is not None:
-                    trimmed_dict[k] = v
+                elif val is not None:
+                    trimmed_dict[key] = val
             return trimmed_dict
 
         return remove_defaults(asdict(merged_scene))
@@ -123,7 +121,6 @@ class Scene:
 
         :param filename: The filename (can include path),
         an extension will be set if not supplied.
-        :return:
         """
         # TODO: find a way to keep the original MSONable object + scene generation options alongside
         if not filename.endswith(".ctk.json"):
@@ -136,8 +133,8 @@ class Scene:
         """Returns the bounding box coordinates."""
         if len(self.contents) > 0:
             min_list, max_list = zip(*[p.bounding_box for p in self.contents])
-            min_x, min_y, min_z = map(min, list(zip(*min_list)))
-            max_x, max_y, max_z = map(max, list(zip(*max_list)))
+            min_x, min_y, min_z = map(min, zip(*min_list))
+            max_x, max_y, max_z = map(max, zip(*max_list))
 
             return [[min_x, min_y, min_z], [max_x, max_y, max_z]]
         else:
@@ -514,7 +511,15 @@ class Arrows(Primitive):
         return f"arrow_{self.color}_{self.radius}_{self.headLength}_{self.headWidth}_{self.reference}"
 
     @classmethod
-    def merge(cls, arrow_list):
+    def merge(cls, arrow_list: list[Arrows]) -> Arrows:
+        """Merge a list of arrows into a new Arrows instance.
+
+        Args:
+            arrow_list (list[Arrows]): Arrows to merge
+
+        Returns:
+            Arrows: Merged arrows
+        """
         new_positionPairs = list(
             chain.from_iterable([arrow.positionPairs for arrow in arrow_list])
         )
@@ -530,7 +535,7 @@ class Arrows(Primitive):
     @property
     def bounding_box(self) -> list[list[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
-        return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
+        return [[min(x), min(y), min(z)], [max(x), max(y), max(z)]]
 
 
 @dataclass

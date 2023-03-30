@@ -135,10 +135,9 @@ sphere {<{{val}}>, 0.02 texture {bbox} no_shadow}
 
 
 def pov_write_data(input_scene_comp, fstream):
-    """parse a primitive display object in crystaltoolkit and print it to POV-Ray input_scene_comp
-    fstream.
+    """Parse a primitive display object in crystaltoolkit and print it to POV-Ray
+    input_scene_comp fstream.
     """
-
     vect = "{:.4f},{:.4f},{:.4f}"
 
     if input_scene_comp["type"] == "spheres":
@@ -202,8 +201,9 @@ def filter_data(scene_data, fstream):
 
 
 def write_pov_file(smc, file_name):
-    """
-    smc : (StructureMoleculeComponent)
+    """Args:
+    smc (StructureMoleculeComponent): Object containing the scene data.
+    file_name (str): name of the file to write to.
     """
     fstream = open(file_name, "w")
     fstream.write(HEAD)
@@ -220,7 +220,6 @@ def write_pov_file(smc, file_name):
 
 def get_render_settings(file_name):
     """Creates a POV-Ray render.ini file."""
-
     image_name = f"{file_name[:-4]}.png"
 
     settings = f"""

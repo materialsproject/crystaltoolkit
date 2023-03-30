@@ -109,7 +109,7 @@ else:
         app.server,
         config={
             "CACHE_TYPE": "redis",
-            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", SETTINGS.REDIS_URL),
+            "CACHE_REDIS_URL": os.getenv("REDIS_URL", SETTINGS.REDIS_URL),
         },
     )
 
@@ -303,7 +303,7 @@ footer = html.Footer(
 panel_choices = dcc.Dropdown(
     options=[{"label": panel.title, "value": idx} for idx, panel in enumerate(panels)],
     multi=True,
-    value=[idx for idx in range(len(panels))],
+    value=list(range(len(panels))),
     id="panel-choices",
 )
 
@@ -506,19 +506,18 @@ def master_update_structure(
 
     Returns: an encoded Structure
     """
-
     if not search_mpid and not upload_data:
         raise PreventUpdate
 
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
-    if len(dash.callback_context.triggered) > 1:
-        # triggered by both on initial load
-        load_by = "mpid"
-    elif (
-        dash.callback_context.triggered[0]["prop_id"] == f"{search_component.id()}.data"
+    if (
+        len(dash.callback_context.triggered) > 1
+        or dash.callback_context.triggered[0]["prop_id"]
+        == f"{search_component.id()}.data"
     ):
+        # triggered by both on initial load
         load_by = "mpid"
     else:
         load_by = "uploaded"
@@ -551,4 +550,4 @@ def master_update_structure(
 
 
 if __name__ == "__main__":
-    app.run_server(debug=SETTINGS.DEBUG_MODE, port=8051)
+    app.run(debug=SETTINGS.DEBUG_MODE, port=8051)

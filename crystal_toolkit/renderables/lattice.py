@@ -15,7 +15,8 @@ def _axes_from_lattice(
     offset: float = 0,
     **kwargs: Any,
 ) -> Scene:
-    """_summary_
+    """Get the Scene object which contains a set of axes that are aligned with the
+    lattice vectors.
 
     Args:
         origin (list[float], optional): the reference position to place the compass. Defaults to (0, 0, 0).

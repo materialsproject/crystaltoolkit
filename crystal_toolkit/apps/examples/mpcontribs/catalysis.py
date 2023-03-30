@@ -45,8 +45,7 @@ _ADSORBATE_CHOICES = (
 class CatalysisApp(MPApp):
     @staticmethod
     def modify_df(dataframe: pd.DataFrame) -> list[pd.DataFrame]:
-        """
-        Filter DataFrame for unary+binary materials visualization.
+        """Filter DataFrame for unary+binary materials visualization.
 
         Args:
           dataframe (pd.DataFrame): the dataframe that you want to modify
@@ -93,7 +92,6 @@ class CatalysisApp(MPApp):
         :param user_options: Not implemented.
         :return: 2D plot
         """
-
         # Create a list of unique elements for use as axis labels
         element_list = df_min_E.element_tup.tolist()
         flat_element_list = [item for sublist in element_list for item in sublist]
@@ -108,14 +106,11 @@ class CatalysisApp(MPApp):
             el_combos = list(lookup_dict["energy"])
             for i in range(len(labels)):
                 for k in range(len(labels)):
-                    if i == k:
-                        els_now = tuple(
-                            [
-                                labels[i],
-                            ]
-                        )
-                    else:
-                        els_now = tuple(np.sort([labels[i], labels[k]]))
+                    els_now = (
+                        (labels[i],)
+                        if i == k
+                        else tuple(np.sort([labels[i], labels[k]]))
+                    )
                     if els_now in el_combos:
                         grid[i, k] = lookup_dict["energy"][els_now]
                         random_ids = df_all_data[
@@ -156,7 +151,8 @@ class CatalysisApp(MPApp):
 
         return fig
 
-    def get_catalysis_explorer(self):
+    def get_catalysis_explorer(self) -> mpc.SearchUIContainer:
+        """Get the Catalysis Explorer app."""
         return mpc.SearchUIContainer(
             [
                 self.search_bar_container(
@@ -261,10 +257,7 @@ class CatalysisApp(MPApp):
             else:
                 el1 = str(clickData["points"][0]["x"])
                 el2 = str(clickData["points"][0]["y"])
-                if el1 == el2:
-                    el_combo = el1
-                else:
-                    el_combo = el1 + ", " + el2
+                el_combo = el1 if el1 == el2 else el1 + ", " + el2
                 randids = clickData["points"][0]["text"].split("-")
                 num_calcs = str(len(randids) - 1)
                 table = ctl.get_data_list(
@@ -422,14 +415,10 @@ class CatalysisApp(MPApp):
         client = get_contribs_client()
 
         # Fetch contribution-level data
-        # TODO use client._get_per_page_default_max?
-
-        contributions_resp = client.contributions.get_entries(
-            identifier=payload,
-            project="open_catalyst_project",
-            _fields=["id", "identifier", "project", "formula", "data", "structures"],
-            per_page=1,
-        ).result()
+        contributions_resp = client.query_contributions(
+            query={"project": "open_catalyst_project", "identifier": payload},
+            fields=["id", "identifier", "project", "formula", "data", "structures"],
+        )
 
         if not contributions_resp["data"]:
             logger.error(f"Failed to load contribution for {payload}")
@@ -506,4 +495,4 @@ if __name__ == "__main__":
     # edit payload here to run for a specific OCP id, e.g. payload="random1222473"
     layout = ctl.Section([section.get_layout(payload=None)])
     ctc.register_crystal_toolkit(app=app, layout=layout, cache=None)
-    app.run_server(debug=True, port=8050)
+    app.run(debug=True, port=8050)

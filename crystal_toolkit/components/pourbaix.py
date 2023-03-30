@@ -356,7 +356,7 @@ class PourbaixDiagramComponent(MPComponent):
                     marker={"color": "Black"},
                     line={"color": "Black", "width": 0},
                     mode="lines",
-                    showlegend=True if legend_entry not in include_legend else False,
+                    showlegend=legend_entry not in include_legend,
                 )
             )
 
@@ -374,10 +374,11 @@ class PourbaixDiagramComponent(MPComponent):
 
             # stable entries are black with default color scheme,
             # so use white lines instead
-            if heatmap_entry:
-                line = {"color": "White", "width": 4}
-            else:
-                line = {"color": "Black", "width": 1}
+            line = (
+                {"color": "White", "width": 4}
+                if heatmap_entry
+                else {"color": "Black", "width": 1}
+            )
 
             shape = go.layout.Shape(
                 type="path", path=path, fillcolor="rgba(0,0,0,0)", opacity=1, line=line
@@ -550,7 +551,7 @@ class PourbaixDiagramComponent(MPComponent):
                     help_str="Whether to filter solid phases by stability on the compositional phase diagram. "
                     "The practical consequence of this is that highly oxidized or reduced phases that "
                     "might show up in experiments due to kinetic limitations on oxygen/hydrogen evolution "
-                    "won’t appear in the diagram, but they are not actually “stable” (and are frequently "
+                    "won't appear in the diagram, but they are not actually “stable” (and are frequently "
                     "overstabilized from DFT errors). Hence, including only the stable solid phases generally "
                     "leads to the most accurate Pourbaix diagrams.",
                 ),
@@ -789,7 +790,7 @@ class PourbaixDiagramComponent(MPComponent):
                 conc_dict=conc_dict,
                 filter_solids=kwargs["filter_solids"],
             )
-            self.logger.debug(
+            self.logger.debug(  # noqa: PLE1205
                 "Generated pourbaix diagram",
                 len(pourbaix_entries),
                 heatmap_entry,

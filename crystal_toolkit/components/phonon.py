@@ -281,8 +281,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
         bands = []
         for band_num in range(bs.nb_bands):
             for segment in bs_data["frequency"]:
-                if any([v <= freq_range[1] for v in segment[band_num]]) and any(
-                    [v >= freq_range[0] for v in segment[band_num]]
+                if any(v <= freq_range[1] for v in segment[band_num]) and any(
+                    v >= freq_range[0] for v in segment[band_num]
                 ):
                     bands.append(band_num)
 
@@ -705,7 +705,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             """Highlight the corresponding point/edge of the Brillouin Zone when hovering the band
             structure plot.
             """
-
             # TODO: figure out what to return (CSS?) to highlight BZ edge/point
             return
 

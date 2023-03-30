@@ -49,5 +49,5 @@ class RobocrysComponent(PanelComponent):
                 style={"white-space": "nowrap"},
             )
             return MessageContainer(
-                MessageBody([f"{description} – ", repo_link]), kind="dark"
+                MessageBody([f"{description} - ", repo_link]), kind="dark"
             )

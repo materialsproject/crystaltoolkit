@@ -10,11 +10,13 @@ from crystal_toolkit.core.scene import Cylinders, Lines, Spheres, Surface
 
 @pytest.fixture(scope="session")
 def test_files():
+    """The path to the test_files directory."""
     return Path(__file__).parent / "test_files"
 
 
 @pytest.fixture(scope="session")
 def standard_scenes():
+    """Dictionary of standard scenes for testing purposes."""
     return {
         "spheres": Spheres(
             positions=[[0, 0, 0], [1, 1, 1]],
