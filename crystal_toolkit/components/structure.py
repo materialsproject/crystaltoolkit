@@ -344,7 +344,7 @@ class StructureMoleculeComponent(MPComponent):
                 if isinstance(current_graph, StructureGraph)
                 else current_graph.molecule
             )
-            
+
             if (
                 current_graph
                 and graph_struct_or_mol == current_graph_struct_or_mol
