@@ -336,12 +336,23 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
 
-            if (
-                current_graph
-                and graph.structure == current_graph.structure
-                and graph == current_graph
-            ):
-                raise PreventUpdate
+            # don't update if the graph did not change.
+            if current_graph:
+                graph_struct_or_mol = (
+                    graph.structure
+                    if isinstance(graph, StructureGraph)
+                    else graph.molecule
+                )
+                current_graph_struct_or_mol = (
+                    current_graph.structure
+                    if isinstance(current_graph, StructureGraph)
+                    else current_graph.molecule
+                )
+                if (
+                    graph_struct_or_mol == current_graph_struct_or_mol
+                    and graph == current_graph
+                ):
+                    raise PreventUpdate
 
             return graph
 
