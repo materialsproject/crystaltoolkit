@@ -12,6 +12,7 @@ If you would like a new-contributor issue assigned, get in touch with project ma
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/materialsproject/crystaltoolkit)](https://hub.docker.com/repository/docker/materialsproject/crystaltoolkit/general)
 [![Release](https://github.com/materialsproject/crystaltoolkit/actions/workflows/release.yml/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions/workflows/release.yml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/materialsproject/crystaltoolkit/main.svg)](https://results.pre-commit.ci/latest/github/materialsproject/crystaltoolkit/main)
+[![arXiv link](https://img.shields.io/badge/arXiv-2302.06147-blue)](https://arxiv.org/abs/2302.06147)
 
 ## Installation
 
@@ -85,6 +86,10 @@ analysis and [Dash from Plotly](https://plot.ly/products/dash/) for their web ap
 
 Thank you to the [NERSC Spin](https://nersc.gov/systems/spin) service for
 hosting the app and for their technical support.
+
+## Cite
+
+To cite this work, see <https://arxiv.org/abs/2302.06147> and [citation.cff](citation.cff).
 
 ## Contact
 
