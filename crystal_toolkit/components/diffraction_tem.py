@@ -15,7 +15,7 @@ from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, Revea
 try:
     import py4DSTEM
 except ImportError:
-    warn("The TEMDiffractionComponent requires the py4DSTEM package.")
+    no_py4dstem_msg = "requires the py4DSTEM package. Please pip install py4DSTEM."
     py4DSTEM = None
 
 # Author: Steven Zeltmann
@@ -30,13 +30,11 @@ class TEMDiffractionComponent(MPComponent):
 
     def layout(self) -> Columns:
         if not py4DSTEM:
-            return Columns(
-                [
-                    Column(
-                        "This feature will not work unless py4DSTEM is installed on the server."
-                    )
-                ]
+            warn(f"{type(self).__name__} {no_py4dstem_msg}")
+            col = Column(
+                "This feature will not work unless py4DSTEM is installed on the server."
             )
+            return Columns([col])
 
         voltage = self.get_numerical_input(
             kwarg_label="voltage",
@@ -232,6 +230,8 @@ class TEMDiffractionCalculator:
         # **kwargs,
     ) -> go:
         """Generate diffraction pattern using py4DSTEM and return as a plotly Figure object."""
+        if not py4DSTEM:
+            raise ImportError(f"{type(self).__name__} {no_py4dstem_msg}")
         t0 = time()
         # figure out what needs to be recomputed:
         new_crystal = py4DSTEM.process.diffraction.Crystal.from_pymatgen_structure(

@@ -47,7 +47,7 @@ try:
     from dscribe.descriptors import SOAP
     from dscribe.kernels import REMatchKernel
 except ImportError:
-    warn(
+    no_soap_msg = (
         "Using dscribe SOAP and REMatchKernel requires the dscribe package "
         "which was made optional since it in turn requires numba and numba "
         "was a common source of installation issues."
@@ -549,6 +549,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 raise PreventUpdate
 
             if not SOAP:
+                warn(no_soap_msg)
                 return mpc.Markdown(
                     "This feature will not work unless `dscribe` is installed on the server."
                 )
@@ -604,6 +605,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 raise PreventUpdate
 
             if not SOAP:
+                warn(no_soap_msg)
                 return mpc.Markdown(
                     "This feature will not work unless `dscribe` is installed on the server."
                 )
