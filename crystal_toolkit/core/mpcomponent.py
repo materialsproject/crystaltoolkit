@@ -226,7 +226,6 @@ class MPComponent(ABC):
         is_kwarg: bool = False,
         idx: bool | int = False,
         hint: str = None,
-        is_store: bool = False,
     ) -> str | dict[str, str]:
         """Generate an id from a name combined with the base id of the MPComponent itself, useful
         for generating ids of individual components in the layout.
@@ -247,20 +246,13 @@ class MPComponent(ABC):
                 the keyword argument for a specific class.
             idx (bool | int): The index to return if is_kwarg is True. Defaults to False.
             hint (str): The type hint to return if is_kwarg is True. Defaults to None.
-            is_store (bool): If True, return the id of the store, otherwise return a dict
 
         Returns: e.g. "MPComponent_default"
         """
-        if name in self._stores:
-            is_store = True
-
         if is_kwarg:
-            return {
-                "component_id": self._id,
-                "kwarg_label": name,
-                "idx": str(idx),
-                "hint": str(hint),
-            }
+            return dict(
+                component_id=self._id, kwarg_label=name, idx=str(idx), hint=str(hint)
+            )
 
         # if we're linking to another component, return that id
         if name in self.links:
@@ -270,10 +262,6 @@ class MPComponent(ABC):
         self._all_ids.add(name)
         name = f"{self._id}_{name}" if name != "default" else f"{self._id}"
         return name
-        if is_store:
-            return name
-        else:
-            return {"id": name}
 
     def create_store(
         self,
@@ -300,7 +288,7 @@ class MPComponent(ABC):
             return
 
         store = dcc.Store(
-            id=self.id(name, is_store=True),
+            id=self.id(name),
             data=initial_data,
             storage_type=storage_type,
             clear_data=debug_clear,
