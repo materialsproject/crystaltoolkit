@@ -119,7 +119,7 @@ class MPApp(MPComponent, ABC):
             className="mp-search-bar",
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("mp-app-content"), "children"), Input("mp-url", "pathname")
         )

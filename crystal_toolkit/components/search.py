@@ -98,10 +98,11 @@ class SearchComponent(MPComponent):
 
         return {"search": search}
 
-    def layout(self):
+    def layout(self) -> html.Div:
+        """Get the component layout."""
         return html.Div([self._sub_layouts["search"]])
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         self._get_mpid_cache()
 
         @cache.memoize(timeout=0)
@@ -116,16 +117,11 @@ class SearchComponent(MPComponent):
                 # no need to actually search, support multiple mp-ids (space separated)
                 return {mpid: mpid for mpid in search_term.split(" ")}
 
+            fields = ["material_id", "formula_pretty", "energy_above_hull", "symmetry"]
             with MPRester() as mpr:
                 try:
                     entries = mpr.summary.search_summary_docs(
-                        formula=search_term,
-                        fields=[
-                            "material_id",
-                            "formula_pretty",
-                            "energy_above_hull",
-                            "symmetry",
-                        ],
+                        formula=search_term, fields=fields
                     )
                 except MPRestError:
                     entries = []
@@ -215,7 +211,7 @@ class SearchComponent(MPComponent):
             Output(self.id("search_container"), "children"),
             Input(self.id("random"), "n_clicks"),
         )
-        def update_displayed_mpid(random_n_clicks):
+        def update_displayed_mpid(n_clicks):
             # TODO: this is a really awkward solution to a complex callback chain, improve in future?
             return self._make_search_box(search_term=choice(self.mpid_cache))
 

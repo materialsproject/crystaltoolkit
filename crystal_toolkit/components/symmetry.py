@@ -75,7 +75,7 @@ class SymmetryPanel(PanelComponent):
             ]
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         super().generate_callbacks(app, cache)
 
         @app.callback(

@@ -590,15 +590,12 @@ class PourbaixDiagramComponent(MPComponent):
 
         return {"graph": graph, "options": options}
 
-    def layout(self):
+    def layout(self) -> html.Div:
         return html.Div(
-            children=[
-                self._sub_layouts["options"],
-                self._sub_layouts["graph"],
-            ]
+            children=[self._sub_layouts["options"], self._sub_layouts["graph"]]
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("heatmap_choice_container"), "children"),
             Input(self.id(), "data"),

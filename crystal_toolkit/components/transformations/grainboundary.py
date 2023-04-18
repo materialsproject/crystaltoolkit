@@ -228,7 +228,7 @@ to colour-code the top and bottom grains."""
 
         return sigmas, options, ratio
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         super().generate_callbacks(app, cache)
 
         @app.callback(

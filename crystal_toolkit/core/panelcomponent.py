@@ -48,7 +48,7 @@ class PanelComponent(MPComponent):
     def contents_layout(self) -> html.Div:
         raise NotImplementedError
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         pass
 
         @app.callback(

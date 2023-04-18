@@ -161,7 +161,7 @@ class TransformationComponent(MPComponent):
         """
         return html.Div()
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @cache.memoize()
         def apply_transformation(transformation_data, struct):
             transformation = self.from_data(transformation_data)
@@ -323,7 +323,7 @@ class AllTransformationsComponent(MPComponent):
 
         return layouts
 
-    def layout(self):
+    def layout(self) -> html.Div:
         return html.Div(
             [
                 html.Div(
@@ -337,7 +337,7 @@ class AllTransformationsComponent(MPComponent):
             ]
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @cache.memoize()
         def apply_transformation(transformation_data, struct):
             transformation = self.from_data(transformation_data)

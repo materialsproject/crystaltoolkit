@@ -55,7 +55,7 @@ class StructureMoleculeComponent(MPComponent):
     """
 
     available_bonding_strategies = {
-        subclass.__name__: subclass for subclass in NearNeighbors.__subclasses__()
+        subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()
     }
 
     default_scene_settings = {
@@ -239,7 +239,7 @@ class StructureMoleculeComponent(MPComponent):
         else:
             self.scene_kwargs = {}
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         # a lot of the verbosity in this callback is to support custom bonding
         # this is not the format CutOffDictNN expects (since that is not JSON
         # serializable), so we store as a list of tuples instead
@@ -1014,7 +1014,7 @@ class StructureMoleculeComponent(MPComponent):
     @staticmethod
     def get_scene_and_legend(
         graph: StructureGraph | MoleculeGraph | None,
-        color_scheme: str | bool = DEFAULTS["color_scheme"],
+        color_scheme: str = DEFAULTS["color_scheme"],  # type: ignore[assignment]
         color_scale: tuple[float, float] = None,
         radius_strategy=DEFAULTS["radius_strategy"],
         draw_image_atoms=DEFAULTS["draw_image_atoms"],

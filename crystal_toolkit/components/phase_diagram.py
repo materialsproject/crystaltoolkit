@@ -534,20 +534,14 @@ class PhaseDiagramComponent(MPComponent):
 
         return {"graph": graph, "table": table}
 
-    def layout(self):
-        return html.Div(
-            [
-                Columns(
-                    [
-                        Column(self._sub_layouts["graph"]),
-                        Column(self._sub_layouts["table"]),
-                    ],
-                    centered=True,
-                )
-            ]
+    def layout(self) -> html.Div:
+        cols = Columns(
+            [Column(self._sub_layouts["graph"]), Column(self._sub_layouts["table"])],
+            centered=True,
         )
+        return html.Div([cols])
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("pd-div"), "children"), Input(self.id("figure"), "data")
         )

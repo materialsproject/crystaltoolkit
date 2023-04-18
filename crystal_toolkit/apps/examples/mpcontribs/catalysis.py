@@ -197,7 +197,8 @@ class CatalysisApp(MPApp):
             fieldsKey="_fields",
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
+        """Register callback functions for this component."""
         super().generate_callbacks(app, cache)
 
         @cache.memoize(timeout=60 * 60)

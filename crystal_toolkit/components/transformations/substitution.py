@@ -45,7 +45,7 @@ and copper). Please consult the pymatgen documentation for more information.
 
         return [species_mapping]
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         super().generate_callbacks(app, cache)
         #
         # @app.callback(

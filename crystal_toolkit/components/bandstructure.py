@@ -148,28 +148,25 @@ class BandstructureAndDosComponent(MPComponent):
 
     def layout(self) -> html.Div:
         sub_layouts = self._sub_layouts
-        return html.Div(
+        graph = Columns([Column([sub_layouts["graph"]])])
+        controls = Columns(
             [
-                Columns([Column([sub_layouts["graph"]])]),
-                Columns(
+                Column(
                     [
-                        Column(
-                            [
-                                sub_layouts["convention"],
-                                sub_layouts["label-select"],
-                                sub_layouts["dos-select"],
-                            ]
-                        )
+                        sub_layouts["convention"],
+                        sub_layouts["label-select"],
+                        sub_layouts["dos-select"],
                     ]
-                ),
-                Columns(
-                    [
-                        Column([Label("Summary"), sub_layouts["table"]]),
-                        Column([Label("Brillouin Zone"), sub_layouts["zone"]]),
-                    ]
-                ),
+                )
             ]
         )
+        brillouin_zone = Columns(
+            [
+                Column([Label("Summary"), sub_layouts["table"]]),
+                Column([Label("Brillouin Zone"), sub_layouts["zone"]]),
+            ]
+        )
+        return html.Div([graph, controls, brillouin_zone])
 
     @staticmethod
     def _get_bs_dos(
@@ -771,7 +768,9 @@ class BandstructureAndDosComponent(MPComponent):
             "Spin Polarization": "...",
         }
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
+        """Register callback functions for this component."""
+
         @app.callback(
             Output(self.id("bsdos-div"), "children"), Input(self.id("traces"), "data")
         )

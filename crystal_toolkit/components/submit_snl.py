@@ -63,7 +63,7 @@ class SubmitSNLPanel(PanelComponent):
             ]
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         super().generate_callbacks(app, cache)
 
         def parse_token(url):

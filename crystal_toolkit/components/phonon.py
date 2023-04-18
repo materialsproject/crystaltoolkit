@@ -149,28 +149,26 @@ class PhononBandstructureAndDosComponent(MPComponent):
         }
 
     def layout(self) -> html.Div:
-        return html.Div(
+        sub_layouts = self._sub_layouts
+        graph = Columns([Column([sub_layouts["graph"]])])
+        controls = Columns(
             [
-                Columns([Column([self._sub_layouts["graph"]])]),
-                Columns(
+                Column(
                     [
-                        Column(
-                            [
-                                self._sub_layouts["convention"],
-                                self._sub_layouts["label-select"],
-                                self._sub_layouts["dos-select"],
-                            ]
-                        )
+                        sub_layouts["convention"],
+                        sub_layouts["label-select"],
+                        sub_layouts["dos-select"],
                     ]
-                ),
-                Columns(
-                    [
-                        Column([Label("Summary"), self._sub_layouts["table"]]),
-                        Column([Label("Brillouin Zone"), self._sub_layouts["zone"]]),
-                    ]
-                ),
+                )
             ]
         )
+        brillouin_zone = Columns(
+            [
+                Column([Label("Summary"), sub_layouts["table"]]),
+                Column([Label("Brillouin Zone"), sub_layouts["zone"]]),
+            ]
+        )
+        return html.Div([graph, controls, brillouin_zone])
 
     @staticmethod
     def _get_ph_bs_dos(
@@ -569,7 +567,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         return figure
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("ph-bsdos-graph"), "figure"),
             Input(self.id("traces"), "data"),

@@ -203,7 +203,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
         return {"nodes": nodes, "edges": edges}
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         """Generate the callbacks for the panel interactions."""
         super().generate_callbacks(app, cache)
 
