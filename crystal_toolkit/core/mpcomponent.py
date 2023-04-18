@@ -438,7 +438,7 @@ Sub-layouts:  \n{layouts}"""
                 )
 
         # dict of row indices, column indices to element
-        matrix_contents = defaultdict(dict)
+        matrix_contents: dict[int, dict[int, Any]] = defaultdict(dict)
 
         # determine what individual input boxes we need
         # note that shape = () for floats, shape = (3,) for vectors

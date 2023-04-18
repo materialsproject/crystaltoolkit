@@ -1007,13 +1007,15 @@ class StructureMoleculeComponent(MPComponent):
         elif isinstance(graph, (Structure, Molecule)):
             return graph
         else:
-            raise ValueError
+            raise ValueError(
+                f"Invalid input type {graph}, expected one of Structure, Molecule, StructureGraph or MoleculeGraph"
+            )
 
     @staticmethod
     def get_scene_and_legend(
         graph: StructureGraph | MoleculeGraph | None,
-        color_scheme=DEFAULTS["color_scheme"],
-        color_scale=None,
+        color_scheme: str | bool = DEFAULTS["color_scheme"],
+        color_scale: tuple[float, float] = None,
         radius_strategy=DEFAULTS["radius_strategy"],
         draw_image_atoms=DEFAULTS["draw_image_atoms"],
         bonded_sites_outside_unit_cell=DEFAULTS["bonded_sites_outside_unit_cell"],
@@ -1023,6 +1025,27 @@ class StructureMoleculeComponent(MPComponent):
         show_compass=DEFAULTS["show_compass"],
         group_by_site_property=None,
     ) -> tuple[Scene, dict[str, str]]:
+        """Get the scene and legend for a given graph.
+
+        Args:
+            graph (StructureGraph | MoleculeGraph | None): The graph to get the scene and legend for.
+            color_scheme (str, optional): Color scheme for the graph. Defaults to "VESTA".
+            color_scale (tuple[float, float], optional): A range of values to map to the
+                color scale. Defaults to None.
+            radius_strategy (str, optional): Strategy for determining atomic radii. Defaults to "uniform".
+            draw_image_atoms (bool, optional): Whether to draw atoms in image cells. Defaults to True.
+            bonded_sites_outside_unit_cell (bool, optional): Whether to draw bonded sites outside
+                the unit cell. Defaults to False.
+            hide_incomplete_bonds (bool, optional): Whether to hide incomplete bonds. Defaults to True.
+            explicitly_calculate_polyhedra_hull (bool, optional): Whether to explicitly
+                calculate the convex hull of polyhedra. Defaults to False.
+            scene_additions (dict, optional): Additional contents to include in the scene. Defaults to None.
+            show_compass (bool, optional): Whether to show a compass in the scene. Defaults to True.
+            group_by_site_property (str, optional): Property by which to group sites. Defaults to None.
+
+        Returns:
+            tuple[Scene, dict[str, str]]: A tuple containing the scene and legend for the given graph.
+        """
         scene = Scene(name="StructureMoleculeComponentScene")
 
         if graph is None:
