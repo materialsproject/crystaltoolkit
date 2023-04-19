@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from abc import ABC
 from ast import literal_eval
 from base64 import b64encode
@@ -200,6 +201,15 @@ class MPComponent(ABC):
             id = f"{CT_NAMESPACE}{type(self).__name__}"
         elif not id.startswith(CT_NAMESPACE):
             id = f"{CT_NAMESPACE}{id}"
+        while id in MPComponent._all_id_basenames:
+            # check if id ends with counter
+            if not re.search(r"-\d+$", id):
+                id += "-1"
+            else:
+                # increment counter at end of id until unique
+                print(f"{id=}")
+                next_ids = int(re.search(r"-(\d+)$", id).group(1)) + 1
+                id = re.sub(r"-\d+$", f"-{next_ids}", id)
         MPComponent._all_id_basenames.add(id)
 
         self._id = id
