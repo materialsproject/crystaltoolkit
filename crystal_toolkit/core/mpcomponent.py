@@ -207,7 +207,6 @@ class MPComponent(ABC):
                 id += "-1"
             else:
                 # increment counter at end of id until unique
-                print(f"{id=}")
                 next_ids = int(re.search(r"-(\d+)$", id).group(1)) + 1
                 id = re.sub(r"-\d+$", f"-{next_ids}", id)
         MPComponent._all_id_basenames.add(id)
