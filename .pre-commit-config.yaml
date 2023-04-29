@@ -1,6 +1,5 @@
 ci:
   autoupdate_schedule: quarterly
-  skip: [mypy]
 
 default_stages: [commit]
 
