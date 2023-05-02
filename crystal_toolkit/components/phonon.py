@@ -432,15 +432,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
     def get_figure(
         ph_bs: PhononBandStructureSymmLine | None = None,
         ph_dos: CompletePhononDos | None = None,
-        freq_range: tuple[float, float] | tuple[None, None] = (None, None),
+        freq_range: tuple[float | None, float | None] = (None, None),
     ) -> go.Figure:
-        y_range = list(freq_range)
-
         if freq_range[0] is None:
-            y_range[0] = np.min(ph_bs.bands) * 1.05
+            freq_range = (np.min(ph_bs.bands) * 1.05, freq_range[1])
 
         if freq_range[1] is None:
-            y_range[1] = np.max(ph_bs.bands) * 1.05
+            freq_range = (freq_range[0], np.max(ph_bs.bands) * 1.05)
 
         if (not ph_dos) and (not ph_bs):
             empty_plot_style = {
@@ -457,12 +455,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 bs_traces,
                 bs_data,
             ) = PhononBandstructureAndDosComponent.get_ph_bandstructure_traces(
-                ph_bs, freq_range=y_range
+                ph_bs, freq_range=freq_range
             )
 
         if ph_dos:
             dos_traces = PhononBandstructureAndDosComponent.get_ph_dos_traces(
-                ph_dos, freq_range=y_range
+                ph_dos, freq_range=freq_range
             )
 
         # TODO: add logic to handle if bs_traces and/or dos_traces not present
@@ -503,7 +501,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         yaxis_style = dict(
             **in_common_axis_styles,
             mirror="ticks",
-            range=y_range,
+            range=freq_range,
             title=dict(text="Frequency (THz)", font=dict(size=16)),
             zeroline=True,
             zerolinecolor="white",
@@ -526,7 +524,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             showticklabels=False,
             mirror="ticks",
             zerolinewidth=2,
-            range=y_range,
+            range=freq_range,
             zerolinecolor="white",
             matches="y",
             anchor="x2",
