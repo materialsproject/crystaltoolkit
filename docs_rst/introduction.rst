@@ -69,6 +69,7 @@ Contributors
 * `Donny Winston <https://github.com/dwinston>`_, assisted by `Tyler Huntington <https://github.com/tylerhuntington>`_, for helping embed Crystal Toolkit in a Django app
 * `Matt McDermott <https://github.com/mattmcdermott>`_ contributed phase diagram, X-ray Diffraction, X-ray Absorption Spectrum components
 * `Jason Munro <https://github.com/munrojm>`_ contributed band structure component
+* `Janosh Riebesell <https://github.com/janosh>`_ contributed Phonon band structure component, 3 example apps, tests
 * `Stephen Weitzner <https://github.com/sweitzner>`_ contributed POV-Ray integration (in progress)
 * `Richard Tran <https://github.com/CifLord>`_ for contributing plotly-powered Wulff shapes to pymatgen, which Crystal Toolkit uses
 * `Guy Moore <https://github.com/guymoore13>`_ for contributing magnetic moment visualization

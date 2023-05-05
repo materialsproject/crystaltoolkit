@@ -47,7 +47,7 @@ try:
     from dscribe.descriptors import SOAP
     from dscribe.kernels import REMatchKernel
 except ImportError:
-    warn(
+    no_soap_msg = (
         "Using dscribe SOAP and REMatchKernel requires the dscribe package "
         "which was made optional since it in turn requires numba and numba "
         "was a common source of installation issues."
@@ -104,6 +104,8 @@ def _get_local_order_parameters(structure_graph, n):
 
 
 class LocalEnvironmentPanel(PanelComponent):
+    """A panel to analyze the local chemical environments in a crystal."""
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("graph")
@@ -114,17 +116,21 @@ class LocalEnvironmentPanel(PanelComponent):
 
     @property
     def title(self) -> str:
+        """Title of the panel."""
         return "Local Environments"
 
     @property
     def description(self) -> str:
+        """Description of the panel."""
         return "Analyze the local chemical environments in your crystal."
 
     @property
     def loading_text(self):
+        """Text to display while loading."""
         return "Analyzing environments"
 
     def contents_layout(self) -> html.Div:
+        """HTML layout of the panel contents."""
         algorithm_choices = self.get_choice_input(
             label="Analysis method",
             kwarg_label="algorithm",
@@ -145,6 +151,7 @@ class LocalEnvironmentPanel(PanelComponent):
 
     @staticmethod
     def get_graph_data(graph, display_options):
+        """Get the data for the graph visualization."""
         color_scheme = display_options.get("color_scheme", "Jmol")
 
         nodes = []
@@ -196,7 +203,8 @@ class LocalEnvironmentPanel(PanelComponent):
 
         return {"nodes": nodes, "edges": edges}
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
+        """Generate the callbacks for the panel interactions."""
         super().generate_callbacks(app, cache)
 
         @app.callback(
@@ -541,6 +549,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 raise PreventUpdate
 
             if not SOAP:
+                warn(no_soap_msg)
                 return mpc.Markdown(
                     "This feature will not work unless `dscribe` is installed on the server."
                 )
@@ -596,6 +605,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 raise PreventUpdate
 
             if not SOAP:
+                warn(no_soap_msg)
                 return mpc.Markdown(
                     "This feature will not work unless `dscribe` is installed on the server."
                 )

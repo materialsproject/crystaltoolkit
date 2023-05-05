@@ -133,8 +133,8 @@ class Scene:
         """Returns the bounding box coordinates."""
         if len(self.contents) > 0:
             min_list, max_list = zip(*[p.bounding_box for p in self.contents])
-            min_x, min_y, min_z = map(min, list(zip(*min_list)))
-            max_x, max_y, max_z = map(max, list(zip(*max_list)))
+            min_x, min_y, min_z = map(min, zip(*min_list))
+            max_x, max_y, max_z = map(max, zip(*max_list))
 
             return [[min_x, min_y, min_z], [max_x, max_y, max_z]]
         else:
@@ -511,7 +511,15 @@ class Arrows(Primitive):
         return f"arrow_{self.color}_{self.radius}_{self.headLength}_{self.headWidth}_{self.reference}"
 
     @classmethod
-    def merge(cls, arrow_list):
+    def merge(cls, arrow_list: list[Arrows]) -> Arrows:
+        """Merge a list of arrows into a new Arrows instance.
+
+        Args:
+            arrow_list (list[Arrows]): Arrows to merge
+
+        Returns:
+            Arrows: Merged arrows
+        """
         new_positionPairs = list(
             chain.from_iterable([arrow.positionPairs for arrow in arrow_list])
         )
@@ -527,7 +535,7 @@ class Arrows(Primitive):
     @property
     def bounding_box(self) -> list[list[float]]:
         x, y, z = zip(*chain.from_iterable(self.positionPairs))
-        return [[min(x), min(y), min(z)], [min(x), min(y), min(z)]]
+        return [[min(x), min(y), min(z)], [max(x), max(y), max(z)]]
 
 
 @dataclass

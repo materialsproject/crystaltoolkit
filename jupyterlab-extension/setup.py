@@ -1,6 +1,4 @@
-"""
-crystaltoolkit-extension setup
-"""
+"""crystaltoolkit-extension setup."""
 import json
 import os
 

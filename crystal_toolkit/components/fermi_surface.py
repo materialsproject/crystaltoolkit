@@ -166,7 +166,7 @@ class FermiSurfaceComponent(MPComponent):
             ]
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("fermi-surface-graph"), "figure"),
             Input(self.id(), "data"),

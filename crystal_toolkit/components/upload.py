@@ -60,7 +60,7 @@ class StructureMoleculeUploadComponent(MPComponent):
 
         return {"upload": upload}
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("upload_label"), "children"),
             Input(self.id("upload_data"), "filename"),

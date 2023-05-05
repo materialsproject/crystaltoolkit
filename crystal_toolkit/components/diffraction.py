@@ -440,7 +440,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         return plot
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("xrd-plot"), "figure"),
             [

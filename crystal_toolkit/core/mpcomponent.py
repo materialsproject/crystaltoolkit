@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from abc import ABC
 from ast import literal_eval
 from base64 import b64encode
@@ -200,6 +201,14 @@ class MPComponent(ABC):
             id = f"{CT_NAMESPACE}{type(self).__name__}"
         elif not id.startswith(CT_NAMESPACE):
             id = f"{CT_NAMESPACE}{id}"
+        while id in MPComponent._all_id_basenames:
+            # check if id ends with counter
+            if not re.search(r"-\d+$", id):
+                id += "-1"
+            else:
+                # increment counter at end of id until unique
+                next_ids = int(re.search(r"-(\d+)$", id).group(1)) + 1
+                id = re.sub(r"-\d+$", f"-{next_ids}", id)
         MPComponent._all_id_basenames.add(id)
 
         self._id = id
@@ -224,9 +233,8 @@ class MPComponent(ABC):
         self,
         name: str = "default",
         is_kwarg: bool = False,
-        idx=False,
-        hint=None,
-        is_store: bool = False,
+        idx: bool | int = False,
+        hint: str = None,
     ) -> str | dict[str, str]:
         """Generate an id from a name combined with the base id of the MPComponent itself, useful
         for generating ids of individual components in the layout.
@@ -241,22 +249,19 @@ class MPComponent(ABC):
         to parse a boolean value. In future iterations, we may be able to replace this with native
         Python type hints. The problem here is being able to specify array shape where appropriate.
 
-
         Args:
-            name: e.g. "default"
+            name (str): The name of the element, e.g. "graph", "structure". Defaults to "default".
+            is_kwarg (bool): If True, return a dict with information necessary to reconstruct
+                the keyword argument for a specific class.
+            idx (bool | int): The index to return if is_kwarg is True. Defaults to False.
+            hint (str): The type hint to return if is_kwarg is True. Defaults to None.
 
         Returns: e.g. "MPComponent_default"
         """
-        if name in self._stores:
-            is_store = True
-
         if is_kwarg:
-            return {
-                "component_id": self._id,
-                "kwarg_label": name,
-                "idx": str(idx),
-                "hint": str(hint),
-            }
+            return dict(
+                component_id=self._id, kwarg_label=name, idx=str(idx), hint=str(hint)
+            )
 
         # if we're linking to another component, return that id
         if name in self.links:
@@ -266,10 +271,6 @@ class MPComponent(ABC):
         self._all_ids.add(name)
         name = f"{self._id}_{name}" if name != "default" else f"{self._id}"
         return name
-        if is_store:
-            return name
-        else:
-            return {"id": name}
 
     def create_store(
         self,
@@ -296,7 +297,7 @@ class MPComponent(ABC):
             return
 
         store = dcc.Store(
-            id=self.id(name, is_store=True),
+            id=self.id(name),
             data=initial_data,
             storage_type=storage_type,
             clear_data=debug_clear,
@@ -446,7 +447,7 @@ Sub-layouts:  \n{layouts}"""
                 )
 
         # dict of row indices, column indices to element
-        matrix_contents = defaultdict(dict)
+        matrix_contents: dict[int, dict[int, Any]] = defaultdict(dict)
 
         # determine what individual input boxes we need
         # note that shape = () for floats, shape = (3,) for vectors

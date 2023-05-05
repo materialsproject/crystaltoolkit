@@ -77,4 +77,4 @@ def save_image(image_data_timestamp, url, image_data):
 
 ctc.register_crystal_toolkit(app=app, layout=my_layout)
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8050)
+    app.run(debug=True, port=8050)

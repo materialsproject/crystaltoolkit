@@ -208,12 +208,13 @@ class Legend(MSONable):
 
     @staticmethod
     def generate_categorical_color_scheme_on_the_fly(
-        site_collection: SiteCollection, site_prop_types
+        site_collection: SiteCollection, site_prop_types: dict[str, list[str]]
     ) -> dict[str, dict[str, tuple[int, int, int]]]:
-        """e.g. for Wyckoff.
+        """E.g. for Wyckoff.
 
         Args:
-            site_collection: SiteCollection
+            site_collection (SiteCollection): The sites to generate a color scheme for.
+            site_prop_types (dict[str, list[str]]): The categorical site property types.
 
         Returns: A dictionary in similar format to EL_COLORS
         """
@@ -225,9 +226,9 @@ class Legend(MSONable):
             props = np.array(site_collection.site_properties[site_prop_name])
             props[props is None] = "None"
 
-            le = LabelEncoder()
-            le.fit(props)
-            transformed_props = le.transform(props)
+            label_enc = LabelEncoder()
+            label_enc.fit(props)
+            transformed_props = label_enc.transform(props)
 
             # if we have more categories than available colors,
             # arbitrarily group some categories together

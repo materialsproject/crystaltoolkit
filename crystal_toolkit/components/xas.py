@@ -106,7 +106,7 @@ class XASComponent(MPComponent):
             [self._sub_layouts["graph"], self._sub_layouts["element_selector"]]
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         """Generate callbacks for XAS component.
 
         Args:
@@ -220,7 +220,7 @@ class XASPanelComponent(PanelComponent):
     def update_contents(self, new_store_contents, *args):
         return self.xas.layout
 
-    # def generate_callbacks(self, app, cache):
+    # def generate_callbacks(self, app, cache) -> None:
     #
     #     super().generate_callbacks(app, cache)
     #

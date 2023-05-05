@@ -197,7 +197,8 @@ class CatalysisApp(MPApp):
             fieldsKey="_fields",
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
+        """Register callback functions for this component."""
         super().generate_callbacks(app, cache)
 
         @cache.memoize(timeout=60 * 60)
@@ -495,4 +496,4 @@ if __name__ == "__main__":
     # edit payload here to run for a specific OCP id, e.g. payload="random1222473"
     layout = ctl.Section([section.get_layout(payload=None)])
     ctc.register_crystal_toolkit(app=app, layout=layout, cache=None)
-    app.run_server(debug=True, port=8050)
+    app.run(debug=True, port=8050)

@@ -162,7 +162,7 @@ class PourbaixDiagramComponent(MPComponent):
     #
     #         if not heatmap_as_contour:
     #             # Plotly needs a list here for validation
-    #             hmap = go.Heatmap(
+    #             h_map = go.Heatmap(
     #                 x=list(ph_range),
     #                 y=list(v_range),
     #                 z=decomposition_e,
@@ -176,11 +176,11 @@ class PourbaixDiagramComponent(MPComponent):
     #                 zmin=0,
     #                 zmax=1,
     #             )
-    #             data.append(hmap)
+    #             data.append(h_map)
     #
     #         else:
     #
-    #             hmap = go.Contour(
+    #             h_map = go.Contour(
     #                 z=decomposition_e,
     #                 x=list(ph_range),
     #                 y=list(v_range),
@@ -193,10 +193,10 @@ class PourbaixDiagramComponent(MPComponent):
     #                 contours_coloring="heatmap",
     #                 text=hovertexts,
     #             )
-    #             data.insert(0, hmap)
+    #             data.insert(0, h_map)
     #
     #     shapes = []
-    #     xydata = []
+    #     xy_data = []
     #     labels = []
     #
     #     for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
@@ -204,7 +204,7 @@ class PourbaixDiagramComponent(MPComponent):
     #         clean_formula = PourbaixDiagramComponent.clean_formula(formula)
     #
     #         # Generate annotation
-    #         xydata.append(np.average(vertices, axis=0))
+    #         xy_data.append(np.average(vertices, axis=0))
     #         labels.append(clean_formula)
     #
     #         # Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
@@ -262,11 +262,11 @@ class PourbaixDiagramComponent(MPComponent):
     #                     "y": y,
     #                     "yref": "y",
     #                 }
-    #                 for (x, y), label in zip(xydata, labels)
+    #                 for (x, y), label in zip(xy_data, labels)
     #             ]
     #             layout.update({"annotations": annotations})
     #         else:
-    #             x, y = zip(*xydata)
+    #             x, y = zip(*xy_data)
     #             data.append(
     #                 go.Scatter(x=x, y=y, text=labels, hoverinfo="text", mode="markers")
     #             )
@@ -292,7 +292,7 @@ class PourbaixDiagramComponent(MPComponent):
         data = []
 
         shapes = []
-        xydata = []
+        xy_data = []
         labels = []
         domain_heights = []
 
@@ -309,7 +309,7 @@ class PourbaixDiagramComponent(MPComponent):
 
             # Ensure label is within plot area
             # TODO: remove hard-coded value here and make sure it's set dynamically
-            xydata.append([centroid.x, centroid.y])
+            xy_data.append([centroid.x, centroid.y])
             labels.append(clean_formula)
             domain_heights.append(height)
 
@@ -389,7 +389,7 @@ class PourbaixDiagramComponent(MPComponent):
         layout.update({"shapes": shapes})
 
         if heatmap_entry is None:
-            x, y = zip(*xydata)
+            x, y = zip(*xy_data)
             data.append(
                 go.Scatter(
                     x=x, y=y, text=labels, hoverinfo="text", mode="text", name="Labels"
@@ -437,7 +437,7 @@ class PourbaixDiagramComponent(MPComponent):
                     "y": y,
                     "yref": "y",
                 }
-                for (x, y), label, height in zip(xydata, labels, domain_heights)
+                for (x, y), label, height in zip(xy_data, labels, domain_heights)
             ]
             layout.update({"annotations": annotations})
 
@@ -473,7 +473,7 @@ class PourbaixDiagramComponent(MPComponent):
                 Composition(heatmap_entry.composition).reduced_formula
             )
 
-            hmap = go.Contour(
+            h_map = go.Contour(
                 z=decomposition_e,
                 x=list(ph_range),
                 y=list(v_range),
@@ -492,7 +492,7 @@ class PourbaixDiagramComponent(MPComponent):
                 name=f"{heatmap_formula} ({heatmap_entry.entry_id}) Heatmap",
                 showlegend=True,
             )
-            data.append(hmap)
+            data.append(h_map)
 
         if show_water_lines:
             ph_range = [-2, 16]
@@ -590,15 +590,12 @@ class PourbaixDiagramComponent(MPComponent):
 
         return {"graph": graph, "options": options}
 
-    def layout(self):
+    def layout(self) -> html.Div:
         return html.Div(
-            children=[
-                self._sub_layouts["options"],
-                self._sub_layouts["graph"],
-            ]
+            children=[self._sub_layouts["options"], self._sub_layouts["graph"]]
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("heatmap_choice_container"), "children"),
             Input(self.id(), "data"),

@@ -4,7 +4,7 @@ import traceback
 import warnings
 
 import dash
-import dash_daq as daq
+import dash_mp_components as mpc
 from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -49,7 +49,7 @@ class TransformationComponent(MPComponent):
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-        enable = daq.BooleanSwitch(
+        enable = mpc.Switch(
             id=self.id("enable_transformation"),
             style={"display": "inline-block", "vertical-align": "middle"},
         )
@@ -63,8 +63,8 @@ class TransformationComponent(MPComponent):
         preview = dcc.Loading(id=self.id("preview"))
 
         if self.is_one_to_many:
-            ranked_list = daq.NumericInput(
-                value=1, min=1, max=10, id=self.id("ranked_list")
+            ranked_list = dcc.Input(
+                type="number", value=1, min=1, max=10, id=self.id("ranked_list")
             )
         else:
             # if not 1-to-many, we don't need the control, we keep
@@ -161,7 +161,7 @@ class TransformationComponent(MPComponent):
         """
         return html.Div()
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @cache.memoize()
         def apply_transformation(transformation_data, struct):
             transformation = self.from_data(transformation_data)
@@ -323,7 +323,7 @@ class AllTransformationsComponent(MPComponent):
 
         return layouts
 
-    def layout(self):
+    def layout(self) -> html.Div:
         return html.Div(
             [
                 html.Div(
@@ -337,7 +337,7 @@ class AllTransformationsComponent(MPComponent):
             ]
         )
 
-    def generate_callbacks(self, app, cache):
+    def generate_callbacks(self, app, cache) -> None:
         @cache.memoize()
         def apply_transformation(transformation_data, struct):
             transformation = self.from_data(transformation_data)

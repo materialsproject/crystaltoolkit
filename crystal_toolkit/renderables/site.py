@@ -46,18 +46,31 @@ def get_site_scene(
     magmom_scale: float = 1.0,
     legend: Legend | None = None,
 ) -> Scene:
-    """Args:
-        connected_sites:
-        connected_sites_not_drawn:
-        hide_incomplete_edges:
-        site_idx:
-        incomplete_edge_length_scale:
-        connected_sites_colors:
-        connected_sites_not_drawn_colors:
-        origin: x,y,z fractional coordinates of the origin
-        explicitly_calculate_polyhedra_hull:
-        legend:
+    """Get a Scene object for a Site.
+
+    Args:
+        connected_sites (list[ConnectedSite], optional): Defaults to None.
+        connected_sites_not_drawn (list[ConnectedSite], optional): Defaults to None.
+        hide_incomplete_edges (bool, optional): Defaults to False.
+        site_idx (int | None, optional): Defaults to 0.
+        incomplete_edge_length_scale (float | None, optional): Defaults to 1.0.
+        connected_sites_colors (list[str] | None, optional): Defaults to None.
+        connected_sites_not_drawn_colors (list[str] | None, optional): Defaults to None.
+        origin (Sequence[float] | None, optional): Defaults to None.
+        draw_polyhedra (bool, optional): Defaults to True.
+        explicitly_calculate_polyhedra_hull (bool, optional): Defaults to False.
+        bond_radius (float, optional): Defaults to 0.1.
+        draw_magmoms (bool, optional): Defaults to True.
+        show_atom_idx (bool, optional): Defaults to False.
+        show_atom_coord (bool, optional): Defaults to True.
+        show_bond_order (bool, optional): Defaults to True.
+        show_bond_length (bool, optional): Defaults to False.
+        visualize_bond_orders (bool, optional): Defaults to False.
+        magmom_scale (float, optional): Defaults to 1.0.
+        legend (Legend | None, optional): Defaults to None.
+
     Returns:
+        Scene: The scene object containing atoms, bonds, polyhedra, magmoms.
     """
     atoms = []
     bonds = []
