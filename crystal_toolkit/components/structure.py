@@ -336,7 +336,9 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
 
-            struct_name = "structure" if isinstance(struct_or_mol, StructureGraph) else "molecule"
+            struct_name = (
+                "structure" if isinstance(struct_or_mol, StructureGraph) else "molecule"
+            )
 
             if (
                 current_graph

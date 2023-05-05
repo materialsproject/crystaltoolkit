@@ -367,8 +367,10 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
             peak_function = getattr(XRayDiffractionComponent, peak_profile)
 
-            for xp, yp, in zip(x_arr, y_arr):
-
+            for (
+                xp,
+                yp,
+            ) in zip(x_arr, y_arr):
                 hwhm = XRayDiffractionComponent.grain_to_hwhm(
                     grain_size, math.radians(xp / 2), K=float(K), wavelength=rad_source
                 )
