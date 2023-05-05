@@ -335,9 +335,11 @@ class StructureMoleculeComponent(MPComponent):
                 bonding_strategy_kwargs=bonding_strategy_kwargs,
             )
 
+            struct_name = "structure" if isinstance(struct_or_mol, StructureGraph) else "molecule"
+
             if (
                 current_graph
-                and graph.structure == current_graph.structure
+                and getattr(graph, struct_name) == getattr(current_graph, struct_name)
                 and graph == current_graph
             ):
                 raise PreventUpdate
