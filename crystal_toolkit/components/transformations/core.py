@@ -51,7 +51,9 @@ class TransformationComponent(MPComponent):
     def _sub_layouts(self) -> dict[str, Component]:
         enable = mpc.Switch(
             id=self.id("enable_transformation"),
-            style={"display": "inline-block", "vertical-align": "middle"},
+            # style used to be passed to dash_daq.ToggleSwitch component, but not
+            # supported by mpc.Switch
+            # style={"display": "inline-block", "vertical-align": "middle"},
         )
 
         message = html.Div(id=self.id("message"))
