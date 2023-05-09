@@ -12,8 +12,8 @@ authors = [{ name = "Matt Horton", email = "mkhorton@lbl.gov" }]
 
 dependencies = [
     "crystaltoolkit-extension",
-    "dash-mp-components",
     "dash",
+    "dash-mp-components",
     "flask-caching",
     "pymatgen",
     "scikit-image",
@@ -60,19 +60,26 @@ build-backend = "setuptools.build_meta"
 target-version = "py38"
 select = [
     "B",   # flake8-bugbear
-    "C40", # flake8-comprehensions
+    "C4",  # flake8-comprehensions
     "D",   # pydocstyle
-    "E",   # pycodestyle
+    "E",   # pycodestyle error
     "F",   # pyflakes
     "I",   # isort
-    "PLE", # pylint error
-    "PLW", # pylint warning
+    "ICN", # flake8-import-conventions
+    "ISC", # flake8-implicit-str-concat
+    "PD",  # pandas-vet
+    "PIE", # flake8-pie
+    "PL",  # pylint
+    "PT",  # flake8-pytest-style
+    "PYI", # flakes8-pyi
     "Q",   # flake8-quotes
+    "RET", # flake8-return
+    "RSE", # flake8-raise
     "RUF", # Ruff-specific rules
     "SIM", # flake8-simplify
     "TID", # tidy imports
     "UP",  # pyupgrade
-    "W",   # pycodestyle
+    "W",   # pycodestyle warning
     "YTT", # flake8-2020
 ]
 ignore = [
@@ -86,6 +93,8 @@ ignore = [
     "D205",   # 1 blank line required between summary line and description
     "E501",   # Line too long
     "E731",   # Do not assign a lambda expression, use a def
+    "PD901",  # pandas-df-variable-name
+    "PLR",    # pylint refactor
     "SIM105", # Use contextlib.suppress(ValueError) instead of try-except-pass
     "SIM115", # Use context handler for opening files
 ]
