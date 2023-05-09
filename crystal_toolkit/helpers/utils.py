@@ -40,7 +40,7 @@ def update_object_args(d_args, object_name, allowed_args):
     Returns:
         dict: Properties of object after user input and default values are considered
     """
-    obj_args = {k: v for k, v in (_DEFAULTS["scene"][object_name] or {}).items()}
+    obj_args = dict((_DEFAULTS["scene"][object_name] or {}).items())
     obj_args.update(
         {k: v for k, v in (d_args or {}).items() if k in allowed_args and v is not None}
     )
@@ -109,10 +109,9 @@ def get_user_api_key(consumer=None) -> str | None:
 
     if is_localhost():
         return SETTINGS.API_KEY
-    elif is_logged_in_user(consumer):
+    if is_logged_in_user(consumer):
         return consumer["X-Consumer-Custom-Id"]
-    else:
-        return None
+    return None
 
 
 def get_contribs_client():
@@ -127,8 +126,7 @@ def get_contribs_client():
 
     if is_localhost():
         return Client(apikey=get_user_api_key())
-    else:
-        return Client(headers=headers)
+    return Client(headers=headers)
 
 
 def get_contribs_api_base_url(request_url=None, deployment="contribs"):
@@ -147,8 +145,7 @@ def parse_request_url(request_url, subdomain):
     pre, suf = parsed_url.netloc.split("next-gen")
     netloc = pre + subdomain + suf
     scheme = "http" if netloc.startswith("localhost.") else "https"
-    base_url = f"{scheme}://{netloc}"
-    return base_url
+    return f"{scheme}://{netloc}"
 
 
 HELP_STRINGS = loadfn(MODULE_PATH / "apps/help.yaml")
@@ -175,19 +172,18 @@ def get_box_title(use_point: str, title: str, id=None):
 
     if use_point not in HELP_STRINGS:
         return html.H5(title, className="title is-6 mb-2", **args)
-    else:
-        div = html.H5(
-            get_tooltip(
-                tooltip_label=HELP_STRINGS[use_point][title]["label"],
-                tooltip_text=HELP_STRINGS[use_point][title]["help"],
-                className="has-tooltip-multiline",
-            ),
-            className="title is-6 mb-2",
-            **args,
-        )
-        if link := HELP_STRINGS[use_point][title]["link"]:
-            div = html.A(div, href=link)
-        return div
+    div = html.H5(
+        get_tooltip(
+            tooltip_label=HELP_STRINGS[use_point][title]["label"],
+            tooltip_text=HELP_STRINGS[use_point][title]["help"],
+            className="has-tooltip-multiline",
+        ),
+        className="title is-6 mb-2",
+        **args,
+    )
+    if link := HELP_STRINGS[use_point][title]["link"]:
+        div = html.A(div, href=link)
+    return div
 
 
 def get_tooltip(
@@ -332,8 +328,7 @@ def get_data_table(
                 ),
             ]
         )
-    else:
-        return dt.DataTable(**datatable_kwargs)
+    return dt.DataTable(**datatable_kwargs)
 
 
 def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
@@ -495,8 +490,7 @@ def is_mpid(value: str) -> str | bool:
     """
     if re.match(r"(mp|mvc)\-\d+$", value):
         return value
-    else:
-        return False
+    return False
 
 
 def pretty_frac_format(x: float) -> str:

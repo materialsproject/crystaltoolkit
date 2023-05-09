@@ -79,17 +79,16 @@ class StructureMoleculeUploadComponent(MPComponent):
                 raise PreventUpdate
             if not data["error"]:
                 return html.Div()
-            else:
-                return html.Div(
-                    [
-                        html.Br(),
-                        MessageContainer(
-                            [MessageHeader("Error"), MessageBody([data["error"]])],
-                            kind="danger",
-                            size="small",
-                        ),
-                    ]
-                )
+            return html.Div(
+                [
+                    html.Br(),
+                    MessageContainer(
+                        [MessageHeader("Error"), MessageBody([data["error"]])],
+                        kind="danger",
+                        size="small",
+                    ),
+                ]
+            )
 
         @app.callback(
             Output(self.id(), "data"),

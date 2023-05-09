@@ -409,9 +409,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         if broadening:
             plotdata.append(go.Scatter(x=x, y=y, hoverinfo="none"))
 
-        plot = go.Figure(data=plotdata, layout=layout)
-
-        return plot
+        return go.Figure(data=plotdata, layout=layout)
 
     def generate_callbacks(self, app, cache) -> None:
         @app.callback(
@@ -449,7 +447,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             # suppress broadening for larger cell
             broadening = len(self.from_data(structure).sites) < SITES_LIMIT
 
-            plot = self.get_figure(
+            return self.get_figure(
                 peak_profile,
                 K,
                 rad_source,
@@ -461,8 +459,6 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 x_axis,
                 broadening,
             )
-
-            return plot
 
         @app.callback(
             Output(self.id(), "data"),
@@ -500,14 +496,13 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         def update_message(structure):
             if len(self.from_data(structure).sites) < SITES_LIMIT:
                 return html.Div([])
-            else:
-                return MessageContainer(
-                    MessageBody(
-                        "Peak broadening is currently disabled for materials with "
-                        f"more than {SITES_LIMIT} sites due to long compute time. Please contact "
-                        "feedback@materialsproject.org if you need assistance with the graph."
-                    )
+            return MessageContainer(
+                MessageBody(
+                    "Peak broadening is currently disabled for materials with "
+                    f"more than {SITES_LIMIT} sites due to long compute time. Please contact "
+                    "feedback@materialsproject.org if you need assistance with the graph."
                 )
+            )
 
         # @app.callback(
         #     Output(self.id("static-image"), "src"), Input(self.id("xrd-plot"), "figure")

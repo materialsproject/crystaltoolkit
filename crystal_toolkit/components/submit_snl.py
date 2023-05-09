@@ -71,17 +71,14 @@ class SubmitSNLPanel(PanelComponent):
                 return None
             if url.startswith("?"):
                 url = url[1:]
-            token = dict(parse.parse_qsl(url)).get("token")
-            return token
+            return dict(parse.parse_qsl(url)).get("token")
 
         @cache.memoize(timeout=60 * 60 * 24)
         def get_token_response(token):
             url = "https://materialsproject.org/rest/v2/snl/get_user_info"
             payload = {"token": token, "client_key": MP_CLIENT_KEY}
 
-            contents = requests.post(url, data=payload).json()["response"]
-
-            return contents
+            return requests.post(url, data=payload).json()["response"]
 
         @app.callback(
             Output(self.id("panel"), "style"),
@@ -94,8 +91,7 @@ class SubmitSNLPanel(PanelComponent):
 
             if not token:
                 return {"display": "none"}, {}
-            else:
-                return {}, {}  # {"display": "none"}
+            return {}, {}  # {"display": "none"}
 
         @app.callback(
             Output(self.id("info"), "children"),

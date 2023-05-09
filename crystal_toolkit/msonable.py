@@ -32,13 +32,12 @@ install.
             "application/vnd.mp.ctk+json": self.get_scene().to_json(),
             "text/plain": help_text_ct + repr(self),
         }
-    elif hasattr(self, "get_plot"):
+    if hasattr(self, "get_plot"):
         return {
             "application/vnd.plotly.v1+json": self.get_plot().to_plotly_json(),
             "text/plain": help_text_plotly + repr(self),
         }
-    else:
-        return {"application/json": self.as_dict(), "text/plain": repr(self)}
+    return {"application/json": self.as_dict(), "text/plain": repr(self)}
 
 
 def show_json(self):

@@ -32,7 +32,7 @@ integers."""
     def options_layouts(self, state=None, structure=None):
         state = state or {"scaling_matrix": ((1, 0, 0), (0, 1, 0), (0, 0, 1))}
 
-        options = self.get_numerical_input(
+        return self.get_numerical_input(
             label="Scaling matrix",
             kwarg_label="scaling_matrix",
             state=state,
@@ -40,8 +40,6 @@ integers."""
             input lattice vectors a, b and c into transformed lattice vectors a', b' and c'.""",
             shape=(3, 3),
         )
-
-        return options
 
     def get_preview_layout(self, struct_in, struct_out):
         if struct_in.lattice == struct_out.lattice:

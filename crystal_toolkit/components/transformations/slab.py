@@ -110,7 +110,7 @@ vacuum inserted so that the properties of the crystal surface can be studied.
             shape=(),
         )
 
-        options = html.Div(
+        return html.Div(
             [
                 miller_index,
                 min_slab_size,
@@ -123,5 +123,3 @@ vacuum inserted so that the properties of the crystal surface can be studied.
                 tol,
             ]
         )
-
-        return options

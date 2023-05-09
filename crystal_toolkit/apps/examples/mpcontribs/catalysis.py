@@ -220,8 +220,7 @@ class CatalysisApp(MPApp):
                 }
                 for resp in contributions["data"]
             ]
-            df = pd.DataFrame(records)
-            return df
+            return pd.DataFrame(records)
 
         @app.callback(
             Output(self.id("heat_map"), "figure"),
@@ -239,8 +238,7 @@ class CatalysisApp(MPApp):
             smile = smile[0]
             df = get_plot_data(smile)
             df_full, df_min_E = self.modify_df(df)
-            plot = self.get_plot(df_full, df_min_E, mid_E, range_E, 1)
-            return plot
+            return self.get_plot(df_full, df_min_E, mid_E, range_E, 1)
 
         @app.callback(
             Output(self.id("display_table"), "children"),
@@ -300,7 +298,7 @@ class CatalysisApp(MPApp):
         ).layout()
 
     def get_layout(self, payload=None):
-        tabs = dcc.Tabs(
+        return dcc.Tabs(
             [
                 dcc.Tab(
                     children=[html.Br(), self.get_search_layout(payload=payload)],
@@ -321,8 +319,6 @@ class CatalysisApp(MPApp):
             value="search",
             id=self.id("tabs"),
         )
-
-        return tabs
 
     def get_visualization_layout(self, payload=None):
         state = {"smiles": "*C", "targetE": 0.2, "range_E": 1}
@@ -366,7 +362,7 @@ class CatalysisApp(MPApp):
             [description, html.Br(), html.Br(), smiles_input, E_input, range_input]
         )
 
-        viz_div = html.Div(
+        return html.Div(
             ctl.Columns(
                 [
                     ctl.Column(
@@ -406,8 +402,6 @@ class CatalysisApp(MPApp):
                 ]
             )
         )
-
-        return viz_div
 
     def get_search_layout(self, payload=None):
         if not payload:

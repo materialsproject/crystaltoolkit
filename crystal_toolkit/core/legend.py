@@ -264,8 +264,7 @@ class Legend(MSONable):
                 color = color[0]
             if isinstance(color, list):
                 return html5_serialize_simple_color(color)
-            else:
-                return html5_serialize_simple_color(html5_parse_legacy_color(color))
+            return html5_serialize_simple_color(html5_parse_legacy_color(color))
 
         if self.color_scheme in ("VESTA", "Jmol", "accessible"):
             el = sp.as_dict()["element"]

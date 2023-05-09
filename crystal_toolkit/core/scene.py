@@ -137,8 +137,7 @@ class Scene:
             max_x, max_y, max_z = map(max, zip(*max_list))
 
             return [[min_x, min_y, min_z], [max_x, max_y, max_z]]
-        else:
-            return [[0, 0, 0], [0, 0, 0]]
+        return [[0, 0, 0], [0, 0, 0]]
 
     @staticmethod
     def merge_primitives(primitives):

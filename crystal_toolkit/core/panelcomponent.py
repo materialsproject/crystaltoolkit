@@ -35,15 +35,13 @@ class PanelComponent(MPComponent):
 
         initial_contents = html.Div(id=self.id("contents"))
 
-        panel = Reveal(
+        return Reveal(
             title=self.title,
             children=[message, description, html.Br(), initial_contents],
             id=self.id("panel"),
             summary_id=self.id("panel_summary"),
             open=open_by_default,
         )
-
-        return panel
 
     def contents_layout(self) -> html.Div:
         raise NotImplementedError

@@ -387,5 +387,4 @@ class TEMDiffractionCalculator:
             paper_bgcolor="white",
             plot_bgcolor="white",
         )
-        fig = go.Figure(data=data, layout=layout)
-        return fig
+        return go.Figure(data=data, layout=layout)
