@@ -440,10 +440,9 @@ def update_search_term_on_page_load(href: str) -> str:
     pathname = str(parse.urlparse(href).path).split("/")
     if len(pathname) <= 1:
         raise PreventUpdate
-    elif not pathname[1]:
+    if not pathname[1]:
         return choice(DEFAULT_MPIDS)
-    else:
-        return pathname[1].replace("+", " ")
+    return pathname[1].replace("+", " ")
 
 
 @app.callback(
@@ -468,8 +467,7 @@ def perform_search_on_page_load(
     # TODO: could be a client side callback
     if n_submit is None:
         return 1, int(round(time() * 1000))
-    else:
-        raise PreventUpdate
+    raise PreventUpdate
 
 
 @app.callback(Output("url", "pathname"), Input(search_component.id(), "data"))

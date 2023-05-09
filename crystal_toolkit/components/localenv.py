@@ -99,8 +99,7 @@ def _get_local_order_parameters(structure_graph, n):
         for i, lostop in enumerate(lostop_vals):
             d[names[i]] = lostop
         return d
-    else:
-        return None
+    return None
 
 
 class LocalEnvironmentPanel(PanelComponent):
@@ -262,7 +261,7 @@ class LocalEnvironmentPanel(PanelComponent):
                     ]
                 )
 
-            elif algorithm == "localenv":
+            if algorithm == "localenv":
                 description = (
                     "The LocalEnv algorithm is developed by Nils Zimmerman et al. whereby "
                     "an 'order parameter' is calculated that measures how well that "
@@ -283,7 +282,7 @@ class LocalEnvironmentPanel(PanelComponent):
                     ]
                 )
 
-            elif algorithm == "bondinggraph":
+            if algorithm == "bondinggraph":
                 description = (
                     "This is an alternative way to display the same bonds present in the "
                     "visualizer. Here, the bonding is displayed as a crystal graph, with "
@@ -299,7 +298,7 @@ class LocalEnvironmentPanel(PanelComponent):
                     ]
                 )
 
-            elif algorithm == "soap":
+            if algorithm == "soap":
                 state = {
                     "rcut": 5.0,
                     "nmax": 2,
@@ -487,6 +486,7 @@ class LocalEnvironmentPanel(PanelComponent):
                         Loading(id=self.id("soap_similarities")),
                     ]
                 )
+            return None
 
         def _get_soap_graph(feature, label):
             spectrum = {
@@ -766,8 +766,7 @@ class LocalEnvironmentPanel(PanelComponent):
                 valences = [v for v in valences if v is not None]
                 if len(valences) == len(struct):
                     return valences
-                else:
-                    return "undefined"
+                return "undefined"
 
             # decide which indices to present to user
             sga = SpacegroupAnalyzer(struct)

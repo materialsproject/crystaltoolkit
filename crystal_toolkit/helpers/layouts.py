@@ -397,9 +397,8 @@ def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Ta
         contents.append(html.Tr([html.Td(item) for item in row]))
     if not header:
         return html.Table([html.Tbody(contents)], className="table")
-    else:
-        header = html.Thead([html.Tr([html.Th(item) for item in header])])
-        return html.Table([header, html.Tbody(contents)], className="table")
+    header = html.Thead([html.Tr([html.Th(item) for item in header])])
+    return html.Table([header, html.Tbody(contents)], className="table")
 
 
 DOI_CACHE = loadfn(MODULE_PATH / "apps/assets/doi_cache.json")
@@ -457,6 +456,4 @@ def get_breadcrumb(parts):
         )
         for idx, (name, link) in enumerate(parts.items())
     ]
-    breadcrumbs = html.Nav(html.Ul(links), className="breadcrumb")
-
-    return breadcrumbs
+    return html.Nav(html.Ul(links), className="breadcrumb")

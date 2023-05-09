@@ -136,11 +136,10 @@ class XASComponent(MPComponent):
                     kind="warning",
                 )
                 return search_error
-            else:
-                return dcc.Graph(
-                    figure=go.Figure(data=plotdata, layout=self.default_xas_layout),
-                    config={"displayModeBar": False},
-                )
+            return dcc.Graph(
+                figure=go.Figure(data=plotdata, layout=self.default_xas_layout),
+                config={"displayModeBar": False},
+            )
 
         @app.callback(
             Output(self.id(), "data"),

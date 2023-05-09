@@ -77,14 +77,12 @@ def add_inputs(n_clicks):
         raise PreventUpdate
 
     element = random.choice(["Li", "Na", "K"])
-    slider_input = your_component.get_slider_input(
+    return your_component.get_slider_input(
         kwarg_label=f"slider_{element}",
         default=random.uniform(0, 1),
         label=f"{element} Slider Input",
         help_str="This can explain to the user what this slider input controls.",
     )
-
-    return slider_input
 
 
 # tell Crystal Toolkit about the app and layout we want to display

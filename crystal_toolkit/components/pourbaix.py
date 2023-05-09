@@ -524,9 +524,7 @@ class PourbaixDiagramComponent(MPComponent):
             # #
             # #   ))
 
-        figure = go.Figure(data=data, layout=layout)
-
-        return figure
+        return go.Figure(data=data, layout=layout)
 
     # TODO: format formula
     @staticmethod
@@ -612,7 +610,7 @@ class PourbaixDiagramComponent(MPComponent):
                     mpid = entry["entry_id"]
                     options.append({"label": f"{formula} ({mpid})", "value": mpid})
 
-            heatmap_options = self.get_choice_input(
+            return self.get_choice_input(
                 "heatmap_choice",
                 state={},
                 label="Heatmap Entry",
@@ -620,8 +618,6 @@ class PourbaixDiagramComponent(MPComponent):
                 options=options,
                 disabled=False,
             )
-
-            return heatmap_options
 
         @app.callback(
             Output(self.id("element_specific_controls"), "children"),
@@ -795,12 +791,10 @@ class PourbaixDiagramComponent(MPComponent):
                 comp_dict,
             )
 
-            fig = self.get_figure(
+            return self.get_figure(
                 pourbaix_diagram,
                 heatmap_entry=heatmap_entry,
             )
-
-            return fig
 
     # TODO
     # def graph_layout(self):

@@ -269,8 +269,7 @@ class MPComponent(ABC):
 
         # otherwise create a new id
         self._all_ids.add(name)
-        name = f"{self._id}_{name}" if name != "default" else f"{self._id}"
-        return name
+        return f"{self._id}_{name}" if name != "default" else f"{self._id}"
 
     def create_store(
         self,
@@ -372,7 +371,7 @@ Sub-layouts:  \n{layouts}"""
         all layouts will be displayed to the end user at all times, but it's important the callbacks
         are defined on the server.
         """
-        return None
+        return
 
     def get_numerical_input(
         self,
@@ -433,18 +432,17 @@ Sub-layouts:  \n{layouts}"""
                     type="number",
                     **kwargs,
                 )
-            else:
-                return dcc.Input(
-                    id=mid,
-                    inputMode="numeric",
-                    debounce=True,
-                    className="input",
-                    style=style,
-                    value=int(value) if value is not None else None,
-                    persistence=True,
-                    type="number",
-                    **kwargs,
-                )
+            return dcc.Input(
+                id=mid,
+                inputMode="numeric",
+                debounce=True,
+                className="input",
+                style=style,
+                value=int(value) if value is not None else None,
+                persistence=True,
+                type="number",
+                **kwargs,
+            )
 
         # dict of row indices, column indices to element
         matrix_contents: dict[int, dict[int, Any]] = defaultdict(dict)

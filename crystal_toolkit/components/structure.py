@@ -572,12 +572,11 @@ class StructureMoleculeComponent(MPComponent):
         def get_font_color(hex_code):
             # ensures contrasting font color for background color
             c = tuple(int(hex_code[1:][i : i + 2], 16) for i in (0, 2, 4))
-            font_color = (
+            return (
                 "#000000"
                 if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5
                 else "#ffffff"
             )
-            return font_color
 
         try:
             formula = Composition.from_dict(legend["composition"]).reduced_formula
@@ -652,11 +651,10 @@ class StructureMoleculeComponent(MPComponent):
                 chain.from_iterable([list(c) for c in struct_or_mol.species_and_occu]),
             )
         )
-        rows = [
+        return [  # rows
             {"A": combination[0], "B": combination[1], "A—B": 0}
             for combination in combinations_with_replacement(species, 2)
         ]
-        return rows
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
@@ -1002,14 +1000,13 @@ class StructureMoleculeComponent(MPComponent):
     ) -> Structure | Molecule:
         if isinstance(graph, StructureGraph):
             return graph.structure
-        elif isinstance(graph, MoleculeGraph):
+        if isinstance(graph, MoleculeGraph):
             return graph.molecule
-        elif isinstance(graph, (Structure, Molecule)):
+        if isinstance(graph, (Structure, Molecule)):
             return graph
-        else:
-            raise ValueError(
-                f"Invalid input type {graph}, expected one of Structure, Molecule, StructureGraph or MoleculeGraph"
-            )
+        raise ValueError(
+            f"Invalid input type {graph}, expected one of Structure, Molecule, StructureGraph or MoleculeGraph"
+        )
 
     @staticmethod
     def get_scene_and_legend(

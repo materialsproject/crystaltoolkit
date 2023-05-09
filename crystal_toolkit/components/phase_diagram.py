@@ -198,8 +198,7 @@ class PhaseDiagramComponent(MPComponent):
             if dim == 4:
                 if not entry.composition.is_element:
                     continue
-                else:
-                    z = coords[2]
+                z = coords[2]
 
             formula = list(entry.composition.reduced_formula)
 
@@ -333,7 +332,7 @@ class PhaseDiagramComponent(MPComponent):
 
             energy = round(pd.get_form_energy_per_atom(unstable_entry), 3)
             text_list.append(
-                f"{clean_formula} ({mpid})<br>" f"{energy} eV (+{e_above_hull} eV)"
+                f"{clean_formula} ({mpid})<br>{energy} eV (+{e_above_hull} eV)"
             )
 
         if dim == 2 or dim == 3:
@@ -403,9 +402,7 @@ class PhaseDiagramComponent(MPComponent):
             else:
                 s.append(char)
 
-        clean_formula = "".join(s)
-
-        return clean_formula
+        return "".join(s)
 
     @staticmethod
     def ternary_plot(plot_data):
@@ -548,29 +545,25 @@ class PhaseDiagramComponent(MPComponent):
         def update_graph(figure):
             if figure is None:
                 raise PreventUpdate
-            elif figure == "error":
-                search_error = (
-                    MessageContainer(
-                        [
-                            MessageBody(
-                                dcc.Markdown(
-                                    "Plotting is only available for phase diagrams containing 2-4 components."
-                                )
+            if figure == "error":
+                search_error = MessageContainer(
+                    [
+                        MessageBody(
+                            dcc.Markdown(
+                                "Plotting is only available for phase diagrams containing 2-4 components."
                             )
-                        ],
-                        kind="warning",
-                    ),
+                        )
+                    ],
+                    kind="warning",
                 )
                 return search_error
 
-            else:
-                plot = [
-                    dcc.Graph(
-                        figure=figure,
-                        config={"displayModeBar": False, "displaylogo": False},
-                    )
-                ]
-                return plot
+            return [
+                dcc.Graph(
+                    figure=figure,
+                    config={"displayModeBar": False, "displaylogo": False},
+                )
+            ]
 
         @app.callback(Output(self.id("figure"), "data"), Input(self.id(), "data"))
         def make_figure(pd):
@@ -687,7 +680,7 @@ class PhaseDiagramComponent(MPComponent):
             if trigger["prop_id"] == f"{self.id()}.modified_timestamp":
                 table_content = self.create_table_content(self.from_data(pd))
                 return table_content
-            elif (
+            if (
                 trigger["prop_id"] == f"{self.id('editing-rows-button')}.n_clicks"
                 and n_clicks > 0
                 and rows

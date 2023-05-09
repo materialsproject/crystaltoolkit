@@ -51,7 +51,9 @@ class TransformationComponent(MPComponent):
     def _sub_layouts(self) -> dict[str, Component]:
         enable = mpc.Switch(
             id=self.id("enable_transformation"),
-            style={"display": "inline-block", "vertical-align": "middle"},
+            # style used to be passed to dash_daq.ToggleSwitch component, but not
+            # supported by mpc.Switch
+            # style={"display": "inline-block", "vertical-align": "middle"},
         )
 
         message = html.Div(id=self.id("message"))
@@ -83,7 +85,7 @@ class TransformationComponent(MPComponent):
 
     def container_layout(self, state=None, structure=None) -> html.Div:
         """Layout defining transformation and its options."""
-        container = MessageContainer(
+        return MessageContainer(
             [
                 MessageHeader(
                     html.Div(
@@ -124,8 +126,6 @@ class TransformationComponent(MPComponent):
             kind="dark",
             id=self.id("container"),
         )
-
-        return container
 
     def options_layouts(self, state=None, structure=None) -> list[html.Div]:
         """Return a layout to change the transformation options (that is, that controls the args and
@@ -231,8 +231,7 @@ class TransformationComponent(MPComponent):
             if not enabled:
                 input_state = (False,) * len(states)
                 return None, "message is-dark", html.Div(), input_state
-            else:
-                input_state = (True,) * len(states)
+            input_state = (True,) * len(states)
 
             try:
                 trans = self.transformation(**kwargs)
@@ -249,8 +248,7 @@ class TransformationComponent(MPComponent):
                     input_state,
                 )
 
-            else:
-                return trans, "message is-success", html.Div(), input_state
+            return trans, "message is-success", html.Div(), input_state
 
 
 class AllTransformationsComponent(MPComponent):
@@ -378,7 +376,7 @@ class AllTransformationsComponent(MPComponent):
 
             structure = self.from_data(structure)
 
-            transformation_options = html.Div(
+            return html.Div(  # transformation_options
                 [
                     self.transformations[name].container_layout(
                         state=state, structure=structure
@@ -386,8 +384,6 @@ class AllTransformationsComponent(MPComponent):
                     for name, state in zip(values, args)
                 ]
             )
-
-            return transformation_options
 
         @app.callback(
             Output(self.id("enabled-transformations"), "data"),

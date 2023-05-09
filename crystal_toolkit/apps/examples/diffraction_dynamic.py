@@ -25,8 +25,7 @@ ctc.register_crystal_toolkit(app=app, layout=my_layout)
 @app.callback(Output(xrd_component.id(), "data"), Input(load_btn, "n_clicks"))
 def load_structure(n_clicks: int) -> Structure:
     """Load a cubic structure on button click."""
-    structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
-    return structure
+    return Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
 
 # run this app with "python path/to/this/file.py"

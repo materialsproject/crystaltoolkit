@@ -119,7 +119,7 @@ def get_site_scene(
                 name += f" ({position[0]:.3f}, {position[1]:.3f}, {position[2]:.3f})"
 
             if show_atom_idx:
-                name += "\n" + "index:" + str(site_idx)
+                name += f"\nindex:{site_idx}"
 
             if self.properties:
                 for k, v in self.properties.items():
@@ -177,10 +177,10 @@ def get_site_scene(
 
         for idx, connected_site in enumerate(connected_sites):
             if show_bond_order and connected_site.weight is not None:
-                name_cyl = "bond order:" + str(f"{connected_site.weight:.2f}")
+                name_cyl = f"bond order:{connected_site.weight:.2f}"
 
             if show_bond_length and connected_site.dist is not None:
-                name_cyl += "\n" + "bond length:" + str(f"{connected_site.dist:.3f}")
+                name_cyl += f"\nbond length:{connected_site.dist:.3f}"
 
             connected_position = connected_site.site.coords
             bond_midpoint = np.add(position, connected_position) / 2

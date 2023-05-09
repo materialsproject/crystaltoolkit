@@ -143,7 +143,7 @@ class SearchComponent(MPComponent):
                     e_hull_str = np.format_float_scientific(e_hull, precision=2)
                     human_readable_hull_labels.append(f"+{e_hull_str} eV/atom")
 
-            human_readable_results = {
+            return {
                 entry.material_id: f"{unicodeify(entry.formula_pretty)} "
                 f"({unicodeify_spacegroup(entry.symmetry.symbol)}) "
                 f"{human_readable_hull_label}"
@@ -151,8 +151,6 @@ class SearchComponent(MPComponent):
                     entries, human_readable_hull_labels
                 )
             }
-
-            return human_readable_results
 
         @app.callback(
             Output(self.id("results"), "data"),
@@ -195,8 +193,7 @@ class SearchComponent(MPComponent):
         def hide_show_dropdown(results):
             if not results or len(results) <= 1:
                 return {"display": "none"}
-            else:
-                return {}
+            return {}
 
         @app.callback(
             Output(self.id("warning"), "children"), Input(self.id("results"), "data")
@@ -204,8 +201,7 @@ class SearchComponent(MPComponent):
         def show_warning(results):
             if results and "error" in results:
                 return MessageContainer(MessageBody(results["error"]))
-            else:
-                return html.Div()
+            return html.Div()
 
         @app.callback(
             Output(self.id("search_container"), "children"),

@@ -71,9 +71,7 @@ def update_structure(active_cell: dict[str, int | str]) -> Structure:
     point.
     """
     row_idx = active_cell["row"]
-    structure = df_diel.structure[row_idx]
-
-    return structure
+    return df_diel.structure[row_idx]
 
 
 if __name__ == "__main__":

@@ -261,16 +261,11 @@ class AsySphere(AsyObject):
                     opac=self.opac,
                 )
             )
-        else:
-            return (
-                Environment()
-                .from_string(TEMP_SPHERE_NOLIGHT)
-                .render(
-                    positions=self.positions,
-                    radius=self.radius,
-                    color=self.color,
-                )
-            )
+        return (
+            Environment()
+            .from_string(TEMP_SPHERE_NOLIGHT)
+            .render(positions=self.positions, radius=self.radius, color=self.color)
+        )
 
     @classmethod
     def from_ctk(
@@ -336,16 +331,11 @@ class AsyCylinder(AsyObject):
                     opac=self.opac,
                 )
             )
-        else:
-            return (
-                Environment()
-                .from_string(TEMP_CYLINDER_NOLIGHT)
-                .render(
-                    posPairs=self.pos_pairs,
-                    radius=self.radius,
-                    color=self.color,
-                )
-            )
+        return (
+            Environment()
+            .from_string(TEMP_CYLINDER_NOLIGHT)
+            .render(posPairs=self.pos_pairs, radius=self.radius, color=self.color)
+        )
 
     @classmethod
     def from_ctk(
@@ -397,21 +387,13 @@ class AsySurface(AsyObject):
             return (
                 Environment()
                 .from_string(TEMP_SURF)
-                .render(
-                    positions=self.positions,
-                    color=self.color,
-                    opac=self.opac,
-                )
+                .render(positions=self.positions, color=self.color, opac=self.opac)
             )
-        else:
-            return (
-                Environment()
-                .from_string(TEMP_SURF_NOLIGHT)
-                .render(
-                    positions=self.positions,
-                    color=self.color,
-                )
-            )
+        return (
+            Environment()
+            .from_string(TEMP_SURF_NOLIGHT)
+            .render(positions=self.positions, color=self.color)
+        )
 
     @classmethod
     def from_ctk(
@@ -519,7 +501,7 @@ def _read_properties(
     return _DEFAULTS["scene"].get(scene_name, {}).get(property)
 
 
-def _read_color(ctk_scene: Scene, user_settings: dict | None = None) -> str:
+def _read_color(ctk_scene: Scene, user_settings: dict | None = None) -> str | None:
     """Read the color from the ctk scene or the user settings.
 
     Args:
@@ -529,7 +511,7 @@ def _read_color(ctk_scene: Scene, user_settings: dict | None = None) -> str:
     color = _read_properties(ctk_scene, "color", user_settings)
     # strip the # from the color if it exists
     if color is None:
-        return
+        return None
 
     # if is string
     if isinstance(color, str):
@@ -587,7 +569,7 @@ def asy_write_data(
     asy_out = asy_obj.from_ctk(ctk_scene=input_scene_comp, user_settings=user_settings)
     fstream.write(str(asy_out))
 
-    # TODO we can make the line solide for the foreground and dashed for the background
+    # TODO we can make the line solid for the foreground and dashed for the background
     # This will require use to modify the way the line objects are generated
     # at each vertex in the unit cell, we can evaluate the sum of all three lattice vectors from the point
     # then the <vec_sum | vec_to_camera> for each vertex.  The smallest
@@ -601,7 +583,7 @@ def traverse_scene_object(scene_data, fstream, user_settings=None) -> None:
             for iobj in sub_object:
                 traverse_scene_object(iobj)
             continue
-        elif hasattr(sub_object, "type"):
+        if hasattr(sub_object, "type"):
             asy_write_data(sub_object, fstream, user_settings=user_settings)
         else:
             traverse_scene_object(sub_object, fstream, user_settings=user_settings)

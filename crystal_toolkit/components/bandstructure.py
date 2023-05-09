@@ -804,11 +804,10 @@ class BandstructureAndDosComponent(MPComponent):
         def update_label_select(mpid, path_convention):
             if not mpid:
                 raise PreventUpdate
-            else:
-                label_value = path_convention
-                label_style = {"maxWidth": "200"}
+            label_value = path_convention
+            label_style = {"maxWidth": "200"}
 
-                return label_value, label_style
+            return label_value, label_style
 
         @app.callback(
             Output(self.id("dos-select"), "options"),
@@ -820,7 +819,7 @@ class BandstructureAndDosComponent(MPComponent):
         def update_select(elements, mpid):
             if elements is None:
                 raise PreventUpdate
-            elif not mpid:
+            if not mpid:
                 dos_options = (
                     [{"label": "Element Projected", "value": "ap"}]
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
@@ -837,28 +836,27 @@ class BandstructureAndDosComponent(MPComponent):
                 path_style = {"maxWidth": "200", "display": "none"}
 
                 return [dos_options, path_options, path_style]
-            else:
-                dos_options = (
-                    [{"label": "Element Projected", "value": "ap"}]
-                    + [{"label": "Orbital Projected - Total", "value": "op"}]
-                    + [
-                        {
-                            "label": f"Orbital Projected - {ele_label}",
-                            "value": f"orb{ele_label}",
-                        }
-                        for ele_label in elements
-                    ]
-                )
-
-                path_options = [
-                    {"label": "Setyawan-Curtarolo", "value": "sc"},
-                    {"label": "Latimer-Munro", "value": "lm"},
-                    {"label": "Hinuma et al.", "value": "hin"},
+            dos_options = (
+                [{"label": "Element Projected", "value": "ap"}]
+                + [{"label": "Orbital Projected - Total", "value": "op"}]
+                + [
+                    {
+                        "label": f"Orbital Projected - {ele_label}",
+                        "value": f"orb{ele_label}",
+                    }
+                    for ele_label in elements
                 ]
+            )
 
-                path_style = {"maxWidth": "200"}
+            path_options = [
+                {"label": "Setyawan-Curtarolo", "value": "sc"},
+                {"label": "Latimer-Munro", "value": "lm"},
+                {"label": "Hinuma et al.", "value": "hin"},
+            ]
 
-                return dos_options, path_options, path_style
+            path_style = {"maxWidth": "200"}
+
+            return dos_options, path_options, path_style
 
         @app.callback(
             Output(self.id("traces"), "data"),

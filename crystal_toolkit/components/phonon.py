@@ -586,11 +586,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
             bs, dos = self._get_ph_bs_dos(self.initial_data["default"])
 
             figure = self.get_figure(bs, dos)
-            graph = dcc.Graph(
+            return dcc.Graph(
                 figure=figure, config={"displayModeBar": False}, responsive=True
             )
-
-            return graph
 
         @app.callback(
             Output(self.id("label-select"), "value"),
@@ -601,11 +599,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
         def update_label_select(mpid, path_convention):
             if not mpid:
                 raise PreventUpdate
-            else:
-                label_value = path_convention
-                label_style = {"maxWidth": "200"}
+            label_value = path_convention
+            label_style = {"maxWidth": "200"}
 
-                return label_value, label_style
+            return label_value, label_style
 
         @app.callback(
             Output(self.id("dos-select"), "options"),
@@ -617,7 +614,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         def update_select(elements, mpid):
             if elements is None:
                 raise PreventUpdate
-            elif not mpid:
+            if not mpid:
                 dos_options = (
                     [{"label": "Element Projected", "value": "ap"}]
                     + [{"label": "Orbital Projected - Total", "value": "op"}]
@@ -634,28 +631,27 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 path_style = {"maxWidth": "200", "display": "none"}
 
                 return dos_options, path_options, path_style
-            else:
-                dos_options = (
-                    [{"label": "Element Projected", "value": "ap"}]
-                    + [{"label": "Orbital Projected - Total", "value": "op"}]
-                    + [
-                        {
-                            "label": "Orbital Projected - " + str(ele_label),
-                            "value": "orb" + str(ele_label),
-                        }
-                        for ele_label in elements
-                    ]
-                )
-
-                path_options = [
-                    {"label": "Setyawan-Curtarolo", "value": "sc"},
-                    {"label": "Latimer-Munro", "value": "lm"},
-                    {"label": "Hinuma et al.", "value": "hin"},
+            dos_options = (
+                [{"label": "Element Projected", "value": "ap"}]
+                + [{"label": "Orbital Projected - Total", "value": "op"}]
+                + [
+                    {
+                        "label": "Orbital Projected - " + str(ele_label),
+                        "value": "orb" + str(ele_label),
+                    }
+                    for ele_label in elements
                 ]
+            )
 
-                path_style = {"maxWidth": "200"}
+            path_options = [
+                {"label": "Setyawan-Curtarolo", "value": "sc"},
+                {"label": "Latimer-Munro", "value": "lm"},
+                {"label": "Hinuma et al.", "value": "hin"},
+            ]
 
-                return dos_options, path_options, path_style
+            path_style = {"maxWidth": "200"}
+
+            return dos_options, path_options, path_style
 
         @app.callback(
             Output(self.id("traces"), "data"),

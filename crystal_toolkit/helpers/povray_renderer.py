@@ -222,7 +222,7 @@ def get_render_settings(file_name):
     """Creates a POV-Ray render.ini file."""
     image_name = f"{file_name[:-4]}.png"
 
-    settings = f"""
+    return f"""
 Input_File_Name = {file_name}
 Output_File_Name = {image_name}
 Display = 1
@@ -245,4 +245,3 @@ Declare=ii=0
 Declare=jj=0
 Declare=kk=0
 """
-    return settings
