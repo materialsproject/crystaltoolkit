@@ -336,6 +336,7 @@ class Control(html.Div):
         _update_css_class(kwargs, "control")
         super().__init__(*args, **kwargs)
 
+
 class Input(dcc.Input):
     """Control tag to wrap form elements, see https://bulma.io/documentation/input/general/."""
 
