@@ -68,11 +68,11 @@ def trigger_new_data(url):
 )
 def save_image(image_data_timestamp, url, image_data):
     if image_data:
-        #     print(image_data.strip("data:image/png;base64,")[-1:-100])
-        #     image_bytes = b64decode(image_data.strip("data:image/png;base64,").encode('ascii'))
+        # print(image_data.strip("data:image/png;base64,")[-1:-100])
+        # image_bytes = b64decode(image_data.strip("data:image/png;base64,").encode('ascii'))
         response = urllib.request.urlopen(image_data)
-        with open(SCREENSHOT_PATH / f"{url[1:]}.png", "wb") as f:
-            f.write(response.file.read())
+        with open(SCREENSHOT_PATH / f"{url[1:]}.png", "wb") as file:
+            file.write(response.file.read())
 
 
 ctc.register_crystal_toolkit(app=app, layout=my_layout)

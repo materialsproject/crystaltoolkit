@@ -1,16 +1,14 @@
-__all__ = ["__version__"]
+import json
+import os
 
 
 def _fetch_version():
-    import json
-    import os
-
     HERE = os.path.abspath(os.path.dirname(__file__))
 
-    for d, _, _ in os.walk(HERE):
+    for folder, _, _ in os.walk(HERE):
         try:
-            with open(os.path.join(d, "package.json")) as f:
-                return json.load(f)["version"]
+            with open(os.path.join(folder, "package.json")) as file:
+                return json.load(file)["version"]
         except FileNotFoundError:
             pass
 
@@ -18,3 +16,4 @@ def _fetch_version():
 
 
 __version__ = _fetch_version()
+__all__ = ["__version__"]

@@ -271,7 +271,7 @@ class PhaseDiagramComponent(MPComponent):
 
             if dim == 4:
                 z_list.append(coord[2])
-            text.append(f"{clean_formula} ({mpid})<br> {str(energy)} eV")
+            text.append(f"{clean_formula} ({mpid})<br> {energy} eV")
 
         if dim == 2 or dim == 3:
             marker_plot = go.Scatter(

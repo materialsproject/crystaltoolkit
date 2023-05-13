@@ -427,13 +427,13 @@ ctc.register_crystal_toolkit(layout=master_layout, app=app, cache=cache)
 
 @app.callback(Output(search_component.id("input"), "value"), Input("url", "href"))
 def update_search_term_on_page_load(href: str) -> str:
-    """If an mpid is provided in the url, load that mpid. Otherwise load a random mpid from the
+    """If an MP ID is provided in the url, load that MP ID. Otherwise load a random MP ID from the
     DEFAULT_MPIDS global variable.
 
     Args:
         href: e.g. "http://localhost:8050/mp-11358"
 
-    Returns: an mpid
+    Returns: an MP ID
     """
     if href is None:
         raise PreventUpdate
@@ -454,7 +454,7 @@ def update_search_term_on_page_load(href: str) -> str:
 def perform_search_on_page_load(
     search_term: str, n_submit: int | None
 ) -> tuple[int, int]:
-    """Loading with an mpid in the URL requires populating the search term with the mpid, this
+    """Loading with an MP ID in the URL requires populating the search term with the MP ID, this
     callback forces that search to then take place by force updating n_submit and n_submit_timestamp
     props.
 

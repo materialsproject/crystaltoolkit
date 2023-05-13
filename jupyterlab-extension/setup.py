@@ -17,8 +17,8 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 name = "crystaltoolkit-extension"
 
 # Get our version
-with open(os.path.join(HERE, "package.json")) as f:
-    version = json.load(f)["version"]
+with open(os.path.join(HERE, "package.json")) as file:
+    version = json.load(file)["version"]
 
 lab_path = os.path.join(HERE, name, "labextension")
 
@@ -51,8 +51,8 @@ if is_repo:
 else:
     cmdclass["jsdeps"] = skip_if_exists(jstargets, js_command)
 
-with open("README.md") as fh:
-    long_description = fh.read()
+with open("README.md") as readme:
+    long_description = readme.read()
 
 setup_args = dict(
     name=name,

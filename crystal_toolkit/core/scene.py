@@ -125,8 +125,8 @@ class Scene:
         # TODO: find a way to keep the original MSONable object + scene generation options alongside
         if not filename.endswith(".ctk.json"):
             filename += ".ctk.json"
-        with open(filename, "w") as f:
-            dump(self.to_json(), f)
+        with open(filename, "w") as file:
+            dump(self.to_json(), file)
 
     @property
     def bounding_box(self) -> list[list[float]]:
