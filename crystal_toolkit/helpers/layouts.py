@@ -250,7 +250,7 @@ class TagContainer(html.Div):
         super().__init__(tags, *args, **kwargs)
 
 
-class Textarea(html.Textarea):
+class Textarea(dcc.Textarea):
     def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "textarea")
         super().__init__(*args, **kwargs)
@@ -334,6 +334,19 @@ class Control(html.Div):
 
     def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "control")
+        super().__init__(*args, **kwargs)
+
+
+class Input(dcc.Input):
+    """Control tag to wrap form elements, see https://bulma.io/documentation/input/general/."""
+
+    def __init__(
+        self,
+        *args,
+        color="primary",
+        **kwargs,
+    ) -> None:
+        _update_css_class(kwargs, f"input is-{color}")
         super().__init__(*args, **kwargs)
 
 
