@@ -514,6 +514,7 @@ def hook_up_fig_with_struct_viewer(
     df: pd.DataFrame,
     struct_col: str = "structure",
     validate_id: Callable[[str], bool] = lambda id: True,
+    highlight_selected: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
 ) -> Dash:
     """Create a Dash app that hooks up a Plotly figure with a Crystal Toolkit structure
     component. See https://github.com/materialsproject/crystaltoolkit/pull/320 for
@@ -553,6 +554,12 @@ def hook_up_fig_with_struct_viewer(
             True if the string is a valid df row index. Defaults to lambda
             id: True. Useful for not running the update-structure
             callback on unexpected data.
+        highlight_selected (Callable[[dict[str, Any]], dict[str, Any]], optional):
+            Function that takes the clicked or last-hovered point and returns a dict of
+            kwargs to be passed to go.Figure.add_annotation() to highlight said point.
+            Set to False to disable highlighting. Defaults to lambda point: dict(
+                x=point["x"], y=point["y"], xref="x", yref="y", text=f"<b>{point['hovertext']}</b>"
+            )
 
     Returns:
         Dash: The interactive Dash app to be run with app.run().
@@ -596,9 +603,19 @@ def hook_up_fig_with_struct_viewer(
     )
     ctc.register_crystal_toolkit(app=app, layout=app.layout)
 
+    if highlight_selected is None:
+        highlight_selected = lambda point: dict(
+            x=point["x"],
+            y=point["y"],
+            xref="x",
+            yref="y",
+            text=f"<b>{point['hovertext']}</b>",
+        )
+
     @app.callback(
         Output(structure_component.id(), "data"),
         Output(struct_title, "children"),
+        Output(graph, "figure"),
         Input(graph, "hoverData"),
         Input(graph, "clickData"),
         State(hover_click_dd, "value"),
@@ -607,7 +624,7 @@ def hook_up_fig_with_struct_viewer(
         hover_data: dict[str, list[dict[str, Any]]],
         click_data: dict[str, list[dict[str, Any]]],  # needed only as callback trigger
         dropdown_value: str,
-    ) -> tuple[Structure, str] | tuple[None, None]:
+    ) -> tuple[Structure, str, go.Figure] | tuple[None, None, None]:
         """Update StructureMoleculeComponent with pymatgen structure when user clicks or
         hovers a plot point.
         """
@@ -629,6 +646,15 @@ def hook_up_fig_with_struct_viewer(
             struct = Structure.from_dict(struct)
         struct_title = f"{material_id} ({struct.formula})"
 
-        return struct, struct_title
+        if highlight_selected is not None:
+            # remove existing annotations with name="selected"
+            fig.layout.annotations = [
+                anno for anno in fig.layout.annotations if anno.name != "selected"
+            ]
+            # highlight selected point in figure
+            anno = highlight_selected(hover_data["points"][0])
+            fig.add_annotation(**anno, name="selected")
+
+        return struct, struct_title, fig
 
     return app
