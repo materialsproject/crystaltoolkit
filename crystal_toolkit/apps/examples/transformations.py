@@ -4,8 +4,7 @@ import dash
 from dash import html
 from dash.dependencies import Input, Output
 from dash_mp_components import JsonView
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, Structure
 from pymatgen.ext.matproj import MPRester
 
 import crystal_toolkit.components as ctc

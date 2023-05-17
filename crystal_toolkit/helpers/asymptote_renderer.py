@@ -15,7 +15,7 @@ from typing import IO, Any
 
 from jinja2 import Environment
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.structure import Structure
+from pymatgen.core import Structure
 
 from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.defaults import _DEFAULTS

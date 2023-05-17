@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pymatgen.core.structure import Molecule
+from pymatgen.core import Molecule
 
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.scene import Scene

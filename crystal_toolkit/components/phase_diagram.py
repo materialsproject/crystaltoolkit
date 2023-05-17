@@ -6,7 +6,7 @@ from dash import dash_table, dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition
 from pymatgen.ext.matproj import MPRester
 
 from crystal_toolkit.core.mpcomponent import MPComponent

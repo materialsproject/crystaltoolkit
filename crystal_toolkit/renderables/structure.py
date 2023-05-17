@@ -5,8 +5,7 @@ from itertools import combinations
 from typing import Sequence
 
 import numpy as np
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import PeriodicSite, Structure
 
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.scene import Scene

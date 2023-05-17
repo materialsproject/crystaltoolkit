@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import (
     BandStructure,
     BandStructureSymmLine,

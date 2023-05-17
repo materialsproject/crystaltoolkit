@@ -7,7 +7,7 @@ from dash import dcc, html
 from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from monty.serialization import loadfn
-from pymatgen.core.structure import Molecule, Structure
+from pymatgen.core import Molecule, Structure
 from pymatgen.io.vasp.outputs import Chgcar
 
 from crystal_toolkit.core.mpcomponent import MPComponent

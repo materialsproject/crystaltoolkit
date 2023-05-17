@@ -5,8 +5,8 @@ from typing import Sequence
 
 import numpy as np
 from pymatgen.analysis.graphs import ConnectedSite
+from pymatgen.core import Site
 from pymatgen.core.periodic_table import DummySpecie
-from pymatgen.core.sites import Site
 from pymatgen.electronic_structure.core import Magmom
 from scipy.spatial.qhull import Delaunay
 

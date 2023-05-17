@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, Structure
 
 from crystal_toolkit.core.legend import Legend
 

@@ -16,9 +16,8 @@ from dash_mp_components import CrystalToolkitScene
 from emmet.core.settings import EmmetSettings
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
-from pymatgen.core.composition import Composition
+from pymatgen.core import Composition, Molecule, Structure
 from pymatgen.core.periodic_table import DummySpecie
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

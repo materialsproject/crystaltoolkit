@@ -7,7 +7,7 @@ from typing import Sequence
 import numpy as np
 from matplotlib.cm import get_cmap
 from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.core import PeriodicSite
 
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.scene import Scene

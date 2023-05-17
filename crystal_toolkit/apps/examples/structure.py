@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import dash
 from dash import html
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
+from pymatgen.core import Lattice, Structure
 
 import crystal_toolkit.components as ctc
 from crystal_toolkit.settings import SETTINGS

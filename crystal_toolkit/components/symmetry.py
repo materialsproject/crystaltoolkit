@@ -5,7 +5,7 @@ from fractions import Fraction
 import numpy as np
 from dash import callback_context, html
 from dash.dependencies import Input, Output
-from pymatgen.core.structure import Structure
+from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import unicodeify_spacegroup, unicodeify_species
 

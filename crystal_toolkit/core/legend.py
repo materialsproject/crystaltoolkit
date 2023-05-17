@@ -12,8 +12,8 @@ from monty.json import MSONable
 from monty.serialization import loadfn
 from palettable.colorbrewer.qualitative import Set1_9
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
-from pymatgen.core.periodic_table import Element, Species
-from pymatgen.core.structure import Molecule, Site, SiteCollection
+from pymatgen.core import Element, Molecule, Site, Species
+from pymatgen.core.structure import SiteCollection
 from pymatgen.util.string import unicodeify_species
 from sklearn.preprocessing import LabelEncoder
 from webcolors import html5_parse_legacy_color, html5_serialize_simple_color
@@ -112,7 +112,7 @@ class Legend(MSONable):
                     if p is not None
                 ]
             )
-            prop_max = max(abs(min(props)), max(props))
+            prop_max = max(abs(min(props)), props)
             prop_min = -prop_max
             cmap_range = (prop_min, prop_max)
 
