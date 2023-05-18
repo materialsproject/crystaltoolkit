@@ -1007,8 +1007,8 @@ class StructureMoleculeComponent(MPComponent):
             f"Invalid input type {graph}, expected one of Structure, Molecule, StructureGraph or MoleculeGraph"
         )
 
-    @staticmethod
     def get_scene_and_legend(
+        self,
         graph: StructureGraph | MoleculeGraph | None,
         color_scheme: str = DEFAULTS["color_scheme"],  # type: ignore[assignment]
         color_scale: tuple[float, float] = None,
@@ -1056,6 +1056,7 @@ class StructureMoleculeComponent(MPComponent):
             radius_scheme=radius_strategy,
             cmap_range=color_scale,
         )
+        self._legend = legend
 
         if isinstance(graph, StructureGraph):
             scene = graph.get_scene(
