@@ -136,7 +136,7 @@ def get_structure_graph_scene(
             cmap = get_cmap(edge_weight_color_scale)
 
             # try to keep color scheme symmetric around 0
-            weight_max = max(abs(min(weights)), max(weights))
+            weight_max = max(*min(weights), *weights)
             weight_min = -weight_max
 
             def get_weight_color(weight):
