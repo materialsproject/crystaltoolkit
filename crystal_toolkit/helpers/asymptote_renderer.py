@@ -11,14 +11,16 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from itertools import chain
-from typing import IO, Any
+from typing import IO, TYPE_CHECKING, Any
 
 from jinja2 import Environment
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import Structure
 
-from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.defaults import _DEFAULTS
+
+if TYPE_CHECKING:
+    from crystal_toolkit.core.scene import Scene
 
 logger = logging.getLogger(__name__)
 

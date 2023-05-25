@@ -11,6 +11,7 @@ class DashDuo(Protocol):
     """The dash_duo pytest fixture lives in dash.testing.plugin.dash_duo.
 
     See https://dash.plotly.com/testing#browser-apis
+    and https://github.com/plotly/dash/issues/2170
     """
 
     # driver = ...  # selenium.webdriver.remote.WebDriver

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import time
+from typing import TYPE_CHECKING
 
-from crystal_toolkit.apps.examples.tests.typing import DashDuo
 from crystal_toolkit.apps.main import app
+
+if TYPE_CHECKING:
+    from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
 
 def test_main_app_startup(dash_duo: DashDuo):

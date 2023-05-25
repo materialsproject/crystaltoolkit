@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import dash
 import plotly.io as pio
 from dash import dash_table, html
 from dash.dependencies import Input, Output
-from pymatgen.core import Structure
 
 import crystal_toolkit.components as ctc
 import crystal_toolkit.helpers.layouts as ctl
@@ -13,6 +14,9 @@ from crystal_toolkit.apps.examples.utils import (
     matbench_dielectric_desc,
 )
 from crystal_toolkit.settings import SETTINGS
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 pio.templates.default = "plotly_white"
 

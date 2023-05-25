@@ -4,7 +4,7 @@ import os
 import warnings
 from collections import defaultdict
 from itertools import chain
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from matplotlib.cm import get_cmap
@@ -13,10 +13,12 @@ from monty.serialization import loadfn
 from palettable.colorbrewer.qualitative import Set1_9
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, Molecule, Site, Species
-from pymatgen.core.structure import SiteCollection
 from pymatgen.util.string import unicodeify_species
 from sklearn.preprocessing import LabelEncoder
 from webcolors import html5_parse_legacy_color, html5_serialize_simple_color
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import SiteCollection
 
 # element colors forked from pymatgen
 module_dir = os.path.dirname(os.path.abspath(__file__))

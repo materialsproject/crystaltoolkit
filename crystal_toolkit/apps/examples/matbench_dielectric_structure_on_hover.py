@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import dash
 import plotly.express as px
 import plotly.io as pio
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
-from pymatgen.core import Structure
 
 import crystal_toolkit.components as ctc
 from crystal_toolkit.apps.examples.utils import (
@@ -16,6 +15,9 @@ from crystal_toolkit.apps.examples.utils import (
 )
 from crystal_toolkit.helpers.utils import get_data_table
 from crystal_toolkit.settings import SETTINGS
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 pio.templates.default = "plotly_white"
 

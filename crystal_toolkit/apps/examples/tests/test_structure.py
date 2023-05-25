@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from time import sleep
+from typing import TYPE_CHECKING
 
 from crystal_toolkit.apps.examples.structure import app
-from crystal_toolkit.apps.examples.tests.typing import DashDuo
+
+if TYPE_CHECKING:
+    from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
 
 def test_structure(dash_duo: DashDuo) -> None:
