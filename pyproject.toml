@@ -85,7 +85,6 @@ select = [
 ]
 ignore = [
     "B028",   # No explicit stacklevel keyword argument found
-    "B904",   # Within an except clause, raise exceptions with raise ... from err
     "C408",   # Unnecessary dict call - rewrite as a literal
     "D100",   # Missing docstring in public module
     "D104",   # Missing docstring in public package
