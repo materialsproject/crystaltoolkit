@@ -205,17 +205,15 @@ def write_pov_file(smc, file_name):
     smc (StructureMoleculeComponent): Object containing the scene data.
     file_name (str): name of the file to write to.
     """
-    fstream = open(file_name, "w")
-    fstream.write(HEAD)
-    fstream.write(CAMERA)
-    fstream.write(LIGHTS)
-    filter_data(smc.initial_scene_data, fstream)
-    fstream.close()
+    with open(file_name, "w") as fstream:
+        fstream.write(HEAD)
+        fstream.write(CAMERA)
+        fstream.write(LIGHTS)
+        filter_data(smc.initial_scene_data, fstream)
 
-    fstream = open("render.ini", "w")
     render_settings = get_render_settings()
-    fstream.write(render_settings)
-    fstream.close()
+    with open(file_name, "w") as file:
+        file.write(render_settings)
 
 
 def get_render_settings(file_name):

@@ -596,12 +596,12 @@ def write_ctk_scene_to_file(ctk_scene, file_name, **kwargs):
         ctk_scene: Scene object from crystaltoolkit
         file_name: Output asymptote file and location
     """
-    fstream = open(file_name, "w")
     target = tuple(-ii for ii in ctk_scene.origin)
     header = Environment().from_string(HEADER).render(target=target)
-    fstream.write(header)
-    traverse_scene_object(ctk_scene, fstream, **kwargs)
-    fstream.close()
+
+    with open(file_name, "w") as fstream:
+        fstream.write(header)
+        traverse_scene_object(ctk_scene, fstream, **kwargs)
 
 
 def write_asy_file(renderable_object, file_name, **kwargs):
