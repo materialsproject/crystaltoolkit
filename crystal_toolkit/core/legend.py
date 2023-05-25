@@ -4,7 +4,7 @@ import os
 import warnings
 from collections import defaultdict
 from itertools import chain
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from matplotlib.cm import get_cmap
@@ -13,10 +13,12 @@ from monty.serialization import loadfn
 from palettable.colorbrewer.qualitative import Set1_9
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, Molecule, Site, Species
-from pymatgen.core.structure import SiteCollection
 from pymatgen.util.string import unicodeify_species
 from sklearn.preprocessing import LabelEncoder
 from webcolors import html5_parse_legacy_color, html5_serialize_simple_color
+
+if TYPE_CHECKING:
+    from pymatgen.core.structure import SiteCollection
 
 # element colors forked from pymatgen
 module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -131,7 +133,7 @@ class Legend(MSONable):
         self.color_scheme = color_scheme
         self.radius_scheme = radius_scheme
         self.cmap = cmap
-        self.cmap_range = cast(tuple[float, float], cmap_range)
+        self.cmap_range = cmap_range
 
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import itertools
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import plotly.graph_objects as go
@@ -9,8 +9,6 @@ from dash import dcc, html
 from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -28,6 +26,10 @@ from crystal_toolkit.helpers.layouts import (
     get_data_list,
 )
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
+
+if TYPE_CHECKING:
+    from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+    from pymatgen.electronic_structure.dos import CompleteDos
 
 # Author: Jason Munro, Janosh Riebesell
 # Contact: jmunro@lbl.gov, janosh@lbl.gov

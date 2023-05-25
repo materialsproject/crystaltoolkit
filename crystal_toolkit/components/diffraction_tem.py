@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 from time import time
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
 import plotly.graph_objects as go
 from dash import dcc, html
 from dash.dependencies import Input, Output
-from pymatgen.core import Structure
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, Reveal
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 try:
     import py4DSTEM

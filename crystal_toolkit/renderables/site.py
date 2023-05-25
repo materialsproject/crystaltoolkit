@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
-from pymatgen.analysis.graphs import ConnectedSite
 from pymatgen.core import Site
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.electronic_structure.core import Magmom
@@ -20,6 +19,9 @@ from crystal_toolkit.core.scene import (
     Spheres,
     Surface,
 )
+
+if TYPE_CHECKING:
+    from pymatgen.analysis.graphs import ConnectedSite
 
 
 def get_site_scene(

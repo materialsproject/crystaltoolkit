@@ -11,14 +11,16 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from itertools import chain
-from typing import IO, Any
+from typing import IO, TYPE_CHECKING, Any
 
 from jinja2 import Environment
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import Structure
 
-from crystal_toolkit.core.scene import Scene
 from crystal_toolkit.defaults import _DEFAULTS
+
+if TYPE_CHECKING:
+    from crystal_toolkit.core.scene import Scene
 
 logger = logging.getLogger(__name__)
 
@@ -596,12 +598,12 @@ def write_ctk_scene_to_file(ctk_scene, file_name, **kwargs):
         ctk_scene: Scene object from crystaltoolkit
         file_name: Output asymptote file and location
     """
-    fstream = open(file_name, "w")
     target = tuple(-ii for ii in ctk_scene.origin)
     header = Environment().from_string(HEADER).render(target=target)
-    fstream.write(header)
-    traverse_scene_object(ctk_scene, fstream, **kwargs)
-    fstream.close()
+
+    with open(file_name, "w") as fstream:
+        fstream.write(header)
+        traverse_scene_object(ctk_scene, fstream, **kwargs)
 
 
 def write_asy_file(renderable_object, file_name, **kwargs):

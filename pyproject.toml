@@ -63,6 +63,7 @@ select = [
     "C4",  # flake8-comprehensions
     "D",   # pydocstyle
     "E",   # pycodestyle error
+    "EXE", # flake8-executable
     "F",   # pyflakes
     "FLY", # flynt
     "I",   # isort
@@ -78,14 +79,15 @@ select = [
     "RSE", # flake8-raise
     "RUF", # Ruff-specific rules
     "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
     "TID", # tidy imports
+    "TID", # flake8-tidy-imports
     "UP",  # pyupgrade
     "W",   # pycodestyle warning
     "YTT", # flake8-2020
 ]
 ignore = [
     "B028",   # No explicit stacklevel keyword argument found
-    "B904",   # Within an except clause, raise exceptions with raise ... from err
     "C408",   # Unnecessary dict call - rewrite as a literal
     "D100",   # Missing docstring in public module
     "D104",   # Missing docstring in public package
@@ -97,7 +99,6 @@ ignore = [
     "PD901",  # pandas-df-variable-name
     "PLR",    # pylint refactor
     "SIM105", # Use contextlib.suppress(ValueError) instead of try-except-pass
-    "SIM115", # Use context handler for opening files
 ]
 pydocstyle.convention = "google"
 isort.split-on-trailing-comma = false

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
-from numpy.typing import ArrayLike
 from pymatgen.io.vasp import VolumetricData
 
 from crystal_toolkit.core.scene import Scene, Surface
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 _ANGS2_TO_BOHR3 = 1.88973**3
 

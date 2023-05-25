@@ -426,7 +426,7 @@ class CatalysisApp(MPApp):
             structure = client.get_structure(contribution["structures"][0]["id"])
         except Exception as ex:
             logger.error(ex)
-            raise PreventUpdate
+            raise PreventUpdate from ex
 
         bulk_formula = contribution["data"]["bulkFormula"]
         adsorbate_smiles = contribution["data"]["adsorbateSmiles"]

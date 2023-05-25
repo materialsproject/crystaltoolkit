@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
-import pandas as pd
 from dash import dcc
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from tqdm import tqdm
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 def load_and_store_matbench_dataset(dataset_name: str) -> pd.DataFrame:

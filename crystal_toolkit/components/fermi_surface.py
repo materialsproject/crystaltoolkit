@@ -4,12 +4,12 @@ import typing
 
 import matplotlib.pyplot as plt
 from dash import Input, Output
-from dash.development.base_component import Component
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, dcc
 
 if typing.TYPE_CHECKING:
+    from dash.development.base_component import Component
     from ifermi.surface import FermiSurface
     from plotly.graph_objects import Figure
 

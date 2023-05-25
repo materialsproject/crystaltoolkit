@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from typing import TYPE_CHECKING
 
 from crystal_toolkit.apps.examples.basic_hello_structure import (
     app as hello_structure_app,
@@ -9,7 +10,9 @@ from crystal_toolkit.apps.examples.basic_hello_structure_interactive import (
     app as hello_structure_interactive_app,
 )
 from crystal_toolkit.apps.examples.basic_hello_world import app as hello_world_app
-from crystal_toolkit.apps.examples.tests.typing import DashDuo
+
+if TYPE_CHECKING:
+    from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
 
 def test_hello_scientist(dash_duo: DashDuo):

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
 import numpy as np
 import plotly.graph_objects as go
@@ -8,7 +9,6 @@ from dash import callback_context, dcc, html
 from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
-from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
 
@@ -21,6 +21,10 @@ from crystal_toolkit.helpers.layouts import (
     MessageBody,
     MessageContainer,
 )
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
+
 
 # Scherrer equation: Langford, J. Il, and A. J. C. Wilson. "Scherrer after sixty years:
 # a survey and some new results in the determination of crystallite size." Journal of

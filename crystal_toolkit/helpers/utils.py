@@ -4,20 +4,17 @@ import logging
 import re
 import urllib.parse
 from fractions import Fraction
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 from uuid import uuid4
 
 import dash
 import dash_mp_components as mpc
 import numpy as np
-import pandas as pd
-import plotly.graph_objects as go
 from dash import Dash, dcc, html
 from dash import dash_table as dt
 from dash.dependencies import Input, Output, State
 from flask import has_request_context, request
 from monty.serialization import loadfn
-from numpy.typing import ArrayLike
 from pymatgen.core import Structure
 
 import crystal_toolkit.components as ctc
@@ -25,6 +22,11 @@ import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.defaults import _DEFAULTS
 from crystal_toolkit.settings import SETTINGS
+
+if TYPE_CHECKING:
+    import pandas as pd
+    import plotly.graph_objects as go
+    from numpy.typing import ArrayLike
 
 logger = logging.getLogger(__name__)
 

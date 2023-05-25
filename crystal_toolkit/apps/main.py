@@ -5,7 +5,7 @@ import os
 import warnings
 from random import choice
 from time import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib import parse
 from uuid import uuid4
 
@@ -22,7 +22,6 @@ from pymatgen.ext.matproj import MPRester, MPRestError
 import crystal_toolkit.components as ctc
 from crystal_toolkit import __file__ as module_path
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import (
     Box,
     Column,
@@ -35,6 +34,9 @@ from crystal_toolkit.helpers.layouts import (
     Reveal,
 )
 from crystal_toolkit.settings import SETTINGS
+
+if TYPE_CHECKING:
+    from crystal_toolkit.core.panelcomponent import PanelComponent
 
 # choose a default structure on load
 path = os.path.join(os.path.dirname(module_path), "apps/assets/task_ids_on_load.json")
