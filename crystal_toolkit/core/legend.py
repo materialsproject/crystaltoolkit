@@ -4,7 +4,7 @@ import os
 import warnings
 from collections import defaultdict
 from itertools import chain
-from typing import Any, cast
+from typing import Any
 
 import numpy as np
 from matplotlib.cm import get_cmap
@@ -131,7 +131,7 @@ class Legend(MSONable):
         self.color_scheme = color_scheme
         self.radius_scheme = radius_scheme
         self.cmap = cmap
-        self.cmap_range = cast(tuple[float, float], cmap_range)
+        self.cmap_range = cmap_range
 
     @staticmethod
     def generate_accessible_color_scheme_on_the_fly(
