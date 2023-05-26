@@ -86,7 +86,7 @@ class StructureMoleculeComponent(MPComponent):
         struct_or_mol: (
             None | Structure | StructureGraph | Molecule | MoleculeGraph
         ) = None,
-        id: str = None,
+        id: str | None = None,
         className: str = "box",
         scene_additions: Scene | None = None,
         bonding_strategy: str = DEFAULTS["bonding_strategy"],
@@ -237,6 +237,18 @@ class StructureMoleculeComponent(MPComponent):
             self.scene_kwargs = {"axisView": "HIDDEN"}
         else:
             self.scene_kwargs = {}
+
+    def __str__(self) -> str:
+        return repr(self)
+
+    def __repr__(self) -> str:
+        # TODO due to the current increment ID counter until unique, incl. component ID in the repr breaks unit tests
+        # consider adding ID to repr once ID creation is less brittle
+        # id = self._id
+        struct_or_mol = self._initial_data["default"]
+        formula = getattr(struct_or_mol, "formula", None)
+        atoms = getattr(struct_or_mol, "num_sites", None)
+        return f"StructureMoleculeComponent({formula=}, {atoms=})"
 
     def generate_callbacks(self, app, cache) -> None:
         # a lot of the verbosity in this callback is to support custom bonding
