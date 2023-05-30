@@ -16,7 +16,7 @@ from dash_mp_components import CrystalToolkitScene
 from emmet.core.settings import EmmetSettings
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
-from pymatgen.core import Composition, Molecule, Structure
+from pymatgen.core import Composition, Molecule, Species, Structure
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -584,20 +584,15 @@ class StructureMoleculeComponent(MPComponent):
             # ensures contrasting font color for background color
             c = tuple(int(hex_code[1:][i : i + 2], 16) for i in (0, 2, 4))
             return (
-                "#000000"
+                "black"
                 if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5
-                else "#ffffff"
+                else "white"
             )
 
-        try:
-            formula = Composition.from_dict(legend["composition"]).reduced_formula
-        except Exception:
-            # TODO: fix legend for DummySpecies compositions
-            formula = "Unknown"
-
-        legend_colors = dict(
-            sorted(legend["colors"].items(), key=lambda x: formula.find(x[1]))
-        )
+        legend_colors = {
+            k: self._legend.get_color(Species(k))
+            for k, v in legend["composition"].items()
+        }
 
         legend_elements = [
             html.Span(
@@ -607,7 +602,7 @@ class StructureMoleculeComponent(MPComponent):
                 className="button is-static is-rounded",
                 style={"backgroundColor": color},
             )
-            for color, name in legend_colors.items()
+            for name, color in legend_colors.items()
         ]
 
         return html.Div(
@@ -1019,8 +1014,8 @@ class StructureMoleculeComponent(MPComponent):
             f"Invalid input type {graph}, expected one of Structure, Molecule, StructureGraph or MoleculeGraph"
         )
 
-    @staticmethod
     def get_scene_and_legend(
+        self,
         graph: StructureGraph | MoleculeGraph | None,
         color_scheme: str = DEFAULTS["color_scheme"],  # type: ignore[assignment]
         color_scale: tuple[float, float] = None,
@@ -1068,6 +1063,7 @@ class StructureMoleculeComponent(MPComponent):
             radius_scheme=radius_strategy,
             cmap_range=color_scale,
         )
+        self._legend = legend
 
         if isinstance(graph, StructureGraph):
             scene = graph.get_scene(

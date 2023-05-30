@@ -6,7 +6,6 @@ from collections import defaultdict
 from itertools import chain
 from typing import TYPE_CHECKING, Any
 
-import numpy as np
 from matplotlib.cm import get_cmap
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -107,13 +106,12 @@ class Legend(MSONable):
         # maximum values for color scheme, will default to be symmetric
         # about zero
         if color_scheme in site_prop_types.get("scalar", []) and not cmap_range:
-            props = np.array(
-                [
-                    p
-                    for p in site_collection.site_properties[color_scheme]
-                    if p is not None
-                ]
-            )
+            props = [
+                prop
+                for prop in site_collection.site_properties[color_scheme]
+                if prop is not None
+            ]
+
             prop_max = max(abs(min(props)), props)
             prop_min = -prop_max
             cmap_range = (prop_min, prop_max)
@@ -225,7 +223,7 @@ class Legend(MSONable):
         palette = Set1_9.colors
 
         for site_prop_name in site_prop_types.get("categorical", []):
-            props = np.array(site_collection.site_properties[site_prop_name])
+            props = site_collection.site_properties[site_prop_name]
             props[props is None] = "None"
 
             label_enc = LabelEncoder()
