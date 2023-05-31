@@ -54,7 +54,7 @@ class TransformationComponent(MPComponent):
             # style used to be passed to dash_daq.ToggleSwitch component, but not
             # supported by mpc.Switch
             # style={"display": "inline-block", "vertical-align": "middle"},
-            value=False
+            value=False,
         )
 
         message = html.Div(id=self.id("message"))
