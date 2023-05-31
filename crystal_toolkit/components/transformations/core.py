@@ -54,6 +54,7 @@ class TransformationComponent(MPComponent):
             # style used to be passed to dash_daq.ToggleSwitch component, but not
             # supported by mpc.Switch
             # style={"display": "inline-block", "vertical-align": "middle"},
+            value=False,
         )
 
         message = html.Div(id=self.id("message"))
@@ -214,7 +215,7 @@ class TransformationComponent(MPComponent):
             Output(self.id("container"), "className"),
             Output(self.id("message"), "children"),
             Output(self.get_all_kwargs_id(), "disabled"),
-            Input(self.id("enable_transformation"), "on"),
+            Input(self.id("enable_transformation"), "value"),
             State(self.get_all_kwargs_id(), "value"),
         )
         @cache.memoize(
