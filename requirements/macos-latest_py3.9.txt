@@ -8,7 +8,7 @@ aiofiles==22.1.0
     # via ypy-websocket
 aiosqlite==0.19.0
     # via ypy-websocket
-anyio==3.6.2
+anyio==3.7.0
     # via jupyter-server
 appnope==0.1.3
     # via
@@ -35,8 +35,6 @@ beautifulsoup4==4.12.2
     # via nbconvert
 bleach==6.0.0
     # via nbconvert
-blinker==1.6.2
-    # via flask
 cachelib==0.9.0
     # via flask-caching
 certifi==2023.5.7
@@ -55,7 +53,7 @@ crystaltoolkit-extension==0.6.0
     # via crystal-toolkit (pyproject.toml)
 cycler==0.11.0
     # via matplotlib
-dash==2.9.3
+dash==2.10.2
     # via crystal-toolkit (pyproject.toml)
 dash-core-components==2.0.0
     # via dash
@@ -71,13 +69,15 @@ decorator==5.1.1
     # via ipython
 defusedxml==0.7.1
     # via nbconvert
-emmet-core==0.55.0
+emmet-core==0.55.2
     # via mp-api
+exceptiongroup==1.1.1
+    # via anyio
 executing==1.2.0
     # via stack-data
-fastjsonschema==2.16.3
+fastjsonschema==2.17.1
     # via nbformat
-flask==2.3.2
+flask==2.2.5
     # via
     #   dash
     #   flask-caching
@@ -94,7 +94,7 @@ idna==3.4
     #   anyio
     #   jsonschema
     #   requests
-imageio==2.28.1
+imageio==2.30.0
     # via scikit-image
 importlib-metadata==6.6.0
     # via
@@ -105,7 +105,7 @@ importlib-metadata==6.6.0
     #   nbconvert
 importlib-resources==5.12.0
     # via matplotlib
-ipykernel==6.23.0
+ipykernel==6.23.1
     # via
     #   nbclassic
     #   notebook
@@ -134,7 +134,7 @@ jinja2==3.1.2
     #   notebook
 joblib==1.2.0
     # via scikit-learn
-json5==0.9.11
+json5==0.9.14
     # via jupyterlab-server
 jsonpointer==2.3
     # via jsonschema
@@ -165,7 +165,7 @@ jupyter-events==0.6.3
     # via
     #   jupyter-server
     #   jupyter-server-fileid
-jupyter-server==2.5.0
+jupyter-server==2.6.0
     # via
     #   jupyter-server-fileid
     #   jupyterlab
@@ -182,7 +182,7 @@ jupyter-ydoc==0.2.4
     # via
     #   jupyter-server-ydoc
     #   jupyterlab
-jupyterlab==3.6.3
+jupyterlab==3.6.4
     # via crystaltoolkit-extension
 jupyterlab-pygments==0.2.2
     # via nbconvert
@@ -212,7 +212,7 @@ monty==2023.5.8
     #   emmet-core
     #   mp-api
     #   pymatgen
-mp-api==0.33.2
+mp-api==0.33.3
     # via pymatgen
 mpmath==1.3.0
     # via sympy
@@ -222,14 +222,14 @@ nbclassic==1.0.0
     # via
     #   jupyterlab
     #   notebook
-nbclient==0.7.4
+nbclient==0.8.0
     # via nbconvert
 nbconvert==7.4.0
     # via
     #   jupyter-server
     #   nbclassic
     #   notebook
-nbformat==5.8.0
+nbformat==5.9.0
     # via
     #   jupyter-server
     #   nbclassic
@@ -263,6 +263,8 @@ numpy==1.24.3
     #   shapely
     #   spglib
     #   tifffile
+overrides==7.3.1
+    # via jupyter-server
 packaging==23.1
     # via
     #   ipykernel
@@ -275,7 +277,7 @@ packaging==23.1
     #   scikit-image
 palettable==3.3.3
     # via pymatgen
-pandas==2.0.1
+pandas==2.0.2
     # via pymatgen
 pandocfilters==1.5.0
     # via nbconvert
@@ -296,7 +298,7 @@ plotly==5.14.1
     # via
     #   dash
     #   pymatgen
-prometheus-client==0.16.0
+prometheus-client==0.17.0
     # via
     #   jupyter-server
     #   nbclassic
@@ -317,13 +319,13 @@ pybtex==0.24.0
     #   pymatgen
 pycparser==2.21
     # via cffi
-pydantic==1.10.7
+pydantic==1.10.8
     # via emmet-core
 pygments==2.15.1
     # via
     #   ipython
     #   nbconvert
-pymatgen==2023.5.10
+pymatgen==2023.5.31
     # via
     #   crystal-toolkit (pyproject.toml)
     #   emmet-core
@@ -348,14 +350,14 @@ pyyaml==6.0
     # via
     #   jupyter-events
     #   pybtex
-pyzmq==25.0.2
+pyzmq==25.1.0
     # via
     #   ipykernel
     #   jupyter-client
     #   jupyter-server
     #   nbclassic
     #   notebook
-requests==2.30.0
+requests==2.31.0
     # via
     #   jupyterlab-server
     #   mp-api
@@ -368,7 +370,7 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-ruamel-yaml==0.17.26
+ruamel-yaml==0.17.31
     # via pymatgen
 ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
@@ -426,7 +428,7 @@ tinycss2==1.2.1
     # via nbconvert
 tomli==2.0.1
     # via jupyterlab
-tornado==6.3.1
+tornado==6.3.2
     # via
     #   ipykernel
     #   jupyter-client
@@ -452,7 +454,7 @@ traitlets==5.9.0
     #   nbconvert
     #   nbformat
     #   notebook
-typing-extensions==4.5.0
+typing-extensions==4.6.2
     # via
     #   emmet-core
     #   ipython
@@ -476,10 +478,12 @@ webencodings==0.5.1
     # via
     #   bleach
     #   tinycss2
-websocket-client==1.5.1
+websocket-client==1.5.2
     # via jupyter-server
-werkzeug==2.3.4
-    # via flask
+werkzeug==2.2.3
+    # via
+    #   dash
+    #   flask
 y-py==0.5.9
     # via
     #   jupyter-ydoc
