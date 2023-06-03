@@ -6,7 +6,7 @@ from base64 import b64encode
 from itertools import chain, combinations_with_replacement
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 from dash import dash_table as dt
@@ -572,7 +572,7 @@ class StructureMoleculeComponent(MPComponent):
                     raise PreventUpdate
 
             graph = self.from_data(graph)
-            rows = self._make_bonding_algorithm_custom_cuffoff_data(graph)
+            rows = self._make_bonding_algorithm_custom_cutoff_data(graph)
 
             return rows, style
 
@@ -646,7 +646,7 @@ class StructureMoleculeComponent(MPComponent):
         )
 
     @staticmethod
-    def _make_bonding_algorithm_custom_cuffoff_data(graph):
+    def _make_bonding_algorithm_custom_cutoff_data(graph) -> list[dict[str, Any]]:
         if not graph:
             return [{"A": None, "B": None, "A—B": None}]
         struct_or_mol = StructureMoleculeComponent._get_struct_or_mol(graph)
@@ -698,7 +698,7 @@ class StructureMoleculeComponent(MPComponent):
                         {"name": "A—B /Å", "id": "A—B"},
                     ],
                     editable=True,
-                    data=self._make_bonding_algorithm_custom_cuffoff_data(
+                    data=self._make_bonding_algorithm_custom_cutoff_data(
                         self.initial_data.get("default")
                     ),
                     id=self.id("bonding_algorithm_custom_cutoffs"),
