@@ -1018,7 +1018,7 @@ class StructureMoleculeComponent(MPComponent):
         self,
         graph: StructureGraph | MoleculeGraph | None,
         color_scheme: str = DEFAULTS["color_scheme"],  # type: ignore[assignment]
-        color_scale: tuple[float, float] = None,
+        color_scale: tuple[float, float] | None = None,
         radius_strategy=DEFAULTS["radius_strategy"],
         draw_image_atoms=DEFAULTS["draw_image_atoms"],
         bonded_sites_outside_unit_cell=DEFAULTS["bonded_sites_outside_unit_cell"],

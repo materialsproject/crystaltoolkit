@@ -23,7 +23,7 @@ class DashDuo(Protocol):
         ...
 
     def wait_for_text_to_equal(
-        self, selector: str, text: str, timeout: int = None
+        self, selector: str, text: str, timeout: int | None = None
     ) -> None:
         ...
 
@@ -39,13 +39,13 @@ class DashDuo(Protocol):
     def multiple_click(self, selector: str, clicks: int) -> None:
         ...
 
-    def wait_for_element(self, selector: str, timeout: int = None) -> None:
+    def wait_for_element(self, selector: str, timeout: int | None = None) -> None:
         ...
 
     def take_snapshot(self, name: str) -> None:
         ...
 
-    def wait_for_page(self, url: str = None, timeout: int = 10) -> None:
+    def wait_for_page(self, url: str | None = None, timeout: int = 10) -> None:
         ...
 
     def find_elements(
@@ -54,7 +54,10 @@ class DashDuo(Protocol):
         ...
 
     def select_dcc_dropdown(
-        self, elem_or_selector: ElemOrSelector, value: str = None, index: int = None
+        self,
+        elem_or_selector: ElemOrSelector,
+        value: str | None = None,
+        index: int | None = None,
     ) -> None:
         # https://github.com/plotly/dash/blob/04217e8/dash/testing/browser.py#L409
         ...

@@ -117,3 +117,6 @@ addopts = "-p no:warnings"
 
 [tool.codespell]
 ignore-words-list = "nd,te"
+
+[tool.mypy]
+no_implicit_optional = false
