@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from dash import Input, Output
 from dash.development.base_component import Component
 
+from pymatgen.electronic_structure.core import Spin
+
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, dcc
 
@@ -95,6 +97,8 @@ class FermiSurfaceComponent(MPComponent):
         state = {
             "show_cell": True,
             "show_labels": True,
+            # "plot_index": False,
+            # "spin": False,
             "color_properties": False,
         }
 
@@ -108,6 +112,37 @@ class FermiSurfaceComponent(MPComponent):
                 )
             ],
             id=self.id("fermi-surface-div"),
+        )
+
+        individual_bands = []
+
+        for key, val in fermi_surface.isosurfaces.items():
+            for isosurface in val:
+                if isosurface.band_idx not in individual_bands:
+                    individual_bands.append(isosurface.band_idx)
+
+        band_options = [
+            {"label": f"Band {band}", "value": band}
+            for idx, band in enumerate(individual_bands)
+        ]
+
+        plot_index = self.get_choice_input(
+            kwarg_label="plot_index",
+            state=state,
+            label="Band Selection",
+            options=band_options,
+        )
+
+        spin_options = [
+            {"label": spin.name.title(), "value": spin}
+            for spin in fermi_surface.isosurfaces
+        ]
+
+        spin = self.get_choice_input(
+            kwarg_label="spin",
+            state=state,
+            label="Spin Channel",
+            options=spin_options,
         )
 
         show_cell = self.get_bool_input(
@@ -127,6 +162,7 @@ class FermiSurfaceComponent(MPComponent):
         options = [{"label": "None", "value": False}]
         if fermi_surface is not None and fermi_surface.has_properties:
             options += [{"label": k, "value": k} for k in plt.colormaps()]
+
         color_properties = self.get_choice_input(
             kwarg_label="color_properties",
             state=state,
@@ -141,6 +177,8 @@ class FermiSurfaceComponent(MPComponent):
             "graph": graph,
             "show_cell": show_cell,
             "show_labels": show_labels,
+            "plot_index": plot_index,
+            "spin": spin,
             "color_properties": color_properties,
         }
 
