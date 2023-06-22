@@ -237,7 +237,7 @@ class MPComponent(ABC):
         name: str = "default",
         is_kwarg: bool = False,
         idx: bool | int = False,
-        hint: str = None,
+        hint: str | None = None,
     ) -> str | dict[str, str]:
         """Generate an id from a name combined with the base id of the MPComponent itself, useful
         for generating ids of individual components in the layout.
@@ -382,7 +382,7 @@ Sub-layouts:  \n{layouts}"""
         default: int | float | list | None = None,
         state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         is_int: bool = False,
         shape: tuple[int, ...] = (),
         **kwargs,
@@ -478,9 +478,9 @@ Sub-layouts:  \n{layouts}"""
         self,
         kwarg_label: str,
         default: Any | None = None,
-        state: dict = None,
+        state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         multiple: bool = False,
         **kwargs,
     ):
@@ -513,7 +513,7 @@ Sub-layouts:  \n{layouts}"""
         default: bool | None = None,
         state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         **kwargs,
     ):
         """For Python classes which take boolean values as inputs, this will generate a
@@ -548,7 +548,7 @@ Sub-layouts:  \n{layouts}"""
         default: str | None = None,
         state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         options: list[dict] | None = None,
         clearable: bool = False,
         **kwargs,
@@ -587,7 +587,7 @@ Sub-layouts:  \n{layouts}"""
         default: dict | None = None,
         state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         dict_size: int | None = None,
         key_name: str = "key",
         value_name: str = "value",

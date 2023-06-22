@@ -26,7 +26,7 @@ class FermiSurfaceComponent(MPComponent):
 
     def __init__(
         self,
-        fermi_surface: FermiSurface = None,
+        fermi_surface: FermiSurface | None = None,
         id: str | None = None,
         **kwargs,
     ) -> None:

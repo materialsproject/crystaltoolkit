@@ -46,7 +46,9 @@ SITES_LIMIT = 25
 class XRayDiffractionComponent(MPComponent):
     # TODO: add pole figures for a given single peak for help quantifying texture
 
-    def __init__(self, *args, initial_structure: Structure = None, **kwargs) -> None:
+    def __init__(
+        self, *args, initial_structure: Structure | None = None, **kwargs
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
 

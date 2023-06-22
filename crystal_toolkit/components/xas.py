@@ -125,7 +125,7 @@ class XASComponent(MPComponent):
             if not plotdata:
                 raise PreventUpdate
             if plotdata == "error":
-                search_error = MessageContainer(
+                return MessageContainer(
                     [
                         MessageBody(
                             dcc.Markdown(
@@ -135,7 +135,6 @@ class XASComponent(MPComponent):
                     ],
                     kind="warning",
                 )
-                return search_error
             return dcc.Graph(
                 figure=go.Figure(data=plotdata, layout=self.default_xas_layout),
                 config={"displayModeBar": False},

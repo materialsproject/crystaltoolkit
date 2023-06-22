@@ -546,7 +546,7 @@ class PhaseDiagramComponent(MPComponent):
             if figure is None:
                 raise PreventUpdate
             if figure == "error":
-                search_error = MessageContainer(
+                return MessageContainer(
                     [
                         MessageBody(
                             dcc.Markdown(
@@ -556,7 +556,6 @@ class PhaseDiagramComponent(MPComponent):
                     ],
                     kind="warning",
                 )
-                return search_error
 
             return [
                 dcc.Graph(
@@ -678,8 +677,7 @@ class PhaseDiagramComponent(MPComponent):
 
             # PD update trigger
             if trigger["prop_id"] == f"{self.id()}.modified_timestamp":
-                table_content = self.create_table_content(self.from_data(pd))
-                return table_content
+                return self.create_table_content(self.from_data(pd))
             if (
                 trigger["prop_id"] == f"{self.id('editing-rows-button')}.n_clicks"
                 and n_clicks > 0
@@ -692,9 +690,7 @@ class PhaseDiagramComponent(MPComponent):
                 entries = mpr.get_entries_in_chemsys(chemsys)
 
             pd = PhaseDiagram(entries)
-            table_content = self.create_table_content(pd)
-
-            return table_content
+            return self.create_table_content(pd)
 
         @app.callback(
             Output(self.id("chemsys-internal"), "data"),

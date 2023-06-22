@@ -533,10 +533,7 @@ class PourbaixDiagramComponent(MPComponent):
         clean_formula = re.sub(r"\[([0-9+-]+)\]", r"<sup>\1</sup>", formula)
 
         # Subscript coefficients
-        clean_formula = re.sub(
-            r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", clean_formula
-        )
-        return clean_formula
+        return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", clean_formula)
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
@@ -690,9 +687,7 @@ class PourbaixDiagramComponent(MPComponent):
                 comp_conc_controls.append(ctl.Label("Set Ion Concentration"))
             comp_conc_controls += conc_inputs
 
-            comp_conc_controls = html.Div(comp_conc_controls)
-
-            return comp_conc_controls
+            return html.Div(comp_conc_controls)
 
         @app.callback(
             Output(self.id("display-composition"), "children"),

@@ -193,7 +193,7 @@ def get_tooltip(
     tooltip_text: str,
     underline: bool = True,
     tooltip_id: str = "",
-    wrapper_class: str = None,
+    wrapper_class: str | None = None,
     **kwargs,
 ):
     """Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
@@ -442,7 +442,7 @@ def get_section_heading(title, dois=None, docs_url=None, app_button_id=None):
 
 
 def get_matrix_string(
-    matrix: ArrayLike, variable_name: str = None, decimals: int = 4
+    matrix: ArrayLike, variable_name: str | None = None, decimals: int = 4
 ) -> str:
     """Returns a LaTeX-formatted string for use in mpc.Markdown() to render a matrix or vector.
 

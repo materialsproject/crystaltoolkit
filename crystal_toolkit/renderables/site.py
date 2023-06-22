@@ -26,10 +26,10 @@ if TYPE_CHECKING:
 
 def get_site_scene(
     self,
-    connected_sites: list[ConnectedSite] = None,
+    connected_sites: list[ConnectedSite] | None = None,
     # connected_site_metadata: None,
     # connected_sites_to_draw,
-    connected_sites_not_drawn: list[ConnectedSite] = None,
+    connected_sites_not_drawn: list[ConnectedSite] | None = None,
     hide_incomplete_edges: bool = False,
     site_idx: int | None = 0,
     incomplete_edge_length_scale: float | None = 1.0,
