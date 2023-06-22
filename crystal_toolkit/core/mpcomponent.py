@@ -8,7 +8,7 @@ from base64 import b64encode
 from collections import defaultdict
 from itertools import chain, zip_longest
 from json import JSONDecodeError, dumps, loads
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import dash
 import dash_mp_components as mpc
@@ -48,15 +48,15 @@ class MPComponent(ABC):
 
     # used to track all dcc.Stores required for all MPComponents to work
     # keyed by the MPComponent id
-    _app_stores_dict: dict[str, list[dcc.Store]] = defaultdict(list)
+    _app_stores_dict: ClassVar[dict[str, list[dcc.Store]]] = defaultdict(list)
 
     # used to track what individual Dash components are defined
     # by this MPComponent
-    _all_id_basenames: set[str] = set()
+    _all_id_basenames: ClassVar[set[str]] = set()
 
     # used to defer generation of callbacks until app.layout defined
     # can be helpful to callback exceptions retained
-    _callbacks_to_generate: set[MPComponent] = set()
+    _callbacks_to_generate: ClassVar[set[MPComponent]] = set()
 
     @staticmethod
     def register_app(app: dash.Dash):

@@ -35,7 +35,7 @@ class Legend(MSONable):
     """
 
     default_color_scheme = "Jmol"
-    default_color = [0, 0, 0]
+    default_color = (0, 0, 0)
     default_radius = 1.0
     fallback_radius = 0.5
     uniform_radius = 0.5

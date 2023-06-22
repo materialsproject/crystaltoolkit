@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
+from frozendict import frozendict
 from pymatgen.analysis.pourbaix_diagram import ELEMENTS_HO, PREFAC, PourbaixDiagram
 from pymatgen.core import Composition
 from pymatgen.util.string import unicodeify
@@ -28,9 +29,9 @@ WIDTH = 700  # in px
 
 
 class PourbaixDiagramComponent(MPComponent):
-    default_state = {"filter_solids": True, "show_heatmap": False}
+    default_state = frozendict(filter_solids=True, show_heatmap=False)
 
-    default_plot_style = dict(
+    default_plot_style = frozendict(
         xaxis={
             "title": "pH",
             "anchor": "y",
@@ -76,37 +77,39 @@ class PourbaixDiagramComponent(MPComponent):
         margin=dict(l=80, b=70, t=10, r=20),
     )
 
-    empty_plot_style = {
-        "xaxis": {"visible": False},
-        "yaxis": {"visible": False},
-        "paper_bgcolor": "rgba(0,0,0,0)",
-        "plot_bgcolor": "rgba(0,0,0,0)",
-    }
+    empty_plot_style = frozendict(
+        xaxis={"visible": False},
+        yaxis={"visible": False},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    )
 
-    colorscale_classic = [
+    colorscale_classic = (
         [0.00, "#4728fa"],  # blue
         [0.33, "#f9f273"],  # yellow
         [0.66, "#e5211b"],  # red
         [1.00, "#ffffff"],  # white
-    ]
+    )
 
     colorscale = "magma"
 
-    default_table_params = [
+    default_table_params = (
         {"col": "Material ID", "edit": False},
         {"col": "Formula", "edit": True},
         {"col": "Formation Energy (eV/atom)", "edit": True},
         {"col": "Energy Above Hull (eV/atom)", "edit": False},
         {"col": "Predicted Stable?", "edit": False},
-    ]
+    )
 
-    empty_row = {
-        "Material ID": None,
-        "Formula": "INSERT",
-        "Formation Energy (eV/atom)": "INSERT",
-        "Energy Above Hull (eV/atom)": None,
-        "Predicted Stable": None,
-    }
+    empty_row = frozendict(
+        {
+            "Material ID": None,
+            "Formula": "INSERT",
+            "Formation Energy (eV/atom)": "INSERT",
+            "Energy Above Hull (eV/atom)": None,
+            "Predicted Stable": None,
+        }
+    )
 
     # @staticmethod
     # def get_figure_with_shapes(

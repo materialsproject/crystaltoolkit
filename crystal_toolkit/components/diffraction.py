@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 from dash import callback_context, dcc, html
 from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
+from frozendict import frozendict
 from pymatgen.analysis.diffraction.xrd import WAVELENGTHS, XRDCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.special import wofz
@@ -53,7 +54,7 @@ class XRayDiffractionComponent(MPComponent):
         self.create_store("structure", initial_data=initial_structure)
 
     # Default XRD plot style settings
-    default_xrd_plot_style = dict(
+    default_xrd_plot_style = frozendict(
         xaxis={
             "title": "2𝜃 / º",
             "anchor": "y",
@@ -91,12 +92,12 @@ class XRayDiffractionComponent(MPComponent):
         template="simple_white",
     )
 
-    empty_plot_style = {
-        "xaxis": {"visible": False},
-        "yaxis": {"visible": False},
-        "paper_bgcolor": "rgba(0,0,0,0)",
-        "plot_bgcolor": "rgba(0,0,0,0)",
-    }
+    empty_plot_style = frozendict(
+        xaxis={"visible": False},
+        yaxis={"visible": False},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    )
 
     @staticmethod
     def G(x, c, alpha):

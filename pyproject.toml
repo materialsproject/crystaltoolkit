@@ -15,6 +15,7 @@ dependencies = [
     "dash",
     "dash-mp-components",
     "flask-caching",
+    "frozendict",
     "pymatgen",
     "scikit-image",
     "scikit-learn",
