@@ -37,8 +37,7 @@ def get_structure_for_mpid(mpid):
     with MPRester() as mpr:
         structure = mpr.get_structure_by_material_id(mpid)
 
-    structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
-    return structure
+    return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
 
 
 @app.callback(
@@ -56,8 +55,7 @@ def trigger_new_data(url):
     with MPRester() as mpr:
         structure = mpr.get_structure_by_material_id(mp_id)
 
-    structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
-    return structure
+    return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
 
 
 @app.callback(

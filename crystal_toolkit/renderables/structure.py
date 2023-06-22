@@ -56,7 +56,7 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
 
 def get_structure_scene(
     self,
-    origin: Sequence[float] = None,
+    origin: Sequence[float] | None = None,
     legend: Legend | None = None,
     draw_image_atoms: bool = True,
 ) -> Scene:

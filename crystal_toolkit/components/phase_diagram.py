@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from dash import dash_table, dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
+from frozendict import frozendict
 from pymatgen.analysis.phase_diagram import PDEntry, PDPlotter, PhaseDiagram
 from pymatgen.core import Composition
 from pymatgen.ext.matproj import MPRester
@@ -33,7 +34,7 @@ class PhaseDiagramComponent(MPComponent):
         self.create_store("entries")
 
     # Default plot layouts for Binary (2), Ternary (3), Quaternary (4) phase diagrams
-    default_binary_plot_style = dict(
+    default_binary_plot_style = frozendict(
         xaxis={
             "title": "Fraction",
             "anchor": "y",
@@ -79,7 +80,7 @@ class PhaseDiagramComponent(MPComponent):
         margin=dict(l=80, b=70, t=10, r=20),
     )
 
-    default_ternary_plot_style = dict(
+    default_ternary_plot_style = frozendict(
         xaxis=dict(
             title=None,
             autorange=True,
@@ -116,7 +117,7 @@ class PhaseDiagramComponent(MPComponent):
         ),
     )
 
-    default_3d_axis = dict(
+    default_3d_axis = frozendict(
         title=None,
         visible=False,
         autorange=True,
@@ -129,7 +130,7 @@ class PhaseDiagramComponent(MPComponent):
         showspikes=False,
     )
 
-    default_quaternary_plot_style = dict(
+    default_quaternary_plot_style = frozendict(
         autosize=True,
         height=450,
         hovermode="closest",
@@ -148,14 +149,14 @@ class PhaseDiagramComponent(MPComponent):
         scene=dict(xaxis=default_3d_axis, yaxis=default_3d_axis, zaxis=default_3d_axis),
     )
 
-    empty_plot_style = {
-        "xaxis": {"visible": False},
-        "yaxis": {"visible": False},
-        "paper_bgcolor": "rgba(0,0,0,0)",
-        "plot_bgcolor": "rgba(0,0,0,0)",
-    }
+    empty_plot_style = frozendict(
+        xaxis=frozendict({"visible": False}),
+        yaxis=frozendict({"visible": False}),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    )
 
-    colorscale = [
+    colorscale = (
         [0.0, "#008d00"],
         [0.1111111111111111, "#4b9f3f"],
         [0.2222222222222222, "#73b255"],
@@ -166,23 +167,25 @@ class PhaseDiagramComponent(MPComponent):
         [0.7777777777777778, "#fd92a0"],
         [0.8888888888888888, "#f46b86"],
         [1.0, "#e24377"],
-    ]
+    )
 
-    default_table_params = [
+    default_table_params = (
         {"col": "Material ID", "edit": False},
         {"col": "Formula", "edit": True},
         {"col": "Formation Energy (eV/atom)", "edit": True},
         {"col": "Energy Above Hull (eV/atom)", "edit": False},
         {"col": "Predicted Stable?", "edit": False},
-    ]
+    )
 
-    empty_row = {
-        "Material ID": None,
-        "Formula": "INSERT",
-        "Formation Energy (eV/atom)": "INSERT",
-        "Energy Above Hull (eV/atom)": None,
-        "Predicted Stable": None,
-    }
+    empty_row = frozendict(
+        {
+            "Material ID": None,
+            "Formula": "INSERT",
+            "Formation Energy (eV/atom)": "INSERT",
+            "Energy Above Hull (eV/atom)": None,
+            "Predicted Stable": None,
+        }
+    )
 
     def figure_layout(self, plotter, pd):
         dim = pd.dim
@@ -546,7 +549,7 @@ class PhaseDiagramComponent(MPComponent):
             if figure is None:
                 raise PreventUpdate
             if figure == "error":
-                search_error = MessageContainer(
+                return MessageContainer(
                     [
                         MessageBody(
                             dcc.Markdown(
@@ -556,7 +559,6 @@ class PhaseDiagramComponent(MPComponent):
                     ],
                     kind="warning",
                 )
-                return search_error
 
             return [
                 dcc.Graph(
@@ -678,8 +680,7 @@ class PhaseDiagramComponent(MPComponent):
 
             # PD update trigger
             if trigger["prop_id"] == f"{self.id()}.modified_timestamp":
-                table_content = self.create_table_content(self.from_data(pd))
-                return table_content
+                return self.create_table_content(self.from_data(pd))
             if (
                 trigger["prop_id"] == f"{self.id('editing-rows-button')}.n_clicks"
                 and n_clicks > 0
@@ -692,9 +693,7 @@ class PhaseDiagramComponent(MPComponent):
                 entries = mpr.get_entries_in_chemsys(chemsys)
 
             pd = PhaseDiagram(entries)
-            table_content = self.create_table_content(pd)
-
-            return table_content
+            return self.create_table_content(pd)
 
         @app.callback(
             Output(self.id("chemsys-internal"), "data"),

@@ -18,7 +18,7 @@ def get_isosurface_scene(
     data_key: str = "total",
     isolvl: float = 0.05,
     step_size: int = 4,
-    origin: ArrayLike = None,
+    origin: ArrayLike | None = None,
     **kwargs: Any,
 ) -> Scene:
     """Get the isosurface from a VolumetricData object.

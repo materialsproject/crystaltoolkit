@@ -45,9 +45,9 @@ class BandstructureAndDosComponent(MPComponent):
     def __init__(
         self,
         mpid=None,
-        bandstructure_symm_line: BandStructureSymmLine = None,
-        density_of_states: CompleteDos = None,
-        id: str = None,
+        bandstructure_symm_line: BandStructureSymmLine | None = None,
+        density_of_states: CompleteDos | None = None,
+        id: str | None = None,
         **kwargs,
     ) -> None:
         # this is a compound component, can be fed by mpid or
@@ -781,8 +781,7 @@ class BandstructureAndDosComponent(MPComponent):
                         "Band structure and density of states not available for this selection."
                     )
                 )
-                search_error = MessageContainer([body], kind="warning")
-                return search_error
+                return MessageContainer([body], kind="warning")
 
             if traces is None:
                 raise PreventUpdate

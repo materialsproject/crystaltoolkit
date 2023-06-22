@@ -14,6 +14,7 @@ from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitScene
 from emmet.core.settings import EmmetSettings
+from frozendict import frozendict
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core import Composition, Molecule, Species, Structure
@@ -53,25 +54,25 @@ class StructureMoleculeComponent(MPComponent):
     objects.
     """
 
-    available_bonding_strategies = {
-        subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()
-    }
+    available_bonding_strategies = frozendict(
+        {subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}
+    )
 
-    default_scene_settings = {
-        "extractAxis": True,
+    default_scene_settings = frozendict(
+        extractAxis=True,
         # For visual diff testing, we change the renderer to SVG since this WebGL
         # support is more difficult in headless browsers / CI.
-        "renderer": "svg" if SETTINGS.TEST_MODE else "webgl",
-        "secondaryObjectView": False,
-    }
+        renderer="svg" if SETTINGS.TEST_MODE else "webgl",
+        secondaryObjectView=False,
+    )
 
     # what to show for the title_layout if structure/molecule not loaded
     default_title = "Crystal Toolkit"
 
     # human-readable label to file extension
     # downloading Molecules has not yet been added
-    download_options = {
-        "Structure": {
+    download_options = frozendict(
+        Structure={
             "CIF (Symmetrized)": {"fmt": "cif", "symprec": EmmetSettings().SYMPREC},
             "CIF": {"fmt": "cif"},
             "POSCAR": {"fmt": "poscar"},
@@ -79,7 +80,7 @@ class StructureMoleculeComponent(MPComponent):
             "Prismatic": {"fmt": "prismatic"},
             "VASP Input Set (MPRelaxSet)": {},  # special
         }
-    }
+    )
 
     def __init__(
         self,

@@ -80,7 +80,12 @@ class Columns(html.Div):
 
 class Column(html.Div):
     def __init__(
-        self, *args, size: str = None, offset=None, narrow: bool = False, **kwargs
+        self,
+        *args,
+        size: str | None = None,
+        offset=None,
+        narrow: bool = False,
+        **kwargs,
     ) -> None:
         _update_css_class(kwargs, "column")
         if size:
@@ -293,7 +298,11 @@ class Label(html.Label):
 
 class Modal(html.Div):
     def __init__(
-        self, children: list = None, id: str = None, active: bool = False, **kwargs
+        self,
+        children: list | None = None,
+        id: str | None = None,
+        active: bool = False,
+        **kwargs,
     ) -> None:
         _update_css_class(kwargs, "modal")
         if active:
@@ -355,7 +364,7 @@ def get_tooltip(
     tooltip_text: str,
     underline: bool = True,
     tooltip_id: str = "",
-    wrapper_class: str = None,
+    wrapper_class: str | None = None,
     **kwargs,
 ):
     """Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
@@ -418,7 +427,7 @@ DOI_CACHE = loadfn(MODULE_PATH / "apps/assets/doi_cache.json")
 
 
 def cite_me(
-    doi: str = None, manual_ref: str = None, cite_text: str = "Cite me"
+    doi: str | None = None, manual_ref: str | None = None, cite_text: str = "Cite me"
 ) -> html.Div:
     """Create a button to show users how to cite a particular resource.
 

@@ -75,7 +75,7 @@ def _get_sites_to_draw(
 
 def get_structure_graph_scene(
     self,
-    origin: Sequence[float] = None,
+    origin: Sequence[float] | None = None,
     draw_image_atoms: bool = True,
     bonded_sites_outside_unit_cell: bool = True,
     hide_incomplete_edges: bool = False,

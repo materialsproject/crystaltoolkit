@@ -8,7 +8,7 @@ from base64 import b64encode
 from collections import defaultdict
 from itertools import chain, zip_longest
 from json import JSONDecodeError, dumps, loads
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import dash
 import dash_mp_components as mpc
@@ -48,15 +48,15 @@ class MPComponent(ABC):
 
     # used to track all dcc.Stores required for all MPComponents to work
     # keyed by the MPComponent id
-    _app_stores_dict: dict[str, list[dcc.Store]] = defaultdict(list)
+    _app_stores_dict: ClassVar[dict[str, list[dcc.Store]]] = defaultdict(list)
 
     # used to track what individual Dash components are defined
     # by this MPComponent
-    _all_id_basenames: set[str] = set()
+    _all_id_basenames: ClassVar[set[str]] = set()
 
     # used to defer generation of callbacks until app.layout defined
     # can be helpful to callback exceptions retained
-    _callbacks_to_generate: set[MPComponent] = set()
+    _callbacks_to_generate: ClassVar[set[MPComponent]] = set()
 
     @staticmethod
     def register_app(app: dash.Dash):
@@ -237,7 +237,7 @@ class MPComponent(ABC):
         name: str = "default",
         is_kwarg: bool = False,
         idx: bool | int = False,
-        hint: str = None,
+        hint: str | None = None,
     ) -> str | dict[str, str]:
         """Generate an id from a name combined with the base id of the MPComponent itself, useful
         for generating ids of individual components in the layout.
@@ -382,7 +382,7 @@ Sub-layouts:  \n{layouts}"""
         default: int | float | list | None = None,
         state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         is_int: bool = False,
         shape: tuple[int, ...] = (),
         **kwargs,
@@ -478,9 +478,9 @@ Sub-layouts:  \n{layouts}"""
         self,
         kwarg_label: str,
         default: Any | None = None,
-        state: dict = None,
+        state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         multiple: bool = False,
         **kwargs,
     ):
@@ -513,7 +513,7 @@ Sub-layouts:  \n{layouts}"""
         default: bool | None = None,
         state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         **kwargs,
     ):
         """For Python classes which take boolean values as inputs, this will generate a
@@ -548,7 +548,7 @@ Sub-layouts:  \n{layouts}"""
         default: str | None = None,
         state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         options: list[dict] | None = None,
         clearable: bool = False,
         **kwargs,
@@ -587,7 +587,7 @@ Sub-layouts:  \n{layouts}"""
         default: dict | None = None,
         state: dict | None = None,
         label: str | None = None,
-        help_str: str = None,
+        help_str: str | None = None,
         dict_size: int | None = None,
         key_name: str = "key",
         value_name: str = "value",

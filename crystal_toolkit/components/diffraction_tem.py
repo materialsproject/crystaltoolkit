@@ -26,7 +26,9 @@ except ImportError:
 
 
 class TEMDiffractionComponent(MPComponent):
-    def __init__(self, *args, initial_structure: Structure = None, **kwargs) -> None:
+    def __init__(
+        self, *args, initial_structure: Structure | None = None, **kwargs
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("structure", initial_data=initial_structure)
         self.calculator = TEMDiffractionCalculator()

@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
+from frozendict import frozendict
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
@@ -19,7 +20,7 @@ class XASComponent(MPComponent):
         self.create_store("mpid")
         self.create_store("elements")
 
-    default_xas_layout = dict(
+    default_xas_layout = frozendict(
         xaxis={
             "title": "Energy (eV)",
             "anchor": "y",
@@ -57,21 +58,21 @@ class XASComponent(MPComponent):
         margin=dict(l=60, b=50, t=50, pad=0, r=30),
     )
 
-    line_colors = [
+    line_colors = (
         "rgb(128, 0, 0)",
         "rgb(0, 0, 128)",
         "rgb(60, 180, 75)",
         "rgb(145,30,180)",
         "rgb(230,25,75)",
         "rgb(240,50,230)",
-    ]
+    )
 
-    empty_plot_style = {
-        "xaxis": {"visible": False},
-        "yaxis": {"visible": False},
-        "paper_bgcolor": "rgba(0,0,0,0)",
-        "plot_bgcolor": "rgba(0,0,0,0)",
-    }
+    empty_plot_style = frozendict(
+        xaxis={"visible": False},
+        yaxis={"visible": False},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    )
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
@@ -125,7 +126,7 @@ class XASComponent(MPComponent):
             if not plotdata:
                 raise PreventUpdate
             if plotdata == "error":
-                search_error = MessageContainer(
+                return MessageContainer(
                     [
                         MessageBody(
                             dcc.Markdown(
@@ -135,7 +136,6 @@ class XASComponent(MPComponent):
                     ],
                     kind="warning",
                 )
-                return search_error
             return dcc.Graph(
                 figure=go.Figure(data=plotdata, layout=self.default_xas_layout),
                 config={"displayModeBar": False},
