@@ -157,7 +157,7 @@ class StructureMoleculeComponent(MPComponent):
         self.show_export_button = show_export_button
         self.show_position_button = show_position_button
 
-        self.initial_scene_settings = self.default_scene_settings.copy()
+        self.initial_scene_settings = {**self.default_scene_settings}
         if scene_settings:
             self.initial_scene_settings.update(scene_settings)
 
