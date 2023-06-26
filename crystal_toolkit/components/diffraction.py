@@ -175,7 +175,9 @@ class XRayDiffractionComponent(MPComponent):
         graph = Loading(
             [
                 dcc.Graph(
-                    figure=go.Figure(layout=XRayDiffractionComponent.empty_plot_style),
+                    figure=go.Figure(
+                        layout={**XRayDiffractionComponent.empty_plot_style}
+                    ),
                     id=self.id("xrd-plot"),
                     config={
                         "displayModeBar": False,  # or "hover",

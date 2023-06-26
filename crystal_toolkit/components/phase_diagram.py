@@ -150,8 +150,8 @@ class PhaseDiagramComponent(MPComponent):
     )
 
     empty_plot_style = frozendict(
-        xaxis=frozendict({"visible": False}),
-        yaxis=frozendict({"visible": False}),
+        xaxis={"visible": False},
+        yaxis={"visible": False},
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
