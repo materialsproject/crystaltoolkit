@@ -391,7 +391,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                     )
                     y[jj] += yp * Gi / G0
 
-        layout = XRayDiffractionComponent.default_xrd_plot_style
+        layout = {**XRayDiffractionComponent.default_xrd_plot_style}
 
         if x_axis == "Q":
             x_peak = XRayDiffractionComponent.two_theta_to_q(
