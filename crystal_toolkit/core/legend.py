@@ -402,7 +402,7 @@ class Legend(MSONable):
             for sp in site.species:
                 legend[self.get_color(sp, site)].append(label(site, sp))
 
-        legend = {k: ", ".join(sorted(set(v))) for k, v in legend.items()}
+        legend = {key: ", ".join(sorted(set(val))) for key, val in legend.items()}
 
         color_options = []
         for site_prop_type in ("scalar", "categorical"):

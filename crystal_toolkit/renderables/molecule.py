@@ -32,7 +32,7 @@ def get_scene_from_molecule(self, origin=None, legend: Legend | None = None):
 
     return Scene(
         name=self.composition.reduced_formula,
-        contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
+        contents=[Scene(name=key, contents=val) for key, val in primitives.items()],
         origin=origin,
     )
 

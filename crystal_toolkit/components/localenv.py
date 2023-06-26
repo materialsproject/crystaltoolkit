@@ -87,17 +87,17 @@ def _get_local_order_parameters(structure_graph, n):
                 cn_opt_params[cn][name][1] if len(cn_opt_params[cn][name]) > 1 else None
             )
             params.append(tmp)
-        lostops = LocalStructOrderParams(types, parameters=params)
+        lost_ops = LocalStructOrderParams(types, parameters=params)
         sites = [structure_graph.structure[n]] + [
             connected_site.site
             for connected_site in structure_graph.get_connected_sites(n)
         ]
-        lostop_vals = lostops.get_order_parameters(
+        lost_op_vals = lost_ops.get_order_parameters(
             sites, 0, indices_neighs=list(range(1, cn + 1))
         )
         d = {}
-        for i, lostop in enumerate(lostop_vals):
-            d[names[i]] = lostop
+        for idx, lost_op in enumerate(lost_op_vals):
+            d[names[idx]] = lost_op
         return d
     return None
 

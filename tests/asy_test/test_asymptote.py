@@ -31,7 +31,6 @@ def test_read_properties(standard_scenes):
 
 
 def test_asymptote_renderer(standard_scenes):
-    for k in ["lines", "spheres", "cylinders", "surface"]:
-        asy_obj = ASY_OBJS[k].from_ctk(standard_scenes[k])
-        asy_out = str(asy_obj)
-        assert "draw" in asy_out.lower()
+    for key in ["lines", "spheres", "cylinders", "surface"]:
+        asy_obj = ASY_OBJS[key].from_ctk(standard_scenes[key])
+        assert "draw" in str(asy_obj).lower()

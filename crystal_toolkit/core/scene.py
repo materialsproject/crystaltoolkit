@@ -61,7 +61,7 @@ class Scene:
         """
         return Scene(
             name=f"{self.name}_{other.name}",
-            contents=self.contents + other.contents,
+            contents=[*self.contents, other.contents],
             origin=self.origin,
             visible=self.visible,
             lattice=self.lattice,

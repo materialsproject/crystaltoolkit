@@ -124,8 +124,8 @@ def get_site_scene(
                 name += f"\nindex:{site_idx}"
 
             if self.properties:
-                for k, v in self.properties.items():
-                    name += f" ({k} = {v})"
+                for key, val in self.properties.items():
+                    name += f" ({key} = {val})"
 
             sphere = Spheres(
                 positions=[position],

@@ -700,10 +700,10 @@ class PourbaixDiagramComponent(MPComponent):
             kwargs = self.reconstruct_kwargs_from_state()
 
             comp_dict = {}
-            for k, v in kwargs.items():
-                if "comp" in k:  # keys are encoded like "comp-Ag"
-                    el = k.split("-")[1]
-                    comp_dict[el] = v
+            for key, val in kwargs.items():
+                if "comp" in key:  # keys are encoded like "comp-Ag"
+                    el = key.split("-")[1]
+                    comp_dict[el] = val
             comp_dict = comp_dict or None
 
             if not comp_dict:
@@ -760,19 +760,19 @@ class PourbaixDiagramComponent(MPComponent):
                 comp_dict = {}
                 # e.g. kwargs contains {"comp-Ag": 0.5, "comp-Fe": 0.5},
                 # essentially {slider_name: slider_value}
-                for k, v in kwargs.items():
-                    if "comp" in k:  # keys are encoded like "comp-Ag"
-                        el = k.split("-")[1]
-                        comp_dict[el] = v
+                for key, val in kwargs.items():
+                    if "comp" in key:  # keys are encoded like "comp-Ag"
+                        el = key.split("-")[1]
+                        comp_dict[el] = val
                 comp_dict = comp_dict or None
 
             conc_dict = {}
             # e.g. kwargs contains {"conc-Ag": 1e-6, "conc-Fe": 1e-4},
             # essentially {slider_name: slider_value}
-            for k, v in kwargs.items():
-                if "conc" in k:  # keys are encoded like "conc-Ag"
-                    el = k.split("-")[1]
-                    conc_dict[el] = v
+            for key, val in kwargs.items():
+                if "conc" in key:  # keys are encoded like "conc-Ag"
+                    el = key.split("-")[1]
+                    conc_dict[el] = val
             conc_dict = conc_dict or None
 
             pourbaix_diagram = get_pourbaix_diagram(

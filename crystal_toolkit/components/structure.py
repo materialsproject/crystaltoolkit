@@ -157,7 +157,7 @@ class StructureMoleculeComponent(MPComponent):
         self.show_export_button = show_export_button
         self.show_position_button = show_position_button
 
-        self.initial_scene_settings = self.default_scene_settings.copy()
+        self.initial_scene_settings = {**self.default_scene_settings}
         if scene_settings:
             self.initial_scene_settings.update(scene_settings)
 
@@ -591,8 +591,8 @@ class StructureMoleculeComponent(MPComponent):
             )
 
         legend_colors = {
-            k: self._legend.get_color(Species(k))
-            for k, v in legend["composition"].items()
+            key: self._legend.get_color(Species(key))
+            for key, val in legend["composition"].items()
         }
 
         legend_elements = [
@@ -681,7 +681,7 @@ class StructureMoleculeComponent(MPComponent):
         }
 
         bonding_algorithm = dcc.Dropdown(
-            options=[{"label": k, "value": v} for k, v in nn_mapping.items()],
+            options=[{"label": key, "value": val} for key, val in nn_mapping.items()],
             value=self.initial_data["graph_generation_options"]["bonding_strategy"],
             clearable=False,
             id=self.id("bonding_algorithm"),
