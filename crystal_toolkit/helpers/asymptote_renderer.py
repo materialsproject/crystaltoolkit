@@ -402,7 +402,7 @@ class AsySurface(AsyObject):
         cls,
         ctk_scene: Scene,
         user_settings: dict | None = None,
-    ) -> AsySurface:
+    ) -> AsySurface | None:
         """Create an AsyLine object from a ctk scene object.
 
         Args:
@@ -414,7 +414,7 @@ class AsySurface(AsyObject):
             AsySurface: The AsySurface object.
         """
         if len(ctk_scene.positions) < 1:
-            return ""
+            return None
 
         num_triangle = len(ctk_scene.positions) / 3.0
         # sanity check the mesh must be triangles
@@ -440,12 +440,7 @@ class AsySurface(AsyObject):
         light = _read_properties(
             ctk_scene, property="light", user_settings=user_settings
         )
-        return cls(
-            positions=pos_xyz,
-            color=color,
-            opac=opacity,
-            light=light,
-        )
+        return cls(positions=pos_xyz, color=color, opac=opacity, light=light)
 
 
 ASY_OBJS = {
@@ -480,17 +475,16 @@ def _read_properties(
 
     # user settings
     if user_settings is not None:
-        s_ = user_settings.get(scene_name, {})
-        s_ = s_.get(property)
-        if s_ is not None:
-            return s_
+        setting = user_settings.get(scene_name, {}).get(property)
+        if setting is not None:
+            return setting
 
     # meta attribute
     ctk_meta = ctk_scene._meta
     if ctk_meta is not None:
-        s_ = ctk_meta.get("asy", {}).get(property)
-        if s_ is not None:
-            return s_
+        setting = ctk_meta.get("asy", {}).get(property)
+        if setting is not None:
+            return setting
     # property attribute
     try:
         ctk_att = getattr(ctk_scene, property)

@@ -68,7 +68,7 @@ def get_molecule_graph_scene(
 
     return Scene(
         name=self.molecule.composition.reduced_formula,
-        contents=[Scene(name=k, contents=v) for k, v in primitives.items()],
+        contents=[Scene(name=key, contents=val) for key, val in primitives.items()],
         origin=origin if origin else (0, 0, 0),
     )
 

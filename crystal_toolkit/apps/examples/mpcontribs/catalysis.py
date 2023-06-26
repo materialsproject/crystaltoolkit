@@ -104,15 +104,15 @@ class CatalysisApp(MPApp):
             add_data = np.zeros((grid_dim, grid_dim), dtype=object)
             lookup_dict = df_min_E.set_index("element_tup").to_dict()
             el_combos = list(lookup_dict["energy"])
-            for i in range(len(labels)):
-                for k in range(len(labels)):
+            for ii in range(len(labels)):
+                for kk in range(len(labels)):
                     els_now = (
-                        (labels[i],)
-                        if i == k
-                        else tuple(np.sort([labels[i], labels[k]]))
+                        (labels[ii],)
+                        if ii == kk
+                        else tuple(np.sort([labels[ii], labels[kk]]))
                     )
                     if els_now in el_combos:
-                        grid[i, k] = lookup_dict["energy"][els_now]
+                        grid[ii, kk] = lookup_dict["energy"][els_now]
                         random_ids = df_all_data[
                             df_all_data["element_tup"] == els_now
                         ].identifier.tolist()
@@ -121,12 +121,12 @@ class CatalysisApp(MPApp):
                         for id in random_ids:
                             random_id_text = random_id_text + id + " <br> "
                             add_data_text = add_data_text + id + "-"
-                        custom_data[i, k] = [len(random_ids), random_id_text]
-                        add_data[i, k] = add_data_text
+                        custom_data[ii, kk] = [len(random_ids), random_id_text]
+                        add_data[ii, kk] = add_data_text
                     else:
-                        grid[i, k] = np.nan
-                        custom_data[i, k] = ["None", "None"]
-                        add_data[i, k] = "None"
+                        grid[ii, kk] = np.nan
+                        custom_data[ii, kk] = ["None", "None"]
+                        add_data[ii, kk] = "None"
             return grid, custom_data, add_data
 
         grid, customdata, add_data = construct_grid(df_min_E, labels)

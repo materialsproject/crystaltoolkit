@@ -240,12 +240,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
         zone_surface = Convex(positions=lines, opacity=0.05, color="#000000")
 
         labels = {}
-        for k in bs.qpoints:
-            if k.label:
-                label = k.label
+        for qpt in bs.qpoints:
+            if qpt.label:
+                label = qpt.label
                 for orig, new in pretty_labels.items():
                     label = label.replace(orig, new)
-                labels[label] = bz_lattice.get_cartesian_coords(k.frac_coords)
+                labels[label] = bz_lattice.get_cartesian_coords(qpt.frac_coords)
         label_list = [
             Spheres(positions=[coords], tooltip=label, radius=0.03, color="#5EB1BF")
             for label, coords in labels.items()

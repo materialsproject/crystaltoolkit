@@ -222,8 +222,8 @@ to colour-code the top and bottom grains."""
         }
         for sigma in sorted(sigmas):
             sigma_label = f"Σ{sigma}"
-            for k, v in subscript_unicode_map.items():
-                sigma_label = sigma_label.replace(str(k), v)
+            for key, val in subscript_unicode_map.items():
+                sigma_label = sigma_label.replace(str(key), val)
             options.append({"label": sigma_label, "value": sigma})
 
         return sigmas, options, ratio

@@ -126,7 +126,7 @@ class FermiSurfaceComponent(MPComponent):
 
         options = [{"label": "None", "value": False}]
         if fermi_surface is not None and fermi_surface.has_properties:
-            options += [{"label": k, "value": k} for k in plt.colormaps()]
+            options += [{"label": key, "value": key} for key in plt.colormaps()]
         color_properties = self.get_choice_input(
             kwarg_label="color_properties",
             state=state,

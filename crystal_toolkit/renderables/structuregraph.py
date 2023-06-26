@@ -212,8 +212,8 @@ def get_structure_graph_scene(
 
     if group_by_site_property:
         atoms_scenes: list[Scene] = []
-        for k, v in grouped_atom_scene_contents.items():
-            atoms_scenes.append(Scene(name=k, contents=v))
+        for key, val in grouped_atom_scene_contents.items():
+            atoms_scenes.append(Scene(name=key, contents=val))
         primitives["atoms"] = atoms_scenes
 
     primitives["unit_cell"].append(self.structure.lattice.get_scene())
@@ -223,7 +223,8 @@ def get_structure_graph_scene(
         name="StructureGraph",
         origin=origin,
         contents=[
-            Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
+            Scene(name=key, contents=val, origin=origin)
+            for key, val in primitives.items()
         ],
     )
 

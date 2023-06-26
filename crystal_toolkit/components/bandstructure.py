@@ -238,12 +238,12 @@ class BandstructureAndDosComponent(MPComponent):
         zone_surface = Convex(positions=lines, opacity=0.05, color="#000000")
 
         labels = {}
-        for k in bs.kpoints:
-            if k.label:
-                label = k.label
+        for kpt in bs.kpoints:
+            if kpt.label:
+                label = kpt.label
                 for orig, new in pretty_labels.items():
                     label = label.replace(orig, new)
-                labels[label] = bz_lattice.get_cartesian_coords(k.frac_coords)
+                labels[label] = bz_lattice.get_cartesian_coords(kpt.frac_coords)
         labels = [
             Spheres(positions=[coords], tooltip=label, radius=0.03, color="#5EB1BF")
             for label, coords in labels.items()

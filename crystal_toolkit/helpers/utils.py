@@ -44,7 +44,11 @@ def update_object_args(d_args, object_name, allowed_args):
     """
     obj_args = dict((_DEFAULTS["scene"][object_name] or {}).items())
     obj_args.update(
-        {k: v for k, v in (d_args or {}).items() if k in allowed_args and v is not None}
+        {
+            key: val
+            for key, val in (d_args or {}).items()
+            if key in allowed_args and val is not None
+        }
     )
     return obj_args
 
@@ -152,11 +156,11 @@ def parse_request_url(request_url, subdomain):
 
 HELP_STRINGS = loadfn(MODULE_PATH / "apps/help.yaml")
 if SETTINGS.DEBUG_MODE:
-    for k, v in HELP_STRINGS.items():
-        if len(v["help"]) > 280:
+    for key, val in HELP_STRINGS.items():
+        if len(val["help"]) > 280:
             # TODO: add a debug logger here instead
             logger.debug(
-                f"⚠️ HELP STRING WARNING. Help for {k} is too long, please re-write: {v}"
+                f"⚠️ HELP STRING WARNING. Help for {key} is too long, please re-write: {val}"
             )
 
 
@@ -294,16 +298,16 @@ def get_data_table(
         columns = [{"id": column, "name": column} for column in df.columns]
     datatable_kwargs["columns"] = columns
 
-    for k, v in kwargs.items():
-        if k in datatable_kwargs:
-            if isinstance(datatable_kwargs[k], dict):
-                datatable_kwargs[k].update(v)
-            elif isinstance(datatable_kwargs[k], list):
-                datatable_kwargs[k].append(v)
+    for key, val in kwargs.items():
+        if key in datatable_kwargs:
+            if isinstance(datatable_kwargs[key], dict):
+                datatable_kwargs[key].update(val)
+            elif isinstance(datatable_kwargs[key], list):
+                datatable_kwargs[key].append(val)
             else:
-                datatable_kwargs[k] = v
+                datatable_kwargs[key] = val
         else:
-            datatable_kwargs[k] = v
+            datatable_kwargs[key] = val
 
     if df is not None:
         datatable_kwargs["data"] = df.to_dict("records")

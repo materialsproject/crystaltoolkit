@@ -15,41 +15,43 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
     """Returns a list of site indices and image vectors."""
     sites_to_draw = [(idx, (0, 0, 0)) for idx in range(len(self))]
 
-    if draw_image_atoms:
-        for idx, site in enumerate(self):
-            zero_elements = [
-                idx
-                for idx, f in enumerate(site.frac_coords)
-                if np.allclose(f, 0, atol=0.05)
-            ]
+    if not draw_image_atoms:  # return early if we don't need to search for image atoms
+        return set(sites_to_draw)
 
-            coord_permutations = [
-                x
-                for tmp_ in range(1, len(zero_elements) + 1)
-                for x in combinations(zero_elements, tmp_)
-            ]
+    for idx, site in enumerate(self):
+        zero_elements = [
+            idx
+            for idx, frac_coord in enumerate(site.frac_coords)
+            if np.allclose(frac_coord, 0, atol=0.05)
+        ]
 
-            for perm in coord_permutations:
-                sites_to_draw.append(
-                    (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
-                )
+        coord_permutations = [
+            x
+            for tmp_ in range(1, len(zero_elements) + 1)
+            for x in combinations(zero_elements, tmp_)
+        ]
 
-            one_elements = [
-                idx
-                for idx, f in enumerate(site.frac_coords)
-                if np.allclose(f, 1, atol=0.05)
-            ]
+        for perm in coord_permutations:
+            sites_to_draw.append(
+                (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
+            )
 
-            coord_permutations = [
-                x
-                for tmp_ in range(1, len(one_elements) + 1)
-                for x in combinations(one_elements, tmp_)
-            ]
+        one_elements = [
+            idx
+            for idx, f in enumerate(site.frac_coords)
+            if np.allclose(f, 1, atol=0.05)
+        ]
 
-            for perm in coord_permutations:
-                sites_to_draw.append(
-                    (idx, (-int(0 in perm), -int(1 in perm), -int(2 in perm)))
-                )
+        coord_permutations = [
+            x
+            for tmp_ in range(1, len(one_elements) + 1)
+            for x in combinations(one_elements, tmp_)
+        ]
+
+        for perm in coord_permutations:
+            sites_to_draw.append(
+                (idx, (-int(0 in perm), -int(1 in perm), -int(2 in perm)))
+            )
 
     return set(sites_to_draw)
 
@@ -101,7 +103,8 @@ def get_structure_scene(
         origin=origin,
         lattice=lattice_vectors,
         contents=[
-            Scene(name=k, contents=v, origin=origin) for k, v in primitives.items()
+            Scene(name=key, contents=val, origin=origin)
+            for key, val in primitives.items()
         ],
     )
 
