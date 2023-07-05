@@ -275,13 +275,10 @@ to colour-code the top and bottom grains."""
             )
 
             rotation_angles = sigmas[sigma]
-            options = []
-            for rotation_angle in sorted(rotation_angles):
-                options.append(
-                    {"label": f"{rotation_angle:.2f}º", "value": rotation_angle}
-                )
-
-            return options
+            return [
+                {"label": f"{rotation_angle:.2f}º", "value": rotation_angle}
+                for rotation_angle in sorted(rotation_angles)
+            ]
 
         # TODO: make client-side callback
         @app.callback(

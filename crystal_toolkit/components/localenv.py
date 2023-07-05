@@ -583,14 +583,14 @@ class LocalEnvironmentPanel(PanelComponent):
         @cache.memoize(timeout=360)
         def _get_all_structs_from_elements(elements):
             structs = {}
-            all_chemsyses = []
-            for i in range(len(elements)):
-                for els in itertools.combinations(elements, i + 1):
-                    all_chemsyses.append("-".join(sorted(els)))
-
+            all_chemsys = [
+                "-".join(sorted(els))
+                for idx in range(len(elements))
+                for els in itertools.combinations(elements, idx + 1)
+            ]
             with MPRester() as mpr:
                 docs = mpr.query(
-                    {"chemsys": {"$in": all_chemsyses}}, ["task_id", "structure"]
+                    {"chemsys": {"$in": all_chemsys}}, ["task_id", "structure"]
                 )
             structs.update({d["task_id"]: d["structure"] for d in docs})
             return structs
@@ -856,11 +856,10 @@ class LocalEnvironmentPanel(PanelComponent):
 
             # TODO: switch to tiles?
             envs_grouped = [envs[i : i + 2] for i in range(0, len(envs), 2)]
-            analysis_contents = []
-            for env_group in envs_grouped:
-                analysis_contents.append(
-                    Columns([Column(e, size=6) for e in env_group])
-                )
+            analysis_contents = [
+                Columns([Column(e, size=6) for e in env_group])
+                for env_group in envs_grouped
+            ]
 
             if unknown_sites:
                 unknown_sites = html.Strong(

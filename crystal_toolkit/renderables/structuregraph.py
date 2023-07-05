@@ -33,10 +33,10 @@ def _get_sites_to_draw(
                 for x in combinations(zero_elements, length)
             ]
 
-            for perm in coord_permutations:
-                sites_to_draw.append(
-                    (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
-                )
+            sites_to_draw += [
+                (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
+                for perm in coord_permutations
+            ]
 
             one_elements = [
                 idx
@@ -49,11 +49,10 @@ def _get_sites_to_draw(
                 for length in range(1, len(one_elements) + 1)
                 for x in combinations(one_elements, length)
             ]
-
-            for perm in coord_permutations:
-                sites_to_draw.append(
-                    (idx, (-int(0 in perm), -int(1 in perm), -int(2 in perm)))
-                )
+            sites_to_draw += [
+                (idx, (-int(0 in perm), -int(1 in perm), -int(2 in perm)))
+                for perm in coord_permutations
+            ]
 
     if bonded_sites_outside_unit_cell:
         sites_to_append = []
@@ -61,7 +60,7 @@ def _get_sites_to_draw(
             connected_sites = self.get_connected_sites(n, jimage=jimage)
             for connected_site in connected_sites:
                 if connected_site.jimage != (0, 0, 0):
-                    sites_to_append.append(
+                    sites_to_append.append(  # noqa: PERF401
                         (connected_site.index, connected_site.jimage)
                     )
         sites_to_draw += sites_to_append

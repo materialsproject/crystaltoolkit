@@ -465,9 +465,10 @@ Sub-layouts:  \n{layouts}"""
         matrix_div_contents = []
         print("matrix_contents", matrix_contents)
         for column_idx in sorted(matrix_contents):
-            row = []
-            for row_idx in sorted(matrix_contents[column_idx]):
-                row.append(matrix_contents[column_idx][row_idx])
+            row = [
+                matrix_contents[column_idx][row_idx]
+                for row_idx in sorted(matrix_contents[column_idx])
+            ]
             matrix_div_contents.append(html.Div(row))
 
         matrix = html.Div(matrix_div_contents)

@@ -414,9 +414,7 @@ def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Ta
     :param rows: list of list of cell contents
     :return: html.Table
     """
-    contents = []
-    for row in rows:
-        contents.append(html.Tr([html.Td(item) for item in row]))
+    contents = [html.Tr([html.Td(item) for item in row]) for row in rows]
     if not header:
         return html.Table([html.Tbody(contents)], className="table")
     header = html.Thead([html.Tr([html.Th(item) for item in header])])

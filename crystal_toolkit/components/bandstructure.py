@@ -328,7 +328,7 @@ class BandstructureAndDosComponent(MPComponent):
                 if any(segment[band_num] <= energy_window[1]) and any(
                     segment[band_num] >= energy_window[0]
                 ):
-                    bands.append(band_num)
+                    bands.append(band_num)  # noqa: PERF401
 
         bs_traces = []
 

@@ -91,18 +91,19 @@ select = [
     "YTT",  # flake8-2020
 ]
 ignore = [
-    "B028",   # No explicit stacklevel keyword argument found
-    "C408",   # Unnecessary dict call - rewrite as a literal
-    "D100",   # Missing docstring in public module
-    "D104",   # Missing docstring in public package
-    "D105",   # Missing docstring in magic method
-    "D107",   # Missing docstring in __init__
-    "D205",   # 1 blank line required between summary line and description
-    "E501",   # Line too long
-    "E731",   # Do not assign a lambda expression, use a def
-    "PD901",  # pandas-df-variable-name
-    "PLR",    # pylint refactor
-    "SIM105", # Use contextlib.suppress(ValueError) instead of try-except-pass
+    "B028",    # No explicit stacklevel keyword argument found
+    "C408",    # Unnecessary dict call - rewrite as a literal
+    "D100",    # Missing docstring in public module
+    "D104",    # Missing docstring in public package
+    "D105",    # Missing docstring in magic method
+    "D107",    # Missing docstring in __init__
+    "D205",    # 1 blank line required between summary line and description
+    "E501",    # Line too long
+    "E731",    # Do not assign a lambda expression, use a def
+    "PD901",   # pandas-df-variable-name
+    "PERF203", # try-except-in-loop
+    "PLR",     # pylint refactor
+    "SIM105",  # Use contextlib.suppress(ValueError) instead of try-except-pass
 ]
 pydocstyle.convention = "google"
 isort.split-on-trailing-comma = false

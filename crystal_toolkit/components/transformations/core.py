@@ -418,10 +418,9 @@ class AllTransformationsComponent(MPComponent):
 
             errors = []
 
-            transformations = []
-            for transformation in args[:-2]:
-                if transformation:
-                    transformations.append(transformation)
+            transformations = [
+                transformation for transformation in args[:-2] if transformation
+            ]
 
             if not transformations:
                 return struct  # , html.Div()

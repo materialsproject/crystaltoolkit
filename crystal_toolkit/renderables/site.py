@@ -210,8 +210,7 @@ def get_site_scene(
                                 )
                             )
                             trans_vector = trans_vector + 0.25 * max_radius
-                        for cylinder in cylinders:
-                            bonds.append(cylinder)
+                        bonds += cylinders
                     else:
                         cylinder = Cylinders(
                             positionPairs=[[position, bond_midpoint.tolist()]],

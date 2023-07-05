@@ -408,7 +408,7 @@ class Legend(MSONable):
         for site_prop_type in ("scalar", "categorical"):
             if site_prop_type in self.site_prop_types:
                 for prop in self.site_prop_types[site_prop_type]:
-                    color_options.append(prop)
+                    color_options.append(prop)  # noqa: PERF402
 
         return {
             "composition": self.site_collection.composition.as_dict(),

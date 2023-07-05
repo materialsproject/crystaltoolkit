@@ -284,7 +284,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 if any(v <= freq_range[1] for v in segment[band_num]) and any(
                     v >= freq_range[0] for v in segment[band_num]
                 ):
-                    bands.append(band_num)
+                    bands.append(band_num)  # noqa: PERF401
 
         bs_traces = []
 

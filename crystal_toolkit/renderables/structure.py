@@ -31,10 +31,10 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
             for x in combinations(zero_elements, tmp_)
         ]
 
-        for perm in coord_permutations:
-            sites_to_draw.append(
-                (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
-            )
+        sites_to_draw += [
+            (idx, (int(0 in perm), int(1 in perm), int(2 in perm)))
+            for perm in coord_permutations
+        ]
 
         one_elements = [
             idx
@@ -48,10 +48,10 @@ def _get_sites_to_draw(self, draw_image_atoms=True):
             for x in combinations(one_elements, tmp_)
         ]
 
-        for perm in coord_permutations:
-            sites_to_draw.append(
-                (idx, (-int(0 in perm), -int(1 in perm), -int(2 in perm)))
-            )
+        sites_to_draw += [
+            (idx, (-int(0 in perm), -int(1 in perm), -int(2 in perm)))
+            for perm in coord_permutations
+        ]
 
     return set(sites_to_draw)
 
