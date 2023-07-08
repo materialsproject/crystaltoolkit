@@ -388,7 +388,7 @@ class PourbaixDiagramComponent(MPComponent):
             )
             shapes.append(shape)
 
-        layout = PourbaixDiagramComponent.default_plot_style
+        layout = {**PourbaixDiagramComponent.default_plot_style}
         layout.update({"shapes": shapes})
 
         if heatmap_entry is None:
@@ -578,7 +578,7 @@ class PourbaixDiagramComponent(MPComponent):
 
         graph = html.Div(
             dcc.Graph(
-                figure=go.Figure(layout=PourbaixDiagramComponent.empty_plot_style),
+                figure=go.Figure(layout={**PourbaixDiagramComponent.empty_plot_style}),
                 id=self.id("graph"),
                 responsive=True,
                 config={"displayModeBar": False, "displaylogo": False},
