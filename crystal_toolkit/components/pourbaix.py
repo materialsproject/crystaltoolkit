@@ -243,7 +243,7 @@ class PourbaixDiagramComponent(MPComponent):
     #         )
     #         shapes.append(shape)
     #
-    #     layout = PourbaixDiagramComponent.default_plot_style
+    #     layout = {**PourbaixDiagramComponent.default_plot_style}
     #     layout.update({"shapes": shapes})
     #
     #     if show_labels:
