@@ -111,7 +111,7 @@ class Legend(MSONable):
                 for p in site_collection.site_properties[color_scheme]
                 if p is not None
             ]
-            prop_max = max(abs(min(props)), props)
+            prop_max = max([abs(min(props)), max(props)])
             prop_min = -prop_max
             cmap_range = (prop_min, prop_max)
 
