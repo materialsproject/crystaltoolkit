@@ -404,7 +404,7 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         layout["xaxis"]["range"] = [min(x), max(x)]
         bar_width = 0.003 * (max(x) - min(x))  # set width of bars to 0.5% of the domain
 
-        plotdata = [
+        plot_data = [
             go.Bar(
                 x=x_peak,
                 y=y_peak,
@@ -416,9 +416,9 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             )
         ]
         if broadening:
-            plotdata.append(go.Scatter(x=x, y=y, hoverinfo="none"))
+            plot_data.append(go.Scatter(x=x, y=y, hoverinfo="none"))
 
-        return go.Figure(data=plotdata, layout=layout)
+        return go.Figure(data=plot_data, layout=layout)
 
     def generate_callbacks(self, app, cache) -> None:
         @app.callback(
@@ -433,7 +433,9 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 Input(self.id("structure"), "data"),
             ],
         )
-        def update_graph(data, logsize, rad_source, peak_profile, K, x_axis, structure):
+        def update_graph(
+            data, log_size, rad_source, peak_profile, K, x_axis, structure
+        ):
             if not data:
                 raise PreventUpdate
 
@@ -445,10 +447,10 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             peak_profile = kwargs["peak_profile"]
             K = kwargs["shape_factor"]
             rad_source = kwargs["rad_source"]
-            logsize = float(kwargs["crystallite_size"])
+            log_size = float(kwargs["crystallite_size"])
             x_axis = kwargs["x_axis"]
 
-            grain_size = 10**logsize
+            grain_size = 10**log_size
             x_peak = data["x"]
             y_peak = data["y"]
             d_hkls = data["d_hkls"]
@@ -487,14 +489,13 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             )
 
             sga = SpacegroupAnalyzer(struct)
-            struct = (
-                sga.get_conventional_standard_structure()
-            )  # always get conventional structure
+            # always get conventional structure
+            struct = sga.get_conventional_standard_structure()
 
-            xrdc = XRDCalculator(
+            xrd_calc = XRDCalculator(
                 wavelength=WAVELENGTHS[rad_source], symprec=0, debye_waller_factors=None
             )
-            data = xrdc.get_pattern(struct, two_theta_range=None)
+            data = xrd_calc.get_pattern(struct, two_theta_range=None)
 
             return data.as_dict()
 
@@ -517,7 +518,6 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
         #     Output(self.id("static-image"), "src"), Input(self.id("xrd-plot"), "figure")
         # )
         # def update_static_image(data):
-
         #     scope = PlotlyScope()
         #     output = scope.transform(data, format="png", width=600, height=400, scale=4)
         #     image = b64encode(output).decode("ascii")

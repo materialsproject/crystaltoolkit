@@ -414,9 +414,7 @@ Sub-layouts:  \n{layouts}"""
             "marginBottom": "0.2rem",
             "height": "36px",
         }
-        if "style" in kwargs:
-            style.update(kwargs["style"])
-            del kwargs["style"]
+        style.update(kwargs.pop("style", {}))
 
         def matrix_element(idx, value=0):
             # TODO: maybe move element out of the name
