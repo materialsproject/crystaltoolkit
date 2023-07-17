@@ -4,7 +4,7 @@
 
 You can read more about Crystal Toolkit in our preprint, available [here](https://arxiv.org/abs/2302.06147).
 
-A BibTeX citation is as follows:
+A [citation.cff](CITATION.cff) file is available or a BibTeX citation is as follows:
 
 ```bibtex
 @article{horton2023crystal,
@@ -103,10 +103,6 @@ analysis and [Dash from Plotly](https://plot.ly/products/dash/) for their web ap
 
 Thank you to the [NERSC Spin](https://nersc.gov/systems/spin) service for
 hosting the app and for their technical support.
-
-## Cite
-
-To cite this work, see <https://arxiv.org/abs/2302.06147> and [citation.cff](citation.cff).
 
 ## Contact
 
