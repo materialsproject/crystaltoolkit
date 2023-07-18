@@ -50,7 +50,7 @@ exclude = ["docs_rst"]
 
 [tool.setuptools_scm]
 write_to = "crystal_toolkit/_version.py"
-write_to_template = '__version__ = "{version}"'
+write_to_template = '__version__ = "{version}"\n'
 local_scheme = "no-local-version"
 
 [build-system]
@@ -122,7 +122,7 @@ isort.split-on-trailing-comma = false
 addopts = "-p no:warnings"
 
 [tool.codespell]
-ignore-words-list = "nd,te"
+ignore-words-list = "nd,te,ois"
 
 [tool.mypy]
 no_implicit_optional = false
