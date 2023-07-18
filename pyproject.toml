@@ -50,7 +50,7 @@ exclude = ["docs_rst"]
 
 [tool.setuptools_scm]
 write_to = "crystal_toolkit/_version.py"
-write_to_template = '__version__ = "{version}"\n'
+write_to_template = '__version__ = "{version}"'
 local_scheme = "no-local-version"
 
 [build-system]
@@ -105,7 +105,7 @@ ignore = [
     "PLR",     # pylint refactor
     "SIM105",  # Use contextlib.suppress(ValueError) instead of try-except-pass
 ]
-# pydocstyle.convention = "google"
+pydocstyle.convention = "google"
 isort.split-on-trailing-comma = false
 
 [tool.ruff.per-file-ignores]
