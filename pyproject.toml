@@ -116,6 +116,7 @@ isort.split-on-trailing-comma = false
 "crystal_toolkit/settings.py" = ["UP007"]
 # TODO fix all undefined variables in bandstructure.py
 "crystal_toolkit/components/bandstructure.py" = ["F821"]
+"README.md" = ["E999"]
 
 [tool.pytest.ini_options]
 addopts = "-p no:warnings"
