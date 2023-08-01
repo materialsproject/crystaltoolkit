@@ -456,11 +456,10 @@ class StructureMoleculeComponent(MPComponent):
                 formula = struct_or_mol.molecule.composition.reduced_Formula
             else:
                 formula = struct_or_mol.composition.reduced_formula
-            spg_symbol = (
-                struct_or_mol.get_space_group_info()[0]
-                if hasattr(struct_or_mol, "get_space_group_info")
-                else ""
-            )
+            # molecules don't have space group in which case fall back to empty string
+            spg_symbol = getattr(struct_or_mol, "get_space_group_info", lambda: [""])()[
+                0
+            ]
             request_filename = f"{formula}-{spg_symbol}-crystal-toolkit.png"
 
             return {
