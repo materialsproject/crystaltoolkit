@@ -7,7 +7,7 @@ default_install_hook_types: [pre-commit, commit-msg]
 
 # ignore generated docs and dependency lock files, the directory
 # jupyterlab-extension/ and all SVG, JS and CSS files
-exclude: ^(docs/.+|.*lock.*|jupyterlab-extension/.+|.*\.(svg|js|css))$
+exclude: ^(docs/.+|.*lock.*|jupyterlab-extension/.+|.*\.(svg|js|css))|_version.py$
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -42,11 +42,6 @@ repos:
       - id: codespell
         stages: [commit, commit-msg]
         args: [--ignore-words-list, "nd,te,ois"]
-
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
-    hooks:
-      - id: nbqa-ruff
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.6.1
