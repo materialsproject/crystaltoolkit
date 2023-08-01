@@ -41,7 +41,6 @@ repos:
     hooks:
       - id: codespell
         stages: [commit, commit-msg]
-        args: [--ignore-words-list, "nd,te,ois"]
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.6.1

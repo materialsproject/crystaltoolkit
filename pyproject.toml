@@ -121,7 +121,7 @@ isort.split-on-trailing-comma = false
 addopts = "-p no:warnings"
 
 [tool.codespell]
-ignore-words-list = "nd,te"
+ignore-words-list = "nd,te,ois"
 
 [tool.mypy]
 no_implicit_optional = false
