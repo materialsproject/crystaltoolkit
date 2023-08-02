@@ -14,6 +14,11 @@ def test_structure(page: Page):
     h1_text = page.text_content("h1")
     assert h1_text == "StructureMoleculeComponent Example"
 
+    # repeatedly drag the canvas to test rotating the structure
+    canvas = page.locator("canvas")
+    canvas.drag_to(target=canvas, source_position={"x": 100, "y": 20})
+    canvas.drag_to(target=canvas, source_position={"x": 0, "y": 70})
+
     # test enter and exit "Full screen"
     full_screen_button = page.query_selector('button[data-for^="expand-"]')
     assert full_screen_button.is_visible()
