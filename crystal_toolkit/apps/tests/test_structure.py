@@ -1,6 +1,12 @@
 import re
+import threading
 
 from playwright.sync_api import Page, expect
+
+from crystal_toolkit.apps.examples.structure import app
+
+thread = threading.Thread(target=app.run)
+thread.start()
 
 
 def test_structure(page: Page):
@@ -14,8 +20,8 @@ def test_structure(page: Page):
     page.locator("button").filter(has_text="Full screen").click()
     page.locator("button").filter(has_text="Exit full screen").click()
 
-    # check if "Show settings" button exists and is visible
-    settings_button = page.query_selector('div[data-for^="settings-"] button')
+    # Check if "Show settings" button exists and is visible
+    settings_button = page.query_selector('button[data-for^="settings-"]')
     assert settings_button.is_visible()
 
     # test "export structure as image" button
@@ -32,6 +38,9 @@ def test_structure(page: Page):
         page.get_by_text("CIF (Symmetrized)").click()
 
     assert re.match("<Download url='blob:http://", str(download.value))
+
+    legend = page.get_by_text("NaK", exact=True)
+    assert legend.is_visible()
 
     position_button.click()
     with page.expect_download() as download:
