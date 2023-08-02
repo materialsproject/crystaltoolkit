@@ -11,12 +11,12 @@ app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 xrd_component = ctc.XRayDiffractionComponent()
 
 # example layout to demonstrate capabilities of component
-my_layout = Container(
+layout = Container(
     [H1("XRDComponent Example (Empty, No Structure Defined)"), xrd_component.layout()]
 )
 
 # as explained in "preamble" section in documentation
-ctc.register_crystal_toolkit(app=app, layout=my_layout)
+ctc.register_crystal_toolkit(app=app, layout=layout)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar

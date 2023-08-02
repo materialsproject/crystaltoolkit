@@ -36,7 +36,7 @@ transformation_component = ctc.AllTransformationsComponent(
 )
 
 # example layout to demonstrate capabilities of component
-my_layout = html.Div(
+layout = html.Div(
     [
         html.H1("TransformationComponent Example"),
         html.H2("Standard Layout"),
@@ -49,7 +49,7 @@ my_layout = html.Div(
 )
 
 # tell crystal toolkit about your app and layout
-ctc.register_crystal_toolkit(app, layout=my_layout)
+ctc.register_crystal_toolkit(app, layout=layout)
 
 
 @app.callback(

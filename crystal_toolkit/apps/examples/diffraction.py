@@ -15,7 +15,7 @@ structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.
 xrd_component = ctc.XRayDiffractionComponent(initial_structure=structure)
 
 # example layout to demonstrate capabilities of component
-my_layout = Container(
+layout = Container(
     [
         H1("XRDComponent Example"),
         H3("Generated from Structure object"),
@@ -24,7 +24,7 @@ my_layout = Container(
 )
 
 # as explained in "preamble" section in documentation
-ctc.register_crystal_toolkit(app=app, layout=my_layout)
+ctc.register_crystal_toolkit(app=app, layout=layout)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar

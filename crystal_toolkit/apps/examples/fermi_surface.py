@@ -25,11 +25,11 @@ fermi_surface = loadfn(f"{path}/BaFe2As2_fs.json.gz")
 fs_component = ctc.FermiSurfaceComponent(fermi_surface, id="fermi_surface")
 
 # example layout to demonstrate capabilities of component
-my_layout = Container([H1("Fermi Surface Example"), fs_component.layout()])
+layout = Container([H1("Fermi Surface Example"), fs_component.layout()])
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
-ctc.register_crystal_toolkit(app, layout=my_layout)
+ctc.register_crystal_toolkit(app, layout=layout)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar
