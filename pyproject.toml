@@ -36,7 +36,9 @@ dev = [
     "dash[testing]",
     "dephell",
     "jinja2",
+    "playwright",
     "pre-commit",
+    "pytest-playwright",
     "recommonmark",
     "sphinx_rtd_theme",
 ]
