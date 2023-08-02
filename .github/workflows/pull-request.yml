@@ -32,6 +32,8 @@ jobs:
           python${{ matrix.python-version }} -m pip install --no-deps .
       - name: Test modules
         run: python${{ matrix.python-version }} -m pytest tests
+      - name: Install playwright
+        run: playwright install
       - name: Test example apps
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
