@@ -429,7 +429,7 @@ Sub-layouts:  \n{layouts}"""
                     className="input",
                     style=style,
                     value=float(value) if value is not None else None,
-                    persistence=True,
+                    persistence="True",
                     type="number",
                     **kwargs,
                 )
@@ -440,7 +440,7 @@ Sub-layouts:  \n{layouts}"""
                 className="input",
                 style=style,
                 value=int(value) if value is not None else None,
-                persistence=True,
+                persistence="True",
                 type="number",
                 **kwargs,
             )
@@ -632,7 +632,7 @@ Sub-layouts:  \n{layouts}"""
                 className="input",
                 style=style,
                 value=value,
-                persistence=True,
+                persistence="True",
                 **kwargs,
             )
             vid = self.id(kwarg_label, is_kwarg=True, idx=("v", idx), hint="dict")
@@ -642,7 +642,7 @@ Sub-layouts:  \n{layouts}"""
                 className="input",
                 style=style,
                 value=value,
-                persistence=True,
+                persistence="True",
                 **kwargs,
             )
 
