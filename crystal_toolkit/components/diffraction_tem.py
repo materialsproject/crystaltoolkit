@@ -243,7 +243,8 @@ class TEMDiffractionCalculator:
             structure
         )
         needs_structure = not self.crystal or not (
-            np.allclose(self.crystal.numbers, new_crystal.numbers)
+            self.crystal.positions.shape[0] == new_crystal.positions.shape[0]
+            and np.allclose(self.crystal.numbers, new_crystal.numbers)
             and np.allclose(self.crystal.cell, new_crystal.cell)
             and np.allclose(self.crystal.positions, new_crystal.positions)
         )
