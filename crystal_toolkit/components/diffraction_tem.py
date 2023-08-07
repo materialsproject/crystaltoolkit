@@ -62,9 +62,9 @@ class TEMDiffractionComponent(MPComponent):
             kwarg_label="k_max",
             default=1.5,
             step=0.25,
-            max-10,
             label="Maximum Scattering Angle [Å⁻¹]",
             help_str="Maximum scattering angle to compute reciprocal lattice.",
+            max=10,
         )
 
         use_dynamical = self.get_bool_input(
@@ -92,13 +92,13 @@ class TEMDiffractionComponent(MPComponent):
             step=0.001,
             label="Excitation error tolerance [Å⁻¹]",
             help_str="Standard deviation of Gaussian function for damping reciprocal lattice points.",
+            max=0.2,
         )
 
         Fhkl_tol = self.get_numerical_input(
             kwarg_label="tol_structure_factor",
             default=0.0,
             step=0.001,
-            max=0.2,
             label="|F<sub>khl</sub>| tolerance",
             help_str="Minimum structure factor intensity to include a reflection. Setting"
             " this value to zero allows kinematically forbidden reflections to be excited"
