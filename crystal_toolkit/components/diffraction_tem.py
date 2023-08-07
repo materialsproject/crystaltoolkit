@@ -62,6 +62,7 @@ class TEMDiffractionComponent(MPComponent):
             kwarg_label="k_max",
             default=1.5,
             step=0.25,
+            max-10,
             label="Maximum Scattering Angle [Å⁻¹]",
             help_str="Maximum scattering angle to compute reciprocal lattice.",
         )
@@ -97,6 +98,7 @@ class TEMDiffractionComponent(MPComponent):
             kwarg_label="tol_structure_factor",
             default=0.0,
             step=0.001,
+            max=0.2,
             label="|F<sub>khl</sub>| tolerance",
             help_str="Minimum structure factor intensity to include a reflection. Setting"
             " this value to zero allows kinematically forbidden reflections to be excited"
