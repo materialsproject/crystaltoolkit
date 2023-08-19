@@ -282,7 +282,7 @@ class TEMDiffractionCalculator:
 
         # generate diffraction pattern
         pattern = self.crystal.generate_diffraction_pattern(
-            zone_axis_lattice=beam_direction
+            zone_axis_lattice=beam_direction, tol_intensity=0.0
         )
 
         # rescale intensities
