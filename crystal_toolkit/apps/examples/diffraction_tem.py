@@ -12,7 +12,20 @@ from crystal_toolkit.settings import SETTINGS
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
 
-structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+structure = Structure(
+    Lattice.cubic(5.44),
+    ["Si"] * 8,
+    [
+        [0.25, 0.75, 0.25],
+        [0.0, 0.0, 0.5],
+        [0.25, 0.25, 0.75],
+        [0.0, 0.5, 0.0],
+        [0.75, 0.75, 0.75],
+        [0.5, 0.0, 0.0],
+        [0.75, 0.25, 0.25],
+        [0.5, 0.5, 0.5],
+    ],
+)
 
 tem_component = ctc.TEMDiffractionComponent(initial_structure=structure)
 
