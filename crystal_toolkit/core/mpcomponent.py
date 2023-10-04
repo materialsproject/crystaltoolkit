@@ -9,6 +9,7 @@ from collections import defaultdict
 from itertools import chain, zip_longest
 from json import JSONDecodeError, dumps, loads
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
+from warnings import warn
 
 import dash
 import dash_mp_components as mpc
@@ -21,13 +22,11 @@ from monty.json import MontyDecoder, MSONable
 from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.helpers.layouts import H6, Button, Icon, Loading, add_label_help
 from crystal_toolkit.settings import SETTINGS
+from crystal_toolkit.core.plugin import CrystalToolkitPlugin
 
 if TYPE_CHECKING:
     import plotly.graph_objects as go
 
-
-# fallback cache if Redis etc. isn't set up
-null_cache = Cache(config={"CACHE_TYPE": "null"})
 
 # Crystal Toolkit namespace, added to the start of all ids
 # so we can see which layouts have been added by Crystal Toolkit
@@ -60,74 +59,46 @@ class MPComponent(ABC):
 
     @staticmethod
     def register_app(app: dash.Dash):
-        """This method must be called at least once in your Crystal Toolkit Dash app if you want to
-        enable interactivity with the MPComponents. The "app" variable is a special global variable
-        used by Dash/Flask, and registering it with MPComponent allows callbacks to be registered
-        with the app on instantiation.
-
-        Args:
-            app: a Dash app instance
-        """
-        MPComponent.app = app
-        # add metadata
-        app.config.meta_tags.append(
-            {
-                "name": "generator",
-                "content": f"Crystal Toolkit {ct_version} (Materials Project)",
-            }
+        """This method has been deprecated. Please use crystal_toolkit.CrystalToolkitPlugin."""
+        warn(
+            "The register_app method is no longer required, please instead use the "
+            "crystal_toolkit.CrystalToolkitPlugin when instantiating your Dash app.",
+            category=PendingDeprecationWarning,
         )
-        # set default title, but respect the user if they override it
-        if app.title == "Dash":
-            app.title = "Crystal Toolkit"
+        return
 
     @staticmethod
     def register_cache(cache: Cache) -> None:
-        """This method must be called at least once in your Crystal Toolkit Dash app if you want to
-        enable callback caching. Callback caching is one of the easiest ways to see significant
-        performance improvements, especially for callbacks that are computationally expensive.
-
-        Args:
-            cache: a flask_caching Cache instance
-        """
-        if SETTINGS.DEBUG_MODE:
-            MPComponent.cache = null_cache
-            MPComponent.cache.init_app(MPComponent.app.server)
-        elif cache:
-            MPComponent.cache = cache
-        else:
-            MPComponent.cache = Cache(
-                MPComponent.app.server, config={"CACHE_TYPE": "simple"}
-            )
+        """This method has been deprecated. Please use crystal_toolkit.CrystalToolkitPlugin."""
+        warn(
+            "The register_cache method is no longer required, please instead use the "
+            "crystal_toolkit.CrystalToolkitPlugin when instantiating your Dash app.",
+            category=PendingDeprecationWarning,
+        )
+        return
 
     @staticmethod
     def crystal_toolkit_layout(layout: html.Div) -> html.Div:
-        if not MPComponent.app:
-            raise ValueError(
-                "Please register the Dash app with Crystal Toolkit using register_app()."
-            )
-
-        # layout_str = str(layout)
-        stores_to_add = []
-        for basename in MPComponent._all_id_basenames:
-            # can use "if basename in layout_str:" to restrict to components present in initial layout
-            # this would cause bugs for components displayed dynamically
-            stores_to_add += MPComponent._app_stores_dict[basename]
-        layout.children += stores_to_add
-
-        # set app.layout to layout so that callbacks can be validated
-        MPComponent.app.layout = layout
-
-        for component in MPComponent._callbacks_to_generate:
-            component.generate_callbacks(MPComponent.app, MPComponent.cache)
-
-        return layout
+        """This method has been deprecated. Please use crystal_toolkit.CrystalToolkitPlugin."""
+        warn(
+            "The crystal_toolkit_layout method is no longer required, please instead use the "
+            "crystal_toolkit.CrystalToolkitPlugin when instantiating your Dash app.",
+            category=PendingDeprecationWarning,
+        )
+        return
 
     @staticmethod
     def register_crystal_toolkit(app, layout, cache=None):
-        MPComponent.register_app(app)
-        MPComponent.register_cache(cache)
-        app.config["suppress_callback_exceptions"] = True
-        app.layout = MPComponent.crystal_toolkit_layout(layout)
+        """This method has been deprecated. Please use crystal_toolkit.CrystalToolkitPlugin."""
+        warn(
+            "The register_crystal_toolkit method is no longer required, please instead use the "
+            "crystal_toolkit.CrystalToolkitPlugin when instantiating your Dash app.",
+            category=PendingDeprecationWarning,
+        )
+        # call the plugin manually for backwards compatibility, but the
+        # user should instead use Dash(..., plugins=[CrystalToolkitPlugin(cache=cache, layout=layout)])
+        plugin = CrystalToolkitPlugin(layout=layout, cache=cache)
+        plugin.plug(app)
 
     @staticmethod
     def all_app_stores() -> html.Div:
@@ -162,9 +133,8 @@ class MPComponent(ABC):
         anywhere you choose: my_component.layout
 
         If you want the layouts to be interactive, i.e. to respond to callbacks,
-        you have to also use the MPComponent.register_app(app) method in your app,
-        and also include MPComponent.all_app_stores in your app.layout (an
-        invisible layout that contains the MSON itself).
+        you have to also use the CrystalToolkitPlugin when instantiating your
+        Dash app.
 
         If you do not want the layouts to be interactive, set disable_callbacks
         to True to prevent errors.
