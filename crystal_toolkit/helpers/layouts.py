@@ -39,7 +39,7 @@ BulmaPrimaryColor: TypeAlias = Literal[
 # TODO: change "kind" kwarg to list / group is- modifiers together?
 
 """
-Helper methods to make working with Bulma classes easier. This file incorporates 
+Helper methods to make working with Bulma classes easier. This file incorporates
 language from the Bulma documentation. See https://github.com/jgthms/bulma/blob/master/LICENSE
 """
 
@@ -386,7 +386,8 @@ class Image(html.Figure):
             "9by16",
             "1by2",
             "1by3",
-        ] = None,
+        ]
+        | None = None,
         rounded: bool = False,
         img_kwargs: dict | None = None,
         src: str | None = None,
@@ -556,8 +557,8 @@ class Tag(html.Div):
         _update_css_class(span_kwargs, "tag")
         _update_css_class(span_kwargs, f"is-{color}", color)
         _update_css_class(span_kwargs, f"is-{size}", size)
-        _update_css_class(span_kwargs, f"is-rounded", rounded)
-        _update_css_class(span_kwargs, f"is-delete", delete)
+        _update_css_class(span_kwargs, "is-rounded", rounded)
+        _update_css_class(span_kwargs, "is-delete", delete)
 
         tags = [html.Span(tag, **span_kwargs)]
 

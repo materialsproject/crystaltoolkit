@@ -1,10 +1,10 @@
-from typing import TYPE_CHECKING, Optional
-
-from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit import __version__ as ct_version
+from typing import Optional
 
 from dash import Dash, html
 from flask_caching import Cache
+
+from crystal_toolkit import __version__ as ct_version
+from crystal_toolkit.settings import SETTINGS
 
 
 class CrystalToolkitPlugin:

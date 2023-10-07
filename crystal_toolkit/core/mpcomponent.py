@@ -16,16 +16,15 @@ import dash_mp_components as mpc
 import numpy as np
 from dash import dcc, html
 from dash.dependencies import ALL
-from flask_caching import Cache
 from monty.json import MontyDecoder, MSONable
 
-from crystal_toolkit import __version__ as ct_version
+from crystal_toolkit.core.plugin import CrystalToolkitPlugin
 from crystal_toolkit.helpers.layouts import H6, Button, Icon, Loading, add_label_help
 from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.core.plugin import CrystalToolkitPlugin
 
 if TYPE_CHECKING:
     import plotly.graph_objects as go
+    from flask_caching import Cache
 
 
 # Crystal Toolkit namespace, added to the start of all ids
