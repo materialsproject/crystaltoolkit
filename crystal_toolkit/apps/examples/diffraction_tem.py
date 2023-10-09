@@ -30,7 +30,7 @@ structure = Structure(
 tem_component = ctc.TEMDiffractionComponent(initial_structure=structure)
 
 # example layout to demonstrate capabilities of component
-my_layout = Container(
+layout = Container(
     [
         H1("TEMDiffractionComponent Example"),
         H3("Generated from Structure object"),
@@ -39,7 +39,7 @@ my_layout = Container(
 )
 
 # as explained in "preamble" section in documentation
-ctc.register_crystal_toolkit(app=app, layout=my_layout)
+ctc.register_crystal_toolkit(app=app, layout=layout)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar

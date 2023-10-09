@@ -42,6 +42,7 @@ dev = [
     "recommonmark",
     "sphinx_rtd_theme",
 ]
+test = ["playwright", "pytest", "pytest-playwright"]
 
 [project.urls]
 repo = "https://github.com/materialsproject/crystaltoolkit"

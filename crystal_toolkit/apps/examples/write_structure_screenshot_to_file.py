@@ -26,7 +26,7 @@ structure_component = ctc.StructureMoleculeComponent(
     scene_settings={"zoomToFit2D": True},
 )
 
-my_layout = html.Div(
+layout = html.Div(
     [structure_component.layout(), dcc.Location(id="url"), html.Div(id="dummy-output")]
 )
 
@@ -73,6 +73,6 @@ def save_image(image_data_timestamp, url, image_data):
             file.write(response.file.read())
 
 
-ctc.register_crystal_toolkit(app=app, layout=my_layout)
+ctc.register_crystal_toolkit(app=app, layout=layout)
 if __name__ == "__main__":
     app.run(debug=True, port=8050)

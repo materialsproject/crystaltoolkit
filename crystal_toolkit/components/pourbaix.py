@@ -583,7 +583,7 @@ class PourbaixDiagramComponent(MPComponent):
                 responsive=True,
                 config={"displayModeBar": False, "displaylogo": False},
             ),
-            style={"min-height": "500px"},
+            style={"minHeight": "500px"},
         )
 
         return {"graph": graph, "options": options}

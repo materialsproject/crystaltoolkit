@@ -32,5 +32,11 @@ class Settings(BaseSettings):
 
         env_prefix = "CT_"
 
+    def print(self):
+        """Print settings."""
+        print("Crystal Toolkit settings")
+        for key, val in self.dict().items():
+            print(f"  {key} = {val}")
+
 
 SETTINGS = Settings()

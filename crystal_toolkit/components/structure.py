@@ -456,11 +456,10 @@ class StructureMoleculeComponent(MPComponent):
                 formula = struct_or_mol.molecule.composition.reduced_Formula
             else:
                 formula = struct_or_mol.composition.reduced_formula
-            spg_symbol = (
-                struct_or_mol.get_space_group_info()[0]
-                if hasattr(struct_or_mol, "get_space_group_info")
-                else ""
-            )
+            # molecules don't have space group in which case fall back to empty string
+            spg_symbol = getattr(struct_or_mol, "get_space_group_info", lambda: [""])()[
+                0
+            ]
             request_filename = f"{formula}-{spg_symbol}-crystal-toolkit.png"
 
             return {
@@ -954,50 +953,43 @@ class StructureMoleculeComponent(MPComponent):
         if isinstance(input, (StructureGraph, MoleculeGraph)):
             graph = input
         else:
-            if (
-                bonding_strategy
-                not in StructureMoleculeComponent.available_bonding_strategies
-            ):
-                valid_subclasses = ", ".join(
-                    StructureMoleculeComponent.available_bonding_strategies
-                )
+            valid_bond_strategies = (
+                StructureMoleculeComponent.available_bonding_strategies
+            )
+            if bonding_strategy not in valid_bond_strategies:
                 raise ValueError(
                     "Bonding strategy not supported. Please supply a name of a NearNeighbor "
-                    f"subclass, choose from: {valid_subclasses}"
+                    f"subclass, choose from: {', '.join(valid_bond_strategies)}"
                 )
-            else:
-                bonding_strategy_kwargs = bonding_strategy_kwargs or {}
-                if (
-                    bonding_strategy == "CutOffDictNN"
-                    and "cut_off_dict" in bonding_strategy_kwargs
-                ):
-                    # TODO: remove this hack by making args properly JSON serializable
-                    bonding_strategy_kwargs["cut_off_dict"] = {
-                        (x[0], x[1]): x[2]
-                        for x in bonding_strategy_kwargs["cut_off_dict"]
-                    }
-                bonding_strategy = (
-                    StructureMoleculeComponent.available_bonding_strategies[
-                        bonding_strategy
-                    ](**bonding_strategy_kwargs)
-                )
-                try:
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        if isinstance(input, Structure):
-                            graph = StructureGraph.with_local_env_strategy(
-                                input, bonding_strategy
-                            )
-                        else:
-                            graph = MoleculeGraph.with_local_env_strategy(
-                                input, bonding_strategy, reorder=False
-                            )
-                except Exception:
-                    # for some reason computing bonds failed, so let's not have any bonds(!)
+            bonding_strategy_kwargs = bonding_strategy_kwargs or {}
+            if (
+                bonding_strategy == "CutOffDictNN"
+                and "cut_off_dict" in bonding_strategy_kwargs
+            ):
+                # TODO: remove this hack by making args properly JSON serializable
+                bonding_strategy_kwargs["cut_off_dict"] = {
+                    (x[0], x[1]): x[2] for x in bonding_strategy_kwargs["cut_off_dict"]
+                }
+            bonding_strategy = valid_bond_strategies[bonding_strategy](
+                **bonding_strategy_kwargs
+            )
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
                     if isinstance(input, Structure):
-                        graph = StructureGraph.with_empty_graph(input)
+                        graph = StructureGraph.with_local_env_strategy(
+                            input, bonding_strategy
+                        )
                     else:
-                        graph = MoleculeGraph.with_empty_graph(input)
+                        graph = MoleculeGraph.with_local_env_strategy(
+                            input, bonding_strategy, reorder=False
+                        )
+            except Exception:
+                # for some reason computing bonds failed, so let's not have any bonds(!)
+                if isinstance(input, Structure):
+                    graph = StructureGraph.with_empty_graph(input)
+                else:
+                    graph = MoleculeGraph.with_empty_graph(input)
 
         return graph
 
