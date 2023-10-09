@@ -72,9 +72,7 @@ decorator==5.1.1
 defusedxml==0.7.1
     # via nbconvert
 emmet-core==0.58.0
-    # via
-    #   crystal-toolkit (pyproject.toml)
-    #   mp-api
+    # via mp-api
 entrypoints==0.4
     # via jupyter-client
 exceptiongroup==1.1.3
@@ -229,7 +227,9 @@ monty==2023.9.25
     #   mp-api
     #   pymatgen
 mp-api==0.33.3
-    # via pymatgen
+    # via
+    #   crystal-toolkit (pyproject.toml)
+    #   pymatgen
 mpmath==1.3.0
     # via sympy
 msgpack==1.0.7

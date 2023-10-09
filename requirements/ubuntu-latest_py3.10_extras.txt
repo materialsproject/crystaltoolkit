@@ -8,6 +8,8 @@ aiofiles==22.1.0
     # via ypy-websocket
 aiohttp==3.8.6
     # via dephell
+aioitertools==0.11.0
+    # via maggma
 aiosignal==1.3.1
     # via aiohttp
 aiosqlite==0.19.0
@@ -18,8 +20,11 @@ annotated-types==0.6.0
     # via pydantic
 ansi2html==1.8.0
     # via dash
-anyio==4.0.0
-    # via jupyter-server
+anyio==3.7.1
+    # via
+    #   fastapi
+    #   jupyter-server
+    #   starlette
 argon2-cffi==23.1.0
     # via
     #   jupyter-server
@@ -62,6 +67,8 @@ babel==2.13.0
     #   sphinx
 backcall==0.2.0
     # via ipython
+bcrypt==4.0.1
+    # via paramiko
 beautifulsoup4==4.12.2
     # via
     #   dash
@@ -73,6 +80,12 @@ bleach==6.1.0
     # via nbconvert
 boltztrap2==22.12.1
     # via ifermi
+boto3==1.28.62
+    # via maggma
+botocore==1.31.62
+    # via
+    #   boto3
+    #   s3transfer
 cachelib==0.9.0
     # via flask-caching
 cerberus==1.3.5
@@ -87,6 +100,7 @@ cffi==1.16.0
     # via
     #   argon2-cffi-bindings
     #   cryptography
+    #   pynacl
 cfgv==3.4.0
     # via pre-commit
 cftime==1.6.2
@@ -102,6 +116,8 @@ click==8.1.7
     #   distributed
     #   flask
     #   ifermi
+    #   mongogrant
+    #   uvicorn
 cloudpickle==2.2.1
     # via
     #   dask
@@ -114,6 +130,7 @@ contourpy==1.1.1
     # via matplotlib
 cryptography==41.0.4
     # via
+    #   paramiko
     #   pyopenssl
     #   urllib3
 crystaltoolkit-extension==0.6.0
@@ -193,7 +210,9 @@ distlib==0.3.7
 distributed==2023.9.3
     # via py4dstem
 dnspython==2.4.2
-    # via pymongo
+    # via
+    #   maggma
+    #   pymongo
 docutils==0.18.1
     # via
     #   m2r
@@ -207,7 +226,7 @@ editorconfig==0.12.3
 emdfile==0.0.13
     # via py4dstem
 emmet-core==0.69.11
-    # via crystal-toolkit (pyproject.toml)
+    # via mp-api
 entrypoints==0.4
     # via
     #   jupyter-client
@@ -221,6 +240,8 @@ exceptiongroup==1.1.3
     #   trio-websocket
 executing==2.0.0
     # via stack-data
+fastapi==0.103.2
+    # via maggma
 fastjsonschema==2.18.1
     # via nbformat
 filelock==3.12.4
@@ -231,6 +252,7 @@ flask==2.2.5
     # via
     #   dash
     #   flask-caching
+    #   mongogrant
 flask-caching==2.0.2
     # via
     #   crystal-toolkit (pyproject.toml)
@@ -260,7 +282,9 @@ greenlet==3.0.0
 gunicorn[gevent]==21.2.0
     # via crystal-toolkit (pyproject.toml)
 h11==0.14.0
-    # via wsproto
+    # via
+    #   uvicorn
+    #   wsproto
 h5py==3.10.0
     # via
     #   emdfile
@@ -327,6 +351,10 @@ jinja2==3.1.2
     #   nbconvert
     #   notebook
     #   sphinx
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
 joblib==1.3.2
     # via
     #   dscribe
@@ -343,6 +371,7 @@ jsonschema[format-nongpl]==4.19.1
     # via
     #   jupyter-events
     #   jupyterlab-server
+    #   maggma
     #   nbformat
 jsonschema-specifications==2023.7.1
     # via jsonschema
@@ -411,6 +440,8 @@ lxml==4.9.3
     #   nbconvert
 m2r==0.3.1
     # via dephell
+maggma==0.57.2
+    # via mp-api
 markupsafe==2.1.3
     # via
     #   jinja2
@@ -437,21 +468,32 @@ mistune==0.8.4
     # via
     #   m2r
     #   nbconvert
+mongogrant==0.3.3
+    # via maggma
+mongomock==4.1.2
+    # via maggma
 monty==2023.9.25
     # via
     #   emmet-core
     #   ifermi
+    #   maggma
     #   matminer
+    #   mp-api
     #   pymatgen
     #   robocrys
 more-itertools==9.1.0
     # via dash-extensions
+mp-api==0.37.3
+    # via crystal-toolkit (pyproject.toml)
 mpire==2.8.0
     # via py4dstem
 mpmath==1.3.0
     # via sympy
 msgpack==1.0.7
-    # via distributed
+    # via
+    #   distributed
+    #   maggma
+    #   mp-api
 multidict==6.0.4
     # via
     #   aiohttp
@@ -517,6 +559,7 @@ numpy==1.25.2
     #   hiphive
     #   ifermi
     #   imageio
+    #   maggma
     #   matminer
     #   matplotlib
     #   meshcut
@@ -541,6 +584,8 @@ numpy==1.25.2
     #   trimesh
 numpy-stl==3.0.1
     # via meshcut
+orjson==3.9.7
+    # via maggma
 outcome==1.2.0
     # via trio
 overrides==7.4.0
@@ -561,6 +606,7 @@ packaging==23.2
     #   jupyterlab
     #   jupyterlab-server
     #   matplotlib
+    #   mongomock
     #   nbconvert
     #   plotly
     #   pytest
@@ -575,6 +621,8 @@ pandas==1.5.3
     #   pymatgen
 pandocfilters==1.5.0
     # via nbconvert
+paramiko==3.3.1
+    # via sshtunnel
 parso==0.8.3
     # via jedi
 partd==1.4.1
@@ -645,7 +693,9 @@ pycparser==2.21
 pydantic==2.4.2
     # via
     #   emmet-core
+    #   fastapi
     #   inflect
+    #   maggma
     #   pydantic-settings
 pydantic-core==2.10.1
     # via pydantic
@@ -653,6 +703,9 @@ pydantic-settings==2.0.3
     # via
     #   crystal-toolkit (pyproject.toml)
     #   emmet-core
+    #   maggma
+pydash==7.0.6
+    # via maggma
 pyfftw==0.13.1
     # via
     #   crystal-toolkit (pyproject.toml)
@@ -669,9 +722,15 @@ pymatgen==2023.10.4
     #   emmet-core
     #   ifermi
     #   matminer
+    #   mp-api
     #   robocrys
 pymongo==4.5.0
-    # via matminer
+    # via
+    #   maggma
+    #   matminer
+    #   mongogrant
+pynacl==1.5.0
+    # via paramiko
 pyopenssl==23.2.0
     # via urllib3
 pyparsing==3.1.1
@@ -685,7 +744,9 @@ pytest==7.4.2
 python-dateutil==2.8.2
     # via
     #   arrow
+    #   botocore
     #   jupyter-client
+    #   maggma
     #   matplotlib
     #   pandas
 python-dotenv==1.0.0
@@ -709,6 +770,7 @@ pyzmq==24.0.1
     #   ipykernel
     #   jupyter-client
     #   jupyter-server
+    #   maggma
     #   nbclassic
     #   notebook
 recommonmark==0.7.1
@@ -731,6 +793,8 @@ requests[security,socks]==2.31.0
     #   habanero
     #   jupyterlab-server
     #   matminer
+    #   mongogrant
+    #   mp-api
     #   percy
     #   pymatgen
     #   sphinx
@@ -753,10 +817,13 @@ rpds-py==0.10.4
 ruamel-yaml==0.17.35
     # via
     #   dephell
+    #   maggma
     #   pymatgen
     #   robocrys
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
+s3transfer==0.7.0
+    # via boto3
 scikit-image==0.22.0
     # via
     #   crystal-toolkit (pyproject.toml)
@@ -797,6 +864,8 @@ send2trash==1.8.2
     #   jupyter-server
     #   nbclassic
     #   notebook
+sentinels==1.0.0
+    # via mongomock
 shapely==2.0.1
     # via crystal-toolkit (pyproject.toml)
 shellingham==1.5.3
@@ -859,8 +928,12 @@ sphinxcontrib-qthelp==1.0.6
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.9
     # via sphinx
+sshtunnel==0.4.0
+    # via maggma
 stack-data==0.6.3
     # via ipython
+starlette==0.27.0
+    # via fastapi
 sympy==1.12
     # via
     #   hiphive
@@ -917,6 +990,7 @@ tqdm==4.66.1
     #   emdfile
     #   gdown
     #   habanero
+    #   maggma
     #   matminer
     #   mpire
     #   py4dstem
@@ -953,21 +1027,28 @@ typing-extensions==4.8.0
     #   black
     #   dash
     #   emmet-core
+    #   fastapi
     #   inflect
+    #   mp-api
     #   pydantic
     #   pydantic-core
+    #   pydash
     #   python-utils
+    #   uvicorn
 uncertainties==3.1.7
     # via pymatgen
 uri-template==1.3.0
     # via jsonschema
 urllib3[secure,socks]==1.26.17
     # via
+    #   botocore
     #   distributed
     #   requests
     #   selenium
 urllib3-secure-extra==0.1.0
     # via urllib3
+uvicorn==0.23.2
+    # via maggma
 virtualenv==20.24.5
     # via pre-commit
 vtk==9.2.6
