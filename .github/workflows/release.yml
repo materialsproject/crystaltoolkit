@@ -38,7 +38,7 @@ jobs:
           git config --local user.email "github-actions@github.com"
           git config --local user.name "github-actions"
           python -m pip install --upgrade pip
-          python -m pip install --user --upgrade pip build setuptools setuptools_scm<8 wheel
+          python -m pip install --user --upgrade pip build setuptools "setuptools_scm<8" wheel
           SETUPTOOLS_SCM_PRETEND_VERSION=${NEXT_RELEASE} python -m setuptools_scm
           git add crystal_toolkit/_version.py
           git commit -m "version bump: ${NEXT_RELEASE}"
