@@ -64,6 +64,7 @@ class TEMDiffractionComponent(MPComponent):
             step=0.25,
             label="Maximum Scattering Angle [Å⁻¹]",
             help_str="Maximum scattering angle to compute reciprocal lattice.",
+            max=10,
         )
 
         use_dynamical = self.get_bool_input(
@@ -91,6 +92,7 @@ class TEMDiffractionComponent(MPComponent):
             step=0.001,
             label="Excitation error tolerance [Å⁻¹]",
             help_str="Standard deviation of Gaussian function for damping reciprocal lattice points.",
+            max=0.2,
         )
 
         Fhkl_tol = self.get_numerical_input(
@@ -243,7 +245,8 @@ class TEMDiffractionCalculator:
             structure
         )
         needs_structure = not self.crystal or not (
-            np.allclose(self.crystal.numbers, new_crystal.numbers)
+            self.crystal.positions.shape[0] == new_crystal.positions.shape[0]
+            and np.allclose(self.crystal.numbers, new_crystal.numbers)
             and np.allclose(self.crystal.cell, new_crystal.cell)
             and np.allclose(self.crystal.positions, new_crystal.positions)
         )
@@ -279,7 +282,7 @@ class TEMDiffractionCalculator:
 
         # generate diffraction pattern
         pattern = self.crystal.generate_diffraction_pattern(
-            zone_axis_lattice=beam_direction
+            zone_axis_lattice=beam_direction, tol_intensity=0.0
         )
 
         # rescale intensities

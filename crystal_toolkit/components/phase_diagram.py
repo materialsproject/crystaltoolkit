@@ -469,7 +469,7 @@ class PhaseDiagramComponent(MPComponent):
         graph = html.Div(
             [
                 dcc.Graph(
-                    figure=go.Figure(layout=PhaseDiagramComponent.empty_plot_style),
+                    figure=go.Figure(layout={**PhaseDiagramComponent.empty_plot_style}),
                     id=self.id("graph"),
                     config={"displayModeBar": False, "displaylogo": False},
                 )
