@@ -22,7 +22,7 @@ dependencies = [
     "shapely",
     "webcolors",
     "pydantic-settings",
-    "emmet-core",
+    "mp-api",
 ]
 
 [project.optional-dependencies]
