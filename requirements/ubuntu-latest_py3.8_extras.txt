@@ -207,7 +207,9 @@ dscribe==2.1.0
 editorconfig==0.12.3
     # via jsbeautifier
 emmet-core==0.58.0
-    # via mp-api
+    # via
+    #   crystal-toolkit (pyproject.toml)
+    #   mp-api
 entrypoints==0.4
     # via
     #   jupyter-client

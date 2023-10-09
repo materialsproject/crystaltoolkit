@@ -206,6 +206,8 @@ editorconfig==0.12.3
     # via jsbeautifier
 emdfile==0.0.13
     # via py4dstem
+emmet-core==0.69.11
+    # via crystal-toolkit (pyproject.toml)
 entrypoints==0.4
     # via
     #   jupyter-client
@@ -437,6 +439,7 @@ mistune==0.8.4
     #   nbconvert
 monty==2023.9.25
     # via
+    #   emmet-core
     #   ifermi
     #   matminer
     #   pymatgen
@@ -634,18 +637,22 @@ pybind11==2.11.1
     # via dscribe
 pybtex==0.24.0
     # via
+    #   emmet-core
     #   pymatgen
     #   robocrys
 pycparser==2.21
     # via cffi
 pydantic==2.4.2
     # via
+    #   emmet-core
     #   inflect
     #   pydantic-settings
 pydantic-core==2.10.1
     # via pydantic
 pydantic-settings==2.0.3
-    # via crystal-toolkit (pyproject.toml)
+    # via
+    #   crystal-toolkit (pyproject.toml)
+    #   emmet-core
 pyfftw==0.13.1
     # via
     #   crystal-toolkit (pyproject.toml)
@@ -659,6 +666,7 @@ pygments==2.16.1
 pymatgen==2023.10.4
     # via
     #   crystal-toolkit (pyproject.toml)
+    #   emmet-core
     #   ifermi
     #   matminer
     #   robocrys
@@ -944,6 +952,7 @@ typing-extensions==4.8.0
     # via
     #   black
     #   dash
+    #   emmet-core
     #   inflect
     #   pydantic
     #   pydantic-core
