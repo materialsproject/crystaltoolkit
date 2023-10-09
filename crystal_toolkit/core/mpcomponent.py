@@ -379,7 +379,7 @@ Sub-layouts:  \n{layouts}"""
     def get_numerical_input(
         self,
         kwarg_label: str,
-        default: int | float | list | None = None,
+        default: float | list | None = None,
         state: dict | None = None,
         label: str | None = None,
         help_str: str | None = None,

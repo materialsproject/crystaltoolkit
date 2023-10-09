@@ -269,7 +269,7 @@ def get_reference_button(cite_text=None, hover_text=None, doi=None, icon="book")
 def get_data_table(
     df=None, virtualized=True, columns=None, column_widths=None, **kwargs
 ):
-    """Returns a nicely styled DataTable with sensible defaults for re-use.
+    """Returns a nicely styled DataTable with sensible defaults for reuse.
 
     :param df: optional pandas DataFrame to populate DataTable
     :param virtualized: used for large tables, adds filter options
