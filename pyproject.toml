@@ -21,6 +21,7 @@ dependencies = [
     "scikit-learn",
     "shapely",
     "webcolors",
+    "pydantic-settings",
 ]
 
 [project.optional-dependencies]
