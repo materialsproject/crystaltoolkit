@@ -43,11 +43,6 @@ repos:
         stages: [commit, commit-msg]
         args: [--ignore-words-list, "nd,te,ois"]
 
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
-    hooks:
-      - id: nbqa-ruff
-
   - repo: https://github.com/kynan/nbstripout
     rev: 0.6.1
     hooks:
