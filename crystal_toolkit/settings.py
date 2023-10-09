@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal, Union
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 from crystal_toolkit import MODULE_PATH
 
