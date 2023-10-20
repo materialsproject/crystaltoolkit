@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Literal, Union
 from pathlib import Path
+from typing import Literal
 
-from pydantic import HttpUrl, Field, RedisDsn
+from pydantic import Field, HttpUrl, RedisDsn
 
 try:
     # pydantic 2+
