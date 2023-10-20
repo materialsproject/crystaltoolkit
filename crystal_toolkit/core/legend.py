@@ -16,6 +16,8 @@ from pymatgen.util.string import unicodeify_species
 from sklearn.preprocessing import LabelEncoder
 from webcolors import html5_parse_legacy_color, html5_serialize_simple_color
 
+from crystal_toolkit.settings import SETTINGS
+
 if TYPE_CHECKING:
     from pymatgen.core.structure import SiteCollection
 
@@ -34,18 +36,17 @@ class Legend(MSONable):
     is at) to correctly generate the legend.
     """
 
-    default_color_scheme = "Jmol"
-    default_color = (0, 0, 0)
-    default_radius = 1.0
-    fallback_radius = 0.5
-    uniform_radius = 0.5
+    default_color_scheme = SETTINGS.LEGEND_COLOR_SCHEME
+    default_color = SETTINGS.LEGEND_FALLBACK_COLOR
+    fallback_radius = SETTINGS.LEGEND_FALLBACK_RADIUS
+    uniform_radius = SETTINGS.LEGEND_UNIFORM_RADIUS
 
     def __init__(
         self,
         site_collection: SiteCollection | Site,
-        color_scheme: str = "Jmol",
-        radius_scheme: str = "uniform",
-        cmap: str = "coolwarm",
+        color_scheme: str = SETTINGS.LEGEND_COLOR_SCHEME,
+        radius_scheme: str = SETTINGS.LEGEND_RADIUS_SCHEME,
+        cmap: SETTINGS.LEGEND_CMAP = "coolwarm",
         cmap_range: tuple[float, float] | None = None,
     ) -> None:
         """Create a legend for a given SiteCollection to choose how to display colors and radii for
@@ -98,9 +99,9 @@ class Legend(MSONable):
         if color_scheme not in self.allowed_color_schemes:
             warnings.warn(
                 f"Color scheme {color_scheme} not available, "
-                f"falling back to {self.default_color_scheme}."
+                f"falling back to {SETTINGS.LEGEND_COLOR_SCHEME}."
             )
-            color_scheme = self.default_color_scheme
+            color_scheme = SETTINGS.LEGEND_COLOR_SCHEME
 
         # if color-coding by a scalar site property, determine minimum and
         # maximum values for color scheme, will default to be symmetric
