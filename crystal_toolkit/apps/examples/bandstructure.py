@@ -32,13 +32,13 @@ bsdos_component = ctc.BandstructureAndDosComponent(
 )
 
 # example layout to demonstrate capabilities of component
-my_layout = Container(
+layout = Container(
     [H1("Band Structure and Density of States Example"), bsdos_component.layout()]
 )
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
-ctc.register_crystal_toolkit(app, layout=my_layout)
+ctc.register_crystal_toolkit(app, layout=layout)
 
 
 # run this app with "python path/to/this/file.py"

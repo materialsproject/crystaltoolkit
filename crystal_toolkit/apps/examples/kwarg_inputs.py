@@ -37,7 +37,7 @@ slider_input = your_component.get_slider_input(
 )
 
 # create your layout
-my_layout = ctl.Section(
+layout = ctl.Section(
     [
         ctl.H1("Example of input controls"),
         dcc.Markdown(
@@ -86,7 +86,7 @@ def add_inputs(n_clicks):
 
 
 # tell Crystal Toolkit about the app and layout we want to display
-ctc.register_crystal_toolkit(app=app, layout=my_layout, cache=None)
+ctc.register_crystal_toolkit(app=app, layout=layout, cache=None)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar

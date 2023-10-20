@@ -18,13 +18,13 @@ class TestLegend:
         )
 
         self.site0 = self.struct[0]
-        self.sp0 = list(self.site0.species)[0]
+        self.sp0 = next(iter(self.site0.species))
 
         self.site1 = self.struct[1]
-        self.sp1 = list(self.site1.species)[0]
+        self.sp1 = next(iter(self.site1.species))
 
         self.site2 = self.struct[2]
-        self.sp2 = list(self.site2.species)[0]
+        self.sp2 = next(iter(self.site2.species))
 
         self.struct_disordered = Structure(
             Lattice.cubic(5),
@@ -34,7 +34,7 @@ class TestLegend:
         )
 
         self.site_d = self.struct_disordered[2]
-        self.site_d_sp0 = list(self.site_d.species)[0]
+        self.site_d_sp0 = next(iter(self.site_d.species))
         self.site_d_sp1 = list(self.site_d.species)[1]
 
         self.struct_manual = Structure(

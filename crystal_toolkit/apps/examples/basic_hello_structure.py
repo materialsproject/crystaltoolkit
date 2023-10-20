@@ -15,9 +15,9 @@ structure = Structure(Lattice.cubic(4.2), ["Na", "K"], [[0, 0, 0], [0.5, 0.5, 0.
 structure_component = ctc.StructureMoleculeComponent(structure, id="hello_structure")
 
 # add the component's layout to our app's layout
-my_layout = html.Div([structure_component.layout()])
+layout = html.Div([structure_component.layout()])
 
 # as explained in "preamble" section in documentation
-ctc.register_crystal_toolkit(app=app, layout=my_layout)
+ctc.register_crystal_toolkit(app=app, layout=layout)
 if __name__ == "__main__":
     app.run(debug=True, port=8050)

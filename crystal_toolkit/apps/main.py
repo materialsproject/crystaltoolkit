@@ -55,9 +55,7 @@ meta_tags = [  # TODO: add og-image, etc., title
     }
 ]
 
-print("SETTINGS")
-for setting, value in SETTINGS:
-    print(f"{setting}: {value}")
+SETTINGS.print()
 
 if not SETTINGS.ASSETS_PATH:
     warnings.warn(

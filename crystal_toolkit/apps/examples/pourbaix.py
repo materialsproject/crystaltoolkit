@@ -22,7 +22,7 @@ with MPRester() as mpr:
 pourbaix_component = ctc.PourbaixDiagramComponent(default_data=pourbaix_entries)
 
 # example layout to demonstrate capabilities of component
-my_layout = html.Div(
+layout = html.Div(
     [
         html.H1("PourbaixDiagramComponent Example"),
         html.Button("Get Pourbaix Diagram", id="get-pourbaix"),
@@ -32,7 +32,7 @@ my_layout = html.Div(
     style=dict(maxWidth="90vw", margin="2em auto"),
 )
 
-ctc.register_crystal_toolkit(app=app, layout=my_layout)
+ctc.register_crystal_toolkit(app=app, layout=layout)
 
 # run this app with "python path/to/this/file.py"
 # in production, deploy behind gunicorn or similar

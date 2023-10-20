@@ -42,7 +42,7 @@ li_co_o_phase_diagram_component = ctc.PhaseDiagramComponent(li_co_o_phase_diagra
 
 
 # example layout to demonstrate capabilities of component
-my_layout = html.Div(
+layout = html.Div(
     [
         html.H1("PhaseDiagramComponent Example"),
         html.H2("Standard Layout (1 Element)"),
@@ -57,7 +57,7 @@ my_layout = html.Div(
 
 # wrap your app.layout with crystal_toolkit_layout()
 # to ensure all necessary components are loaded into layout
-app.layout = ctc.crystal_toolkit_layout(my_layout)
+app.layout = ctc.crystal_toolkit_layout(layout)
 
 
 # run this app with "python path/to/this/file.py"

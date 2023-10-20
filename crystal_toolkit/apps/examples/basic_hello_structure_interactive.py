@@ -28,9 +28,9 @@ my_button = html.Button("Swap Structure", id="change_structure_button")
 
 # now we have two entries in our app layout,
 # the structure component's layout and the button
-my_layout = html.Div([structure_component.layout(), my_button])
+layout = html.Div([structure_component.layout(), my_button])
 
-ctc.register_crystal_toolkit(app=app, layout=my_layout)
+ctc.register_crystal_toolkit(app=app, layout=layout)
 
 
 # for the interactivity, we use a standard Dash callback
