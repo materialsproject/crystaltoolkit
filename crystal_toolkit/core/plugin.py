@@ -21,7 +21,9 @@ class CrystalToolkitPlugin:
     Eventually, it is hoped to remove the need for this plugin entirely.
     """
 
-    def __init__(self, layout, cache: Optional[Cache] = None) -> None:
+    def __init__(
+        self, layout, cache: Optional[Cache] = None, use_default_css=True
+    ) -> None:
         """
         Provide your initial app layout.
 
@@ -29,6 +31,10 @@ class CrystalToolkitPlugin:
         in debug mode, the cache will be automatically disabled. If
         not specified, a default "simple" cache will be enabled. The
         redis cache is recommended in production contexts.
+
+        If `use_default_css` is set, Bulma and Font Awesome CSS will
+        be loaded from external CDNs, as defined in Crystal Toolkit
+        settings.
         """
         if cache:
             self.cache = cache
@@ -38,6 +44,8 @@ class CrystalToolkitPlugin:
             self.cache = Cache(config={"CACHE_TYPE": "simple"})
 
         self.layout = layout
+
+        self.use_default_css = use_default_css
 
     def plug(self, app: Dash):
         """
@@ -63,6 +71,12 @@ class CrystalToolkitPlugin:
         app.config["suppress_callback_exceptions"] = True
         app.layout = self.crystal_toolkit_layout(self.layout)
 
+        if self.use_default_css:
+            if bulma_css := SETTINGS.BULMA_CSS_URL:
+                app.config.external_stylesheets.append(bulma_css)
+            if font_awesome_css := SETTINGS.FONT_AWESOME_CSS_URL:
+                app.config.external_stylesheets.append(font_awesome_css)
+
     def crystal_toolkit_layout(self, layout) -> html.Div:
         """
         Crystal Toolkit currently requires a set of dcc.Store components
@@ -85,9 +99,6 @@ class CrystalToolkitPlugin:
             # this would cause bugs for components displayed dynamically
             stores_to_add += MPComponent._app_stores_dict[basename]
         layout.children += stores_to_add
-
-        # set app.layout to layout so that callbacks can be validated
-        self.app.layout = layout
 
         for component in MPComponent._callbacks_to_generate:
             component.generate_callbacks(self.app, self.cache)
