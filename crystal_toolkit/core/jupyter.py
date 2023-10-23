@@ -1,24 +1,28 @@
 """Pleasant hack to support MSONable objects in Dash callbacks natively."""
 
 from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from warnings import warn
 
-from dash import Dash, html
-from monty.json import MSONable
-from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.settings import SETTINGS
-from crystal_toolkit.core.plugin import CrystalToolkitPlugin
-import crystal_toolkit.helpers.layouts as ctl
-
+from dash import Dash
+from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.core.structure import SiteCollection
-from pymatgen.analysis.graphs import StructureGraph, MoleculeGraph
+
+import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit.components.structure import StructureMoleculeComponent
+from crystal_toolkit.core.plugin import CrystalToolkitPlugin
+from crystal_toolkit.settings import SETTINGS
+
+if TYPE_CHECKING:
+    from monty.json import MSONable
+
+    from crystal_toolkit.core.mpcomponent import MPComponent
 
 
 class _JupyterRenderer:
     # TODO: For now this is hard-coded but could be replaced with a Registry class later.
     registry: dict[MSONable, MPComponent] = {
-        SiteCollection: StructureMoleculeComponent,
         SiteCollection: StructureMoleculeComponent,
         StructureGraph: StructureMoleculeComponent,
         MoleculeGraph: StructureMoleculeComponent,
@@ -106,7 +110,7 @@ def _ipython_display_(self):
     """
     from IPython.display import publish_display_data
 
-    if any(map(lambda x: isinstance(self, x), _JupyterRenderer.registry.keys())):
+    if any(isinstance(self, x) for x in _JupyterRenderer.registry):
         return _JupyterRenderer().display(self)
 
     # To be strict here, we could use inspect.signature
@@ -114,12 +118,12 @@ def _ipython_display_(self):
     # and also check all .parameters .kind.name have no POSITIONAL_ONLY
     # in practice, fairly unlikely this will cause issues without strict checking.
     # TODO: This can be removed once a central registry of renderable objects is implemented.
-    if getattr(self, "get_scene"):
+    if self.get_scene:
         display_data = {
             "application/vnd.mp.ctk+json": self.get_scene().to_json(),
             "text/plain": repr(self),
         }
-    elif getattr(self, "get_plot"):
+    elif self.get_plot:
         display_data = {
             "application/vnd.plotly.v1+json": self.get_plot().to_plotly_json(),
             "application/json": self.as_dict(),
@@ -132,6 +136,7 @@ def _ipython_display_(self):
         }
 
     publish_display_data(display_data)
+    return None
 
 
 def patch_msonable():
