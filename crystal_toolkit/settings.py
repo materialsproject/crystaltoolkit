@@ -70,9 +70,7 @@ class Settings(BaseSettings):
     )
 
     # Legend settings. These control the defaults for crystal structure and molecule visualization.
-    LEGEND_COLOR_SCHEME: Literal[
-        "Jmol", "VESTA", "accessible"
-    ] | str = Field(  # noqa: PYI051
+    LEGEND_COLOR_SCHEME: Literal["Jmol", "VESTA", "accessible"] | str = Field(
         default="Jmol",
         help="Color scheme used to display atoms. This can also be defined via a site property.",
     )
@@ -83,7 +81,7 @@ class Settings(BaseSettings):
         "van_der_waals",
         "atomic_calculated",
         "uniform",
-    ] | str = Field(  # noqa: PYI051
+    ] | str = Field(
         default="uniform",
         help="Method with which to choose a radius when displaying atoms. This can also be defined via a site property.",
     )

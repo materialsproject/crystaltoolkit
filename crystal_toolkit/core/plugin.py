@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING
 
-from dash import Dash, html
 from flask_caching import Cache
 
 from crystal_toolkit.settings import SETTINGS
+
+if TYPE_CHECKING:
+    from dash import Dash, html
 
 
 class CrystalToolkitPlugin:
@@ -23,7 +25,7 @@ class CrystalToolkitPlugin:
     """
 
     def __init__(
-        self, layout, cache: Optional[Cache] = None, use_default_css=True
+        self, layout, cache: Cache | None = None, use_default_css=True
     ) -> None:
         """
         Provide your initial app layout.
