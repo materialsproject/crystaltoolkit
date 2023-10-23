@@ -3,7 +3,6 @@ from typing import Optional
 from dash import Dash, html
 from flask_caching import Cache
 
-from crystal_toolkit import __version__ as ct_version
 from crystal_toolkit.settings import SETTINGS
 
 
@@ -53,6 +52,8 @@ class CrystalToolkitPlugin:
         """
         self.app = app
         self.cache.init_app(app.server)
+
+        from crystal_toolkit import __version__ as ct_version
 
         # add metadata for "generator" tag
         app.config.meta_tags.append(

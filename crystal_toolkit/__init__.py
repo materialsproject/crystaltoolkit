@@ -5,12 +5,7 @@ from pathlib import Path
 
 from monty.json import MSONable
 
-from crystal_toolkit.msonable import (
-    _ipython_display_,
-    _repr_mimebundle_,
-    show_json,
-    to_plotly_json,
-)
+from crystal_toolkit.core.jupyter import patch_msonable
 from crystal_toolkit.renderables import (
     Lattice,
     Molecule,
@@ -22,10 +17,7 @@ from crystal_toolkit.renderables import (
     VolumetricData,
 )
 
-MSONable.to_plotly_json = to_plotly_json
-MSONable._repr_mimebundle_ = _repr_mimebundle_
-MSONable.show_json = show_json
-MSONable._ipython_display_ = _ipython_display_
+patch_msonable()
 
 MODULE_PATH = Path(__file__).parents[0]
 
