@@ -1,21 +1,22 @@
 """
-Helper methods to make working with Bulma classes easier. This file incorporates 
+Helper methods to make working with Bulma classes easier. This file incorporates
 language from the Bulma documentation. See https://github.com/jgthms/bulma/blob/master/LICENSE
 """
 
 from __future__ import annotations
 
 import warnings
-from typing import Any, Literal, TypeAlias, Union, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Sequence, TypeAlias
 from uuid import uuid4
 
 import dash_mp_components as mpc
 from dash import dcc, html
-from dash.development.base_component import Component
 from monty.serialization import loadfn
 
 from crystal_toolkit.settings import SETTINGS
 
+if TYPE_CHECKING:
+    from dash.development.base_component import Component
 
 BulmaSize: TypeAlias = Literal["small", "normal", "medium", "large"]
 
@@ -683,7 +684,7 @@ class H6(html.H6):
 class Breadcrumb(html.Nav):
     def __init__(
         self,
-        parts: Sequence[tuple[Union[str, Component], str]],
+        parts: Sequence[tuple[str | Component, str]],
         alignment: Literal["centered", "right"] | None = None,
         separator: Literal["arrow", "bullet", "dot", "succeeds"] | None = None,
         size: Literal["small", "medium", "large"] | None = None,
@@ -1273,10 +1274,7 @@ BULMA_CSS = {"external_url": SETTINGS.BULMA_CSS_URL}
 
 FONT_AWESOME_CSS = {"external_url": SETTINGS.FONT_AWESOME_CSS_URL}
 
-if SETTINGS.DOI_CACHE_PATH:
-    DOI_CACHE = loadfn(SETTINGS.DOI_CACHE_PATH)
-else:
-    DOI_CACHE = {}
+DOI_CACHE = loadfn(SETTINGS.DOI_CACHE_PATH) if SETTINGS.DOI_CACHE_PATH else {}
 
 
 def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Table:
