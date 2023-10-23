@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     )
     JUPYTER_EMBED_MODE: Literal["external", "tab", "jupyterlab"] | None = Field(
         default=None,
-        help="The Jupyter extension mode to use. See Dash documention for more information.",
+        help="The Jupyter extension mode to use. See Dash documentation for more information.",
     )
 
     # Legend settings. These control the defaults for crystal structure and molecule visualization.

@@ -1045,7 +1045,7 @@ class Hero(html.Div):
     ) -> None:
         """
         Hero element. Provide a ctl.HeroBody() as child and, if using "fullheight", a
-        ctl.HeroHead() adn ctl.HeroFoot().
+        ctl.HeroHead() and ctl.HeroFoot().
 
         See https://bulma.io/documentation/layout/hero/
         """
