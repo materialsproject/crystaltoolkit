@@ -6,7 +6,7 @@ language from the Bulma documentation. See https://github.com/jgthms/bulma/blob/
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, Sequence, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, Sequence
 from uuid import uuid4
 
 import dash_mp_components as mpc
@@ -18,9 +18,7 @@ from crystal_toolkit.settings import SETTINGS
 if TYPE_CHECKING:
     from dash.development.base_component import Component
 
-BulmaSize: TypeAlias = Literal["small", "normal", "medium", "large"]
-
-BulmaPrimaryColor: TypeAlias = Literal[
+BulmaPrimaryColor = Literal[
     "white",
     "black",
     "light",
@@ -247,7 +245,7 @@ class Button(html.Button):
         self,
         *args,
         kind: Literal[BulmaPrimaryColor, "ghost"] | None = None,
-        size: BulmaSize | None = None,
+        size: Literal["small", "normal", "medium", "large"] | None = None,
         display: Literal["fullwidth"] | None = None,
         light: bool = False,
         outlined: bool = False,
@@ -291,7 +289,12 @@ class Content(html.Div):
 
 
 class Delete(html.Div):
-    def __init__(self, *args, size: BulmaSize | None, **kwargs) -> None:
+    def __init__(
+        self,
+        *args,
+        size: Literal["small", "normal", "medium", "large"] | None,
+        **kwargs,
+    ) -> None:
         """
         A versatile delete cross.
 
@@ -434,7 +437,7 @@ class Progress(html.Progress):
         self,
         *args,
         color: BulmaPrimaryColor | None = None,
-        size: BulmaSize | None = None,
+        size: Literal["small", "normal", "medium", "large"] | None = None,
         indeterminate: bool = False,
         value: int | None = None,
         max: int | None = None,
