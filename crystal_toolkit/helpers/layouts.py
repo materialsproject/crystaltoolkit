@@ -1,25 +1,21 @@
+"""
+Helper methods to make working with Bulma classes easier. This file incorporates 
+language from the Bulma documentation. See https://github.com/jgthms/bulma/blob/master/LICENSE
+"""
+
 from __future__ import annotations
 
 import warnings
-from typing import Any, Literal, TypeAlias
+from typing import Any, Literal, TypeAlias, Union, Sequence
 from uuid import uuid4
 
 import dash_mp_components as mpc
 from dash import dcc, html
+from dash.development.base_component import Component
 from monty.serialization import loadfn
 
-from crystal_toolkit import MODULE_PATH
 from crystal_toolkit.settings import SETTINGS
 
-BULMA_CSS = {
-    "external_url": "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"
-}
-
-FONT_AWESOME_CSS = {
-    "external_url": "https://use.fontawesome.com/releases/v5.6.3/css/all.css"
-}
-
-PRIMARY_COLOR = "hsl(171, 100%, 41%)"
 
 BulmaSize: TypeAlias = Literal["small", "normal", "medium", "large"]
 
@@ -36,40 +32,9 @@ BulmaPrimaryColor: TypeAlias = Literal[
     "danger",
 ]
 
-# TODO: change "kind" kwarg to list / group is- modifiers together?
-
-"""
-Helper methods to make working with Bulma classes easier. This file incorporates
-language from the Bulma documentation. See https://github.com/jgthms/bulma/blob/master/LICENSE
-"""
-
-__all__ = [
-    "Field",
-    "Control",
-    "Input",
-    "Textarea",
-    "Select",
-    "Checkbox",
-    "Radio",
-    "File",
-    "Block",
-    "Box",
-    "Button",
-    "Content",
-    "Delete",
-    "Icon",
-    "Image",
-    "Notification",
-    "Error",
-    "Progress",
-    "Table",
-    "H1",
-    "H2",
-    "H3",
-    "H4",
-    "H5",
-    "H6",
-]
+# Developer note: Subclasses use `*args`` since common usage of html/dcc components
+# is to use the `children` arg as a positional argument, and we want to continue
+# to allow this here, unless we override the `children` argument in the subclass.
 
 
 def _update_css_class(kwargs, class_name, conditional=True):
@@ -90,6 +55,7 @@ def _update_css_class(kwargs, class_name, conditional=True):
 class Field(html.Div):
     def __init__(
         self,
+        *args,
         addons: bool = False,
         addons_centered: bool = False,
         addons_right: bool = False,
@@ -114,11 +80,11 @@ class Field(html.Div):
         _update_css_class(kwargs, "is-grouped-right", grouped_right)
         _update_css_class(kwargs, "is-grouped-multiline", grouped_multiline)
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Control(html.Div):
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         """
         To maintain an evenly balanced design, Bulma provides a very useful control container with which you can wrap the form controls.
 
@@ -126,12 +92,13 @@ class Control(html.Div):
         """
         # Developer note: has-icon-left etc. have not yet been tested with dcc Components
         _update_css_class(kwargs, "control")
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Input(dcc.Input):
     def __init__(
         self,
+        *args,
         color: BulmaPrimaryColor | None = None,
         size: Literal["small", "normal", "medium", "large"] | None = None,
         rounded: bool = False,
@@ -148,12 +115,13 @@ class Input(dcc.Input):
         _update_css_class(kwargs, f"is-{size}", size)
         _update_css_class(kwargs, "is-rounded", rounded)
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Textarea(dcc.Textarea):
     def __init__(
         self,
+        *args,
         color: BulmaPrimaryColor | None = None,
         size: Literal["small", "medium", "large"] | None = None,
         fixed_size: bool = False,
@@ -169,7 +137,7 @@ class Textarea(dcc.Textarea):
         _update_css_class(kwargs, f"is-{size}", size)
         _update_css_class(kwargs, "has-fixed-size", fixed_size)
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class Select:
@@ -230,6 +198,20 @@ class File(dcc.Upload):
         _update_css_class(div_kwargs, f"is-{size}", size)
 
         return dcc.Upload(children=html.Div(children, className="file"), **kwargs)
+
+
+class Label(html.Label):
+    def __init__(self, *args, **kwargs) -> None:
+        # TODO docstring, use Field([Label(...), Control(...), Help(...)])
+        _update_css_class(kwargs, "label")
+        super().__init__(*args, **kwargs)
+
+
+class Help(html.P):
+    def __init__(self, *args, **kwargs) -> None:
+        # TODO docstring, use Field([Label(...), Control(...), Help(...)])
+        _update_css_class(kwargs, "help")
+        super().__init__(*args, **kwargs)
 
 
 # Bulma "Elements"
@@ -322,7 +304,6 @@ class Delete(html.Div):
 class Icon(html.Span):
     def __init__(
         self,
-        *args,
         kind: str = "download",
         fill: Literal["s", "r", "l", "d"] = "s",
         fontawesome: bool = True,
@@ -358,16 +339,15 @@ class Icon(html.Span):
         # fontawesome styles (pre-distributed icons, e.g. download)
         if fontawesome:
             _update_css_class(i_kwargs, f"fa{fill} fa-{kind}")
-            super().__init__(html.I(**i_kwargs), *args, **kwargs)
+            super().__init__(children=html.I(**i_kwargs), **kwargs)
         else:
             _update_css_class(i_kwargs, kind)
-            super().__init__(html.I(**i_kwargs), *args, **kwargs)
+            super().__init__(children=html.I(**i_kwargs), **kwargs)
 
 
 class Image(html.Figure):
     def __init__(
         self,
-        *args,
         square_size: Literal[16, 24, 32, 48, 64, 96, 128] | None = None,
         ratio: Literal[
             "square",
@@ -416,9 +396,9 @@ class Image(html.Figure):
                 img_kwargs[src] = src
             if alt and alt not in img_kwargs:
                 img_kwargs[alt] = alt
-            return super().__init__(html.Img(**img_kwargs), *args, **kwargs)
+            return super().__init__(children=html.Img(**img_kwargs), **kwargs)
         else:
-            return super().__init__(children, *args, **kwargs)
+            return super().__init__(children=children, **kwargs)
 
 
 class Notification(html.Div):
@@ -504,20 +484,20 @@ class Table(html.Table):
         * html.Th, a table cell heading
         * html.Td, a table cell
         """
-        html.Th
         _update_css_class(kwargs, "table")
         _update_css_class(kwargs, "is-bordered", bordered)
         _update_css_class(kwargs, "is-striped", striped)
         _update_css_class(kwargs, "is-narrow", narrow)
         _update_css_class(kwargs, "is-hoverable", hoverable)
         _update_css_class(kwargs, "is-fullwidth", fullwidth)
+        super().__init__(*args, **kwargs)
 
-    def with_container(self, *args, **kwargs) -> html.Div:
+    def with_container(self, **kwargs) -> html.Div:
         """
         Add a container to make the Table scrollable.
         """
         _update_css_class(kwargs, "table-container")
-        return html.Div([self], *args, **kwargs)
+        return html.Div(children=[self], **kwargs)
 
 
 class Tag(html.Div):
@@ -568,9 +548,9 @@ class Tag(html.Div):
             tags.append(html.Span(addon, **addon_kwargs))
 
             _update_css_class(kwargs, "tags has-addons")
-            super().__init__(tags, **kwargs)
+            super().__init__(children=tags, **kwargs)
         else:
-            super().__init__(tags, **kwargs)
+            super().__init__(children=tags, **kwargs)
 
 
 class TagContainer(Field):
@@ -587,7 +567,10 @@ class TagContainer(Field):
         # changes the class being used.
         tags = [Control(tag) for tag in tags]
         super().__init__(
-            tags, grouped=grouped, grouped_multiline=grouped_multiline, **kwargs
+            children=tags,
+            grouped=grouped,
+            grouped_multiline=grouped_multiline,
+            **kwargs,
         )
 
 
@@ -697,16 +680,458 @@ class H6(html.H6):
 # See https://bulma.io/documentation/components/
 
 
-class Section(html.Div):
+class Breadcrumb(html.Nav):
+    def __init__(
+        self,
+        parts: Sequence[tuple[Union[str, Component], str]],
+        alignment: Literal["centered", "right"] | None = None,
+        separator: Literal["arrow", "bullet", "dot", "succeeds"] | None = None,
+        size: Literal["small", "medium", "large"] | None = None,
+        **kwargs,
+    ) -> None:
+        """
+        Breadcrumb navigation. Supply a list of tuples of display
+        name (string or any Component) and link (string) to construct the breadcrumb navigation.
+
+        See https://bulma.io/documentation/components/breadcrumb/
+        """
+        _update_css_class(kwargs, "breadcrumb")
+        _update_css_class(kwargs, f"is-{alignment}", alignment)
+        _update_css_class(kwargs, f"has-{separator}-separator", separator)
+        _update_css_class(kwargs, f"is-{size}", size)
+
+        if isinstance(parts, dict):
+            # For backwards compatibility, no longer recommended.
+            parts = parts.items()
+
+        links = [
+            html.Li(
+                dcc.Link(name, href=link),
+                className="is-active" if idx == len(parts) - 1 else None,
+            )
+            for idx, (name, link) in enumerate(parts)
+        ]
+
+        kwargs["aria-label"] = "breadcrumbs"
+        super(links).__init__(**kwargs)
+
+
+class Card(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        _update_css_class(kwargs, "section")
+        """
+        Card container.
+
+        See https://bulma.io/documentation/components/card/
+        """
+        _update_css_class(kwargs, "card")
         super().__init__(*args, **kwargs)
+
+
+class CardHeader(html.Header):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Card header.
+
+        See https://bulma.io/documentation/components/card/
+        """
+        _update_css_class(kwargs, "card-header")
+        super().__init__(*args, **kwargs)
+
+
+class CardImage(html.Div):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Card image. Provide a ctl.Image() as child.
+
+        See https://bulma.io/documentation/components/card/
+        """
+        _update_css_class(kwargs, "card-header")
+        super().__init__(*args, **kwargs)
+
+
+class CardContent(html.Div):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Card content.
+
+        See https://bulma.io/documentation/components/card/
+        """
+        _update_css_class(kwargs, "card-content")
+        super().__init__(*args, **kwargs)
+
+
+class CardFooter(html.Footer):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Card footer. Provide a list of ctl.CardFooterItem() as children.
+
+        See https://bulma.io/documentation/components/card/
+        """
+        _update_css_class(kwargs, "card-footer")
+        super().__init__(*args, **kwargs)
+
+
+class CardFooterItem(html.A):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Card footer item.
+
+        See https://bulma.io/documentation/components/card/
+        """
+        _update_css_class(kwargs, "card-footer-item")
+        super().__init__(*args, **kwargs)
+
+
+class Dropdown:
+    # TODO: see if dcc.Dropdown can be styled with Bulma styles.
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError("Not implemented, prefer dcc.Dropdown.")
+
+
+class Menu:
+    # TODO: map this to Scrollspy component automatically?
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError(
+            "Not implemented, prefer dash_mp_components.Scrollspy menu which uses Bulma styles."
+        )
+
+
+class MessageContainer(html.Article):
+    def __init__(
+        self, *args, kind: str = "warning", size: str = "normal", **kwargs
+    ) -> None:
+        if kind:
+            _update_css_class(kwargs, f"message is-{kind} is-{size}")
+        else:
+            _update_css_class(kwargs, f"message is-{size}")
+        super().__init__(*args, **kwargs)
+
+
+class MessageHeader(html.Div):
+    # rename to Message
+    def __init__(self, *args, **kwargs) -> None:
+        _update_css_class(kwargs, "message-header")
+        super().__init__(*args, **kwargs)
+
+
+class MessageBody(html.Div):
+    def __init__(self, *args, **kwargs) -> None:
+        _update_css_class(kwargs, "message-body")
+        super().__init__(*args, **kwargs)
+
+
+class Modal(html.Div):
+    def __init__(
+        self,
+        children: list | None = None,
+        id: str | None = None,
+        active: bool = False,
+        **kwargs,
+    ) -> None:
+        _update_css_class(kwargs, "modal")
+        if active:
+            kwargs["className"] += " is-active"
+        super().__init__(
+            [
+                html.Div(className="modal-background"),
+                html.Div(
+                    children=children, id=f"{id}_contents", className="modal-contents"
+                ),
+                html.Button(id=f"{id}_close", className="modal-close is-large"),
+            ],
+            **kwargs,
+        )
+
+
+class Navbar:
+    # TODO: map this to Navbar component automatically?
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError(
+            "Not implemented, prefer dash_mp_components.Navbar menu which uses Bulma styles."
+        )
+
+
+class Pagination(html.Nav):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Pagination container.
+
+        See https://bulma.io/documentation/components/pagination/
+        """
+        _update_css_class(kwargs, "pagination")
+        super().__init__(*args, **kwargs)
+
+
+class PaginationPrevious(html.A):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Pagination previous button.
+
+        See https://bulma.io/documentation/components/pagination/
+        """
+        _update_css_class(kwargs, "pagination-previous")
+        super().__init__(*args, **kwargs)
+
+
+class PaginationNext(html.A):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Pagination next button.
+
+        See https://bulma.io/documentation/components/pagination/
+        """
+        _update_css_class(kwargs, "pagination-next")
+        super().__init__(*args, **kwargs)
+
+
+class PaginationList(html.Ul):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Pagination list container. Provide list of ctl.PaginationLink as children.
+
+        See https://bulma.io/documentation/components/pagination/
+        """
+        _update_css_class(kwargs, "pagination-list")
+        super().__init__(*args, **kwargs)
+
+
+class PaginationLink(html.Li):
+    def __init__(self, *args, current: bool, **kwargs) -> None:
+        """
+        Pagination link. Keyword arguments passed to html.A element.
+
+        See https://bulma.io/documentation/components/pagination/
+        """
+        _update_css_class(kwargs, "pagination-link")
+        _update_css_class(kwargs, "is-current", current)
+        super().__init__(html.A(*args, **kwargs))
+
+
+class PaginationEllipsis(html.Li):
+    def __init__(self, **kwargs) -> None:
+        """
+        Pagination link. Keyword arguments passed to html.Span element.
+
+        See https://bulma.io/documentation/components/pagination/
+        """
+        _update_css_class(kwargs, "pagination-ellipsis")
+        super().__init__(html.Span("&hellip;", **kwargs))
+
+
+class Panel:
+    # TODO, https://bulma.io/documentation/components/panel/
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError
+
+
+class PanelHeading:
+    # TODO, https://bulma.io/documentation/components/panel/
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError
+
+
+class PanelTabs:
+    # TODO, https://bulma.io/documentation/components/panel/
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError
+
+
+class PanelBlock:
+    # TODO, https://bulma.io/documentation/components/panel/
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError
+
+
+class Tabs:
+    # TODO: see if dcc.Tabs can be styled with Bulma styles.
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError("Not implemented, prefer dcc.Tabs.")
+
+
+# Bulma "Layout"
+# See https://bulma.io/documentation/layout/
 
 
 class Container(html.Div):
     def __init__(self, *args, **kwargs) -> None:
         _update_css_class(kwargs, "container")
         super().__init__(*args, **kwargs)
+
+
+class Level(html.Nav):
+    def __init__(
+        self,
+        *args,
+        mobile: bool = False,
+        **kwargs,
+    ) -> None:
+        """
+        A multi-purpose horizontal level, which can contain almost any other element.
+
+        Use either ctl.LevelLeft, ctl.LevelRight or ctl.LevelItem as children.
+
+        See https://bulma.io/documentation/layout/level/
+        """
+        _update_css_class(kwargs, "level")
+        _update_css_class(kwargs, f"is-{mobile}", mobile)
+        super().__init__(*args, **kwargs)
+
+
+class LevelLeft(html.Div):
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ) -> None:
+        """
+        Use with ctl.Level.
+
+        See https://bulma.io/documentation/layout/level/
+        """
+        _update_css_class(kwargs, "level-left")
+        super().__init__(*args, **kwargs)
+
+
+class LevelRight(html.Div):
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ) -> None:
+        """
+        Use with ctl.Level.
+
+        See https://bulma.io/documentation/layout/level/
+        """
+        _update_css_class(kwargs, "level-right")
+        super().__init__(*args, **kwargs)
+
+
+class LevelItem(html.Div):
+    def __init__(
+        self,
+        *args,
+        centered: bool = False,
+        **kwargs,
+    ) -> None:
+        """
+        Use with ctl.Level.
+
+        See https://bulma.io/documentation/layout/level/
+        """
+        _update_css_class(kwargs, "level-item")
+        _update_css_class(kwargs, "has-text-centered", centered)
+        super().__init__(*args, **kwargs)
+
+
+class MediaObject:
+    # TODO, https://bulma.io/documentation/layout/media-object/
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError
+
+
+class Hero(html.Div):
+    def __init__(
+        self,
+        *args,
+        color: BulmaPrimaryColor | None = None,
+        size: Literal["small", "medium", "large", "halfheight", "fullheight"]
+        | None = None,
+        **kwargs,
+    ) -> None:
+        """
+        Hero element. Provide a ctl.HeroBody() as child and, if using "fullheight", a
+        ctl.HeroHead() adn ctl.HeroFoot().
+
+        See https://bulma.io/documentation/layout/hero/
+        """
+        _update_css_class(kwargs, "hero")
+        _update_css_class(kwargs, f"is-{color}", color)
+        _update_css_class(kwargs, f"is-{size}", size)
+        super().__init__(*args, **kwargs)
+
+
+class HeroBody(html.Div):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Use with ctl.Hero.
+
+        See https://bulma.io/documentation/layout/hero/
+        """
+        _update_css_class(kwargs, "hero-body")
+        super().__init__(*args, **kwargs)
+
+
+class HeroHead(html.Div):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Use with "fullheight" ctl.Hero.
+
+        See https://bulma.io/documentation/layout/hero/
+        """
+        _update_css_class(kwargs, "hero-head")
+        super().__init__(*args, **kwargs)
+
+
+class HeroFoot(html.Div):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Use with "fullheight" ctl.Hero.
+
+        See https://bulma.io/documentation/layout/hero/
+        """
+        _update_css_class(kwargs, "hero-foot")
+        super().__init__(*args, **kwargs)
+
+
+class Section(html.Section):
+    def __init__(
+        self, *args, size: Literal["medium", "large"] | None = None, **kwargs
+    ) -> None:
+        """
+        Section.
+
+        See https://bulma.io/documentation/layout/section/
+        """
+        _update_css_class(kwargs, "section")
+        _update_css_class(kwargs, f"is-{size}", size)
+        super().__init__(*args, **kwargs)
+
+
+class Footer(html.Footer):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Footer.
+
+        See https://bulma.io/documentation/layout/footer/
+        """
+        _update_css_class(kwargs, "footer")
+        super().__init__(*args, **kwargs)
+
+
+class Tile(html.Div):
+    def __init__(
+        self,
+        *args,
+        context: Literal["ancestor", "parent", "child"] | None = None,
+        vertical: bool = False,
+        size: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] | None,
+        **kwargs,
+    ) -> None:
+        """
+        A single tile element to build 2-dimensional grids.
+
+        See https://bulma.io/documentation/layout/tiles/
+        """
+        _update_css_class(kwargs, "tile")
+        _update_css_class(kwargs, f"is-{context}", context)
+        _update_css_class(kwargs, "is-vertical", vertical)
+        _update_css_class(kwargs, f"is-{size}", size)
+        super().__init__(*args, **kwargs)
+
+
+# Bulma "Columns"
+# See https://bulma.io/documentation/columns/
 
 
 class Columns(html.Div):
@@ -750,43 +1175,10 @@ class Column(html.Div):
         super().__init__(*args, **kwargs)
 
 
-class MessageContainer(html.Article):
-    def __init__(
-        self, *args, kind: str = "warning", size: str = "normal", **kwargs
-    ) -> None:
-        if kind:
-            _update_css_class(kwargs, f"message is-{kind} is-{size}")
-        else:
-            _update_css_class(kwargs, f"message is-{size}")
-        super().__init__(*args, **kwargs)
+# Non-Bulma helpers
 
 
-class MessageHeader(html.Div):
-    def __init__(self, *args, **kwargs) -> None:
-        _update_css_class(kwargs, "message-header")
-        super().__init__(*args, **kwargs)
-
-
-class MessageBody(html.Div):
-    def __init__(self, *args, **kwargs) -> None:
-        _update_css_class(kwargs, "message-body")
-        super().__init__(*args, **kwargs)
-
-
-class Footer(html.Footer):
-    def __init__(self, *args, **kwargs) -> None:
-        _update_css_class(kwargs, "footer")
-        super().__init__(*args, **kwargs)
-
-
-class Spinner(html.Button):
-    def __init__(self, *args, **kwargs) -> None:
-        _update_css_class(kwargs, "button is-primary is-loading")
-        kwargs["style"] = {"width": "35px", "height": "35px", "borderRadius": "35px"}
-        kwargs["aria-label"] = "Loading"
-        super().__init__(*args, **kwargs)
-
-
+# TODO: review
 class Reveal(html.Details):
     def __init__(
         self, children=None, id=None, summary_id=None, title=None, **kwargs
@@ -816,33 +1208,91 @@ class Reveal(html.Details):
         )
 
 
-class Label(html.Label):
-    def __init__(self, *args, **kwargs) -> None:
-        _update_css_class(kwargs, "label")
-        super().__init__(*args, **kwargs)
+# TODO: review
+def add_label_help(input, label, help) -> mpc.FilterField:
+    """Combine an input, label, and tooltip text into a single consistent component."""
+    return mpc.FilterField(input, id=uuid4().hex, label=label, tooltip=help)
 
 
-class Modal(html.Div):
-    def __init__(
-        self,
-        children: list | None = None,
-        id: str | None = None,
-        active: bool = False,
-        **kwargs,
-    ) -> None:
-        _update_css_class(kwargs, "modal")
-        if active:
-            kwargs["className"] += " is-active"
-        super().__init__(
-            [
-                html.Div(className="modal-background"),
-                html.Div(
-                    children=children, id=f"{id}_contents", className="modal-contents"
-                ),
-                html.Button(id=f"{id}_close", className="modal-close is-large"),
-            ],
-            **kwargs,
+# TODO: review
+def get_data_list(data: dict[str, str | int | float | list[str | int | float]]):
+    """Show a formatted table of data items.
+
+    :param data: dictionary of label, value pairs
+    :return: html.Div
+    """
+    contents = []
+    for title, value in data.items():
+        label = Label(title) if isinstance(title, str) else title
+        contents.append(html.Tr([html.Td(label), html.Td(value)]))
+    return html.Table([html.Tbody(contents)], className="table")
+
+
+# TODO: review
+def cite_me(
+    doi: str | None = None, manual_ref: str | None = None, cite_text: str = "Cite me"
+) -> html.Div:
+    """Create a button to show users how to cite a particular resource.
+
+    :param doi: DOI
+    :param manual_ref: If DOI not available
+    :param cite_text: Text to show as button label
+    :return: A button
+    """
+    if doi:
+        component = mpc.PublicationButton(id=doi, doi=doi, showTooltip=True)
+    elif manual_ref:
+        warnings.warn("Please use the DOI if available.")
+        component = mpc.PublicationButton(
+            children=cite_text, id=manual_ref, url=manual_ref
         )
+
+    return component
+
+
+class Loading(dcc.Loading):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        A wrapper around dcc.Loading that uses PRIMARY_COLOR and DEBUG_MODE from
+        Crystal Toolkit settings.
+        """
+        if "type" not in kwargs:
+            kwargs["type"] = "dot"
+        super().__init__(
+            *args, color=SETTINGS.PRIMARY_COLOR, debug=SETTINGS.DEBUG_MODE, **kwargs
+        )
+
+
+# DEPRECATED. Everything from here to the end of the file is deprecated. There is no
+# immediate plan to remove these variables or functions which are fairly harmless,
+# but please do not use in new projects.
+
+PRIMARY_COLOR = SETTINGS.PRIMARY_COLOR
+
+BULMA_CSS = {"external_url": SETTINGS.BULMA_CSS_URL}
+
+FONT_AWESOME_CSS = {"external_url": SETTINGS.FONT_AWESOME_CSS_URL}
+
+if SETTINGS.DOI_CACHE_PATH:
+    DOI_CACHE = loadfn(SETTINGS.DOI_CACHE_PATH)
+else:
+    DOI_CACHE = {}
+
+
+def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Table:
+    """
+    Deprecated. Prefer ctl.Table class instead.
+
+    Create a HTML table from a list of elements.
+
+    :param rows: list of list of cell contents
+    :return: html.Table
+    """
+    contents = [html.Tr([html.Td(item) for item in row]) for row in rows]
+    if not header:
+        return html.Table([html.Tbody(contents)], className="table")
+    header = html.Thead([html.Tr([html.Th(item) for item in header])])
+    return html.Table([header, html.Tbody(contents)], className="table")
 
 
 def get_tooltip(
@@ -853,7 +1303,10 @@ def get_tooltip(
     wrapper_class: str | None = None,
     **kwargs,
 ):
-    """Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
+    """
+    Deprecated. Prefer alternative dcc.Tooltip component instead.
+
+    Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
     This component uses react-tooltip under the hood.
 
     :param tooltip_label: text or component to display and apply hover behavior to
@@ -881,70 +1334,11 @@ def get_tooltip(
     )
 
 
-def get_data_list(data: dict[str, str | int | float | list[str | int | float]]):
-    """Show a formatted table of data items.
-
-    :param data: dictionary of label, value pairs
-    :return: html.Div
-    """
-    contents = []
-    for title, value in data.items():
-        label = Label(title) if isinstance(title, str) else title
-        contents.append(html.Tr([html.Td(label), html.Td(value)]))
-    return html.Table([html.Tbody(contents)], className="table")
-
-
-def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Table:
-    """Create a HTML table from a list of elements.
-
-    :param rows: list of list of cell contents
-    :return: html.Table
-    """
-    contents = [html.Tr([html.Td(item) for item in row]) for row in rows]
-    if not header:
-        return html.Table([html.Tbody(contents)], className="table")
-    header = html.Thead([html.Tr([html.Th(item) for item in header])])
-    return html.Table([header, html.Tbody(contents)], className="table")
-
-
-DOI_CACHE = loadfn(MODULE_PATH / "apps/assets/doi_cache.json")
-
-
-def cite_me(
-    doi: str | None = None, manual_ref: str | None = None, cite_text: str = "Cite me"
-) -> html.Div:
-    """Create a button to show users how to cite a particular resource.
-
-    :param doi: DOI
-    :param manual_ref: If DOI not available
-    :param cite_text: Text to show as button label
-    :return: A button
-    """
-    if doi:
-        component = mpc.PublicationButton(id=doi, doi=doi, showTooltip=True)
-    elif manual_ref:
-        warnings.warn("Please use the DOI if available.")
-        component = mpc.PublicationButton(
-            children=cite_text, id=manual_ref, url=manual_ref
-        )
-
-    return component
-
-
-def add_label_help(input, label, help) -> mpc.FilterField:
-    """Combine an input, label, and tooltip text into a single consistent component."""
-    return mpc.FilterField(input, id=uuid4().hex, label=label, tooltip=help)
-
-
-class Loading(dcc.Loading):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(
-            *args, color=PRIMARY_COLOR, type="dot", debug=SETTINGS.DEBUG_MODE, **kwargs
-        )
-
-
 def get_breadcrumb(parts):
-    """Create a breadcrumb navigation bar.
+    """
+    Deprecated, prefer the ctl.Breadcrumb class instead, which is a drop-in replacement.
+
+    Create a breadcrumb navigation bar.
 
     Args:
         parts (dict): Dictionary of name, link pairs.
@@ -963,3 +1357,14 @@ def get_breadcrumb(parts):
         for idx, (name, link) in enumerate(parts.items())
     ]
     return html.Nav(html.Ul(links), className="breadcrumb")
+
+
+class Spinner(html.Button):
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Deprecated, prefer ctl.Button class instead with loading=True keyword argument.
+        """
+        _update_css_class(kwargs, "button is-primary is-loading")
+        kwargs["style"] = {"width": "35px", "height": "35px", "borderRadius": "35px"}
+        kwargs["aria-label"] = "Loading"
+        super().__init__(*args, **kwargs)
