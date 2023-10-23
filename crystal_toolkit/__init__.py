@@ -6,8 +6,8 @@ from pathlib import Path
 from monty.json import MSONable
 
 import crystal_toolkit.helpers.layouts as ctl
-from crystal_toolkit.core.plugin import CrystalToolkitPlugin
 from crystal_toolkit.core.jupyter import patch_msonable
+from crystal_toolkit.core.plugin import CrystalToolkitPlugin
 from crystal_toolkit.renderables import (
     Lattice,
     Molecule,

@@ -15,7 +15,7 @@ transform crystal structures and molecules.
 Citation
 --------
 
-Crystal Toolkit was created as an academic project to solve specific problems. It is open sourced in the 
+Crystal Toolkit was created as an academic project to solve specific problems. It is open sourced in the
 hopes that it is helpful for others but without guarantee of support.
 
 If you use Crystal Toolkit for your own apps, please cite the Crystal Toolkit publication:
@@ -30,7 +30,7 @@ Crystal Toolkit Demonstration App
 
 The new Materials Project website is powered by the Crystal Toolkit framework, visit it
 `here. <https://next-gen.materialsproject.org>`_. This includes the original "Crystal
-Toolkit" app `available here <https://next-gen.materialsproject.org/toolkit>`_, which was an app on the 
+Toolkit" app `available here <https://next-gen.materialsproject.org/toolkit>`_, which was an app on the
 Materials Project that gave the Crystal Toolkit library its name.
 
 
@@ -60,7 +60,7 @@ For Jupyter integration, please see the `additional installation steps <jupyter>
 Modernization
 -------------
 
-Please see the `Modernization <>`_ page for more information on how Crystal Toolkit is changing 
+Please see the `Modernization <>`_ page for more information on how Crystal Toolkit is changing
 due to the availability of new features in Dash. The required minimum version is now Dash 2.11.
 
 
@@ -70,7 +70,7 @@ Development Team
 Crystal Toolkit is the result of the combined efforts of the `Crystal Toolkit Development Team <https://github.com/materialsproject/crystaltoolkit/graphs/contributors>`_.
 It was created by `Matthew Horton <https://github.com/mkhorton>`_.
 
-More information on individual contributions can be seen in the `GitHub README <https://github.com/materialsproject/crystaltoolkit#team-and-contribution-policy>`_ and 
+More information on individual contributions can be seen in the `GitHub README <https://github.com/materialsproject/crystaltoolkit#team-and-contribution-policy>`_ and
 the associated publication.
 
 New contributors are welcome, please see our `Code of Conduct. <https://github.com/materialsproject/crystaltoolkit/blob/master/code-of-conduct.md>`_
