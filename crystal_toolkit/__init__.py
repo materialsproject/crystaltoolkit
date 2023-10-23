@@ -16,6 +16,7 @@ from crystal_toolkit.renderables import (
     StructureGraph,
     VolumetricData,
 )
+import crystal_toolkit.helpers.layouts as ctl
 
 patch_msonable()
 
