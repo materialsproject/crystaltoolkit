@@ -89,9 +89,9 @@ def _display_json(self, **kwargs):
     """
     Display JSON representation of an MSONable object inside Jupyter.
     """
-    from IPython.display import display_json
+    from IPython.display import JSON
 
-    return display_json(self.as_dict(), **kwargs)
+    JSON(self.as_dict(), **kwargs)
 
 
 def _repr_mimebundle_(self, include=None, exclude=None):
@@ -149,5 +149,5 @@ def patch_msonable():
 
     MSONable.to_plotly_json = _to_plotly_json
     MSONable._repr_mimebundle_ = _repr_mimebundle_
-    MSONable.show_json = _display_json
+    MSONable.display_json = _display_json
     MSONable._ipython_display_ = _ipython_display_
