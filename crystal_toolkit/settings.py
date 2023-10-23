@@ -61,8 +61,8 @@ class Settings(BaseSettings):
     )
 
     JUPYTER_EMBED_PORT: int | None = Field(
-        default=None,
-        help="The Jupyter extension (powered by Dash) requires a port to run on. If not supplied, an available port will be chosen.",
+        default=8884,
+        help="The Jupyter extension (powered by Dash) requires a port to run on. If None, an available port will be chosen.",
     )
     JUPYTER_EMBED_MODE: Literal["external", "tab", "jupyterlab"] | None = Field(
         default=None,

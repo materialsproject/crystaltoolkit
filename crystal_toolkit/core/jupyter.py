@@ -33,14 +33,15 @@ class _JupyterRenderer:
         """
         Find an available port.
 
-        Thank you mark4o, https://stackoverflow.com/a/1365284
+        Thank you Mihai Capotă, https://stackoverflow.com/a/61685162
         """
 
-        import socket
+        import socketserver
 
-        sock = socket.socket()
-        sock.bind(("", 0))
-        return sock.getsockname()[1]
+        with socketserver.TCPServer(("localhost", 0), None) as s:
+            free_port = s.server_address[1]
+
+        return free_port
 
     # check docs about callback exception output
     # check docs about proxy settings
