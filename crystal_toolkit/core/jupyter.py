@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 from warnings import warn
 
 from dash import Dash
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 class _JupyterRenderer:
     # TODO: For now this is hard-coded but could be replaced with a Registry class later.
-    registry: dict[MSONable, MPComponent] = {
+    registry: ClassVar[dict[MSONable, MPComponent]] = {
         SiteCollection: StructureMoleculeComponent,
         StructureGraph: StructureMoleculeComponent,
         MoleculeGraph: StructureMoleculeComponent,

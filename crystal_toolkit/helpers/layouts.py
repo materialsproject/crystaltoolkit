@@ -198,7 +198,7 @@ class File(dcc.Upload):
         _update_css_class(div_kwargs, f"is-{color}", color)
         _update_css_class(div_kwargs, f"is-{size}", size)
 
-        return dcc.Upload(children=html.Div(children, className="file"), **kwargs)
+        super().__init__(children=html.Div(children, className="file"), **kwargs)
 
 
 class Label(html.Label):
@@ -397,9 +397,9 @@ class Image(html.Figure):
                 img_kwargs[src] = src
             if alt and alt not in img_kwargs:
                 img_kwargs[alt] = alt
-            return super().__init__(children=html.Img(**img_kwargs), **kwargs)
+            super().__init__(children=html.Img(**img_kwargs), **kwargs)
         else:
-            return super().__init__(children=children, **kwargs)
+            super().__init__(children=children, **kwargs)
 
 
 class Notification(html.Div):
