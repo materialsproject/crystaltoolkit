@@ -7,7 +7,7 @@ showcase of the framework’s capabilities, the Crystal Toolkit app allows you t
 analyze and transform crystal structures and molecules."""
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 authors = [{ name = "Matt Horton", email = "mkhorton@lbl.gov" }]
 
 dependencies = [
