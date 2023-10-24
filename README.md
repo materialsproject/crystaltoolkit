@@ -25,7 +25,7 @@ If you would like a new-contributor issue assigned, get in touch with project ma
 ## Status
 
 [![Tests](https://github.com/materialsproject/crystaltoolkit/actions/workflows/pytest-docs.yml/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions/workflows/pytest-docs.yml)
-[![Visual Regression Test Status](https://percy.io/static/images/percy-badge.svg)](https://percy.io/Materials-Project/crystaltoolkit)
+[![Visual Regression Test Status](https://percy.io/static/images/percy-badge.svg)](https://percy.io/6f28436a/crystaltoolkit)
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/materialsproject/crystaltoolkit)](https://hub.docker.com/repository/docker/materialsproject/crystaltoolkit/general)
 [![Release](https://github.com/materialsproject/crystaltoolkit/actions/workflows/release.yml/badge.svg)](https://github.com/materialsproject/crystaltoolkit/actions/workflows/release.yml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/materialsproject/crystaltoolkit/main.svg)](https://results.pre-commit.ci/latest/github/materialsproject/crystaltoolkit/main)
