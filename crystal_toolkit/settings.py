@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import Field, HttpUrl, RedisDsn
 
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
         help="Set to True when Crytal Toolkit is run during automated testing. It will switch the default renderer to SVG instead of WebGL, since many testing environments do not have WebGL available.",
     )
 
-    REDIS_URL: RedisDsn | None = Field(
+    REDIS_URL: Optional[RedisDsn] = Field(
         default="redis://localhost:6379",
         help="Redis instance used by Crystal Toolkit for caching. If set to None, simple caching will be used instead.",
     )
@@ -51,20 +51,20 @@ class Settings(BaseSettings):
         help="A default primary color used for some user interface elements.",
     )
 
-    BULMA_CSS_URL: HttpUrl | None = Field(
+    BULMA_CSS_URL: Optional[HttpUrl] = Field(
         default="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css",
         help="If set, this CSS file will be loaded by default. Loading Bulma CSS is required only for aesthetic reasons.",
     )
-    FONT_AWESOME_CSS_URL: HttpUrl | None = Field(
+    FONT_AWESOME_CSS_URL: Optional[HttpUrl] = Field(
         default="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css",
         help="If set, this CSS file will be loaded by default. Loading Font Awesome is required to display certain icons, but otherwise is not required for functionality.",
     )
 
-    JUPYTER_EMBED_PORT: int | None = Field(
+    JUPYTER_EMBED_PORT: Optional[int] = Field(
         default=8884,
         help="The Jupyter extension (powered by Dash) requires a port to run on. If None, an available port will be chosen.",
     )
-    JUPYTER_EMBED_MODE: Literal["external", "tab", "jupyterlab"] | None = Field(
+    JUPYTER_EMBED_MODE: Optional[Literal["external", "tab", "jupyterlab"]] = Field(
         default=None,
         help="The Jupyter extension mode to use. See Dash documentation for more information.",
     )
@@ -104,7 +104,7 @@ class Settings(BaseSettings):
 
     # Materials Project API settings.
     # TODO: These should be deprecated in favor of setti
-    API_KEY: str | None = Field(default="", help="Materials Project API key.")
+    API_KEY: Optional[str] = Field(default="", help="Materials Project API key.")
     API_EXTERNAL_ENDPOINT: str = Field(
         default="https://api.materialsproject.org",
         help="Materials Project API endpoint.",
@@ -128,7 +128,7 @@ class Settings(BaseSettings):
         default=False,
         help="This setting controls whether previews are rendered for structure transformations.",
     )
-    DOI_CACHE_PATH: Path | None = Field(
+    DOI_CACHE_PATH: Optional[Path] = Field(
         default=MODULE_PATH / "apps/assets/doi_cache.json",
         help="Not currently used, maybe will be deprecated. This was used to avoid a CrossRef API lookup when a small set of DOIs were used in an app.",
     )
