@@ -12,7 +12,7 @@ authors = [{ name = "Matt Horton", email = "mkhorton@lbl.gov" }]
 
 dependencies = [
     "crystaltoolkit-extension",
-    "dash-mp-components",
+    "dash-mp-components>=0.4.38",
     "dash>=2.11.0",
     "flask-caching",
     "frozendict",
