@@ -39,7 +39,7 @@ ase==3.22.1
     #   boltztrap2
     #   dscribe
     #   hiphive
-asttokens==2.4.0
+asttokens==2.4.1
     # via stack-data
 async-timeout==4.0.3
     # via
@@ -61,12 +61,10 @@ attrs==23.1.0
     #   outcome
     #   referencing
     #   trio
-babel==2.13.0
+babel==2.13.1
     # via
     #   jupyterlab-server
     #   sphinx
-backcall==0.2.0
-    # via ipython
 bcrypt==4.0.1
     # via paramiko
 beautifulsoup4==4.12.2
@@ -74,15 +72,17 @@ beautifulsoup4==4.12.2
     #   dash
     #   gdown
     #   nbconvert
-black==23.9.1
+black==23.10.1
     # via crystal-toolkit (pyproject.toml)
 bleach==6.1.0
     # via nbconvert
+blinker==1.7.0
+    # via flask
 boltztrap2==22.12.1
     # via ifermi
-boto3==1.28.62
+boto3==1.28.77
     # via maggma
-botocore==1.31.62
+botocore==1.31.77
     # via
     #   boto3
     #   s3transfer
@@ -103,9 +103,9 @@ cffi==1.16.0
     #   pynacl
 cfgv==3.4.0
     # via pre-commit
-cftime==1.6.2
+cftime==1.6.3
     # via netcdf4
-charset-normalizer==3.3.0
+charset-normalizer==3.3.2
     # via
     #   aiohttp
     #   requests
@@ -118,17 +118,19 @@ click==8.1.7
     #   ifermi
     #   mongogrant
     #   uvicorn
-cloudpickle==2.2.1
+cloudpickle==3.0.0
     # via
     #   dask
     #   distributed
+colorspacious==1.1.2
+    # via py4dstem
 comm==0.1.4
     # via ipykernel
 commonmark==0.9.1
     # via recommonmark
-contourpy==1.1.1
+contourpy==1.2.0
     # via matplotlib
-cryptography==41.0.4
+cryptography==41.0.5
     # via
     #   paramiko
     #   pyopenssl
@@ -137,7 +139,7 @@ crystaltoolkit-extension==0.6.0
     # via crystal-toolkit (pyproject.toml)
 cycler==0.12.1
     # via matplotlib
-dash[testing]==2.13.0
+dash[testing]==2.14.1
     # via
     #   crystal-toolkit (pyproject.toml)
     #   dash-extensions
@@ -148,7 +150,7 @@ dash-extensions==1.0.4
     # via crystal-toolkit (pyproject.toml)
 dash-html-components==2.0.0
     # via dash
-dash-mp-components==0.4.37
+dash-mp-components==0.4.39
     # via crystal-toolkit (pyproject.toml)
 dash-table==5.0.0
     # via dash
@@ -156,7 +158,7 @@ dash-testing-stub==0.0.2
     # via dash
 dash-vtk==0.0.9
     # via crystal-toolkit (pyproject.toml)
-dask==2023.9.3
+dask==2023.10.1
     # via
     #   distributed
     #   py4dstem
@@ -207,7 +209,7 @@ dill==0.3.7
     #   py4dstem
 distlib==0.3.7
     # via virtualenv
-distributed==2023.9.3
+distributed==2023.10.1
     # via py4dstem
 dnspython==2.4.2
     # via
@@ -223,9 +225,9 @@ dscribe==2.1.0
     # via crystal-toolkit (pyproject.toml)
 editorconfig==0.12.3
     # via jsbeautifier
-emdfile==0.0.13
+emdfile==0.0.14
     # via py4dstem
-emmet-core==0.69.11
+emmet-core==0.72.7
     # via mp-api
 entrypoints==0.4
     # via
@@ -238,17 +240,17 @@ exceptiongroup==1.1.3
     #   pytest
     #   trio
     #   trio-websocket
-executing==2.0.0
+executing==2.0.1
     # via stack-data
-fastapi==0.103.2
+fastapi==0.104.1
     # via maggma
 fastjsonschema==2.18.1
     # via nbformat
-filelock==3.12.4
+filelock==3.13.1
     # via
     #   gdown
     #   virtualenv
-flask==2.2.5
+flask==2.3.3
     # via
     #   dash
     #   flask-caching
@@ -257,7 +259,7 @@ flask-caching==2.0.2
     # via
     #   crystal-toolkit (pyproject.toml)
     #   dash-extensions
-fonttools==4.43.1
+fonttools==4.44.0
     # via matplotlib
 fqdn==1.5.1
     # via jsonschema
@@ -267,7 +269,7 @@ frozenlist==1.4.0
     # via
     #   aiohttp
     #   aiosignal
-fsspec==2023.9.2
+fsspec==2023.10.0
     # via dask
 future==0.18.3
     # via
@@ -278,7 +280,9 @@ gdown==4.7.1
 gevent==23.9.1
     # via gunicorn
 greenlet==3.0.0
-    # via gevent
+    # via
+    #   gevent
+    #   playwright
 gunicorn[gevent]==21.2.0
     # via crystal-toolkit (pyproject.toml)
 h11==0.14.0
@@ -298,7 +302,7 @@ hdf5plugin==4.2.0
     # via py4dstem
 hiphive==1.2
     # via crystal-toolkit (pyproject.toml)
-identify==2.5.30
+identify==2.5.31
     # via pre-commit
 idna==3.4
     # via
@@ -308,23 +312,25 @@ idna==3.4
     #   trio
     #   urllib3
     #   yarl
-ifermi==0.3.1
+ifermi==0.3.3
     # via crystal-toolkit (pyproject.toml)
-imageio==2.31.5
+imageio==2.31.6
     # via scikit-image
 imagesize==1.4.1
     # via sphinx
 importlib-metadata==6.8.0
-    # via dask
+    # via
+    #   dash
+    #   dask
 inflect==7.0.0
     # via robocrys
 iniconfig==2.0.0
     # via pytest
-ipykernel==6.25.2
+ipykernel==6.26.0
     # via
     #   nbclassic
     #   notebook
-ipython==8.16.1
+ipython==8.17.2
     # via
     #   ipykernel
     #   jupyterlab
@@ -367,7 +373,7 @@ json5==0.9.14
     # via jupyterlab-server
 jsonpointer==2.4
     # via jsonschema
-jsonschema[format-nongpl]==4.19.1
+jsonschema[format-nongpl]==4.19.2
     # via
     #   jupyter-events
     #   jupyterlab-server
@@ -382,7 +388,7 @@ jupyter-client==7.4.9
     #   nbclassic
     #   nbclient
     #   notebook
-jupyter-core==5.3.2
+jupyter-core==5.5.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -393,11 +399,11 @@ jupyter-core==5.3.2
     #   nbconvert
     #   nbformat
     #   notebook
-jupyter-events==0.7.0
+jupyter-events==0.8.0
     # via
     #   jupyter-server
     #   jupyter-server-fileid
-jupyter-server==2.7.3
+jupyter-server==2.9.1
     # via
     #   jupyter-server-fileid
     #   jupyterlab
@@ -428,7 +434,7 @@ latexcodec==2.0.1
     # via pybtex
 lazy-loader==0.3
     # via scikit-image
-llvmlite==0.41.0
+llvmlite==0.41.1
     # via numba
 locket==1.0.0
     # via
@@ -440,7 +446,7 @@ lxml==4.9.3
     #   nbconvert
 m2r==0.3.1
     # via dephell
-maggma==0.57.2
+maggma==0.57.4
     # via mp-api
 markupsafe==2.1.3
     # via
@@ -449,7 +455,7 @@ markupsafe==2.1.3
     #   werkzeug
 matminer==0.9.0
     # via robocrys
-matplotlib==3.8.0
+matplotlib==3.8.1
     # via
     #   ase
     #   boltztrap2
@@ -472,7 +478,7 @@ mongogrant==0.3.3
     # via maggma
 mongomock==4.1.2
     # via maggma
-monty==2023.9.25
+monty==2023.11.3
     # via
     #   emmet-core
     #   ifermi
@@ -483,7 +489,7 @@ monty==2023.9.25
     #   robocrys
 more-itertools==9.1.0
     # via dash-extensions
-mp-api==0.37.3
+mp-api==0.37.5
     # via crystal-toolkit (pyproject.toml)
 mpire==2.8.0
     # via py4dstem
@@ -520,7 +526,7 @@ nbformat==5.9.2
     #   nbclient
     #   nbconvert
     #   notebook
-ncempy==1.10.0
+ncempy==1.11.0
     # via py4dstem
 nest-asyncio==1.5.8
     # via
@@ -529,9 +535,9 @@ nest-asyncio==1.5.8
     #   jupyter-client
     #   nbclassic
     #   notebook
-netcdf4==1.6.4
+netcdf4==1.6.5
     # via boltztrap2
-networkx==3.1
+networkx==3.2.1
     # via
     #   ifermi
     #   pymatgen
@@ -543,15 +549,16 @@ notebook==6.5.6
     # via jupyterlab
 notebook-shim==0.2.3
     # via nbclassic
-numba==0.58.0
+numba==0.58.1
     # via
     #   hiphive
     #   sparse
-numpy==1.25.2
+numpy==1.26.1
     # via
     #   ase
     #   boltztrap2
     #   cftime
+    #   colorspacious
     #   contourpy
     #   dscribe
     #   emdfile
@@ -570,6 +577,7 @@ numpy==1.25.2
     #   pandas
     #   py4dstem
     #   pyfftw
+    #   pylops
     #   pymatgen
     #   robocrys
     #   scikit-image
@@ -584,9 +592,9 @@ numpy==1.25.2
     #   trimesh
 numpy-stl==3.0.1
     # via meshcut
-orjson==3.9.7
+orjson==3.9.10
     # via maggma
-outcome==1.2.0
+outcome==1.3.0.post0
     # via trio
 overrides==7.4.0
     # via jupyter-server
@@ -635,8 +643,6 @@ pexpect==4.8.0
     # via
     #   dephell-shells
     #   ipython
-pickleshare==0.7.5
-    # via ipython
 pillow==10.0.1
     # via
     #   imageio
@@ -647,23 +653,27 @@ platformdirs==3.11.0
     #   black
     #   jupyter-core
     #   virtualenv
-plotly==5.17.0
+playwright==1.39.0
+    # via
+    #   crystal-toolkit (pyproject.toml)
+    #   pytest-playwright
+plotly==5.18.0
     # via
     #   dash
     #   ifermi
     #   pymatgen
 pluggy==1.3.0
     # via pytest
-pre-commit==3.4.0
+pre-commit==3.5.0
     # via crystal-toolkit (pyproject.toml)
-prometheus-client==0.17.1
+prometheus-client==0.18.0
     # via
     #   jupyter-server
     #   nbclassic
     #   notebook
 prompt-toolkit==3.0.39
     # via ipython
-psutil==5.9.5
+psutil==5.9.6
     # via
     #   dash
     #   distributed
@@ -677,7 +687,7 @@ pubchempy==1.0.4
     # via robocrys
 pure-eval==0.2.2
     # via stack-data
-py4dstem==0.14.4
+py4dstem==0.14.7
     # via crystal-toolkit (pyproject.toml)
 pyaml==23.9.7
     # via scikit-optimize
@@ -706,6 +716,8 @@ pydantic-settings==2.0.3
     #   maggma
 pydash==7.0.6
     # via maggma
+pyee==11.0.1
+    # via playwright
 pyfftw==0.13.1
     # via
     #   crystal-toolkit (pyproject.toml)
@@ -716,7 +728,9 @@ pygments==2.16.1
     #   mpire
     #   nbconvert
     #   sphinx
-pymatgen==2023.10.4
+pylops==2.1.0
+    # via py4dstem
+pymatgen==2023.10.11
     # via
     #   crystal-toolkit (pyproject.toml)
     #   emmet-core
@@ -724,14 +738,14 @@ pymatgen==2023.10.4
     #   matminer
     #   mp-api
     #   robocrys
-pymongo==4.5.0
+pymongo==4.6.0
     # via
     #   maggma
     #   matminer
     #   mongogrant
 pynacl==1.5.0
     # via paramiko
-pyopenssl==23.2.0
+pyopenssl==23.3.0
     # via urllib3
 pyparsing==3.1.1
     # via matplotlib
@@ -739,8 +753,16 @@ pysocks==1.7.1
     # via
     #   requests
     #   urllib3
-pytest==7.4.2
-    # via dash
+pytest==7.4.3
+    # via
+    #   crystal-toolkit (pyproject.toml)
+    #   dash
+    #   pytest-base-url
+    #   pytest-playwright
+pytest-base-url==2.0.0
+    # via pytest-playwright
+pytest-playwright==0.4.3
+    # via crystal-toolkit (pyproject.toml)
 python-dateutil==2.8.2
     # via
     #   arrow
@@ -753,6 +775,8 @@ python-dotenv==1.0.0
     # via pydantic-settings
 python-json-logger==2.0.7
     # via jupyter-events
+python-slugify==8.0.1
+    # via pytest-playwright
 python-utils==3.8.1
     # via numpy-stl
 pytz==2023.3.post1
@@ -797,6 +821,7 @@ requests[security,socks]==2.31.0
     #   mp-api
     #   percy
     #   pymatgen
+    #   pytest-base-url
     #   sphinx
 retrying==1.3.4
     # via dash
@@ -810,11 +835,11 @@ rfc3986-validator==0.1.1
     #   jupyter-events
 robocrys==0.2.8
     # via crystal-toolkit (pyproject.toml)
-rpds-py==0.10.4
+rpds-py==0.10.6
     # via
     #   jsonschema
     #   referencing
-ruamel-yaml==0.17.35
+ruamel-yaml==0.17.40
     # via
     #   dephell
     #   maggma
@@ -829,7 +854,7 @@ scikit-image==0.22.0
     #   crystal-toolkit (pyproject.toml)
     #   ifermi
     #   py4dstem
-scikit-learn==1.3.1
+scikit-learn==1.3.2
     # via
     #   crystal-toolkit (pyproject.toml)
     #   dscribe
@@ -850,6 +875,7 @@ scipy==1.11.3
     #   meshcut
     #   ncempy
     #   py4dstem
+    #   pylops
     #   pymatgen
     #   robocrys
     #   scikit-image
@@ -866,9 +892,9 @@ send2trash==1.8.2
     #   notebook
 sentinels==1.0.0
     # via mongomock
-shapely==2.0.1
+shapely==2.0.2
     # via crystal-toolkit (pyproject.toml)
-shellingham==1.5.3
+shellingham==1.5.4
     # via dephell-shells
 six==1.16.0
     # via
@@ -943,7 +969,7 @@ tabulate==0.9.0
     # via
     #   ifermi
     #   pymatgen
-tblib==2.0.0
+tblib==3.0.0
     # via distributed
 tenacity==8.2.3
     # via plotly
@@ -955,6 +981,8 @@ terminado==0.17.1
     #   jupyter-server-terminals
     #   nbclassic
     #   notebook
+text-unidecode==1.3
+    # via python-slugify
 threadpoolctl==3.2.0
     # via
     #   py4dstem
@@ -968,7 +996,7 @@ tomli==2.0.1
     #   black
     #   jupyterlab
     #   pytest
-tomlkit==0.12.1
+tomlkit==0.12.2
     # via dephell
 toolz==0.12.0
     # via
@@ -997,7 +1025,7 @@ tqdm==4.66.1
     #   pymatgen
 trainstation==1.0
     # via hiphive
-traitlets==5.11.2
+traitlets==5.13.0
     # via
     #   comm
     #   ipykernel
@@ -1012,9 +1040,9 @@ traitlets==5.11.2
     #   nbconvert
     #   nbformat
     #   notebook
-trimesh==3.23.5
+trimesh==4.0.2
     # via ifermi
-trio==0.22.2
+trio==0.23.0
     # via
     #   selenium
     #   trio-websocket
@@ -1033,13 +1061,14 @@ typing-extensions==4.8.0
     #   pydantic
     #   pydantic-core
     #   pydash
+    #   pyee
     #   python-utils
     #   uvicorn
 uncertainties==3.1.7
     # via pymatgen
 uri-template==1.3.0
     # via jsonschema
-urllib3[secure,socks]==1.26.17
+urllib3[secure,socks]==1.26.18
     # via
     #   botocore
     #   distributed
@@ -1049,13 +1078,13 @@ urllib3-secure-extra==0.1.0
     # via urllib3
 uvicorn==0.23.2
     # via maggma
-virtualenv==20.24.5
+virtualenv==20.24.6
     # via pre-commit
 vtk==9.2.6
     # via dash-vtk
 waitress==2.1.2
     # via dash
-wcwidth==0.2.8
+wcwidth==0.2.9
     # via prompt-toolkit
 webcolors==1.13
     # via
@@ -1067,7 +1096,7 @@ webencodings==0.5.1
     #   tinycss2
 websocket-client==1.6.4
     # via jupyter-server
-werkzeug==2.2.3
+werkzeug==3.0.1
     # via
     #   dash
     #   flask
