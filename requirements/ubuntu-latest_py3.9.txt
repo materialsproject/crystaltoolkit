@@ -28,25 +28,25 @@ argon2-cffi-bindings==21.2.0
     # via argon2-cffi
 arrow==1.3.0
     # via isoduration
-asttokens==2.4.0
+asttokens==2.4.1
     # via stack-data
 attrs==23.1.0
     # via
     #   jsonschema
     #   referencing
-babel==2.13.0
+babel==2.13.1
     # via jupyterlab-server
-backcall==0.2.0
-    # via ipython
 bcrypt==4.0.1
     # via paramiko
 beautifulsoup4==4.12.2
     # via nbconvert
 bleach==6.1.0
     # via nbconvert
-boto3==1.28.62
+blinker==1.7.0
+    # via flask
+boto3==1.28.77
     # via maggma
-botocore==1.31.62
+botocore==1.31.77
     # via
     #   boto3
     #   s3transfer
@@ -59,7 +59,7 @@ cffi==1.16.0
     #   argon2-cffi-bindings
     #   cryptography
     #   pynacl
-charset-normalizer==3.3.0
+charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via
@@ -68,21 +68,21 @@ click==8.1.7
     #   uvicorn
 comm==0.1.4
     # via ipykernel
-contourpy==1.1.1
+contourpy==1.2.0
     # via matplotlib
-cryptography==41.0.4
+cryptography==41.0.5
     # via paramiko
 crystaltoolkit-extension==0.6.0
     # via crystal-toolkit (pyproject.toml)
 cycler==0.12.1
     # via matplotlib
-dash==2.13.0
+dash==2.14.1
     # via crystal-toolkit (pyproject.toml)
 dash-core-components==2.0.0
     # via dash
 dash-html-components==2.0.0
     # via dash
-dash-mp-components==0.4.37
+dash-mp-components==0.4.39
     # via crystal-toolkit (pyproject.toml)
 dash-table==5.0.0
     # via dash
@@ -96,7 +96,7 @@ dnspython==2.4.2
     # via
     #   maggma
     #   pymongo
-emmet-core==0.69.11
+emmet-core==0.72.7
     # via mp-api
 entrypoints==0.4
     # via jupyter-client
@@ -104,20 +104,20 @@ exceptiongroup==1.1.3
     # via
     #   anyio
     #   ipython
-executing==2.0.0
+executing==2.0.1
     # via stack-data
-fastapi==0.103.2
+fastapi==0.104.1
     # via maggma
 fastjsonschema==2.18.1
     # via nbformat
-flask==2.2.5
+flask==3.0.0
     # via
     #   dash
     #   flask-caching
     #   mongogrant
 flask-caching==2.1.0
     # via crystal-toolkit (pyproject.toml)
-fonttools==4.43.1
+fonttools==4.44.0
     # via matplotlib
 fqdn==1.5.1
     # via jsonschema
@@ -132,21 +132,22 @@ idna==3.4
     #   anyio
     #   jsonschema
     #   requests
-imageio==2.31.5
+imageio==2.31.6
     # via scikit-image
 importlib-metadata==6.8.0
     # via
+    #   dash
     #   flask
     #   jupyter-ydoc
     #   jupyterlab-server
     #   nbconvert
 importlib-resources==6.1.0
     # via matplotlib
-ipykernel==6.25.2
+ipykernel==6.26.0
     # via
     #   nbclassic
     #   notebook
-ipython==8.16.1
+ipython==8.17.2
     # via
     #   ipykernel
     #   jupyterlab
@@ -181,7 +182,7 @@ json5==0.9.14
     # via jupyterlab-server
 jsonpointer==2.4
     # via jsonschema
-jsonschema[format-nongpl]==4.19.1
+jsonschema[format-nongpl]==4.19.2
     # via
     #   jupyter-events
     #   jupyterlab-server
@@ -196,7 +197,7 @@ jupyter-client==7.4.9
     #   nbclassic
     #   nbclient
     #   notebook
-jupyter-core==5.3.2
+jupyter-core==5.5.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -207,11 +208,11 @@ jupyter-core==5.3.2
     #   nbconvert
     #   nbformat
     #   notebook
-jupyter-events==0.7.0
+jupyter-events==0.8.0
     # via
     #   jupyter-server
     #   jupyter-server-fileid
-jupyter-server==2.7.3
+jupyter-server==2.9.1
     # via
     #   jupyter-server-fileid
     #   jupyterlab
@@ -240,14 +241,14 @@ latexcodec==2.0.1
     # via pybtex
 lazy-loader==0.3
     # via scikit-image
-maggma==0.57.2
+maggma==0.57.4
     # via mp-api
 markupsafe==2.1.3
     # via
     #   jinja2
     #   nbconvert
     #   werkzeug
-matplotlib==3.8.0
+matplotlib==3.8.1
     # via pymatgen
 matplotlib-inline==0.1.6
     # via
@@ -259,13 +260,13 @@ mongogrant==0.3.3
     # via maggma
 mongomock==4.1.2
     # via maggma
-monty==2023.9.25
+monty==2023.11.3
     # via
     #   emmet-core
     #   maggma
     #   mp-api
     #   pymatgen
-mp-api==0.37.3
+mp-api==0.37.5
     # via crystal-toolkit (pyproject.toml)
 mpmath==1.3.0
     # via sympy
@@ -279,7 +280,7 @@ nbclassic==1.0.0
     #   notebook
 nbclient==0.8.0
     # via nbconvert
-nbconvert==7.9.2
+nbconvert==7.10.0
     # via
     #   jupyter-server
     #   nbclassic
@@ -298,7 +299,7 @@ nest-asyncio==1.5.8
     #   jupyter-client
     #   nbclassic
     #   notebook
-networkx==3.1
+networkx==3.2.1
     # via
     #   pymatgen
     #   scikit-image
@@ -306,7 +307,7 @@ notebook==6.5.6
     # via jupyterlab
 notebook-shim==0.2.3
     # via nbclassic
-numpy==1.26.0
+numpy==1.26.1
     # via
     #   contourpy
     #   imageio
@@ -320,7 +321,7 @@ numpy==1.26.0
     #   shapely
     #   spglib
     #   tifffile
-orjson==3.9.7
+orjson==3.9.10
     # via maggma
 overrides==7.4.0
     # via jupyter-server
@@ -337,7 +338,7 @@ packaging==23.2
     #   scikit-image
 palettable==3.3.3
     # via pymatgen
-pandas==2.1.1
+pandas==2.1.2
     # via pymatgen
 pandocfilters==1.5.0
     # via nbconvert
@@ -347,8 +348,6 @@ parso==0.8.3
     # via jedi
 pexpect==4.8.0
     # via ipython
-pickleshare==0.7.5
-    # via ipython
 pillow==10.0.1
     # via
     #   imageio
@@ -356,18 +355,18 @@ pillow==10.0.1
     #   scikit-image
 platformdirs==3.11.0
     # via jupyter-core
-plotly==5.17.0
+plotly==5.18.0
     # via
     #   dash
     #   pymatgen
-prometheus-client==0.17.1
+prometheus-client==0.18.0
     # via
     #   jupyter-server
     #   nbclassic
     #   notebook
 prompt-toolkit==3.0.39
     # via ipython
-psutil==5.9.5
+psutil==5.9.6
     # via ipykernel
 ptyprocess==0.7.0
     # via
@@ -400,12 +399,12 @@ pygments==2.16.1
     # via
     #   ipython
     #   nbconvert
-pymatgen==2023.10.4
+pymatgen==2023.10.11
     # via
     #   crystal-toolkit (pyproject.toml)
     #   emmet-core
     #   mp-api
-pymongo==4.5.0
+pymongo==4.6.0
     # via
     #   maggma
     #   mongogrant
@@ -461,11 +460,11 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-rpds-py==0.10.4
+rpds-py==0.10.6
     # via
     #   jsonschema
     #   referencing
-ruamel-yaml==0.17.35
+ruamel-yaml==0.17.40
     # via
     #   maggma
     #   pymatgen
@@ -475,7 +474,7 @@ s3transfer==0.7.0
     # via boto3
 scikit-image==0.22.0
     # via crystal-toolkit (pyproject.toml)
-scikit-learn==1.3.1
+scikit-learn==1.3.2
     # via crystal-toolkit (pyproject.toml)
 scipy==1.11.3
     # via
@@ -489,7 +488,7 @@ send2trash==1.8.2
     #   notebook
 sentinels==1.0.0
     # via mongomock
-shapely==2.0.1
+shapely==2.0.2
     # via crystal-toolkit (pyproject.toml)
 six==1.16.0
     # via
@@ -545,7 +544,7 @@ tqdm==4.66.1
     # via
     #   maggma
     #   pymatgen
-traitlets==5.11.2
+traitlets==5.13.0
     # via
     #   comm
     #   ipykernel
@@ -581,13 +580,13 @@ uncertainties==3.1.7
     # via pymatgen
 uri-template==1.3.0
     # via jsonschema
-urllib3==1.26.17
+urllib3==1.26.18
     # via
     #   botocore
     #   requests
 uvicorn==0.23.2
     # via maggma
-wcwidth==0.2.8
+wcwidth==0.2.9
     # via prompt-toolkit
 webcolors==1.13
     # via
@@ -599,7 +598,7 @@ webencodings==0.5.1
     #   tinycss2
 websocket-client==1.6.4
     # via jupyter-server
-werkzeug==2.2.3
+werkzeug==3.0.1
     # via
     #   dash
     #   flask
