@@ -22,7 +22,6 @@ from pymatgen.ext.matproj import MPRester, MPRestError
 import crystal_toolkit.components as ctc
 from crystal_toolkit import __file__ as module_path
 from crystal_toolkit.core.mpcomponent import MPComponent
-from crystal_toolkit.components.robocrys import RobocrysComponent
 from crystal_toolkit.helpers.layouts import (
     Box,
     Column,
