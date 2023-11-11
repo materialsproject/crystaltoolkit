@@ -293,7 +293,7 @@ class CatalysisApp(MPApp):
             show_compass=False,
             show_settings=False,
             show_image_button=False,
-            show_export_button=False
+            show_export_button=False,
             # group_by_site_property="display_text",  # pending new Crystal Toolkit release
         ).layout()
 
