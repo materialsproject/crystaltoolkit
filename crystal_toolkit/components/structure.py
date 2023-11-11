@@ -460,7 +460,12 @@ class StructureMoleculeComponent(MPComponent):
             spg_symbol = getattr(struct_or_mol, "get_space_group_info", lambda: [""])()[
                 0
             ]
-            request_filename = f"{formula}-{spg_symbol}-crystal-toolkit.png"
+            request_filename = f"{formula}-{spg_symbol}.png"
+            material_id = struct_or_mol.properties.get(
+                "material_id", struct_or_mol.properties.get("id")
+            )
+            if material_id:
+                request_filename = f"{material_id}-{request_filename}"
 
             return {
                 "content": image_data[len("data:image/png;base64,") :],
