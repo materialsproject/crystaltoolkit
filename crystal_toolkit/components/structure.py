@@ -241,7 +241,7 @@ class StructureMoleculeComponent(MPComponent):
         self.scene_kwargs = {
             # hide axes inset for molecules
             **({"axisView": "HIDDEN"} if is_mol else {}),
-            **scene_kwargs,
+            **(scene_kwargs or {}),
         }
 
     def __str__(self) -> str:
