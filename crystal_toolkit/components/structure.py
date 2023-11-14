@@ -111,6 +111,7 @@ class StructureMoleculeComponent(MPComponent):
         show_image_button: bool = DEFAULTS["show_image_button"],
         show_export_button: bool = DEFAULTS["show_export_button"],
         show_position_button: bool = DEFAULTS["show_position_button"],
+        scene_kwargs: dict | None = None,
         **kwargs,
     ) -> None:
         """Create a StructureMoleculeComponent from a structure or molecule.
@@ -118,34 +119,37 @@ class StructureMoleculeComponent(MPComponent):
         Args:
             struct_or_mol (None |, optional): input structure or molecule. Defaults to None.
             id (str, optional): canonical id. Defaults to None.
-            className (str, optional): extra geometric elements to add to the 3D scene. Defaults to "box".
-            scene_additions (Scene | None, optional): bonding strategy from pymatgen NearNeighbors class.
+            className (str, optional): CSS class name for the root element. Defaults to "box".
+            scene_additions (Scene | None, optional): extra geometric elements to add to the 3D scene. Defaults to "box".
+            bonding_strategy (str, optional): bonding strategy from pymatgen NearNeighbors class.
                 Defaults to None.
-            bonding_strategy (str, optional): options for the bonding strategy.
-            bonding_strategy_kwargs (dict | None, optional): color scheme, see Legend class.
-                Defaults to None.
-            color_scheme (str, optional): color scale, see Legend class.
-            color_scale (str | None, optional): radius strategy, see Legend class.
-                Defaults to None.
-            radius_strategy (str, optional):  optional): radius strategy, see Legend class.
-            unit_cell_choice (str, optional): whether to draw repeats of atoms on periodic images.
-            draw_image_atoms (bool, optional): whether to draw sites bonded outside the unit cell.
-            bonded_sites_outside_unit_cell (bool, optional): whether to hide or show incomplete bonds.
-                Defaults to DEFAULTS[ "bonded_sites_outside_unit_cell" ].
-            hide_incomplete_bonds (bool, optional): whether to hide or show the compass.
-            show_compass (bool, optional): scene settings (lighting etc.) to pass to CrystalToolkitScene.
-            scene_settings (dict | None, optional): a site property used for grouping of atoms for
-                mouseover/interaction. Defaults to None.
+            bonding_strategy_kwargs (dict | None, optional): options for the bonding strategy.
+            color_scheme (str, optional): color scheme, see Legend class. Defaults to None.
+            color_scale (str | None, optional): color scale, see Legend class.
+            radius_strategy (str, optional): radius strategy, see Legend class.
+            unit_cell_choice (str, optional): one of "input", "primitive", "conventional", "reduced_niggli", "reduced_lll".
+                Defaults to "input", i.e. no change to unit cell, render as-is.
+            draw_image_atoms (bool, optional): whether to draw repeats of atoms on periodic images.
+            bonded_sites_outside_unit_cell (bool, optional): whether to hide or show sites outside the unit cell
+                that are bonded to sites within the unit cell. Defaults to False.
+            hide_incomplete_bonds (bool, optional): whether to hide or show incomplete bonds.
+                Defaults to False.
+            show_compass (bool, optional): whether to hide or show the compass.
+            scene_settings (dict | None, optional): scene settings (lighting etc.) to pass to CrystalToolkitScene.
             group_by_site_property (str | None, optional): a site property used for grouping of atoms for
                 mouseover/interaction. Defaults to None.
-            show_legend (bool, optional):  optional): show or hide legend panel within the scene.
-            show_settings (bool, optional): show or hide scene control bar.
-            show_controls (bool, optional): show or hide the full screen button within the scene control bar.
-            show_expand_button (bool, optional): show or hide the image download button within the scene control bar.
-            show_image_button (bool, optional): show or hide the file export button within the scene control bar.
-            show_export_button (bool, optional): show or hide the revert position button within the scene control bar.
-            show_position_button (bool, optional): extra keyword arguments to pass to MPComponent. e.g. Wyckoff label.
-            **kwargs: a CSS dimension specifying width/height of Div.
+            show_legend (bool, optional): show or hide legend panel within the scene.
+            show_settings (bool, optional): show or hide settings panel within the scene.
+            show_controls (bool, optional): show or hide scene control bar.
+            show_expand_button (bool, optional): show or hide the full screen button within the scene control bar.
+            show_image_button (bool, optional): show or hide the image download as image button within the scene control bar.
+            show_export_button (bool, optional): show or hide the file export button within the scene control bar.
+            show_position_button (bool, optional): show or hide the revert position button within the scene control bar.
+            scene_kwargs (dict, optional): extra keyword arguments to pass to CrystalToolkitScene.
+                e.g. sceneSize, axisView, renderer, customCameraState, etc. See
+                https://github.com/materialsproject/dash-mp-components/blob/maindash_mp_components/CrystalToolkitScene.py
+                for complete list.
+            **kwargs: extra keyword arguments to pass to MPComponent. e.g. Wyckoff label.
         """
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
         self.className = className
@@ -233,11 +237,12 @@ class StructureMoleculeComponent(MPComponent):
         # this is used by a CrystalToolkitScene component, not a dcc.Store
         self._initial_data["scene"] = scene
 
-        # hide axes inset for molecules
-        if isinstance(struct_or_mol, (Molecule, MoleculeGraph)):
-            self.scene_kwargs = {"axisView": "HIDDEN"}
-        else:
-            self.scene_kwargs = {}
+        is_mol = isinstance(struct_or_mol, (Molecule, MoleculeGraph))
+        self.scene_kwargs = {
+            # hide axes inset for molecules
+            **({"axisView": "HIDDEN"} if is_mol else {}),
+            **(scene_kwargs or {}),
+        }
 
     def __str__(self) -> str:
         return repr(self)
