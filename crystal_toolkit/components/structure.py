@@ -111,6 +111,7 @@ class StructureMoleculeComponent(MPComponent):
         show_image_button: bool = DEFAULTS["show_image_button"],
         show_export_button: bool = DEFAULTS["show_export_button"],
         show_position_button: bool = DEFAULTS["show_position_button"],
+        scene_kwargs: dict | None = None,
         **kwargs,
     ) -> None:
         """Create a StructureMoleculeComponent from a structure or molecule.
@@ -145,6 +146,10 @@ class StructureMoleculeComponent(MPComponent):
             show_image_button (bool, optional): show or hide the file export button within the scene control bar.
             show_export_button (bool, optional): show or hide the revert position button within the scene control bar.
             show_position_button (bool, optional): extra keyword arguments to pass to MPComponent. e.g. Wyckoff label.
+            scene_kwargs (dict, optional): extra keyword arguments to pass to CrystalToolkitScene.
+                e.g. sceneSize, axisView, renderer, customCameraState, etc. See
+                https://github.com/materialsproject/dash-mp-components/blob/maindash_mp_components/CrystalToolkitScene.py
+                for complete list.
             **kwargs: a CSS dimension specifying width/height of Div.
         """
         super().__init__(id=id, default_data=struct_or_mol, **kwargs)
@@ -234,10 +239,12 @@ class StructureMoleculeComponent(MPComponent):
         self._initial_data["scene"] = scene
 
         # hide axes inset for molecules
-        if isinstance(struct_or_mol, (Molecule, MoleculeGraph)):
-            self.scene_kwargs = {"axisView": "HIDDEN"}
-        else:
-            self.scene_kwargs = {}
+
+        is_mol = isinstance(struct_or_mol, (Molecule, MoleculeGraph))
+        self.scene_kwargs = {
+            **({"axisView": "HIDDEN"} if is_mol else {}),
+            **scene_kwargs,
+        }
 
     def __str__(self) -> str:
         return repr(self)
