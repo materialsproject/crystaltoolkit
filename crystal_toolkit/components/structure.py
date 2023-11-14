@@ -126,7 +126,7 @@ class StructureMoleculeComponent(MPComponent):
             bonding_strategy_kwargs (dict | None, optional): options for the bonding strategy.
             color_scheme (str, optional): color scheme, see Legend class. Defaults to None.
             color_scale (str | None, optional): color scale, see Legend class.
-            radius_strategy (str, optional):  optional): radius strategy, see Legend class.
+            radius_strategy (str, optional): radius strategy, see Legend class.
             unit_cell_choice (str, optional): one of "input", "primitive", "conventional", "reduced_niggli", "reduced_lll".
                 Defaults to "input", i.e. no change to unit cell, render as-is.
             draw_image_atoms (bool, optional): whether to draw repeats of atoms on periodic images.
@@ -237,10 +237,9 @@ class StructureMoleculeComponent(MPComponent):
         # this is used by a CrystalToolkitScene component, not a dcc.Store
         self._initial_data["scene"] = scene
 
-        # hide axes inset for molecules
-
         is_mol = isinstance(struct_or_mol, (Molecule, MoleculeGraph))
         self.scene_kwargs = {
+            # hide axes inset for molecules
             **({"axisView": "HIDDEN"} if is_mol else {}),
             **scene_kwargs,
         }
