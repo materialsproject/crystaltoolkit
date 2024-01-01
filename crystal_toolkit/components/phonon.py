@@ -174,7 +174,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def _get_ph_bs_dos(
-        data: dict[str, Any] | None
+        data: dict[str, Any] | None,
     ) -> tuple[PhononBandStructureSymmLine, CompletePhononDos]:
         data = data or {}
 
