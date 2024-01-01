@@ -11,7 +11,7 @@ exclude: ^(docs/.+|.*lock.*|jupyterlab-extension/.+|.*\.(svg|js|css))|_version.p
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.5
+    rev: v0.1.9
     hooks:
       - id: ruff
         args: [--fix, --ignore, D]
