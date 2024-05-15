@@ -10,20 +10,23 @@ from crystal_toolkit.renderables.structure import get_structure_scene
 if TYPE_CHECKING:
     from typing import Sequence
 
+    from pymatgen.analysis.defects.core import Defect
+
     from crystal_toolkit.core.legend import Legend
     from crystal_toolkit.core.scene import Scene
 
 
 def get_defect_scene_uc(
-    defect,
+    defect: Defect,
     origin: Sequence[float] | None = None,
     legend: Legend | None = None,
     draw_image_atoms: bool = True,
     defect_site_radius: float = 0.7,
 ) -> Scene:
-    """Get the Scene object.
+    """Get the Scene for a Defect object.
 
-    Merge the host structure and highlight the defect sites.
+    Merge the host structure with a Scene for the defect sites.
+    Defect sites should be highlighted.
 
     Args:
         defect: Defect object.
@@ -33,7 +36,7 @@ def get_defect_scene_uc(
         periodic boundary.
 
     Returns:
-        CTK scene object to be rendered
+        CTK scene object to be rendered.
     """
     host_structure_scene = get_structure_scene(
         defect.structure,
@@ -69,9 +72,11 @@ def get_defect_entry_scene_sc(
     legend: Legend | None = None,
     draw_image_atoms: bool = True,
 ) -> Scene:
-    """Get the Scene object.
+    """Get the Scene for the DefectEntry object.
 
-    Merge the host structure and highlight the defect sites.
+    Since many defect entries are from supercells with selective dynamics,
+    We need a consistent way to emphasize that many atoms are not participating
+    in the relaxation calculation.
 
     Args:
         defect: Defect object.
@@ -81,7 +86,7 @@ def get_defect_entry_scene_sc(
         periodic boundary.
 
     Returns:
-        CTK scene object to be rendered
+        CTK scene object to be rendered.
     """
     sc_struct = defect_entry.sc_entry.structure
     if "selective_dynamics" in sc_struct.site_properties:
