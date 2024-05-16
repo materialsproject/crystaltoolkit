@@ -17,4 +17,4 @@ def test_diffraction(dash_duo: DashDuo) -> None:
     assert "dash-graph" in node.get_attribute("class")
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Unexpected browser {logs=}"
+    assert logs is None, f"Unexpected browser {logs=}"
