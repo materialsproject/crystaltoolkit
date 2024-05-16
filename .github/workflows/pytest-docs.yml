@@ -55,7 +55,3 @@ jobs:
           git add -A
           git commit -m "Automated doc build"
           git push
-      - name: pytest
-        env:
-          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-        run: pytest --color=yes --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
