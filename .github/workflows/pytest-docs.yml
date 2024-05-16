@@ -1,9 +1,14 @@
 name: Build Docs
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -36,7 +41,7 @@ jobs:
           cd docs_rst
           make html
       - name: Detect changes
-        if: contains(github.ref, 'refs/heads/main')
+        if: ${{ !contains(github.ref, 'refs/heads/main') }}
         id: changes
         shell: bash
         run: |
