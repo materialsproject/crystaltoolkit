@@ -34,7 +34,6 @@ jobs:
           cd docs_rst
           make html
       - name: Detect changes
-        if: ${{ !contains(github.ref, 'refs/heads/main') }}
         id: changes
         shell: bash
         run: |
