@@ -1,14 +1,9 @@
 name: Build Docs
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - "v*"
-  pull_request:
-    branches:
-      - main
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   build:
