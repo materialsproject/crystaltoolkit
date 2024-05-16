@@ -257,7 +257,11 @@ class Legend(MSONable):
         Returns: Color
         """
         # allow manual override by user
-        if site and "display_color" in site.properties:
+        if (
+            site
+            and "display_color" in site.properties
+            and site.properties["display_color"] is not None
+        ):
             color = site.properties["display_color"]
             # TODO: next two lines due to change in API, will be removed
             if isinstance(color, list) and isinstance(color[0], str):

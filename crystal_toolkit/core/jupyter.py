@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, ClassVar
 from warnings import warn
 
 from dash import Dash
+from monty.json import jsanitize
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.core.structure import SiteCollection
 
@@ -117,20 +118,20 @@ def _ipython_display_(self):
     # and also check all .parameters .kind.name have no POSITIONAL_ONLY
     # in practice, fairly unlikely this will cause issues without strict checking.
     # TODO: This can be removed once a central registry of renderable objects is implemented.
-    if self.get_scene:
+    if hasattr(self, "get_scene"):
         display_data = {
             "application/vnd.mp.ctk+json": self.get_scene().to_json(),
             "text/plain": repr(self),
         }
-    elif self.get_plot:
+    elif hasattr(self, "get_plot"):
         display_data = {
             "application/vnd.plotly.v1+json": self.get_plot().to_plotly_json(),
-            "application/json": self.as_dict(),
+            "application/json": jsanitize(self.as_dict()),
             "text/plain": repr(self),
         }
     else:
         display_data = {
-            "application/json": self.as_dict(),
+            "application/json": jsanitize(self.as_dict()),
             "text/plain": repr(self),
         }
 

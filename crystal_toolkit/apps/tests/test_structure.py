@@ -3,13 +3,13 @@ import threading
 
 from playwright.sync_api import Page, expect
 
-from crystal_toolkit.apps.examples.structure import app
-
-thread = threading.Thread(target=app.run)
-thread.start()
-
 
 def test_structure(page: Page):
+    from crystal_toolkit.apps.examples.structure import app
+
+    thread = threading.Thread(target=app.run)
+    thread.start()
+
     expect(page).to_have_title("Crystal Toolkit")
     h1_text = page.text_content("h1")
     assert h1_text == "StructureMoleculeComponent Example"

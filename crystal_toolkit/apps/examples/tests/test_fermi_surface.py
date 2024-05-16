@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from crystal_toolkit.apps.examples.fermi_surface import app
-
 if TYPE_CHECKING:
     from crystal_toolkit.apps.examples.tests.typing import DashDuo
 
 
 def test_diffraction(dash_duo: DashDuo) -> None:
+    from crystal_toolkit.apps.examples.fermi_surface import app
+
     dash_duo.start_server(app)
     dash_duo.clear_storage()
 
@@ -17,4 +17,4 @@ def test_diffraction(dash_duo: DashDuo) -> None:
     assert "dash-graph" in node.get_attribute("class")
 
     logs = dash_duo.get_logs()
-    assert logs == [], f"Unexpected browser {logs=}"
+    assert logs is None, f"Unexpected browser {logs=}"

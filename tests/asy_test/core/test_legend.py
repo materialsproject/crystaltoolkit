@@ -86,7 +86,7 @@ class TestLegend:
         assert color == "#b30326"
 
         color = legend.get_color(self.sp1, site=self.site1)
-        assert color == "#dddcdb"
+        assert color == "#000000"
 
         color = legend.get_color(self.sp2, site=self.site2)
         assert color == "#7b9ef8"
@@ -94,7 +94,7 @@ class TestLegend:
         assert legend.get_legend()["colors"] == {
             "#7b9ef8": "-3.00",
             "#b30326": "5.00",
-            "#dddcdb": "0.00",
+            "#000000": "0.00",
         }
 
         # test accessible
@@ -144,7 +144,7 @@ class TestLegend:
         legend = Legend(self.struct_manual)
 
         assert legend.get_legend()["colors"] == {
-            "#0000ff": "O2-",
+            "#0000ff": "O²⁻",
             "#00ff00": "In",
             "#ff0000": "H",
         }
