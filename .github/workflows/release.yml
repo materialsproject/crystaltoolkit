@@ -21,32 +21,6 @@ jobs:
           cache: "pip"
           cache-dependency-path: '**/pyproject.toml'
 
-      - name: bump version and create tag
-        env:
-          DATE_FORMAT: "%Y.%m.%d"
-        run: |
-          NEXT_RELEASE=$(date "+${DATE_FORMAT}")
-          LAST_RELEASE=$(git tag --sort=v:refname | grep "^20[^\-]*$" | tail -n 1)
-          echo "Last release : ${LAST_RELEASE}"
-          MAJOR_LAST_RELEASE=$(echo "${LAST_RELEASE}" | awk -v l=${#NEXT_RELEASE} '{ string=substr($0, 1, l); print string; }')
-          echo "Last major release : ${MAJOR_LAST_RELEASE}"
-          if [ "${MAJOR_LAST_RELEASE}" = "${NEXT_RELEASE}" ]; then
-            MINOR_LAST_RELEASE="$(echo "${LAST_RELEASE}" | awk -v l=$((${#NEXT_RELEASE} + 2)) '{ string=substr($0, l); print string; }')"
-            NEXT_RELEASE=${MAJOR_LAST_RELEASE}.$((MINOR_LAST_RELEASE + 1))
-          fi
-          echo "Next release: ${NEXT_RELEASE}"
-          git config --local user.email "github-actions@github.com"
-          git config --local user.name "github-actions"
-          python -m pip install --upgrade pip
-          python -m pip install --user --upgrade pip build setuptools "setuptools_scm<8" wheel
-          SETUPTOOLS_SCM_PRETEND_VERSION=${NEXT_RELEASE} python -m setuptools_scm
-          git add crystal_toolkit/_version.py
-          git commit -m "version bump: ${NEXT_RELEASE}"
-          git push
-          git tag ${NEXT_RELEASE}
-          git push --tags
-          echo "NEXT_RELEASE=${NEXT_RELEASE}" >> $GITHUB_ENV
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -56,7 +30,7 @@ jobs:
           python -m pip install --no-deps .[server]
 
       - name: Build package
-        run: SETUPTOOLS_SCM_PRETEND_VERSION=${{env.NEXT_RELEASE}} python -m build
+        run: pip install build
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1.5
