@@ -2,13 +2,13 @@ import threading
 
 from playwright.sync_api import Page
 
-from crystal_toolkit.apps.examples.pourbaix import app
-
-thread = threading.Thread(target=app.run)
-thread.start()
-
 
 def test_pourbaix(page: Page):
+    from crystal_toolkit.apps.examples.pourbaix import app
+
+    thread = threading.Thread(target=app.run)
+    thread.start()
+
     # select 1st structure
     page.locator(".react-select__input-container").click()
     page.get_by_text("Fe₃H (mp-1184287-GGA)", exact=True).click()
