@@ -9,6 +9,8 @@ on:
   pull_request:
     branches:
       - main
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -40,8 +42,8 @@ jobs:
         run: |
           cd docs_rst
           make html
-      - name: Detect changes
-        if: ${{ contains(github.ref, 'refs/heads/main') }}
+      - name: Detect changes on release
+        if: startsWith(github.head_ref, 'releases/')
         id: changes
         shell: bash
         run: |
