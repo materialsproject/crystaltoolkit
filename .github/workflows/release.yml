@@ -38,7 +38,6 @@ jobs:
         run: pip install build
 
       - name: Publish package
-        if: contains(github.ref, 'refs/heads/main')
         uses: pypa/gh-action-pypi-publish@release/v1.5
         with:
           user: __token__
