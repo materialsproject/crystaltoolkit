@@ -56,7 +56,6 @@ jobs:
           git commit -m "Automated doc build"
           git push
       - name: pytest
-        if: contains(github.ref, 'refs/heads/main')
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
         run: pytest --color=yes --webdriver Firefox --headless crystal_toolkit/apps/examples/tests/
