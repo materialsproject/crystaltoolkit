@@ -1,6 +1,14 @@
 name: Tests
 
-on: [release, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -20,7 +28,7 @@ jobs:
           cache: 'pip'
           cache-dependency-path: '**/pyproject.toml'
       - name: Install webdriver
-        run: sudo apt-get update && sudo apt-get install firefox-geckodriver
+        run: sudo apt-get update && sudo apt-get install firefox
       - name: Install dependencies
         run: |
           python${{ matrix.python-version }} -m pip install --upgrade pip packaging wheel
