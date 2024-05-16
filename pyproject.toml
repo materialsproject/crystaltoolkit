@@ -128,3 +128,7 @@ ignore-words-list = "nd,te,ois"
 
 [tool.mypy]
 no_implicit_optional = false
+
+[tool.versioningit.vcs]
+default-tag = "0.0.1"
+method = "git"
