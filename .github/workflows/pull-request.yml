@@ -1,8 +1,14 @@
 name: pytest
 
 on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build:
