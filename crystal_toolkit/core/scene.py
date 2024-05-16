@@ -72,7 +72,6 @@ class Scene:
         """Render Scenes using crystaltoolkit-extension for Jupyter Lab."""
         return {
             "application/vnd.mp.ctk+json": self.to_json(),
-            "application/json": self.as_dict(),
             "text/plain": repr(self),
         }
 
