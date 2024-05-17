@@ -25,6 +25,10 @@ anyio==3.7.1
     #   fastapi
     #   jupyter-server
     #   starlette
+appnope==0.1.4
+    # via
+    #   ipykernel
+    #   ipython
 argon2-cffi==23.1.0
     # via
     #   jupyter-server
@@ -71,7 +75,7 @@ beautifulsoup4==4.12.2
     #   gdown
     #   nbconvert
 black==23.10.1
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 bleach==6.1.0
     # via nbconvert
 blinker==1.7.0
@@ -128,34 +132,36 @@ commonmark==0.9.1
     # via recommonmark
 contourpy==1.2.0
     # via matplotlib
+coverage[toml]==7.5.1
+    # via pytest-cov
 cryptography==41.0.5
     # via
     #   paramiko
     #   pyopenssl
     #   urllib3
 crystaltoolkit-extension==0.6.0
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 cycler==0.12.1
     # via matplotlib
 dash[testing]==2.14.1
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   dash-extensions
     #   dash-vtk
 dash-core-components==2.0.0
     # via dash
 dash-extensions==1.0.4
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 dash-html-components==2.0.0
     # via dash
 dash-mp-components==0.4.39
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 dash-table==5.0.0
     # via dash
 dash-testing-stub==0.0.2
     # via dash
 dash-vtk==0.0.9
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 dask==2023.10.1
     # via
     #   distributed
@@ -169,7 +175,7 @@ decorator==5.1.1
 defusedxml==0.7.1
     # via nbconvert
 dephell==0.8.3
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 dephell-archive==0.1.7
     # via dephell
 dephell-argparse==0.1.3
@@ -220,7 +226,7 @@ docutils==0.18.1
     #   sphinx
     #   sphinx-rtd-theme
 dscribe==2.1.0
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 editorconfig==0.12.3
     # via jsbeautifier
 emdfile==0.0.14
@@ -248,14 +254,14 @@ flask==2.3.3
     #   mongogrant
 flask-caching==2.0.2
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   dash-extensions
 fonttools==4.44.0
     # via matplotlib
 fqdn==1.5.1
     # via jsonschema
 frozendict==2.3.8
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 frozenlist==1.4.0
     # via
     #   aiohttp
@@ -275,7 +281,7 @@ greenlet==3.0.0
     #   gevent
     #   playwright
 gunicorn[gevent]==21.2.0
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 h11==0.14.0
     # via
     #   uvicorn
@@ -286,13 +292,14 @@ h5py==3.10.0
     #   hdf5plugin
     #   hiphive
     #   ncempy
+    #   phonopy
     #   py4dstem
 habanero==1.2.3
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 hdf5plugin==4.2.0
     # via py4dstem
 hiphive==1.2
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 identify==2.5.31
     # via pre-commit
 idna==3.4
@@ -304,7 +311,7 @@ idna==3.4
     #   urllib3
     #   yarl
 ifermi==0.3.3
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 imageio==2.31.6
     # via scikit-image
 imagesize==1.4.1
@@ -337,7 +344,7 @@ jedi==0.19.1
     # via ipython
 jinja2==3.1.2
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   dephell
     #   distributed
     #   flask
@@ -418,7 +425,7 @@ jupyterlab-pygments==0.2.2
 jupyterlab-server==2.25.0
     # via jupyterlab
 kaleido==0.2.1
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 kiwisolver==1.4.5
     # via matplotlib
 latexcodec==2.0.1
@@ -452,6 +459,7 @@ matplotlib==3.8.1
     #   boltztrap2
     #   ifermi
     #   ncempy
+    #   phonopy
     #   py4dstem
     #   pymatgen
     #   vtk
@@ -481,7 +489,7 @@ monty==2023.11.3
 more-itertools==9.1.0
     # via dash-extensions
 mp-api==0.37.5
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 mpire==2.8.0
     # via py4dstem
 mpmath==1.3.0
@@ -566,6 +574,7 @@ numpy==1.26.1
     #   numba
     #   numpy-stl
     #   pandas
+    #   phonopy
     #   py4dstem
     #   pyfftw
     #   pylops
@@ -634,6 +643,8 @@ pexpect==4.8.0
     # via
     #   dephell-shells
     #   ipython
+phonopy==2.22.0
+    # via crystal_toolkit (pyproject.toml)
 pillow==10.0.1
     # via
     #   imageio
@@ -646,7 +657,7 @@ platformdirs==3.11.0
     #   virtualenv
 playwright==1.39.0
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   pytest-playwright
 plotly==5.18.0
     # via
@@ -656,7 +667,7 @@ plotly==5.18.0
 pluggy==1.3.0
     # via pytest
 pre-commit==3.5.0
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 prometheus-client==0.18.0
     # via
     #   jupyter-server
@@ -679,7 +690,7 @@ pubchempy==1.0.4
 pure-eval==0.2.2
     # via stack-data
 py4dstem==0.14.7
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 pyaml==23.9.7
     # via scikit-optimize
 pybind11==2.11.1
@@ -702,7 +713,7 @@ pydantic-core==2.10.1
     # via pydantic
 pydantic-settings==2.0.3
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   emmet-core
     #   maggma
 pydash==7.0.6
@@ -711,7 +722,7 @@ pyee==11.0.1
     # via playwright
 pyfftw==0.13.1
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   ifermi
 pygments==2.16.1
     # via
@@ -723,7 +734,7 @@ pylops==2.1.0
     # via py4dstem
 pymatgen==2023.10.11
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   emmet-core
     #   ifermi
     #   matminer
@@ -746,14 +757,17 @@ pysocks==1.7.1
     #   urllib3
 pytest==7.4.3
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   dash
     #   pytest-base-url
+    #   pytest-cov
     #   pytest-playwright
 pytest-base-url==2.0.0
     # via pytest-playwright
+pytest-cov==5.0.0
+    # via crystal_toolkit (pyproject.toml)
 pytest-playwright==0.4.3
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 python-dateutil==2.8.2
     # via
     #   arrow
@@ -777,6 +791,7 @@ pyyaml==6.0.1
     #   dask
     #   distributed
     #   jupyter-events
+    #   phonopy
     #   pre-commit
     #   pyaml
     #   pybtex
@@ -789,9 +804,9 @@ pyzmq==24.0.1
     #   nbclassic
     #   notebook
 recommonmark==0.7.1
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 redis==5.0.1
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 referencing==0.30.2
     # via
     #   jsonschema
@@ -825,7 +840,7 @@ rfc3986-validator==0.1.1
     #   jsonschema
     #   jupyter-events
 robocrys==0.2.8
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 rpds-py==0.10.6
     # via
     #   jsonschema
@@ -842,12 +857,12 @@ s3transfer==0.7.0
     # via boto3
 scikit-image==0.22.0
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   ifermi
     #   py4dstem
 scikit-learn==1.3.2
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   dscribe
     #   hiphive
     #   matminer
@@ -884,7 +899,7 @@ send2trash==1.8.2
 sentinels==1.0.0
     # via mongomock
 shapely==2.0.2
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 shellingham==1.5.4
     # via dephell-shells
 six==1.16.0
@@ -917,6 +932,7 @@ spglib==2.1.0
     #   boltztrap2
     #   hiphive
     #   ifermi
+    #   phonopy
     #   pymatgen
     #   robocrys
 sphinx==7.2.6
@@ -930,7 +946,7 @@ sphinx==7.2.6
     #   sphinxcontrib-qthelp
     #   sphinxcontrib-serializinghtml
 sphinx-rtd-theme==1.3.0
-    # via crystal-toolkit (pyproject.toml)
+    # via crystal_toolkit (pyproject.toml)
 sphinxcontrib-applehelp==1.0.7
     # via sphinx
 sphinxcontrib-devhelp==1.0.5
@@ -1072,7 +1088,7 @@ wcwidth==0.2.9
     # via prompt-toolkit
 webcolors==1.13
     # via
-    #   crystal-toolkit (pyproject.toml)
+    #   crystal_toolkit (pyproject.toml)
     #   jsonschema
 webencodings==0.5.1
     # via
