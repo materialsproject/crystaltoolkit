@@ -132,3 +132,27 @@ no_implicit_optional = false
 [tool.versioningit.vcs]
 default-tag = "0.0.1"
 method = "git"
+
+[tool.coverage.run]
+branch = true
+include = ["crystal_toolkit/*"]
+omit = ["crystal_toolkit/apps/*",]
+
+[tool.coverage.paths]
+source = ["crystal_toolkit/"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+    ]
