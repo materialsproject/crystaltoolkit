@@ -6,7 +6,7 @@ from collections import defaultdict
 from itertools import chain
 from typing import TYPE_CHECKING, Any
 
-from matplotlib.cm import get_cmap
+from matplotlib.pyplot import get_cmap
 from monty.json import MSONable
 from monty.serialization import loadfn
 from palettable.colorbrewer.qualitative import Set1_9
