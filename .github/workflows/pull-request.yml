@@ -39,6 +39,7 @@ jobs:
           python${{ matrix.python-version }} -m pip install -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
           python${{ matrix.python-version }} -m pip install --upgrade pip
           python${{ matrix.python-version }} -m pip install --no-deps .[server]
+          python${{ matrix.python-version }} -m pip install -e .[test]
       - name: Test modules
         run: python${{ matrix.python-version }} -m pytest --cov=crystal_toolkit --cov-report=xml tests
       - name: Test example apps
