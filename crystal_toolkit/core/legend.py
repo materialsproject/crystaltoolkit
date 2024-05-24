@@ -6,7 +6,7 @@ from collections import defaultdict
 from itertools import chain
 from typing import TYPE_CHECKING, Any
 
-from matplotlib import colormaps
+from matplotlib.pyplot import get_cmap
 from monty.json import MSONable
 from monty.serialization import loadfn
 from palettable.colorbrewer.qualitative import Set1_9
@@ -286,7 +286,7 @@ class Legend(MSONable):
             prop = site.properties[self.color_scheme]
 
             if prop:
-                cmap = colormaps.get_cmap(self.cmap)
+                cmap = get_cmap(self.cmap)
 
                 # normalize in [0, 1] range, as expected by cmap
                 prop_min, prop_max = self.cmap_range

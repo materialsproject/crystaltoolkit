@@ -20,7 +20,8 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.PAT }}
 
-      - uses: actions/setup-python@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
@@ -28,15 +29,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install `grep numpy== requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
-          python -m pip install -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
-          python -m pip install --upgrade pip
-          python -m pip install --no-deps .[server]
-          python -m pip install build
-
+          python${{ matrix.python-version }} -m pip install --upgrade pip packaging wheel build
+          python${{ matrix.python-version }} -m pip install `grep numpy== requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
+          python${{ matrix.python-version }} -m pip install -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
+          python${{ matrix.python-version }} -m pip install --upgrade pip
+          python${{ matrix.python-version }} -m pip install --no-deps .[server]
+          
       - name: Build package
-        run: python -m build
+        run: python${{ matrix.python-version }} -m build
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1.5

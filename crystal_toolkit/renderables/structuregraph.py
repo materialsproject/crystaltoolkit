@@ -5,7 +5,7 @@ from itertools import combinations
 from typing import Sequence
 
 import numpy as np
-from matplotlib import colormaps
+from matplotlib.pyplot import get_cmap
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import PeriodicSite
 
@@ -132,7 +132,7 @@ def get_structure_graph_scene(
         weights = np.array([w for w in weights if w])
 
         if any(weights):
-            cmap = colormaps.get_cmap(edge_weight_color_scale)
+            cmap = get_cmap(edge_weight_color_scale)
 
             # try to keep color scheme symmetric around 0
             weight_max = max(*min(weights), *weights)
