@@ -22,7 +22,7 @@ def test_hello_scientist(dash_duo: DashDuo):
     dash_duo.percy_snapshot("hello_scientist")
 
     logs = dash_duo.get_logs()
-    assert logs is None, f"Unexpected browser {logs=}"
+    assert not logs, f"Unexpected browser {logs=}"
 
 
 def test_hello_structure(dash_duo: DashDuo) -> None:
@@ -33,7 +33,7 @@ def test_hello_structure(dash_duo: DashDuo) -> None:
     dash_duo.percy_snapshot("hello_structure")
 
     logs = dash_duo.get_logs()
-    assert logs is None, f"Unexpected browser {logs=}"
+    assert not logs, f"Unexpected browser {logs=}"
 
 
 def test_hello_structure_interactive(dash_duo: DashDuo) -> None:
@@ -47,4 +47,4 @@ def test_hello_structure_interactive(dash_duo: DashDuo) -> None:
     dash_duo.percy_snapshot("hello_structure_interactive_on_click")
 
     logs = dash_duo.get_logs()
-    assert logs is None, f"Unexpected browser {logs=}"
+    assert not logs, f"Unexpected browser {logs=}"
