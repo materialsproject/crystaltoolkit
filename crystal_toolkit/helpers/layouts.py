@@ -1,5 +1,4 @@
-"""
-Helper methods to make working with Bulma classes easier. This file incorporates
+"""Helper methods to make working with Bulma classes easier. This file incorporates
 language from the Bulma documentation. See https://github.com/jgthms/bulma/blob/master/LICENSE
 """
 
@@ -64,8 +63,7 @@ class Field(html.Div):
         grouped_multiline: bool = False,
         **kwargs,
     ) -> None:
-        """
-        When combining several controls in a form, use the field class as a container, to keep the spacing consistent.
+        """When combining several controls in a form, use the field class as a container, to keep the spacing consistent.
 
         See https://bulma.io/documentation/form/general/
         """
@@ -84,8 +82,7 @@ class Field(html.Div):
 
 class Control(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        To maintain an evenly balanced design, Bulma provides a very useful control container with which you can wrap the form controls.
+        """To maintain an evenly balanced design, Bulma provides a very useful control container with which you can wrap the form controls.
 
         See https://bulma.io/documentation/form/general/
         """
@@ -103,12 +100,10 @@ class Input(dcc.Input):
         rounded: bool = False,
         **kwargs,
     ) -> None:
-        """
-        A dcc.Input with Bulma styles attached.
+        """A dcc.Input with Bulma styles attached.
 
         See https://bulma.io/documentation/form/input/
         """
-
         _update_css_class(kwargs, "input")
         _update_css_class(kwargs, f"is-{color}", color)
         _update_css_class(kwargs, f"is-{size}", size)
@@ -126,8 +121,7 @@ class Textarea(dcc.Textarea):
         fixed_size: bool = False,
         **kwargs,
     ) -> None:
-        """
-        A dcc.Textarea with Bulma styles attached.
+        """A dcc.Textarea with Bulma styles attached.
 
         See https://bulma.io/documentation/form/textarea/
         """
@@ -170,8 +164,7 @@ class File(dcc.Upload):
         placeholder: str | None = None,
         **kwargs,
     ) -> None:
-        """
-        Returns a dcc.Upload with Bulma styling.
+        """Returns a dcc.Upload with Bulma styling.
 
         See https://bulma.io/documentation/form/file/
         """
@@ -218,8 +211,7 @@ class Help(html.P):
 
 
 class Block(html.Div):
-    """
-    The block element is a simple spacer tool. It allows sibling HTML elements to have a consistent margin between them.
+    """The block element is a simple spacer tool. It allows sibling HTML elements to have a consistent margin between them.
 
     See https://bulma.io/documentation/elements/block/
     """
@@ -231,8 +223,7 @@ class Block(html.Div):
 
 class Box(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        The box element is a simple container with a white background, some padding, and a box shadow.
+        """The box element is a simple container with a white background, some padding, and a box shadow.
 
         See https://bulma.io/documentation/elements/box/
         """
@@ -256,8 +247,7 @@ class Button(html.Button):
         disabled: bool = False,
         **kwargs,
     ) -> None:
-        """
-        The button is an essential element of any design. It's meant to look and behave as an interactive element of your page.
+        """The button is an essential element of any design. It's meant to look and behave as an interactive element of your page.
 
         See https://bulma.io/documentation/elements/button/
         """
@@ -277,8 +267,7 @@ class Button(html.Button):
 
 class Content(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        A single class to handle WYSIWYG generated content, where only HTML tags are available.
+        """A single class to handle WYSIWYG generated content, where only HTML tags are available.
 
         It is useful to use Content around a Markdown component.
 
@@ -295,8 +284,7 @@ class Delete(html.Div):
         size: Literal["small", "normal", "medium", "large"] | None,
         **kwargs,
     ) -> None:
-        """
-        A versatile delete cross.
+        """A versatile delete cross.
 
         See https://bulma.io/documentation/elements/delete/
         """
@@ -413,8 +401,7 @@ class Notification(html.Div):
         light: bool = False,
         **kwargs,
     ) -> None:
-        """
-        The notification is a simple colored block meant to draw the attention to the user about something.
+        """The notification is a simple colored block meant to draw the attention to the user about something.
 
         See https://bulma.io/documentation/elements/notification/
         """
@@ -426,9 +413,7 @@ class Notification(html.Div):
 
 class Error(Notification):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        A Notification for errors.
-        """
+        """A Notification for errors."""
         super().__init__(*args, color="danger", **kwargs)
 
 
@@ -443,8 +428,7 @@ class Progress(html.Progress):
         max: int | None = None,
         **kwargs,
     ) -> None:
-        """
-        Native HTML progress bars.
+        """Native HTML progress bars.
 
         See https://bulma.io/documentation/elements/progress/
         """
@@ -471,8 +455,7 @@ class Table(html.Table):
         fullwidth: bool = False,
         **kwargs,
     ) -> None:
-        """
-        A simple Table element.
+        """A simple Table element.
 
         See https://bulma.io/documentation/elements/table/
 
@@ -497,9 +480,7 @@ class Table(html.Table):
         super().__init__(*args, **kwargs)
 
     def with_container(self, **kwargs) -> html.Div:
-        """
-        Add a container to make the Table scrollable.
-        """
+        """Add a container to make the Table scrollable."""
         _update_css_class(kwargs, "table-container")
         return html.Div(children=[self], **kwargs)
 
@@ -517,8 +498,7 @@ class Tag(html.Div):
         span_kwargs: dict | None = None,
         **kwargs,
     ) -> None:
-        """
-        A tag element.
+        """A tag element.
 
         See https://bulma.io/documentation/elements/tag/
 
@@ -561,8 +541,7 @@ class TagContainer(Field):
     def __init__(
         self, tags: list[Tag], grouped=True, grouped_multiline=True, **kwargs
     ) -> None:
-        """
-        Contain a list of tags and keep them evenly spaced.
+        """Contain a list of tags and keep them evenly spaced.
 
         See https://bulma.io/documentation/elements/tag/
         """
@@ -582,8 +561,7 @@ class H1(html.H1):
     def __init__(
         self, *args, subtitle: bool = False, spaced: bool = False, **kwargs
     ) -> None:
-        """
-        H1 heading.
+        """H1 heading.
 
         See https://bulma.io/documentation/elements/title/
         """
@@ -599,8 +577,7 @@ class H2(html.H2):
     def __init__(
         self, *args, subtitle: bool = False, spaced: bool = False, **kwargs
     ) -> None:
-        """
-        H2 heading.
+        """H2 heading.
 
         See https://bulma.io/documentation/elements/title/
         """
@@ -616,8 +593,7 @@ class H3(html.H3):
     def __init__(
         self, *args, subtitle: bool = False, spaced: bool = False, **kwargs
     ) -> None:
-        """
-        H3 heading.
+        """H3 heading.
 
         See https://bulma.io/documentation/elements/title/
         """
@@ -633,8 +609,7 @@ class H4(html.H4):
     def __init__(
         self, *args, subtitle: bool = False, spaced: bool = False, **kwargs
     ) -> None:
-        """
-        H4 heading.
+        """H4 heading.
 
         See https://bulma.io/documentation/elements/title/
         """
@@ -650,8 +625,7 @@ class H5(html.H5):
     def __init__(
         self, *args, subtitle: bool = False, spaced: bool = False, **kwargs
     ) -> None:
-        """
-        H5 heading.
+        """H5 heading.
 
         See https://bulma.io/documentation/elements/title/
         """
@@ -667,8 +641,7 @@ class H6(html.H6):
     def __init__(
         self, *args, subtitle: bool = False, spaced: bool = False, **kwargs
     ) -> None:
-        """
-        H6 heading.
+        """H6 heading.
 
         See https://bulma.io/documentation/elements/title/
         """
@@ -693,8 +666,7 @@ class Breadcrumb(html.Nav):
         size: Literal["small", "medium", "large"] | None = None,
         **kwargs,
     ) -> None:
-        """
-        Breadcrumb navigation. Supply a list of tuples of display
+        """Breadcrumb navigation. Supply a list of tuples of display
         name (string or any Component) and link (string) to construct the breadcrumb navigation.
 
         See https://bulma.io/documentation/components/breadcrumb/
@@ -722,8 +694,7 @@ class Breadcrumb(html.Nav):
 
 class Card(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Card container.
+        """Card container.
 
         See https://bulma.io/documentation/components/card/
         """
@@ -733,8 +704,7 @@ class Card(html.Div):
 
 class CardHeader(html.Header):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Card header.
+        """Card header.
 
         See https://bulma.io/documentation/components/card/
         """
@@ -744,8 +714,7 @@ class CardHeader(html.Header):
 
 class CardImage(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Card image. Provide a ctl.Image() as child.
+        """Card image. Provide a ctl.Image() as child.
 
         See https://bulma.io/documentation/components/card/
         """
@@ -755,8 +724,7 @@ class CardImage(html.Div):
 
 class CardContent(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Card content.
+        """Card content.
 
         See https://bulma.io/documentation/components/card/
         """
@@ -766,8 +734,7 @@ class CardContent(html.Div):
 
 class CardFooter(html.Footer):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Card footer. Provide a list of ctl.CardFooterItem() as children.
+        """Card footer. Provide a list of ctl.CardFooterItem() as children.
 
         See https://bulma.io/documentation/components/card/
         """
@@ -777,8 +744,7 @@ class CardFooter(html.Footer):
 
 class CardFooterItem(html.A):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Card footer item.
+        """Card footer item.
 
         See https://bulma.io/documentation/components/card/
         """
@@ -857,8 +823,7 @@ class Navbar:
 
 class Pagination(html.Nav):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Pagination container.
+        """Pagination container.
 
         See https://bulma.io/documentation/components/pagination/
         """
@@ -868,8 +833,7 @@ class Pagination(html.Nav):
 
 class PaginationPrevious(html.A):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Pagination previous button.
+        """Pagination previous button.
 
         See https://bulma.io/documentation/components/pagination/
         """
@@ -879,8 +843,7 @@ class PaginationPrevious(html.A):
 
 class PaginationNext(html.A):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Pagination next button.
+        """Pagination next button.
 
         See https://bulma.io/documentation/components/pagination/
         """
@@ -890,8 +853,7 @@ class PaginationNext(html.A):
 
 class PaginationList(html.Ul):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Pagination list container. Provide list of ctl.PaginationLink as children.
+        """Pagination list container. Provide list of ctl.PaginationLink as children.
 
         See https://bulma.io/documentation/components/pagination/
         """
@@ -901,8 +863,7 @@ class PaginationList(html.Ul):
 
 class PaginationLink(html.Li):
     def __init__(self, *args, current: bool, **kwargs) -> None:
-        """
-        Pagination link. Keyword arguments passed to html.A element.
+        """Pagination link. Keyword arguments passed to html.A element.
 
         See https://bulma.io/documentation/components/pagination/
         """
@@ -913,8 +874,7 @@ class PaginationLink(html.Li):
 
 class PaginationEllipsis(html.Li):
     def __init__(self, **kwargs) -> None:
-        """
-        Pagination link. Keyword arguments passed to html.Span element.
+        """Pagination link. Keyword arguments passed to html.Span element.
 
         See https://bulma.io/documentation/components/pagination/
         """
@@ -969,8 +929,7 @@ class Level(html.Nav):
         mobile: bool = False,
         **kwargs,
     ) -> None:
-        """
-        A multi-purpose horizontal level, which can contain almost any other element.
+        """A multi-purpose horizontal level, which can contain almost any other element.
 
         Use either ctl.LevelLeft, ctl.LevelRight or ctl.LevelItem as children.
 
@@ -987,8 +946,7 @@ class LevelLeft(html.Div):
         *args,
         **kwargs,
     ) -> None:
-        """
-        Use with ctl.Level.
+        """Use with ctl.Level.
 
         See https://bulma.io/documentation/layout/level/
         """
@@ -1002,8 +960,7 @@ class LevelRight(html.Div):
         *args,
         **kwargs,
     ) -> None:
-        """
-        Use with ctl.Level.
+        """Use with ctl.Level.
 
         See https://bulma.io/documentation/layout/level/
         """
@@ -1018,8 +975,7 @@ class LevelItem(html.Div):
         centered: bool = False,
         **kwargs,
     ) -> None:
-        """
-        Use with ctl.Level.
+        """Use with ctl.Level.
 
         See https://bulma.io/documentation/layout/level/
         """
@@ -1043,8 +999,7 @@ class Hero(html.Div):
         | None = None,
         **kwargs,
     ) -> None:
-        """
-        Hero element. Provide a ctl.HeroBody() as child and, if using "fullheight", a
+        """Hero element. Provide a ctl.HeroBody() as child and, if using "fullheight", a
         ctl.HeroHead() and ctl.HeroFoot().
 
         See https://bulma.io/documentation/layout/hero/
@@ -1057,8 +1012,7 @@ class Hero(html.Div):
 
 class HeroBody(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Use with ctl.Hero.
+        """Use with ctl.Hero.
 
         See https://bulma.io/documentation/layout/hero/
         """
@@ -1068,8 +1022,7 @@ class HeroBody(html.Div):
 
 class HeroHead(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Use with "fullheight" ctl.Hero.
+        """Use with "fullheight" ctl.Hero.
 
         See https://bulma.io/documentation/layout/hero/
         """
@@ -1079,8 +1032,7 @@ class HeroHead(html.Div):
 
 class HeroFoot(html.Div):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Use with "fullheight" ctl.Hero.
+        """Use with "fullheight" ctl.Hero.
 
         See https://bulma.io/documentation/layout/hero/
         """
@@ -1092,8 +1044,7 @@ class Section(html.Section):
     def __init__(
         self, *args, size: Literal["medium", "large"] | None = None, **kwargs
     ) -> None:
-        """
-        Section.
+        """Section.
 
         See https://bulma.io/documentation/layout/section/
         """
@@ -1104,8 +1055,7 @@ class Section(html.Section):
 
 class Footer(html.Footer):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Footer.
+        """Footer.
 
         See https://bulma.io/documentation/layout/footer/
         """
@@ -1122,8 +1072,7 @@ class Tile(html.Div):
         size: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] | None,
         **kwargs,
     ) -> None:
-        """
-        A single tile element to build 2-dimensional grids.
+        """A single tile element to build 2-dimensional grids.
 
         See https://bulma.io/documentation/layout/tiles/
         """
@@ -1256,8 +1205,7 @@ def cite_me(
 
 class Loading(dcc.Loading):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        A wrapper around dcc.Loading that uses PRIMARY_COLOR and DEBUG_MODE from
+        """A wrapper around dcc.Loading that uses PRIMARY_COLOR and DEBUG_MODE from
         Crystal Toolkit settings.
         """
         if "type" not in kwargs:
@@ -1281,8 +1229,7 @@ DOI_CACHE = loadfn(SETTINGS.DOI_CACHE_PATH) if SETTINGS.DOI_CACHE_PATH else {}
 
 
 def get_table(rows: list[list[Any]], header: list[str] | None = None) -> html.Table:
-    """
-    Deprecated. Prefer ctl.Table class instead.
+    """Deprecated. Prefer ctl.Table class instead.
 
     Create a HTML table from a list of elements.
 
@@ -1304,8 +1251,7 @@ def get_tooltip(
     wrapper_class: str | None = None,
     **kwargs,
 ):
-    """
-    Deprecated. Prefer alternative dcc.Tooltip component instead.
+    """Deprecated. Prefer alternative dcc.Tooltip component instead.
 
     Uses the tooltip component from dash-mp-components to add a tooltip, typically for help text.
     This component uses react-tooltip under the hood.
@@ -1336,8 +1282,7 @@ def get_tooltip(
 
 
 def get_breadcrumb(parts):
-    """
-    Deprecated, prefer the ctl.Breadcrumb class instead, which is a drop-in replacement.
+    """Deprecated, prefer the ctl.Breadcrumb class instead, which is a drop-in replacement.
 
     Create a breadcrumb navigation bar.
 
@@ -1362,9 +1307,7 @@ def get_breadcrumb(parts):
 
 class Spinner(html.Button):
     def __init__(self, *args, **kwargs) -> None:
-        """
-        Deprecated, prefer ctl.Button class instead with loading=True keyword argument.
-        """
+        """Deprecated, prefer ctl.Button class instead with loading=True keyword argument."""
         _update_css_class(kwargs, "button is-primary is-loading")
         kwargs["style"] = {"width": "35px", "height": "35px", "borderRadius": "35px"}
         kwargs["aria-label"] = "Loading"

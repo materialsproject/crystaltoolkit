@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 CT_NAMESPACE = "CT"
 
 
-class MPComponent(ABC):
+class MPComponent(ABC):  # noqa: B024
     """The abstract base class for an MPComponent.
 
     MPComponent is designed to help render an MSONable object.
