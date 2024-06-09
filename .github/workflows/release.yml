@@ -34,7 +34,7 @@ jobs:
           python${{ matrix.python-version }} -m pip install -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
           python${{ matrix.python-version }} -m pip install --upgrade pip
           python${{ matrix.python-version }} -m pip install --no-deps .[server]
-          
+
       - name: Build package
         run: python${{ matrix.python-version }} -m build
 

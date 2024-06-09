@@ -174,7 +174,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     @staticmethod
     def _get_ph_bs_dos(
-        data: dict[str, Any] | None
+        data: dict[str, Any] | None,
     ) -> tuple[PhononBandStructureSymmLine, CompletePhononDos]:
         data = data or {}
 
@@ -399,7 +399,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         dos_traces.append(trace_tdos)
 
         # Projected DOS
-        count = 0
         colors = [
             "#d62728",  # brick red
             "#2ca02c",  # cooked asparagus green
@@ -411,7 +410,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         ]
 
         ele_dos = dos.get_element_dos()  # project DOS onto elements
-        for label in ele_dos:
+        for count, label in enumerate(ele_dos):
             spin_up_label = str(label)
 
             trace = {
@@ -425,8 +424,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             }
 
             dos_traces.append(trace)
-
-            count += 1
 
         return dos_traces
 

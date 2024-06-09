@@ -523,7 +523,6 @@ class BandstructureAndDosComponent(MPComponent):
             raise PreventUpdate
 
         # Projected DOS
-        count = 0
         colors = [
             "#d62728",  # brick red
             "#2ca02c",  # cooked asparagus green
@@ -534,7 +533,7 @@ class BandstructureAndDosComponent(MPComponent):
             "#e377c2",  # raspberry yogurt pink
         ]
 
-        for label in proj_data:
+        for count, label in enumerate(proj_data):
             if spin_polarized:
                 trace = {
                     dos_axis: -1.0
@@ -564,8 +563,6 @@ class BandstructureAndDosComponent(MPComponent):
             }
 
             dos_traces.append(trace)
-
-            count += 1
 
         return dos_traces
 

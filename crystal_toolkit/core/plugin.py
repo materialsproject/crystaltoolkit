@@ -11,8 +11,7 @@ if TYPE_CHECKING:
 
 
 class CrystalToolkitPlugin:
-    """
-    Enables Crystal Toolkit components to work with your Dash app.
+    """Enables Crystal Toolkit components to work with your Dash app.
 
     This is a replacement for the previous `register_crystal_toolkit`
     function, to instead use Dash's native plugin system.
@@ -27,8 +26,7 @@ class CrystalToolkitPlugin:
     def __init__(
         self, layout, cache: Cache | None = None, use_default_css=True
     ) -> None:
-        """
-        Provide your initial app layout.
+        """Provide your initial app layout.
 
         Provide a cache to improve performance. If running
         in debug mode, the cache will be automatically disabled. If
@@ -51,9 +49,7 @@ class CrystalToolkitPlugin:
         self.use_default_css = use_default_css
 
     def plug(self, app: Dash):
-        """
-        Initialize Crystal Toolkit plugin for the specified Dash app.
-        """
+        """Initialize Crystal Toolkit plugin for the specified Dash app."""
         self.app = app
         self.cache.init_app(app.server)
 
@@ -83,15 +79,13 @@ class CrystalToolkitPlugin:
                 app.config.external_stylesheets.append(font_awesome_css)
 
     def crystal_toolkit_layout(self, layout) -> html.Div:
-        """
-        Crystal Toolkit currently requires a set of dcc.Store components
+        """Crystal Toolkit currently requires a set of dcc.Store components
         to be added to the layout in order to function.
 
         Eventually, it is hoped to remove the need for this method through
         use of All-in-One components. All-in-One components were not yet
         available when Crystal Toolkit was first developed.
         """
-
         from crystal_toolkit.core.mpcomponent import MPComponent
 
         # Crystal Toolkit has not been tested with dynamic layouts
