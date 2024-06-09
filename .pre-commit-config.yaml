@@ -11,7 +11,7 @@ exclude: ^(docs/.+|.*lock.*|jupyterlab-extension/.+|.*\.(svg|js|css))|_version.p
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.5
+    rev: v0.4.8
     hooks:
       - id: ruff
         args: [--fix, --ignore, D]
@@ -23,7 +23,7 @@ repos:
   #     - id: mypy
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: check-case-conflict
       - id: check-symlinks
@@ -33,14 +33,14 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
+    rev: v2.3.0
     hooks:
       - id: codespell
         stages: [commit, commit-msg]
         args: [--ignore-words-list, "nd,te,ois,dscribe", --check-filenames]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 0.7.1
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
