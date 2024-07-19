@@ -31,4 +31,4 @@ def test_diffraction(dash_duo: DashDuo) -> None:
     input_nodes[0].send_keys(Keys.ARROW_UP)
 
     logs = dash_duo.get_logs()
-    assert logs is None, f"Unexpected browser {logs=}"
+    assert not logs, f"Unexpected browser {logs=}"
