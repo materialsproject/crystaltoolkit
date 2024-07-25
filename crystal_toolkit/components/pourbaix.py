@@ -119,7 +119,7 @@ class PourbaixDiagramComponent(MPComponent):
     #     Deprecated. This method returns a figure with Pourbaix domains as "shapes" and labels
     #     as "annotations." The new figure method instead returns a Pourbaix diagram with
     #     domains and labels as independent traces, so that they can be interacted with and
-    #     placed ona  legend.
+    #     placed on a legend.
     #
     #     Static method for getting plotly figure from a Pourbaix diagram.
     #
@@ -454,7 +454,7 @@ class PourbaixDiagramComponent(MPComponent):
             )
 
             # Generate hoverinfo
-            hovertexts = []
+            hoverlabel = [] 
             for ph_val, v_val, de_val in zip(
                 ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()
             ):
@@ -463,9 +463,9 @@ class PourbaixDiagramComponent(MPComponent):
                     f"ph={ph_val:.2f}",
                     f"V={v_val:.2f}",
                 ]
-                hovertext = "<br>".join(hovertext)
-                hovertexts.append(hovertext)
-            hovertexts = np.reshape(hovertexts, list(decomposition_e.shape))
+                hovertext = "<br>".join(hovertext) 
+                hoverlabel.append(hovertext)
+            hoverlabel = np.reshape(hoverlabel, list(decomposition_e.shape))
 
             # Enforce decomposition limit energy
             decomposition_e = np.min(
@@ -491,7 +491,8 @@ class PourbaixDiagramComponent(MPComponent):
                 line_smoothing=0,
                 line_width=0,
                 # contours_coloring="heatmap",
-                text=hovertexts,
+                text=hoverlabel,
+                hoverinfo = "text", 
                 name=f"{heatmap_formula} ({heatmap_entry.entry_id}) Heatmap",
                 showlegend=True,
             )
