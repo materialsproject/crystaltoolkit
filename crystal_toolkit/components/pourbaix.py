@@ -454,7 +454,7 @@ class PourbaixDiagramComponent(MPComponent):
             )
 
             # Generate hoverinfo
-            hoverlabel = [] 
+            hoverlabel = []
             for ph_val, v_val, de_val in zip(
                 ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()
             ):
@@ -463,7 +463,7 @@ class PourbaixDiagramComponent(MPComponent):
                     f"ph={ph_val:.2f}",
                     f"V={v_val:.2f}",
                 ]
-                hovertext = "<br>".join(hovertext) 
+                hovertext = "<br>".join(hovertext)
                 hoverlabel.append(hovertext)
             hoverlabel = np.reshape(hoverlabel, list(decomposition_e.shape))
 
@@ -492,7 +492,7 @@ class PourbaixDiagramComponent(MPComponent):
                 line_width=0,
                 # contours_coloring="heatmap",
                 text=hoverlabel,
-                hoverinfo = "text", 
+                hoverinfo="text",
                 name=f"{heatmap_formula} ({heatmap_entry.entry_id}) Heatmap",
                 showlegend=True,
             )
