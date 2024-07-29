@@ -334,7 +334,7 @@ class PourbaixDiagramComponent(MPComponent):
 
             if not heatmap_entry:
                 if legend_entry == "Ion" or legend_entry == "Unknown":
-                    fillcolor = "rgb(255,252,255,1)"  # New purple white color
+                    fillcolor = "rgb(255,245,255,1)"  # New purple white color
                 elif legend_entry == "Mixed Ion":
                     fillcolor = "rgb(255,255,240,1)"
                 elif legend_entry == "Solid":
@@ -377,9 +377,9 @@ class PourbaixDiagramComponent(MPComponent):
             path += "Z"
 
             # stable entries are black with default color scheme,
-            # so use white lines instead
+            # so use off-white lines instead
             line = (
-                {"color": "White", "width": 4}
+                {"color": "rgba(255,235,255,1)", "width": 4}
                 if heatmap_entry
                 else {"color": "Black", "width": 1}
             )
@@ -469,9 +469,9 @@ class PourbaixDiagramComponent(MPComponent):
             hoverlabel = np.reshape(hoverlabel, list(decomposition_e.shape))
 
             # Enforce decomposition limit energy
-            decomposition_e = np.min(
-                [decomposition_e, np.ones(decomposition_e.shape)], axis=0
-            )
+            # decomposition_e = np.min(
+            #     [decomposition_e, np.ones(decomposition_e.shape)], axis=0
+            # )
 
             heatmap_formula = unicodeify(
                 Composition(heatmap_entry.composition).reduced_formula
@@ -485,9 +485,19 @@ class PourbaixDiagramComponent(MPComponent):
                     "title": "∆G<sub>pbx</sub> (eV/atom)",
                     "titleside": "right",
                 },
-                colorscale=PourbaixDiagramComponent.colorscale,  # or magma
-                zmin=0,
-                zmax=1,
+                colorscale= [ [0, '#000004'],
+                              [0.031, '#180f3d'],
+                              [0.044, '#440f76'],  
+                              [0.063, '#721f81'], 
+                              [0.088, '#9e2f7f'], 
+                              [0.125,  '#cd4071'], 
+                              [0.177, '#f1605d'], 
+                              [0.25,  '#fd9668'], 
+                              [0.354, '#feca8d'], 
+                              [0.5, '#fcfdbf'], 
+                              [1, '#fcfdbf']       ],  # Custom Magma built exponentially rather than linearly
+                ncontours= 50,
+                
                 connectgaps=True,
                 line_smoothing=0,
                 line_width=0,
