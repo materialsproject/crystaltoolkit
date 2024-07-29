@@ -356,7 +356,7 @@ class PourbaixDiagramComponent(MPComponent):
                     # legendgrouptitle={"text": legend_entry},
                     name=legend_entry,
                     text=f"{clean_formula} ({entry.entry_id})",
-                    hoverinfo = "text",
+                    hoverinfo="text",
                     marker={"color": "Black"},
                     line={"color": "Black", "width": 0},
                     mode="lines",
