@@ -119,7 +119,7 @@ class PourbaixDiagramComponent(MPComponent):
     #     Deprecated. This method returns a figure with Pourbaix domains as "shapes" and labels
     #     as "annotations." The new figure method instead returns a Pourbaix diagram with
     #     domains and labels as independent traces, so that they can be interacted with and
-    #     placed ona  legend.
+    #     placed on a legend.
     #
     #     Static method for getting plotly figure from a Pourbaix diagram.
     #
@@ -334,7 +334,7 @@ class PourbaixDiagramComponent(MPComponent):
 
             if not heatmap_entry:
                 if legend_entry == "Ion" or legend_entry == "Unknown":
-                    fillcolor = "rgb(255,255,250,1)"  # same color as old website
+                    fillcolor = "rgb(255,245,255,1)"  # New purple white color
                 elif legend_entry == "Mixed Ion":
                     fillcolor = "rgb(255,255,240,1)"
                 elif legend_entry == "Solid":
@@ -356,6 +356,7 @@ class PourbaixDiagramComponent(MPComponent):
                     # legendgrouptitle={"text": legend_entry},
                     name=legend_entry,
                     text=f"{clean_formula} ({entry.entry_id})",
+                    hoverinfo="text",
                     marker={"color": "Black"},
                     line={"color": "Black", "width": 0},
                     mode="lines",
@@ -376,9 +377,9 @@ class PourbaixDiagramComponent(MPComponent):
             path += "Z"
 
             # stable entries are black with default color scheme,
-            # so use white lines instead
+            # so use off-white lines instead
             line = (
-                {"color": "White", "width": 4}
+                {"color": "rgba(255,235,255,1)", "width": 4}
                 if heatmap_entry
                 else {"color": "Black", "width": 1}
             )
@@ -454,7 +455,7 @@ class PourbaixDiagramComponent(MPComponent):
             )
 
             # Generate hoverinfo
-            hovertexts = []
+            hoverlabel = []
             for ph_val, v_val, de_val in zip(
                 ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()
             ):
@@ -464,13 +465,13 @@ class PourbaixDiagramComponent(MPComponent):
                     f"V={v_val:.2f}",
                 ]
                 hovertext = "<br>".join(hovertext)
-                hovertexts.append(hovertext)
-            hovertexts = np.reshape(hovertexts, list(decomposition_e.shape))
+                hoverlabel.append(hovertext)
+            hoverlabel = np.reshape(hoverlabel, list(decomposition_e.shape))
 
             # Enforce decomposition limit energy
-            decomposition_e = np.min(
-                [decomposition_e, np.ones(decomposition_e.shape)], axis=0
-            )
+            # decomposition_e = np.min(
+            #     [decomposition_e, np.ones(decomposition_e.shape)], axis=0
+            # )
 
             heatmap_formula = unicodeify(
                 Composition(heatmap_entry.composition).reduced_formula
@@ -484,14 +485,26 @@ class PourbaixDiagramComponent(MPComponent):
                     "title": "∆G<sub>pbx</sub> (eV/atom)",
                     "titleside": "right",
                 },
-                colorscale=PourbaixDiagramComponent.colorscale,  # or magma
-                zmin=0,
-                zmax=1,
+                colorscale=[
+                    [0, "#000004"],
+                    [0.031, "#180f3d"],
+                    [0.044, "#440f76"],
+                    [0.063, "#721f81"],
+                    [0.088, "#9e2f7f"],
+                    [0.125, "#cd4071"],
+                    [0.177, "#f1605d"],
+                    [0.25, "#fd9668"],
+                    [0.354, "#feca8d"],
+                    [0.5, "#fcfdbf"],
+                    [1, "#fcfdbf"],
+                ],  # Custom Magma built exponentially rather than linearly
+                ncontours=50,
                 connectgaps=True,
                 line_smoothing=0,
                 line_width=0,
                 # contours_coloring="heatmap",
-                text=hovertexts,
+                text=hoverlabel,
+                hoverinfo="text",
                 name=f"{heatmap_formula} ({heatmap_entry.entry_id}) Heatmap",
                 showlegend=True,
             )
