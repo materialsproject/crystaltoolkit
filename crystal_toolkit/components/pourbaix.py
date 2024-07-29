@@ -334,7 +334,7 @@ class PourbaixDiagramComponent(MPComponent):
 
             if not heatmap_entry:
                 if legend_entry == "Ion" or legend_entry == "Unknown":
-                    fillcolor = "rgb(255,255,250,1)"  # same color as old website
+                    fillcolor = "rgb(255,252,255,1)"  # New purple white color
                 elif legend_entry == "Mixed Ion":
                     fillcolor = "rgb(255,255,240,1)"
                 elif legend_entry == "Solid":
@@ -356,6 +356,7 @@ class PourbaixDiagramComponent(MPComponent):
                     # legendgrouptitle={"text": legend_entry},
                     name=legend_entry,
                     text=f"{clean_formula} ({entry.entry_id})",
+                    hoverinfo = "text",
                     marker={"color": "Black"},
                     line={"color": "Black", "width": 0},
                     mode="lines",
