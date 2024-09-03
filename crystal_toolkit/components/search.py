@@ -184,7 +184,7 @@ class SearchComponent(MPComponent):
         def update_dropdown_value(results):
             if not results or "error" in results:
                 raise PreventUpdate
-            return list(results)[0]
+            return next(iter(results))
 
         @app.callback(
             Output(self.id("dropdown-container"), "style"),

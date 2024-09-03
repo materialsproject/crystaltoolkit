@@ -15,10 +15,10 @@ xrd_component = ctc.XRayDiffractionComponent(id="xrd-diffraction")
 # example layout to demonstrate capabilities of component
 page_title = H1("XRDComponent Example (Structure Added After Loading)")
 load_btn = Button("Load XRD", id="load-xrd-button")
-my_layout = Container([page_title, xrd_component.layout(), load_btn])
+layout = Container([page_title, xrd_component.layout(), load_btn])
 
 # as explained in "preamble" section in documentation
-ctc.register_crystal_toolkit(app=app, layout=my_layout)
+ctc.register_crystal_toolkit(app=app, layout=layout)
 
 
 @app.callback(Output(xrd_component.id(), "data"), Input(load_btn, "n_clicks"))

@@ -47,8 +47,6 @@ class PanelComponent(MPComponent):
         raise NotImplementedError
 
     def generate_callbacks(self, app, cache) -> None:
-        pass
-
         @app.callback(
             Output(self.id("contents"), "children"),
             Input(self.id("panel_summary"), "n_clicks"),

@@ -169,7 +169,7 @@ def get_site_scene(
 
     if connected_sites:
         # TODO: more graceful solution here
-        # if ambiguous (disordered), re-use last color used
+        # if ambiguous (disordered), reuse last color used
         site_color = color
 
         # TODO: can cause a bug if all vertices almost co-planar

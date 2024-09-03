@@ -5,7 +5,7 @@ from itertools import combinations
 from typing import Sequence
 
 import numpy as np
-from matplotlib.cm import get_cmap
+from matplotlib.pyplot import get_cmap
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import PeriodicSite
 

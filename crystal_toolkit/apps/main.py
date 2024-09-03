@@ -55,9 +55,7 @@ meta_tags = [  # TODO: add og-image, etc., title
     }
 ]
 
-print("SETTINGS")
-for setting, value in SETTINGS:
-    print(f"{setting}: {value}")
+SETTINGS.print()
 
 if not SETTINGS.ASSETS_PATH:
     warnings.warn(
@@ -175,12 +173,7 @@ if SETTINGS.MP_EMBED_MODE:
 else:
     action_div = html.Div([struct_component.download_layout()])
 
-panels = [
-    symmetry_panel,
-    localenv_panel,
-    xrd_panel,
-    robocrys_panel,
-]
+panels = [symmetry_panel, localenv_panel, xrd_panel, robocrys_panel]
 
 
 if SETTINGS.MP_EMBED_MODE:
@@ -368,7 +361,7 @@ master_layout = Container(
                                 html.Div(
                                     [
                                         html.Div(
-                                            struct_component.legend_layout(),
+                                            struct_component._sub_layouts["legend"],
                                             style={"float": "left"},
                                         ),
                                         html.Div(
@@ -398,7 +391,7 @@ master_layout = Container(
                                     id="load",
                                 ),
                                 Reveal(
-                                    [struct_component.options_layout()],
+                                    [struct_component._sub_layouts["options"]],
                                     title="Display Options",
                                     id="display-options",
                                 ),

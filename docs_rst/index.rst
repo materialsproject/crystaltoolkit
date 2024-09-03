@@ -9,6 +9,7 @@
    mp_app
    helpers
    jupyter
+   modernization
    API Docs<source/crystal_toolkit>
 
 .. include:: introduction.rst
