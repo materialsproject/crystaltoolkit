@@ -7,17 +7,16 @@ from __future__ import annotations
 
 import os
 import shutil
-from tempfile import TemporaryDirectory
-from warnings import warn
 import subprocess
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from warnings import warn
 
-import numpy as np
 from jinja2 import Environment  # TODO: add to requirements
 from matplotlib.colors import to_hex
 
-from crystal_toolkit.settings import SETTINGS, MODULE_PATH
-from crystal_toolkit.core.scene import Scene, Primitive, Spheres, Cylinders, Lines
+from crystal_toolkit.core.scene import Cylinders, Lines, Primitive, Scene, Spheres
+from crystal_toolkit.settings import MODULE_PATH, SETTINGS
 
 
 class POVRayRenderer:
@@ -39,7 +38,6 @@ class POVRayRenderer:
         current_dir = Path.cwd()
 
         with TemporaryDirectory() as temp_dir:
-
             os.chdir(temp_dir)
 
             self.write_povray_input_scene_and_settings(
@@ -89,7 +87,6 @@ class POVRayRenderer:
         """
 
         with open(scene_filename, "w") as f:
-
             scene_str = POVRayRenderer.scene_to_povray(scene)
 
             f.write(POVRayRenderer._TEMPLATES["header"])
@@ -105,11 +102,9 @@ class POVRayRenderer:
 
     @staticmethod
     def scene_to_povray(scene: Scene) -> str:
-
         povray_str = ""
 
         for item in scene.contents:
-
             if isinstance(item, Primitive):
                 povray_str += POVRayRenderer.primitive_to_povray(obj=item)
 
@@ -120,11 +115,9 @@ class POVRayRenderer:
 
     @staticmethod
     def primitive_to_povray(obj: Primitive) -> str:
-
         vect = "{:.4f},{:.4f},{:.4f}"
 
         if isinstance(obj, Spheres):
-
             positions = obj.positions
             positions = [vect.format(*pos) for pos in positions]
             color = POVRayRenderer._format_color_to_povray(obj.color)
@@ -134,7 +127,6 @@ class POVRayRenderer:
             ).render(positions=positions, radius=obj.radius, color=color)
 
         elif isinstance(obj, Cylinders):
-
             position_pairs = [
                 [vect.format(*ipos), vect.format(*fpos)]
                 for ipos, fpos in obj.positionPairs

@@ -1,12 +1,7 @@
-from fileinput import filename
 from pathlib import Path
 
 import rich_click as click
-from pygments.lexer import default
-
 from tqdm import tqdm
-
-from crystal_toolkit.apps.examples.utils import load_and_store_matbench_dataset
 
 
 @click.group()
@@ -17,11 +12,8 @@ def cli():
 @cli.command()
 @click.argument("input", required=True)
 def render(input):
-
-    import crystal_toolkit
-
-    from pymatgen.core.structure import Structure
     from pymatgen.analysis.local_env import CrystalNN
+    from pymatgen.core.structure import Structure
 
     from crystal_toolkit.core.scene import Scene
     from crystal_toolkit.helpers.povray.renderer import POVRayRenderer
@@ -57,5 +49,6 @@ def render(input):
     for path, scene in tqdm(scenes.items(), desc="Rendering scenes"):
         r.write_scene_to_file(scene, filename=f"{path.stem}.png")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cli()

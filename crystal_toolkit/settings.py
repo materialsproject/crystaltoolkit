@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal, Optional
 from shutil import which
+from typing import Literal, Optional
 
 from pydantic import Field, HttpUrl, RedisDsn
 
@@ -107,7 +107,7 @@ class Settings(BaseSettings):
 
     POVRAY_PATH: Optional[str] = Field(
         default=which("povray") or "/opt/homebrew/bin/povray",
-        help="Path to POV-Ray binary. Tested with 3.7.0.10.unofficial via `brew install povray` on macOS."
+        help="Path to POV-Ray binary. Tested with 3.7.0.10.unofficial via `brew install povray` on macOS.",
     )
 
     # Materials Project API settings.
