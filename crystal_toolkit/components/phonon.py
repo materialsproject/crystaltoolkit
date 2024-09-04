@@ -364,9 +364,18 @@ class PhononBandstructureAndDosComponent(MPComponent):
             "Number of bands": f"{bs.nb_bands:,}",
             "Number of q-points": f"{bs.nb_qpoints:,}",
             # for NAC see https://phonopy.github.io/phonopy/formulation.html#non-analytical-term-correction
-            "Has NAC (see phonopy docs)": bs.has_nac,
-            "Has imaginary frequencies": bs.has_imaginary_freq(),
-            "Has eigen-displacements": bs.has_eigendisplacements,
+            Label(
+                [
+                    "Has ",
+                    html.A(
+                        "NAC",
+                        href="https://phonopy.github.io/phonopy/formulation.html#non-analytical-term-correction",
+                        target="blank",
+                    ),
+                ]
+            ): "Yes" if bs.has_nac else "No",
+            "Has imaginary frequencies": "Yes" if bs.has_imaginary_freq() else "No",
+            "Has eigen-displacements": "Yes" if bs.has_eigendisplacements else "No",
             "Min frequency": min_freq_report,
             "max frequency": f"{max(dos.frequencies):.2f} THz",
         }
