@@ -31,12 +31,10 @@ class _JupyterRenderer:
 
     @staticmethod
     def _find_available_port():
-        """
-        Find an available port.
+        """Find an available port.
 
         Thank you Mihai Capotă, https://stackoverflow.com/a/61685162
         """
-
         import socketserver
 
         with socketserver.TCPServer(("localhost", 0), None) as s:
@@ -46,10 +44,7 @@ class _JupyterRenderer:
     # check docs about proxy settings
 
     def run(self, layout):
-        """
-        Run Dash app.
-        """
-
+        """Run Dash app."""
         app = Dash(plugins=[CrystalToolkitPlugin(layout=layout)])
 
         port = SETTINGS.JUPYTER_EMBED_PORT or self._find_available_port()
@@ -63,10 +58,7 @@ class _JupyterRenderer:
             app.run(port=free_port, jupyter_mode=SETTINGS.JUPYTER_EMBED_MODE)
 
     def display(self, obj):
-        """
-        Display a provided object.
-        """
-
+        """Display a provided object."""
         for kls, component in self.registry.items():
             if isinstance(obj, kls):
                 layout = ctl.Block(
@@ -79,25 +71,19 @@ class _JupyterRenderer:
 
 
 def _to_plotly_json(self):
-    """
-    Patch to ensure MSONable objects can be serialized into JSON by plotly tools.
-    """
+    """Patch to ensure MSONable objects can be serialized into JSON by plotly tools."""
     return self.as_dict()
 
 
 def _display_json(self, **kwargs):
-    """
-    Display JSON representation of an MSONable object inside Jupyter.
-    """
+    """Display JSON representation of an MSONable object inside Jupyter."""
     from IPython.display import JSON
 
     JSON(self.as_dict(), **kwargs)
 
 
 def _repr_mimebundle_(self, include=None, exclude=None):
-    """
-    Method used by Jupyter. A default for MSONable objects to return JSON representation.
-    """
+    """Method used by Jupyter. A default for MSONable objects to return JSON representation."""
     return {
         "application/json": self.as_dict(),
         "text/plain": repr(self),
@@ -105,9 +91,7 @@ def _repr_mimebundle_(self, include=None, exclude=None):
 
 
 def _ipython_display_(self):
-    """
-    Display MSONable objects using a Crystal Toolkit component, if available.
-    """
+    """Display MSONable objects using a Crystal Toolkit component, if available."""
     from IPython.display import publish_display_data
 
     if any(isinstance(self, x) for x in _JupyterRenderer.registry):
@@ -140,11 +124,9 @@ def _ipython_display_(self):
 
 
 def patch_msonable():
-    """
-    Patch MSONable to allow MSONable objects to render in Jupyter
+    """Patch MSONable to allow MSONable objects to render in Jupyter
     environments using Crystal Toolkit components.
     """
-
     from monty.json import MSONable
 
     MSONable.to_plotly_json = _to_plotly_json

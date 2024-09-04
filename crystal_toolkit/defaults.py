@@ -1,4 +1,5 @@
 """Populate the default values from the JSON file."""
+
 from __future__ import annotations
 
 import json

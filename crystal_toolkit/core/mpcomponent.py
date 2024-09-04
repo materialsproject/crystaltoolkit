@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 CT_NAMESPACE = "CT"
 
 
-class MPComponent(ABC):
+class MPComponent(ABC):  # noqa: B024
     """The abstract base class for an MPComponent.
 
     MPComponent is designed to help render an MSONable object.
@@ -430,7 +430,6 @@ Sub-layouts:  \n{layouts}"""
 
         # arrange the input boxes in two dimensions (rows, columns)
         matrix_div_contents = []
-        print("matrix_contents", matrix_contents)
         for column_idx in sorted(matrix_contents):
             row = [
                 matrix_contents[column_idx][row_idx]

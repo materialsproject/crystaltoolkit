@@ -503,8 +503,8 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
             Output(self.id("large_cell_note"), "children"),
             Input(self.id("structure"), "data"),
         )
-        def update_message(structure):
-            if len(self.from_data(structure).sites) < SITES_LIMIT:
+        def update_message(structure: Structure | None):
+            if structure is None or len(self.from_data(structure).sites) < SITES_LIMIT:
                 return html.Div([])
             return MessageContainer(
                 MessageBody(
