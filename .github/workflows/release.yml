@@ -15,13 +15,13 @@ jobs:
         python-version: ["3.10"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.PAT }}
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
@@ -29,7 +29,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python${{ matrix.python-version }} -m pip install --upgrade pip packaging wheel build
+          python${{ matrix.python-version }} -m pip install --upgrade pip packaging wheel build cython setuptools
           python${{ matrix.python-version }} -m pip install `grep numpy== requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
           python${{ matrix.python-version }} -m pip install -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
           python${{ matrix.python-version }} -m pip install --upgrade pip

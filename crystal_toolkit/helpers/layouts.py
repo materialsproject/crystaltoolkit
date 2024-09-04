@@ -244,7 +244,6 @@ class Button(html.Button):
         rounded: bool = False,
         loading: bool = False,
         static: bool = False,
-        disabled: bool = False,
         **kwargs,
     ) -> None:
         """The button is an essential element of any design. It's meant to look and behave as an interactive element of your page.
@@ -261,7 +260,6 @@ class Button(html.Button):
         _update_css_class(kwargs, "is-rounded", rounded)
         _update_css_class(kwargs, "is-loading", loading)
         _update_css_class(kwargs, "is-static", static)
-        _update_css_class(kwargs, "is-disabled", disabled)
         super().__init__(*args, **kwargs)
 
 
