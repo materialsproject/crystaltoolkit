@@ -48,6 +48,9 @@ test = ["playwright", "pytest", "pytest-playwright"]
 repo = "https://github.com/materialsproject/crystaltoolkit"
 docs = "https://docs.crystaltoolkit.org"
 
+[project.scripts]
+ctk = "crystal_toolkit.cli.cli:cli"
+
 [tool.setuptools.packages.find]
 exclude = ["docs_rst"]
 

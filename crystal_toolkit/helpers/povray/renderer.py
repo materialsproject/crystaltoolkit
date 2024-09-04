@@ -47,7 +47,7 @@ class POVRayRenderer:
             )
             self.call_povray()
 
-            shutil.copy("crystal_toolkit_scene.png", filename)
+            shutil.copy("crystal_toolkit_scene.png", current_dir / filename)
 
         os.chdir(current_dir)
 
