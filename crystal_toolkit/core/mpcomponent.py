@@ -430,7 +430,6 @@ Sub-layouts:  \n{layouts}"""
 
         # arrange the input boxes in two dimensions (rows, columns)
         matrix_div_contents = []
-        print("matrix_contents", matrix_contents)
         for column_idx in sorted(matrix_contents):
             row = [
                 matrix_contents[column_idx][row_idx]
