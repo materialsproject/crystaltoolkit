@@ -20,4 +20,4 @@ def test_main_app_startup(dash_duo: DashDuo):
     dash_duo.take_snapshot("main_app_startup-layout")
 
     logs = dash_duo.get_logs()
-    assert logs is None, f"Unexpected browser {logs=}"
+    assert not logs, f"Unexpected browser {logs=}"
