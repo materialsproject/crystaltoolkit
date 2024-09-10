@@ -10,46 +10,42 @@ import shutil
 import subprocess
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import ClassVar
 from warnings import warn
 
 from jinja2 import Environment  # TODO: add to requirements
 from matplotlib.colors import to_hex
+import numpy as np
 
 from crystal_toolkit.core.scene import Cylinders, Lines, Primitive, Scene, Spheres
 from crystal_toolkit.settings import MODULE_PATH, SETTINGS
 
 
 class POVRayRenderer:
-    """
-    A class to interface with the POV-Ray command line tool (ray tracer).
-    """
+    """A class to interface with the POV-Ray command line tool (ray tracer)."""
 
-    _TEMPLATES = {
+    _TEMPLATES: ClassVar[dict[str, str]] = {
         path.stem: path.read_text()
         for path in (MODULE_PATH / "helpers" / "povray" / "templates").glob("*")
     }
-    _ENV = Environment()
+    _ENV: ClassVar[Environment] = Environment()
 
-    def write_scene_to_file(self, scene: Scene, filename: str | Path):
-        """
-        Render a Scene to a PNG file using POV-Ray.
-        """
-
+    @staticmethod
+    def write_scene_to_file(scene: Scene, filename: str | Path):
+        """Render a Scene to a PNG file using POV-Ray."""
         current_dir = Path.cwd()
 
         with TemporaryDirectory() as temp_dir:
             os.chdir(temp_dir)
 
-            self.write_povray_input_scene_and_settings(
+            POVRayRenderer.write_povray_input_scene_and_settings(
                 scene, image_filename="crystal_toolkit_scene.png"
             )
-            self.call_povray()
+            POVRayRenderer.call_povray()
 
             shutil.copy("crystal_toolkit_scene.png", current_dir / filename)
 
         os.chdir(current_dir)
-
-        return
 
     @staticmethod
     def call_povray(
@@ -61,19 +57,14 @@ class POVRayRenderer:
         """
 
         povray_args = [povray_path, *povray_args]
+        result = subprocess.run(povray_args, capture_output=True, text=True)
 
-        with subprocess.Popen(
-            povray_args,
-            stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            close_fds=True,
-        ) as proc:
-            stdout, stderr = proc.communicate()
-            if proc.returncode != 0:
-                raise RuntimeError(
-                    f"{povray_path} exit code: {proc.returncode}, error: {stderr!s}."
-                    f"\nstdout: {stdout!s}. Please check your POV-Ray installation."
-                )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"{povray_path} exit code: {result.returncode}."
+                f"Please check your POV-Ray installation."
+                f"\nStdout:\n\n{result.stdout}\n\nStderr:\n\n{result.stderr}"
+            )
 
     @staticmethod
     def write_povray_input_scene_and_settings(
@@ -90,7 +81,7 @@ class POVRayRenderer:
             scene_str = POVRayRenderer.scene_to_povray(scene)
 
             f.write(POVRayRenderer._TEMPLATES["header"])
-            f.write(POVRayRenderer._TEMPLATES["camera"])
+            f.write(POVRayRenderer._get_camera_for_scene(scene))
             f.write(POVRayRenderer._TEMPLATES["lights"])
             f.write(scene_str)
 
@@ -115,6 +106,7 @@ class POVRayRenderer:
 
     @staticmethod
     def primitive_to_povray(obj: Primitive) -> str:
+
         vect = "{:.4f},{:.4f},{:.4f}"
 
         if isinstance(obj, Spheres):
@@ -156,11 +148,31 @@ class POVRayRenderer:
                 f"Skipping {type(obj)}, not yet implemented. Submit PR to add support."
             )
 
+        return ""
+
     @staticmethod
     def _format_color_to_povray(color: str) -> str:
+        """Convert a matplotlib-compatible color string to a POV-Ray color string."""
         vect = "{:.4f},{:.4f},{:.4f}"
         color = to_hex(color)
         color = color.replace("#", "")
         color = tuple(int(color[i : i + 2], 16) / 255.0 for i in (0, 2, 4))
-        color = f"rgb<{vect.format(*color)}>"
-        return color
+        return f"rgb<{vect.format(*color)}>"
+
+    @staticmethod
+    def _get_camera_for_scene(scene: Scene) -> str:
+        """Creates a camera in POV-Ray format for a given scene with respect to its bounding box."""
+
+        bounding_box = scene.bounding_box  # format is [min_corner, max_corner]
+        center = (np.array(bounding_box[0]) + bounding_box[1]) / 2
+        size = np.array(bounding_box[1]) - bounding_box[0]
+        camera_pos = center + np.array([0, 0, 1.2 * size[2]])
+
+        return f"""
+camera {{
+   orthographic
+   location <{camera_pos[0]:.4f}, {camera_pos[1]:.4f}, {camera_pos[2]:.4f}>
+   look_at <{center[0]:.4f}, {center[1]:.4f}, {center[2]:.4f}>
+   sky <0, 0, 1>
+}}
+"""
