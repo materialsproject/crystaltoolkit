@@ -13,9 +13,9 @@ from tempfile import TemporaryDirectory
 from typing import ClassVar
 from warnings import warn
 
+import numpy as np
 from jinja2 import Environment  # TODO: add to requirements
 from matplotlib.colors import to_hex
-import numpy as np
 
 from crystal_toolkit.core.scene import Cylinders, Lines, Primitive, Scene, Spheres
 from crystal_toolkit.settings import MODULE_PATH, SETTINGS
@@ -57,7 +57,9 @@ class POVRayRenderer:
         """
 
         povray_args = [povray_path, *povray_args]
-        result = subprocess.run(povray_args, capture_output=True, text=True)
+        result = subprocess.run(
+            povray_args, capture_output=True, text=True, check=False
+        )
 
         if result.returncode != 0:
             raise RuntimeError(
@@ -106,7 +108,6 @@ class POVRayRenderer:
 
     @staticmethod
     def primitive_to_povray(obj: Primitive) -> str:
-
         vect = "{:.4f},{:.4f},{:.4f}"
 
         if isinstance(obj, Spheres):
