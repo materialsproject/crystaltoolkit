@@ -25,7 +25,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.scene import Scene
-from crystal_toolkit.helpers.layouts import H2, Field, dcc, html, Loading
+from crystal_toolkit.helpers.layouts import H2, Field, Loading, dcc, html
 from crystal_toolkit.settings import SETTINGS
 
 # TODO: make dangling bonds "stubs"? (fixed length)
