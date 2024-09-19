@@ -1104,7 +1104,7 @@ ypy-websocket==0.8.4
     # via jupyter-server-ydoc
 zict==3.0.0
     # via distributed
-zipp==3.20.1
+zipp==3.19.1
     # via importlib-metadata
 zope-event==5.0
     # via gevent
