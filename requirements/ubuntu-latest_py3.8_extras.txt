@@ -401,7 +401,7 @@ jupyterlab-pygments==0.2.2
     # via nbconvert
 jupyterlab-server==2.25.0
     # via jupyterlab
-jupyterlab-widgets==3.0.9
+jupyterlab-widgets==3.0.13
     # via ipywidgets
 kaleido==0.2.1
     # via crystal-toolkit (pyproject.toml)
