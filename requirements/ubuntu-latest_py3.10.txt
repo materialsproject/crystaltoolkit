@@ -205,7 +205,7 @@ jupyter-ydoc==0.2.5
     # via
     #   jupyter-server-ydoc
     #   jupyterlab
-jupyterlab==3.6.8
+jupyterlab==4.2.5
     # via crystaltoolkit-extension
 jupyterlab-pygments==0.3.0
     # via nbconvert
