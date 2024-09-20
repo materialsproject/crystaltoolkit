@@ -8,7 +8,7 @@ aiofiles==22.1.0
     # via ypy-websocket
 aiohappyeyeballs==2.4.0
     # via aiohttp
-aiohttp==3.10.5
+aiohttp==3.10.2
     # via dephell
 aioitertools==0.12.0
     # via maggma
@@ -69,7 +69,7 @@ beautifulsoup4==4.12.3
     #   dash
     #   gdown
     #   nbconvert
-black==24.8.0
+black==24.3.0
     # via crystal_toolkit (pyproject.toml)
 bleach==6.1.0
     # via nbconvert
@@ -87,7 +87,7 @@ cachelib==0.9.0
     # via flask-caching
 cerberus==1.3.5
     # via dephell
-certifi==2024.8.30
+certifi==2024.7.4
     # via
     #   dephell
     #   netcdf4
@@ -294,7 +294,7 @@ hiphive==1.3.1
     # via crystal_toolkit (pyproject.toml)
 identify==2.6.1
     # via pre-commit
-idna==3.10
+idna==3.7
     # via
     #   anyio
     #   jsonschema
@@ -401,7 +401,7 @@ jupyter-events==0.10.0
     # via
     #   jupyter-server
     #   jupyter-server-fileid
-jupyter-server==2.14.2
+jupyter-server==2.11.2
     # via
     #   jupyter-server-fileid
     #   jupyterlab
@@ -648,7 +648,7 @@ pexpect==4.9.0
     #   ipython
 phonopy==2.28.0
     # via crystal_toolkit (pyproject.toml)
-pillow==10.4.0
+pillow==10.3.0
     # via
     #   imageio
     #   matplotlib
@@ -731,7 +731,7 @@ pygments==2.18.0
     #   sphinx
 pylops==2.3.1
     # via py4dstem
-pymatgen==2024.8.9
+pymatgen==2024.2.20
     # via
     #   crystal_toolkit (pyproject.toml)
     #   emmet-core
@@ -739,7 +739,7 @@ pymatgen==2024.8.9
     #   matminer
     #   mp-api
     #   robocrys
-pymongo==4.9.1
+pymongo==4.6.3
     # via
     #   maggma
     #   matminer
@@ -860,7 +860,7 @@ scikit-image==0.24.0
     #   crystal_toolkit (pyproject.toml)
     #   ifermi
     #   py4dstem
-scikit-learn==1.5.2
+scikit-learn==1.5.0
     # via
     #   crystal_toolkit (pyproject.toml)
     #   dscribe
@@ -1012,7 +1012,7 @@ tornado==6.4.1
     #   jupyterlab
     #   notebook
     #   terminado
-tqdm==4.66.5
+tqdm==4.66.3
     # via
     #   emdfile
     #   gdown
@@ -1101,7 +1101,7 @@ webencodings==0.5.1
     #   tinycss2
 websocket-client==1.8.0
     # via jupyter-server
-werkzeug==3.0.4
+werkzeug==3.0.3
     # via
     #   dash
     #   flask
@@ -1121,7 +1121,7 @@ ypy-websocket==0.8.4
     # via jupyter-server-ydoc
 zict==3.0.0
     # via distributed
-zipp==3.20.2
+zipp==3.19.1
     # via
     #   importlib-metadata
     #   importlib-resources
