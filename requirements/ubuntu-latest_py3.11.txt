@@ -442,7 +442,7 @@ s3transfer==0.10.2
     # via boto3
 scikit-image==0.24.0
     # via crystal_toolkit (pyproject.toml)
-scikit-learn==1.5.0
+scikit-learn==1.5.2
     # via crystal_toolkit (pyproject.toml)
 scipy==1.14.1
     # via

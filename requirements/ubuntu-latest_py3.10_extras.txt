@@ -851,7 +851,7 @@ scikit-image==0.24.0
     #   crystal_toolkit (pyproject.toml)
     #   ifermi
     #   py4dstem
-scikit-learn==1.5.0
+scikit-learn==1.5.2
     # via
     #   crystal_toolkit (pyproject.toml)
     #   dscribe
