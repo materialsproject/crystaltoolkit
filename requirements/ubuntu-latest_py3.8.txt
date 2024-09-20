@@ -536,7 +536,7 @@ y-py==0.6.2
     #   ypy-websocket
 ypy-websocket==0.8.4
     # via jupyter-server-ydoc
-zipp==3.19.1
+zipp==3.20.2
     # via
     #   importlib-metadata
     #   importlib-resources
