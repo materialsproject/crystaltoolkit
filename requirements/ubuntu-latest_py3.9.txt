@@ -68,7 +68,7 @@ crystaltoolkit-extension==0.6.0
     # via crystal_toolkit (pyproject.toml)
 cycler==0.12.1
     # via matplotlib
-dash==2.15.0
+dash==2.18.1
     # via crystal_toolkit (pyproject.toml)
 dash-core-components==2.0.0
     # via dash
@@ -425,7 +425,7 @@ referencing==0.35.1
     #   jsonschema
     #   jsonschema-specifications
     #   jupyter-events
-requests==2.32.2
+requests==2.32.3
     # via
     #   dash
     #   jupyterlab-server
