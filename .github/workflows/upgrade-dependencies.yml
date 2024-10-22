@@ -5,7 +5,7 @@ on:
   workflow_dispatch: # Allow running on-demand
   schedule:
     # Runs every Monday at 8:00 UTC (4:00 Eastern)
-    - cron: '0 8 * * 1'
+    - cron: "0 8 * * 1"
 
 jobs:
   upgrade:
@@ -13,8 +13,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest']
-        python-version: ["3.9", "3.10", "3.11"]
+        os: ["ubuntu-latest"]
+        python-version: ["3.10", "3.11"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          cache: "pip"
       - name: Upgrade Python dependencies
         shell: bash
         run: |
@@ -52,7 +52,7 @@ jobs:
     needs: upgrade
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.11"]
     steps:
       - uses: actions/checkout@v4
         with:
