@@ -18,7 +18,7 @@ dependencies = [
     "frozendict",
     "mp-api",
     "pydantic-settings",
-    "pymatgen",
+    "pymatgen>=2024.10.22",
     "scikit-image",
     "scikit-learn",
     "shapely",
