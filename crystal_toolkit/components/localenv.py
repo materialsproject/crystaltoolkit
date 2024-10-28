@@ -21,7 +21,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
 )
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
-from pymatgen.analysis.local_env import LocalStructOrderParams, CN_OPT_PARAMS
+from pymatgen.analysis.local_env import CN_OPT_PARAMS, LocalStructOrderParams
 from pymatgen.core import Molecule, Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.ase import AseAtomsAdaptor
