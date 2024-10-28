@@ -372,7 +372,7 @@ jsonschema[format-nongpl]==4.23.0
     #   nbformat
 jsonschema-specifications==2024.10.1
     # via jsonschema
-jupyter-client==7.4.9
+jupyter-client==8.6.3
     # via
     #   ipykernel
     #   jupyter-server
