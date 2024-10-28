@@ -4,7 +4,7 @@
 #
 #    pip-compile --all-extras --output-file=requirements/ubuntu-latest_py3.11_extras.txt pyproject.toml
 #
-aiofiles==22.1.0
+aiofiles==24.1.0
     # via ypy-websocket
 aiohappyeyeballs==2.4.3
     # via aiohttp
