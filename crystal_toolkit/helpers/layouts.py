@@ -687,7 +687,7 @@ class Breadcrumb(html.Nav):
         ]
 
         kwargs["aria-label"] = "breadcrumbs"
-        super(links).__init__(**kwargs)
+        super().__init__(links, **kwargs)
 
 
 class Card(html.Div):
