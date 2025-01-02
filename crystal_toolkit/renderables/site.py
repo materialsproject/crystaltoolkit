@@ -90,7 +90,7 @@ def get_site_scene(
 
     radii = [legend.get_radius(sp, site=self) for sp in self.species]
     max_radius = float(min(radii))
-    
+
     rscale_factor = 0.996
     rscale = 1.0
 
