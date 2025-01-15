@@ -92,7 +92,7 @@ def get_volumetric_scene(
         vol_data = vol_data / self.structure.volume
     if normalization == "vesta":
         vol_data = vol_data / _ANGS2_TO_BOHR3
-    
+
     iso_scene = get_isosurface_scene(
         data=vol_data,
         lattice=self.structure.lattice,
