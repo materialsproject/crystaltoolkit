@@ -13,6 +13,7 @@ def test_files():
     """The path to the test_files directory."""
     return Path(__file__).parent / "test_files"
 
+
 @pytest.fixture(scope="session")
 def example_apps():
     """Return each `app` object defined in the files in the example_apps directory."""
