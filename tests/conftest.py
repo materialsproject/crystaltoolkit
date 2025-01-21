@@ -15,6 +15,14 @@ def test_files():
 
 
 @pytest.fixture(scope="session")
+def example_apps():
+    """Return each `app` object defined in the files in the example_apps directory."""
+    examples_dir = Path(__file__).parent.parent / "example_apps"
+    files = examples_dir.glob("*.py")
+    return [file for file in files]
+
+
+@pytest.fixture(scope="session")
 def standard_scenes():
     """Dictionary of standard scenes for testing purposes."""
     return {
