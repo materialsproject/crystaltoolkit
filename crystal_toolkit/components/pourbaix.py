@@ -8,13 +8,18 @@ from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from frozendict import frozendict
-from pymatgen.analysis.pourbaix_diagram import ELEMENTS_HO, PREFAC, PourbaixDiagram
-from pymatgen.core import Composition
+from pymatgen.analysis.pourbaix_diagram import PREFAC, PourbaixDiagram
+from pymatgen.core import Composition, Element
 from pymatgen.util.string import unicodeify
 from shapely.geometry import Polygon
 
 import crystal_toolkit.helpers.layouts as ctl
 from crystal_toolkit.core.mpcomponent import MPComponent
+
+try:
+    from pymatgen.analysis.pourbaix_diagram import ELEMENTS_HO
+except ImportError:
+    ELEMENTS_HO = {Element("H"), Element("O")}
 
 __author__ = "Joseph Montoya"
 __email__ = "joseph.montoya@tri.global"
