@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from shutil import which
 from typing import Literal, Optional
 
 from pydantic import Field, HttpUrl, RedisDsn
@@ -100,6 +101,13 @@ class Settings(BaseSettings):
     LEGEND_UNIFORM_RADIUS: float = Field(
         default=0.5,
         help="Default radius for displaying atoms when uniform radii are chosen.",
+    )
+
+    # Renderer settings. These control settings for any additional renderers like POV-Ray and Asymptote.
+
+    POVRAY_PATH: Optional[str] = Field(
+        default=which("povray") or "/opt/homebrew/bin/povray",
+        help="Path to POV-Ray binary. Tested with 3.7.0.10.unofficial via `brew install povray` on macOS.",
     )
 
     # Materials Project API settings.
