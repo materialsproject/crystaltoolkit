@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/ubuntu-latest_py3.11.txt pyproject.toml
 #
-aiofiles==22.1.0
+aiofiles==24.1.0
     # via ypy-websocket
 aioitertools==0.12.0
     # via maggma
