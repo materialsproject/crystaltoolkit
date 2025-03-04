@@ -624,12 +624,14 @@ def hook_up_fig_with_struct_viewer(
         Input(graph, "hoverData"),
         Input(graph, "clickData"),
         State(hover_click_dd, "value"),
+        State(graph, "figure"),
     )
     def update_structure(
         hover_data: dict[str, list[dict[str, Any]]],
         click_data: dict[str, list[dict[str, Any]]],  # needed only as callback trigger
         dropdown_value: str,
-    ) -> tuple[Structure, str, go.Figure] | tuple[None, None, None]:
+        fig: dict[str, Any],
+    ) -> tuple[Structure, str, dict[str, Any]] | tuple[None, None, None]:
         """Update StructureMoleculeComponent with pymatgen structure when user clicks or
         hovers a plot point.
         """
@@ -651,13 +653,20 @@ def hook_up_fig_with_struct_viewer(
         struct_title = f"{material_id} ({struct.formula})"
 
         if highlight_selected is not None:
-            # remove existing annotations with name="selected"
-            fig.layout.annotations = [
-                anno for anno in fig.layout.annotations if anno.name != "selected"
+            # Update annotations directly in the dictionary
+            fig["layout"].setdefault("annotations", [])
+
+            # Remove existing annotations with name="selected"
+            fig["layout"]["annotations"] = [
+                anno
+                for anno in fig["layout"]["annotations"]
+                if anno.get("name") != "selected"
             ]
-            # highlight selected point in figure
+
+            # Add new annotation to highlight selected point
             anno = highlight_selected(hover_data["points"][0])
-            fig.add_annotation(**anno, name="selected")
+            anno["name"] = "selected"
+            fig["layout"]["annotations"].append(anno)
 
         return struct, struct_title, fig
 
