@@ -275,7 +275,7 @@ networkx==3.4.2
     # via
     #   pymatgen
     #   scikit-image
-notebook==6.5.7
+notebook==7.2.2
     # via jupyterlab
 notebook-shim==0.2.4
     # via nbclassic
