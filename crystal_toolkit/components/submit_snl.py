@@ -115,8 +115,8 @@ class SubmitSNLPanel(PanelComponent):
             description = dcc.Markdown(
                 f"""
 > **Structure to upload:** {structure.composition.reduced_formula} ({len(structure)} sites)
-> **Name:** {contents['first_name']} {contents['last_name']}
-> **Email:** {contents['email']}
+> **Name:** {contents["first_name"]} {contents["last_name"]}
+> **Email:** {contents["email"]}
 > **Comment:** {comments}
 
 This information is stored so that we can give credit to you on the Materials
