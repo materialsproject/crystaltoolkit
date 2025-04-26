@@ -56,7 +56,7 @@ class StructureMoleculeComponent(MPComponent):
     """
 
     available_bonding_strategies=frozendict{**{subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}, 'LobsterNeighbors': LobsterNeighbors}
-    
+
     default_scene_settings = frozendict(
         extractAxis=True,
         # For visual diff testing, we change the renderer to SVG since this WebGL
