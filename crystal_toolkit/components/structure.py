@@ -55,7 +55,7 @@ class StructureMoleculeComponent(MPComponent):
     objects.
     """
 
-    available_bonding_strategies={**{subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}, 'LobsterNeighbors': LobsterNeighbors}
+    available_bonding_strategies=frozendict{**{subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}, 'LobsterNeighbors': LobsterNeighbors}
     
     default_scene_settings = frozendict(
         extractAxis=True,
