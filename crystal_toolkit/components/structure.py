@@ -54,10 +54,9 @@ class StructureMoleculeComponent(MPComponent):
     objects.
     """
 
-    available_bonding_strategies = frozendict(
-        {subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}
-    )
-
+    from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
+    available_bonding_strategies={**{subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}, 'LobsterNeighbors': LobsterNeighbors}
+    
     default_scene_settings = frozendict(
         extractAxis=True,
         # For visual diff testing, we change the renderer to SVG since this WebGL
@@ -966,6 +965,7 @@ class StructureMoleculeComponent(MPComponent):
             valid_bond_strategies = (
                 StructureMoleculeComponent.available_bonding_strategies
             )
+            
             if bonding_strategy not in valid_bond_strategies:
                 raise ValueError(
                     "Bonding strategy not supported. Please supply a name of a NearNeighbor "
