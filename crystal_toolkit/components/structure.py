@@ -965,7 +965,7 @@ class StructureMoleculeComponent(MPComponent):
             valid_bond_strategies = (
                 StructureMoleculeComponent.available_bonding_strategies
             )
-            
+
             if bonding_strategy not in valid_bond_strategies:
                 raise ValueError(
                     "Bonding strategy not supported. Please supply a name of a NearNeighbor "
