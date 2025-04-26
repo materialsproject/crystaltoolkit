@@ -19,6 +19,7 @@ from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core import Composition, Molecule, Species, Structure
 from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -54,7 +55,6 @@ class StructureMoleculeComponent(MPComponent):
     objects.
     """
 
-    from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
     available_bonding_strategies={**{subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}, 'LobsterNeighbors': LobsterNeighbors}
     
     default_scene_settings = frozendict(
