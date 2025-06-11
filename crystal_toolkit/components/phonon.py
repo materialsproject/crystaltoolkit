@@ -478,7 +478,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             max(dos_traces[0]["x"]),
             abs(min(dos_traces[0]["x"])),
         ]
-        if len(dos_traces) > 1 and "x" in dos_traces[1] and dos_traces[1]["x"]:
+        if len(dos_traces) > 1 and "x" in dos_traces[1] and dos_traces[1]["x"].any():
             rmax_list += [
                 max(dos_traces[1]["x"]),
                 abs(min(dos_traces[1]["x"])),
