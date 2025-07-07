@@ -207,7 +207,7 @@ class XRayDiffractionComponent(MPComponent):
             help_str="This defines the wavelength of the incident X-ray radiation.",
             options=[
                 {
-                    "label": f'{name.replace("a", "α").replace("b", "β")} ({wavelength:.3f} Å)',  # noqa: RUF001
+                    "label": f"{name.replace('a', 'α').replace('b', 'β')} ({wavelength:.3f} Å)",  # noqa: RUF001
                     "value": name,
                 }
                 for name, wavelength in WAVELENGTHS.items()
