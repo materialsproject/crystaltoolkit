@@ -197,6 +197,8 @@ def get_structure_graph_scene(
             explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
             legend=legend,
             bond_radius=bond_radius,
+            site_idx=idx,
+            show_atom_idx=True,
             **(site_get_scene_kwargs or {}),
         )
 
@@ -217,6 +219,23 @@ def get_structure_graph_scene(
 
     primitives["unit_cell"].append(self.structure.lattice.get_scene())
 
+    """
+    ss = Scene(
+        name="StructureGraph",
+        origin=origin,
+        contents=[
+            Scene(name=key, contents=val, origin=origin)
+            for key, val in primitives.items()
+        ],
+    )
+    print(id(ss))
+    print(ss.contents[1])
+    print(ss.contents[1].contents[0]._meta)
+    print(ss)
+
+    return(ss)
+    """
+    
     # why primitives comprehension? just make explicit! more readable
     return Scene(
         name="StructureGraph",
@@ -226,6 +245,7 @@ def get_structure_graph_scene(
             for key, val in primitives.items()
         ],
     )
+    
 
 
 StructureGraph._get_sites_to_draw = _get_sites_to_draw
