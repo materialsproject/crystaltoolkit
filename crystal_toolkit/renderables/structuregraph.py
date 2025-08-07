@@ -218,7 +218,7 @@ def get_structure_graph_scene(
         primitives["atoms"] = atoms_scenes
 
     primitives["unit_cell"].append(self.structure.lattice.get_scene())
-    
+
     # why primitives comprehension? just make explicit! more readable
     return Scene(
         name="StructureGraph",
@@ -228,7 +228,6 @@ def get_structure_graph_scene(
             for key, val in primitives.items()
         ],
     )
-    
 
 
 StructureGraph._get_sites_to_draw = _get_sites_to_draw
