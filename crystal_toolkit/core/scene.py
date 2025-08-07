@@ -273,7 +273,6 @@ class Ellipsoids(Primitive):
                 ]
             )
         )
-        
 
         return cls(
             positions=new_positions,
@@ -333,7 +332,7 @@ class Cylinders(Primitive):
             visible=cylinder_list[0].visible,
             clickable=cylinder_list[0].clickable,
             tooltip=cylinder_list[0].tooltip,
-            _meta=new_meta_list
+            _meta=new_meta_list,
         )
 
     @property
