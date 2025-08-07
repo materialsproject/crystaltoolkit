@@ -67,13 +67,13 @@ class Scene:
             lattice=self.lattice,
             _meta={self.name: self._meta, other.name: other._meta},
         )
-    
-    # def _repr_mimebundle_(self, include=None, exclude=None):
-    #     """Render Scenes using crystaltoolkit-extension for Jupyter Lab."""
-    #     return {
-    #         "application/vnd.mp.ctk+json": self.to_json(),
-    #         "text/plain": repr(self),
-    #     }
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        """Render Scenes using crystaltoolkit-extension for Jupyter Lab."""
+        return {
+            "application/vnd.mp.ctk+json": self.to_json(),
+            "text/plain": repr(self),
+        }
 
     def to_json(self):
         """Convert a Scene into JSON. It will implicitly assume all None values means that attribute
@@ -149,6 +149,7 @@ class Scene:
         """
         mergeable = defaultdict(list)
         remainder = []
+
         for primitive in primitives:
             if isinstance(primitive, Scene):
                 primitive.contents = Scene.merge_primitives(primitive.contents)
@@ -213,7 +214,6 @@ class Spheres(Primitive):
             visible=sphere_list[0].visible,
             clickable=sphere_list[0].clickable,
             tooltip=sphere_list[0].tooltip,
-            _meta=sphere_list[0]._meta,
         )
 
 
@@ -320,10 +320,6 @@ class Cylinders(Primitive):
             chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
         )
 
-        new_meta_list = list(
-            chain.from_iterable([[cylinder._meta] for cylinder in cylinder_list])
-        )
-
         return cls(
             positionPairs=new_positionPairs,
             color=cylinder_list[0].color,
@@ -331,7 +327,6 @@ class Cylinders(Primitive):
             visible=cylinder_list[0].visible,
             clickable=cylinder_list[0].clickable,
             tooltip=cylinder_list[0].tooltip,
-            _meta=new_meta_list
         )
 
     @property

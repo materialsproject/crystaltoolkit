@@ -135,7 +135,6 @@ def get_site_scene(
                 phiEnd=phiEnd,
                 clickable=True,
                 tooltip=name,
-                _meta=[site_idx]
             )
             atoms.append(sphere)
 
@@ -208,7 +207,6 @@ def get_site_scene(
                                     radius=bond_radius / 2,
                                     clickable=True,
                                     tooltip=name_cyl,
-                                    _meta=[site_idx, connected_site.index]
                                 )
                             )
                             trans_vector = trans_vector + 0.25 * max_radius
@@ -220,7 +218,6 @@ def get_site_scene(
                             radius=bond_radius,
                             clickable=True,
                             tooltip=name_cyl,
-                            _meta=[site_idx, connected_site.index]
                         )
                         bonds.append(cylinder)
 
@@ -231,7 +228,6 @@ def get_site_scene(
                     radius=bond_radius,
                     clickable=True,
                     tooltip=name_cyl,
-                    _meta=[site_idx, connected_site.index]
                 )
                 bonds.append(cylinder)
             all_positions.append(connected_position.tolist())
@@ -255,7 +251,6 @@ def get_site_scene(
                     positionPairs=[[position, bond_midpoint.tolist()]],
                     color=color,
                     radius=bond_radius,
-                    _meta=[site_idx, connected_site.index]
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
