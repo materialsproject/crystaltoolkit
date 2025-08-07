@@ -47,6 +47,7 @@ def get_site_scene(
     visualize_bond_orders: bool = False,
     magmom_scale: float = 1.0,
     legend: Legend | None = None,
+    retain_atom_idx: bool = False,
 ) -> Scene:
     """Get a Scene object for a Site.
 
@@ -70,6 +71,7 @@ def get_site_scene(
         visualize_bond_orders (bool, optional): Defaults to False.
         magmom_scale (float, optional): Defaults to 1.0.
         legend (Legend | None, optional): Defaults to None.
+        retain_atom_idx (bool, optional): Defaults to False.
 
     Returns:
         Scene: The scene object containing atoms, bonds, polyhedra, magmoms.
