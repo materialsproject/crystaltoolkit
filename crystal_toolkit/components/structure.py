@@ -19,6 +19,7 @@ from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core import Composition, Molecule, Species, Structure
 from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -55,7 +56,10 @@ class StructureMoleculeComponent(MPComponent):
     """
 
     available_bonding_strategies = frozendict(
-        {subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}
+        {
+            **{subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()},
+            "LobsterNeighbors": LobsterNeighbors,
+        }
     )
 
     default_scene_settings = frozendict(
@@ -966,6 +970,7 @@ class StructureMoleculeComponent(MPComponent):
             valid_bond_strategies = (
                 StructureMoleculeComponent.available_bonding_strategies
             )
+
             if bonding_strategy not in valid_bond_strategies:
                 raise ValueError(
                     "Bonding strategy not supported. Please supply a name of a NearNeighbor "
