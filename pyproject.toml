@@ -42,7 +42,7 @@ dev = [
     "recommonmark",
     "sphinx_rtd_theme",
 ]
-test = ["playwright", "pytest", "pytest-playwright", "pytest-cov"]
+test = ["playwright", "pytest", "pytest-playwright", "pytest-cov", "selenium<4", "urllib3<2"]
 jupyterlab_deprecated = ["crystaltoolkit-extension"]
 
 [project.urls]
