@@ -21,9 +21,7 @@ alabaster==1.0.0
 annotated-types==0.7.0
     # via pydantic
 anyio==4.10.0
-    # via
-    #   httpx
-    #   jupyter-server
+    # via jupyter-server
 argon2-cffi==25.1.0
     # via
     #   jupyter-server
@@ -88,8 +86,6 @@ cerberus==1.3.7
 certifi==2025.8.3
     # via
     #   dephell
-    #   httpcore
-    #   httpx
     #   netcdf4
     #   requests
 cffi==2.0.0
@@ -260,8 +256,6 @@ greenlet==3.2.4
     #   playwright
 gunicorn[gevent]==23.0.0
     # via crystal_toolkit (pyproject.toml)
-h11==0.16.0
-    # via httpcore
 h5py==3.14.0
     # via
     #   emdfile
@@ -270,22 +264,17 @@ h5py==3.14.0
     #   ncempy
     #   phonopy
     #   py4dstem
-habanero==2.3.0
+habanero==1.2.6
     # via crystal_toolkit (pyproject.toml)
 hdf5plugin==5.1.0
     # via py4dstem
 hiphive==1.5
     # via crystal_toolkit (pyproject.toml)
-httpcore==1.0.9
-    # via httpx
-httpx==0.28.1
-    # via habanero
 identify==2.6.14
     # via pre-commit
 idna==3.10
     # via
     #   anyio
-    #   httpx
     #   jsonschema
     #   requests
     #   yarl
@@ -595,7 +584,6 @@ packaging==25.0
     #   dephell-versioning
     #   distributed
     #   gunicorn
-    #   habanero
     #   ipykernel
     #   jupyter-events
     #   jupyter-server
@@ -822,6 +810,7 @@ requests[security,socks]==2.32.5
     #   dephell-licenses
     #   dephell-venvs
     #   gdown
+    #   habanero
     #   jupyterlab-server
     #   matminer
     #   mp-api
@@ -895,7 +884,9 @@ scipy==1.16.2
     #   symfc
     #   trainstation
 selenium==3.141.0
-    # via dash
+    # via
+    #   crystal_toolkit (pyproject.toml)
+    #   dash
 send2trash==1.8.3
     # via
     #   jupyter-server
@@ -1065,11 +1056,11 @@ uncertainties==3.2.3
     # via pymatgen
 uri-template==1.3.0
     # via jsonschema
-urllib3==2.5.0
+urllib3==1.26.20
     # via
     #   botocore
+    #   crystal_toolkit (pyproject.toml)
     #   distributed
-    #   habanero
     #   requests
     #   selenium
 virtualenv==20.34.0
