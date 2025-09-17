@@ -56,7 +56,7 @@ class XRayDiffractionComponent(MPComponent):
     # Default XRD plot style settings
     default_xrd_plot_style = frozendict(
         xaxis={
-            "title": "2𝜃 / º",
+            "title": {"text": "2θ (°)", "font": {"size": 16}},
             "anchor": "y",
             "nticks": 8,
             "showgrid": True,
@@ -64,12 +64,11 @@ class XRayDiffractionComponent(MPComponent):
             "side": "bottom",
             "tickfont": {"size": 16.0},
             "ticks": "inside",
-            "titlefont": {"size": 16.0},
             "type": "linear",
             "zeroline": False,
         },
         yaxis={
-            "title": "Intensity / arb. units",
+            "title": {"text": "Intensity / arb. units", "font": {"size": 16}},
             "anchor": "x",
             "nticks": 7,
             "showgrid": True,
@@ -77,7 +76,6 @@ class XRayDiffractionComponent(MPComponent):
             "side": "left",
             "tickfont": {"size": 16.0},
             "ticks": "inside",
-            "titlefont": {"size": 16.0},
             "type": "linear",
             "zeroline": False,
         },
