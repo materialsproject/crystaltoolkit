@@ -361,33 +361,41 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
 
         # optimal number of points per degree determined through usage experiments
         # scaled to log size to the 4th power
-        N_density = 150 * (math.log10(grain_size) ** 4) if grain_size > 10 else 150
+        n_density = 150 * (math.log10(grain_size) ** 4) if grain_size > 10 else 150
 
-        N = int(N_density * domain)  # num total points
+        n_points = int(n_density * domain)  # num total points
 
-        x = np.linspace(first, last, N).tolist()
-        y = np.zeros(len(x)).tolist()
+        x = np.linspace(first, last + 300, n_points)
+        y = np.zeros(len(x))
 
         if broadening:
-            for xp, yp in zip(x_peak, y_peak):
-                alpha = XRayDiffractionComponent.grain_to_hwhm(
+            x_arr = np.array(x_peak)
+            y_arr = np.array(y_peak)
+
+            peak_function = getattr(XRayDiffractionComponent, peak_profile)
+
+            for (
+                xp,
+                yp,
+            ) in zip(x_arr, y_arr):
+                hwhm = XRayDiffractionComponent.grain_to_hwhm(
                     grain_size, math.radians(xp / 2), K=float(K), wavelength=rad_source
                 )
-                sigma = (alpha / np.sqrt(2 * np.log(2))).item()
+                sigma = hwhm / np.sqrt(2 * np.log(2))
 
-                center_idx = int(round((xp - first) * N_density))
-                # total broadening window of 2 * num_sigma
-                half_window = int(round(num_sigma * sigma * N_density))
+                center_idx = ((x_arr - first) * n_density).round().astype(int)
+                half_window = (num_sigma * sigma * n_density).round().astype(int)
 
-                lb = max(0, (center_idx - half_window))
-                ub = min(N, (center_idx + half_window))
+                lb = np.maximum(0, center_idx - half_window)
+                ub = np.minimum(n_points, center_idx + half_window)
 
-                G0 = getattr(XRayDiffractionComponent, peak_profile)(0, 0, alpha)
-                for ii, jj in zip(range(lb, ub), range(lb, ub)):
-                    Gi = getattr(XRayDiffractionComponent, peak_profile)(
-                        x[ii], xp, alpha
-                    )
-                    y[jj] += yp * Gi / G0
+                xi = x[lb:ub]
+                Gi = peak_function(xi, xp, hwhm)
+                G0 = peak_function(0, 0, hwhm)
+                y[lb:ub] += yp * Gi / G0
+
+        x = x.tolist()
+        y = y.tolist()
 
         layout = {**XRayDiffractionComponent.default_xrd_plot_style}
 
