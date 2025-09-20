@@ -589,6 +589,7 @@ class PourbaixDiagramComponent(MPComponent):
                         )
                     ],
                     id=self.id("heatmap_choice_container"),
+                    style={"width": "250px"},  # better to assign a class for selection
                 ),
                 html.Div(id=self.id("element_specific_controls")),
             ]
@@ -615,8 +616,9 @@ class PourbaixDiagramComponent(MPComponent):
         @app.callback(
             Output(self.id("heatmap_choice_container"), "children"),
             Input(self.id(), "data"),
+            Input(self.id("mat-details"), "data"),
         )
-        def update_heatmap_choices(entries):
+        def update_heatmap_choices(entries, mat_detials):
             if not entries:
                 raise PreventUpdate
 
@@ -626,7 +628,29 @@ class PourbaixDiagramComponent(MPComponent):
                     composition = Composition(entry["entry"]["composition"])
                     formula = unicodeify(composition.reduced_formula)
                     mpid = entry["entry_id"]
-                    options.append({"label": f"{formula} ({mpid})", "value": mpid})
+
+                    # get material details
+                    mpid_wo_function = "mp-" + mpid.split("-")[1]
+                    if mpid_wo_function in mat_detials:
+                        den = round(mat_detials[mpid_wo_function]["density"], 3)
+                        sym = mat_detials[mpid_wo_function]["symmetry_symbol"]
+                        eah = round(
+                            mat_detials[mpid_wo_function]["energy_above_hull"], 3
+                        )
+
+                        label = (
+                            f"{formula} ({mpid})\n"
+                            f"Symmetry: {sym}\n"
+                            f"Density: {den}\n"
+                            f"Energy above hull: {eah}"
+                        )
+
+                        option = {"label": label, "value": mpid}
+                    else:
+                        option = {"label": f"{formula} ({mpid})", "value": mpid}
+
+                    # options.append({"label": f"{formula} ({mpid})", "value": mpid})
+                    options.append(option)
 
             return self.get_choice_input(
                 "heatmap_choice",
