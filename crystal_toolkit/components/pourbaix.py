@@ -639,6 +639,10 @@ class PourbaixDiagramComponent(MPComponent):
                     # get material details
                     mpid_wo_function = "mp-" + mpid.split("-")[1]
                     if mpid_wo_function in mat_detials:
+                        robo = mat_detials[mpid_wo_function]["robo"]
+
+                        label = f"{formula} ({mpid}): {robo}"
+                        """
                         # den = round(mat_detials[mpid_wo_function]["density"], 3)
                         sym = mat_detials[mpid_wo_function]["symmetry_symbol"]
                         eah = round(
@@ -651,6 +655,7 @@ class PourbaixDiagramComponent(MPComponent):
                             # f"Density: {den};"
                             f" Energy above hull: {eah}"
                         )
+                        """
 
                         option = {"label": label, "value": mpid}
                     else:
