@@ -637,12 +637,31 @@ class PourbaixDiagramComponent(MPComponent):
                     mpid = entry["entry_id"]
 
                     # get material details
+                    functional = mpid.split("-")[2]
                     mpid_wo_function = "mp-" + mpid.split("-")[1]
                     if mpid_wo_function in mat_detials:
-                        robo = mat_detials[mpid_wo_function]["robo"]
+                        structure_text = mat_detials[mpid_wo_function]["structure_text"]
+                        crystal_system = mat_detials[mpid_wo_function]["crystal_system"]
 
-                        label = f"{formula} ({mpid}): {robo}"
+                        label_text_list = [
+                            f"{formula} ({mpid_wo_function}, {functional})"
+                        ]
+                        if structure_text:
+                            label_text_list.append("Structure: " + structure_text)
+                        if crystal_system:
+                            label_text_list.append("Crystal system: " + crystal_system)
+                        label = "; ".join(label_text_list)
+
+                        # label = html.Pre(f"{label_text}", className="dropdown-content", style={"width": "100%"})
                         """
+                        label = [f"{formula} ({mpid_wo_function}, {functional}"]
+                        if structure_text:
+                            label.append(html.Br())
+                            label.append(structure_text)
+                        if crystal_system:
+                            label.append(html.Br())
+                            label.append(crystal_system)
+
                         # den = round(mat_detials[mpid_wo_function]["density"], 3)
                         sym = mat_detials[mpid_wo_function]["symmetry_symbol"]
                         eah = round(
@@ -663,7 +682,7 @@ class PourbaixDiagramComponent(MPComponent):
 
                     # options.append({"label": f"{formula} ({mpid})", "value": mpid})
                     options.append(option)
-
+                    options.sort(key=lambda x: x["label"])
             return [
                 self.get_choice_input(
                     "heatmap_choice",
@@ -672,6 +691,7 @@ class PourbaixDiagramComponent(MPComponent):
                     help_str="Choose the entry to use for heatmap generation.",
                     options=options,
                     disabled=False,
+                    style={"width": "100%", "whiteSpace": "nowrap"},
                 ),
                 html.A(
                     "\U0001f517 to detail page",
