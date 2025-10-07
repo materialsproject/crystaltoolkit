@@ -644,37 +644,17 @@ class PourbaixDiagramComponent(MPComponent):
                         crystal_system = mat_detials[mpid_wo_function]["crystal_system"]
 
                         label_text_list = [
-                            f"{formula} ({mpid_wo_function}, {functional})"
+                            f"{formula} ({mpid_wo_function}, {functional}) \n"
                         ]
                         if structure_text:
-                            label_text_list.append("Structure: " + structure_text)
+                            label_text_list.append(
+                                " - Structure: " + structure_text + "\n"
+                            )
                         if crystal_system:
-                            label_text_list.append("Crystal system: " + crystal_system)
-                        label = "; ".join(label_text_list)
-
-                        # label = html.Pre(f"{label_text}", className="dropdown-content", style={"width": "100%"})
-                        """
-                        label = [f"{formula} ({mpid_wo_function}, {functional}"]
-                        if structure_text:
-                            label.append(html.Br())
-                            label.append(structure_text)
-                        if crystal_system:
-                            label.append(html.Br())
-                            label.append(crystal_system)
-
-                        # den = round(mat_detials[mpid_wo_function]["density"], 3)
-                        sym = mat_detials[mpid_wo_function]["symmetry_symbol"]
-                        eah = round(
-                            mat_detials[mpid_wo_function]["energy_above_hull"], 3
-                        )
-
-                        label = (
-                            f"{formula} ({mpid});\n"
-                            f"Symmetry: {sym};"
-                            # f"Density: {den};"
-                            f" Energy above hull: {eah}"
-                        )
-                        """
+                            label_text_list.append(
+                                " - Crystal system: " + crystal_system + "\n"
+                            )
+                        label = "".join(label_text_list)
 
                         option = {"label": label, "value": mpid}
                     else:
