@@ -325,7 +325,6 @@ class TEMDiffractionCalculator:
             k_max=self.k_max,
             thermal_sigma=DWF,
             recompute_kinematic_structure_factors=False,
-            verbose=False,
         )
 
         self.dynamical_method = dynamical_method
