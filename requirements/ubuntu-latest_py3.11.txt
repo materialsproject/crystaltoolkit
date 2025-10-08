@@ -8,26 +8,26 @@ aioitertools==0.12.0
     # via maggma
 annotated-types==0.7.0
     # via pydantic
-attrs==25.3.0
+attrs==25.4.0
     # via
     #   jsonlines
     #   jsonschema
     #   referencing
-bcrypt==4.3.0
+bcrypt==5.0.0
     # via paramiko
 bibtexparser==1.4.3
     # via pymatgen
 blinker==1.9.0
     # via flask
-boto3==1.40.31
+boto3==1.40.47
     # via maggma
-botocore==1.40.31
+botocore==1.40.47
     # via
     #   boto3
     #   s3transfer
 cachelib==0.13.0
     # via flask-caching
-certifi==2025.8.3
+certifi==2025.10.5
     # via requests
 cffi==2.0.0
     # via
@@ -35,11 +35,11 @@ cffi==2.0.0
     #   pynacl
 charset-normalizer==3.4.3
     # via requests
-click==8.2.1
+click==8.3.0
     # via flask
 contourpy==1.3.3
     # via matplotlib
-cryptography==45.0.7
+cryptography==46.0.2
     # via paramiko
 cycler==0.12.1
     # via matplotlib
@@ -51,7 +51,7 @@ dnspython==2.8.0
     # via
     #   maggma
     #   pymongo
-emmet-core==0.84.10rc2
+emmet-core==0.84.10
     # via mp-api
 flask==3.1.2
     # via
@@ -59,7 +59,7 @@ flask==3.1.2
     #   flask-caching
 flask-caching==2.3.1
     # via crystal_toolkit (pyproject.toml)
-fonttools==4.59.2
+fonttools==4.60.1
     # via matplotlib
 frozendict==2.4.6
     # via crystal_toolkit (pyproject.toml)
@@ -97,7 +97,7 @@ lazy-loader==0.4
     # via scikit-image
 maggma==0.72.0
     # via mp-api
-markupsafe==3.0.2
+markupsafe==3.0.3
     # via
     #   flask
     #   jinja2
@@ -112,15 +112,15 @@ monty==2025.3.3
     #   maggma
     #   mp-api
     #   pymatgen
-mp-api==0.45.9
+mp-api==0.45.11
     # via crystal_toolkit (pyproject.toml)
 mpmath==1.3.0
     # via sympy
-msgpack==1.1.1
+msgpack==1.1.2
     # via
     #   maggma
     #   mp-api
-narwhals==2.5.0
+narwhals==2.7.0
     # via plotly
 nest-asyncio==1.6.0
     # via dash
@@ -157,7 +157,7 @@ packaging==25.0
     #   scikit-image
 palettable==3.3.3
     # via pymatgen
-pandas==2.3.2
+pandas==2.3.3
     # via
     #   maggma
     #   pymatgen
@@ -168,7 +168,7 @@ pillow==11.3.0
     #   imageio
     #   matplotlib
     #   scikit-image
-plotly==6.3.0
+plotly==6.3.1
     # via
     #   dash
     #   pymatgen
@@ -176,15 +176,15 @@ pybtex==0.25.1
     # via emmet-core
 pycparser==2.23
     # via cffi
-pydantic==2.11.9
+pydantic==2.12.0
     # via
     #   emmet-core
     #   maggma
     #   pydantic-settings
     #   pymatgen-io-validation
-pydantic-core==2.33.2
+pydantic-core==2.41.1
     # via pydantic
-pydantic-settings==2.10.1
+pydantic-settings==2.11.0
     # via
     #   crystal_toolkit (pyproject.toml)
     #   emmet-core
@@ -192,19 +192,19 @@ pydantic-settings==2.10.1
     #   pymatgen-io-validation
 pydash==8.0.5
     # via maggma
-pymatgen==2025.6.14
+pymatgen==2025.10.7
     # via
     #   crystal_toolkit (pyproject.toml)
     #   emmet-core
     #   mp-api
     #   pymatgen-io-validation
-pymatgen-io-validation==0.1.1
+pymatgen-io-validation==0.1.2
     # via emmet-core
 pymongo==4.10.1
     # via maggma
 pynacl==1.6.0
     # via paramiko
-pyparsing==3.2.4
+pyparsing==3.2.5
     # via
     #   bibtexparser
     #   matplotlib
@@ -220,7 +220,7 @@ pytz==2025.2
     # via
     #   mongomock
     #   pandas
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via pybtex
 pyzmq==27.1.0
     # via maggma
@@ -245,7 +245,7 @@ ruamel-yaml==0.18.15
     #   maggma
     #   monty
     #   pymatgen
-ruamel-yaml-clib==0.2.12
+ruamel-yaml-clib==0.2.14
     # via ruamel-yaml
 s3transfer==0.14.0
     # via boto3
@@ -260,7 +260,7 @@ scipy==1.16.2
     #   scikit-learn
 sentinels==1.1.1
     # via mongomock
-shapely==2.1.1
+shapely==2.1.2
     # via crystal_toolkit (pyproject.toml)
 six==1.17.0
     # via python-dateutil
@@ -276,7 +276,7 @@ tabulate==0.9.0
     # via pymatgen
 threadpoolctl==3.6.0
     # via scikit-learn
-tifffile==2025.9.9
+tifffile==2025.10.4
     # via scikit-image
 tqdm==4.67.1
     # via
@@ -293,7 +293,7 @@ typing-extensions==4.15.0
     #   referencing
     #   spglib
     #   typing-inspection
-typing-inspection==0.4.1
+typing-inspection==0.4.2
     # via
     #   pydantic
     #   pydantic-settings

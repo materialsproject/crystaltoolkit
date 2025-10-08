@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from importlib import import_module
+from importlib.metadata import version
 from typing import TYPE_CHECKING
 
 from flask_caching import Cache
@@ -53,9 +55,8 @@ class CrystalToolkitPlugin:
         self.app = app
         self.cache.init_app(app.server)
 
-        from crystal_toolkit import __version__ as ct_version
-
         # add metadata for "generator" tag
+        ct_version = version("crystal_toolkit")
         app.config.meta_tags.append(
             {
                 "name": "generator",
@@ -86,20 +87,19 @@ class CrystalToolkitPlugin:
         use of All-in-One components. All-in-One components were not yet
         available when Crystal Toolkit was first developed.
         """
-        from crystal_toolkit.core.mpcomponent import MPComponent
-
         # Crystal Toolkit has not been tested with dynamic layouts
         if callable(layout):
             layout = layout()
 
         stores_to_add = []
-        for basename in MPComponent._all_id_basenames:
+        mpcomp_module = import_module("crystal_toolkit.core.mpcomponent")
+        for basename in mpcomp_module.MPComponent._all_id_basenames:
             # can use "if basename in layout_str:" to restrict to components present in initial layout
             # this would cause bugs for components displayed dynamically
-            stores_to_add += MPComponent._app_stores_dict[basename]
+            stores_to_add += mpcomp_module.MPComponent._app_stores_dict[basename]
         layout.children += stores_to_add
 
-        for component in MPComponent._callbacks_to_generate:
+        for component in mpcomp_module.MPComponent._callbacks_to_generate:
             component.generate_callbacks(self.app, self.cache)
 
         return layout
