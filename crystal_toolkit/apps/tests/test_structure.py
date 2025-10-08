@@ -3,10 +3,10 @@ import threading
 
 from playwright.sync_api import Page, expect
 
+from crystal_toolkit.apps.examples.structure import app
+
 
 def test_structure(page: Page):
-    from crystal_toolkit.apps.examples.structure import app
-
     thread = threading.Thread(target=app.run)
     thread.start()
 

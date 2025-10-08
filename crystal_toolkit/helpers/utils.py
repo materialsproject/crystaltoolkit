@@ -28,6 +28,11 @@ if TYPE_CHECKING:
     import plotly.graph_objects as go
     from numpy.typing import ArrayLike
 
+try:
+    from mpcontribs.client import Client as MPContribsClient
+except ImportError:
+    MPContribsClient = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -126,13 +131,14 @@ def get_contribs_client():
 
     Client uses MPCONTRIBS_API_HOST by default.
     """
-    from mpcontribs.client import Client
+    if not MPContribsClient:
+        raise ImportError("Please install mpcontribs-client.")
 
     headers = get_consumer()
 
     if is_localhost():
-        return Client(apikey=get_user_api_key())
-    return Client(headers=headers)
+        return MPContribsClient(apikey=get_user_api_key())
+    return MPContribsClient(headers=headers)
 
 
 def get_contribs_api_base_url(request_url=None, deployment="contribs"):
