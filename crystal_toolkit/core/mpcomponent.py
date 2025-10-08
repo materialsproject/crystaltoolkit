@@ -16,6 +16,7 @@ import dash_mp_components as mpc
 import numpy as np
 from dash import dcc, html
 from dash.dependencies import ALL
+from kaleido.scopes.plotly import PlotlyScope
 from monty.json import MontyDecoder, MSONable
 
 from crystal_toolkit.core.plugin import CrystalToolkitPlugin
@@ -765,8 +766,6 @@ Sub-layouts:  \n{layouts}"""
         Returns:
             str: Data URI containing base64-encoded image.
         """
-        from kaleido.scopes.plotly import PlotlyScope
-
         scope = PlotlyScope()
         output = scope.transform(
             fig, format=fmt, width=width, height=height, scale=scale

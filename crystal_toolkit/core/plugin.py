@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 from flask_caching import Cache
 
+from crystal_toolkit import __version__ as ct_version
+from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.settings import SETTINGS
 
 if TYPE_CHECKING:
@@ -53,8 +55,6 @@ class CrystalToolkitPlugin:
         self.app = app
         self.cache.init_app(app.server)
 
-        from crystal_toolkit import __version__ as ct_version
-
         # add metadata for "generator" tag
         app.config.meta_tags.append(
             {
@@ -86,8 +86,6 @@ class CrystalToolkitPlugin:
         use of All-in-One components. All-in-One components were not yet
         available when Crystal Toolkit was first developed.
         """
-        from crystal_toolkit.core.mpcomponent import MPComponent
-
         # Crystal Toolkit has not been tested with dynamic layouts
         if callable(layout):
             layout = layout()

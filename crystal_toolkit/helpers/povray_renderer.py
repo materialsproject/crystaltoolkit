@@ -54,7 +54,7 @@ camera {
 
 LIGHTS = """
 /*
-Define light sources to illuminate the atoms. For visualizing mediam
+Define light sources to illuminate the atoms. For visualizing media
 media_interaction and media_attenuation are set to "off" so voxel
 data is rendered to be transparent. Lights are automatically oriented
 with respect to the camera position.

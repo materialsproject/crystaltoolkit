@@ -198,7 +198,7 @@ class TransformationComponent(MPComponent):
                 if (not transformation_data) or (not input_structure):
                     return html.Div()
                 input_structure = self.from_data(input_structure)
-                output_structure, error = apply_transformation(
+                output_structure, _ = apply_transformation(
                     transformation_data, input_structure
                 )
                 if len(output_structure) > 64:

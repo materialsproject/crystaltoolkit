@@ -109,7 +109,7 @@ class SubmitSNLPanel(PanelComponent):
             contents = get_token_response(token)
 
             structure = self.from_data(structure)
-            if type(structure) != Structure:
+            if not isinstance(structure, Structure):
                 raise PreventUpdate
 
             description = dcc.Markdown(
@@ -144,7 +144,7 @@ For more information, see the Materials Project
                 raise PreventUpdate
 
             structure = self.from_data(structure)
-            if type(structure) != Structure:
+            if not isinstance(structure, Structure):
                 message = (
                     f"Can only submit structures to Materials Project, "
                     f"not {type(structure)}"
