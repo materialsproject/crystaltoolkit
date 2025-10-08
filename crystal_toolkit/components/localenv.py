@@ -21,7 +21,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
 )
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
-from pymatgen.analysis.local_env import LocalStructOrderParams, cn_opt_params
+from pymatgen.analysis.local_env import CN_OPT_PARAMS, LocalStructOrderParams
 from pymatgen.core import Molecule, Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -77,14 +77,14 @@ def _get_local_order_parameters(structure_graph, n):
     # code from @nisse3000, moved here from graphs to avoid circular
     # import, also makes sense to have this as a general NN method
     cn = structure_graph.get_coordination_of_site(n)
-    if cn in [int(k_cn) for k_cn in cn_opt_params]:
-        names = list(cn_opt_params[cn])
+    if cn in [int(k_cn) for k_cn in CN_OPT_PARAMS]:
+        names = list(CN_OPT_PARAMS[cn])
         types = []
         params = []
         for name in names:
-            types.append(cn_opt_params[cn][name][0])
+            types.append(CN_OPT_PARAMS[cn][name][0])
             tmp = (
-                cn_opt_params[cn][name][1] if len(cn_opt_params[cn][name]) > 1 else None
+                CN_OPT_PARAMS[cn][name][1] if len(CN_OPT_PARAMS[cn][name]) > 1 else None
             )
             params.append(tmp)
         lost_ops = LocalStructOrderParams(types, parameters=params)

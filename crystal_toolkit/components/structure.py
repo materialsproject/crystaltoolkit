@@ -385,7 +385,7 @@ class StructureMoleculeComponent(MPComponent):
                 raise PreventUpdate
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
-            scene, legend = self.get_scene_and_legend(
+            scene, _ = self.get_scene_and_legend(
                 graph, **display_options, scene_additions=scene_additions
             )
             return scene
@@ -402,7 +402,7 @@ class StructureMoleculeComponent(MPComponent):
                 raise PreventUpdate
             display_options = self.from_data(display_options)
             graph = self.from_data(graph)
-            scene, legend = self.get_scene_and_legend(
+            _, legend = self.get_scene_and_legend(
                 graph, **display_options, scene_additions=scene_additions
             )
             return legend
@@ -643,9 +643,11 @@ class StructureMoleculeComponent(MPComponent):
                 formula = composition.reduced_formula
                 formula_parts = re.findall(r"[^\d_]+|\d+", formula)
                 formula_components = [
-                    html.Sub(part.strip())
-                    if part.isnumeric()
-                    else html.Span(part.strip())
+                    (
+                        html.Sub(part.strip())
+                        if part.isnumeric()
+                        else html.Span(part.strip())
+                    )
                     for part in formula_parts
                 ]
             except Exception:

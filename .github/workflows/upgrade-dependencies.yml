@@ -3,9 +3,6 @@ name: upgrade dependencies
 
 on:
   workflow_dispatch: # Allow running on-demand
-  schedule:
-    # Runs every Monday at 8:00 UTC (4:00 Eastern)
-    - cron: '0 8 * * 1'
 
 jobs:
   upgrade:
@@ -13,8 +10,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ['ubuntu-latest']
-        python-version: ["3.9", "3.10", "3.11"]
+        os: ["ubuntu-latest"]
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          cache: "pip"
       - name: Upgrade Python dependencies
         shell: bash
         run: |
@@ -52,7 +49,7 @@ jobs:
     needs: upgrade
     strategy:
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.11"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -71,6 +68,8 @@ jobs:
           git checkout -b auto-dependency-upgrades
           git branch -r | grep auto-dependency-upgrades- | xargs -I {} git merge {}
           git rebase ${GITHUB_REF##*/}
+          git reset $(git merge-base ${GITHUB_REF##*/} HEAD)
+          git commit -a -m "auto dependency upgrades"
           git push -f origin auto-dependency-upgrades
           git branch -r | grep auto-dependency-upgrades- | cut -d/ -f2 | xargs -I {} git push origin :{}
       - name: Open pull request if needed

@@ -4,7 +4,7 @@ import logging
 import re
 import urllib.parse
 from fractions import Fraction
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Literal
 from uuid import uuid4
 
 import dash
@@ -27,6 +27,11 @@ if TYPE_CHECKING:
     import pandas as pd
     import plotly.graph_objects as go
     from numpy.typing import ArrayLike
+
+try:
+    from mpcontribs.client import Client as MPContribsClient
+except ImportError:
+    MPContribsClient = None
 
 logger = logging.getLogger(__name__)
 
@@ -126,13 +131,14 @@ def get_contribs_client():
 
     Client uses MPCONTRIBS_API_HOST by default.
     """
-    from mpcontribs.client import Client
+    if not MPContribsClient:
+        raise ImportError("Please install mpcontribs-client.")
 
     headers = get_consumer()
 
     if is_localhost():
-        return Client(apikey=get_user_api_key())
-    return Client(headers=headers)
+        return MPContribsClient(apikey=get_user_api_key())
+    return MPContribsClient(headers=headers)
 
 
 def get_contribs_api_base_url(request_url=None, deployment="contribs"):
@@ -519,7 +525,7 @@ def hook_up_fig_with_struct_viewer(
     fig: go.Figure,
     df: pd.DataFrame,
     struct_col: str = "structure",
-    validate_id: Callable[[str], bool] = lambda id: True,
+    transform_id: Callable[[str], str | Literal[False]] = lambda mat_id: mat_id,
     highlight_selected: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
 ) -> Dash:
     """Create a Dash app that hooks up a Plotly figure with a Crystal Toolkit structure
@@ -555,11 +561,10 @@ def hook_up_fig_with_struct_viewer(
         struct_col (str, optional): Name of the column in the data frame that contains
             the structures. Defaults to 'structure'. Can be instances of
             pymatgen.core.Structure or dicts created with Structure.as_dict().
-        validate_id (Callable[[str], bool], optional): Function that takes a string
+        transform_id (Callable[[str], str | False], optional): Function that takes a string
             extracted from the hovertext key of a hoverData event payload and returns
-            True if the string is a valid df row index. Defaults to lambda
-            id: True. Useful for not running the update-structure
-            callback on unexpected data.
+            a string that can be used to index the dataframe. Return False to prevent
+            the update-structure callback from being called.
         highlight_selected (Callable[[dict[str, Any]], dict[str, Any]], optional):
             Function that takes the clicked or last-hovered point and returns a dict of
             kwargs to be passed to go.Figure.add_annotation() to highlight said point.
@@ -625,12 +630,14 @@ def hook_up_fig_with_struct_viewer(
         Input(graph, "hoverData"),
         Input(graph, "clickData"),
         State(hover_click_dd, "value"),
+        State(graph, "figure"),
     )
     def update_structure(
         hover_data: dict[str, list[dict[str, Any]]],
         click_data: dict[str, list[dict[str, Any]]],  # needed only as callback trigger
         dropdown_value: str,
-    ) -> tuple[Structure, str, go.Figure] | tuple[None, None, None]:
+        fig: dict[str, Any],
+    ) -> tuple[Structure, str, dict[str, Any]] | tuple[None, None, None]:
         """Update StructureMoleculeComponent with pymatgen structure when user clicks or
         hovers a plot point.
         """
@@ -642,9 +649,8 @@ def hook_up_fig_with_struct_viewer(
 
         # hover_data and click_data are identical since a hover event always precedes a
         # click so we always use hover_data
-        material_id = hover_data["points"][0]["hovertext"]
-        if not validate_id(material_id):
-            print(f"bad {material_id=}")
+        material_id = transform_id(hover_data["points"][0]["hovertext"])
+        if material_id is False:
             raise dash.exceptions.PreventUpdate
 
         struct = df[struct_col][material_id]
@@ -653,13 +659,20 @@ def hook_up_fig_with_struct_viewer(
         struct_title = f"{material_id} ({struct.formula})"
 
         if highlight_selected is not None:
-            # remove existing annotations with name="selected"
-            fig.layout.annotations = [
-                anno for anno in fig.layout.annotations if anno.name != "selected"
+            # Update annotations directly in the dictionary
+            fig["layout"].setdefault("annotations", [])
+
+            # Remove existing annotations with name="selected"
+            fig["layout"]["annotations"] = [
+                anno
+                for anno in fig["layout"]["annotations"]
+                if anno.get("name") != "selected"
             ]
-            # highlight selected point in figure
+
+            # Add new annotation to highlight selected point
             anno = highlight_selected(hover_data["points"][0])
-            fig.add_annotation(**anno, name="selected")
+            anno["name"] = "selected"
+            fig["layout"]["annotations"].append(anno)
 
         return struct, struct_title, fig
 
