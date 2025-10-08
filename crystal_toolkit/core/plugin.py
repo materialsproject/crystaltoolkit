@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from importlib.metadata import version
 from typing import TYPE_CHECKING
 
 from flask_caching import Cache
 
-from importlib.metadata import version
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.settings import SETTINGS
 
