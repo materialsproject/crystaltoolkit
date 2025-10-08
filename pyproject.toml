@@ -22,7 +22,6 @@ dependencies = [
   "scikit-learn",
   "shapely",
   "webcolors",
-  "kaleido",
 ]
 
 [project.optional-dependencies]
