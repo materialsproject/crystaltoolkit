@@ -386,7 +386,7 @@ jupyter-ydoc==0.2.5
     # via
     #   jupyter-server-ydoc
     #   jupyterlab
-jupyterlab==3.6.8
+jupyterlab==4.4.8
     # via crystaltoolkit-extension
 jupyterlab-pygments==0.3.0
     # via nbconvert
@@ -856,7 +856,7 @@ scikit-image==0.25.2
     #   crystal_toolkit (pyproject.toml)
     #   ifermi
     #   py4dstem
-scikit-learn==1.4.2
+scikit-learn==1.5.0
     # via
     #   crystal_toolkit (pyproject.toml)
     #   dscribe
@@ -1057,7 +1057,7 @@ uncertainties==3.2.3
     # via pymatgen
 uri-template==1.3.0
     # via jsonschema
-urllib3==1.26.20
+urllib3==2.5.0
     # via
     #   botocore
     #   crystal_toolkit (pyproject.toml)
