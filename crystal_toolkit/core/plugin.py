@@ -92,14 +92,14 @@ class CrystalToolkitPlugin:
             layout = layout()
 
         stores_to_add = []
-        MPComponent = import_module("crystal_toolkit.core.mpcomponent.MPComponent")
-        for basename in MPComponent._all_id_basenames:
+        mpcomp_module = import_module("crystal_toolkit.core.mpcomponent")
+        for basename in mpcomp_module.MPComponent._all_id_basenames:
             # can use "if basename in layout_str:" to restrict to components present in initial layout
             # this would cause bugs for components displayed dynamically
-            stores_to_add += MPComponent._app_stores_dict[basename]
+            stores_to_add += mpcomp_module.MPComponent._app_stores_dict[basename]
         layout.children += stores_to_add
 
-        for component in MPComponent._callbacks_to_generate:
+        for component in mpcomp_module.MPComponent._callbacks_to_generate:
             component.generate_callbacks(self.app, self.cache)
 
         return layout
