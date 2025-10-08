@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from flask_caching import Cache
 
-from crystal_toolkit import __version__ as ct_version
+from importlib.metadata import version
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.settings import SETTINGS
 
@@ -56,6 +56,7 @@ class CrystalToolkitPlugin:
         self.cache.init_app(app.server)
 
         # add metadata for "generator" tag
+        ct_version = version("crystal_toolkit")
         app.config.meta_tags.append(
             {
                 "name": "generator",
