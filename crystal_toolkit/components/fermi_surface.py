@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import typing
+from importlib import import_module
 
 import matplotlib.pyplot as plt
 from dash import Input, Output
-from importlib import import_module
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, dcc
