@@ -214,6 +214,7 @@ class Spheres(Primitive):
             visible=sphere_list[0].visible,
             clickable=sphere_list[0].clickable,
             tooltip=sphere_list[0].tooltip,
+            _meta=sphere_list[0]._meta,
         )
 
 
@@ -320,6 +321,10 @@ class Cylinders(Primitive):
             chain.from_iterable([cylinder.positionPairs for cylinder in cylinder_list])
         )
 
+        new_meta_list = list(
+            chain.from_iterable([[cylinder._meta] for cylinder in cylinder_list])
+        )
+
         return cls(
             positionPairs=new_positionPairs,
             color=cylinder_list[0].color,
@@ -327,6 +332,7 @@ class Cylinders(Primitive):
             visible=cylinder_list[0].visible,
             clickable=cylinder_list[0].clickable,
             tooltip=cylinder_list[0].tooltip,
+            _meta=new_meta_list,
         )
 
     @property
