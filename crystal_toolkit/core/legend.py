@@ -279,8 +279,7 @@ class Legend(MSONable):
         elif self.color_scheme in self.site_prop_types.get("scalar", []):
             if not site:
                 raise ValueError(
-                    "Requires a site for context to get the "
-                    "appropriate site property."
+                    "Requires a site for context to get the appropriate site property."
                 )
 
             prop = site.properties[self.color_scheme]
@@ -301,8 +300,7 @@ class Legend(MSONable):
         elif self.color_scheme in self.site_prop_types.get("categorical", []):
             if not site:
                 raise ValueError(
-                    "Requires a site for context to get the "
-                    "appropriate site property."
+                    "Requires a site for context to get the appropriate site property."
                 )
 
             prop = site.properties[self.color_scheme]

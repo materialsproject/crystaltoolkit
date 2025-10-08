@@ -408,31 +408,32 @@ class PhononBandstructureAndDosComponent(MPComponent):
         dos_traces.append(trace_tdos)
 
         # Projected DOS
-        colors = [
-            "#d62728",  # brick red
-            "#2ca02c",  # cooked asparagus green
-            "#17becf",  # blue-teal
-            "#bcbd22",  # curry yellow-green
-            "#9467bd",  # muted purple
-            "#8c564b",  # chestnut brown
-            "#e377c2",  # raspberry yogurt pink
-        ]
+        if isinstance(dos, CompletePhononDos):
+            colors = [
+                "#d62728",  # brick red
+                "#2ca02c",  # cooked asparagus green
+                "#17becf",  # blue-teal
+                "#bcbd22",  # curry yellow-green
+                "#9467bd",  # muted purple
+                "#8c564b",  # chestnut brown
+                "#e377c2",  # raspberry yogurt pink
+            ]
 
-        ele_dos = dos.get_element_dos()  # project DOS onto elements
-        for count, label in enumerate(ele_dos):
-            spin_up_label = str(label)
+            ele_dos = dos.get_element_dos()  # project DOS onto elements
+            for count, label in enumerate(ele_dos):
+                spin_up_label = str(label)
 
-            trace = {
-                "x": ele_dos[label].densities[dos_min:dos_max],
-                "y": dos.frequencies[dos_min:dos_max],
-                "mode": "lines",
-                "name": spin_up_label,
-                "line": dict(width=2, color=colors[count]),
-                "xaxis": "x2",
-                "yaxis": "y2",
-            }
+                trace = {
+                    "x": ele_dos[label].densities[dos_min:dos_max],
+                    "y": dos.frequencies[dos_min:dos_max],
+                    "mode": "lines",
+                    "name": spin_up_label,
+                    "line": dict(width=2, color=colors[count]),
+                    "xaxis": "x2",
+                    "yaxis": "y2",
+                }
 
-            dos_traces.append(trace)
+                dos_traces.append(trace)
 
         return dos_traces
 
@@ -473,14 +474,17 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         # TODO: add logic to handle if bs_traces and/or dos_traces not present
 
-        rmax = max(
-            [
-                max(dos_traces[0]["x"]),
-                abs(min(dos_traces[0]["x"])),
+        rmax_list = [
+            max(dos_traces[0]["x"]),
+            abs(min(dos_traces[0]["x"])),
+        ]
+        if len(dos_traces) > 1 and "x" in dos_traces[1] and dos_traces[1]["x"].any():
+            rmax_list += [
                 max(dos_traces[1]["x"]),
                 abs(min(dos_traces[1]["x"])),
             ]
-        )
+
+        rmax = max(rmax_list)
 
         # -- Add trace data to plots
 

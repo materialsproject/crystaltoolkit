@@ -109,14 +109,14 @@ class SubmitSNLPanel(PanelComponent):
             contents = get_token_response(token)
 
             structure = self.from_data(structure)
-            if type(structure) != Structure:
+            if not isinstance(structure, Structure):
                 raise PreventUpdate
 
             description = dcc.Markdown(
                 f"""
 > **Structure to upload:** {structure.composition.reduced_formula} ({len(structure)} sites)
-> **Name:** {contents['first_name']} {contents['last_name']}
-> **Email:** {contents['email']}
+> **Name:** {contents["first_name"]} {contents["last_name"]}
+> **Email:** {contents["email"]}
 > **Comment:** {comments}
 
 This information is stored so that we can give credit to you on the Materials
@@ -144,7 +144,7 @@ For more information, see the Materials Project
                 raise PreventUpdate
 
             structure = self.from_data(structure)
-            if type(structure) != Structure:
+            if not isinstance(structure, Structure):
                 message = (
                     f"Can only submit structures to Materials Project, "
                     f"not {type(structure)}"

@@ -4,6 +4,7 @@ import typing
 
 import matplotlib.pyplot as plt
 from dash import Input, Output
+from ifermi.plot import FermiSurfacePlotter
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, dcc
@@ -43,8 +44,6 @@ class FermiSurfaceComponent(MPComponent):
         Returns:
             A plotly Figure object.
         """
-        from ifermi.plot import FermiSurfacePlotter
-
         plotter = FermiSurfacePlotter(fermi_surface)
         fig = plotter.get_plot(plot_type="plotly", **kwargs)
 

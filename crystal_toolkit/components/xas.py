@@ -5,6 +5,7 @@ from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from frozendict import frozendict
+from mp_api.client import MPRester
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
@@ -153,8 +154,6 @@ class XASComponent(MPComponent):
                 raise PreventUpdate
 
             url_path = f"/materials/{mpid['mpid']}/xas/{element}"
-
-            from mp_api.client import MPRester
 
             with MPRester() as mpr:
                 data = mpr._make_request(url_path)  # querying MP database via MAPI

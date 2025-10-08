@@ -28,6 +28,11 @@ if TYPE_CHECKING:
     import plotly.graph_objects as go
     from numpy.typing import ArrayLike
 
+try:
+    from mpcontribs.client import Client as MPContribsClient
+except ImportError:
+    MPContribsClient = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -126,13 +131,14 @@ def get_contribs_client():
 
     Client uses MPCONTRIBS_API_HOST by default.
     """
-    from mpcontribs.client import Client
+    if not MPContribsClient:
+        raise ImportError("Please install mpcontribs-client.")
 
     headers = get_consumer()
 
     if is_localhost():
-        return Client(apikey=get_user_api_key())
-    return Client(headers=headers)
+        return MPContribsClient(apikey=get_user_api_key())
+    return MPContribsClient(headers=headers)
 
 
 def get_contribs_api_base_url(request_url=None, deployment="contribs"):
@@ -624,12 +630,14 @@ def hook_up_fig_with_struct_viewer(
         Input(graph, "hoverData"),
         Input(graph, "clickData"),
         State(hover_click_dd, "value"),
+        State(graph, "figure"),
     )
     def update_structure(
         hover_data: dict[str, list[dict[str, Any]]],
         click_data: dict[str, list[dict[str, Any]]],  # needed only as callback trigger
         dropdown_value: str,
-    ) -> tuple[Structure, str, go.Figure] | tuple[None, None, None]:
+        fig: dict[str, Any],
+    ) -> tuple[Structure, str, dict[str, Any]] | tuple[None, None, None]:
         """Update StructureMoleculeComponent with pymatgen structure when user clicks or
         hovers a plot point.
         """
@@ -651,13 +659,20 @@ def hook_up_fig_with_struct_viewer(
         struct_title = f"{material_id} ({struct.formula})"
 
         if highlight_selected is not None:
-            # remove existing annotations with name="selected"
-            fig.layout.annotations = [
-                anno for anno in fig.layout.annotations if anno.name != "selected"
+            # Update annotations directly in the dictionary
+            fig["layout"].setdefault("annotations", [])
+
+            # Remove existing annotations with name="selected"
+            fig["layout"]["annotations"] = [
+                anno
+                for anno in fig["layout"]["annotations"]
+                if anno.get("name") != "selected"
             ]
-            # highlight selected point in figure
+
+            # Add new annotation to highlight selected point
             anno = highlight_selected(hover_data["points"][0])
-            fig.add_annotation(**anno, name="selected")
+            anno["name"] = "selected"
+            fig["layout"]["annotations"].append(anno)
 
         return struct, struct_title, fig
 
