@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import socketserver
 from typing import TYPE_CHECKING, ClassVar
 from warnings import warn
 
 from dash import Dash
-from monty.json import jsanitize
+from IPython.display import JSON, publish_display_data
+from monty.json import MSONable, jsanitize
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.core.structure import SiteCollection
 
@@ -16,8 +18,6 @@ from crystal_toolkit.core.plugin import CrystalToolkitPlugin
 from crystal_toolkit.settings import SETTINGS
 
 if TYPE_CHECKING:
-    from monty.json import MSONable
-
     from crystal_toolkit.core.mpcomponent import MPComponent
 
 
@@ -35,8 +35,6 @@ class _JupyterRenderer:
 
         Thank you Mihai Capotă, https://stackoverflow.com/a/61685162
         """
-        import socketserver
-
         with socketserver.TCPServer(("localhost", 0), None) as s:
             return s.server_address[1]
 
@@ -77,8 +75,6 @@ def _to_plotly_json(self):
 
 def _display_json(self, **kwargs):
     """Display JSON representation of an MSONable object inside Jupyter."""
-    from IPython.display import JSON
-
     JSON(self.as_dict(), **kwargs)
 
 
@@ -92,8 +88,6 @@ def _repr_mimebundle_(self, include=None, exclude=None):
 
 def _ipython_display_(self):
     """Display MSONable objects using a Crystal Toolkit component, if available."""
-    from IPython.display import publish_display_data
-
     if any(isinstance(self, x) for x in _JupyterRenderer.registry):
         return _JupyterRenderer().display(self)
 
@@ -127,8 +121,6 @@ def patch_msonable():
     """Patch MSONable to allow MSONable objects to render in Jupyter
     environments using Crystal Toolkit components.
     """
-    from monty.json import MSONable
-
     MSONable.to_plotly_json = _to_plotly_json
     MSONable._repr_mimebundle_ = _repr_mimebundle_
     MSONable.display_json = _display_json

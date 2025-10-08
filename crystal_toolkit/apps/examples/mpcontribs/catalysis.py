@@ -436,15 +436,15 @@ class CatalysisApp(MPApp):
             "Surface Formula": unicodeify(contribution["formula"]),
             "Surface Material ID": dcc.Link(
                 contribution["data"]["mpid"],
-                href=f'/materials/{contribution["data"]["mpid"]}',
+                href=f"/materials/{contribution['data']['mpid']}",
             ),
             "Adsorbate SMILES": adsorbate_smiles,
             "Adsorbate IUPAC Formula": contribution["data"]["adsorbateIUPACFormula"],
             "Adsorption Energy": contribution["data"]["adsorptionEnergy"]["value"],
             "Miller Index": unicodeify_spacegroup(
-                f'({int(contribution["data"]["h"]["value"])} '
-                f'{int(contribution["data"]["k"]["value"])} '
-                f'{int(contribution["data"]["l"]["value"])})'
+                f"({int(contribution['data']['h']['value'])} "
+                f"{int(contribution['data']['k']['value'])} "
+                f"{int(contribution['data']['l']['value'])})"
             ),
             "Surface Shift": contribution["data"]["surfaceShift"]["value"],
         }

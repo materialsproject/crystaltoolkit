@@ -586,9 +586,17 @@ class PourbaixDiagramComponent(MPComponent):
                             label="Heatmap entry",
                             help_str="Choose the entry to use for heatmap generation.",
                             disabled=True,
-                        )
+                        ),
+                        html.A(
+                            "\U0001f517 to detail page",
+                            id=self.id("ext-link"),
+                            href="",
+                            hidden=True,
+                            target="_blank",
+                        ),
                     ],
                     id=self.id("heatmap_choice_container"),
+                    style={"width": "250px"},  # better to assign a class for selection
                 ),
                 html.Div(id=self.id("element_specific_controls")),
             ]
@@ -615,8 +623,9 @@ class PourbaixDiagramComponent(MPComponent):
         @app.callback(
             Output(self.id("heatmap_choice_container"), "children"),
             Input(self.id(), "data"),
+            Input(self.id("mat-details"), "data"),
         )
-        def update_heatmap_choices(entries):
+        def update_heatmap_choices(entries, mat_detials):
             if not entries:
                 raise PreventUpdate
 
@@ -626,25 +635,64 @@ class PourbaixDiagramComponent(MPComponent):
                     composition = Composition(entry["entry"]["composition"])
                     formula = unicodeify(composition.reduced_formula)
                     mpid = entry["entry_id"]
-                    options.append({"label": f"{formula} ({mpid})", "value": mpid})
 
-            return self.get_choice_input(
-                "heatmap_choice",
-                state={},
-                label="Heatmap Entry",
-                help_str="Choose the entry to use for heatmap generation.",
-                options=options,
-                disabled=False,
-            )
+                    # get material details
+                    functional = mpid.split("-")[2]
+                    mpid_wo_function = "mp-" + mpid.split("-")[1]
+                    if mpid_wo_function in mat_detials:
+                        structure_text = mat_detials[mpid_wo_function]["structure_text"]
+                        crystal_system = mat_detials[mpid_wo_function]["crystal_system"]
+
+                        label_text_list = [
+                            f"{formula} ({mpid_wo_function}, {functional}) \n"
+                        ]
+                        if structure_text:
+                            label_text_list.append(
+                                " - Structure: " + structure_text + "\n"
+                            )
+                        if crystal_system:
+                            label_text_list.append(
+                                " - Crystal system: " + crystal_system + "\n"
+                            )
+                        label = "".join(label_text_list)
+
+                        option = {"label": label, "value": mpid}
+                    else:
+                        option = {"label": f"{formula} ({mpid})", "value": mpid}
+
+                    # options.append({"label": f"{formula} ({mpid})", "value": mpid})
+                    options.append(option)
+                    options.sort(key=lambda x: x["label"])
+            return [
+                self.get_choice_input(
+                    "heatmap_choice",
+                    state={},
+                    label="Heatmap Entry",
+                    help_str="Choose the entry to use for heatmap generation.",
+                    options=options,
+                    disabled=False,
+                    style={"width": "100%", "whiteSpace": "nowrap"},
+                ),
+                html.A(
+                    "\U0001f517 to detail page",
+                    id=self.id("ext-link"),
+                    href="",
+                    hidden=True,
+                    target="_blank",
+                ),
+            ]
 
         @app.callback(
             Output(self.id("element_specific_controls"), "children"),
+            Output(self.id("ext-link"), "hidden"),
+            Output(self.id("ext-link"), "href"),
             Input(self.id(), "data"),
             Input(self.get_kwarg_id("heatmap_choice"), "value"),
             State(self.get_kwarg_id("show_heatmap"), "value"),
+            prevent_initial_call=True,
         )
         def update_element_specific_sliders(entries, heatmap_choice, show_heatmap):
-            if not entries:
+            if (not entries) or (not heatmap_choice[0]):
                 raise PreventUpdate
 
             elements = set()
@@ -708,7 +756,13 @@ class PourbaixDiagramComponent(MPComponent):
                 comp_conc_controls.append(ctl.Label("Set Ion Concentration"))
             comp_conc_controls += conc_inputs
 
-            return html.Div(comp_conc_controls)
+            # external link to detail page
+            mpid_wo_function = "mp-" + heatmap_choice.split("-")[1]
+            external_link = (
+                f"https://next-gen.materialsproject.org/materials/{mpid_wo_function}"
+            )
+
+            return html.Div(comp_conc_controls), False, external_link
 
         @app.callback(
             Output(self.id("display-composition"), "children"),
