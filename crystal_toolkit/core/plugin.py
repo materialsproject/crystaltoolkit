@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from importlib import import_module
 from importlib.metadata import version
 from typing import TYPE_CHECKING
 
 from flask_caching import Cache
 
-from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.settings import SETTINGS
 
 if TYPE_CHECKING:
@@ -92,6 +92,7 @@ class CrystalToolkitPlugin:
             layout = layout()
 
         stores_to_add = []
+        MPComponent = import_module("crystal_toolkit.core.mpcomponent.MPComponent")
         for basename in MPComponent._all_id_basenames:
             # can use "if basename in layout_str:" to restrict to components present in initial layout
             # this would cause bugs for components displayed dynamically
