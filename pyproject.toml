@@ -11,7 +11,6 @@ requires-python = ">=3.9"
 authors = [{ name = "Matt Horton", email = "mkhorton@lbl.gov" }]
 
 dependencies = [
-    "crystaltoolkit-extension",
     "dash-mp-components>=0.4.38",
     "dash>=2.11.0",
     "flask-caching",
@@ -43,7 +42,8 @@ dev = [
     "recommonmark",
     "sphinx_rtd_theme",
 ]
-test = ["playwright", "pytest", "pytest-playwright", "pytest-cov"]
+test = ["playwright", "pytest", "pytest-playwright", "pytest-cov", "selenium<4", "urllib3<2"]
+jupyterlab_deprecated = ["crystaltoolkit-extension"]
 
 [project.urls]
 repo = "https://github.com/materialsproject/crystaltoolkit"
