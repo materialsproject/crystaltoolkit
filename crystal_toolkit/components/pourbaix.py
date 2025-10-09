@@ -648,7 +648,7 @@ class PourbaixDiagramComponent(MPComponent):
                         ]
                         if structure_text:
                             label_text_list.append(
-                                " - Structure: " + structure_text + "\n"
+                                " - Prototype: " + structure_text + "\n"
                             )
                         if crystal_system:
                             label_text_list.append(
