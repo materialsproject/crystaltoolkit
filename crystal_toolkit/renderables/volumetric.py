@@ -20,6 +20,7 @@ def get_isosurface_scene(
     isolvl: float | None = None,
     step_size: int = 4,
     origin: ArrayLike | None = None,
+    isolvl_as_percentile: bool = True,
     **kwargs: Any,
 ) -> Scene:
     """Get the isosurface from a VolumetricData object.
@@ -30,6 +31,7 @@ def get_isosurface_scene(
         isolvl (float, optional): The cutoff to compute the isosurface
         step_size (int, optional): step_size parameter for marching_cubes_lewiner. Defaults to 3.
         origin (ArrayLike, optional): The origin of the isosurface. Defaults to None.
+        isolvl_as_percentile (bool, optional): If True, interpret `isolvl` as a percentile in the range 0 to 100; if False, treat it as an absolute value.
         **kwargs: Passed to the Surface object.
 
     Returns:
@@ -42,10 +44,10 @@ def get_isosurface_scene(
     if isolvl is None:
         # get the value such that 20% of the weight is enclosed
         isolvl = np.percentile(data, 20)
-    else:
+    elif isolvl_as_percentile:
         isolvl = np.percentile(
-            data, min(isolvl, 1) * 100
-        )  # min is used for avoiding floating-point precision
+            data, np.clip(isolvl, 0.01, 99.9)
+        )  # np.clip is used for avoiding floating-point precision
 
     padded_data = np.pad(data, (0, 1), "wrap")
     try:
