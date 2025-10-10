@@ -38,9 +38,14 @@ def get_isosurface_scene(
     import skimage.measure
 
     origin = origin or list(-lattice.get_cartesian_coords([0.5, 0.5, 0.5]))
+
     if isolvl is None:
         # get the value such that 20% of the weight is enclosed
         isolvl = np.percentile(data, 20)
+    else:
+        isolvl = np.percentile(
+            data, min(isolvl, 1) * 100
+        )  # min is used for avoiding floating-point precision
 
     padded_data = np.pad(data, (0, 1), "wrap")
     try:
