@@ -56,7 +56,7 @@ class XRayDiffractionComponent(MPComponent):
     # Default XRD plot style settings
     default_xrd_plot_style = frozendict(
         xaxis={
-            "title": "2𝜃 / º",
+            "title": {"text": "2θ (°)", "font": {"size": 16}},
             "anchor": "y",
             "nticks": 8,
             "showgrid": True,
@@ -64,12 +64,11 @@ class XRayDiffractionComponent(MPComponent):
             "side": "bottom",
             "tickfont": {"size": 16.0},
             "ticks": "inside",
-            "titlefont": {"size": 16.0},
             "type": "linear",
             "zeroline": False,
         },
         yaxis={
-            "title": "Intensity / arb. units",
+            "title": {"text": "Intensity / arb. units", "font": {"size": 16}},
             "anchor": "x",
             "nticks": 7,
             "showgrid": True,
@@ -77,7 +76,6 @@ class XRayDiffractionComponent(MPComponent):
             "side": "left",
             "tickfont": {"size": 16.0},
             "ticks": "inside",
-            "titlefont": {"size": 16.0},
             "type": "linear",
             "zeroline": False,
         },
@@ -207,7 +205,7 @@ class XRayDiffractionComponent(MPComponent):
             help_str="This defines the wavelength of the incident X-ray radiation.",
             options=[
                 {
-                    "label": f'{name.replace("a", "α").replace("b", "β")} ({wavelength:.3f} Å)',  # noqa: RUF001
+                    "label": f"{name.replace('a', 'α').replace('b', 'β')} ({wavelength:.3f} Å)",  # noqa: RUF001
                     "value": name,
                 }
                 for name, wavelength in WAVELENGTHS.items()
@@ -377,9 +375,9 @@ crystals in a spherical shape is used. However, in practice K can vary from 0.62
                 )
                 sigma = (alpha / np.sqrt(2 * np.log(2))).item()
 
-                center_idx = int(round((xp - first) * N_density))
+                center_idx = round((xp - first) * N_density)
                 # total broadening window of 2 * num_sigma
-                half_window = int(round(num_sigma * sigma * N_density))
+                half_window = round(num_sigma * sigma * N_density)
 
                 lb = max(0, (center_idx - half_window))
                 ub = min(N, (center_idx + half_window))

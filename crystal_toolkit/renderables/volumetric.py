@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+import skimage.measure
 from pymatgen.io.vasp import VolumetricData
 
 from crystal_toolkit.core.scene import Scene, Surface
@@ -37,8 +38,6 @@ def get_isosurface_scene(
     Returns:
         Scene: object containing the isosurface component
     """
-    import skimage.measure
-
     origin = origin or list(-lattice.get_cartesian_coords([0.5, 0.5, 0.5]))
 
     if isolvl is None:
@@ -51,7 +50,7 @@ def get_isosurface_scene(
 
     padded_data = np.pad(data, (0, 1), "wrap")
     try:
-        vertices, faces, normals, values = skimage.measure.marching_cubes(
+        vertices, faces, _, _ = skimage.measure.marching_cubes(
             padded_data, level=isolvl, step_size=step_size, method="lewiner"
         )
     except (ValueError, RuntimeError) as err:

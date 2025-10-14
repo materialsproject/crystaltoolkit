@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from importlib import import_module
 
 import matplotlib.pyplot as plt
 from dash import Input, Output
@@ -43,9 +44,8 @@ class FermiSurfaceComponent(MPComponent):
         Returns:
             A plotly Figure object.
         """
-        from ifermi.plot import FermiSurfacePlotter
-
-        plotter = FermiSurfacePlotter(fermi_surface)
+        fermi_module = import_module("ifermi.plot")
+        plotter = fermi_module.FermiSurfacePlotter(fermi_surface)
         fig = plotter.get_plot(plot_type="plotly", **kwargs)
 
         # ensure the plot has a transparent background
