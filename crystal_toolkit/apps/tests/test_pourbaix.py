@@ -2,10 +2,10 @@ import threading
 
 from playwright.sync_api import Page
 
+from crystal_toolkit.apps.examples.pourbaix import app
+
 
 def test_pourbaix(page: Page):
-    from crystal_toolkit.apps.examples.pourbaix import app
-
     thread = threading.Thread(target=app.run)
     thread.start()
 

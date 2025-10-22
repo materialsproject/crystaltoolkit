@@ -101,7 +101,7 @@ class StructureMoleculeUploadComponent(MPComponent):
                 raise PreventUpdate
 
             # assume we only want the first input for now
-            content_type, content_string = contents.split(",")
+            _, content_string = contents.split(",")
             decoded_contents = b64decode(content_string)
 
             error = None

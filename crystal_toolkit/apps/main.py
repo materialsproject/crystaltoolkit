@@ -461,7 +461,7 @@ def perform_search_on_page_load(
     """
     # TODO: could be a client side callback
     if n_submit is None:
-        return 1, int(round(time() * 1000))
+        return 1, round(time() * 1000)
     raise PreventUpdate
 
 

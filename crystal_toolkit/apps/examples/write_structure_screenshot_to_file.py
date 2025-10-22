@@ -32,8 +32,6 @@ layout = html.Div(
 
 
 def get_structure_for_mpid(mpid):
-    from pymatgen.ext.matproj import MPRester
-
     with MPRester() as mpr:
         structure = mpr.get_structure_by_material_id(mpid)
 

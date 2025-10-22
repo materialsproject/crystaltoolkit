@@ -5,17 +5,15 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pytest
 from dash import Dash, Output
-from pymatgen.core import Structure
+from pymatgen.core import Lattice, Structure
 
 from crystal_toolkit.helpers.utils import hook_up_fig_with_struct_viewer
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_df() -> pd.DataFrame:
     """Create sample data for testing."""
     # Create a simple structure
-    from pymatgen.core import Lattice
-
     struct = Structure(
         lattice=Lattice.cubic(3),
         species=("Fe", "Fe"),
@@ -33,7 +31,7 @@ def sample_df() -> pd.DataFrame:
     ).set_index("material_id", drop=False)
 
 
-@pytest.fixture()
+@pytest.fixture
 def fig(sample_df: pd.DataFrame) -> go.Figure:
     # Create a simple scatter plot
     return px.scatter(
