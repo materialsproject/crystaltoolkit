@@ -61,7 +61,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             **kwargs,
         )
 
-        bs, dos = PhononBandstructureAndDosComponent._get_ph_bs_dos(
+        bs, _ = PhononBandstructureAndDosComponent._get_ph_bs_dos(
             self.initial_data["default"]
         )
         self.create_store("bs-store", bs)
@@ -108,9 +108,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     options=options,
                 )
             ],
-            style={"width": "200px"}
-            if show_path_options
-            else {"maxWidth": "200", "display": "none"},
+            style=(
+                {"width": "200px"}
+                if show_path_options
+                else {"maxWidth": "200", "display": "none"}
+            ),
             id=self.id("path-container"),
         )
 
@@ -125,9 +127,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     options=options,
                 )
             ],
-            style={"width": "200px"}
-            if show_path_options
-            else {"width": "200px", "display": "none"},
+            style=(
+                {"width": "200px"}
+                if show_path_options
+                else {"width": "200px", "display": "none"}
+            ),
             id=self.id("label-container"),
         )
 
@@ -541,7 +545,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         target="blank",
                     ),
                 ]
-            ): "Yes" if bs.has_nac else "No",
+            ): ("Yes" if bs.has_nac else "No"),
             "Has imaginary frequencies": "Yes" if bs.has_imaginary_freq() else "No",
             "Has eigen-displacements": "Yes" if bs.has_eigendisplacements else "No",
             "Min frequency": min_freq_report,
