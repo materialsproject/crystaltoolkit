@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -28,9 +29,7 @@ if TYPE_CHECKING:
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     from pymatgen.electronic_structure.dos import CompleteDos
 
-# Author: Jason Munro, Janosh Riebesell
-# Contact: jmunro@lbl.gov, janosh@lbl.gov
-
+DISPLACE_COEF = [0, 1, 0, -1, 0]
 
 # TODOs:
 # - look for additional projection methods in phonon DOS (currently only atom
@@ -214,131 +213,75 @@ class PhononBandstructureAndDosComponent(MPComponent):
         precision: int = 15,
         magnitude: int = 15,
     ) -> dict:
-        if not ph_bs:
+        if not ph_bs or not json_data:
             return {}
 
-        # get displacement
-        min_bond_length = float("inf")
-        for content_idx in range(len(json_data["contents"][1]["contents"])):
-            for pair_idx in range(
-                len(json_data["contents"][1]["contents"][content_idx]["_meta"])
-            ):
-                u, v = json_data["contents"][1]["contents"][content_idx][
-                    "positionPairs"
-                ][pair_idx]
-                # Convert to numpy arrays
-                u = np.array(u)
-                v = np.array(v)
-                length = np.linalg.norm(v - u)
-                min_bond_length = min(min_bond_length, length)
+        assert json_data["contents"][0]["name"] == "atoms"
+        assert json_data["contents"][1]["name"] == "bonds"
+        rdata = deepcopy(json_data)
+
+        def calc_displacement(idx: int) -> list:
+            return [
+                round(complex(vec).real * magnitude, precision)
+                for vec in ph_bs.eigendisplacements[band][qpoint][idx]
+            ]
+
+        def calc_animation_step(displacement: list, coef: int) -> list:
+            return [round(coef * magnitude * d, precision) for d in displacement]
 
         # atom animate
-        assert json_data["contents"][0]["name"] == "atoms"
-        for content_idx in range(len(json_data["contents"][0]["contents"])):
-            atom_idx = json_data["contents"][0]["contents"][content_idx]["_meta"][0]
-
-            raw_displacement = ph_bs.eigendisplacements[band][qpoint][atom_idx]
-
-            displacement = [complex(vec).real * magnitude for vec in raw_displacement]
-
-            position_animation = []
-            for displace_coef in [0, 1, 0, -1, 0]:
-                displace = [
-                    round(displace_coef * magnitude * d, precision)
-                    for d in displacement
-                ]
-                position_animation.append(displace)
-
-            json_data["contents"][0]["contents"][content_idx]["animate"] = (
-                position_animation
-            )
-            json_data["contents"][0]["contents"][content_idx]["keyframes"] = [
-                0,
-                1,
-                2,
-                3,
-                4,
+        contents0 = json_data["contents"][0]["contents"]
+        for cidx, content in enumerate(contents0):
+            displacement = calc_displacement(content["_meta"][0])
+            rcontent = rdata["contents"][0]["contents"][cidx]
+            rcontent["animate"] = [
+                calc_animation_step(displacement, coef) for coef in DISPLACE_COEF
             ]
-            json_data["contents"][0]["contents"][content_idx]["animateType"] = (
-                "displacement"
-            )
+            rcontent["keyframes"] = list(range(5))
+            rcontent["animateType"] = "displacement"
 
-        # bond animate
-        assert json_data["contents"][1]["name"] == "bonds"
-        for content_idx in range(len(json_data["contents"][1]["contents"])):
+        # get displacement and bond animate
+        min_bond_length = float("inf")
+        contents1 = json_data["contents"][1]["contents"]
+        for cidx, content in enumerate(contents1):
             bond_animation = []
+            assert len(content["_meta"]) == len(content["positionPairs"])
 
-            assert len(
-                json_data["contents"][1]["contents"][content_idx]["_meta"]
-            ) == len(json_data["contents"][1]["contents"][content_idx]["positionPairs"])
+            for pair in enumerate(content["_meta"]):
+                u, v = rdata["contents"][1]["contents"][cidx]["positionPairs"] = list(
+                    map(np.array, pair)
+                )
+                length = np.linalg.norm(v - u)
+                min_bond_length = min(min_bond_length, length)
+                displacements = list(map(calc_displacement, pair))
+                u_to_middle_bond_animation = []
 
-            for pair_idx in range(
-                len(json_data["contents"][1]["contents"][content_idx]["_meta"])
-            ):
-                u_idx, v_idx = json_data["contents"][1]["contents"][content_idx][
-                    "_meta"
-                ][pair_idx]
-
-                # u
-                u_raw_displacement = ph_bs.eigendisplacements[band][qpoint][u_idx]
-                u_displacement = [
-                    round(complex(vec).real * magnitude, precision)
-                    for vec in u_raw_displacement
-                ]
-
-                # v
-                v_raw_displacement = ph_bs.eigendisplacements[band][qpoint][v_idx]
-                v_displacement = [
-                    round(complex(vec).real * magnitude, precision)
-                    for vec in v_raw_displacement
-                ]
-
-                # only draw in unit cell
-                u_to_middle_bond_animation = []  # u to middle
-                # v_to_middle_bond_animation = [] # v to middle
-                for displace_coef in [0, 1, 0, -1, 0]:
-                    u_end_displacement = [
-                        round(displace_coef * magnitude * d, precision)
-                        for d in u_displacement
-                    ]
-                    v_end_displacement = [
-                        round(displace_coef * magnitude * d, precision)
-                        for d in v_displacement
-                    ]
+                for coef in DISPLACE_COEF:
                     middle_end_displacement = (
-                        (np.array(u_end_displacement) + np.array(v_end_displacement))
+                        np.add(
+                            np.array(calc_animation_step(displacement, coef))
+                            for displacement in displacements
+                        )
                         / 2
-                    ).tolist()
-                    middle_end_displacement = [
-                        round(dis, precision) for dis in middle_end_displacement
-                    ]
-
-                    u2middle_animation = [u_end_displacement, middle_end_displacement]
-                    # v2middle_animation = [v_end_displacement, middle_end_displacement]
-
-                    u_to_middle_bond_animation.append(u2middle_animation)
-                    # v_to_middle_bond_animation.append(v2middle_animation)
+                    )
+                    u_to_middle_bond_animation.append(
+                        [
+                            displacements[0],
+                            [round(dis, precision) for dis in middle_end_displacement],
+                        ]
+                    )
 
                 bond_animation.append(u_to_middle_bond_animation)
-            json_data["contents"][1]["contents"][content_idx]["animate"] = (
-                bond_animation
-            )
-            json_data["contents"][1]["contents"][content_idx]["keyframes"] = [
-                0,
-                1,
-                2,
-                3,
-                4,
-            ]
-            json_data["contents"][1]["contents"][content_idx]["animateType"] = (
-                "displacement"
-            )
+
+            rdata["contents"][1]["contents"][cidx]["animate"] = bond_animation
+            rdata["contents"][1]["contents"][cidx]["keyframes"] = list(range(5))
+            rdata["contents"][1]["contents"][cidx]["animateType"] = "displacement"
 
         # remove polyhedra manually
-        json_data["contents"][2]["visible"] = False
-        json_data["contents"][3]["visible"] = False
+        for i in range(2, 4):
+            rdata["contents"][i]["visible"] = False
 
-        return json_data
+        return rdata
 
     @staticmethod
     def _get_ph_bs_dos(
