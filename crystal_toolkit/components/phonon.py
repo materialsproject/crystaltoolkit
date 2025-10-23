@@ -283,6 +283,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         #   [mid_x_displacement, mid_y_displacement, mid_z_displacement]
         # ].
         contents1 = json_data["contents"][1]["contents"]
+
         for cidx, content in enumerate(contents1):
             bond_animation = []
             assert len(content["_meta"]) == len(content["positionPairs"])
@@ -294,26 +295,17 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
                 u_to_middle_bond_animation = []
 
-                for frame_idx, coef in enumerate(DISPLACE_COEF):
+                for coef in DISPLACE_COEF:
                     # Calculate the midpoint displacement between atom u and v for each animation frame.
-                    middle_end_displacement = (
-                        np.add(
-                            *(
-                                [
-                                    np.array(
-                                        calc_animation_step(max_displacement, coef)
-                                    )
-                                    for max_displacement in max_displacements
-                                ]
-                            )
-                        )
-                        / 2
-                    )
+                    u_displacement, v_displacement = [
+                        np.array(calc_animation_step(max_displacement, coef))
+                        for max_displacement in max_displacements
+                    ]
+                    middle_end_displacement = np.add(u_displacement, v_displacement) / 2
+
                     u_to_middle_bond_animation.append(
                         [
-                            rdata["contents"][0]["contents"][atom_idx_pair[0]][
-                                "animate"
-                            ][frame_idx],  # u atom displacement
+                            u_displacement,  # u atom displacement
                             [
                                 round(dis, precision) for dis in middle_end_displacement
                             ],  # middle point displacement
