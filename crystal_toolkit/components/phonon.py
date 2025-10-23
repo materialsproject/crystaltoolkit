@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -28,9 +29,7 @@ if TYPE_CHECKING:
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     from pymatgen.electronic_structure.dos import CompleteDos
 
-# Author: Jason Munro, Janosh Riebesell
-# Contact: jmunro@lbl.gov, janosh@lbl.gov
-
+DISPLACE_COEF = [0, 1, 0, -1, 0]
 
 # TODOs:
 # - look for additional projection methods in phonon DOS (currently only atom
@@ -61,7 +60,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             **kwargs,
         )
 
-        bs, dos = PhononBandstructureAndDosComponent._get_ph_bs_dos(
+        bs, _ = PhononBandstructureAndDosComponent._get_ph_bs_dos(
             self.initial_data["default"]
         )
         self.create_store("bs-store", bs)
@@ -108,9 +107,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     options=options,
                 )
             ],
-            style={"width": "200px"}
-            if show_path_options
-            else {"maxWidth": "200", "display": "none"},
+            style=(
+                {"width": "200px"}
+                if show_path_options
+                else {"maxWidth": "200", "display": "none"}
+            ),
             id=self.id("path-container"),
         )
 
@@ -125,9 +126,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     options=options,
                 )
             ],
-            style={"width": "200px"}
-            if show_path_options
-            else {"width": "200px", "display": "none"},
+            style=(
+                {"width": "200px"}
+                if show_path_options
+                else {"width": "200px", "display": "none"}
+            ),
             id=self.id("label-container"),
         )
 
@@ -208,133 +211,128 @@ class PhononBandstructureAndDosComponent(MPComponent):
         band: int = 0,
         qpoint: int = 0,
         precision: int = 15,
-        magnitude: int = 15,
+        magnitude: int = 225,
     ) -> dict:
-        if not ph_bs:
+        if not ph_bs or not json_data:
             return {}
 
-        # get displacement
-        min_bond_length = float("inf")
-        for content_idx in range(len(json_data["contents"][1]["contents"])):
-            for pair_idx in range(
-                len(json_data["contents"][1]["contents"][content_idx]["_meta"])
-            ):
-                u, v = json_data["contents"][1]["contents"][content_idx][
-                    "positionPairs"
-                ][pair_idx]
-                # Convert to numpy arrays
-                u = np.array(u)
-                v = np.array(v)
-                length = np.linalg.norm(v - u)
-                min_bond_length = min(min_bond_length, length)
-
-        # atom animate
         assert json_data["contents"][0]["name"] == "atoms"
-        for content_idx in range(len(json_data["contents"][0]["contents"])):
-            atom_idx = json_data["contents"][0]["contents"][content_idx]["_meta"][0]
-
-            raw_displacement = ph_bs.eigendisplacements[band][qpoint][atom_idx]
-
-            displacement = [complex(vec).real * magnitude for vec in raw_displacement]
-
-            position_animation = []
-            for displace_coef in [0, 1, 0, -1, 0]:
-                displace = [
-                    round(displace_coef * magnitude * d, precision)
-                    for d in displacement
-                ]
-                position_animation.append(displace)
-
-            json_data["contents"][0]["contents"][content_idx]["animate"] = (
-                position_animation
-            )
-            json_data["contents"][0]["contents"][content_idx]["keyframes"] = [
-                0,
-                1,
-                2,
-                3,
-                4,
-            ]
-            json_data["contents"][0]["contents"][content_idx]["animateType"] = (
-                "displacement"
-            )
-
-        # bond animate
         assert json_data["contents"][1]["name"] == "bonds"
-        for content_idx in range(len(json_data["contents"][1]["contents"])):
+        rdata = deepcopy(json_data)
+
+        def calc_max_displacement(idx: int) -> list:
+            """
+            Retrieve the eigendisplacement for a given atom index from `ph_bs` and compute its maximum displacement.
+
+            Parameters:
+                idx (int): The atom index.
+
+            Returns:
+                list: The maximum displacement vector in the form [x_max_displacement, y_max_displacement, z_max_displacement]
+
+            This function extracts the real component of the atom's eigendisplacement,
+            scales it by the specified magnitude, and returns the resulting vector.
+            """
+            return [
+                round(complex(vec).real * magnitude, precision)
+                for vec in ph_bs.eigendisplacements[band][qpoint][idx]
+            ]
+
+        def calc_animation_step(max_displacement: list, coef: int) -> list:
+            """
+            Calculate the displacement for an animation frame based on the given coefficient.
+
+            Parameters:
+                max_displacement (list): A list of maximum displacements along each axis,
+                    formatted as [x_max_displacement, y_max_displacement, z_max_displacement].
+                coef (int): A coefficient indicating the motion direction.
+                    - 0: no movement
+                    - 1: forward movement
+                    - -1: backward movement
+
+            Returns:
+                list: The displacement vector [x_displacement, y_displacement, z_displacement].
+
+            This function generates oscillatory motion by scaling the maximum displacement
+            with the provided coefficient.
+            """
+            return [round(coef * md, precision) for md in max_displacement]
+
+        # Compute per-frame atomic motion.
+        # `rcontent["animate"]` stores the displacement (distance difference) from the previous coordinates.
+        contents0 = json_data["contents"][0]["contents"]
+        for cidx, content in enumerate(contents0):
+            max_displacement = calc_max_displacement(content["_meta"][0])
+            rcontent = rdata["contents"][0]["contents"][cidx]
+            # put animation frame to the given atom index
+            rcontent["animate"] = [
+                calc_animation_step(max_displacement, coef) for coef in DISPLACE_COEF
+            ]
+            rcontent["keyframes"] = list(range(len(DISPLACE_COEF)))
+            rcontent["animateType"] = "displacement"
+        # Compute per-frame bonding motion.
+        # Explanation:
+        # Each bond connects two atoms, `u` and `v`, represented as (u)----(v)
+        # To model the bond motion, it is divided into two segments:
+        # from `u` to the midpoint and from the midpoint to `v`, i.e., (u)--(mid)--(v)
+        # Thus, two cylinders are created: one for (u)--(mid) and another for (v)--(mid).
+        # For each cylinder, displacements are assigned to the endpoints — for example,
+        # the (u)--(mid) cylinder uses:
+        # [
+        #   [u_x_displacement, u_y_displacement, u_z_displacement],
+        #   [mid_x_displacement, mid_y_displacement, mid_z_displacement]
+        # ].
+        contents1 = json_data["contents"][1]["contents"]
+        for cidx, content in enumerate(contents1):
             bond_animation = []
+            assert len(content["_meta"]) == len(content["positionPairs"])
 
-            assert len(
-                json_data["contents"][1]["contents"][content_idx]["_meta"]
-            ) == len(json_data["contents"][1]["contents"][content_idx]["positionPairs"])
+            for atom_idx_pair in content["_meta"]:
+                max_displacements = list(
+                    map(calc_max_displacement, atom_idx_pair)
+                )  # max displacement for u and v
 
-            for pair_idx in range(
-                len(json_data["contents"][1]["contents"][content_idx]["_meta"])
-            ):
-                u_idx, v_idx = json_data["contents"][1]["contents"][content_idx][
-                    "_meta"
-                ][pair_idx]
+                u_to_middle_bond_animation = []
 
-                # u
-                u_raw_displacement = ph_bs.eigendisplacements[band][qpoint][u_idx]
-                u_displacement = [
-                    round(complex(vec).real * magnitude, precision)
-                    for vec in u_raw_displacement
-                ]
-
-                # v
-                v_raw_displacement = ph_bs.eigendisplacements[band][qpoint][v_idx]
-                v_displacement = [
-                    round(complex(vec).real * magnitude, precision)
-                    for vec in v_raw_displacement
-                ]
-
-                # only draw in unit cell
-                u_to_middle_bond_animation = []  # u to middle
-                # v_to_middle_bond_animation = [] # v to middle
-                for displace_coef in [0, 1, 0, -1, 0]:
-                    u_end_displacement = [
-                        round(displace_coef * magnitude * d, precision)
-                        for d in u_displacement
-                    ]
-                    v_end_displacement = [
-                        round(displace_coef * magnitude * d, precision)
-                        for d in v_displacement
-                    ]
+                for frame_idx, coef in enumerate(DISPLACE_COEF):
+                    # Calculate the midpoint displacement between atom u and v for each animation frame.
                     middle_end_displacement = (
-                        (np.array(u_end_displacement) + np.array(v_end_displacement))
+                        np.add(
+                            *(
+                                [
+                                    np.array(
+                                        calc_animation_step(max_displacement, coef)
+                                    )
+                                    for max_displacement in max_displacements
+                                ]
+                            )
+                        )
                         / 2
-                    ).tolist()
-                    middle_end_displacement = [
-                        round(dis, precision) for dis in middle_end_displacement
-                    ]
-
-                    u2middle_animation = [u_end_displacement, middle_end_displacement]
-                    # v2middle_animation = [v_end_displacement, middle_end_displacement]
-
-                    u_to_middle_bond_animation.append(u2middle_animation)
-                    # v_to_middle_bond_animation.append(v2middle_animation)
+                    )
+                    u_to_middle_bond_animation.append(
+                        [
+                            rdata["contents"][0]["contents"][atom_idx_pair[0]][
+                                "animate"
+                            ][frame_idx],  # u atom displacement
+                            [
+                                round(dis, precision) for dis in middle_end_displacement
+                            ],  # middle point displacement
+                        ]
+                    )
 
                 bond_animation.append(u_to_middle_bond_animation)
-            json_data["contents"][1]["contents"][content_idx]["animate"] = (
-                bond_animation
-            )
-            json_data["contents"][1]["contents"][content_idx]["keyframes"] = [
-                0,
-                1,
-                2,
-                3,
-                4,
-            ]
-            json_data["contents"][1]["contents"][content_idx]["animateType"] = (
-                "displacement"
-            )
 
-        # remove polyhedra manually
-        json_data["contents"][2]["visible"] = False
-        json_data["contents"][3]["visible"] = False
+            rdata["contents"][1]["contents"][cidx]["animate"] = bond_animation
+            rdata["contents"][1]["contents"][cidx]["keyframes"] = list(
+                range(len(DISPLACE_COEF))
+            )
+            rdata["contents"][1]["contents"][cidx]["animateType"] = "displacement"
 
-        return json_data
+        # remove unused sense
+        for i in range(2, 4):
+            rdata["contents"][i]["visible"] = False
+
+        return rdata
 
     @staticmethod
     def _get_ph_bs_dos(
@@ -541,7 +539,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         target="blank",
                     ),
                 ]
-            ): "Yes" if bs.has_nac else "No",
+            ): ("Yes" if bs.has_nac else "No"),
             "Has imaginary frequencies": "Yes" if bs.has_imaginary_freq() else "No",
             "Has eigen-displacements": "Yes" if bs.has_eigendisplacements else "No",
             "Min frequency": min_freq_report,

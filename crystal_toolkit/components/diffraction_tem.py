@@ -294,7 +294,7 @@ class TEMDiffractionCalculator:
                 pattern, thickness=thickness, zone_axis_lattice=beam_direction
             )
 
-        print(f"Generated pattern in {time()-t0:.3f} seconds")
+        print(f"Generated pattern in {time() - t0:.3f} seconds")
 
         # generate plotly Figure
         return self.pointlist_to_spots(pattern, beam_direction, gamma)
@@ -325,7 +325,6 @@ class TEMDiffractionCalculator:
             k_max=self.k_max,
             thermal_sigma=DWF,
             recompute_kinematic_structure_factors=False,
-            verbose=False,
         )
 
         self.dynamical_method = dynamical_method
