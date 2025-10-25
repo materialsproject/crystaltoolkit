@@ -796,27 +796,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             clickmode="event+select",
         )
 
-        default_red_dot = [
-            {
-                "type": "scatter",
-                "mode": "markers",
-                "x": [0],
-                "y": [0],
-                "marker": {
-                    "color": MARKER_COLOR,
-                    "size": MARKER_SIZE,
-                    "symbol": MARKER_SHAPE,
-                },
-                "name": "click-marker",
-                "showlegend": False,
-                "customdata": [[0, 0]],
-                "hovertemplate": (
-                    "band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>"
-                ),
-            }
-        ]
-
-        figure = {"data": bs_traces + dos_traces + default_red_dot, "layout": layout}
+        figure = {"data": bs_traces + dos_traces, "layout": layout}
 
         legend = dict(
             x=1.02,
@@ -851,37 +831,37 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 dos = CompletePhononDos.from_dict(dos)
 
             figure = self.get_figure(bs, dos)
-            if nclick and nclick.get("points"):
-                # remove marker if there is one
-                figure["data"] = [
-                    t for t in figure["data"] if t.get("name") != "click-marker"
-                ]
 
-                x_click = nclick["points"][0]["x"]
-                y_click = nclick["points"][0]["y"]
+            # remove marker if there is one
+            figure["data"] = [
+                t for t in figure["data"] if t.get("name") != "click-marker"
+            ]
 
-                pt = nclick["points"][0]
-                qpoint, band_num = pt.get("customdata", [0, 0])
+            x_click = nclick["points"][0]["x"] if nclick else 0
+            y_click = nclick["points"][0]["y"] if nclick else 0
+            pt = nclick["points"][0] if nclick else {}
 
-                figure["data"].append(
-                    {
-                        "type": "scatter",
-                        "mode": "markers",
-                        "x": [x_click],
-                        "y": [y_click],
-                        "marker": {
-                            "color": MARKER_COLOR,
-                            "size": MARKER_SIZE,
-                            "symbol": MARKER_SHAPE,
-                        },
-                        "name": "click-marker",
-                        "showlegend": False,
-                        "customdata": [[qpoint, band_num]],
-                        "hovertemplate": (
-                            "band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>"
-                        ),
-                    }
-                )
+            qpoint, band_num = pt.get("customdata", [0, 0])
+
+            figure["data"].append(
+                {
+                    "type": "scatter",
+                    "mode": "markers",
+                    "x": [x_click],
+                    "y": [y_click],
+                    "marker": {
+                        "color": MARKER_COLOR,
+                        "size": MARKER_SIZE,
+                        "symbol": MARKER_SHAPE,
+                    },
+                    "name": "click-marker",
+                    "showlegend": False,
+                    "customdata": [[qpoint, band_num]],
+                    "hovertemplate": (
+                        "band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>"
+                    ),
+                }
+            )
 
             zone_scene = self.get_brillouin_zone_scene(bs)
 
