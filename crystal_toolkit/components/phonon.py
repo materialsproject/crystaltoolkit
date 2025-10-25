@@ -184,6 +184,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             default=1,
                             is_int=True,
                             label="x",
+                            min=1,
                             style={"width": "5rem"},
                         ),
                         self.get_numerical_input(
@@ -191,6 +192,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             default=1,
                             is_int=True,
                             label="y",
+                            min=1,
                             style={"width": "5rem"},
                         ),
                         self.get_numerical_input(
@@ -198,6 +200,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             default=1,
                             is_int=True,
                             label="z",
+                            min=1,
                             style={"width": "5rem"},
                         ),
                         html.Button(
