@@ -1715,8 +1715,6 @@ class PhononBandstructureAndDosComponent_v2(MPComponent):
                 pt = cd["points"][0]
                 qpoint, band_num = pt.get("customdata", [0, 0])
 
-            print(scale_x, scale_y, scale_z)
-            print(magnitude_fraction)
             # magnitude
             magnitude = (
                 MAX_MAGNITUDE - MIN_MAGNITUDE
