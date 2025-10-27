@@ -1661,42 +1661,10 @@ class PhononBandstructureAndDosComponent_v2(MPComponent):
             Input(self.id("ph-bsdos-graph"), "clickData"),
             Input(self.id("ph_bs"), "data"),
             Input(self.id("supercell-controls-btn"), "n_clicks"),
-            Input(
-                {
-                    "component_id": "CTPhononSection_phonon_bs",
-                    "kwarg_label": "magnitude",
-                    "idx": "False",
-                    "hint": "slider",
-                },
-                "value",
-            ),
-            State(
-                {
-                    "component_id": "CTPhononSection_phonon_bs",
-                    "kwarg_label": "scale-x",
-                    "idx": "()",
-                    "hint": "()",
-                },
-                "value",
-            ),
-            State(
-                {
-                    "component_id": "CTPhononSection_phonon_bs",
-                    "kwarg_label": "scale-y",
-                    "idx": "()",
-                    "hint": "()",
-                },
-                "value",
-            ),
-            State(
-                {
-                    "component_id": "CTPhononSection_phonon_bs",
-                    "kwarg_label": "scale-z",
-                    "idx": "()",
-                    "hint": "()",
-                },
-                "value",
-            ),
+            Input(self.get_kwarg_id("magnitude"), "value"),
+            State(self.get_kwarg_id("scale-x"), "value"),
+            State(self.get_kwarg_id("scale-y"), "value"),
+            State(self.get_kwarg_id("scale-z"), "value"),
             # prevent_initial_call=True
         )
         def update_crystal_animation(
@@ -1707,6 +1675,15 @@ class PhononBandstructureAndDosComponent_v2(MPComponent):
 
             if not bs:
                 raise PreventUpdate
+
+            # Since `self.get_kwarg_id()` uses dash.dependencies.ALL, it returns a list of values.
+            # Although we could use `magnitude_fraction = magnitude_fraction[0]` to get the first value,
+            # this approach provides better clarity and readability.
+            kwargs = self.reconstruct_kwargs_from_state()
+            magnitude_fraction = kwargs.get("magnitude")
+            scale_x = kwargs.get("scale-x")
+            scale_y = kwargs.get("scale-y")
+            scale_z = kwargs.get("scale-z")
 
             if isinstance(bs, dict):
                 bs = PhononBandStructureSymmLine.from_dict(bs)
@@ -1738,6 +1715,8 @@ class PhononBandstructureAndDosComponent_v2(MPComponent):
                 pt = cd["points"][0]
                 qpoint, band_num = pt.get("customdata", [0, 0])
 
+            print(scale_x, scale_y, scale_z)
+            print(magnitude_fraction)
             # magnitude
             magnitude = (
                 MAX_MAGNITUDE - MIN_MAGNITUDE
