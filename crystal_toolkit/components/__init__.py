@@ -14,6 +14,7 @@ from crystal_toolkit.components.phase_diagram import (
 )
 from crystal_toolkit.components.phonon import (
     PhononBandstructureAndDosComponent,
+    PhononBandstructureAndDosComponent_v2,
     PhononBandstructureAndDosPanelComponent,
 )
 from crystal_toolkit.components.pourbaix import PourbaixDiagramComponent
