@@ -12,9 +12,9 @@ blake3==1.0.8
     # via emmet-core
 blinker==1.9.0
     # via flask
-boto3==1.40.58
+boto3==1.40.61
     # via mp-api
-botocore==1.40.58
+botocore==1.40.61
     # via
     #   boto3
     #   s3transfer
@@ -88,7 +88,7 @@ mpmath==1.3.0
     # via sympy
 msgpack==1.1.2
     # via mp-api
-narwhals==2.9.0
+narwhals==2.10.0
     # via plotly
 nest-asyncio==1.6.0
     # via dash
@@ -163,7 +163,7 @@ python-dateutil==2.9.0.post0
     #   botocore
     #   matplotlib
     #   pandas
-python-dotenv==1.1.1
+python-dotenv==1.2.1
     # via pydantic-settings
 pytz==2025.2
     # via pandas
@@ -189,7 +189,7 @@ scikit-image==0.25.2
     # via crystal_toolkit (pyproject.toml)
 scikit-learn==1.7.2
     # via crystal_toolkit (pyproject.toml)
-scipy==1.16.2
+scipy==1.16.3
     # via
     #   pymatgen
     #   scikit-image
