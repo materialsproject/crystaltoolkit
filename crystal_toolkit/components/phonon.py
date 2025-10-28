@@ -1082,8 +1082,9 @@ class PhononBandstructureAndDosComponent_v2(MPComponent):
 
             # get the atom index
             assert total_repeat_cell_cnt != 0
+
             modified_idx = (
-                (idx // total_repeat_cell_cnt) if total_repeat_cell_cnt else idx
+                int(idx // total_repeat_cell_cnt) if total_repeat_cell_cnt else idx
             )
 
             return [
