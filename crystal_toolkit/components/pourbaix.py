@@ -5,7 +5,7 @@ import re
 import numpy as np
 import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Component, Input, Output, State
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from frozendict import frozendict
 from pymatgen.analysis.pourbaix_diagram import PREFAC, PourbaixDiagram
@@ -31,6 +31,8 @@ __email__ = "joseph.montoya@tri.global"
 
 HEIGHT = 550  # in px
 WIDTH = 700  # in px
+MIN_CONCENTRATION = 1e-8
+MAX_CONCENTRATION = 5
 
 
 class PourbaixDiagramComponent(MPComponent):
@@ -405,50 +407,50 @@ class PourbaixDiagramComponent(MPComponent):
                 )
             )
             layout.update({"annotations": []})
-        else:
-            # Add annotations to layout to make text more readable when displaying heatmaps
+        # else:
+        # Add annotations to layout to make text more readable when displaying heatmaps
 
-            # TODO: this doesn't work yet; resolve or scrap
-            # cmap = get_cmap(PourbaixDiagramComponent.colorscale)
-            # def get_text_color(x, y):
-            #     """
-            #     Set text color based on whether background at that point is dark or light.
-            #     """
-            #     energy = pourbaix_diagram.get_decomposition_energy(entry, pH=x, V=y)
-            #     c = [int(c * 255) for c in cmap(energy)[0:3]]
-            #     # borrowed from crystal_toolkit.components.structure
-            #     # TODO: move to utility function and ensure correct attribution for magic numbers
-            #     if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5:
-            #         font_color = "#000000"
-            #     else:
-            #         font_color = "#ffffff"
-            #     #print(energy, c, font_color)
-            #     return font_color
+        # TODO: this doesn't work yet; resolve or scrap
+        # cmap = get_cmap(PourbaixDiagramComponent.colorscale)
+        # def get_text_color(x, y):
+        #     """
+        #     Set text color based on whether background at that point is dark or light.
+        #     """
+        #     energy = pourbaix_diagram.get_decomposition_energy(entry, pH=x, V=y)
+        #     c = [int(c * 255) for c in cmap(energy)[0:3]]
+        #     # borrowed from crystal_toolkit.components.structure
+        #     # TODO: move to utility function and ensure correct attribution for magic numbers
+        #     if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5:
+        #         font_color = "#000000"
+        #     else:
+        #         font_color = "#ffffff"
+        #     #print(energy, c, font_color)
+        #     return font_color
 
-            def get_text_size(available_vertical_space):
-                """Set text size based on available vertical space."""
-                return min(max(6 * available_vertical_space, 12), 20)
+        # def get_text_size(available_vertical_space):
+        #     """Set text size based on available vertical space."""
+        #     return min(max(6 * available_vertical_space, 12), 20)
 
-            annotations = [
-                {
-                    "align": "center",
-                    "bgcolor": "white",
-                    "font": {"color": "black", "size": get_text_size(height)},
-                    "opacity": 1,
-                    "showarrow": False,
-                    "text": label,
-                    "x": x,
-                    "xanchor": "center",
-                    "yanchor": "auto",
-                    # "xshift": -10,
-                    # "yshift": -10,
-                    "xref": "x",
-                    "y": y,
-                    "yref": "y",
-                }
-                for (x, y), label, height in zip(xy_data, labels, domain_heights)
-            ]
-            layout.update({"annotations": annotations})
+        # annotations = [
+        #     {
+        #         "align": "center",
+        #         "bgcolor": "white",
+        #         "font": {"color": "black", "size": get_text_size(height)},
+        #         "opacity": 1,
+        #         "showarrow": False,
+        #         "text": label,
+        #         "x": x,
+        #         "xanchor": "center",
+        #         "yanchor": "auto",
+        #         # "xshift": -10,
+        #         # "yshift": -10,
+        #         "xref": "x",
+        #         "y": y,
+        #         "yref": "y",
+        #     }
+        #     for (x, y), label, height in zip(xy_data, labels, domain_heights)
+        # ]
+        # layout.update({"annotations": annotations}) # shouldn't have annotation when heatmap_entry presents
 
         # Get data for heatmap
         if heatmap_entry is not None:
@@ -562,7 +564,8 @@ class PourbaixDiagramComponent(MPComponent):
             [
                 self.get_bool_input(
                     "filter_solids",
-                    state=self.default_state,
+                    # state=self.default_state,
+                    default=self.default_state["filter_solids"],
                     label="Filter Solids",
                     help_str="Whether to filter solid phases by stability on the compositional phase diagram. "
                     "The practical consequence of this is that highly oxidized or reduced phases that "
@@ -571,9 +574,16 @@ class PourbaixDiagramComponent(MPComponent):
                     "overstabilized from DFT errors). Hence, including only the stable solid phases generally "
                     "leads to the most accurate Pourbaix diagrams.",
                 ),
+                html.Div(
+                    [
+                        html.Div(id=self.id("element_specific_controls")),
+                        ctl.Block(html.Div(id=self.id("display-composition"))),
+                    ]
+                ),
                 self.get_bool_input(
                     "show_heatmap",  # kwarg_label
-                    state=self.default_state,
+                    # state=self.default_state,
+                    default=self.default_state["show_heatmap"],
                     label="Show Heatmap",
                     help_str="Hide or show a heatmap showing the decomposition energy for a specific "
                     "entry in this system.",
@@ -598,7 +608,6 @@ class PourbaixDiagramComponent(MPComponent):
                     id=self.id("heatmap_choice_container"),
                     style={"width": "250px"},  # better to assign a class for selection
                 ),
-                html.Div(id=self.id("element_specific_controls")),
             ]
         )
 
@@ -628,6 +637,8 @@ class PourbaixDiagramComponent(MPComponent):
         def update_heatmap_choices(entries, mat_detials):
             if not entries:
                 raise PreventUpdate
+
+            print("should be 4")
 
             options = []
             for entry in entries:
@@ -682,6 +693,94 @@ class PourbaixDiagramComponent(MPComponent):
                 ),
             ]
 
+        @app.callback(
+            Output(self.id("element_specific_controls"), "children"),
+            Input(self.id(), "data"),
+            # Input(self.get_kwarg_id("heatmap_choice"), "value"),
+            # State(self.get_kwarg_id("show_heatmap"), "value"),
+            prevent_initial_call=True,
+        )
+        def update_element_specific_sliders(
+            entries,
+        ):  # , heatmap_choice, show_heatmap):
+            """
+            When pourbaix entries input, add concentration and composition options
+            """
+            if not entries:
+                raise PreventUpdate
+
+            print("should be 1")
+            elements = set()
+
+            # kwargs = self.reconstruct_kwargs_from_state()
+            # heatmap_choice = kwargs.get("heatmap_choice", None)
+            # show_heatmap = kwargs.get("show_heatmap", False)
+            # heatmap_entry = None
+
+            for entry in entries:
+                if entry["entry_id"].startswith("mp"):
+                    composition = Composition(entry["entry"]["composition"])
+                    elements.update(composition.elements)
+                # if entry["entry_id"] == heatmap_choice:
+                #     heatmap_entry = entry
+
+            # exclude O and H
+            elements = elements - ELEMENTS_HO
+
+            comp_defaults = {element: 1 / len(elements) for element in elements}
+
+            comp_inputs = []
+            conc_inputs = []
+            for element in sorted(elements):
+                if len(elements) > 1:
+                    comp_input = html.Div(
+                        [
+                            self.get_slider_input(
+                                f"comp-{element}",
+                                default=comp_defaults[element],
+                                label=f"Composition of {element}",
+                                domain=[0, 1],
+                                step=0.01,
+                            )
+                        ]
+                    )
+                    comp_inputs.append(comp_input)
+
+                conc_input = html.Div(
+                    [
+                        self.get_numerical_input(
+                            f"conc-{element}",
+                            default=1e-6,
+                            min=MIN_CONCENTRATION,
+                            max=MAX_CONCENTRATION,
+                            label=f"Concentration of {element} ion",
+                            style={"width": "10rem"},
+                        )
+                    ]
+                )
+
+                conc_inputs.append(conc_input)
+
+            comp_conc_controls = []
+            # comp_conc_controls.append(
+            #     ctl.Block(html.Div(id=self.id("display-composition")))
+            # )
+            # if comp_inputs and (not show_heatmap) and (not heatmap_entry):
+            #     comp_conc_controls += comp_inputs
+            comp_conc_controls += comp_inputs
+
+            ion_label = (
+                "Set Ion Concentrations"
+                if len(elements) > 1
+                else "Set Ion Concentration"
+            )
+            comp_conc_controls.append(ctl.Label(ion_label))
+
+            comp_conc_controls += conc_inputs
+
+            return html.Div(comp_conc_controls)
+
+        """
         @app.callback(
             Output(self.id("element_specific_controls"), "children"),
             Output(self.id("ext-link"), "hidden"),
@@ -763,13 +862,18 @@ class PourbaixDiagramComponent(MPComponent):
             )
 
             return html.Div(comp_conc_controls), False, external_link
+        """
 
         @app.callback(
             Output(self.id("display-composition"), "children"),
-            Input(self.get_all_kwargs_id(), "value"),
+            Input(self.id("element_specific_controls"), "children"),
+            prevent_initial_call=True,
+            # Input(self.get_all_kwargs_id(), "value"),
         )
-        def update_displayed_composition(*args):
+        def update_displayed_composition(dependency):  # **kwargs):
             kwargs = self.reconstruct_kwargs_from_state()
+
+            print("should be 2")
 
             comp_dict = {}
             for key, val in kwargs.items():
@@ -777,7 +881,7 @@ class PourbaixDiagramComponent(MPComponent):
                     el = key.split("-")[1]
                     comp_dict[el] = val
             comp_dict = comp_dict or None
-
+            print(comp_dict)
             if not comp_dict:
                 return ""
 
@@ -795,23 +899,30 @@ class PourbaixDiagramComponent(MPComponent):
 
         @cache.memoize(timeout=5 * 60)
         def get_pourbaix_diagram(pourbaix_entries, **kwargs):
+            print("yeee")
+            print(kwargs)
             return PourbaixDiagram(pourbaix_entries, **kwargs)
 
         @app.callback(
             Output(self.id("graph"), "figure"),
             Input(self.id(), "data"),
+            Input(self.id("display-composition"), "children"),
             Input(self.get_all_kwargs_id(), "value"),
         )
-        def make_figure(pourbaix_entries, *args) -> go.Figure:
+        def make_figure(pourbaix_entries, dependency, kwargs) -> go.Figure:
+            # show_heatmap, heatmap_choice, filter_solids
             if pourbaix_entries is None:
                 raise PreventUpdate
 
+            print("should be 3")
+
             kwargs = self.reconstruct_kwargs_from_state()
+            print(kwargs)
 
             pourbaix_entries = self.from_data(pourbaix_entries)
 
             # Get heatmap id
-            if kwargs["show_heatmap"] and kwargs.get("heatmap_choice"):
+            if kwargs.get("show_heatmap") and kwargs.get("heatmap_choice"):
                 # get Entry object based on the heatmap_choice, which is entry_id string
                 heatmap_entry = next(
                     entry
@@ -837,7 +948,8 @@ class PourbaixDiagramComponent(MPComponent):
                         el = key.split("-")[1]
                         comp_dict[el] = val
                 comp_dict = comp_dict or None
-
+            print("yee2")
+            print(comp_dict)
             conc_dict = {}
             # e.g. kwargs contains {"conc-Ag": 1e-6, "conc-Fe": 1e-4},
             # essentially {slider_name: slider_value}
@@ -846,13 +958,15 @@ class PourbaixDiagramComponent(MPComponent):
                     el = key.split("-")[1]
                     conc_dict[el] = val
             conc_dict = conc_dict or None
-
+            print("yeee2")
+            print(conc_dict)
             pourbaix_diagram = get_pourbaix_diagram(
                 pourbaix_entries,
                 comp_dict=comp_dict,
                 conc_dict=conc_dict,
                 filter_solids=kwargs["filter_solids"],
             )
+
             self.logger.debug(  # noqa: PLE1205
                 "Generated pourbaix diagram",
                 len(pourbaix_entries),
