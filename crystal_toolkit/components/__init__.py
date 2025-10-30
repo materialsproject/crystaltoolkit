@@ -4,6 +4,11 @@ from crystal_toolkit.components.bandstructure import (
     BandstructureAndDosComponent,
     BandstructureAndDosPanelComponent,
 )
+
+# from crystal_toolkit.components.transformations.rattle import (
+#     MonteCarloRattleTransformationComponent,
+# )
+from crystal_toolkit.components.cohp import CohpAndDosComponent
 from crystal_toolkit.components.diffraction import XRayDiffractionComponent
 from crystal_toolkit.components.diffraction_tem import TEMDiffractionComponent
 from crystal_toolkit.components.fermi_surface import FermiSurfaceComponent
@@ -33,10 +38,6 @@ from crystal_toolkit.components.transformations.core import AllTransformationsCo
 from crystal_toolkit.components.transformations.grainboundary import (
     GrainBoundaryTransformationComponent,
 )
-
-# from crystal_toolkit.components.transformations.rattle import (
-#     MonteCarloRattleTransformationComponent,
-# )
 from crystal_toolkit.components.transformations.slab import SlabTransformationComponent
 from crystal_toolkit.components.transformations.substitution import (
     SubstitutionTransformationComponent,
