@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import logging
 import re
 
 import numpy as np
 import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Component, Input, Output
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from frozendict import frozendict
 from pymatgen.analysis.pourbaix_diagram import PREFAC, PourbaixDiagram
@@ -21,6 +22,8 @@ try:
 except ImportError:
     ELEMENTS_HO = {Element("H"), Element("O")}
 
+
+logger = logging.getLogger(__name__)
 __author__ = "Joseph Montoya"
 __email__ = "joseph.montoya@tri.global"
 
@@ -33,6 +36,10 @@ HEIGHT = 550  # in px
 WIDTH = 700  # in px
 MIN_CONCENTRATION = 1e-8
 MAX_CONCENTRATION = 5
+MIN_PH = -2
+MAX_PH = 16
+MIN_V = -4
+MAX_V = 4
 
 
 class PourbaixDiagramComponent(MPComponent):
@@ -51,13 +58,13 @@ class PourbaixDiagramComponent(MPComponent):
             "titlefont": {"color": "#000000", "size": 24.0},
             "type": "linear",
             "zeroline": False,
-            "range": [-2, 16],
+            "range": [MIN_PH, MAX_PH],
         },
         yaxis={
             "title": "Applied Potential (V vs. SHE)",
             "anchor": "x",
             "mirror": "ticks",
-            "range": [-2, 4],
+            "range": [MIN_V, MAX_V],
             "showgrid": False,
             "showline": True,
             "side": "left",
@@ -454,8 +461,8 @@ class PourbaixDiagramComponent(MPComponent):
 
         # Get data for heatmap
         if heatmap_entry is not None:
-            ph_range = np.arange(-2, 16.001, 0.1)
-            v_range = np.arange(-2, 4.001, 0.1)
+            ph_range = np.arange(MIN_PH, MAX_PH + 0.001, 0.1)
+            v_range = np.arange(MIN_V, MAX_V + 0.001, 0.1)
             ph_mesh, v_mesh = np.meshgrid(ph_range, v_range)
             decomposition_e = pourbaix_diagram.get_decomposition_energy(
                 heatmap_entry, ph_mesh, v_mesh
@@ -514,11 +521,15 @@ class PourbaixDiagramComponent(MPComponent):
                 hoverinfo="text",
                 name=f"{heatmap_formula} ({heatmap_entry.entry_id}) Heatmap",
                 showlegend=True,
+                contours=dict(
+                    start=0,
+                    end=1,
+                ),
             )
             data.append(h_map)
 
         if show_water_lines:
-            ph_range = [-2, 16]
+            ph_range = [MIN_PH, MAX_PH]
             # hydrogen line
             data.append(
                 go.Scatter(
@@ -576,6 +587,33 @@ class PourbaixDiagramComponent(MPComponent):
                 ),
                 html.Div(
                     [
+                        html.Div(
+                            [
+                                dcc.ConfirmDialog(
+                                    id=self.id("invalid-comp-alarm"),
+                                    message="Illegal composition entry!",
+                                ),
+                                html.H5(
+                                    "Composition",
+                                    id=self.id("composition-title"),
+                                    style={"fontWeight": "bold"},
+                                ),
+                                dcc.Input(
+                                    id=self.id("comp-text"),
+                                    type="text",
+                                    # placeholder="composition e.g. 1:1:1",
+                                ),
+                                html.Button(
+                                    "Update",
+                                    id=self.id("comp-btn"),
+                                ),
+                                html.Br(),
+                                html.Br(),
+                                dcc.Store(id=self.id("elements-store")),
+                            ],
+                            id=self.id("comp-panel"),
+                            style={"display": "none"},
+                        ),
                         html.Div(id=self.id("element_specific_controls")),
                         ctl.Block(html.Div(id=self.id("display-composition"))),
                     ]
@@ -625,7 +663,10 @@ class PourbaixDiagramComponent(MPComponent):
 
     def layout(self) -> html.Div:
         return html.Div(
-            children=[self._sub_layouts["options"], self._sub_layouts["graph"]]
+            children=[
+                self._sub_layouts["options"],
+                self._sub_layouts["graph"],
+            ]
         )
 
     def generate_callbacks(self, app, cache) -> None:
@@ -637,8 +678,6 @@ class PourbaixDiagramComponent(MPComponent):
         def update_heatmap_choices(entries, mat_detials):
             if not entries:
                 raise PreventUpdate
-
-            print("should be 4")
 
             options = []
             for entry in entries:
@@ -695,6 +734,10 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("element_specific_controls"), "children"),
+            Output(self.id("comp-panel"), "style"),
+            Output(self.id("elements-store"), "data"),
+            Output(self.id("comp-text"), "value"),
+            Output(self.id("composition-title"), "children"),
             Input(self.id(), "data"),
             # Input(self.get_kwarg_id("heatmap_choice"), "value"),
             # State(self.get_kwarg_id("show_heatmap"), "value"),
@@ -709,7 +752,6 @@ class PourbaixDiagramComponent(MPComponent):
             if not entries:
                 raise PreventUpdate
 
-            print("should be 1")
             elements = set()
 
             # kwargs = self.reconstruct_kwargs_from_state()
@@ -727,12 +769,13 @@ class PourbaixDiagramComponent(MPComponent):
             # exclude O and H
             elements = elements - ELEMENTS_HO
 
-            comp_defaults = {element: 1 / len(elements) for element in elements}
+            # comp_defaults = {element: 1 / len(elements) for element in elements}
 
             comp_inputs = []
             conc_inputs = []
             for element in sorted(elements):
                 if len(elements) > 1:
+                    """
                     comp_input = html.Div(
                         [
                             self.get_slider_input(
@@ -745,6 +788,7 @@ class PourbaixDiagramComponent(MPComponent):
                         ]
                     )
                     comp_inputs.append(comp_input)
+                    """
 
                 conc_input = html.Div(
                     [
@@ -778,7 +822,25 @@ class PourbaixDiagramComponent(MPComponent):
 
             comp_conc_controls += conc_inputs
 
-            return html.Div(comp_conc_controls)
+            #
+            comp_panel_style = {"display": "block"}
+
+            #
+            elements = [element.symbol for element in elements]
+
+            #
+            default_comp = ":".join(["1" for _ in elements])
+
+            #
+            title = "Composition of " + ":".join(elements)
+
+            return (
+                html.Div(comp_conc_controls),
+                comp_panel_style,
+                elements,
+                default_comp,
+                title,
+            )
 
         """
         @app.callback(
@@ -873,15 +935,12 @@ class PourbaixDiagramComponent(MPComponent):
         def update_displayed_composition(dependency):  # **kwargs):
             kwargs = self.reconstruct_kwargs_from_state()
 
-            print("should be 2")
-
             comp_dict = {}
             for key, val in kwargs.items():
                 if "comp" in key:  # keys are encoded like "comp-Ag"
                     el = key.split("-")[1]
                     comp_dict[el] = val
             comp_dict = comp_dict or None
-            print(comp_dict)
             if not comp_dict:
                 return ""
 
@@ -899,25 +958,48 @@ class PourbaixDiagramComponent(MPComponent):
 
         @cache.memoize(timeout=5 * 60)
         def get_pourbaix_diagram(pourbaix_entries, **kwargs):
-            print("yeee")
-            print(kwargs)
             return PourbaixDiagram(pourbaix_entries, **kwargs)
 
         @app.callback(
             Output(self.id("graph"), "figure"),
+            Output(self.id("invalid-comp-alarm"), "displayed"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
             Input(self.get_all_kwargs_id(), "value"),
+            Input(self.id("comp-btn"), "n_clicks"),
+            State(self.id("elements-store"), "data"),
+            State(self.id("comp-text"), "value"),
+            prevent_initial_call=True,
         )
-        def make_figure(pourbaix_entries, dependency, kwargs) -> go.Figure:
+        def make_figure(
+            pourbaix_entries, dependency, kwargs, n_clicks, elements, comp_text
+        ) -> go.Figure:
             # show_heatmap, heatmap_choice, filter_solids
+
             if pourbaix_entries is None:
                 raise PreventUpdate
 
-            print("should be 3")
+            # check if composition input
+            if n_clicks:
+                raw_comp_list = comp_text.split(":")
+            else:
+                raw_comp_list = [1 / len(elements) for _ in elements]
+
+            if len(raw_comp_list) != len(elements):
+                logger.error("Invalid composition input!")
+                return go.Figure(
+                    layout={**PourbaixDiagramComponent.empty_plot_style}
+                ), True
+            try:
+                # avoid direct type casting because string inputs may raise errors
+                comp_list = [float(t) for t in raw_comp_list]
+            except Exception:
+                logger.error("Invalid composition input!")
+                return go.Figure(
+                    layout={**PourbaixDiagramComponent.empty_plot_style}
+                ), True
 
             kwargs = self.reconstruct_kwargs_from_state()
-            print(kwargs)
 
             pourbaix_entries = self.from_data(pourbaix_entries)
 
@@ -943,13 +1025,17 @@ class PourbaixDiagramComponent(MPComponent):
                 comp_dict = {}
                 # e.g. kwargs contains {"comp-Ag": 0.5, "comp-Fe": 0.5},
                 # essentially {slider_name: slider_value}
+                """
                 for key, val in kwargs.items():
                     if "comp" in key:  # keys are encoded like "comp-Ag"
                         el = key.split("-")[1]
                         comp_dict[el] = val
+                """
+                comp_dict = {}
+                for comp_val, element in zip(comp_list, elements):
+                    comp_dict[element] = comp_val
+
                 comp_dict = comp_dict or None
-            print("yee2")
-            print(comp_dict)
             conc_dict = {}
             # e.g. kwargs contains {"conc-Ag": 1e-6, "conc-Fe": 1e-4},
             # essentially {slider_name: slider_value}
@@ -958,8 +1044,6 @@ class PourbaixDiagramComponent(MPComponent):
                     el = key.split("-")[1]
                     conc_dict[el] = val
             conc_dict = conc_dict or None
-            print("yeee2")
-            print(conc_dict)
             pourbaix_diagram = get_pourbaix_diagram(
                 pourbaix_entries,
                 comp_dict=comp_dict,
@@ -974,11 +1058,10 @@ class PourbaixDiagramComponent(MPComponent):
                 conc_dict,
                 comp_dict,
             )
-
             return self.get_figure(
                 pourbaix_diagram,
                 heatmap_entry=heatmap_entry,
-            )
+            ), False
 
     # TODO
     # def graph_layout(self):
