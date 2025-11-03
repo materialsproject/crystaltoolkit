@@ -9,8 +9,10 @@ from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from frozendict import frozendict
+from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PREFAC, PourbaixDiagram
 from pymatgen.core import Composition, Element
+from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.string import unicodeify
 from shapely.geometry import Polygon
 
@@ -614,6 +616,16 @@ class PourbaixDiagramComponent(MPComponent):
                             id=self.id("comp-panel"),
                             style={"display": "none"},
                         ),
+                        html.Div(
+                            [
+                                dcc.ConfirmDialog(
+                                    id=self.id("invalid-conc-alarm"),
+                                    message=f"Illegal concentration entry! Must be between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} M",
+                                ),
+                            ],
+                            id=self.id("comp-panel"),
+                            style={"display": "none"},
+                        ),
                         html.Div(id=self.id("element_specific_controls")),
                         ctl.Block(html.Div(id=self.id("display-composition"))),
                     ]
@@ -674,10 +686,29 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("heatmap_choice_container"), "children"),
             Input(self.id(), "data"),
             Input(self.id("mat-details"), "data"),
+            Input(self.get_kwarg_id("filter_solids"), "value"),
         )
-        def update_heatmap_choices(entries, mat_detials):
+        def update_heatmap_choices(entries, mat_detials, filter_solids):
             if not entries:
                 raise PreventUpdate
+
+            kwargs = self.reconstruct_kwargs_from_state()
+            filter_solids = kwargs["filter_solids"]
+
+            entries_obj = self.from_data(entries)
+            solid_entries = [
+                entry for entry in entries_obj if entry.phase_type == "Solid"
+            ]
+            print("yeee7")
+            print(entries)
+            if filter_solids:
+                # O is 2.46 b/c pbx entry finds energies referenced to H2O
+                entries_HO = [ComputedEntry("H", 0), ComputedEntry("O", 2.46)]
+                solid_pd = PhaseDiagram(solid_entries + entries_HO)
+                entries_obj = list(set(solid_pd.stable_entries) - set(entries_HO))
+                entries = [en.as_dict() for en in entries_obj]
+            print("yeee8")
+            print(entries)
 
             options = []
             for entry in entries:
@@ -963,6 +994,7 @@ class PourbaixDiagramComponent(MPComponent):
         @app.callback(
             Output(self.id("graph"), "figure"),
             Output(self.id("invalid-comp-alarm"), "displayed"),
+            Output(self.id("invalid-conc-alarm"), "displayed"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
             Input(self.get_all_kwargs_id(), "value"),
@@ -987,17 +1019,21 @@ class PourbaixDiagramComponent(MPComponent):
 
             if len(raw_comp_list) != len(elements):
                 logger.error("Invalid composition input!")
-                return go.Figure(
-                    layout={**PourbaixDiagramComponent.empty_plot_style}
-                ), True
+                return (
+                    go.Figure(layout={**PourbaixDiagramComponent.empty_plot_style}),
+                    True,
+                    False,
+                )
             try:
                 # avoid direct type casting because string inputs may raise errors
                 comp_list = [float(t) for t in raw_comp_list]
             except Exception:
                 logger.error("Invalid composition input!")
-                return go.Figure(
-                    layout={**PourbaixDiagramComponent.empty_plot_style}
-                ), True
+                return (
+                    go.Figure(layout={**PourbaixDiagramComponent.empty_plot_style}),
+                    True,
+                    False,
+                )
 
             kwargs = self.reconstruct_kwargs_from_state()
 
@@ -1041,6 +1077,15 @@ class PourbaixDiagramComponent(MPComponent):
             # essentially {slider_name: slider_value}
             for key, val in kwargs.items():
                 if "conc" in key:  # keys are encoded like "conc-Ag"
+                    if val is None:
+                        return (
+                            go.Figure(
+                                layout={**PourbaixDiagramComponent.empty_plot_style}
+                            ),
+                            False,
+                            True,
+                        )
+
                     el = key.split("-")[1]
                     conc_dict[el] = val
             conc_dict = conc_dict or None
@@ -1058,10 +1103,14 @@ class PourbaixDiagramComponent(MPComponent):
                 conc_dict,
                 comp_dict,
             )
-            return self.get_figure(
-                pourbaix_diagram,
-                heatmap_entry=heatmap_entry,
-            ), False
+            return (
+                self.get_figure(
+                    pourbaix_diagram,
+                    heatmap_entry=heatmap_entry,
+                ),
+                False,
+                False,
+            )
 
     # TODO
     # def graph_layout(self):
