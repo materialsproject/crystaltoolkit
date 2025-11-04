@@ -36,7 +36,7 @@ __email__ = "joseph.montoya@tri.global"
 
 HEIGHT = 550  # in px
 WIDTH = 700  # in px
-MIN_CONCENTRATION = 1e-8
+MIN_CONCENTRATION = 1e-6
 MAX_CONCENTRATION = 5
 MIN_PH = -2
 MAX_PH = 16
@@ -571,7 +571,7 @@ class PourbaixDiagramComponent(MPComponent):
         # Subscript coefficients
         return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", clean_formula)
 
-    def get_figure_div(self, figure):
+    def get_figure_div(self, figure=None):
         """
         Intentionally update the graph by wrapping it in an `html.Div` instead of directly modifying `go.Figure` or `dcc.Graph`.
         This is because, after resetting the axes (e.g., zooming in/out), the updated axes may not match the original ones.
@@ -584,11 +584,17 @@ class PourbaixDiagramComponent(MPComponent):
             figure = go.Figure(layout={**PourbaixDiagramComponent.empty_plot_style})
 
         return html.Div(
-            dcc.Graph(
-                figure=figure,
-                responsive=True,
-                config={"displayModeBar": False, "displaylogo": False},
-            ),
+            [
+                html.H5(
+                    "💡 Zoom in by selecting an area of interest, and double-click to return to the original view.",
+                    style={"textAlign": "right"},
+                ),
+                dcc.Graph(
+                    figure=figure,
+                    responsive=True,
+                    config={"displayModeBar": False, "displaylogo": False},
+                ),
+            ]
         )
 
     @property
@@ -629,6 +635,7 @@ class PourbaixDiagramComponent(MPComponent):
                                     "Update",
                                     id=self.id("comp-btn"),
                                 ),
+                                ctl.Block(html.Div(id=self.id("display-composition"))),
                                 html.Br(),
                                 html.Br(),
                                 dcc.Store(id=self.id("elements-store")),
@@ -647,7 +654,6 @@ class PourbaixDiagramComponent(MPComponent):
                             style={"display": "none"},
                         ),
                         html.Div(id=self.id("element_specific_controls")),
-                        ctl.Block(html.Div(id=self.id("display-composition"))),
                     ]
                 ),
                 self.get_bool_input(
@@ -694,7 +700,6 @@ class PourbaixDiagramComponent(MPComponent):
                 id=self.id("graph-panel"),
             ),
         )
-        # html.H5("Zoom in by selecting an area of interest, and double-click to return to the original view.")
 
         return {"graph": graph, "options": options}
 
@@ -840,7 +845,7 @@ class PourbaixDiagramComponent(MPComponent):
                             min=MIN_CONCENTRATION,
                             max=MAX_CONCENTRATION,
                             label=f"Concentration of {element} ion",
-                            style={"width": "10rem"},
+                            style={"width": "10rem", "fontSize": "14px"},
                         )
                     ]
                 )
@@ -856,7 +861,7 @@ class PourbaixDiagramComponent(MPComponent):
             comp_conc_controls += comp_inputs
 
             ion_label = (
-                "Set Ion Concentrations"
+                "Set Ion Concentrations (M)"
                 if len(elements) > 1
                 else "Set Ion Concentration"
             )
@@ -964,9 +969,8 @@ class PourbaixDiagramComponent(MPComponent):
             external_link = (
                 f"https://next-gen.materialsproject.org/materials/{mpid_wo_function}"
             )
-
             return html.Div(comp_conc_controls), False, external_link
-        """
+
 
         @app.callback(
             Output(self.id("display-composition"), "children"),
@@ -997,6 +1001,7 @@ class PourbaixDiagramComponent(MPComponent):
                 )
 
             return html.Small(f"Pourbaix composition set to {unicodeify(formula)}.")
+        """
 
         @cache.memoize(timeout=5 * 60)
         def get_pourbaix_diagram(pourbaix_entries, **kwargs):
@@ -1006,16 +1011,24 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("graph-panel"), "children"),
             Output(self.id("invalid-comp-alarm"), "displayed"),
             Output(self.id("invalid-conc-alarm"), "displayed"),
+            Output(self.id("display-composition"), "children"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
             Input(self.get_all_kwargs_id(), "value"),
             Input(self.id("comp-btn"), "n_clicks"),
             State(self.id("elements-store"), "data"),
             State(self.id("comp-text"), "value"),
+            Input(self.id("element_specific_controls"), "children"),
             prevent_initial_call=True,
         )
         def make_figure(
-            pourbaix_entries, dependency, kwargs, n_clicks, elements, comp_text
+            pourbaix_entries,
+            dependency,
+            kwargs,
+            n_clicks,
+            elements,
+            comp_text,
+            dependency2,
         ) -> go.Figure:
             # show_heatmap, heatmap_choice, filter_solids
 
@@ -1030,27 +1043,26 @@ class PourbaixDiagramComponent(MPComponent):
 
             if len(raw_comp_list) != len(elements):
                 logger.error("Invalid composition input!")
-                return (
-                    self.get_figure_div(),
-                    True,
-                    False,
-                )
+                return (self.get_figure_div(), True, False, "")
             try:
                 # avoid direct type casting because string inputs may raise errors
                 comp_list = [float(t) for t in raw_comp_list]
+                comp_dict = {el: comp for comp, el in zip(comp_list, elements)}
+                comp = Composition(comp_dict)
+                formula = Composition(
+                    comp.get_integer_formula_and_factor()[0]
+                ).reduced_formula
+
             except Exception:
                 logger.error("Invalid composition input!")
-                return (
-                    self.get_figure_div(),
-                    True,
-                    False,
-                )
+                return (self.get_figure_div(), True, False, "")
 
             kwargs = self.reconstruct_kwargs_from_state()
 
             pourbaix_entries = self.from_data(pourbaix_entries)
 
             # Get heatmap id
+            heatmap_entry = None
             if kwargs.get("show_heatmap") and kwargs.get("heatmap_choice"):
                 # get Entry object based on the heatmap_choice, which is entry_id string
                 heatmap_entry = next(
@@ -1065,6 +1077,7 @@ class PourbaixDiagramComponent(MPComponent):
                     for element, coeff in heatmap_entry.composition.items()
                     if element not in ELEMENTS_HO
                 }
+            """
             else:
                 heatmap_entry = None
 
@@ -1072,17 +1085,13 @@ class PourbaixDiagramComponent(MPComponent):
                 comp_dict = {}
                 # e.g. kwargs contains {"comp-Ag": 0.5, "comp-Fe": 0.5},
                 # essentially {slider_name: slider_value}
-                """
-                for key, val in kwargs.items():
-                    if "comp" in key:  # keys are encoded like "comp-Ag"
-                        el = key.split("-")[1]
-                        comp_dict[el] = val
-                """
+
                 comp_dict = {}
                 for comp_val, element in zip(comp_list, elements):
                     comp_dict[element] = comp_val
 
                 comp_dict = comp_dict or None
+            """
             conc_dict = {}
             # e.g. kwargs contains {"conc-Ag": 1e-6, "conc-Fe": 1e-4},
             # essentially {slider_name: slider_value}
@@ -1090,11 +1099,7 @@ class PourbaixDiagramComponent(MPComponent):
                 if "conc" in key:  # keys are encoded like "conc-Ag"
                     if val is None:
                         # if the input is out of pre-defined range, Input will get None
-                        return (
-                            self.get_figure_div(),
-                            False,
-                            True,
-                        )
+                        return (self.get_figure_div(), False, True, "")
 
                     el = key.split("-")[1]
                     conc_dict[el] = val
@@ -1122,6 +1127,7 @@ class PourbaixDiagramComponent(MPComponent):
                 self.get_figure_div(figure=figure),
                 False,
                 False,
+                html.Small(f"Pourbaix composition set to {unicodeify(formula)}."),
             )
 
     # TODO
