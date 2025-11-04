@@ -571,6 +571,26 @@ class PourbaixDiagramComponent(MPComponent):
         # Subscript coefficients
         return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", clean_formula)
 
+    def get_figure_div(self, figure):
+        """
+        Intentionally update the graph by wrapping it in an `html.Div` instead of directly modifying `go.Figure` or `dcc.Graph`.
+        This is because, after resetting the axes (e.g., zooming in/out), the updated axes may not match the original ones.
+        This behavior appears to be a long-standing issue in Dash.
+
+        Reference:
+        https://community.plotly.com/t/dash-reset-axes-range-not-updating-if-ranges-specified-in-layout/25839/3
+        """
+        if figure is None:
+            figure = go.Figure(layout={**PourbaixDiagramComponent.empty_plot_style})
+
+        return html.Div(
+            dcc.Graph(
+                figure=figure,
+                responsive=True,
+                config={"displayModeBar": False, "displaylogo": False},
+            ),
+        )
+
     @property
     def _sub_layouts(self) -> dict[str, Component]:
         options = html.Div(
@@ -623,7 +643,7 @@ class PourbaixDiagramComponent(MPComponent):
                                     message=f"Illegal concentration entry! Must be between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} M",
                                 ),
                             ],
-                            id=self.id("comp-panel"),
+                            id=self.id("conc-panel"),
                             style={"display": "none"},
                         ),
                         html.Div(id=self.id("element_specific_controls")),
@@ -661,15 +681,20 @@ class PourbaixDiagramComponent(MPComponent):
             ]
         )
 
-        graph = html.Div(
-            dcc.Graph(
-                figure=go.Figure(layout={**PourbaixDiagramComponent.empty_plot_style}),
-                id=self.id("graph"),
-                responsive=True,
-                config={"displayModeBar": False, "displaylogo": False},
+        graph = (
+            html.Div(
+                dcc.Graph(
+                    figure=go.Figure(
+                        layout={**PourbaixDiagramComponent.empty_plot_style}
+                    ),
+                    responsive=True,
+                    config={"displayModeBar": False, "displaylogo": False},
+                ),
+                style={"minHeight": "500px"},
+                id=self.id("graph-panel"),
             ),
-            style={"minHeight": "500px"},
         )
+        # html.H5("Zoom in by selecting an area of interest, and double-click to return to the original view.")
 
         return {"graph": graph, "options": options}
 
@@ -699,16 +724,13 @@ class PourbaixDiagramComponent(MPComponent):
             solid_entries = [
                 entry for entry in entries_obj if entry.phase_type == "Solid"
             ]
-            print("yeee7")
-            print(entries)
+
             if filter_solids:
                 # O is 2.46 b/c pbx entry finds energies referenced to H2O
                 entries_HO = [ComputedEntry("H", 0), ComputedEntry("O", 2.46)]
                 solid_pd = PhaseDiagram(solid_entries + entries_HO)
                 entries_obj = list(set(solid_pd.stable_entries) - set(entries_HO))
                 entries = [en.as_dict() for en in entries_obj]
-            print("yeee8")
-            print(entries)
 
             options = []
             for entry in entries:
@@ -770,13 +792,11 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("comp-text"), "value"),
             Output(self.id("composition-title"), "children"),
             Input(self.id(), "data"),
-            # Input(self.get_kwarg_id("heatmap_choice"), "value"),
-            # State(self.get_kwarg_id("show_heatmap"), "value"),
             prevent_initial_call=True,
         )
         def update_element_specific_sliders(
             entries,
-        ):  # , heatmap_choice, show_heatmap):
+        ):
             """
             When pourbaix entries input, add concentration and composition options
             """
@@ -785,22 +805,13 @@ class PourbaixDiagramComponent(MPComponent):
 
             elements = set()
 
-            # kwargs = self.reconstruct_kwargs_from_state()
-            # heatmap_choice = kwargs.get("heatmap_choice", None)
-            # show_heatmap = kwargs.get("show_heatmap", False)
-            # heatmap_entry = None
-
             for entry in entries:
                 if entry["entry_id"].startswith("mp"):
                     composition = Composition(entry["entry"]["composition"])
                     elements.update(composition.elements)
-                # if entry["entry_id"] == heatmap_choice:
-                #     heatmap_entry = entry
 
             # exclude O and H
             elements = elements - ELEMENTS_HO
-
-            # comp_defaults = {element: 1 / len(elements) for element in elements}
 
             comp_inputs = []
             conc_inputs = []
@@ -992,7 +1003,7 @@ class PourbaixDiagramComponent(MPComponent):
             return PourbaixDiagram(pourbaix_entries, **kwargs)
 
         @app.callback(
-            Output(self.id("graph"), "figure"),
+            Output(self.id("graph-panel"), "children"),
             Output(self.id("invalid-comp-alarm"), "displayed"),
             Output(self.id("invalid-conc-alarm"), "displayed"),
             Input(self.id(), "data"),
@@ -1020,7 +1031,7 @@ class PourbaixDiagramComponent(MPComponent):
             if len(raw_comp_list) != len(elements):
                 logger.error("Invalid composition input!")
                 return (
-                    go.Figure(layout={**PourbaixDiagramComponent.empty_plot_style}),
+                    self.get_figure_div(),
                     True,
                     False,
                 )
@@ -1030,7 +1041,7 @@ class PourbaixDiagramComponent(MPComponent):
             except Exception:
                 logger.error("Invalid composition input!")
                 return (
-                    go.Figure(layout={**PourbaixDiagramComponent.empty_plot_style}),
+                    self.get_figure_div(),
                     True,
                     False,
                 )
@@ -1078,10 +1089,9 @@ class PourbaixDiagramComponent(MPComponent):
             for key, val in kwargs.items():
                 if "conc" in key:  # keys are encoded like "conc-Ag"
                     if val is None:
+                        # if the input is out of pre-defined range, Input will get None
                         return (
-                            go.Figure(
-                                layout={**PourbaixDiagramComponent.empty_plot_style}
-                            ),
+                            self.get_figure_div(),
                             False,
                             True,
                         )
@@ -1103,11 +1113,13 @@ class PourbaixDiagramComponent(MPComponent):
                 conc_dict,
                 comp_dict,
             )
+
+            figure = self.get_figure(
+                pourbaix_diagram,
+                heatmap_entry=heatmap_entry,
+            )
             return (
-                self.get_figure(
-                    pourbaix_diagram,
-                    heatmap_entry=heatmap_entry,
-                ),
+                self.get_figure_div(figure=figure),
                 False,
                 False,
             )
