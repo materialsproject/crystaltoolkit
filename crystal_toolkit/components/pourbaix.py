@@ -127,173 +127,6 @@ class PourbaixDiagramComponent(MPComponent):
         }
     )
 
-    # @staticmethod
-    # def get_figure_with_shapes(
-    #     pourbaix_diagram, heatmap_entry=None, heatmap_as_contour=True, show_labels=True
-    # ):
-    #     """
-    #     Deprecated. This method returns a figure with Pourbaix domains as "shapes" and labels
-    #     as "annotations." The new figure method instead returns a Pourbaix diagram with
-    #     domains and labels as independent traces, so that they can be interacted with and
-    #     placed on a legend.
-    #
-    #     Static method for getting plotly figure from a Pourbaix diagram.
-    #
-    #     Args:
-    #         pourbaix_diagram (PourbaixDiagram): Pourbaix diagram to plot
-    #         heatmap_entry (PourbaixEntry): id for the heatmap generation
-    #         heatmap_as_contour (bool): if True, display contours, if False heatmap as grid
-    #
-    #     Returns:
-    #         (dict) figure layout
-    #
-    #     """
-    #     # TODO: fix mpid problem.  Can't attach from mpid without it being a structure.
-    #     data = []
-    #
-    #     # Get data for heatmap
-    #     if heatmap_entry is not None:
-    #         ph_range = np.arange(-2, 16.001, 0.1)
-    #         v_range = np.arange(-2, 4.001, 0.1)
-    #         ph_mesh, v_mesh = np.meshgrid(ph_range, v_range)
-    #         decomposition_e = pourbaix_diagram.get_decomposition_energy(
-    #             heatmap_entry, ph_mesh, v_mesh
-    #         )
-    #
-    #         # Generate hoverinfo
-    #         hovertexts = []
-    #         for ph_val, v_val, de_val in zip(
-    #             ph_mesh.ravel(), v_mesh.ravel(), decomposition_e.ravel()
-    #         ):
-    #             hovertext = [
-    #                 f"∆G<sub>pbx</sub>={de_val:.2f}",
-    #                 f"ph={ph_val:.2f}",
-    #                 f"V={v_val:.2f}",
-    #             ]
-    #             hovertext = "<br>".join(hovertext)
-    #             hovertexts.append(hovertext)
-    #         hovertexts = np.reshape(hovertexts, list(decomposition_e.shape))
-    #
-    #         # Enforce decomposition limit energy
-    #         decomposition_e = np.min(
-    #             [decomposition_e, np.ones(decomposition_e.shape)], axis=0
-    #         )
-    #
-    #         if not heatmap_as_contour:
-    #             # Plotly needs a list here for validation
-    #             h_map = go.Heatmap(
-    #                 x=list(ph_range),
-    #                 y=list(v_range),
-    #                 z=decomposition_e,
-    #                 text=hovertexts,
-    #                 hoverinfo="text",
-    #                 colorbar={
-    #                     "title": "∆G<sub>pbx</sub> (eV/atom)",
-    #                     "titleside": "right",
-    #                 },
-    #                 colorscale=PourbaixDiagramComponent.colorscale,
-    #                 zmin=0,
-    #                 zmax=1,
-    #             )
-    #             data.append(h_map)
-    #
-    #         else:
-    #
-    #             h_map = go.Contour(
-    #                 z=decomposition_e,
-    #                 x=list(ph_range),
-    #                 y=list(v_range),
-    #                 colorscale=PourbaixDiagramComponent.colorscale,  # or magma
-    #                 zmin=0,
-    #                 zmax=1,
-    #                 connectgaps=True,
-    #                 line_smoothing=0,
-    #                 line_width=0,
-    #                 contours_coloring="heatmap",
-    #                 text=hovertexts,
-    #             )
-    #             data.insert(0, h_map)
-    #
-    #     shapes = []
-    #     xy_data = []
-    #     labels = []
-    #
-    #     for entry, vertices in pourbaix_diagram._stable_domain_vertices.items():
-    #         formula = entry.name
-    #         clean_formula = PourbaixDiagramComponent.clean_formula(formula)
-    #
-    #         # Generate annotation
-    #         xy_data.append(np.average(vertices, axis=0))
-    #         labels.append(clean_formula)
-    #
-    #         # Info on SVG paths: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
-    #         # Move to first point
-    #         path = "M {},{}".format(*vertices[0])
-    #         # Draw lines to each other point
-    #         path += "".join("L {},{}".format(*vertex) for vertex in vertices[1:])
-    #         # Close path
-    #         path += "Z"
-    #
-    #         # Note that the lines and fills are added separately
-    #         # so that the lines but not the fills will show up on heatmap.
-    #         # This may be condensable in the future if plotly adds a more
-    #         # general z-ordering of objects
-    #
-    #         # Fill with turquoise if solution
-    #         if heatmap_entry is None:
-    #             fillcolor = "White" if "Ion" in entry.phase_type else "PaleTurquoise"
-    #             shape = go.layout.Shape(
-    #                 type="path",
-    #                 path=path,
-    #                 fillcolor=fillcolor,
-    #                 layer="below",
-    #             )
-    #             shapes.append(shape)
-    #
-    #         # Add lines separately so they show up on heatmap
-    #         shape = go.layout.Shape(
-    #             type="path",
-    #             path=path,
-    #             fillcolor="rgba(0,0,0,0)",
-    #             line={"color": "Black", "width": 1},
-    #         )
-    #         shapes.append(shape)
-    #
-    #     layout = {**PourbaixDiagramComponent.default_plot_style}
-    #     layout.update({"shapes": shapes})
-    #
-    #     if show_labels:
-    #         if len(pourbaix_diagram.pbx_elts) == 1:
-    #             # Add annotations to layout
-    #             annotations = [
-    #                 {
-    #                     "align": "center",
-    #                     "font": {"color": "#000000", "size": 15.0},
-    #                     "opacity": 1,
-    #                     "showarrow": False,
-    #                     "text": label,
-    #                     "x": x,
-    #                     "xanchor": "center",
-    #                     "yanchor": "auto",
-    #                     # "xshift": -10,
-    #                     # "yshift": -10,
-    #                     "xref": "x",
-    #                     "y": y,
-    #                     "yref": "y",
-    #                 }
-    #                 for (x, y), label in zip(xy_data, labels)
-    #             ]
-    #             layout.update({"annotations": annotations})
-    #         else:
-    #             x, y = zip(*xy_data)
-    #             data.append(
-    #                 go.Scatter(x=x, y=y, text=labels, hoverinfo="text", mode="markers")
-    #             )
-    #
-    #     figure = go.Figure(data=data, layout=layout)
-    #
-    #     return figure
-
     @staticmethod
     def get_figure(
         pourbaix_diagram: PourbaixDiagram, heatmap_entry=None, show_water_lines=True
@@ -820,23 +653,8 @@ class PourbaixDiagramComponent(MPComponent):
 
             comp_inputs = []
             conc_inputs = []
-            for element in sorted(elements):
-                if len(elements) > 1:
-                    """
-                    comp_input = html.Div(
-                        [
-                            self.get_slider_input(
-                                f"comp-{element}",
-                                default=comp_defaults[element],
-                                label=f"Composition of {element}",
-                                domain=[0, 1],
-                                step=0.01,
-                            )
-                        ]
-                    )
-                    comp_inputs.append(comp_input)
-                    """
 
+            for element in sorted(elements):
                 conc_input = html.Div(
                     [
                         self.get_numerical_input(
@@ -853,11 +671,6 @@ class PourbaixDiagramComponent(MPComponent):
                 conc_inputs.append(conc_input)
 
             comp_conc_controls = []
-            # comp_conc_controls.append(
-            #     ctl.Block(html.Div(id=self.id("display-composition")))
-            # )
-            # if comp_inputs and (not show_heatmap) and (not heatmap_entry):
-            #     comp_conc_controls += comp_inputs
             comp_conc_controls += comp_inputs
 
             ion_label = (
@@ -870,7 +683,9 @@ class PourbaixDiagramComponent(MPComponent):
             comp_conc_controls += conc_inputs
 
             #
-            comp_panel_style = {"display": "block"}
+            comp_panel_style = {"display": "none"}
+            if len(elements) > 1:
+                comp_panel_style = {"display": "block"}
 
             #
             elements = [element.symbol for element in elements]
@@ -888,120 +703,6 @@ class PourbaixDiagramComponent(MPComponent):
                 default_comp,
                 title,
             )
-
-        """
-        @app.callback(
-            Output(self.id("element_specific_controls"), "children"),
-            Output(self.id("ext-link"), "hidden"),
-            Output(self.id("ext-link"), "href"),
-            Input(self.id(), "data"),
-            Input(self.get_kwarg_id("heatmap_choice"), "value"),
-            State(self.get_kwarg_id("show_heatmap"), "value"),
-            prevent_initial_call=True,
-        )
-        def update_element_specific_sliders(entries, heatmap_choice, show_heatmap):
-            if (not entries) or (not heatmap_choice[0]):
-                raise PreventUpdate
-
-            elements = set()
-
-            kwargs = self.reconstruct_kwargs_from_state()
-            heatmap_choice = kwargs.get("heatmap_choice")
-            show_heatmap = kwargs.get("show_heatmap")
-            heatmap_entry = None
-
-            for entry in entries:
-                if entry["entry_id"].startswith("mp"):
-                    composition = Composition(entry["entry"]["composition"])
-                    elements.update(composition.elements)
-                if entry["entry_id"] == heatmap_choice:
-                    heatmap_entry = entry
-
-            # exclude O and H
-            elements = elements - ELEMENTS_HO
-
-            comp_defaults = {element: 1 / len(elements) for element in elements}
-
-            comp_inputs = []
-            conc_inputs = []
-            for element in sorted(elements):
-                if len(elements) > 1:
-                    comp_input = html.Div(
-                        [
-                            self.get_slider_input(
-                                f"comp-{element}",
-                                default=comp_defaults[element],
-                                label=f"Composition of {element}",
-                                domain=[0, 1],
-                                step=0.01,
-                            )
-                        ]
-                    )
-                    comp_inputs.append(comp_input)
-
-                conc_input = html.Div(
-                    [
-                        self.get_numerical_input(
-                            f"conc-{element}",
-                            default=1e-6,
-                            label=f"Concentration of {element} ion",
-                            style={"width": "10rem"},
-                        )
-                    ]
-                )
-
-                conc_inputs.append(conc_input)
-
-            comp_conc_controls = []
-            if comp_inputs and (not show_heatmap) and (not heatmap_entry):
-                comp_conc_controls += comp_inputs
-                comp_conc_controls.append(
-                    ctl.Block(html.Div(id=self.id("display-composition")))
-                )
-            if len(elements) > 1:
-                comp_conc_controls.append(ctl.Label("Set Ion Concentrations"))
-            else:
-                comp_conc_controls.append(ctl.Label("Set Ion Concentration"))
-            comp_conc_controls += conc_inputs
-
-            # external link to detail page
-            mpid_wo_function = "mp-" + heatmap_choice.split("-")[1]
-            external_link = (
-                f"https://next-gen.materialsproject.org/materials/{mpid_wo_function}"
-            )
-            return html.Div(comp_conc_controls), False, external_link
-
-
-        @app.callback(
-            Output(self.id("display-composition"), "children"),
-            Input(self.id("element_specific_controls"), "children"),
-            prevent_initial_call=True,
-            # Input(self.get_all_kwargs_id(), "value"),
-        )
-        def update_displayed_composition(dependency):  # **kwargs):
-            kwargs = self.reconstruct_kwargs_from_state()
-
-            comp_dict = {}
-            for key, val in kwargs.items():
-                if "comp" in key:  # keys are encoded like "comp-Ag"
-                    el = key.split("-")[1]
-                    comp_dict[el] = val
-            comp_dict = comp_dict or None
-            if not comp_dict:
-                return ""
-
-            try:
-                comp = Composition(comp_dict)
-                formula = Composition(
-                    comp.get_integer_formula_and_factor()[0]
-                ).reduced_formula
-            except Exception:
-                return html.Small(
-                    "Invalid composition selected.", style={"color": "red"}
-                )
-
-            return html.Small(f"Pourbaix composition set to {unicodeify(formula)}.")
-        """
 
         @cache.memoize(timeout=5 * 60)
         def get_pourbaix_diagram(pourbaix_entries, **kwargs):
@@ -1030,8 +731,6 @@ class PourbaixDiagramComponent(MPComponent):
             comp_text,
             dependency2,
         ) -> go.Figure:
-            # show_heatmap, heatmap_choice, filter_solids
-
             if pourbaix_entries is None:
                 raise PreventUpdate
 
@@ -1077,21 +776,7 @@ class PourbaixDiagramComponent(MPComponent):
                     for element, coeff in heatmap_entry.composition.items()
                     if element not in ELEMENTS_HO
                 }
-            """
-            else:
-                heatmap_entry = None
 
-                # otherwise, user sets comp_dict
-                comp_dict = {}
-                # e.g. kwargs contains {"comp-Ag": 0.5, "comp-Fe": 0.5},
-                # essentially {slider_name: slider_value}
-
-                comp_dict = {}
-                for comp_val, element in zip(comp_list, elements):
-                    comp_dict[element] = comp_val
-
-                comp_dict = comp_dict or None
-            """
             conc_dict = {}
             # e.g. kwargs contains {"conc-Ag": 1e-6, "conc-Fe": 1e-4},
             # essentially {slider_name: slider_value}
@@ -1129,7 +814,3 @@ class PourbaixDiagramComponent(MPComponent):
                 False,
                 html.Small(f"Pourbaix composition set to {unicodeify(formula)}."),
             )
-
-    # TODO
-    # def graph_layout(self):
-    #     return self._sub_layouts["graph"]
