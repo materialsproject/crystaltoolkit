@@ -73,11 +73,19 @@ class PhononBandstructureAndDosComponent(MPComponent):
         self.create_store("bs", None)
         self.create_store("dos", None)
 
+        bs, _ = PhononBandstructureAndDosComponent._get_ph_bs_dos(
+            self.initial_data["default"]
+        )
+        self.create_store("bs-store", bs)
+        self.create_store("bs", None)
+        self.create_store("dos", None)
+
     @property
     def _sub_layouts(self) -> dict[str, Component]:
         # defaults
         state = {"label-select": "sc", "dos-select": "ap"}
 
+        fig = PhononBandstructureAndDosComponent.get_figure(None, None)
         fig = PhononBandstructureAndDosComponent.get_figure(None, None)
         # Main plot
         graph = dcc.Graph(
@@ -88,6 +96,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
 
         # Brillouin zone
+        zone_scene = self.get_brillouin_zone_scene(None)
+        zone = CrystalToolkitScene(
+            data=zone_scene.to_json(), sceneSize="500px", id=self.id("zone")
+        )
         zone_scene = self.get_brillouin_zone_scene(None)
         zone = CrystalToolkitScene(
             data=zone_scene.to_json(), sceneSize="500px", id=self.id("zone")

@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 authors = [{ name = "Matt Horton", email = "mkhorton@lbl.gov" }]
 
 dependencies = [
-  "dash-mp-components>=0.4.38",
+  "dash-mp-components>=0.5.0rc0",
   "dash>=2.11.0",
   "flask-caching",
   "frozendict",
