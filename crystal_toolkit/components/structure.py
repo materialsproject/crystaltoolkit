@@ -688,7 +688,7 @@ class StructureMoleculeComponent(MPComponent):
             "Minimum Distance (10% tolerance)": "MinimumDistanceNN",
             "O'Keeffe's Algorithm": "MinimumOKeeffeNN",
             "Hoppe's ECoN Algorithm": "EconNN",
-            "Brunner's Reciprocal Algorithm": "BrunnerNN_reciprocal",
+            "Brunner's Reciprocal Algorithm": "BrunnerNNReciprocal",
         }
 
         bonding_algorithm = dcc.Dropdown(

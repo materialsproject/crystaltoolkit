@@ -13,6 +13,3 @@ build/*
 *.egg-info
 dist/*
 .vscode
-
-.venv/
-_version.py
