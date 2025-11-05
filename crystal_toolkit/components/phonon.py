@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import itertools
-from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -9,11 +8,7 @@ import plotly.graph_objects as go
 from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash_mp_components import CrystalToolkitAnimationScene, CrystalToolkitScene
-
-# crystal animation algo
-from pymatgen.analysis.graphs import StructureGraph
-from pymatgen.analysis.local_env import CrystalNN
+from dash_mp_components import CrystalToolkitScene
 from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
@@ -23,7 +18,14 @@ from pymatgen.transformations.standard_transformations import SupercellTransform
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
-from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
+from crystal_toolkit.helpers.layouts import (
+    Column,
+    Columns,
+    Label,
+    MessageBody,
+    MessageContainer,
+    get_data_list,
+)
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
 if TYPE_CHECKING:
@@ -66,32 +68,26 @@ class PhononBandstructureAndDosComponent(MPComponent):
             **kwargs,
         )
 
-        bs, _ = PhononBandstructureAndDosComponent._get_ph_bs_dos(
-            self.initial_data["default"]
-        )
-        self.create_store("bs-store", bs)
-        self.create_store("bs", None)
-        self.create_store("dos", None)
-
     @property
     def _sub_layouts(self) -> dict[str, Component]:
         # defaults
         state = {"label-select": "sc", "dos-select": "ap"}
 
-        fig = PhononBandstructureAndDosComponent.get_figure(None, None)
+        bs, dos = PhononBandstructureAndDosComponent._get_ph_bs_dos(
+            self.initial_data["default"]
+        )
+        fig = PhononBandstructureAndDosComponent.get_figure(bs, dos)
         # Main plot
         graph = dcc.Graph(
             figure=fig,
             config={"displayModeBar": False},
-            responsive=False,
+            responsive=True,
             id=self.id("ph-bsdos-graph"),
         )
 
         # Brillouin zone
-        zone_scene = self.get_brillouin_zone_scene(None)
-        zone = CrystalToolkitScene(
-            data=zone_scene.to_json(), sceneSize="500px", id=self.id("zone")
-        )
+        zone_scene = self.get_brillouin_zone_scene(bs)
+        zone = CrystalToolkitScene(data=zone_scene.to_json(), sceneSize="500px")
 
         # Hide by default if not loaded by mpid, switching between k-paths
         # on-the-fly only supported for bandstructures retrieved from MP
@@ -113,11 +109,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     options=options,
                 )
             ],
-            style=(
-                {"width": "200px"}
-                if show_path_options
-                else {"maxWidth": "200", "display": "none"}
-            ),
+            style={"width": "200px"}
+            if show_path_options
+            else {"maxWidth": "200", "display": "none"},
             id=self.id("path-container"),
         )
 
@@ -132,11 +126,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     options=options,
                 )
             ],
-            style=(
-                {"width": "200px"}
-                if show_path_options
-                else {"width": "200px", "display": "none"}
-            ),
+            style={"width": "200px"}
+            if show_path_options
+            else {"width": "200px", "display": "none"},
             id=self.id("label-container"),
         )
 
@@ -150,7 +142,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             style={"width": "200px"},
         )
 
-        summary_dict = self._get_data_list_dict(None, None)
+        summary_dict = self._get_data_list_dict(bs, dos)
         summary_table = get_data_list(summary_dict)
 
         # crystal visualization
@@ -272,7 +264,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
         brillouin_zone = Columns(
             [
-                Column([Label("Summary"), sub_layouts["table"]], id=self.id("table")),
+                Column([Label("Summary"), sub_layouts["table"]]),
                 Column([Label("Brillouin Zone"), sub_layouts["zone"]]),
             ]
         )
@@ -541,7 +533,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     "line": {"color": "#1f77b4"},
                     "hoverinfo": "skip",
                     "name": "Total",
-                    "customdata": [[di, band_num] for di in range(len(x_dat))],
                     "hovertemplate": "%{y:.2f} THz",
                     "showlegend": False,
                     "xaxis": "x",
@@ -587,9 +578,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
     def _get_data_list_dict(
         bs: PhononBandStructureSymmLine, dos: CompletePhononDos
     ) -> dict[str, str | bool | int]:
-        if (not bs) and (not dos):
-            return {}
-
         bs_minpoint, bs_min_freq = bs.min_freq()
         min_freq_report = (
             f"{bs_min_freq:.2f} THz at frac. coords. {bs_minpoint.frac_coords}"
@@ -615,7 +603,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         target="blank",
                     ),
                 ]
-            ): ("Yes" if bs.has_nac else "No"),
+            ): "Yes" if bs.has_nac else "No",
             "Has imaginary frequencies": "Yes" if bs.has_imaginary_freq() else "No",
             "Has eigen-displacements": "Yes" if bs.has_eigendisplacements else "No",
             "Min frequency": min_freq_report,
@@ -685,9 +673,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
         ph_dos: CompletePhononDos | None = None,
         freq_range: tuple[float | None, float | None] = (None, None),
     ) -> go.Figure:
+        if freq_range[0] is None:
+            freq_range = (np.min(ph_bs.bands) * 1.05, freq_range[1])
+
+        if freq_range[1] is None:
+            freq_range = (freq_range[0], np.max(ph_bs.bands) * 1.05)
+
         if (not ph_dos) and (not ph_bs):
             empty_plot_style = {
-                "height": 500,
                 "xaxis": {"visible": False},
                 "yaxis": {"visible": False},
                 "paper_bgcolor": "rgba(0,0,0,0)",
@@ -695,12 +688,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             }
 
             return go.Figure(layout=empty_plot_style)
-
-        if freq_range[0] is None:
-            freq_range = (np.min(ph_bs.bands) * 1.05, freq_range[1])
-
-        if freq_range[1] is None:
-            freq_range = (freq_range[0], np.max(ph_bs.bands) * 1.05)
 
         if ph_bs:
             (
@@ -798,7 +785,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(230,230,230,230)",
             margin=dict(l=60, b=50, t=50, pad=0, r=30),
-            clickmode="event+select",
+            # clickmode="event+select"
         )
 
         figure = {"data": bs_traces + dos_traces, "layout": layout}
@@ -836,6 +823,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 dos = CompletePhononDos.from_dict(dos)
 
             figure = self.get_figure(bs, dos)
+            return dcc.Graph(
+                figure=figure, config={"displayModeBar": False}, responsive=True
+            )
 
             # remove marker if there is one
             figure["data"] = [
@@ -870,10 +860,91 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
             zone_scene = self.get_brillouin_zone_scene(bs)
 
-            summary_dict = self._get_data_list_dict(bs, dos)
-            summary_table = get_data_list(summary_dict)
+            return label_value, label_style
 
-            return figure, zone_scene.to_json(), summary_table
+        @app.callback(
+            Output(self.id("dos-select"), "options"),
+            Output(self.id("path-convention"), "options"),
+            Output(self.id("path-container"), "style"),
+            Input(self.id("elements"), "data"),
+            Input(self.id("mpid"), "data"),
+        )
+        def update_select(elements, mpid):
+            if elements is None:
+                raise PreventUpdate
+            if not mpid:
+                dos_options = (
+                    [{"label": "Element Projected", "value": "ap"}]
+                    + [{"label": "Orbital Projected - Total", "value": "op"}]
+                    + [
+                        {
+                            "label": "Orbital Projected - " + str(ele_label),
+                            "value": "orb" + str(ele_label),
+                        }
+                        for ele_label in elements
+                    ]
+                )
+
+                path_options = [{"label": "N/A", "value": "sc"}]
+                path_style = {"maxWidth": "200", "display": "none"}
+
+                return dos_options, path_options, path_style
+            dos_options = (
+                [{"label": "Element Projected", "value": "ap"}]
+                + [{"label": "Orbital Projected - Total", "value": "op"}]
+                + [
+                    {
+                        "label": "Orbital Projected - " + str(ele_label),
+                        "value": "orb" + str(ele_label),
+                    }
+                    for ele_label in elements
+                ]
+            )
+
+            path_options = [
+                {"label": "Setyawan-Curtarolo", "value": "sc"},
+                {"label": "Latimer-Munro", "value": "lm"},
+                {"label": "Hinuma et al.", "value": "hin"},
+            ]
+
+            path_style = {"maxWidth": "200"}
+
+            return dos_options, path_options, path_style
+
+        @app.callback(
+            Output(self.id("traces"), "data"),
+            Output(self.id("elements"), "data"),
+            Input(self.id(), "data"),
+            Input(self.id("path-convention"), "value"),
+            Input(self.id("dos-select"), "value"),
+            Input(self.id("label-select"), "value"),
+        )
+        def bs_dos_data(data, dos_select, label_select):
+            # Obtain bands to plot over and generate traces for bs data:
+            energy_window = (-6.0, 10.0)
+
+            traces = []
+
+            bsml, density_of_states = self._get_ph_bs_dos(data)
+
+            if self.bandstructure_symm_line:
+                bs_traces = self.get_ph_bandstructure_traces(
+                    bsml, freq_range=energy_window
+                )
+                traces.append(bs_traces)
+
+            if self.density_of_states:
+                dos_traces = self.get_ph_dos_traces(
+                    density_of_states, freq_range=energy_window
+                )
+                traces.append(dos_traces)
+
+            # traces = [bs_traces, dos_traces, bs_data]
+
+            # TODO: not tested if this is correct way to get element list
+            elements = list(map(str, density_of_states.get_element_dos()))
+
+            return traces, elements
 
         @app.callback(
             Output(self.id("brillouin-zone"), "data"),
