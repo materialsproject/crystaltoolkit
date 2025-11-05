@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import plotly.graph_objects as go
 from dash import dcc, html
-from dash.dependencies import Component, Input, Output
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitAnimationScene, CrystalToolkitScene
 
@@ -34,7 +34,7 @@ DISPLACE_COEF = [0, 1, 0, -1, 0]
 MARKER_COLOR = "red"
 MARKER_SIZE = 12
 MARKER_SHAPE = "x"
-MAX_MAGNITUDE = 400
+MAX_MAGNITUDE = 300
 MIN_MAGNITUDE = 0
 
 # TODOs:
@@ -165,6 +165,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 sceneSize="500px",
                 id=self.id("crystal-animation"),
                 settings={"defaultZoom": 1.2},
+                axisView="SW",
+                showControls=False,  # disable download for now
             ),
             style={"width": "60%"},
         )
@@ -184,6 +186,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             default=1,
                             is_int=True,
                             label="x",
+                            min=1,
                             style={"width": "5rem"},
                         ),
                         self.get_numerical_input(
@@ -191,6 +194,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             default=1,
                             is_int=True,
                             label="y",
+                            min=1,
                             style={"width": "5rem"},
                         ),
                         self.get_numerical_input(
@@ -198,11 +202,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             default=1,
                             is_int=True,
                             label="z",
+                            min=1,
                             style={"width": "5rem"},
                         ),
                         html.Button(
                             "Update",
-                            id=self.id("controls-btn"),
+                            id=self.id("supercell-controls-btn"),
                             style={"height": "40px"},
                         ),
                     ],
@@ -233,13 +238,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
             "crystal-animation-controls": crystal_animation_controls,
         }
 
-    def layout(self) -> html.Div:
+    def _get_animation_panel(self):
         sub_layouts = self._sub_layouts
-        crystal_animation = Columns(
+        return Columns(
             [
                 Column(
                     [
-                        # sub_layouts["tip"],
                         Columns(
                             [
                                 sub_layouts["crystal-animation"],
@@ -248,9 +252,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         )
                     ]
                 ),
-                # Column([sub_layouts["crystal-animation-controls"]])
             ]
         )
+
+    def layout(self) -> html.Div:
+        sub_layouts = self._sub_layouts
+        crystal_animation = self._get_animation_panel()
         graph = Columns([Column([sub_layouts["graph"]])])
         controls = Columns(
             [
@@ -279,8 +286,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
         band: int = 0,
         qpoint: int = 0,
         precision: int = 15,
-        magnitude: int = 225,
-        total_repeat_cell_cnt: int | None = None,
+        magnitude: int = MAX_MAGNITUDE / 2,
+        total_repeat_cell_cnt: int = 1,
     ) -> dict:
         if not ph_bs or not json_data:
             return {}
@@ -305,8 +312,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
             # get the atom index
             assert total_repeat_cell_cnt != 0
+
             modified_idx = (
-                (idx // total_repeat_cell_cnt) if total_repeat_cell_cnt else idx
+                int(idx // total_repeat_cell_cnt) if total_repeat_cell_cnt else idx
             )
 
             return [
@@ -793,27 +801,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             clickmode="event+select",
         )
 
-        default_red_dot = [
-            {
-                "type": "scatter",
-                "mode": "markers",
-                "x": [0],
-                "y": [0],
-                "marker": {
-                    "color": MARKER_COLOR,
-                    "size": MARKER_SIZE,
-                    "symbol": MARKER_SHAPE,
-                },
-                "name": "click-marker",
-                "showlegend": False,
-                "customdata": [[0, 0]],
-                "hovertemplate": (
-                    "band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>"
-                ),
-            }
-        ]
-
-        figure = {"data": bs_traces + dos_traces + default_red_dot, "layout": layout}
+        figure = {"data": bs_traces + dos_traces, "layout": layout}
 
         legend = dict(
             x=1.02,
@@ -848,37 +836,37 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 dos = CompletePhononDos.from_dict(dos)
 
             figure = self.get_figure(bs, dos)
-            if nclick and nclick.get("points"):
-                # remove marker if there is one
-                figure["data"] = [
-                    t for t in figure["data"] if t.get("name") != "click-marker"
-                ]
 
-                x_click = nclick["points"][0]["x"]
-                y_click = nclick["points"][0]["y"]
+            # remove marker if there is one
+            figure["data"] = [
+                t for t in figure["data"] if t.get("name") != "click-marker"
+            ]
 
-                pt = nclick["points"][0]
-                qpoint, band_num = pt.get("customdata", [0, 0])
+            x_click = nclick["points"][0]["x"] if nclick else 0
+            y_click = nclick["points"][0]["y"] if nclick else 0
+            pt = nclick["points"][0] if nclick else {}
 
-                figure["data"].append(
-                    {
-                        "type": "scatter",
-                        "mode": "markers",
-                        "x": [x_click],
-                        "y": [y_click],
-                        "marker": {
-                            "color": MARKER_COLOR,
-                            "size": MARKER_SIZE,
-                            "symbol": MARKER_SHAPE,
-                        },
-                        "name": "click-marker",
-                        "showlegend": False,
-                        "customdata": [[qpoint, band_num]],
-                        "hovertemplate": (
-                            "band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>"
-                        ),
-                    }
-                )
+            qpoint, band_num = pt.get("customdata", [0, 0])
+
+            figure["data"].append(
+                {
+                    "type": "scatter",
+                    "mode": "markers",
+                    "x": [x_click],
+                    "y": [y_click],
+                    "marker": {
+                        "color": MARKER_COLOR,
+                        "size": MARKER_SIZE,
+                        "symbol": MARKER_SHAPE,
+                    },
+                    "name": "click-marker",
+                    "showlegend": False,
+                    "customdata": [[qpoint, band_num]],
+                    "hovertemplate": (
+                        "band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>"
+                    ),
+                }
+            )
 
             zone_scene = self.get_brillouin_zone_scene(bs)
 
@@ -903,35 +891,45 @@ class PhononBandstructureAndDosComponent(MPComponent):
             Output(self.id("crystal-animation"), "data"),
             Input(self.id("ph-bsdos-graph"), "clickData"),
             Input(self.id("ph_bs"), "data"),
-            Input(self.id("controls-btn"), "n_clicks"),
-            Input(self.get_all_kwargs_id(), "value"),
+            Input(self.id("supercell-controls-btn"), "n_clicks"),
+            Input(self.get_kwarg_id("magnitude"), "value"),
+            State(self.get_kwarg_id("scale-x"), "value"),
+            State(self.get_kwarg_id("scale-y"), "value"),
+            State(self.get_kwarg_id("scale-z"), "value"),
             # prevent_initial_call=True
         )
-        def update_crystal_animation(cd, bs, update, kwargs):
+        def update_crystal_animation(
+            cd, bs, sueprcell_update, magnitude_fraction, scale_x, scale_y, scale_z
+        ):
+            # Avoids using `get_all_kwargs_id` for all `Input`; instead, uses `State` to prevent flickering when users modify `scale_x`, `scale_y`, or `scale_z` fields,
+            # ensuring updates occur only after the `supercell-controls-btn`` is clicked.
+
             if not bs:
                 raise PreventUpdate
+
+            # Since `self.get_kwarg_id()` uses dash.dependencies.ALL, it returns a list of values.
+            # Although we could use `magnitude_fraction = magnitude_fraction[0]` to get the first value,
+            # this approach provides better clarity and readability.
+            kwargs = self.reconstruct_kwargs_from_state()
+            magnitude_fraction = kwargs.get("magnitude")
+            scale_x = kwargs.get("scale-x")
+            scale_y = kwargs.get("scale-y")
+            scale_z = kwargs.get("scale-z")
 
             if isinstance(bs, dict):
                 bs = PhononBandStructureSymmLine.from_dict(bs)
 
-            kwargs = self.reconstruct_kwargs_from_state()
+            struct = bs.structure
+            total_repeat_cell_cnt = 1
+            # update structure if the controls got triggered
+            if sueprcell_update:
+                total_repeat_cell_cnt = scale_x * scale_y * scale_z
 
-            # animation control
-            scale_x, scale_y, scale_z = (
-                int(kwargs["scale-x"]),
-                int(kwargs["scale-y"]),
-                int(kwargs["scale-z"]),
-            )
-            magnitude_fraction = kwargs["magnitude"]
-            magnitude = (
-                MAX_MAGNITUDE - MIN_MAGNITUDE
-            ) * magnitude_fraction + MIN_MAGNITUDE
-
-            # create supercell
-            trans = SupercellTransformation(
-                ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
-            )
-            struct = trans.apply_transformation(bs.structure)
+                # create supercell
+                trans = SupercellTransformation(
+                    ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
+                )
+                struct = trans.apply_transformation(struct)
 
             struc_graph = StructureGraph.from_local_env_strategy(struct, CrystalNN())
             scene = struc_graph.get_scene(
@@ -948,12 +946,17 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 pt = cd["points"][0]
                 qpoint, band_num = pt.get("customdata", [0, 0])
 
+            # magnitude
+            magnitude = (
+                MAX_MAGNITUDE - MIN_MAGNITUDE
+            ) * magnitude_fraction + MIN_MAGNITUDE
+
             return PhononBandstructureAndDosComponent._get_eigendisplacement(
                 ph_bs=bs,
                 json_data=json_data,
                 band=band_num,
                 qpoint=qpoint,
-                total_repeat_cell_cnt=scale_x * scale_y * scale_z,
+                total_repeat_cell_cnt=total_repeat_cell_cnt,
                 magnitude=magnitude,
             )
 
