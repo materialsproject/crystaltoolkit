@@ -18,14 +18,7 @@ from pymatgen.transformations.standard_transformations import SupercellTransform
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
-from crystal_toolkit.helpers.layouts import (
-    Column,
-    Columns,
-    Label,
-    MessageBody,
-    MessageContainer,
-    get_data_list,
-)
+from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
 if TYPE_CHECKING:
