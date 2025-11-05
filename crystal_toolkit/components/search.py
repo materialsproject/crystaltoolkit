@@ -120,9 +120,7 @@ class SearchComponent(MPComponent):
             fields = ["material_id", "formula_pretty", "energy_above_hull", "symmetry"]
             with MPRester() as mpr:
                 try:
-                    entries = mpr.summary.search_summary_docs(
-                        formula=search_term, fields=fields
-                    )
+                    entries = mpr.summary.search(formula=search_term, fields=fields)
                 except MPRestError:
                     entries = []
 
