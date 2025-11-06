@@ -440,11 +440,10 @@ class PourbaixDiagramComponent(MPComponent):
                     default=self.default_state["filter_solids"],
                     label="Filter Solids",
                     help_str="Whether to filter solid phases by stability on the compositional phase diagram. "
-                    "The practical consequence of this is that highly oxidized or reduced phases that "
-                    "might show up in experiments due to kinetic limitations on oxygen/hydrogen evolution "
-                    "won't appear in the diagram, but they are not actually “stable” (and are frequently "
-                    "overstabilized from DFT errors). Hence, including only the stable solid phases generally "
-                    "leads to the most accurate Pourbaix diagrams.",
+                    "The practical consequence of this is that we only include materials that are predicted to "
+                    "be thermodynamically stable at RT within the limitations of DFT. Notably, there may be "
+                    "disagreements with experiments e.g., highly oxidized or reduced phases, which are kinetically "
+                    "stabilized through surface passivation.",
                 ),
                 html.Div(
                     [
@@ -454,23 +453,40 @@ class PourbaixDiagramComponent(MPComponent):
                                     id=self.id("invalid-comp-alarm"),
                                     message="Illegal composition entry!",
                                 ),
-                                html.H5(
-                                    "Composition",
-                                    id=self.id("composition-title"),
-                                    style={"fontWeight": "bold"},
+                                html.Div(
+                                    [
+                                        html.H5(
+                                            "Composition Control",
+                                            style={
+                                                "fontWeight": "bold",
+                                                "textAlign": "center",
+                                            },
+                                        ),
+                                        html.H5(
+                                            "Composition of",
+                                            id=self.id("composition-title"),
+                                            # style={"fontWeight": "bold"},
+                                        ),
+                                    ]
                                 ),
                                 dcc.Input(
                                     id=self.id("comp-text"),
                                     type="text",
-                                    # placeholder="composition e.g. 1:1:1",
-                                ),
-                                html.Button(
-                                    "Update",
-                                    id=self.id("comp-btn"),
+                                    style={
+                                        "textAlign": "center",
+                                        "width": "10rem",
+                                        "marginRight": "0.2rem",
+                                        "marginBottom": "0.2rem",
+                                        "height": "36px",
+                                        "fontSize": "14px",
+                                    },
                                 ),
                                 ctl.Block(html.Div(id=self.id("display-composition"))),
-                                html.Br(),
-                                html.Br(),
+                                html.Hr(
+                                    style={
+                                        "backgroundColor": "#C5C5C6",
+                                    }
+                                ),
                                 dcc.Store(id=self.id("elements-store")),
                             ],
                             id=self.id("comp-panel"),
@@ -486,8 +502,18 @@ class PourbaixDiagramComponent(MPComponent):
                             id=self.id("conc-panel"),
                             style={"display": "none"},
                         ),
-                        html.Div(id=self.id("element_specific_controls")),
-                    ]
+                        html.Div(
+                            id=self.id("element_specific_controls"),
+                        ),
+                        html.Button(
+                            "Update",
+                            id=self.id("comp-conc-btn"),
+                            style={"display": "none"},
+                        ),
+                    ],
+                    style={
+                        "backgroundColor": "#F1F1F5",
+                    },
                 ),
                 self.get_bool_input(
                     "show_heatmap",  # kwarg_label
@@ -629,6 +655,8 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("elements-store"), "data"),
             Output(self.id("comp-text"), "value"),
             Output(self.id("composition-title"), "children"),
+            Output(self.id("comp-conc-btn"), "children"),
+            Output(self.id("comp-conc-btn"), "style"),
             Input(self.id(), "data"),
             prevent_initial_call=True,
         )
@@ -662,7 +690,7 @@ class PourbaixDiagramComponent(MPComponent):
                             default=1e-6,
                             min=MIN_CONCENTRATION,
                             max=MAX_CONCENTRATION,
-                            label=f"Concentration of {element} ion",
+                            label=f"concentration of {element} ion",
                             style={"width": "10rem", "fontSize": "14px"},
                         )
                     ]
@@ -674,27 +702,43 @@ class PourbaixDiagramComponent(MPComponent):
             comp_conc_controls += comp_inputs
 
             ion_label = (
-                "Set Ion Concentrations (M)"
+                "Ion Concentrations Control"
                 if len(elements) > 1
-                else "Set Ion Concentration"
+                else "Ion Concentration Control"
             )
-            comp_conc_controls.append(ctl.Label(ion_label))
+
+            comp_conc_controls.append(
+                html.H5(
+                    ion_label,
+                    style={"fontWeight": "bold", "textAlign": "center"},
+                ),
+            )
+            comp_conc_controls.append(
+                html.H6(
+                    f"💡 Set the range between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} (M)"
+                )
+            )
 
             comp_conc_controls += conc_inputs
 
-            #
+            # comp_panel_style
             comp_panel_style = {"display": "none"}
             if len(elements) > 1:
                 comp_panel_style = {"display": "block"}
 
-            #
+            # elements store
             elements = [element.symbol for element in elements]
 
-            #
+            # default_comp
             default_comp = ":".join(["1" for _ in elements])
 
-            #
-            title = "Composition of " + ":".join(elements)
+            # composition title
+            title = "💡 Composition of " + ":".join(elements)
+
+            # update_string
+            update_string = "Concentration update"
+            if len(elements) > 1:
+                update_string = "Composition & concentration update"
 
             return (
                 html.Div(comp_conc_controls),
@@ -702,6 +746,8 @@ class PourbaixDiagramComponent(MPComponent):
                 elements,
                 default_comp,
                 title,
+                update_string,
+                {"display": "block"},
             )
 
         @cache.memoize(timeout=5 * 60)
@@ -715,11 +761,14 @@ class PourbaixDiagramComponent(MPComponent):
             Output(self.id("display-composition"), "children"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
-            Input(self.get_all_kwargs_id(), "value"),
-            Input(self.id("comp-btn"), "n_clicks"),
+            State(self.get_all_kwargs_id(), "value"),
+            Input(self.id("comp-conc-btn"), "n_clicks"),
             State(self.id("elements-store"), "data"),
             State(self.id("comp-text"), "value"),
             Input(self.id("element_specific_controls"), "children"),
+            Input(self.get_kwarg_id("filter_solids"), "value"),
+            Input(self.get_kwarg_id("show_heatmap"), "value"),
+            Input(self.get_kwarg_id("heatmap_choice"), "value"),
             prevent_initial_call=True,
         )
         def make_figure(
@@ -730,11 +779,14 @@ class PourbaixDiagramComponent(MPComponent):
             elements,
             comp_text,
             dependency2,
+            dependency3,
+            dependency4,
+            dependency5,
         ) -> go.Figure:
             if pourbaix_entries is None:
                 raise PreventUpdate
 
-            # check if composition input
+            # Only update
             if n_clicks:
                 raw_comp_list = comp_text.split(":")
             else:
@@ -757,6 +809,7 @@ class PourbaixDiagramComponent(MPComponent):
                 return (self.get_figure_div(), True, False, "")
 
             kwargs = self.reconstruct_kwargs_from_state()
+            print(kwargs)
 
             pourbaix_entries = self.from_data(pourbaix_entries)
 
@@ -808,6 +861,7 @@ class PourbaixDiagramComponent(MPComponent):
                 pourbaix_diagram,
                 heatmap_entry=heatmap_entry,
             )
+
             return (
                 self.get_figure_div(figure=figure),
                 False,
