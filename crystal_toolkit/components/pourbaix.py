@@ -747,7 +747,7 @@ class PourbaixDiagramComponent(MPComponent):
                 default_comp,
                 title,
                 update_string,
-                {"display": "block"},
+                {"display": "block", "height": "36px"},
             )
 
         @cache.memoize(timeout=5 * 60)
@@ -773,15 +773,15 @@ class PourbaixDiagramComponent(MPComponent):
         )
         def make_figure(
             pourbaix_entries,
-            dependency,
+            display_composition,
             kwargs,
             n_clicks,
             elements,
             comp_text,
-            dependency2,
-            dependency3,
-            dependency4,
-            dependency5,
+            element_specific_controls,
+            filter_solids,
+            show_heatmap,
+            heatmap_choice,
         ) -> go.Figure:
             if pourbaix_entries is None:
                 raise PreventUpdate
@@ -809,7 +809,6 @@ class PourbaixDiagramComponent(MPComponent):
                 return (self.get_figure_div(), True, False, "")
 
             kwargs = self.reconstruct_kwargs_from_state()
-            print(kwargs)
 
             pourbaix_entries = self.from_data(pourbaix_entries)
 
