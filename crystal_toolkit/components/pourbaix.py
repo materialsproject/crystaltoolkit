@@ -42,6 +42,7 @@ MIN_PH = -2
 MAX_PH = 16
 MIN_V = -4
 MAX_V = 4
+PANEL_LINE_HEIGHT = "2em"
 
 
 class PourbaixDiagramComponent(MPComponent):
@@ -126,6 +127,16 @@ class PourbaixDiagramComponent(MPComponent):
             "Predicted Stable": None,
         }
     )
+
+    @staticmethod
+    def create_centered_object(content):
+        return html.Div(
+            content,
+            style={
+                "display": "flex",
+                "justifyContent": "center",
+            },
+        )
 
     @staticmethod
     def get_figure(
@@ -460,6 +471,7 @@ class PourbaixDiagramComponent(MPComponent):
                                             style={
                                                 "fontWeight": "bold",
                                                 "textAlign": "center",
+                                                "flex": "0 0 100%",
                                             },
                                         ),
                                         html.H5(
@@ -467,21 +479,36 @@ class PourbaixDiagramComponent(MPComponent):
                                             id=self.id("composition-title"),
                                             # style={"fontWeight": "bold"},
                                         ),
-                                    ]
-                                ),
-                                dcc.Input(
-                                    id=self.id("comp-text"),
-                                    type="text",
+                                    ],
                                     style={
-                                        "textAlign": "center",
-                                        "width": "10rem",
-                                        "marginRight": "0.2rem",
-                                        "marginBottom": "0.2rem",
-                                        "height": "36px",
-                                        "fontSize": "14px",
+                                        "line-height": PANEL_LINE_HEIGHT,
+                                        "display": "flex",
+                                        "flexWrap": "wrap",
+                                        "justifyContent": "center",
                                     },
                                 ),
-                                ctl.Block(html.Div(id=self.id("display-composition"))),
+                                PourbaixDiagramComponent.create_centered_object(
+                                    dcc.Input(
+                                        id=self.id("comp-text"),
+                                        className="input",
+                                        type="text",
+                                        style={
+                                            "textAlign": "center",
+                                            "width": "10rem",
+                                            "marginRight": "0.2rem",
+                                            "marginBottom": "0.2rem",
+                                            "height": "36px",
+                                            "fontSize": "14px",
+                                        },
+                                    ),
+                                ),
+                                ctl.Block(
+                                    PourbaixDiagramComponent.create_centered_object(
+                                        html.Div(
+                                            id=self.id("display-composition"),
+                                        )
+                                    )
+                                ),
                                 html.Hr(
                                     style={
                                         "backgroundColor": "#C5C5C6",
@@ -505,16 +532,19 @@ class PourbaixDiagramComponent(MPComponent):
                         html.Div(
                             id=self.id("element_specific_controls"),
                         ),
-                        html.Button(
-                            "Update",
-                            id=self.id("comp-conc-btn"),
-                            style={"display": "none"},
+                        PourbaixDiagramComponent.create_centered_object(
+                            html.Button(
+                                "Update",
+                                id=self.id("comp-conc-btn"),
+                                style={"display": "none"},
+                            ),
                         ),
                     ],
                     style={
                         "backgroundColor": "#F1F1F5",
                     },
                 ),
+                html.Br(),
                 self.get_bool_input(
                     "show_heatmap",  # kwarg_label
                     # state=self.default_state,
@@ -679,27 +709,26 @@ class PourbaixDiagramComponent(MPComponent):
             # exclude O and H
             elements = elements - ELEMENTS_HO
 
-            comp_inputs = []
             conc_inputs = []
 
             for element in sorted(elements):
-                conc_input = html.Div(
-                    [
-                        self.get_numerical_input(
-                            f"conc-{element}",
-                            default=1e-6,
-                            min=MIN_CONCENTRATION,
-                            max=MAX_CONCENTRATION,
-                            label=f"concentration of {element} ion",
-                            style={"width": "10rem", "fontSize": "14px"},
-                        )
-                    ]
+                conc_input = PourbaixDiagramComponent.create_centered_object(
+                    self.get_numerical_input(
+                        f"conc-{element}",
+                        default=1e-6,
+                        min=MIN_CONCENTRATION,
+                        max=MAX_CONCENTRATION,
+                        label=f"concentration of {element} ion",
+                        style={
+                            "width": "10rem",
+                            "fontSize": "14px",
+                        },
+                    )
                 )
 
                 conc_inputs.append(conc_input)
 
             comp_conc_controls = []
-            comp_conc_controls += comp_inputs
 
             ion_label = (
                 "Ion Concentrations Control"
@@ -714,8 +743,10 @@ class PourbaixDiagramComponent(MPComponent):
                 ),
             )
             comp_conc_controls.append(
-                html.H6(
-                    f"💡 Set the range between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} (M)"
+                PourbaixDiagramComponent.create_centered_object(
+                    html.H6(
+                        f"💡 Set the range between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} (M)"
+                    )
                 )
             )
 
@@ -724,7 +755,9 @@ class PourbaixDiagramComponent(MPComponent):
             # comp_panel_style
             comp_panel_style = {"display": "none"}
             if len(elements) > 1:
-                comp_panel_style = {"display": "block"}
+                comp_panel_style = {
+                    "display": "block",
+                }
 
             # elements store
             elements = [element.symbol for element in elements]
@@ -741,7 +774,12 @@ class PourbaixDiagramComponent(MPComponent):
                 update_string = "Composition & concentration update"
 
             return (
-                html.Div(comp_conc_controls),
+                html.Div(
+                    comp_conc_controls,
+                    style={
+                        "line-height": PANEL_LINE_HEIGHT,
+                    },
+                ),
                 comp_panel_style,
                 elements,
                 default_comp,
