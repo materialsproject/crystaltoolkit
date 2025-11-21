@@ -13,3 +13,5 @@ build/*
 *.egg-info
 dist/*
 .vscode
+
+_version.py
