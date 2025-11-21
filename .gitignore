@@ -14,4 +14,4 @@ build/*
 dist/*
 .vscode
 
-_version.py
+**/_version.py
