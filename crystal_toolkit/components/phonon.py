@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+import json
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
@@ -36,6 +37,8 @@ MARKER_SIZE = 12
 MARKER_SHAPE = "x"
 MAX_MAGNITUDE = 300
 MIN_MAGNITUDE = 0
+
+
 
 
 # TODOs:
@@ -88,7 +91,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     config={"displayModeBar": False},
                     responsive=True,
                     id=self.id("ph-bsdos-graph"),
-                    style={"height": "520px"},
+                    style={"height": "520px"},,
                 )
             ]
         )
