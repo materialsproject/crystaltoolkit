@@ -26,6 +26,8 @@ from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
 from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
+import json
+
 if TYPE_CHECKING:
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     from pymatgen.electronic_structure.dos import CompleteDos
@@ -36,6 +38,16 @@ MARKER_SIZE = 12
 MARKER_SHAPE = "x"
 MAX_MAGNITUDE = 300
 MIN_MAGNITUDE = 0
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        return super().default(obj)
 
 # TODOs:
 # - look for additional projection methods in phonon DOS (currently only atom
@@ -80,12 +92,18 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         fig = PhononBandstructureAndDosComponent.get_figure(None, None)
         # Main plot
-        graph = dcc.Graph(
-            figure=fig,
-            config={"displayModeBar": False},
-            responsive=False,
-            id=self.id("ph-bsdos-graph"),
+        graph = html.Div(
+            [
+                dcc.Graph(
+                    figure=fig,
+                    config={"displayModeBar": False},
+                    responsive=True,
+                    id=self.id("ph-bsdos-graph"),
+                    style={"height": "520px"}
+                )
+            ]
         )
+        
 
         # Brillouin zone
         zone_scene = self.get_brillouin_zone_scene(None)
@@ -153,12 +171,24 @@ class PhononBandstructureAndDosComponent(MPComponent):
         summary_dict = self._get_data_list_dict(None, None)
         summary_table = get_data_list(summary_dict)
 
-        # crystal visualization
-
-        tip = html.H5(
-            "💡 Tips: Click different q-points and bands in the dispersion diagram to see the crystal vibration!",
+        tip = html.Div(
+            html.Span(
+                "💡 Tips: Click different q-points and bands in the dispersion diagram to see the crystal vibration!",
+                style={
+                    "border": "0.5px dashed black",
+                    "display": "inline-flex",
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "textAlign": "center",
+                    } 
+                ),
+            style={
+                "display": "flex",
+                "justifyContent": "center",
+            }
         )
-
+        
+        # crystal visualization
         crystal_animation = html.Div(
             CrystalToolkitAnimationScene(
                 data={},
@@ -167,16 +197,16 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 settings={"defaultZoom": 1.2},
                 axisView="SW",
                 showControls=False,  # disable download for now
-            ),
-            style={"width": "60%"},
+            )
         )
 
         crystal_animation_controls = html.Div(
             [
                 html.Br(),
-                html.Div(tip, style={"textAlign": "center"}),
+                html.Br(),
                 html.Br(),
                 html.H5("Control Panel", style={"textAlign": "center"}),
+                html.Br(),
                 html.H6("Supercell modification"),
                 html.Br(),
                 html.Div(
@@ -184,6 +214,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         self.get_numerical_input(
                             kwarg_label="scale-x",
                             default=1,
+                            persistence_type="session",
                             is_int=True,
                             label="x",
                             min=1,
@@ -192,6 +223,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         self.get_numerical_input(
                             kwarg_label="scale-y",
                             default=1,
+                            persistence_type="session",
                             is_int=True,
                             label="y",
                             min=1,
@@ -200,18 +232,28 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         self.get_numerical_input(
                             kwarg_label="scale-z",
                             default=1,
+                            persistence_type="session",
                             is_int=True,
                             label="z",
                             min=1,
                             style={"width": "5rem"},
                         ),
-                        html.Button(
-                            "Update",
-                            id=self.id("supercell-controls-btn"),
-                            style={"height": "40px"},
-                        ),
+                        html.Div(
+                            html.Button(
+                                "Update",
+                                id=self.id("supercell-controls-btn"),
+                                style={"height": "40px"},
+                            ),
+                            style={
+                                "textAlign": "center", 
+                                "width": "100%"
+                            }
+                        )
+                        
                     ],
-                    style={"display": "flex"},
+                    style={
+                        "display": "flex"
+                    },
                 ),
                 html.Br(),
                 html.Div(
@@ -224,6 +266,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     )
                 ),
             ],
+            style={"width": "100%"}
         )
 
         return {
@@ -244,6 +287,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             [
                 Column(
                     [
+                        sub_layouts["tip"],
                         Columns(
                             [
                                 sub_layouts["crystal-animation"],
@@ -252,7 +296,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         )
                     ]
                 ),
-            ]
+            ],
         )
 
     def layout(self) -> html.Div:
