@@ -39,16 +39,6 @@ MARKER_SHAPE = "x"
 MAX_MAGNITUDE = 300
 MIN_MAGNITUDE = 0
 
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        return super().default(obj)
-
 # TODOs:
 # - look for additional projection methods in phonon DOS (currently only atom
 #   projections supported)
