@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+import json
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
@@ -26,8 +27,6 @@ from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
 from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
-import json
-
 if TYPE_CHECKING:
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     from pymatgen.electronic_structure.dos import CompleteDos
@@ -39,6 +38,7 @@ MARKER_SHAPE = "x"
 MAX_MAGNITUDE = 300
 MIN_MAGNITUDE = 0
 
+
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
@@ -48,6 +48,7 @@ class NumpyEncoder(json.JSONEncoder):
         if isinstance(obj, np.floating):
             return float(obj)
         return super().default(obj)
+
 
 # TODOs:
 # - look for additional projection methods in phonon DOS (currently only atom
@@ -99,11 +100,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     config={"displayModeBar": False},
                     responsive=True,
                     id=self.id("ph-bsdos-graph"),
-                    style={"height": "520px"}
+                    style={"height": "520px"},
                 )
             ]
         )
-        
 
         # Brillouin zone
         zone_scene = self.get_brillouin_zone_scene(None)
@@ -180,14 +180,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     "alignItems": "center",
                     "justifyContent": "center",
                     "textAlign": "center",
-                    } 
-                ),
+                },
+            ),
             style={
                 "display": "flex",
                 "justifyContent": "center",
-            }
+            },
         )
-        
+
         # crystal visualization
         crystal_animation = html.Div(
             CrystalToolkitAnimationScene(
@@ -244,16 +244,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                 id=self.id("supercell-controls-btn"),
                                 style={"height": "40px"},
                             ),
-                            style={
-                                "textAlign": "center", 
-                                "width": "100%"
-                            }
-                        )
-                        
+                            style={"textAlign": "center", "width": "100%"},
+                        ),
                     ],
-                    style={
-                        "display": "flex"
-                    },
+                    style={"display": "flex"},
                 ),
                 html.Br(),
                 html.Div(
@@ -266,7 +260,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     )
                 ),
             ],
-            style={"width": "100%"}
+            style={"width": "100%"},
         )
 
         return {
@@ -293,7 +287,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                 sub_layouts["crystal-animation"],
                                 sub_layouts["crystal-animation-controls"],
                             ]
-                        )
+                        ),
                     ]
                 ),
             ],
