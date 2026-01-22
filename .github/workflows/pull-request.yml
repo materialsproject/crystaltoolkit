@@ -38,6 +38,7 @@ jobs:
           CXX: g++-14
         run: |
           python${{ matrix.python-version }} -m pip install --upgrade pip packaging wheel cython setuptools
+          python${{ matrix.python-version }} -m pip install spglib git+https://gitlab.com/sousaw/BoltzTraP2.git
           python${{ matrix.python-version }} -m pip install `grep numpy== requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt`
           python${{ matrix.python-version }} -m pip install -r requirements/ubuntu-latest_py${{ matrix.python-version }}_extras.txt
           python${{ matrix.python-version }} -m pip install --upgrade pip
