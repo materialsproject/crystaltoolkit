@@ -68,8 +68,10 @@ bleach[css]==6.3.0
     # via nbconvert
 blinker==1.9.0
     # via flask
-boltztrap2==25.11.1
-    # via ifermi
+boltztrap2==25.3.1
+    # via
+    #   crystal_toolkit (pyproject.toml)
+    #   ifermi
 boto3==1.42.33
     # via mp-api
 botocore==1.42.33
@@ -1024,7 +1026,7 @@ vtk==9.5.2
     # via dash-vtk
 waitress==3.0.2
     # via dash
-wcwidth==0.3.0
+wcwidth==0.3.1
     # via prompt-toolkit
 webcolors==25.10.0
     # via

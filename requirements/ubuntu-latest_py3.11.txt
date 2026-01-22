@@ -6,6 +6,8 @@
 #
 annotated-types==0.7.0
     # via pydantic
+ase==3.27.0
+    # via boltztrap2
 asttokens==3.0.1
     # via stack-data
 bibtexparser==1.4.3
@@ -14,6 +16,8 @@ blake3==1.0.8
     # via emmet-core
 blinker==1.9.0
     # via flask
+boltztrap2==25.3.1
+    # via crystal_toolkit (pyproject.toml)
 boto3==1.42.33
     # via mp-api
 botocore==1.42.33
@@ -23,7 +27,11 @@ botocore==1.42.33
 cachelib==0.13.0
     # via flask-caching
 certifi==2026.1.4
-    # via requests
+    # via
+    #   netcdf4
+    #   requests
+cftime==1.6.5
+    # via netcdf4
 charset-normalizer==3.4.4
     # via requests
 click==8.3.1
@@ -32,6 +40,8 @@ contourpy==1.3.3
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
+cython==3.2.4
+    # via boltztrap2
 dash==3.4.0
     # via crystal_toolkit (pyproject.toml)
 dash-mp-components==0.5.0rc0
@@ -88,7 +98,10 @@ markupsafe==3.0.3
     #   jinja2
     #   werkzeug
 matplotlib==3.10.8
-    # via pymatgen
+    # via
+    #   ase
+    #   boltztrap2
+    #   pymatgen
 matplotlib-inline==0.2.1
     # via ipython
 monty==2025.3.3
@@ -106,16 +119,22 @@ narwhals==2.15.0
     # via plotly
 nest-asyncio==1.6.0
     # via dash
+netcdf4==1.7.4
+    # via boltztrap2
 networkx==3.6.1
     # via
     #   pymatgen
     #   scikit-image
 numpy==2.4.1
     # via
+    #   ase
+    #   boltztrap2
+    #   cftime
     #   contourpy
     #   imageio
     #   matplotlib
     #   monty
+    #   netcdf4
     #   pandas
     #   pymatgen
     #   pymatgen-io-validation
@@ -217,6 +236,8 @@ scikit-learn==1.8.0
     # via crystal_toolkit (pyproject.toml)
 scipy==1.17.0
     # via
+    #   ase
+    #   boltztrap2
     #   pymatgen
     #   scikit-image
     #   scikit-learn
@@ -227,7 +248,9 @@ six==1.17.0
 smart-open==7.5.0
     # via mp-api
 spglib==2.7.0
-    # via pymatgen
+    # via
+    #   boltztrap2
+    #   pymatgen
 stack-data==0.6.3
     # via ipython
 sympy==1.14.0
@@ -265,7 +288,7 @@ urllib3==2.6.3
     # via
     #   botocore
     #   requests
-wcwidth==0.3.0
+wcwidth==0.3.1
     # via prompt-toolkit
 webcolors==25.10.0
     # via crystal_toolkit (pyproject.toml)
