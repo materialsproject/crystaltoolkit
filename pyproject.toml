@@ -22,7 +22,8 @@ dependencies = [
   "scikit-learn",
   "shapely",
   "webcolors",
-  "ipython"
+  "ipython",
+  "boltztrap2<25.11.1", # compilation issue when installing via pip
 ]
 
 [project.optional-dependencies]
