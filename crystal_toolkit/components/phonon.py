@@ -446,7 +446,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
     def _complex_vectors_serialization(vectors):
         # `ph_bs.eigendisplacements[band][qpoint]` is np.complex which is not serializable
         # this function transfer complex eigenvector to a list of Re and Im
-        # For example, 
+        # For example,
         # vectors = [(np.complex128(3.0634449212096337e-09+0j),
         #    np.complex128(-3.720119057521199e-08+0j),
         #    np.complex128(-0.0016537315137792753+0j)),
@@ -498,7 +498,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # remove unused sense
         for i in range(2, 4):
             rdata["contents"][i]["visible"] = False
-        
+
         # displacement formula: u(R,t) = A * e^(i(q⋅R−ωt))
         rdata["app"] = "phonon"
 
@@ -951,7 +951,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         return figure
 
-    def generate_callbacks(self, app, cache) -> None:        
+    def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("ph-bsdos-graph"), "figure"),
             Output(self.id("zone"), "data"),

@@ -212,7 +212,10 @@ def get_site_scene(
                                     radius=bond_radius / 2,
                                     clickable=True,
                                     tooltip=name_cyl,
-                                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt]
+                                    _meta=[
+                                        site_idx // total_repeat_cell_cnt,
+                                        connected_site.index // total_repeat_cell_cnt,
+                                    ]
                                     if retain_atom_idx
                                     else None,
                                 )
@@ -226,7 +229,10 @@ def get_site_scene(
                             radius=bond_radius,
                             clickable=True,
                             tooltip=name_cyl,
-                            _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt]
+                            _meta=[
+                                site_idx // total_repeat_cell_cnt,
+                                connected_site.index // total_repeat_cell_cnt,
+                            ]
                             if retain_atom_idx
                             else None,
                         )
@@ -239,7 +245,12 @@ def get_site_scene(
                     radius=bond_radius,
                     clickable=True,
                     tooltip=name_cyl,
-                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt] if retain_atom_idx else None,
+                    _meta=[
+                        site_idx // total_repeat_cell_cnt,
+                        connected_site.index // total_repeat_cell_cnt,
+                    ]
+                    if retain_atom_idx
+                    else None,
                 )
                 bonds.append(cylinder)
             all_positions.append(connected_position.tolist())
@@ -263,7 +274,12 @@ def get_site_scene(
                     positionPairs=[[position, bond_midpoint.tolist()]],
                     color=color,
                     radius=bond_radius,
-                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt] if retain_atom_idx else None,
+                    _meta=[
+                        site_idx // total_repeat_cell_cnt,
+                        connected_site.index // total_repeat_cell_cnt,
+                    ]
+                    if retain_atom_idx
+                    else None,
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())
