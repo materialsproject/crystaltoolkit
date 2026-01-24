@@ -48,6 +48,7 @@ def get_site_scene(
     magmom_scale: float = 1.0,
     legend: Legend | None = None,
     retain_atom_idx: bool = False,
+    total_repeat_cell_cnt: int = 1,
 ) -> Scene:
     """Get a Scene object for a Site.
 
@@ -72,6 +73,7 @@ def get_site_scene(
         magmom_scale (float, optional): Defaults to 1.0.
         legend (Legend | None, optional): Defaults to None.
         retain_atom_idx (bool, optional): Defaults to False.
+        total_repeat_cell_cnt (int, optional): Defaults to 1.
 
     Returns:
         Scene: The scene object containing atoms, bonds, polyhedra, magmoms.
@@ -137,7 +139,7 @@ def get_site_scene(
                 phiEnd=phiEnd,
                 clickable=True,
                 tooltip=name,
-                _meta=[site_idx] if retain_atom_idx else None,
+                _meta=[site_idx // total_repeat_cell_cnt] if retain_atom_idx else None,
             )
             atoms.append(sphere)
 
@@ -210,7 +212,7 @@ def get_site_scene(
                                     radius=bond_radius / 2,
                                     clickable=True,
                                     tooltip=name_cyl,
-                                    _meta=[site_idx, connected_site.index]
+                                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt]
                                     if retain_atom_idx
                                     else None,
                                 )
@@ -224,7 +226,7 @@ def get_site_scene(
                             radius=bond_radius,
                             clickable=True,
                             tooltip=name_cyl,
-                            _meta=[site_idx, connected_site.index]
+                            _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt]
                             if retain_atom_idx
                             else None,
                         )
@@ -237,7 +239,7 @@ def get_site_scene(
                     radius=bond_radius,
                     clickable=True,
                     tooltip=name_cyl,
-                    _meta=[site_idx, connected_site.index] if retain_atom_idx else None,
+                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt] if retain_atom_idx else None,
                 )
                 bonds.append(cylinder)
             all_positions.append(connected_position.tolist())
@@ -261,7 +263,7 @@ def get_site_scene(
                     positionPairs=[[position, bond_midpoint.tolist()]],
                     color=color,
                     radius=bond_radius,
-                    _meta=[site_idx, connected_site.index] if retain_atom_idx else None,
+                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt] if retain_atom_idx else None,
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())

@@ -27,6 +27,8 @@ from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
 from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
+from emmet.core.phonon import PhononBS
+
 if TYPE_CHECKING:
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     from pymatgen.electronic_structure.dos import CompleteDos
@@ -69,13 +71,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
             },
             **kwargs,
         )
-
+        """
         bs, _ = PhononBandstructureAndDosComponent._get_ph_bs_dos(
             self.initial_data["default"]
         )
         self.create_store("bs-store", bs)
         self.create_store("bs", None)
         self.create_store("dos", None)
+        """
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
@@ -438,6 +441,105 @@ class PhononBandstructureAndDosComponent(MPComponent):
             rdata["contents"][i]["visible"] = False
 
         return rdata
+
+    @staticmethod
+    def _complex_vectors_serialization(vectors):
+        # `ph_bs.eigendisplacements[band][qpoint]` is np.complex which is not serializable
+        # this function transfer complex eigenvector to a list of Re and Im
+        # For example, 
+        # vectors = [(np.complex128(3.0634449212096337e-09+0j),
+        #    np.complex128(-3.720119057521199e-08+0j),
+        #    np.complex128(-0.0016537315137792753+0j)),
+        #    (np.complex128(3.063444921240483e-09+0j),
+        #    np.complex128(-3.720119057492181e-08+0j),
+        #    np.complex128(-0.0016537315137792735+0j))]
+        # output:
+        # [[[3.0634449212096337e-09, 0.0],
+        #    [-3.720119057521199e-08, 0.0],
+        #    [-0.0016537315137792753, 0.0]],
+        #    [[3.063444921240483e-09, 0.0],
+        #    [-3.720119057492181e-08, 0.0],
+        #    [-0.0016537315137792735, 0.0]]]
+        arr = np.asarray(vectors, dtype=np.complex128)
+        return np.stack([arr.real, arr.imag], axis=-1).astype(float).tolist()
+
+
+    @staticmethod
+    def _get_time_function_json(
+        ph_bs: BandStructureSymmLine,
+        json_data: dict,
+        band: int = 0,
+        qpoint: int = 0,
+        precision: int = 15,
+        magnitude: int = MAX_MAGNITUDE / 2,
+        total_repeat_cell_cnt: int = 1,
+    ) -> dict:
+        if not ph_bs or not json_data:
+            return {}
+
+        assert json_data["contents"][0]["name"] == "atoms"
+        assert json_data["contents"][1]["name"] == "bonds"
+        rdata = deepcopy(json_data)
+
+        # atoms
+        contents0 = json_data["contents"][0]["contents"]
+        for cidx, content in enumerate(contents0):
+            rcontent = rdata["contents"][0]["contents"][cidx]
+            # put required data to the given atom index
+            rcontent["animate"] = [] # we just need `animate` field indicating animtaion rendering
+
+        # bonds
+        contents1 = json_data["contents"][1]["contents"]
+        for cidx, content in enumerate(contents1):
+            assert len(content["_meta"]) == len(content["positionPairs"])
+            rcontent = rdata["contents"][0]["contents"][cidx]
+            rcontent["animate"] = []
+
+        # remove unused sense
+        for i in range(2, 4):
+            rdata["contents"][i]["visible"] = False
+        
+        # displacement formula: u(R,t) = A * e^(i(q⋅R−ωt))
+        rdata["app"] = "phonon"
+
+        # omega (ω)
+        rdata["omega"] = ph_bs.frequencies[band][qpoint]
+
+        # Take mp-149 as an example:
+        # ph_bs.qpoints is "frac_coords of the given lattice by default (from Pymatgen)"
+        # transfer from frac_coords to cart_coords
+        # the size of ph_bs.structure.lattice.matrix: (3, 3) (lattice size)
+        # the size of ph_bs.qpoints: (149, 3) (wave vector for each qpoint)
+        # the size of q: (149, 3)
+        # q:
+        q = np.einsum(
+            "ij,kj->ik",
+            ph_bs.structure.lattice.matrix,
+            np.array(ph_bs.qpoints)
+        ).T
+        # phases (q⋅R): should be a number
+        # we calculate the phase with all atoms and qpoints here
+        # the size of q: (149, 3)
+        # the size of ph_bs.structure.cart_coords: (2, 3) (the coordinate of two atoms in the unit cell)
+        # the size of phase: (149, 2)
+        phase = np.einsum(
+            "ij,kj->ik",
+            q,
+            ph_bs.structure.cart_coords,
+        )
+        rdata["phases"] = phase[qpoint].tolist()
+
+        print(phase[qpoint])
+        # amplitude (A)
+        rdata["amplitude"] = magnitude
+
+        # eigenVectors
+        rdata["eigenVectors"] = PhononBandstructureAndDosComponent._complex_vectors_serialization(ph_bs.eigendisplacements[band][qpoint])
+
+        return rdata
+
+
+
 
     @staticmethod
     def _get_ph_bs_dos(
@@ -849,7 +951,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         return figure
 
-    def generate_callbacks(self, app, cache) -> None:
+    def generate_callbacks(self, app, cache) -> None:        
         @app.callback(
             Output(self.id("ph-bsdos-graph"), "figure"),
             Output(self.id("zone"), "data"),
@@ -859,8 +961,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
             Input(self.id("ph-bsdos-graph"), "clickData"),
         )
         def update_graph(bs, dos, nclick):
+            print(type(bs))
             if isinstance(bs, dict):
+                # bs = PhononBS.from_pmg(bs)
                 bs = PhononBandStructureSymmLine.from_dict(bs)
+            print(type(bs))
+            print(bs.__dict__.keys())
             if isinstance(dos, dict):
                 dos = CompletePhononDos.from_dict(dos)
 
@@ -946,7 +1052,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
             scale_z = kwargs.get("scale-z")
 
             if isinstance(bs, dict):
-                bs = PhononBandStructureSymmLine.from_dict(bs)
+                bs = PhononBS.from_pmg(bs)
+                # bs = PhononBandStructureSymmLine.from_dict(bs)
 
             struct = bs.structure
             total_repeat_cell_cnt = 1
@@ -959,14 +1066,22 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
                 )
                 struct = trans.apply_transformation(struct)
-
             struc_graph = StructureGraph.from_local_env_strategy(struct, CrystalNN())
             scene = struc_graph.get_scene(
                 draw_image_atoms=False,
                 bonded_sites_outside_unit_cell=False,
-                site_get_scene_kwargs={"retain_atom_idx": True},
+                site_get_scene_kwargs={
+                    "retain_atom_idx": True,
+                    "total_repeat_cell_cnt": total_repeat_cell_cnt
+                },
             )
             json_data = scene.to_json()
+            """
+            print(f"total_repeat_cell_cnt = {total_repeat_cell_cnt}")
+            with open("/Users/minhsuehchiu/Downloads/scene2659_super.json", "w") as f:
+                print("json generated")
+                json.dump(json_data, f)
+            """
 
             qpoint = 0
             band_num = 0
@@ -980,7 +1095,19 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 MAX_MAGNITUDE - MIN_MAGNITUDE
             ) * magnitude_fraction + MIN_MAGNITUDE
 
-            return PhononBandstructureAndDosComponent._get_eigendisplacement(
+            output_json = PhononBandstructureAndDosComponent._get_time_function_json(
+                ph_bs=bs,
+                json_data=json_data,
+                band=band_num,
+                qpoint=qpoint,
+                total_repeat_cell_cnt=total_repeat_cell_cnt,
+                magnitude=magnitude,
+            )
+            with open("/Users/minhsuehchiu/Downloads/scene149_time.json", "w") as f:
+                print("json generated")
+                json.dump(output_json, f)
+
+            return PhononBandstructureAndDosComponent._get_time_function_json(
                 ph_bs=bs,
                 json_data=json_data,
                 band=band_num,
