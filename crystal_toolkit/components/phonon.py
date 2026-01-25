@@ -11,6 +11,7 @@ from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_mp_components import CrystalToolkitAnimationScene, CrystalToolkitScene
+from emmet.core.phonon import PhononBS
 
 # crystal animation algo
 from pymatgen.analysis.graphs import StructureGraph
@@ -27,8 +28,6 @@ from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
 from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
-from emmet.core.phonon import PhononBS
-
 if TYPE_CHECKING:
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
     from pymatgen.electronic_structure.dos import CompleteDos
@@ -39,8 +38,6 @@ MARKER_SIZE = 12
 MARKER_SHAPE = "x"
 MAX_MAGNITUDE = 300
 MIN_MAGNITUDE = 0
-
-
 
 
 # TODOs:
@@ -463,7 +460,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         arr = np.asarray(vectors, dtype=np.complex128)
         return np.stack([arr.real, arr.imag], axis=-1).astype(float).tolist()
 
-
     @staticmethod
     def _get_time_function_json(
         ph_bs: BandStructureSymmLine,
@@ -487,7 +483,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
         for cidx, content in enumerate(contents0):
             rcontent = rdata["contents"][0]["contents"][cidx]
             # put required data to the given atom index
-            rcontent["animate"] = [] # we just need `animate` field indicating animtaion rendering
+            rcontent[
+                "animate"
+            ] = []  # we just need `animate` field indicating animtaion rendering
 
         # bonds
         contents1 = json_data["contents"][1]["contents"]
@@ -500,7 +498,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # for i in range(2, 4):
         #     rdata["contents"][i]["visible"] = False
         del rdata["contents"][2:4]
-        
+
         # displacement formula: u(R,t) = A * e^(i(q⋅R−ωt))
         rdata["app"] = "phonon"
 
@@ -515,9 +513,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # the size of q: (149, 3)
         # q:
         q = np.einsum(
-            "ij,kj->ik",
-            ph_bs.structure.lattice.matrix,
-            np.array(ph_bs.qpoints)
+            "ij,kj->ik", ph_bs.structure.lattice.matrix, np.array(ph_bs.qpoints)
         ).T
         # phases (q⋅R): should be a number
         # we calculate the phase with all atoms and qpoints here
@@ -535,12 +531,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
         rdata["amplitude"] = magnitude
 
         # eigenVectors
-        rdata["eigenVectors"] = PhononBandstructureAndDosComponent._complex_vectors_serialization(ph_bs.eigendisplacements[band][qpoint])
+        rdata["eigenVectors"] = (
+            PhononBandstructureAndDosComponent._complex_vectors_serialization(
+                ph_bs.eigendisplacements[band][qpoint]
+            )
+        )
 
         return rdata
-
-
-
 
     @staticmethod
     def _get_ph_bs_dos(
@@ -1070,7 +1067,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 bonded_sites_outside_unit_cell=False,
                 site_get_scene_kwargs={
                     "retain_atom_idx": True,
-                    "total_repeat_cell_cnt": total_repeat_cell_cnt
+                    "total_repeat_cell_cnt": total_repeat_cell_cnt,
                 },
             )
             json_data = scene.to_json()
