@@ -139,7 +139,8 @@ def get_site_scene(
                 phiEnd=phiEnd,
                 clickable=True,
                 tooltip=name,
-                _meta=[site_idx // total_repeat_cell_cnt] if retain_atom_idx else None,
+                _meta={"unit_cell_atom_idx": [site_idx // total_repeat_cell_cnt], "atom_idx": [site_idx]} if retain_atom_idx else None,
+                # _meta=[site_idx // total_repeat_cell_cnt] if retain_atom_idx else None,
             )
             atoms.append(sphere)
 
@@ -212,9 +213,10 @@ def get_site_scene(
                                     radius=bond_radius / 2,
                                     clickable=True,
                                     tooltip=name_cyl,
-                                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt]
-                                    if retain_atom_idx
-                                    else None,
+                                    # _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt]
+                                    # if retain_atom_idx
+                                    # else None,
+                                    _meta={"unit_cell_atom_idx": [site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt], "atom_idx": [site_idx, connected_site.index]} if retain_atom_idx else None,
                                 )
                             )
                             trans_vector = trans_vector + 0.25 * max_radius
@@ -226,9 +228,11 @@ def get_site_scene(
                             radius=bond_radius,
                             clickable=True,
                             tooltip=name_cyl,
-                            _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt]
-                            if retain_atom_idx
-                            else None,
+                            # _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt]
+                            # if retain_atom_idx
+                            # else None,
+                            _meta={"unit_cell_atom_idx": [site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt], "atom_idx": [site_idx, connected_site.index]} if retain_atom_idx else None,
+                                
                         )
                         bonds.append(cylinder)
 
@@ -239,7 +243,9 @@ def get_site_scene(
                     radius=bond_radius,
                     clickable=True,
                     tooltip=name_cyl,
-                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt] if retain_atom_idx else None,
+                    # _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt] if retain_atom_idx else None,
+                    _meta={"unit_cell_atom_idx": [site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt], "atom_idx": [site_idx, connected_site.index]} if retain_atom_idx else None,
+                                
                 )
                 bonds.append(cylinder)
             all_positions.append(connected_position.tolist())
@@ -263,7 +269,9 @@ def get_site_scene(
                     positionPairs=[[position, bond_midpoint.tolist()]],
                     color=color,
                     radius=bond_radius,
-                    _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt] if retain_atom_idx else None,
+                    # _meta=[site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt] if retain_atom_idx else None,
+                    _meta={"unit_cell_atom_idx": [site_idx // total_repeat_cell_cnt, connected_site.index // total_repeat_cell_cnt], "atom_idx": [site_idx, connected_site.index]} if retain_atom_idx else None,
+                                
                 )
                 bonds.append(cylinder)
                 all_positions.append(connected_position.tolist())

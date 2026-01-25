@@ -94,7 +94,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     config={"displayModeBar": False},
                     responsive=True,
                     id=self.id("ph-bsdos-graph"),
-                    style={"height": "520px"},,
+                    style={"height": "520px"},
                 )
             ]
         )
@@ -474,6 +474,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         magnitude: int = MAX_MAGNITUDE / 2,
         total_repeat_cell_cnt: int = 1,
     ) -> dict:
+        """"""
         if not ph_bs or not json_data:
             return {}
 
@@ -492,12 +493,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
         contents1 = json_data["contents"][1]["contents"]
         for cidx, content in enumerate(contents1):
             assert len(content["_meta"]) == len(content["positionPairs"])
-            rcontent = rdata["contents"][0]["contents"][cidx]
+            rcontent = rdata["contents"][1]["contents"][cidx]
             rcontent["animate"] = []
 
-        # remove unused sense
-        for i in range(2, 4):
-            rdata["contents"][i]["visible"] = False
+        # remove unused sense (polyhedra and magmoms)
+        # for i in range(2, 4):
+        #     rdata["contents"][i]["visible"] = False
+        del rdata["contents"][2:4]
         
         # displacement formula: u(R,t) = A * e^(i(q⋅R−ωt))
         rdata["app"] = "phonon"
@@ -529,7 +531,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
         rdata["phases"] = phase[qpoint].tolist()
 
-        print(phase[qpoint])
         # amplitude (A)
         rdata["amplitude"] = magnitude
 
@@ -961,12 +962,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
             Input(self.id("ph-bsdos-graph"), "clickData"),
         )
         def update_graph(bs, dos, nclick):
-            print(type(bs))
             if isinstance(bs, dict):
                 # bs = PhononBS.from_pmg(bs)
                 bs = PhononBandStructureSymmLine.from_dict(bs)
-            print(type(bs))
-            print(bs.__dict__.keys())
             if isinstance(dos, dict):
                 dos = CompletePhononDos.from_dict(dos)
 
