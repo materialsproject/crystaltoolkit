@@ -139,10 +139,12 @@ def get_site_scene(
                 phiEnd=phiEnd,
                 clickable=True,
                 tooltip=name,
-                _meta=[{
-                    "unit_cell_atom_idx": [site_idx // total_repeat_cell_cnt],
-                    "atom_idx": [site_idx],
-                }]
+                _meta=[
+                    {
+                        "unit_cell_atom_idx": [site_idx // total_repeat_cell_cnt],
+                        "atom_idx": [site_idx],
+                    }
+                ]
                 if retain_atom_idx
                 else None,
                 # _meta=[site_idx // total_repeat_cell_cnt] if retain_atom_idx else None,
