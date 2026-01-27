@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import itertools
+import json
 from copy import deepcopy
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -9,7 +11,8 @@ import plotly.graph_objects as go
 from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash_mp_components import CrystalToolkitAnimationScene, CrystalToolkitScene
+from dash_mp_components import CrystalToolkitScene, PhononAnimationScene
+from emmet.core.phonon import PhononBS
 
 # crystal animation algo
 from pymatgen.analysis.graphs import StructureGraph
@@ -36,6 +39,7 @@ MARKER_SIZE = 12
 MARKER_SHAPE = "x"
 MAX_MAGNITUDE = 300
 MIN_MAGNITUDE = 0
+
 
 # TODOs:
 # - look for additional projection methods in phonon DOS (currently only atom
@@ -65,13 +69,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
             },
             **kwargs,
         )
-
+        """
         bs, _ = PhononBandstructureAndDosComponent._get_ph_bs_dos(
             self.initial_data["default"]
         )
         self.create_store("bs-store", bs)
         self.create_store("bs", None)
         self.create_store("dos", None)
+        """
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
@@ -80,11 +85,16 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         fig = PhononBandstructureAndDosComponent.get_figure(None, None)
         # Main plot
-        graph = dcc.Graph(
-            figure=fig,
-            config={"displayModeBar": False},
-            responsive=False,
-            id=self.id("ph-bsdos-graph"),
+        graph = html.Div(
+            [
+                dcc.Graph(
+                    figure=fig,
+                    config={"displayModeBar": False},
+                    responsive=True,
+                    id=self.id("ph-bsdos-graph"),
+                    style={"height": "520px"},
+                )
+            ]
         )
 
         # Brillouin zone
@@ -153,30 +163,43 @@ class PhononBandstructureAndDosComponent(MPComponent):
         summary_dict = self._get_data_list_dict(None, None)
         summary_table = get_data_list(summary_dict)
 
-        # crystal visualization
-
-        tip = html.H5(
-            "💡 Tips: Click different q-points and bands in the dispersion diagram to see the crystal vibration!",
+        tip = html.Div(
+            html.Span(
+                "💡 Tips: Click different q-points and bands in the dispersion diagram to see the crystal vibration!",
+                style={
+                    "border": "0.5px dashed black",
+                    "display": "inline-flex",
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "textAlign": "center",
+                },
+            ),
+            style={
+                "display": "flex",
+                "justifyContent": "center",
+            },
         )
 
+        # crystal visualization
         crystal_animation = html.Div(
-            CrystalToolkitAnimationScene(
+            # CrystalToolkitAnimationScene(
+            PhononAnimationScene(
                 data={},
                 sceneSize="500px",
                 id=self.id("crystal-animation"),
                 settings={"defaultZoom": 1.2},
                 axisView="SW",
                 showControls=False,  # disable download for now
-            ),
-            style={"width": "60%"},
+            )
         )
 
         crystal_animation_controls = html.Div(
             [
                 html.Br(),
-                html.Div(tip, style={"textAlign": "center"}),
+                html.Br(),
                 html.Br(),
                 html.H5("Control Panel", style={"textAlign": "center"}),
+                html.Br(),
                 html.H6("Supercell modification"),
                 html.Br(),
                 html.Div(
@@ -184,6 +207,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         self.get_numerical_input(
                             kwarg_label="scale-x",
                             default=1,
+                            persistence_type="session",
                             is_int=True,
                             label="x",
                             min=1,
@@ -192,6 +216,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         self.get_numerical_input(
                             kwarg_label="scale-y",
                             default=1,
+                            persistence_type="session",
                             is_int=True,
                             label="y",
                             min=1,
@@ -200,15 +225,19 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         self.get_numerical_input(
                             kwarg_label="scale-z",
                             default=1,
+                            persistence_type="session",
                             is_int=True,
                             label="z",
                             min=1,
                             style={"width": "5rem"},
                         ),
-                        html.Button(
-                            "Update",
-                            id=self.id("supercell-controls-btn"),
-                            style={"height": "40px"},
+                        html.Div(
+                            html.Button(
+                                "Update",
+                                id=self.id("supercell-controls-btn"),
+                                style={"height": "40px"},
+                            ),
+                            style={"textAlign": "center", "width": "100%"},
                         ),
                     ],
                     style={"display": "flex"},
@@ -223,7 +252,17 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         label="Vibration magnitude",
                     )
                 ),
+                html.Div(
+                    self.get_slider_input(
+                        kwarg_label="velocity",
+                        default=0.5,
+                        step=0.01,
+                        domain=[0, 1],
+                        label="Velocity",
+                    )
+                ),
             ],
+            style={"width": "100%"},
         )
 
         return {
@@ -244,15 +283,16 @@ class PhononBandstructureAndDosComponent(MPComponent):
             [
                 Column(
                     [
+                        sub_layouts["tip"],
                         Columns(
                             [
                                 sub_layouts["crystal-animation"],
                                 sub_layouts["crystal-animation-controls"],
                             ]
-                        )
+                        ),
                     ]
                 ),
-            ]
+            ],
         )
 
     def layout(self) -> html.Div:
@@ -407,6 +447,112 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # remove unused sense
         for i in range(2, 4):
             rdata["contents"][i]["visible"] = False
+
+        return rdata
+
+    @staticmethod
+    def _complex_vectors_serialization(vectors):
+        # `ph_bs.eigendisplacements[band][qpoint]` is np.complex which is not serializable
+        # this function transfer complex eigenvector to a list of Re and Im
+        # For example,
+        # vectors = [(np.complex128(3.0634449212096337e-09+0j),
+        #    np.complex128(-3.720119057521199e-08+0j),
+        #    np.complex128(-0.0016537315137792753+0j)),
+        #    (np.complex128(3.063444921240483e-09+0j),
+        #    np.complex128(-3.720119057492181e-08+0j),
+        #    np.complex128(-0.0016537315137792735+0j))]
+        # output:
+        # [[[3.0634449212096337e-09, 0.0],
+        #    [-3.720119057521199e-08, 0.0],
+        #    [-0.0016537315137792753, 0.0]],
+        #    [[3.063444921240483e-09, 0.0],
+        #    [-3.720119057492181e-08, 0.0],
+        #    [-0.0016537315137792735, 0.0]]]
+        arr = np.asarray(vectors, dtype=np.complex128)
+        return np.stack([arr.real, arr.imag], axis=-1).astype(float).tolist()
+
+    @staticmethod
+    def _get_time_function_json(
+        ph_bs: BandStructureSymmLine,
+        json_data: dict,
+        band: int = 0,
+        qpoint: int = 0,
+        precision: int = 15,
+        magnitude: int = MAX_MAGNITUDE / 2,
+        total_repeat_cell_cnt: int = 1,
+        velocity: float = 1.0,
+    ) -> dict:
+        """"""
+        if not ph_bs or not json_data:
+            return {}
+
+        assert json_data["contents"][0]["name"] == "atoms"
+        assert json_data["contents"][1]["name"] == "bonds"
+        rdata = deepcopy(json_data)
+
+        # atoms
+        contents0 = json_data["contents"][0]["contents"]
+        for cidx, content in enumerate(contents0):
+            rcontent = rdata["contents"][0]["contents"][cidx]
+            # put required data to the given atom index
+            rcontent[
+                "animate"
+            ] = []  # we just need `animate` field indicating animtaion rendering
+
+        # bonds
+        contents1 = json_data["contents"][1]["contents"]
+        for cidx, content in enumerate(contents1):
+            assert len(content["_meta"]) == len(content["positionPairs"])
+            rcontent = rdata["contents"][1]["contents"][cidx]
+            rcontent["animate"] = []
+
+        # remove unused sense (polyhedra and magmoms)
+        # for i in range(2, 4):
+        #     rdata["contents"][i]["visible"] = False
+        del rdata["contents"][2:4]
+
+        # displacement formula: u(R,t) = A * e^(i(q⋅R−ωt))
+        rdata["app"] = "phonon"
+
+        # omega (ω)
+        rdata["omega"] = ph_bs.frequencies[band][qpoint]
+
+        # Take mp-149 as an example:
+        # ph_bs.qpoints is "frac_coords of the given lattice by default (from Pymatgen)"
+        # transfer from frac_coords to cart_coords
+        # the size of ph_bs.structure.lattice.matrix: (3, 3) (lattice size)
+        # the size of ph_bs.qpoints: (149, 3) (wave vector for each qpoint)
+        # the size of q: (149, 3)
+        # q:
+        q = np.einsum(
+            "ij,kj->ik", ph_bs.structure.lattice.matrix, np.array(ph_bs.qpoints)
+        ).T
+        # phases (q⋅R): should be a number
+        # we calculate the phase with all atoms and qpoints here
+        # the size of q: (149, 3)
+        # the size of ph_bs.structure.cart_coords: (2, 3) (the coordinate of two atoms in the unit cell)
+        # the size of phase: (149, 2)
+        phase = np.einsum(
+            "ij,kj->ik",
+            q,
+            ph_bs.structure.cart_coords,
+        )
+        rdata["phases"] = phase[qpoint].tolist()
+
+        # amplitude (A)
+        rdata["amplitude"] = magnitude
+
+        # eigenVectors
+        rdata["eigenVectors"] = (
+            PhononBandstructureAndDosComponent._complex_vectors_serialization(
+                ph_bs.eigendisplacements[band][qpoint]
+            )
+        )
+
+        # velocity
+        rdata["velocity"] = velocity
+
+        rdata["name"] = "StructureGraphPhonon"
 
         return rdata
 
@@ -831,6 +977,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
         def update_graph(bs, dos, nclick):
             if isinstance(bs, dict):
+                # bs = PhononBS.from_pmg(bs)
                 bs = PhononBandStructureSymmLine.from_dict(bs)
             if isinstance(dos, dict):
                 dos = CompletePhononDos.from_dict(dos)
@@ -896,14 +1043,23 @@ class PhononBandstructureAndDosComponent(MPComponent):
             State(self.get_kwarg_id("scale-x"), "value"),
             State(self.get_kwarg_id("scale-y"), "value"),
             State(self.get_kwarg_id("scale-z"), "value"),
-            # prevent_initial_call=True
+            State(self.get_kwarg_id("velocity"), "value"),
+            prevent_initial_call=True,
         )
         def update_crystal_animation(
-            cd, bs, sueprcell_update, magnitude_fraction, scale_x, scale_y, scale_z
+            cd,
+            bs,
+            sueprcell_update,
+            magnitude_fraction,
+            scale_x,
+            scale_y,
+            scale_z,
+            velocity,
         ):
             # Avoids using `get_all_kwargs_id` for all `Input`; instead, uses `State` to prevent flickering when users modify `scale_x`, `scale_y`, or `scale_z` fields,
             # ensuring updates occur only after the `supercell-controls-btn`` is clicked.
-
+            print(datetime.now())
+            print(bs.keys())
             if not bs:
                 raise PreventUpdate
 
@@ -915,9 +1071,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
             scale_x = kwargs.get("scale-x")
             scale_y = kwargs.get("scale-y")
             scale_z = kwargs.get("scale-z")
+            velocity = kwargs.get("velocity")
 
             if isinstance(bs, dict):
-                bs = PhononBandStructureSymmLine.from_dict(bs)
+                bs = PhononBS.from_pmg(bs)
+                # bs = PhononBandStructureSymmLine.from_dict(bs)
 
             struct = bs.structure
             total_repeat_cell_cnt = 1
@@ -930,14 +1088,22 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
                 )
                 struct = trans.apply_transformation(struct)
-
             struc_graph = StructureGraph.from_local_env_strategy(struct, CrystalNN())
             scene = struc_graph.get_scene(
                 draw_image_atoms=False,
                 bonded_sites_outside_unit_cell=False,
-                site_get_scene_kwargs={"retain_atom_idx": True},
+                site_get_scene_kwargs={
+                    "retain_atom_idx": True,
+                    "total_repeat_cell_cnt": total_repeat_cell_cnt,
+                },
             )
             json_data = scene.to_json()
+            """
+            print(f"total_repeat_cell_cnt = {total_repeat_cell_cnt}")
+            with open("/Users/minhsuehchiu/Downloads/scene2659_super.json", "w") as f:
+                print("json generated")
+                json.dump(json_data, f)
+            """
 
             qpoint = 0
             band_num = 0
@@ -951,14 +1117,20 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 MAX_MAGNITUDE - MIN_MAGNITUDE
             ) * magnitude_fraction + MIN_MAGNITUDE
 
-            return PhononBandstructureAndDosComponent._get_eigendisplacement(
+            output_json = PhononBandstructureAndDosComponent._get_time_function_json(
                 ph_bs=bs,
                 json_data=json_data,
                 band=band_num,
                 qpoint=qpoint,
                 total_repeat_cell_cnt=total_repeat_cell_cnt,
                 magnitude=magnitude,
+                velocity=velocity,
             )
+            with open("/Users/minhsuehchiu/Downloads/scene149_time.json", "w") as f:
+                print("json generated")
+                json.dump(output_json, f)
+            print("Im here")
+            return output_json
 
 
 class PhononBandstructureAndDosPanelComponent(PanelComponent):
