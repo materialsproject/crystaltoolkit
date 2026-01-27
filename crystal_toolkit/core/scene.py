@@ -98,8 +98,8 @@ class Scene:
             """Reduce file size of JSON by removing any key which is just its default value."""
             trimmed_dict = {}
             for key, val in scene_dict.items():
-                if key == "_meta":
-                    trimmed_dict[key] = val
+                # if key == "_meta":
+                #     trimmed_dict[key] = val
                 if isinstance(val, dict):
                     val = remove_defaults(val)  # noqa: PLW2901
                 elif isinstance(val, list):

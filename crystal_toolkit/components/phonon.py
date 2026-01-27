@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash_mp_components import CrystalToolkitAnimationScene, CrystalToolkitScene
+from dash_mp_components import CrystalToolkitAnimationScene, CrystalToolkitScene, PhononAnimationScene
 from emmet.core.phonon import PhononBS
 
 # crystal animation algo
@@ -27,6 +27,8 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
 from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
+
+from datetime import datetime
 
 if TYPE_CHECKING:
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -181,7 +183,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         # crystal visualization
         crystal_animation = html.Div(
-            CrystalToolkitAnimationScene(
+            # CrystalToolkitAnimationScene(
+            PhononAnimationScene(
                 data={},
                 sceneSize="500px",
                 id=self.id("crystal-animation"),
@@ -248,6 +251,15 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         step=0.01,
                         domain=[0, 1],
                         label="Vibration magnitude",
+                    )
+                ),
+                html.Div(
+                    self.get_slider_input(
+                        kwarg_label="velocity",
+                        default=0.5,
+                        step=0.01,
+                        domain=[0, 1],
+                        label="Velocity",
                     )
                 ),
             ],
@@ -469,6 +481,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         precision: int = 15,
         magnitude: int = MAX_MAGNITUDE / 2,
         total_repeat_cell_cnt: int = 1,
+        velocity: float = 1.0
     ) -> dict:
         """"""
         if not ph_bs or not json_data:
@@ -536,6 +549,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 ph_bs.eigendisplacements[band][qpoint]
             )
         )
+
+        # velocity
+        rdata["velocity"] = velocity
+
+        rdata["name"] = "StructureGraphPhonon"
 
         return rdata
 
@@ -1026,14 +1044,16 @@ class PhononBandstructureAndDosComponent(MPComponent):
             State(self.get_kwarg_id("scale-x"), "value"),
             State(self.get_kwarg_id("scale-y"), "value"),
             State(self.get_kwarg_id("scale-z"), "value"),
-            # prevent_initial_call=True
+            State(self.get_kwarg_id("velocity"), "value"),
+            prevent_initial_call=True
         )
         def update_crystal_animation(
-            cd, bs, sueprcell_update, magnitude_fraction, scale_x, scale_y, scale_z
+            cd, bs, sueprcell_update, magnitude_fraction, scale_x, scale_y, scale_z, velocity
         ):
             # Avoids using `get_all_kwargs_id` for all `Input`; instead, uses `State` to prevent flickering when users modify `scale_x`, `scale_y`, or `scale_z` fields,
             # ensuring updates occur only after the `supercell-controls-btn`` is clicked.
-
+            print(datetime.now())
+            print(bs.keys())
             if not bs:
                 raise PreventUpdate
 
@@ -1045,6 +1065,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             scale_x = kwargs.get("scale-x")
             scale_y = kwargs.get("scale-y")
             scale_z = kwargs.get("scale-z")
+            velocity = kwargs.get("velocity")
 
             if isinstance(bs, dict):
                 bs = PhononBS.from_pmg(bs)
@@ -1097,19 +1118,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 qpoint=qpoint,
                 total_repeat_cell_cnt=total_repeat_cell_cnt,
                 magnitude=magnitude,
+                velocity=velocity
             )
             with open("/Users/minhsuehchiu/Downloads/scene149_time.json", "w") as f:
                 print("json generated")
                 json.dump(output_json, f)
-
-            return PhononBandstructureAndDosComponent._get_time_function_json(
-                ph_bs=bs,
-                json_data=json_data,
-                band=band_num,
-                qpoint=qpoint,
-                total_repeat_cell_cnt=total_repeat_cell_cnt,
-                magnitude=magnitude,
-            )
+            print("Im here")
+            return output_json
 
 
 class PhononBandstructureAndDosPanelComponent(PanelComponent):
