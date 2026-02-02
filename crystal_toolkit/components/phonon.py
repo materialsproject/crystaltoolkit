@@ -3,6 +3,7 @@ from __future__ import annotations
 import itertools
 import json
 from copy import deepcopy
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -10,7 +11,7 @@ import plotly.graph_objects as go
 from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash_mp_components import CrystalToolkitAnimationScene, CrystalToolkitScene, PhononAnimationScene
+from dash_mp_components import CrystalToolkitScene, PhononAnimationScene
 from emmet.core.phonon import PhononBS
 
 # crystal animation algo
@@ -27,8 +28,6 @@ from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
 from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
-
-from datetime import datetime
 
 if TYPE_CHECKING:
     from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -363,7 +362,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         precision: int = 15,
         magnitude: int = MAX_MAGNITUDE / 2,
         total_repeat_cell_cnt: int = 1,
-        velocity: float = 1.0
+        velocity: float = 1.0,
     ) -> dict:
         """"""
         if not ph_bs or not json_data:
@@ -928,7 +927,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
             # prevent_initial_call=True
         )
         def update_crystal_animation(
-            cd, bs, sueprcell_update, magnitude_fraction, scale_x, scale_y, scale_z, velocity
+            cd,
+            bs,
+            sueprcell_update,
+            magnitude_fraction,
+            scale_x,
+            scale_y,
+            scale_z,
+            velocity,
         ):
             # Avoids using `get_all_kwargs_id` for all `Input`; instead, uses `State` to prevent flickering when users modify `scale_x`, `scale_y`, or `scale_z` fields,
             # ensuring updates occur only after the `supercell-controls-btn`` is clicked.
@@ -990,7 +996,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 qpoint=qpoint,
                 total_repeat_cell_cnt=total_repeat_cell_cnt,
                 magnitude=magnitude,
-                velocity=velocity
+                velocity=velocity,
             )
 
 
