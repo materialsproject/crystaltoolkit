@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import itertools
-import json
 from copy import deepcopy
-from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -194,10 +192,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
 
         hr = html.Hr(
-                style={
-                    "backgroundColor": "#C5C5C6",
-                }
-            )
+            style={
+                "backgroundColor": "#C5C5C6",
+            }
+        )
 
         crystal_animation_controls = html.Div(
             [
@@ -206,7 +204,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 hr,
                 html.H6("Supercell modification", style={"textAlign": "center"}),
                 html.Div(
-                    [   
+                    [
                         self.get_numerical_input(
                             kwarg_label="scale-x",
                             default=1,
@@ -242,7 +240,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     },
                 ),
                 hr,
-                
                 html.Div(
                     self.get_slider_input(
                         kwarg_label="magnitude",
@@ -373,7 +370,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         # atoms
         contents0 = json_data["contents"][0]["contents"]
-        for cidx, content in enumerate(contents0):
+        for cidx, _ in enumerate(contents0):
             rcontent = rdata["contents"][0]["contents"][cidx]
             # put required data to the given atom index
             rcontent[
@@ -390,7 +387,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # remove unused sense (polyhedra and magmoms)
         del rdata["contents"][2:4]
 
-        # displacement formula: u(R,t) = A * e^(i(q⋅R−ωt))
+        # displacement formula: u(R,t) = A * e^(i(q⋅R-ωt))
         rdata["app"] = "phonon"
 
         # omega (ω)
@@ -404,7 +401,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # the size of q: (149, 3)
         # q:
         q = np.einsum(
-            "ij,kj->ik", ph_bs.structure.lattice.reciprocal_lattice.matrix, np.array(ph_bs.qpoints)
+            "ij,kj->ik",
+            ph_bs.structure.lattice.reciprocal_lattice.matrix,
+            np.array(ph_bs.qpoints),
         ).T
 
         # phases (q⋅R): should be a number
@@ -672,7 +671,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             "xaxis": "x2",
             "yaxis": "y2",
         }
-
         dos_traces.append(trace_tdos)
 
         # Projected DOS
