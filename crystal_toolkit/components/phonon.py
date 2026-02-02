@@ -38,7 +38,7 @@ DISPLACE_COEF = [0, 1, 0, -1, 0]
 MARKER_COLOR = "red"
 MARKER_SIZE = 12
 MARKER_SHAPE = "x"
-MAX_MAGNITUDE = 300
+MAX_MAGNITUDE = 500
 MIN_MAGNITUDE = 0
 
 
@@ -185,7 +185,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         crystal_animation = html.Div(
             # CrystalToolkitAnimationScene(
             PhononAnimationScene(
-                data={},
+                data={"app": "phonon"},
                 sceneSize="500px",
                 id=self.id("crystal-animation"),
                 settings={"defaultZoom": 1.2},
@@ -194,17 +194,20 @@ class PhononBandstructureAndDosComponent(MPComponent):
             )
         )
 
+        hr = html.Hr(
+                style={
+                    "backgroundColor": "#C5C5C6",
+                }
+            )
+
         crystal_animation_controls = html.Div(
             [
                 html.Br(),
-                html.Br(),
-                html.Br(),
                 html.H5("Control Panel", style={"textAlign": "center"}),
-                html.Br(),
-                html.H6("Supercell modification"),
-                html.Br(),
+                hr,
+                html.H6("Supercell modification", style={"textAlign": "center"}),
                 html.Div(
-                    [
+                    [   
                         self.get_numerical_input(
                             kwarg_label="scale-x",
                             default=1,
@@ -232,18 +235,15 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             min=1,
                             style={"width": "5rem"},
                         ),
-                        html.Div(
-                            html.Button(
-                                "Update",
-                                id=self.id("supercell-controls-btn"),
-                                style={"height": "40px"},
-                            ),
-                            style={"textAlign": "center", "width": "100%"},
-                        ),
                     ],
-                    style={"display": "flex"},
+                    style={
+                        "display": "flex",
+                        "justify-content": "center",
+                        "gap": "16px",
+                    },
                 ),
-                html.Br(),
+                hr,
+                
                 html.Div(
                     self.get_slider_input(
                         kwarg_label="magnitude",
@@ -253,6 +253,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         label="Vibration magnitude",
                     )
                 ),
+                hr,
                 html.Div(
                     self.get_slider_input(
                         kwarg_label="velocity",
@@ -262,8 +263,19 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         label="Velocity",
                     )
                 ),
+                hr,
+                html.Div(
+                    html.Button(
+                        "Update",
+                        id=self.id("supercell-controls-btn"),
+                        style={"height": "40px"},
+                    ),
+                    style={"textAlign": "center", "width": "100%"},
+                ),
             ],
-            style={"width": "100%"},
+            style={
+                "width": "100%",
+            },
         )
 
         return {
@@ -285,6 +297,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 Column(
                     [
                         sub_layouts["tip"],
+                        html.Br(),
                         Columns(
                             [
                                 sub_layouts["crystal-animation"],
@@ -321,137 +334,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         return html.Div([graph, crystal_animation, controls, brillouin_zone])
 
     @staticmethod
-    def _get_eigendisplacement(
-        ph_bs: BandStructureSymmLine,
-        json_data: dict,
-        band: int = 0,
-        qpoint: int = 0,
-        precision: int = 15,
-        magnitude: int = MAX_MAGNITUDE / 2,
-        total_repeat_cell_cnt: int = 1,
-    ) -> dict:
-        if not ph_bs or not json_data:
-            return {}
-
-        assert json_data["contents"][0]["name"] == "atoms"
-        assert json_data["contents"][1]["name"] == "bonds"
-        rdata = deepcopy(json_data)
-
-        def calc_max_displacement(idx: int) -> list:
-            """
-            Retrieve the eigendisplacement for a given atom index from `ph_bs` and compute its maximum displacement.
-
-            Parameters:
-                idx (int): The atom index.
-
-            Returns:
-                list: The maximum displacement vector in the form [x_max_displacement, y_max_displacement, z_max_displacement]
-
-            This function extracts the real component of the atom's eigendisplacement,
-            scales it by the specified magnitude, and returns the resulting vector.
-            """
-
-            # get the atom index
-            assert total_repeat_cell_cnt != 0
-
-            modified_idx = (
-                int(idx // total_repeat_cell_cnt) if total_repeat_cell_cnt else idx
-            )
-
-            return [
-                round(complex(vec).real * magnitude, precision)
-                for vec in ph_bs.eigendisplacements[band][qpoint][modified_idx]
-            ]
-
-        def calc_animation_step(max_displacement: list, coef: int) -> list:
-            """
-            Calculate the displacement for an animation frame based on the given coefficient.
-
-            Parameters:
-                max_displacement (list): A list of maximum displacements along each axis,
-                    formatted as [x_max_displacement, y_max_displacement, z_max_displacement].
-                coef (int): A coefficient indicating the motion direction.
-                    - 0: no movement
-                    - 1: forward movement
-                    - -1: backward movement
-
-            Returns:
-                list: The displacement vector [x_displacement, y_displacement, z_displacement].
-
-            This function generates oscillatory motion by scaling the maximum displacement
-            with the provided coefficient.
-            """
-            return [round(coef * md, precision) for md in max_displacement]
-
-        # Compute per-frame atomic motion.
-        # `rcontent["animate"]` stores the displacement (distance difference) from the previous coordinates.
-        contents0 = json_data["contents"][0]["contents"]
-        for cidx, content in enumerate(contents0):
-            max_displacement = calc_max_displacement(content["_meta"][0])
-            rcontent = rdata["contents"][0]["contents"][cidx]
-            # put animation frame to the given atom index
-            rcontent["animate"] = [
-                calc_animation_step(max_displacement, coef) for coef in DISPLACE_COEF
-            ]
-            rcontent["keyframes"] = list(range(len(DISPLACE_COEF)))
-            rcontent["animateType"] = "displacement"
-        # Compute per-frame bonding motion.
-        # Explanation:
-        # Each bond connects two atoms, `u` and `v`, represented as (u)----(v)
-        # To model the bond motion, it is divided into two segments:
-        # from `u` to the midpoint and from the midpoint to `v`, i.e., (u)--(mid)--(v)
-        # Thus, two cylinders are created: one for (u)--(mid) and another for (v)--(mid).
-        # For each cylinder, displacements are assigned to the endpoints — for example,
-        # the (u)--(mid) cylinder uses:
-        # [
-        #   [u_x_displacement, u_y_displacement, u_z_displacement],
-        #   [mid_x_displacement, mid_y_displacement, mid_z_displacement]
-        # ].
-        contents1 = json_data["contents"][1]["contents"]
-
-        for cidx, content in enumerate(contents1):
-            bond_animation = []
-            assert len(content["_meta"]) == len(content["positionPairs"])
-
-            for atom_idx_pair in content["_meta"]:
-                max_displacements = list(
-                    map(calc_max_displacement, atom_idx_pair)
-                )  # max displacement for u and v
-
-                u_to_middle_bond_animation = []
-
-                for coef in DISPLACE_COEF:
-                    # Calculate the midpoint displacement between atom u and v for each animation frame.
-                    u_displacement, v_displacement = [
-                        np.array(calc_animation_step(max_displacement, coef))
-                        for max_displacement in max_displacements
-                    ]
-                    middle_end_displacement = np.add(u_displacement, v_displacement) / 2
-
-                    u_to_middle_bond_animation.append(
-                        [
-                            u_displacement,  # u atom displacement
-                            [
-                                round(dis, precision) for dis in middle_end_displacement
-                            ],  # middle point displacement
-                        ]
-                    )
-
-                bond_animation.append(u_to_middle_bond_animation)
-
-            rdata["contents"][1]["contents"][cidx]["animate"] = bond_animation
-            rdata["contents"][1]["contents"][cidx]["keyframes"] = list(
-                range(len(DISPLACE_COEF))
-            )
-            rdata["contents"][1]["contents"][cidx]["animateType"] = "displacement"
-
-        # remove unused sense
-        for i in range(2, 4):
-            rdata["contents"][i]["visible"] = False
-
-        return rdata
-
-    @staticmethod
     def _complex_vectors_serialization(vectors):
         # `ph_bs.eigendisplacements[band][qpoint]` is np.complex which is not serializable
         # this function transfer complex eigenvector to a list of Re and Im
@@ -486,7 +368,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         """"""
         if not ph_bs or not json_data:
             return {}
-
         assert json_data["contents"][0]["name"] == "atoms"
         assert json_data["contents"][1]["name"] == "bonds"
         rdata = deepcopy(json_data)
@@ -508,8 +389,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             rcontent["animate"] = []
 
         # remove unused sense (polyhedra and magmoms)
-        # for i in range(2, 4):
-        #     rdata["contents"][i]["visible"] = False
         del rdata["contents"][2:4]
 
         # displacement formula: u(R,t) = A * e^(i(q⋅R−ωt))
@@ -526,19 +405,20 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # the size of q: (149, 3)
         # q:
         q = np.einsum(
-            "ij,kj->ik", ph_bs.structure.lattice.matrix, np.array(ph_bs.qpoints)
+            "ij,kj->ik", ph_bs.structure.lattice.reciprocal_lattice.matrix, np.array(ph_bs.qpoints)
         ).T
+
         # phases (q⋅R): should be a number
         # we calculate the phase with all atoms and qpoints here
         # the size of q: (149, 3)
         # the size of ph_bs.structure.cart_coords: (2, 3) (the coordinate of two atoms in the unit cell)
         # the size of phase: (149, 2)
-        phase = np.einsum(
+        phases = np.einsum(
             "ij,kj->ik",
             q,
             ph_bs.structure.cart_coords,
         )
-        rdata["phases"] = phase[qpoint].tolist()
+        rdata["phases"] = phases[qpoint].tolist()
 
         # amplitude (A)
         rdata["amplitude"] = magnitude
@@ -1040,20 +920,18 @@ class PhononBandstructureAndDosComponent(MPComponent):
             Input(self.id("ph-bsdos-graph"), "clickData"),
             Input(self.id("ph_bs"), "data"),
             Input(self.id("supercell-controls-btn"), "n_clicks"),
-            Input(self.get_kwarg_id("magnitude"), "value"),
+            State(self.get_kwarg_id("magnitude"), "value"),
             State(self.get_kwarg_id("scale-x"), "value"),
             State(self.get_kwarg_id("scale-y"), "value"),
             State(self.get_kwarg_id("scale-z"), "value"),
             State(self.get_kwarg_id("velocity"), "value"),
-            prevent_initial_call=True
+            # prevent_initial_call=True
         )
         def update_crystal_animation(
             cd, bs, sueprcell_update, magnitude_fraction, scale_x, scale_y, scale_z, velocity
         ):
             # Avoids using `get_all_kwargs_id` for all `Input`; instead, uses `State` to prevent flickering when users modify `scale_x`, `scale_y`, or `scale_z` fields,
             # ensuring updates occur only after the `supercell-controls-btn`` is clicked.
-            print(datetime.now())
-            print(bs.keys())
             if not bs:
                 raise PreventUpdate
 
@@ -1092,12 +970,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 },
             )
             json_data = scene.to_json()
-            """
-            print(f"total_repeat_cell_cnt = {total_repeat_cell_cnt}")
-            with open("/Users/minhsuehchiu/Downloads/scene2659_super.json", "w") as f:
-                print("json generated")
-                json.dump(json_data, f)
-            """
 
             qpoint = 0
             band_num = 0
@@ -1111,7 +983,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 MAX_MAGNITUDE - MIN_MAGNITUDE
             ) * magnitude_fraction + MIN_MAGNITUDE
 
-            output_json = PhononBandstructureAndDosComponent._get_time_function_json(
+            return PhononBandstructureAndDosComponent._get_time_function_json(
                 ph_bs=bs,
                 json_data=json_data,
                 band=band_num,
@@ -1120,11 +992,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 magnitude=magnitude,
                 velocity=velocity
             )
-            with open("/Users/minhsuehchiu/Downloads/scene149_time.json", "w") as f:
-                print("json generated")
-                json.dump(output_json, f)
-            print("Im here")
-            return output_json
 
 
 class PhononBandstructureAndDosPanelComponent(PanelComponent):
