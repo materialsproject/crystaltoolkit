@@ -15,12 +15,14 @@ from emmet.core.phonon import PhononBS
 # crystal animation algo
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import CrystalNN
+from pymatgen.core import Species
 from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononBSPlotter
 from pymatgen.transformations.standard_transformations import SupercellTransformation
 
+from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
@@ -37,6 +39,10 @@ MARKER_SIZE = 12
 MARKER_SHAPE = "x"
 MAX_MAGNITUDE = 500
 MIN_MAGNITUDE = 0
+
+DEFAULTS: dict[str, str | bool] = {
+    "color_scheme": "VESTA",
+}
 
 
 # TODOs:
@@ -194,6 +200,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
         hr = html.Hr(
             style={
                 "backgroundColor": "#C5C5C6",
+                "border": "none",
+                "margin": "8px 0",
             }
         )
 
@@ -298,9 +306,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             [
                                 sub_layouts["crystal-animation"],
                                 sub_layouts["crystal-animation-controls"],
-                            ]
+                            ],
+                            style={
+                                "display": "flex",
+                                "justify-content": "center",
+                                "gap": "10px",
+                            },
                         ),
-                    ]
+                    ],
                 ),
             ],
         )
@@ -844,6 +857,44 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         return figure
 
+    def _make_legend(self, legend):
+        # this is copied and customized from crystal_toolkit.components.structure.StructureMoleculeComponent
+        # in order to get the consistent legend with the structure viewer
+        if not legend:
+            return html.Div(id=self.id("legend"))
+
+        def get_font_color(hex_code):
+            # ensures contrasting font color for background color
+            c = tuple(int(hex_code[1:][i : i + 2], 16) for i in (0, 2, 4))
+            return (
+                "black"
+                if 1 - (c[0] * 0.299 + c[1] * 0.587 + c[2] * 0.114) / 255 < 0.5
+                else "white"
+            )
+
+        legend_colors = {
+            key: self._legend.get_color(Species(key))
+            for key, val in legend["composition"].items()
+        }
+
+        legend_elements = [
+            html.Span(
+                html.Span(
+                    name, className="icon", style={"color": get_font_color(color)}
+                ),
+                className="button is-static is-rounded",
+                style={"backgroundColor": color},
+            )
+            for name, color in legend_colors.items()
+        ]
+
+        return html.Div(
+            legend_elements,
+            id=self.id("legend"),
+            style={"display": "flex"},
+            className="buttons",
+        )
+
     def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("ph-bsdos-graph"), "figure"),
@@ -914,6 +965,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         @app.callback(
             Output(self.id("crystal-animation"), "data"),
+            Output(self.id("crystal-animation"), "children"),
             Input(self.id("ph-bsdos-graph"), "clickData"),
             Input(self.id("ph_bs"), "data"),
             Input(self.id("supercell-controls-btn"), "n_clicks"),
@@ -955,6 +1007,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
             struct = bs.structure
             total_repeat_cell_cnt = 1
+
             # update structure if the controls got triggered
             if sueprcell_update:
                 total_repeat_cell_cnt = scale_x * scale_y * scale_z
@@ -964,7 +1017,20 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
                 )
                 struct = trans.apply_transformation(struct)
+
             struc_graph = StructureGraph.from_local_env_strategy(struct, CrystalNN())
+
+            # legend
+            legend = Legend(
+                struc_graph.structure,
+                color_scheme=DEFAULTS["color_scheme"],
+                # radius_scheme=radius_strategy,
+                cmap_range=None,
+            )
+            self._legend = legend
+            legend_layout = html.Div(self._make_legend(legend.get_legend()))
+
+            # scene
             scene = struc_graph.get_scene(
                 draw_image_atoms=False,
                 bonded_sites_outside_unit_cell=False,
@@ -972,7 +1038,15 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     "retain_atom_idx": True,
                     "total_repeat_cell_cnt": total_repeat_cell_cnt,
                 },
+                legend=legend,
             )
+
+            # axis
+            axes = struct.lattice._axes_from_lattice()
+            axes.visible = True
+            scene.contents.append(axes)
+
+            #
             json_data = scene.to_json()
 
             qpoint = 0
@@ -995,7 +1069,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 total_repeat_cell_cnt=total_repeat_cell_cnt,
                 magnitude=magnitude,
                 velocity=velocity,
-            )
+            ), [None, legend_layout]
 
 
 class PhononBandstructureAndDosPanelComponent(PanelComponent):
