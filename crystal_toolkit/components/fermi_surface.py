@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import typing
+from importlib import import_module
 
 import matplotlib.pyplot as plt
 from dash import Input, Output
-from ifermi.plot import FermiSurfacePlotter
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.helpers.layouts import Box, Column, Columns, Loading, dcc
@@ -44,7 +44,8 @@ class FermiSurfaceComponent(MPComponent):
         Returns:
             A plotly Figure object.
         """
-        plotter = FermiSurfacePlotter(fermi_surface)
+        fermi_module = import_module("ifermi.plot")
+        plotter = fermi_module.FermiSurfacePlotter(fermi_surface)
         fig = plotter.get_plot(plot_type="plotly", **kwargs)
 
         # ensure the plot has a transparent background

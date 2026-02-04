@@ -23,10 +23,10 @@ jobs:
       - name: Upgrade Python dependencies
         shell: bash
         run: |
-          python${{ matrix.python-version }} -m pip install --upgrade pip pip-tools wheel cython setuptools
+          python${{ matrix.python-version }} -m pip install --upgrade "pip<25.3" pip-tools wheel cython setuptools
           python${{ matrix.python-version }} -m pip install `grep numpy== requirements/${{ matrix.os }}_py${{ matrix.python-version }}_extras.txt`
-          python${{ matrix.python-version }} -m piptools compile -q --upgrade --resolver=backtracking -o requirements/${{ matrix.os }}_py${{ matrix.python-version }}.txt pyproject.toml
-          python${{ matrix.python-version }} -m piptools compile -q --upgrade --resolver=backtracking --all-extras -o requirements/${{ matrix.os }}_py${{ matrix.python-version }}_extras.txt pyproject.toml
+          python${{ matrix.python-version }} -m piptools compile -q --upgrade -o requirements/${{ matrix.os }}_py${{ matrix.python-version }}.txt pyproject.toml
+          python${{ matrix.python-version }} -m piptools compile -q --upgrade --all-extras -o requirements/${{ matrix.os }}_py${{ matrix.python-version }}_extras.txt pyproject.toml
       - name: Detect changes
         id: changes
         shell: bash

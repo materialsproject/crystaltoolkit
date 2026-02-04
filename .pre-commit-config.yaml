@@ -11,7 +11,7 @@ exclude: ^(docs/.+|.*lock.*|jupyterlab-extension/.+|.*\.(svg|js|css))|_version.p
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.3
+    rev: v0.14.10
     hooks:
       - id: ruff
         args: [--fix, --ignore, D]
@@ -40,7 +40,7 @@ repos:
         args: [--ignore-words-list, "nd,te,ois,dscribe", --check-filenames]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.1
+    rev: 0.8.2
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
