@@ -636,6 +636,32 @@ Sub-layouts:  \n{layouts}"""
 
         return add_label_help(dict_input, label, help_str, label_style)
 
+    def get_alarm_window(
+        self,
+        id: str,
+        message: str,
+        **kwargs,
+    ):
+        """Get the pop-out alarm window component, default set to not display
+        Eaxmple:
+        self.get_alarm_window(
+            self.id("invalid-comp-alarm"),
+            message="Illegal composition entry!"
+        ),
+
+        Return True in the callback function to show alarm
+        Output(self.id("invalid-conc-alarm"), "displayed") -> True
+
+        Args:
+            :param id: The name of the corresponding Python input, this is used
+        to name the component.
+            :param message (str): A default value for this input.
+        """
+        if not message:
+            raise ValueError("The error message cannot be empty!")
+
+        return dcc.ConfirmDialog(id=id, message=message, displayed=False, **kwargs)
+
     def get_kwarg_id(self, kwarg_name) -> dict[str, str]:
         return {
             "component_id": self._id,
