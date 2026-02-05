@@ -73,14 +73,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             },
             **kwargs,
         )
-        """
-        bs, _ = PhononBandstructureAndDosComponent._get_ph_bs_dos(
-            self.initial_data["default"]
-        )
-        self.create_store("bs-store", bs)
-        self.create_store("bs", None)
-        self.create_store("dos", None)
-        """
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
@@ -207,14 +199,21 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         crystal_animation_controls = html.Details(
             [
-                html.Summary("Control Panel"),
+                html.Summary(
+                    html.Strong("Control Panel"),
+                    style={
+                        "textAlign": "center",
+                    },
+                ),
                 html.Div(
                     [
-                        # html.Br(),
-                        # html.H5("Control Panel", style={"textAlign": "center"}),
-                        # hr,
+                        hr,
                         html.H6(
-                            "Supercell modification", style={"textAlign": "center"}
+                            "Supercell modification",
+                            style={
+                                "textAlign": "center",
+                                "marginBottom": "0",
+                            },
                         ),
                         html.Div(
                             [
@@ -225,7 +224,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="x",
                                     min=1,
-                                    style={"height": "16px"},
+                                    style={"height": "15px"},
+                                    label_style={"textAlign": "center"},
                                 ),
                                 self.get_numerical_input(
                                     kwarg_label="scale-y",
@@ -234,7 +234,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="y",
                                     min=1,
-                                    style={"height": "16px"},
+                                    style={"height": "15px"},
+                                    label_style={"textAlign": "center"},
                                 ),
                                 self.get_numerical_input(
                                     kwarg_label="scale-z",
@@ -243,7 +244,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="z",
                                     min=1,
-                                    style={"height": "16px"},
+                                    style={"height": "15px"},
+                                    label_style={"textAlign": "center"},
                                 ),
                             ],
                             style={
@@ -260,7 +262,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                 step=0.01,
                                 domain=[0, 1],
                                 label="Vibration magnitude",
-                                # styleInput={"height": "40px"},
+                                styleInput={
+                                    "height": "32px",
+                                    "box-sizing": "border-box",
+                                    "borderRadius": "4px",
+                                    "width": "5rem",
+                                },
+                                label_style={"textAlign": "center"},
                             ),
                         ),
                         hr,
@@ -271,7 +279,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                 step=0.01,
                                 domain=[0, 1],
                                 label="Velocity",
-                            )
+                                styleInput={
+                                    "height": "32px",
+                                    "box-sizing": "border-box",
+                                    "borderRadius": "4px",
+                                    "width": "5rem",
+                                },
+                                label_style={"textAlign": "center"},
+                            ),
                         ),
                         hr,
                         html.Div(
@@ -285,7 +300,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     ],
                     style={
                         "width": "100%",
-                        # "scale": "0.9"
                     },
                 ),
             ]
@@ -383,7 +397,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         total_repeat_cell_cnt: int = 1,
         velocity: float = 1.0,
     ) -> dict:
-        """"""
         if not ph_bs or not json_data:
             return {}
         assert json_data["contents"][0]["name"] == "atoms"

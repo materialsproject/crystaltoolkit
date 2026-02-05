@@ -15,3 +15,5 @@ dist/*
 .vscode
 
 **/_version.py
+
+.venv/
