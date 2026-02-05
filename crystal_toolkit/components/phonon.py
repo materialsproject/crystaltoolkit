@@ -199,11 +199,21 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         crystal_animation_controls = html.Details(
             [
-                html.Summary("Control Panel"),
+                html.Summary(
+                    html.Strong("Control Panel"),
+                    style={
+                        "textAlign": "center",
+                    },
+                ),
                 html.Div(
                     [
+                        hr,
                         html.H6(
-                            "Supercell modification", style={"textAlign": "center"}
+                            "Supercell modification",
+                            style={
+                                "textAlign": "center",
+                                "marginBottom": "0",
+                            },
                         ),
                         html.Div(
                             [
@@ -214,7 +224,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="x",
                                     min=1,
-                                    style={"height": "16px"},
+                                    style={"height": "15px"},
+                                    label_style={"textAlign": "center"},
                                 ),
                                 self.get_numerical_input(
                                     kwarg_label="scale-y",
@@ -223,7 +234,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="y",
                                     min=1,
-                                    style={"height": "16px"},
+                                    style={"height": "15px"},
+                                    label_style={"textAlign": "center"},
                                 ),
                                 self.get_numerical_input(
                                     kwarg_label="scale-z",
@@ -232,7 +244,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="z",
                                     min=1,
-                                    style={"height": "16px"},
+                                    style={"height": "15px"},
+                                    label_style={"textAlign": "center"},
                                 ),
                             ],
                             style={
@@ -249,7 +262,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                 step=0.01,
                                 domain=[0, 1],
                                 label="Vibration magnitude",
-                                # styleInput={"height": "40px"},
+                                styleInput={
+                                    "height": "32px",
+                                    "box-sizing": "border-box",
+                                    "borderRadius": "4px",
+                                    "width": "5rem",
+                                },
+                                label_style={"textAlign": "center"},
                             ),
                         ),
                         hr,
@@ -260,7 +279,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                 step=0.01,
                                 domain=[0, 1],
                                 label="Velocity",
-                            )
+                                styleInput={
+                                    "height": "32px",
+                                    "box-sizing": "border-box",
+                                    "borderRadius": "4px",
+                                    "width": "5rem",
+                                },
+                                label_style={"textAlign": "center"},
+                            ),
                         ),
                         hr,
                         html.Div(
