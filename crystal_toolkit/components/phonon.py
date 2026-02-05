@@ -73,14 +73,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
             },
             **kwargs,
         )
-        """
-        bs, _ = PhononBandstructureAndDosComponent._get_ph_bs_dos(
-            self.initial_data["default"]
-        )
-        self.create_store("bs-store", bs)
-        self.create_store("bs", None)
-        self.create_store("dos", None)
-        """
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
@@ -210,9 +202,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 html.Summary("Control Panel"),
                 html.Div(
                     [
-                        # html.Br(),
-                        # html.H5("Control Panel", style={"textAlign": "center"}),
-                        # hr,
                         html.H6(
                             "Supercell modification", style={"textAlign": "center"}
                         ),
@@ -285,7 +274,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     ],
                     style={
                         "width": "100%",
-                        # "scale": "0.9"
                     },
                 ),
             ]
@@ -383,7 +371,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         total_repeat_cell_cnt: int = 1,
         velocity: float = 1.0,
     ) -> dict:
-        """"""
         if not ph_bs or not json_data:
             return {}
         assert json_data["contents"][0]["name"] == "atoms"
