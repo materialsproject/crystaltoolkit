@@ -96,7 +96,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     config={"displayModeBar": False},
                     responsive=True,
                     id=self.id("ph-bsdos-graph"),
-                    style={"height": "520px"},
+                    style={"height": "400px"},
                 )
             ]
         )
@@ -189,7 +189,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             # CrystalToolkitAnimationScene(
             PhononAnimationScene(
                 data={"app": "phonon"},
-                sceneSize="500px",
+                sceneSize="400px",
                 id=self.id("crystal-animation"),
                 settings={"defaultZoom": 1.2},
                 axisView="SW",
@@ -205,81 +205,90 @@ class PhononBandstructureAndDosComponent(MPComponent):
             }
         )
 
-        crystal_animation_controls = html.Div(
+        crystal_animation_controls = html.Details(
             [
-                html.Br(),
-                html.H5("Control Panel", style={"textAlign": "center"}),
-                hr,
-                html.H6("Supercell modification", style={"textAlign": "center"}),
+                html.Summary("Control Panel"),
                 html.Div(
                     [
-                        self.get_numerical_input(
-                            kwarg_label="scale-x",
-                            default=1,
-                            persistence_type="session",
-                            is_int=True,
-                            label="x",
-                            min=1,
-                            style={"width": "5rem"},
+                        # html.Br(),
+                        # html.H5("Control Panel", style={"textAlign": "center"}),
+                        # hr,
+                        html.H6(
+                            "Supercell modification", style={"textAlign": "center"}
                         ),
-                        self.get_numerical_input(
-                            kwarg_label="scale-y",
-                            default=1,
-                            persistence_type="session",
-                            is_int=True,
-                            label="y",
-                            min=1,
-                            style={"width": "5rem"},
+                        html.Div(
+                            [
+                                self.get_numerical_input(
+                                    kwarg_label="scale-x",
+                                    default=1,
+                                    persistence_type="session",
+                                    is_int=True,
+                                    label="x",
+                                    min=1,
+                                    style={"height": "16px"},
+                                ),
+                                self.get_numerical_input(
+                                    kwarg_label="scale-y",
+                                    default=1,
+                                    persistence_type="session",
+                                    is_int=True,
+                                    label="y",
+                                    min=1,
+                                    style={"height": "16px"},
+                                ),
+                                self.get_numerical_input(
+                                    kwarg_label="scale-z",
+                                    default=1,
+                                    persistence_type="session",
+                                    is_int=True,
+                                    label="z",
+                                    min=1,
+                                    style={"height": "16px"},
+                                ),
+                            ],
+                            style={
+                                "display": "flex",
+                                "justify-content": "center",
+                                "gap": "16px",
+                            },
                         ),
-                        self.get_numerical_input(
-                            kwarg_label="scale-z",
-                            default=1,
-                            persistence_type="session",
-                            is_int=True,
-                            label="z",
-                            min=1,
-                            style={"width": "5rem"},
+                        hr,
+                        html.Div(
+                            self.get_slider_input(
+                                kwarg_label="magnitude",
+                                default=0.5,
+                                step=0.01,
+                                domain=[0, 1],
+                                label="Vibration magnitude",
+                                # styleInput={"height": "40px"},
+                            ),
+                        ),
+                        hr,
+                        html.Div(
+                            self.get_slider_input(
+                                kwarg_label="velocity",
+                                default=0.5,
+                                step=0.01,
+                                domain=[0, 1],
+                                label="Velocity",
+                            )
+                        ),
+                        hr,
+                        html.Div(
+                            html.Button(
+                                "Update",
+                                id=self.id("supercell-controls-btn"),
+                                style={"height": "40px"},
+                            ),
+                            style={"textAlign": "center", "width": "100%"},
                         ),
                     ],
                     style={
-                        "display": "flex",
-                        "justify-content": "center",
-                        "gap": "16px",
+                        "width": "100%",
+                        # "scale": "0.9"
                     },
                 ),
-                hr,
-                html.Div(
-                    self.get_slider_input(
-                        kwarg_label="magnitude",
-                        default=0.5,
-                        step=0.01,
-                        domain=[0, 1],
-                        label="Vibration magnitude",
-                    )
-                ),
-                hr,
-                html.Div(
-                    self.get_slider_input(
-                        kwarg_label="velocity",
-                        default=0.5,
-                        step=0.01,
-                        domain=[0, 1],
-                        label="Velocity",
-                    )
-                ),
-                hr,
-                html.Div(
-                    html.Button(
-                        "Update",
-                        id=self.id("supercell-controls-btn"),
-                        style={"height": "40px"},
-                    ),
-                    style={"textAlign": "center", "width": "100%"},
-                ),
-            ],
-            style={
-                "width": "100%",
-            },
+            ]
         )
 
         return {
