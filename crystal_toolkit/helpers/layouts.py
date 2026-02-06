@@ -1160,9 +1160,14 @@ class Reveal(html.Details):
 
 
 # TODO: review
-def add_label_help(input, label, help) -> mpc.FilterField:
+def add_label_help(input, label, help, label_style=None) -> mpc.FilterField:
     """Combine an input, label, and tooltip text into a single consistent component."""
-    return mpc.FilterField(input, id=uuid4().hex, label=label, tooltip=help)
+    if label_style is None:
+        label_style = {}
+
+    return mpc.FilterField(
+        input, id=uuid4().hex, label=label, tooltip=help, styleLabel=label_style
+    )
 
 
 # TODO: review

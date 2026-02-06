@@ -355,6 +355,7 @@ Sub-layouts:  \n{layouts}"""
         help_str: str | None = None,
         is_int: bool = False,
         shape: tuple[int, ...] = (),
+        label_style: dict | None = None,
         **kwargs,
     ) -> html.Div:
         """For Python classes which take matrices as inputs, this will generate a corresponding Dash
@@ -370,6 +371,7 @@ Sub-layouts:  \n{layouts}"""
         :param help_str: Text for a tooltip when hovering over label.
         :param is_int: if True, will use a numeric input
         :param shape: (3, 3) for matrix, (1, 3) for vector, (1, 1) for scalar
+        :param label_style: the customized styling for labeling `add_label_help`
         :return: a Dash layout
         """
         state = state or {}
@@ -440,7 +442,7 @@ Sub-layouts:  \n{layouts}"""
 
         matrix = html.Div(matrix_div_contents)
 
-        return add_label_help(matrix, label, help_str)
+        return add_label_help(matrix, label, help_str, label_style)
 
     def get_slider_input(
         self,
@@ -450,6 +452,7 @@ Sub-layouts:  \n{layouts}"""
         label: str | None = None,
         help_str: str | None = None,
         multiple: bool = False,
+        label_style: dict | None = None,
         **kwargs,
     ):
         state = state or {}
@@ -473,7 +476,7 @@ Sub-layouts:  \n{layouts}"""
                 **slider_kwargs,
             )
 
-        return add_label_help(slider_input, label, help_str)
+        return add_label_help(slider_input, label, help_str, label_style)
 
     def get_bool_input(
         self,
@@ -482,6 +485,7 @@ Sub-layouts:  \n{layouts}"""
         state: dict | None = None,
         label: str | None = None,
         help_str: str | None = None,
+        label_style: dict | None = None,
         **kwargs,
     ):
         """For Python classes which take boolean values as inputs, this will generate a
@@ -496,6 +500,7 @@ Sub-layouts:  \n{layouts}"""
         and the default value as a value. Ignored if `default` is set. It can be useful
             to use `state` if you want to set defaults for multiple inputs from a single dictionary.
         :param help_str: Text for a tooltip when hovering over label.
+        :param label_style: the customized styling for labeling `add_label_help`
         :return: a Dash layout
         """
         state = state or {}
@@ -508,7 +513,7 @@ Sub-layouts:  \n{layouts}"""
             **kwargs,
         )
 
-        return add_label_help(bool_input, label, help_str)
+        return add_label_help(bool_input, label, help_str, label_style)
 
     def get_choice_input(
         self,
@@ -519,6 +524,7 @@ Sub-layouts:  \n{layouts}"""
         help_str: str | None = None,
         options: list[dict] | None = None,
         clearable: bool = False,
+        label_style: dict | None = None,
         **kwargs,
     ):
         """For Python classes which take pre-defined values as inputs, this will generate a
@@ -534,6 +540,7 @@ Sub-layouts:  \n{layouts}"""
         :param help_str: Text for a tooltip when hovering over label.
         :param options: Options to choose from, as per dcc.Dropdown
         :param clearable: If True, will allow Dropdown to be cleared after a selection is made.
+        :param label_style: the customized styling for labeling `add_label_help`
         :return: a Dash layout
         """
         state = state or {}
@@ -547,7 +554,7 @@ Sub-layouts:  \n{layouts}"""
             arbitraryProps={**kwargs},
         )
 
-        return add_label_help(option_input, label, help_str)
+        return add_label_help(option_input, label, help_str, label_style)
 
     def get_dict_input(
         self,
@@ -559,6 +566,7 @@ Sub-layouts:  \n{layouts}"""
         dict_size: int | None = None,
         key_name: str = "key",
         value_name: str = "value",
+        label_style: dict | None = None,
         **kwargs,
     ) -> mpc.FilterField:
         """For Python classes which take dictionaries as inputs. The keys are fixed and only the
@@ -575,6 +583,7 @@ Sub-layouts:  \n{layouts}"""
         :param dict_size: size of the dict. Can be specified in case there is no initial default or state.
         :param key_name: name describing the keys of the dictionary.
         :param value_name: name describing the values of the dictionary.
+        :param label_style: the customized styling for labeling `add_label_help`
         :return: a Dash layout
         """
         state = state or {}
@@ -625,7 +634,33 @@ Sub-layouts:  \n{layouts}"""
 
         dict_input = html.Div(dict_div_contents)
 
-        return add_label_help(dict_input, label, help_str)
+        return add_label_help(dict_input, label, help_str, label_style)
+
+    def get_alarm_window(
+        self,
+        id: str,
+        message: str,
+        **kwargs,
+    ):
+        """Get the pop-out alarm window component, default set to not display
+        Eaxmple:
+        self.get_alarm_window(
+            self.id("invalid-comp-alarm"),
+            message="Illegal composition entry!"
+        ),
+
+        Return True in the callback function to show alarm
+        Output(self.id("invalid-conc-alarm"), "displayed") -> True
+
+        Args:
+            :param id: The name of the corresponding Python input, this is used
+        to name the component.
+            :param message (str): A default value for this input.
+        """
+        if not message:
+            raise ValueError("The error message cannot be empty!")
+
+        return dcc.ConfirmDialog(id=id, message=message, displayed=False, **kwargs)
 
     def get_kwarg_id(self, kwarg_name) -> dict[str, str]:
         return {

@@ -460,8 +460,8 @@ class PourbaixDiagramComponent(MPComponent):
                     [
                         html.Div(
                             [
-                                dcc.ConfirmDialog(
-                                    id=self.id("invalid-comp-alarm"),
+                                self.get_alarm_window(
+                                    self.id("invalid-comp-alarm"),
                                     message="Illegal composition entry!",
                                 ),
                                 html.Div(
@@ -521,7 +521,7 @@ class PourbaixDiagramComponent(MPComponent):
                         ),
                         html.Div(
                             [
-                                dcc.ConfirmDialog(
+                                self.get_alarm_window(
                                     id=self.id("invalid-conc-alarm"),
                                     message=f"Illegal concentration entry! Must be between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} M",
                                 ),
