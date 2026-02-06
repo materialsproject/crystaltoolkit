@@ -4,22 +4,21 @@ import warnings
 from importlib.metadata import version
 from typing import TYPE_CHECKING
 
+import dash_mp_components as mpc
 from dash.dependencies import Component, Input, Output
-from lobsterpy.cohp.analyze import Analysis
-from lobsterpy.cohp.describe import Description
+from dash.exceptions import PreventUpdate
+from lobsterpy.plotting import InteractiveCohpPlotter
+from monty.json import MontyDecoder
 from plotly.subplots import make_subplots
+from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
+    AllCoordinationGeometries,
+)
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.core import Molecule, Structure
-from pymatgen.electronic_structure.cohp import CompleteCohp
 from pymatgen.electronic_structure.dos import LobsterCompleteDos
-from pymatgen.io.lobster.inputs import Lobsterin
-from pymatgen.io.lobster.outputs import (
-    Bandoverlaps,
-    Charge,
-    Icohplist,
-    Lobsterout,
-    MadelungEnergies,
-)
+from pymatgen.io.lobster import Charge, Icohplist
+from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import unicodeify_species
 
 from crystal_toolkit.components.bandstructure import BandstructureAndDosComponent
@@ -28,18 +27,22 @@ from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import (
     H4,
+    H5,
     Column,
     Columns,
+    Loading,
     MessageBody,
     MessageContainer,
+    cite_me,
     dcc,
     get_table,
+    get_tooltip,
     html,
 )
 
 if TYPE_CHECKING:
     import plotly.graph_objects as go
-    from pymatgen.io.vasp.outputs import Vasprun
+    from pymatgen.io.lobster import Charge, Icohplist
 
 warnings.filterwarnings("ignore")
 
@@ -47,50 +50,44 @@ warnings.filterwarnings("ignore")
 class CohpAndDosComponent(MPComponent):
     def __init__(
         self,
-        charge_obj: Charge | None = None,
-        completecohp_obj: CompleteCohp | None = None,
-        icohplist_obj: Icohplist | None = None,
-        madelung_obj: MadelungEnergies | None = None,
         mpid: str | None = None,
         density_of_states: LobsterCompleteDos | None = None,
-        lobsterin_obj: Lobsterin | None = None,
-        lobsterout_obj: Lobsterout | None = None,
-        bandoverlaps_obj: Bandoverlaps | None = None,
-        vasprun_obj: Vasprun | None = None,
-        structure_obj: Structure | None = None,
+        cohp_plot_data: dict | None = None,
+        lobsterpy_text_description: dict | None = None,
+        calc_quality_description: str | None = None,
+        obj_charge: Charge | None = None,
+        obj_icohp: Icohplist | None = None,
+        structure: Structure | None = None,
         id: str | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
             id=id,
             default_data={
-                "charge_obj": charge_obj,
-                "completecohp_obj": completecohp_obj,
-                "icohplist_obj": icohplist_obj,
-                "madelung_obj": madelung_obj,
                 "mpid": mpid,
                 "density_of_states": density_of_states,
-                "lobsterin_obj": lobsterin_obj,
-                "lobsterout_obj": lobsterout_obj,
-                "bandoverlaps_obj": bandoverlaps_obj,
-                "vasprun_obj": vasprun_obj,
-                "structure_obj": structure_obj,
+                "cohp_plot_data": cohp_plot_data,
+                "lobsterpy_text_description": lobsterpy_text_description,
+                "calc_quality_description": calc_quality_description,
+                "obj_charge": obj_charge,
+                "obj_icohp": obj_icohp,
+                "structure": structure,
             },
             **kwargs,
         )
 
     @property
     def _sub_layouts(self) -> dict[str, Component]:
-        completecohp_obj, charge_obj, icohplist_obj, madelung_obj, dos = (
-            CohpAndDosComponent._get_plot_inputs(self.initial_data["default"])
-        )
+        (
+            density_of_states,
+            cohp_plot_data,
+            lobsterpy_text_description,
+            calc_quality_description,
+        ) = CohpAndDosComponent._get_plot_inputs(self.initial_data["default"])
 
         fig = CohpAndDosComponent.get_figure(
-            charge_obj=charge_obj,
-            completecohp_obj=completecohp_obj,
-            madelung_obj=madelung_obj,
-            icohplist_obj=icohplist_obj,
-            dos=dos,
+            dos=density_of_states,
+            cohp_plot_data=cohp_plot_data,
         )
 
         # Main plot
@@ -106,20 +103,19 @@ class CohpAndDosComponent(MPComponent):
             id=self.id("cohp-dos-graph"),
         )
 
+        # COHP/DOS plot controls
         analysis_options = [
             {"label": "all", "value": "all"},
             {"label": "cation-anion", "value": "cation-anion"},
         ]
 
-        state = {"analysis-mode": "all"}
-
         analysis_mode = html.Div(
             [
                 self.get_choice_input(
                     kwarg_label="analysis-mode",
-                    state=state,
-                    label="LobsterPy analysis mode",
-                    help_str="Analysis mode to choose from",
+                    state={"analysis-mode": "all"},
+                    label="Bonds summary mode",
+                    help_str="Summary mode to choose from",
                     options=analysis_options,
                 )
             ],
@@ -127,18 +123,80 @@ class CohpAndDosComponent(MPComponent):
             id=self.id("options-container"),
         )
 
-        analysis_description = CohpAndDosComponent.get_summary_text(
-            charge_obj=charge_obj,
-            completecohp_obj=completecohp_obj,
-            icohplist_obj=icohplist_obj,
-            dos=dos,
-            madelung_obj=madelung_obj,
-            which_bonds="all",
+        # LobsterEnv-specific controls
+        lobsterenv_state = {
+            "lobsterenv-analysis-mode": "all",
+            "perc_strength_icohp": 0.15,
+            "which_charge": "Mulliken",
+            "adapt_extremum": True,
+        }
+
+        lobsterenv_analysis_options = [
+            {"label": "all", "value": "all"},
+            {"label": "cation-anion", "value": "cation-anion"},
+        ]
+
+        lobsterenv_analysis_mode = self.get_choice_input(
+            kwarg_label="lobsterenv-analysis-mode",
+            state=lobsterenv_state,
+            label="Analysis mode",
+            help_str="Choose whether to analyze all bonds or only cation-anion bonds",
+            options=lobsterenv_analysis_options,
         )
 
-        calc_quality_description = self.get_calc_quality_text(
-            input_dict=self._get_all_inputs(self.initial_data["default"])
+        charge_type_options = [
+            {"label": "Mulliken", "value": "Mulliken"},
+            {"label": "Loewdin", "value": "Loewdin"},
+        ]
+
+        charge_type = self.get_choice_input(
+            kwarg_label="which_charge",
+            state=lobsterenv_state,
+            label="Charge type",
+            help_str="Select the charge analysis method",
+            options=charge_type_options,
         )
+
+        icohp_cutoff = html.Div(
+            [
+                H5("ICOHP Cutoff Percentage"),
+                dcc.Slider(
+                    id="id_perc_strength_icohp",
+                    min=0,
+                    max=1,
+                    step=0.01,
+                    value=0.15,
+                    marks={i: f"{i:.0%}" for i in [0, 0.25, 0.5, 0.75, 1]},
+                    tooltip={"placement": "bottom", "always_visible": True},
+                ),
+            ],
+            style={"width": "100%"},
+        )
+
+        adapt_extremum = self.get_bool_input(
+            label="Adapt extremum to additional condition",
+            kwarg_label="adapt_extremum",
+            state=lobsterenv_state,
+            help_str="If enabled, adapts the ICOHP extremum based on additional conditions (cation-anion mode)",
+        )
+
+        lobsterenv_controls = Columns(
+            [
+                Column([lobsterenv_analysis_mode, charge_type], size=4),
+                Column([icohp_cutoff], size=4),
+                Column([adapt_extremum], size=4),
+            ]
+        )
+
+        # LobsterEnv analysis view container
+        lobsterenv_analysis = Loading(
+            id=self.id("lobsterenv_analysis"),
+            children=mpc.Markdown(
+                "Local environment analysis will appear here when LOBSTER data is available."
+            ),
+        )
+
+        analysis_description = lobsterpy_text_description.get("all")
 
         lobsterpy_version = version("lobsterpy")
 
@@ -176,26 +234,13 @@ class CohpAndDosComponent(MPComponent):
             # style={"position": "relative"}
         )
 
-        # LobsterPy local environments
-        local_envs = html.Div(
-            children=[
-                CohpAndDosComponent.get_lobster_local_envs(
-                    charge_obj=charge_obj,
-                    completecohp_obj=completecohp_obj,
-                    icohplist_obj=icohplist_obj,
-                    madelung_obj=madelung_obj,
-                    which_bonds="all",
-                )
-            ],
-            id=self.id("local-env-lobsterpy"),
-        )
-
         return {
             "graph": graph,
             "analysis-mode": analysis_mode,
+            "lobsterenv-controls": lobsterenv_controls,
+            "lobsterenv-analysis": lobsterenv_analysis,
             "analysis-description": analysis_description_div,
             "calc-quality-description": calc_quality_description_div,
-            "local-envs": local_envs,
         }
 
     def layout(self):
@@ -232,13 +277,27 @@ class CohpAndDosComponent(MPComponent):
         )
         calc_quality_div = Columns([Column([sub_layouts["calc-quality-description"]])])
 
-        # Create the local environments div
-        local_envs_header = H4(
-            "Local Environments identified via LobsterEnv",
-            id=self.id("local-envs-text"),
+        lobsterenv_header = H4(
+            "Local environment analysis (LobsterEnv)",
+            id=self.id("lobsterenv_text"),
             style={"display": "inline-block"},
         )
-        local_envs_div = Columns([Column([sub_layouts["local-envs"]])])
+
+        lobsterenv_description = dcc.Markdown(
+            "The LobsterEnv algorithm is developed by George et al. to analyze "
+            "local chemical environments based on the outputs of LOBSTER calculations. "
+            "This analysis relies on the ICOHP values calculated by LOBSTER, which "
+            "are a measure of bond strength. The local environment is determined by including all neighbors "
+            "with ICOHP values stronger than a certain threshold. "
+            "The threshold can be set as a percentage of the strongest ICOHP in the structure, and can be adjusted using the slider below. "
+        )
+
+        lobsterenv_citation = cite_me(
+            doi="10.1002/cplu.202200123",
+            cite_text="How to cite LobsterEnv",
+        )
+
+        lobsterenv_div = Columns([Column([sub_layouts["lobsterenv-analysis"]])])
 
         return Column(
             [
@@ -249,302 +308,68 @@ class CohpAndDosComponent(MPComponent):
                 description_div,
                 calc_quality_header,
                 calc_quality_div,
-                local_envs_header,
-                local_envs_div,
+                html.Br(),
+                lobsterenv_header,
+                lobsterenv_description,
+                html.Br(),
+                lobsterenv_citation,
+                html.Br(),
+                sub_layouts["lobsterenv-controls"],
+                html.Br(),
+                lobsterenv_div,
             ]
         )
 
     @staticmethod
     def _get_plot_inputs(
         data: dict | None,
-    ) -> (
-        tuple[CompleteCohp, Charge, Icohplist, MadelungEnergies, LobsterCompleteDos]
-        | tuple[None, None, None, None, None]
-    ):
+    ) -> tuple[LobsterCompleteDos, dict, dict, str] | tuple[None, None, None, None]:
         data = data or {}
 
-        charge_obj = data.get("charge_obj")
-        completecohp_obj = data.get("completecohp_obj")
-        icohplist_obj = data.get("icohplist_obj")
-        dos_obj = data.get("density_of_states")
-        madelung_obj = data.get("madelung_obj")
+        density_of_states = data.get("density_of_states")
+        cohp_plot_data = data.get("cohp_plot_data")
+        lobsterpy_text_description = data.get("lobsterpy_text_description")
+        calc_quality_description = data.get("calc_quality_description")
 
-        if charge_obj and isinstance(charge_obj, dict):
-            charge_obj = Charge.from_dict(charge_obj)
+        if density_of_states and isinstance(density_of_states, dict):
+            density_of_states = LobsterCompleteDos.from_dict(density_of_states)
 
-        if completecohp_obj and isinstance(completecohp_obj, dict):
-            completecohp_obj = CompleteCohp.from_dict(completecohp_obj)
-
-        if icohplist_obj and isinstance(icohplist_obj, dict):
-            icohplist_obj = Icohplist.from_dict(icohplist_obj)
-
-        if dos_obj and isinstance(dos_obj, dict):
-            dos_obj = LobsterCompleteDos.from_dict(dos_obj)
-
-        if madelung_obj and isinstance(madelung_obj, dict):
-            madelung_obj = MadelungEnergies.from_dict(madelung_obj)
-
-        return completecohp_obj, charge_obj, icohplist_obj, madelung_obj, dos_obj
+        return (
+            density_of_states,
+            cohp_plot_data,
+            lobsterpy_text_description,
+            calc_quality_description,
+        )
 
     @staticmethod
-    def _get_all_inputs(
-        data: dict | None,
-    ) -> dict:
+    def _get_lobsterenv_inputs(data: dict):
+        """Extract and deserialize lobsterenv inputs from data dict."""
         data = data or {}
 
-        charge_obj = data.get("charge_obj")
-        completecohp_obj = data.get("completecohp_obj")
-        icohplist_obj = data.get("icohplist_obj")
-        lob_dos_obj = data.get("density_of_states")
-        madelung_obj = data.get("madelung_obj")
-        lobsterin_obj = data.get("lobsterin_obj")
-        lobsterout_obj = data.get("lobsterout_obj")
-        bandoverlaps_obj = data.get("bandoverlaps_obj")
-        structure_obj = data.get("structure_obj")
+        obj_charge = data.get("obj_charge")
+        obj_icohp = data.get("obj_icohp")
+        struct = data.get("structure")
 
-        if charge_obj and isinstance(charge_obj, dict):
-            data["charge_obj"] = Charge.from_dict(charge_obj)
-
-        if completecohp_obj and isinstance(completecohp_obj, dict):
-            data["completecohp_obj"] = CompleteCohp.from_dict(completecohp_obj)
-
-        if icohplist_obj and isinstance(icohplist_obj, dict):
-            data["icohplist_obj"] = Icohplist.from_dict(icohplist_obj)
-
-        if lob_dos_obj and isinstance(lob_dos_obj, dict):
-            data["density_of_states"] = LobsterCompleteDos.from_dict(lob_dos_obj)
-
-        if madelung_obj and isinstance(madelung_obj, dict):
-            data["madelung_obj"] = MadelungEnergies.from_dict(madelung_obj)
-
-        if lobsterin_obj and isinstance(lobsterin_obj, dict):
-            data["lobsterin_obj"] = Lobsterin.from_dict(lobsterin_obj)
-
-        if lobsterout_obj and isinstance(lobsterout_obj, dict):
-            data["lobsterout_obj"] = Lobsterout.from_dict(lobsterout_obj)
-
-        if bandoverlaps_obj and isinstance(bandoverlaps_obj, dict):
-            data["bandoverlaps_obj"] = Bandoverlaps.from_dict(bandoverlaps_obj)
-
-        if structure_obj and isinstance(structure_obj, dict):
-            data["structure_obj"] = Structure.from_dict(structure_obj)
-
-        return data
-
-    @staticmethod
-    def get_calc_quality_text(
-        input_dict: dict,
-    ) -> str:
-        """Get text description of calculation quality
-
-        Args:
-            input_dict: Dictionary containing the pymatgen objects.
-
-        Returns:
-            A string describing the calculation quality.
-        """
-
-        calc_quality_dict = Analysis.get_lobster_calc_quality_summary(
-            charge_obj=input_dict.get("charge_obj"),
-            lobster_completedos_obj=input_dict.get("density_of_states"),
-            vasprun_obj=input_dict.get("vasprun_obj"),
-            lobsterin_obj=input_dict.get("lobsterin_obj"),
-            lobsterout_obj=input_dict.get("lobsterout_obj"),
-            bandoverlaps_obj=input_dict.get("bandoverlaps_obj"),
-            structure_obj=input_dict.get("structure_obj"),
-            e_range=[-15, 0],
-            dos_comparison=True,
-            n_bins=256,
-            bva_comp=True,
-        )
-        calc_quality_description = Description.get_calc_quality_description(
-            calc_quality_dict
-        )
-
-        return " ".join(calc_quality_description)
-
-    @staticmethod
-    def get_lobster_local_envs(
-        charge_obj, completecohp_obj, icohplist_obj, madelung_obj, which_bonds="all"
-    ) -> str:
-        """Get text description of local environments
-
-        Args:
-            input_dict: Dictionary containing the pymatgen objects.
-
-        Returns:
-            A string describing the local environments.
-        """
-        # Get the local environments using LobsterPy
-        analyse = Analysis(
-            charge_obj=charge_obj,
-            madelung_obj=madelung_obj,
-            icohplist_obj=icohplist_obj,
-            completecohp_obj=completecohp_obj,
-            path_to_poscar=None,
-            path_to_icohplist=None,
-            path_to_cohpcar=None,
-            which_bonds=which_bonds,
-            summed_spins=False,
-        )
-
-        envs = []  # list of local environments
-        for site_ix, env in enumerate(analyse.lse.coordination_environments):
-            if site_ix in analyse.seq_ineq_ions and env[0]["ce_symbol"]:
-                # if env[0]["ce_symbol"]:
-                data_list = []
-                site_str = unicodeify_species(analyse.structure[site_ix].species_string)
-
-                try:
-                    data_list.extend(
-                        [
-                            ["Site", site_str],
-                            [
-                                "Environment",
-                                Description._coordination_environment_to_text(
-                                    env[0]["ce_symbol"]
-                                ).capitalize(),
-                            ],
-                            ["IUPAC Symbol", env[0]["ce_symbol"]],
-                            ["CSM", float(round(env[0]["csm"], 5))],
-                        ]
-                    )
-
-                except KeyError:
-                    data_list.extend(
-                        [
-                            ["Site", site_str],
-                            [
-                                "Environment",
-                                Description._coordination_environment_to_text(
-                                    env[0]["ce_symbol"]
-                                ).capitalize(),
-                            ],
-                            ["IUPAC Symbol", env[0]["ce_symbol"]],
-                            ["CSM", "NA"],
-                        ]
-                    )
-
-                local_env_data = analyse.chemenv.get_nn_info(analyse.structure, site_ix)
-
-                neighbour_sites = [i["site"] for i in local_env_data]
-                central_site = analyse.structure[site_ix]
-                neighbour_weights = [
-                    i["edge_properties"]["ICOHP"] for i in local_env_data
-                ]
-                charges = [analyse.charge_obj.mulliken[site_ix]]
-                charges.extend(
-                    [
-                        analyse.charge_obj.mulliken[i["site_index"]]
-                        for i in local_env_data
-                    ]
-                )
-
-                # Create a molecule object for the local environment
-                # and add the charges as a site property
-                mol = Molecule.from_sites([central_site, *neighbour_sites])
-                mol = mol.get_centered_molecule()
-
-                # Add the charges as a site property (hover text)
-                mol = mol.add_site_property("charge", charges)
-
-                mg = MoleculeGraph.with_empty_graph(
-                    molecule=mol,
-                    name="bond_strength",
-                    edge_weight_name="ICOHP",
-                    edge_weight_units="eV",
-                )
-                for i in range(1, len(mol)):
-                    # Add the bond strength as an edge weight (hover text)
-                    mg.add_edge(0, i, weight=neighbour_weights[i - 1])
-
-                view = html.Div(
-                    [
-                        StructureMoleculeComponent(
-                            struct_or_mol=mg,
-                            disable_callbacks=True,
-                            id=f"{analyse.structure.composition.reduced_formula}_site_{site_ix}",
-                            scene_settings={
-                                "enableZoom": False,
-                                "defaultZoom": 0.6,
-                            },
-                        )._sub_layouts["struct"]
-                    ],
-                    style={"width": "300px", "height": "300px"},
-                )
-
-                data_list.append(["Interactive", view])
-
-                envs.append(get_table(rows=data_list))
-
-        envs_grouped = [envs[i : i + 2] for i in range(0, len(envs), 2)]
-        # analysis_contents = [
-        #    Columns([Column(e) for e in env_group]) for env_group in envs_grouped
-        # ]
-        analysis_contents = [
-            Columns(
-                [
-                    Column(
-                        html.Div(
-                            e, style={"display": "flex", "justifyContent": "center"}
-                        ),
-                    )
-                    for e in env_group
-                ]
+        if not obj_charge or not obj_icohp:
+            raise ValueError(
+                "Skipped LobsterEnv analysis as charge and ICOHP data are not available."
             )
-            for env_group in envs_grouped
-        ]
 
-        return html.Div([html.Div(analysis_contents), html.Br()])
+        if obj_charge and isinstance(obj_charge, dict):
+            obj_charge = MontyDecoder().process_decoded(obj_charge)
 
-    @staticmethod
-    def get_summary_text(
-        charge_obj,
-        completecohp_obj,
-        icohplist_obj,
-        dos,
-        madelung_obj,
-        which_bonds="all",
-    ) -> str:
-        """Get text description of bonding analysis and calculation quality
+        if obj_icohp and isinstance(obj_icohp, dict):
+            obj_icohp = MontyDecoder().process_decoded(obj_icohp)
 
-        Args:
-            charge_obj:  pymatgen lobster.io.charge object.
-            completecohp_obj: pymatgen.electronic_structure.cohp.CompleteCohp object
-            icohplist_obj: pymatgen lobster.io.Icohplist object
-            madelung_obj: pymatgen lobster.io.MadelungEnergies object
-            which_bonds: Bonds to consider for the analysis.
-            dos: pymatgen.electronic_structure.dos.LobsterCompleteDos object
-            kwargs: Keyword arguments that get passed to InteractiveCohpPlotter.get_plot.
-        Returns:
-            A string describing the bonding analysis.
-        """
+        if struct and isinstance(struct, dict):
+            struct = MontyDecoder().process_decoded(struct)
 
-        analyse = Analysis(
-            charge_obj=charge_obj,
-            madelung_obj=madelung_obj,
-            icohplist_obj=icohplist_obj,
-            completecohp_obj=completecohp_obj,
-            path_to_poscar=None,
-            path_to_icohplist=None,
-            path_to_cohpcar=None,
-            which_bonds=which_bonds,
-            summed_spins=False,
-        )
-
-        description = Description(analysis_object=analyse)
-
-        return " ".join(description.text)
-
-        # return anaylsis_des
+        return struct, obj_icohp, obj_charge
 
     @staticmethod
     def get_figure(
-        charge_obj,
-        completecohp_obj,
-        icohplist_obj,
         dos,
-        madelung_obj,
+        cohp_plot_data,
         dos_select="ap",
         energy_window=(-10.0, 5.0),
         which_bonds="all",
@@ -563,23 +388,13 @@ class CohpAndDosComponent(MPComponent):
             A plotly Figure object.
         """
 
-        analyse = Analysis(
-            charge_obj=charge_obj,
-            madelung_obj=madelung_obj,
-            icohplist_obj=icohplist_obj,
-            completecohp_obj=completecohp_obj,
-            path_to_poscar=None,
-            path_to_icohplist=None,
-            path_to_cohpcar=None,
-            which_bonds=which_bonds,
-            summed_spins=False,
-        )
-
-        description = Description(analysis_object=analyse)
+        cohp_plotter = InteractiveCohpPlotter(are_cobis=False, are_coops=False)
 
         # Get the COHP plot
-        cohp_fig = description.plot_interactive_cohps(
-            ylim=[-10, 5], xlim=[-5, 5], hide=True
+        cohp_plotter.add_cohps_from_plot_data(cohp_plot_data.get(which_bonds))
+        cohp_fig = cohp_plotter.get_plot(
+            ylim=[-10, 5],
+            xlim=[-5, 5],
         )
 
         dos_traces = BandstructureAndDosComponent.get_dos_traces(
@@ -672,16 +487,16 @@ class CohpAndDosComponent(MPComponent):
             """Update the COHP and DOS graph."""
 
             # Get the data from the store
-            completecohp_obj, charge_obj, icohplist_obj, madelung_obj, dos = (
-                self._get_plot_inputs(data)
-            )
+            (
+                density_of_states,
+                cohp_plot_data,
+                _lobsterpy_text_description,
+                _calc_quality_description,
+            ) = self._get_plot_inputs(data)
 
             fig = self.get_figure(
-                charge_obj=charge_obj,
-                completecohp_obj=completecohp_obj,
-                madelung_obj=madelung_obj,
-                icohplist_obj=icohplist_obj,
-                dos=dos,
+                density_of_states,
+                cohp_plot_data,
                 which_bonds=label_select
                 if isinstance(label_select, str)
                 else label_select[0],
@@ -700,20 +515,17 @@ class CohpAndDosComponent(MPComponent):
         )
         def update_text(data, label_select) -> MessageContainer:
             """Update the text description of the bonding analysis."""
-            completecohp_obj, charge_obj, icohplist_obj, madelung_obj, dos = (
-                self._get_plot_inputs(data)
-            )
+            (
+                _density_of_states,
+                _cohp_plot_data,
+                lobsterpy_text_description,
+                _calc_quality_description,
+            ) = self._get_plot_inputs(data)
 
-            analysis_description = self.get_summary_text(
-                charge_obj=charge_obj,
-                completecohp_obj=completecohp_obj,
-                icohplist_obj=icohplist_obj,
-                dos=dos,
-                madelung_obj=madelung_obj,
-                which_bonds=label_select
-                if isinstance(label_select, str)
-                else label_select[0],
+            which_bonds = (
+                label_select if isinstance(label_select, str) else label_select[0]
             )
+            analysis_description = lobsterpy_text_description.get(which_bonds)
 
             lobsterpy_version = version("lobsterpy")
 
@@ -730,27 +542,206 @@ class CohpAndDosComponent(MPComponent):
             )
 
         @app.callback(
-            Output(self.id("local-env-lobsterpy"), "children"),
+            Output(self.id("lobsterenv_analysis"), "children"),
             Input(self.id(), "data"),
-            Input(self.get_kwarg_id("analysis-mode"), "value"),
+            Input(self.get_kwarg_id("perc_strength_icohp"), "value"),
+            Input(self.get_kwarg_id("lobsterenv-analysis-mode"), "value"),
+            Input(self.get_kwarg_id("which_charge"), "value"),
+            Input(self.get_kwarg_id("adapt_extremum"), "value"),
         )
-        def update_local_envs(data, label_select):
-            """Update the local environments using LobsterEnv."""
-            completecohp_obj, charge_obj, icohplist_obj, madelung_obj, _ = (
-                self._get_plot_inputs(data)
+        def get_lobsterenv_analysis(
+            data, perc_strength_icohp, analysis_mode, which_charge, adapt_extremum
+        ):
+            """Generate LobsterEnv local environment analysis."""
+            if not data:
+                raise PreventUpdate
+
+            # Handle slider value
+            if isinstance(perc_strength_icohp, list):
+                perc_strength_icohp = (
+                    float(perc_strength_icohp[0]) if perc_strength_icohp else 0.15
+                )
+            else:
+                perc_strength_icohp = (
+                    float(perc_strength_icohp)
+                    if perc_strength_icohp is not None
+                    else 0.15
+                )
+
+            # Handle charge type
+            which_charge = (
+                which_charge[0]
+                if isinstance(which_charge, list)
+                else (which_charge or "Mulliken")
             )
 
-            return self.get_lobster_local_envs(
-                charge_obj=charge_obj,
-                completecohp_obj=completecohp_obj,
-                icohplist_obj=icohplist_obj,
-                madelung_obj=madelung_obj,
-                which_bonds=label_select
-                if isinstance(label_select, str)
-                else label_select[0],
+            # Handle adapt_extremum
+            adapt_extremum = (
+                adapt_extremum[0]
+                if isinstance(adapt_extremum, list)
+                else (adapt_extremum if adapt_extremum is not None else True)
             )
 
-            # return local_envs
+            try:
+                struct, obj_icohp, obj_charge = self._get_lobsterenv_inputs(data)
+            except ValueError as e:
+                return mpc.Markdown(str(e))
+
+            if (
+                not isinstance(data, dict)
+                or "obj_icohp" not in data
+                or "obj_charge" not in data
+            ):
+                return mpc.Markdown(
+                    "LobsterEnv requires LOBSTER outputs (ICOHP + charge data). "
+                    "Please provide `obj_icohp` and `obj_charge` in the component data."
+                )
+
+            # Determine if we should only show cation-anion bonds
+            only_cation_anion = (
+                analysis_mode == "cation-anion"
+                if isinstance(analysis_mode, str)
+                else analysis_mode[0] == "cation-anion"
+            )
+
+            sga = SpacegroupAnalyzer(struct)
+            symm_struct = sga.get_symmetrized_structure()
+            inequivalent_indices = [
+                indices[0] for indices in symm_struct.equivalent_indices
+            ]
+            wyckoffs = symm_struct.wyckoff_symbols
+
+            try:
+                lobster_neighbors = LobsterNeighbors(
+                    filename_icohp=None,
+                    obj_icohp=obj_icohp,
+                    structure=struct,
+                    obj_charge=obj_charge,
+                    filename_charge=None,
+                    which_charge=which_charge,
+                    valences_from_charges=True,
+                    perc_strength_icohp=perc_strength_icohp,
+                    additional_condition=only_cation_anion,
+                    adapt_extremum_to_add_cond=adapt_extremum,
+                )
+            except ValueError as err:
+                if (
+                    str(err) == "min() arg is an empty sequence"
+                    or str(err)
+                    == "All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work"
+                ) and only_cation_anion:
+                    return mpc.Markdown(
+                        "No cations detected. Consider analyzing all bonds instead of only cation-anion bonds, "
+                        "or try adjusting the ICOHP cutoff percentage."
+                    )
+                return mpc.Markdown(
+                    "LobsterEnv failed to initialize. Try adjusting the ICOHP cutoff percentage and retry."
+                )
+
+            try:
+                lse = lobster_neighbors.get_light_structure_environment(
+                    only_cation_environments=only_cation_anion
+                )
+            except ValueError:
+                return mpc.Markdown(
+                    "LobsterEnv determined number of neighbors >=13. No standard coordination environment available. Try adjusting the ICOHP cutoff percentage to reduce the number of neighbors."
+                )
+
+            all_ce = AllCoordinationGeometries()
+
+            envs = []
+
+            for index, wyckoff in zip(inequivalent_indices, wyckoffs):
+                env = lse.coordination_environments[index]
+                if env[0]["ce_symbol"]:
+                    co = all_ce.get_geometry_from_mp_symbol(env[0]["ce_symbol"])
+
+                    datalist = [
+                        ["Site", unicodeify_species(struct[index].species_string)],
+                        ["Wyckoff Label", wyckoff],
+                    ]
+
+                    local_env_data = lobster_neighbors.get_nn_info(struct, index)
+
+                    # Get charges based on selected charge type
+                    charge_data = getattr(
+                        obj_charge, which_charge.lower(), obj_charge.mulliken
+                    )
+                    charges = [charge_data[index]]
+                    charges.extend(
+                        [charge_data[i["site_index"]] for i in local_env_data]
+                    )
+                    neighbour_weights = [
+                        i["edge_properties"]["ICOHP"] for i in local_env_data
+                    ]
+
+                    # represent the local environment as a molecule
+                    mol = Molecule.from_sites(
+                        [struct[index], *lse.neighbors_sets[index][0].neighb_sites]
+                    )
+                    mol = mol.get_centered_molecule()
+
+                    # Add the charges as a site property (hover text)
+                    mol = mol.add_site_property("charge", charges)
+
+                    mg = MoleculeGraph.with_empty_graph(
+                        molecule=mol,
+                        name="bond_strength",
+                        edge_weight_name="ICOHP",
+                        edge_weight_units="eV",
+                    )
+                    for i in range(1, len(mol)):
+                        mg.add_edge(0, i, weight=neighbour_weights[i - 1])
+
+                    view = html.Div(
+                        [
+                            StructureMoleculeComponent(
+                                struct_or_mol=mg,
+                                disable_callbacks=True,
+                                id=f"{struct.composition.reduced_formula}_site_{index}",
+                                scene_settings={
+                                    "enableZoom": False,
+                                    "defaultZoom": 0.6,
+                                },
+                            )._sub_layouts["struct"]
+                        ],
+                        style={"width": "300px", "height": "300px"},
+                    )
+
+                    name = co.name
+                    if co.alternative_names:
+                        name += f" (also known as {', '.join(co.alternative_names)})"
+
+                    datalist.extend(
+                        [
+                            ["Environment", name],
+                            ["IUPAC Symbol", co.IUPAC_symbol_str],
+                            [
+                                get_tooltip(
+                                    "CSM",
+                                    "The continuous symmetry measure (CSM) describes the similarity to an "
+                                    "ideal coordination environment. It can be understood as a 'distance' to "
+                                    "a shape and ranges from 0 to 100 in which 0 corresponds to a "
+                                    "coordination environment that is exactly identical to the ideal one. A "
+                                    "CSM larger than 5.0 already indicates a relatively strong distortion of "
+                                    "the investigated coordination environment.",
+                                ),
+                                f"{env[0]['csm']:.2f}",
+                            ],
+                            ["Interactive View", view],
+                        ]
+                    )
+
+                    envs.append(get_table(rows=datalist))
+
+            # Group environments in rows of 2
+            envs_grouped = [envs[i : i + 2] for i in range(0, len(envs), 2)]
+            analysis_contents = [
+                Columns([Column(e, size=6) for e in env_group])
+                for env_group in envs_grouped
+            ]
+
+            return html.Div([html.Div(analysis_contents), html.Br()])
 
 
 class COHPAndDosPanelComponent(PanelComponent):
