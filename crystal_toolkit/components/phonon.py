@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import itertools
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 import plotly.graph_objects as go
@@ -16,7 +16,6 @@ from emmet.core.phonon import PhononBS
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.core import Species
-from pymatgen.ext.matproj import MPRester
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.phonon.plotter import PhononBSPlotter
@@ -469,50 +468,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         rdata["name"] = "StructureGraphPhonon"
 
         return rdata
-
-    @staticmethod
-    def _get_ph_bs_dos(
-        data: dict[str, Any] | None,
-    ) -> tuple[PhononBandStructureSymmLine, CompletePhononDos]:
-        data = data or {}
-
-        # this component can be loaded either from mpid or
-        # directly from BandStructureSymmLine or CompleteDos objects
-        # if mpid is supplied, it takes precedence
-
-        mpid = data.get("mpid")
-        bandstructure_symm_line = data.get("bandstructure_symm_line")
-        density_of_states = data.get("density_of_states")
-
-        if not mpid and (bandstructure_symm_line is None or density_of_states is None):
-            return None, None
-
-        if mpid:
-            with MPRester() as mpr:
-                try:
-                    bandstructure_symm_line = (
-                        mpr.get_phonon_bandstructure_by_material_id(mpid)
-                    )
-                except Exception as exc:
-                    print(exc)
-                    bandstructure_symm_line = None
-
-                try:
-                    density_of_states = mpr.get_phonon_dos_by_material_id(mpid)
-                except Exception as exc:
-                    print(exc)
-                    density_of_states = None
-
-        else:
-            if bandstructure_symm_line and isinstance(bandstructure_symm_line, dict):
-                bandstructure_symm_line = PhononBandStructureSymmLine.from_dict(
-                    bandstructure_symm_line
-                )
-
-            if density_of_states and isinstance(density_of_states, dict):
-                density_of_states = CompletePhononDos.from_dict(density_of_states)
-
-        return bandstructure_symm_line, density_of_states
 
     @staticmethod
     def get_brillouin_zone_scene(bs: PhononBandStructureSymmLine) -> Scene:
