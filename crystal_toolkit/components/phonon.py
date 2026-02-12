@@ -38,6 +38,7 @@ MARKER_SIZE = 12
 MARKER_SHAPE = "x"
 MAX_MAGNITUDE = 500
 MIN_MAGNITUDE = 0
+MAX_SUPERCELL_SITES = 500
 
 DEFAULTS: dict[str, str | bool] = {
     "color_scheme": "VESTA",
@@ -68,6 +69,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             default_data={
                 "mpid": mpid,
                 "bandstructure_symm_line": bandstructure_symm_line,
+                "num_sites": density_of_states.structure.num_sites,
                 "density_of_states": density_of_states,
             },
             **kwargs,
@@ -101,6 +103,17 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # Hide by default if not loaded by mpid, switching between k-paths
         # on-the-fly only supported for bandstructures retrieved from MP
         show_path_options = bool(self.initial_data["default"]["mpid"])
+
+        # set maximum scale for supercell to limit size
+        max_sc_scale = max(
+            1,
+            int(
+                np.floor(
+                    (MAX_SUPERCELL_SITES / self.initial_data["default"]["num_sites"])
+                    ** (1 / 3)
+                )
+            ),
+        )
 
         options = [
             {"label": "Latimer-Munro", "value": "lm"},
@@ -223,6 +236,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="x",
                                     min=1,
+                                    max=max_sc_scale,
                                     style={"height": "15px"},
                                     label_style={"textAlign": "center"},
                                 ),
@@ -233,6 +247,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="y",
                                     min=1,
+                                    max=max_sc_scale,
                                     style={"height": "15px"},
                                     label_style={"textAlign": "center"},
                                 ),
@@ -243,6 +258,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="z",
                                     min=1,
+                                    max=max_sc_scale,
                                     style={"height": "15px"},
                                     label_style={"textAlign": "center"},
                                 ),
