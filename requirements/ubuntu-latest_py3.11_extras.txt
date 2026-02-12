@@ -135,7 +135,7 @@ dash[testing]==3.4.0
     #   dash-vtk
 dash-extensions==2.0.4
     # via crystal_toolkit (pyproject.toml)
-dash-mp-components==0.5.0rc0
+dash-mp-components==0.5.1rc5
     # via crystal_toolkit (pyproject.toml)
 dash-testing-stub==0.0.2
     # via dash
