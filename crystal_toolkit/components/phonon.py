@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from dash import dcc, html
 from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash_mp_components import CrystalToolkitScene, PhononAnimationScene
+from dash_mp_components import CrystalToolkitScene, PhononAnimationScene, Tooltip
 from emmet.core.phonon import PhononBS
 
 # crystal animation algo
@@ -64,12 +64,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
     ) -> None:
         # this is a compound component, can be fed by mpid or
         # by the BandStructure itself
+
         super().__init__(
             id=id,
             default_data={
                 "mpid": mpid,
                 "bandstructure_symm_line": bandstructure_symm_line,
-                "num_sites": density_of_states.structure.num_sites,
+                # "num_sites": bandstructure_symm_line.structure.num_sites,
                 "density_of_states": density_of_states,
             },
             **kwargs,
@@ -103,17 +104,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
         # Hide by default if not loaded by mpid, switching between k-paths
         # on-the-fly only supported for bandstructures retrieved from MP
         show_path_options = bool(self.initial_data["default"]["mpid"])
-
-        # set maximum scale for supercell to limit size
-        max_sc_scale = max(
-            1,
-            int(
-                np.floor(
-                    (MAX_SUPERCELL_SITES / self.initial_data["default"]["num_sites"])
-                    ** (1 / 3)
-                )
-            ),
-        )
 
         options = [
             {"label": "Latimer-Munro", "value": "lm"},
@@ -220,8 +210,21 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 html.Div(
                     [
                         hr,
-                        html.H6(
-                            "Supercell modification",
+                        html.Div(
+                            [
+                                html.H6(
+                                    "Supercell modification",
+                                    **{"data-tip": True},
+                                    className="tooltip-label",
+                                    style={
+                                        "textAlign": "center",
+                                        "marginBottom": "0",
+                                    },
+                                ),
+                                Tooltip(
+                                    "Scaling limited for performance optimization."
+                                ),
+                            ],
                             style={
                                 "textAlign": "center",
                                 "marginBottom": "0",
@@ -236,7 +239,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="x",
                                     min=1,
-                                    max=max_sc_scale,
+                                    max=10,
                                     style={"height": "15px"},
                                     label_style={"textAlign": "center"},
                                 ),
@@ -247,7 +250,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="y",
                                     min=1,
-                                    max=max_sc_scale,
+                                    max=10,
                                     style={"height": "15px"},
                                     label_style={"textAlign": "center"},
                                 ),
@@ -258,7 +261,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     is_int=True,
                                     label="z",
                                     min=1,
-                                    max=max_sc_scale,
+                                    max=10,
                                     style={"height": "15px"},
                                     label_style={"textAlign": "center"},
                                 ),
@@ -959,6 +962,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
         @app.callback(
             Output(self.id("crystal-animation"), "data"),
             Output(self.id("crystal-animation"), "children"),
+            Output(self.get_kwarg_id("scale-x"), "max"),
+            Output(self.get_kwarg_id("scale-y"), "max"),
+            Output(self.get_kwarg_id("scale-z"), "max"),
             Input(self.id("ph-bsdos-graph"), "clickData"),
             Input(self.id("ph_bs"), "data"),
             Input(self.id("supercell-controls-btn"), "n_clicks"),
@@ -1000,6 +1006,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
             struct = bs.structure
             total_repeat_cell_cnt = 1
+
+            #
+            num_sites = struct.num_sites
 
             # update structure if the controls got triggered
             if sueprcell_update:
@@ -1054,15 +1063,27 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 MAX_MAGNITUDE - MIN_MAGNITUDE
             ) * magnitude_fraction + MIN_MAGNITUDE
 
-            return PhononBandstructureAndDosComponent._get_time_function_json(
-                ph_bs=bs,
-                json_data=json_data,
-                band=band_num,
-                qpoint=qpoint,
-                total_repeat_cell_cnt=total_repeat_cell_cnt,
-                magnitude=magnitude,
-                velocity=velocity,
-            ), [None, legend_layout]
+            # set maximum scale for supercell to limit size
+            max_sc_scale = max(
+                1,
+                int(np.floor((MAX_SUPERCELL_SITES / num_sites) ** (1 / 3))),
+            )
+
+            return (
+                PhononBandstructureAndDosComponent._get_time_function_json(
+                    ph_bs=bs,
+                    json_data=json_data,
+                    band=band_num,
+                    qpoint=qpoint,
+                    total_repeat_cell_cnt=total_repeat_cell_cnt,
+                    magnitude=magnitude,
+                    velocity=velocity,
+                ),
+                [None, legend_layout],
+                [max_sc_scale],
+                [max_sc_scale],
+                [max_sc_scale],
+            )
 
 
 class PhononBandstructureAndDosPanelComponent(PanelComponent):
