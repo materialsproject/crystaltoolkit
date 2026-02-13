@@ -2,7 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from crystal_toolkit.apps.examples.fermi_surface import app
+import pytest
+
+try:
+    from crystal_toolkit.apps.examples.fermi_surface import app
+except ImportError:
+    pytest.skip(
+        "IFermi either not installed or newer version of setuptools used.",
+        allow_module_level=True,
+    )
 
 if TYPE_CHECKING:
     from crystal_toolkit.apps.examples.tests.typing import DashDuo
