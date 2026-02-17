@@ -44,7 +44,7 @@ cython==3.2.4
     # via boltztrap2
 dash==3.4.0
     # via crystal_toolkit (pyproject.toml)
-dash-mp-components==0.5.0rc0
+dash-mp-components==0.5.1rc5
     # via crystal_toolkit (pyproject.toml)
 decorator==5.2.1
     # via ipython
