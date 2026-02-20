@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 from multiprocessing import cpu_count
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import dash_mp_components as mpc
@@ -45,6 +46,9 @@ from crystal_toolkit.helpers.layouts import (
     get_table,
     get_tooltip,
 )
+
+if TYPE_CHECKING:
+    from pymatgen.io.lobster import Charge, Icohplist
 
 try:
     from dscribe.descriptors import SOAP
@@ -169,20 +173,20 @@ def _extract_structure_from_data(data):
 
 def _perform_lobsterenv_analysis(
     struct,
-    obj_icohp,
-    obj_charge,
-    perc_strength_icohp,
-    which_charge,
-    only_cation_anion,
-    adapt_extremum,
+    obj_icohp: Icohplist,
+    obj_charge: Charge,
+    perc_strength_icohp: float,
+    which_charge: str,
+    only_cation_anion: bool,
+    adapt_extremum: bool,
     noise_cutoff=1e-3,
 ):
     """Perform LobsterEnv local environment analysis.
 
     Args:
         struct: Structure object
-        obj_icohp: ICOHP data
-        obj_charge: Charge data
+        obj_icohp: pymatgen ICOHP/ICOBI/ICOOPLIST object
+        obj_charge: pymatgen Charge object
         perc_strength_icohp: ICOHP cutoff percentage
         which_charge: Charge type ("Mulliken" or "Loewdin")
         only_cation_anion: Whether to only show cation-anion bonds
@@ -200,6 +204,15 @@ def _perform_lobsterenv_analysis(
     inequivalent_indices = [indices[0] for indices in symm_struct.equivalent_indices]
     wyckoffs = symm_struct.wyckoff_symbols
 
+    edge_weight_name = "ICOHP"
+    edge_weight_units = ""
+    if obj_icohp.are_coops:
+        edge_weight_name = "ICOOP"
+    elif obj_icohp.are_cobis:
+        edge_weight_name = "ICOBI"
+    else:
+        edge_weight_units = "eV"
+
     try:
         lobster_neighbors = LobsterNeighbors(
             filename_icohp=None,
@@ -210,7 +223,7 @@ def _perform_lobsterenv_analysis(
             which_charge=which_charge,
             valences_from_charges=True,
             perc_strength_icohp=perc_strength_icohp,
-            additional_condition=only_cation_anion,
+            additional_condition=1 if only_cation_anion else 0,
             adapt_extremum_to_add_cond=adapt_extremum,
             are_coops=obj_icohp.are_coops,
             are_cobis=obj_icohp.are_cobis,
@@ -272,8 +285,8 @@ def _perform_lobsterenv_analysis(
             mg = MoleculeGraph.with_empty_graph(
                 molecule=mol,
                 name="bond_strength",
-                edge_weight_name="ICOHP",
-                edge_weight_units="eV",
+                edge_weight_name=edge_weight_name,
+                edge_weight_units=edge_weight_units,
             )
             for i in range(1, len(mol)):
                 mg.add_edge(0, i, weight=neighbour_weights[i - 1])
