@@ -196,7 +196,9 @@ def get_site_scene(
 
         for idx, connected_site in enumerate(connected_sites):
             if show_bond_order and connected_site.weight is not None:
-                name_cyl = f"{edge_weight_name.upper()}:{connected_site.weight:.2f}"
+                if edge_weight_name is None:
+                    edge_weight_name = "bond order"
+                name_cyl = f"{edge_weight_name}:{connected_site.weight:.2f}"
                 if edge_weight_unit:
                     name_cyl += f" ({edge_weight_unit})"
 
