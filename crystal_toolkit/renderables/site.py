@@ -199,7 +199,7 @@ def get_site_scene(
                 name_cyl = f"{edge_weight_name.upper()}:{connected_site.weight:.2f}"
                 if edge_weight_unit:
                     name_cyl += f" ({edge_weight_unit})"
-            
+
             if show_bond_length and connected_site.dist is not None:
                 name_cyl += f"\nbond length:{connected_site.dist:.3f}"
 
@@ -366,4 +366,3 @@ def get_site_scene(
 
 
 Site.get_scene = get_site_scene
-

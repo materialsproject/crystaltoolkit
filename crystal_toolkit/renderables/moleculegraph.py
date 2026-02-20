@@ -76,4 +76,3 @@ def get_molecule_graph_scene(
 
 
 MoleculeGraph.get_scene = get_molecule_graph_scene
-
