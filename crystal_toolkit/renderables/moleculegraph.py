@@ -62,6 +62,8 @@ def get_molecule_graph_scene(
             show_bond_length=show_bond_length,
             visualize_bond_orders=visualize_bond_orders,
             draw_polyhedra=draw_polyhedra,
+            edge_weight_name=vis_mol_graph.edge_weight_name,
+            edge_weight_unit=vis_mol_graph.edge_weight_unit,
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents
@@ -74,3 +76,4 @@ def get_molecule_graph_scene(
 
 
 MoleculeGraph.get_scene = get_molecule_graph_scene
+
