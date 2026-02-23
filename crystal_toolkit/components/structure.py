@@ -1109,4 +1109,3 @@ class StructureMoleculeComponent(MPComponent):
     def title_layout(self):
         """A layout including the composition of the structure/molecule as a title."""
         return self._sub_layouts["title"]
-
