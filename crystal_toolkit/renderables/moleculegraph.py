@@ -22,6 +22,7 @@ def get_molecule_graph_scene(
     show_bond_order=True,
     show_bond_length=False,
     visualize_bond_orders=False,
+    edge_weight_name_mapping: dict | None = {"weight": "bond order"},
 ) -> Scene:
     """Create a Molecule Graph scene.
 
@@ -33,6 +34,7 @@ def get_molecule_graph_scene(
         show_bond_length: Defaults to False, shows the calculated length between two connected atoms
         visualize_bpnd_orders: Defaults False, will show the 'integral' number of bonds calculated
             from the OpenBabelNN strategy in the Molecule Graph
+        edge_weight_name_mapping: A custom mapping from the edge weight name in the MoleculeGraph, which will be shown in the tooltip if show_bond_order is True. Defaults to {"weight": "bond order"}.
 
     Returns:
         A Molecule Graph scene.
@@ -64,6 +66,7 @@ def get_molecule_graph_scene(
             draw_polyhedra=draw_polyhedra,
             edge_weight_name=vis_mol_graph.edge_weight_name,
             edge_weight_unit=vis_mol_graph.edge_weight_unit,
+            edge_weight_name_mapping=edge_weight_name_mapping,
         )
         for scene in site_scene.contents:
             primitives[scene.name] += scene.contents

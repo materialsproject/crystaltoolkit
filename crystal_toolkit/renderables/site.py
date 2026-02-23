@@ -49,6 +49,7 @@ def get_site_scene(
     legend: Legend | None = None,
     retain_atom_idx: bool = False,
     total_repeat_cell_cnt: int = 1,
+    edge_weight_name_mapping: dict[str, str] | None = {"weight": "bond order"},
     edge_weight_name: str = "bond order",
     edge_weight_unit: str = "",
 ) -> Scene:
@@ -76,6 +77,7 @@ def get_site_scene(
         legend (Legend | None, optional): Defaults to None.
         retain_atom_idx (bool, optional): Defaults to False.
         total_repeat_cell_cnt (int, optional): Defaults to 1.
+        edge_weight_name_mapping (dict[str, str] | None, optional): Mapping of ConnectedSite attribute names to display names for edge weights. Defaults to {"weight": "bond order"}.
         edge_weight_name (str, optional): Defaults to "bond order".
         edge_weight_unit (str, optional): Defaults to "".
 
@@ -193,11 +195,11 @@ def get_site_scene(
         # necessary to include center site in case it's outside polyhedra
         all_positions = [self.coords]
         name_cyl = " "
+                
 
         for idx, connected_site in enumerate(connected_sites):
             if show_bond_order and connected_site.weight is not None:
-                if edge_weight_name is None:
-                    edge_weight_name = "bond order"
+                edge_weight_name = edge_weight_name_mapping.get(edge_weight_name, edge_weight_name)
                 name_cyl = f"{edge_weight_name}:{connected_site.weight:.2f}"
                 if edge_weight_unit:
                     name_cyl += f" ({edge_weight_unit})"
