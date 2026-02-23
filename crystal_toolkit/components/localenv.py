@@ -213,6 +213,8 @@ def _perform_lobsterenv_analysis(
     else:
         edge_weight_units = "eV"
 
+    edge_weight_name_mapping = {edge_weight_name: edge_weight_name}
+
     try:
         lobster_neighbors = LobsterNeighbors(
             filename_icohp=None,
@@ -300,6 +302,9 @@ def _perform_lobsterenv_analysis(
                         scene_settings={
                             "enableZoom": False,
                             "defaultZoom": 0.6,
+                        },
+                        site_get_scene_kwargs={
+                            "edge_weight_name_mapping": edge_weight_name_mapping
                         },
                     )._sub_layouts["struct"]
                 ],
