@@ -21,6 +21,7 @@ def test_diffraction(dash_duo: DashDuo) -> None:
     dash_duo.clear_storage()
 
     # make sure the FS component was mounted and is a node with class 'dash-graph'
+    dash_duo.wait_for_element("#CTfermi_surface_fermi-surface-graph", timeout=10)
     node = dash_duo.find_element("#CTfermi_surface_fermi-surface-graph")
     assert "dash-graph" in node.get_attribute("class")
 
