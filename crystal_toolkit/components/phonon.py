@@ -472,7 +472,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
         rdata["phases"] = phases[qpoint].tolist()
 
         # amplitude (A)
-        rdata["amplitude"] = magnitude
+        print("aaa")
+        print(np.linalg.norm(ph_bs.eigendisplacements[0][0]))
+        rdata["amplitude"] = 1 / np.linalg.norm(
+            ph_bs.eigendisplacements[0][0]
+        )  # magnitude
 
         # eigenVectors
         rdata["eigenVectors"] = (
@@ -485,6 +489,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
         rdata["velocity"] = velocity
 
         rdata["name"] = "StructureGraphPhonon"
+
+        phases_ = rdata["phases"]
+        eigenVectors_ = rdata["eigenVectors"]
+        omega_ = rdata["omega"]
+        print(band, qpoint)
+        print(f"phases: {phases_}")
+        print(f"eigenVectors: {eigenVectors_}")
+        print(f"omega: {omega_}")
 
         return rdata
 
@@ -560,6 +572,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         bs_traces = []
 
+        last_di = 0
         for d, dist_val in enumerate(bs_data["distances"]):
             x_dat = dist_val
 
@@ -575,7 +588,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     "line": {"color": "#1f77b4"},
                     "hoverinfo": "skip",
                     "name": "Total",
-                    "customdata": [[di, band_num] for di in range(len(x_dat))],
+                    "customdata": [
+                        [di + last_di, band_num] for di in range(len(x_dat))
+                    ],
                     "hovertemplate": "%{y:.2f} THz",
                     "showlegend": False,
                     "xaxis": "x",
@@ -585,6 +600,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             ]
 
             bs_traces += traces_for_segment
+            last_di += len(x_dat)
 
         for entry_num in range(len(bs_data["ticks"]["label"])):
             for key in pretty_labels:
@@ -1056,7 +1072,11 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
             if cd and cd.get("points"):
                 pt = cd["points"][0]
-                qpoint, band_num = pt.get("customdata", [0, 0])
+                qpoint, band_num = pt.get("customdata", [-1, -1])
+                if qpoint == -1 or band_num == -1:
+                    print("what")
+                    print(qpoint, band_num)
+                    raise ValueError("qpoint and band_num are invalid")
 
             # magnitude
             magnitude = (
