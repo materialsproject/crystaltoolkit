@@ -16,6 +16,10 @@ def test_diffraction(dash_duo: DashDuo) -> None:
     dash_duo.clear_storage()
 
     # make sure the XRD component was mounted and is a node with class 'dash-graph'
+    # node = dash_duo.find_element("#CTXRayDiffractionComponent_xrd-plot")
+    # assert "dash-graph" in node.get_attribute("class")
+
+    dash_duo.wait_for_element("#CTXRayDiffractionComponent_xrd-plot", timeout=10)
     node = dash_duo.find_element("#CTXRayDiffractionComponent_xrd-plot")
     assert "dash-graph" in node.get_attribute("class")
 
