@@ -199,7 +199,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             }
         )
 
-        crystal_animation_controls = html.Details(  # html.Details(
+        crystal_animation_controls = html.Details(
             [
                 html.Summary(
                     html.Strong("Control Panel"),
@@ -269,7 +269,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             style={
                                 "display": "flex",
                                 "justify-content": "center",
-                                # "gap": "16px",
                             },
                         ),
                         hr,
@@ -335,7 +334,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     style={
                                         "width": "10rem",
                                         "height": "30px",
-                                        # "line-height": '18px',
                                         "fontSize": "12px",
                                         "display": "inline-block",
                                     },
@@ -386,8 +384,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         html.Br(),
                         Columns(
                             [
-                                # sub_layouts["crystal-animation"],
-                                # sub_layouts["crystal-animation-controls"],
                                 html.Div(
                                     sub_layouts["crystal-animation"],
                                     style={
@@ -407,7 +403,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                             style={
                                 "display": "flex",
                                 "justify-content": "center",
-                                # "gap": "5%",
                             },
                         ),
                     ],
@@ -500,7 +495,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
         rdata["app"] = "phonon"
 
         # omega (ω)
-        rdata["omega"] = ph_bs.frequencies[band][qpoint]
+        rdata["omega"] = ph_bs.frequencies[band][
+            qpoint
+        ]  # * 2 * np.pi # should include 2pi, but omitted here to achieve a better visualization
 
         # phases (q⋅R): should be a number
         # we calculate the phase with all atoms and qpoints here
