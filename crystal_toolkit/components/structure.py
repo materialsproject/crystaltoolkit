@@ -19,6 +19,7 @@ from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import NearNeighbors
 from pymatgen.core import Composition, Molecule, Species, Structure
 from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
 from pymatgen.io.vasp.sets import MPRelaxSet
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -55,7 +56,10 @@ class StructureMoleculeComponent(MPComponent):
     """
 
     available_bonding_strategies = frozendict(
-        {subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()}
+        {
+            **{subcls.__name__: subcls for subcls in NearNeighbors.__subclasses__()},
+            "LobsterNeighbors": LobsterNeighbors,
+        }
     )
 
     default_scene_settings = frozendict(
@@ -112,6 +116,7 @@ class StructureMoleculeComponent(MPComponent):
         show_export_button: bool = DEFAULTS["show_export_button"],
         show_position_button: bool = DEFAULTS["show_position_button"],
         scene_kwargs: dict | None = None,
+        site_get_scene_kwargs: dict | None = None,
         **kwargs,
     ) -> None:
         """Create a StructureMoleculeComponent from a structure or molecule.
@@ -218,6 +223,7 @@ class StructureMoleculeComponent(MPComponent):
                 graph,
                 scene_additions=self.initial_data["scene_additions"],
                 **self.initial_data["display_options"],
+                site_get_scene_kwargs=site_get_scene_kwargs,
             )
             if hasattr(struct_or_mol, "lattice"):
                 self._lattice = struct_or_mol.lattice
@@ -968,6 +974,7 @@ class StructureMoleculeComponent(MPComponent):
             valid_bond_strategies = (
                 StructureMoleculeComponent.available_bonding_strategies
             )
+
             if bonding_strategy not in valid_bond_strategies:
                 raise ValueError(
                     "Bonding strategy not supported. Please supply a name of a NearNeighbor "
@@ -1032,6 +1039,7 @@ class StructureMoleculeComponent(MPComponent):
         scene_additions=None,
         show_compass=DEFAULTS["show_compass"],
         group_by_site_property=None,
+        site_get_scene_kwargs=None,
     ) -> tuple[Scene, dict[str, str]]:
         """Get the scene and legend for a given graph.
 
@@ -1078,9 +1086,10 @@ class StructureMoleculeComponent(MPComponent):
                 explicitly_calculate_polyhedra_hull=explicitly_calculate_polyhedra_hull,
                 group_by_site_property=group_by_site_property,
                 legend=legend,
+                **(site_get_scene_kwargs or {}),
             )
         elif isinstance(graph, MoleculeGraph):
-            scene = graph.get_scene(legend=legend)
+            scene = graph.get_scene(legend=legend, **(site_get_scene_kwargs or {}))
 
         scene.name = "StructureMoleculeComponentScene"
 
