@@ -499,15 +499,55 @@ class PhononBandstructureAndDosComponent(MPComponent):
             qpoint
         ]  # * 2 * np.pi # should include 2pi, but omitted here to achieve a better visualization
 
-        # phases (q⋅R): should be a number
-        # we calculate the phase with all atoms and qpoints here
+        # The spatial dependence has been simplified:
+        # The real calculation should be:
+        # 1.
+        # ph_bs.qpoints is "frac_coords of the given lattice by default (from Pymatgen)"
+        # transfer from frac_coords to cart_coords
+        # the size of ph_bs.structure.lattice.matrix: (3, 3) (lattice size)
+        # the size of ph_bs.qpoints: (149, 3) (wave vector for each qpoint)
         # the size of q: (149, 3)
+        # q = np.einsum(
+        #     "ij,kj->ik",
+        #     ph_bs.structure.lattice.reciprocal_lattice.matrix,
+        #     np.array(ph_bs.qpoints),
+        # ).T
+        #
+        # 2.
         # the size of ph_bs.structure.cart_coords: (2, 3) (the coordinate of two atoms in the unit cell)
-        # the size of phase: (149, 2)
-        phases = np.einsum(
-            "ij,kj->ik",
-            np.array(ph_bs.qpoints),
-            ph_bs.structure.cart_coords,
+        # R = ph_bs.structure.cart_coords,
+        #
+        # 3.
+        # phases = np.einsum(
+        #     "ij,kj->ik",
+        #     q,
+        #     R,
+        # )
+
+        # Simplified:
+        # q is fractional (reduced) coordinates:
+        #   q = q1*b1 + q2*b2 + q3*b3
+        #
+        # R is a lattice translation written in direct lattice coordinates:
+        #   R = n1*a1 + n2*a2 + n3*a3
+        #
+        # Reciprocal/direct basis satisfy:
+        #   ai · bj = 2π δij   (δij = 1 if i==j else 0)
+        #
+        # Therefore the phase is:
+        #   q · R = 2π (q1*n1 + q2*n2 + q3*n3)
+        #
+        # compute:
+        #   phases = 2π * dot(q_frac, R_frac)
+
+        phases = (
+            np.einsum(
+                "ij,kj->ik",
+                np.array(ph_bs.qpoints),
+                ph_bs.structure.frac_coords,
+            )
+            * 2
+            * np.pi
         )
         rdata["phases"] = phases[qpoint].tolist()
 
