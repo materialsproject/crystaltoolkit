@@ -240,7 +240,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     label="x",
                                     min=1,
                                     max=10,
-                                    style={"height": "15px"},
+                                    style={"height": "10px"},
                                     label_style={"textAlign": "center"},
                                 ),
                                 self.get_numerical_input(
@@ -251,7 +251,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     label="y",
                                     min=1,
                                     max=10,
-                                    style={"height": "15px"},
+                                    style={"height": "10px"},
                                     label_style={"textAlign": "center"},
                                 ),
                                 self.get_numerical_input(
@@ -262,14 +262,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                     label="z",
                                     min=1,
                                     max=10,
-                                    style={"height": "15px"},
+                                    style={"height": "10px"},
                                     label_style={"textAlign": "center"},
                                 ),
                             ],
                             style={
                                 "display": "flex",
                                 "justify-content": "center",
-                                "gap": "16px",
                             },
                         ),
                         hr,
@@ -281,12 +280,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                 domain=[0, 1],
                                 label="Vibration magnitude",
                                 styleInput={
-                                    "height": "32px",
+                                    "height": "28px",
                                     "box-sizing": "border-box",
                                     "borderRadius": "4px",
                                     "width": "5rem",
+                                    "margin": "0",
                                 },
-                                label_style={"textAlign": "center"},
+                                styleSlider={"margin": "0"},
+                                label_style={"textAlign": "center", "margin": "0"},
                             ),
                         ),
                         hr,
@@ -298,13 +299,50 @@ class PhononBandstructureAndDosComponent(MPComponent):
                                 domain=[0, 1],
                                 label="Velocity",
                                 styleInput={
-                                    "height": "32px",
+                                    "height": "28px",
                                     "box-sizing": "border-box",
                                     "borderRadius": "4px",
                                     "width": "5rem",
+                                    "margin": "0",
                                 },
-                                label_style={"textAlign": "center"},
+                                styleSlider={"margin": "0"},
+                                label_style={"textAlign": "center", "margin": "0"},
                             ),
+                        ),
+                        hr,
+                        html.Div(
+                            [
+                                html.H6(
+                                    "Color scheme",
+                                    style={
+                                        "textAlign": "center",
+                                    },
+                                ),
+                                dcc.Dropdown(
+                                    id=self.id("color-scheme"),
+                                    value="VESTA",
+                                    options=[
+                                        {
+                                            "label": "VESTA",
+                                            "value": "VESTA",
+                                        },
+                                        {
+                                            "label": "Jmol",
+                                            "value": "Jmol",
+                                        },
+                                    ],
+                                    style={
+                                        "width": "10rem",
+                                        "height": "30px",
+                                        "fontSize": "12px",
+                                        "display": "inline-block",
+                                    },
+                                ),
+                            ],
+                            style={
+                                "textAlign": "center",
+                                "marginBottom": "0",
+                            },
                         ),
                         hr,
                         html.Div(
@@ -320,7 +358,8 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         "width": "100%",
                     },
                 ),
-            ]
+            ],
+            open=True,
         )
 
         return {
@@ -345,13 +384,25 @@ class PhononBandstructureAndDosComponent(MPComponent):
                         html.Br(),
                         Columns(
                             [
-                                sub_layouts["crystal-animation"],
-                                sub_layouts["crystal-animation-controls"],
+                                html.Div(
+                                    sub_layouts["crystal-animation"],
+                                    style={
+                                        "display": "flex",
+                                        "justify-content": "center",
+                                    },
+                                ),
+                                html.Div(
+                                    sub_layouts["crystal-animation-controls"],
+                                    style={
+                                        "display": "flex",
+                                        "justify-content": "flex-end",
+                                        "paddingRight": "5%",
+                                    },
+                                ),
                             ],
                             style={
                                 "display": "flex",
                                 "justify-content": "center",
-                                "gap": "10px",
                             },
                         ),
                     ],
@@ -444,35 +495,66 @@ class PhononBandstructureAndDosComponent(MPComponent):
         rdata["app"] = "phonon"
 
         # omega (ω)
-        rdata["omega"] = ph_bs.frequencies[band][qpoint]
+        rdata["omega"] = ph_bs.frequencies[band][
+            qpoint
+        ]  # * 2 * np.pi # should include 2pi, but omitted here to achieve a better visualization
 
-        # Take mp-149 as an example:
+        # The spatial dependence has been simplified:
+        # The real calculation should be:
+        # 1.
         # ph_bs.qpoints is "frac_coords of the given lattice by default (from Pymatgen)"
         # transfer from frac_coords to cart_coords
         # the size of ph_bs.structure.lattice.matrix: (3, 3) (lattice size)
         # the size of ph_bs.qpoints: (149, 3) (wave vector for each qpoint)
         # the size of q: (149, 3)
-        # q:
-        q = np.einsum(
-            "ij,kj->ik",
-            ph_bs.structure.lattice.reciprocal_lattice.matrix,
-            np.array(ph_bs.qpoints),
-        ).T
-
-        # phases (q⋅R): should be a number
-        # we calculate the phase with all atoms and qpoints here
-        # the size of q: (149, 3)
+        # q = np.einsum(
+        #     "ij,kj->ik",
+        #     ph_bs.structure.lattice.reciprocal_lattice.matrix,
+        #     np.array(ph_bs.qpoints),
+        # ).T
+        #
+        # 2.
         # the size of ph_bs.structure.cart_coords: (2, 3) (the coordinate of two atoms in the unit cell)
-        # the size of phase: (149, 2)
-        phases = np.einsum(
-            "ij,kj->ik",
-            q,
-            ph_bs.structure.cart_coords,
+        # R = ph_bs.structure.cart_coords,
+        #
+        # 3.
+        # phases = np.einsum(
+        #     "ij,kj->ik",
+        #     q,
+        #     R,
+        # )
+
+        # Simplified:
+        # q is fractional (reduced) coordinates:
+        #   q = q1*b1 + q2*b2 + q3*b3
+        #
+        # R is a lattice translation written in direct lattice coordinates:
+        #   R = n1*a1 + n2*a2 + n3*a3
+        #
+        # Reciprocal/direct basis satisfy:
+        #   ai · bj = 2π δij   (δij = 1 if i==j else 0)
+        #
+        # Therefore the phase is:
+        #   q · R = 2π (q1*n1 + q2*n2 + q3*n3)
+        #
+        # compute:
+        #   phases = 2π * dot(q_frac, R_frac)
+
+        phases = (
+            np.einsum(
+                "ij,kj->ik",
+                np.array(ph_bs.qpoints),
+                ph_bs.structure.frac_coords,
+            )
+            * 2
+            * np.pi
         )
         rdata["phases"] = phases[qpoint].tolist()
 
         # amplitude (A)
-        rdata["amplitude"] = magnitude
+        rdata["amplitude"] = 1 / np.linalg.norm(
+            ph_bs.eigendisplacements[0][0]
+        )  # magnitude
 
         # eigenVectors
         rdata["eigenVectors"] = (
@@ -560,6 +642,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
         bs_traces = []
 
+        last_di = 0
         for d, dist_val in enumerate(bs_data["distances"]):
             x_dat = dist_val
 
@@ -575,7 +658,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     "line": {"color": "#1f77b4"},
                     "hoverinfo": "skip",
                     "name": "Total",
-                    "customdata": [[di, band_num] for di in range(len(x_dat))],
+                    "customdata": [
+                        [di + last_di, band_num] for di in range(len(x_dat))
+                    ],
                     "hovertemplate": "%{y:.2f} THz",
                     "showlegend": False,
                     "xaxis": "x",
@@ -585,6 +670,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             ]
 
             bs_traces += traces_for_segment
+            last_di += len(x_dat)
 
         for entry_num in range(len(bs_data["ticks"]["label"])):
             for key in pretty_labels:
@@ -973,6 +1059,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             State(self.get_kwarg_id("scale-y"), "value"),
             State(self.get_kwarg_id("scale-z"), "value"),
             State(self.get_kwarg_id("velocity"), "value"),
+            State(self.id("color-scheme"), "value"),
             # prevent_initial_call=True
         )
         def update_crystal_animation(
@@ -984,6 +1071,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             scale_y,
             scale_z,
             velocity,
+            color_scheme,
         ):
             # Avoids using `get_all_kwargs_id` for all `Input`; instead, uses `State` to prevent flickering when users modify `scale_x`, `scale_y`, or `scale_z` fields,
             # ensuring updates occur only after the `supercell-controls-btn`` is clicked.
@@ -999,6 +1087,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             scale_y = kwargs.get("scale-y")
             scale_z = kwargs.get("scale-z")
             velocity = kwargs.get("velocity")
+            # color_scheme = kwargs.get("color-scheme")
 
             if isinstance(bs, dict):
                 bs = PhononBS.from_pmg(bs)
@@ -1025,7 +1114,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             # legend
             legend = Legend(
                 struc_graph.structure,
-                color_scheme=DEFAULTS["color_scheme"],
+                color_scheme=color_scheme,
                 # radius_scheme=radius_strategy,
                 cmap_range=None,
             )
@@ -1056,7 +1145,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
             if cd and cd.get("points"):
                 pt = cd["points"][0]
-                qpoint, band_num = pt.get("customdata", [0, 0])
+                qpoint, band_num = pt.get("customdata", [-1, -1])
+                if qpoint == -1 or band_num == -1:
+                    raise ValueError("qpoint and band_num are invalid")
 
             # magnitude
             magnitude = (

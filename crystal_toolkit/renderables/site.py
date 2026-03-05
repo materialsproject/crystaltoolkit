@@ -49,6 +49,9 @@ def get_site_scene(
     legend: Legend | None = None,
     retain_atom_idx: bool = False,
     total_repeat_cell_cnt: int = 1,
+    edge_weight_name_mapping: dict[str, str] | None = None,
+    edge_weight_name: str = "bond order",
+    edge_weight_unit: str = "",
 ) -> Scene:
     """Get a Scene object for a Site.
 
@@ -74,6 +77,9 @@ def get_site_scene(
         legend (Legend | None, optional): Defaults to None.
         retain_atom_idx (bool, optional): Defaults to False.
         total_repeat_cell_cnt (int, optional): Defaults to 1.
+        edge_weight_name_mapping (dict[str, str] | None, optional): Mapping of ConnectedSite attribute names to display names for edge weights. If None, defaults to {"weight": "bond order"}.
+        edge_weight_name (str, optional): Defaults to "bond order".
+        edge_weight_unit (str, optional): Defaults to "".
 
     Returns:
         Scene: The scene object containing atoms, bonds, polyhedra, magmoms.
@@ -190,9 +196,17 @@ def get_site_scene(
         all_positions = [self.coords]
         name_cyl = " "
 
+        if edge_weight_name_mapping is None:
+            edge_weight_name_mapping = {"weight": "bond order"}
+
         for idx, connected_site in enumerate(connected_sites):
             if show_bond_order and connected_site.weight is not None:
-                name_cyl = f"bond order:{connected_site.weight:.2f}"
+                edge_weight_name = edge_weight_name_mapping.get(
+                    edge_weight_name, edge_weight_name
+                )
+                name_cyl = f"{edge_weight_name}:{connected_site.weight:.2f}"
+                if edge_weight_unit:
+                    name_cyl += f" ({edge_weight_unit})"
 
             if show_bond_length and connected_site.dist is not None:
                 name_cyl += f"\nbond length:{connected_site.dist:.3f}"
