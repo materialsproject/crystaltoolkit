@@ -1100,14 +1100,13 @@ class PhononBandstructureAndDosComponent(MPComponent):
             num_sites = struct.num_sites
 
             # update structure if the controls got triggered
-            if sueprcell_update:
-                total_repeat_cell_cnt = scale_x * scale_y * scale_z
+            total_repeat_cell_cnt = scale_x * scale_y * scale_z
 
-                # create supercell
-                trans = SupercellTransformation(
-                    ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
-                )
-                struct = trans.apply_transformation(struct)
+            # create supercell
+            trans = SupercellTransformation(
+                ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
+            )
+            struct = trans.apply_transformation(struct)
 
             struc_graph = StructureGraph.from_local_env_strategy(struct, CrystalNN())
 
