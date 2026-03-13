@@ -14,9 +14,9 @@ blake3==1.0.8
     # via emmet-core
 blinker==1.9.0
     # via flask
-boto3==1.42.67
+boto3==1.42.68
     # via mp-api
-botocore==1.42.67
+botocore==1.42.68
     # via
     #   boto3
     #   s3transfer
@@ -32,7 +32,7 @@ contourpy==1.3.3
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-dash==4.0.0
+dash==3.4.0
     # via crystal_toolkit (pyproject.toml)
 dash-mp-components==0.5.1rc5
     # via crystal_toolkit (pyproject.toml)
