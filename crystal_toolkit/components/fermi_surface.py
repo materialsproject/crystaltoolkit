@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from importlib import import_module
 
 import matplotlib.pyplot as plt
 from dash import Input, Output
@@ -13,6 +12,11 @@ if typing.TYPE_CHECKING:
     from dash.development.base_component import Component
     from ifermi.surface import FermiSurface
     from plotly.graph_objects import Figure
+
+try:
+    import ifermi.plot as fermi_module
+except ImportError:
+    fermi_module = None
 
 
 class FermiSurfaceComponent(MPComponent):
@@ -31,6 +35,11 @@ class FermiSurfaceComponent(MPComponent):
         id: str | None = None,
         **kwargs,
     ) -> None:
+        if fermi_module is None:
+            raise ImportError(
+                "`ifermi` must be installed to use the Fermi "
+                "surface `crystal_toolkit` component."
+            )
         super().__init__(id=id, default_data=fermi_surface, **kwargs)
 
     @staticmethod
@@ -44,7 +53,6 @@ class FermiSurfaceComponent(MPComponent):
         Returns:
             A plotly Figure object.
         """
-        fermi_module = import_module("ifermi.plot")
         plotter = fermi_module.FermiSurfacePlotter(fermi_surface)
         fig = plotter.get_plot(plot_type="plotly", **kwargs)
 
