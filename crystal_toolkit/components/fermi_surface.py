@@ -15,11 +15,8 @@ if typing.TYPE_CHECKING:
 
 try:
     import ifermi.plot as fermi_module
-except ImportError as exc:
-    raise ImportError(
-        "`ifermi` must be installed to use the Fermi "
-        "surface `crystal_toolkit` component."
-    ) from exc
+except ImportError:
+    fermi_module = None
 
 
 class FermiSurfaceComponent(MPComponent):
@@ -38,6 +35,11 @@ class FermiSurfaceComponent(MPComponent):
         id: str | None = None,
         **kwargs,
     ) -> None:
+        if fermi_module is None:
+            raise ImportError(
+                "`ifermi` must be installed to use the Fermi "
+                "surface `crystal_toolkit` component."
+            )
         super().__init__(id=id, default_data=fermi_surface, **kwargs)
 
     @staticmethod
