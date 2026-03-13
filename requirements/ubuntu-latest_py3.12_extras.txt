@@ -72,9 +72,9 @@ boltztrap2==25.3.1
     # via
     #   crystal_toolkit (pyproject.toml)
     #   ifermi
-boto3==1.42.67
+boto3==1.42.68
     # via mp-api
-botocore==1.42.67
+botocore==1.42.68
     # via
     #   boto3
     #   s3transfer
@@ -128,7 +128,7 @@ cycler==0.12.1
     # via matplotlib
 cython==3.2.4
     # via boltztrap2
-dash[testing]==4.0.0
+dash[testing]==3.4.0
     # via
     #   crystal_toolkit (pyproject.toml)
     #   dash-extensions
