@@ -23,14 +23,17 @@ dependencies = [
   "shapely",
   "webcolors",
   "ipython",
-  "boltztrap2<25.11.1", # compilation issue when installing via pip
 ]
 
 [project.optional-dependencies]
 server = ["dash-extensions", "gunicorn[gevent]", "habanero", "hiphive", "redis"]
 robocrys = ["robocrys"]
 temdiff = ["py4DSTEM>=0.13.11"]
-fermi = ["ifermi", "pyfftw"]
+fermi = [
+  "ifermi",
+  "pyfftw",
+  "boltztrap2<25.11.1", # compilation issue when installing via pip
+]
 phonon = ["phonopy"]
 vtk = ["dash-vtk"]
 localenv = ["dscribe"]
