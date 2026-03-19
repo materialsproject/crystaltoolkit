@@ -100,6 +100,7 @@ class CrystalToolkitPlugin:
         layout.children += stores_to_add
 
         for component in mpcomp_module.MPComponent._callbacks_to_generate:
+            print(component.__module__)
             component.generate_callbacks(self.app, self.cache)
 
         return layout
