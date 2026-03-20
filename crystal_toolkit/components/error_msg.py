@@ -1,5 +1,6 @@
 """
 Author: Sheng Pang
+Modifier: Min-Hsueh Chiu
 
 Message Snake - A reusable Dash notification snackbar component.
 
@@ -7,23 +8,25 @@ Provides fixed-position toast notifications callable from any page.
 Supports fade-in/fade-out animations, auto-dismiss, and manual close.
 
 Usage:
-    from mp_web.layouts.message_snake.message_snake import message_snake, register_message_snake_callbacks
+    from crystal_toolkit.components.error_msg import ErrorMessageAIO
 
     # 1. Include in layout
-    notification = message_snake(
-        message="Operation completed successfully!",
-        msg_type="success",
-        position="bottom-right",
-        snake_id="my-toast",
-    )
+    ErrorMessageAIO(
+        "Invalid composition input!",
+        aio_id=self.id("invalid-comp-alarm"),
+        msg_type="error",
+    ).layout(),
 
-    # 2. Register callbacks (in generate_callbacks or app setup)
-    register_message_snake_callbacks(app, "my-toast")
+    # 2. Add to callback:
+    Output(ErrorMessage.ids.visible(self.id("invalid-comp-alarm")), "data"),
+    # Return True to display the message, and False to hide it.
+
+    Note: Do not need to register callbacks as using All-in-one pattern
 """
 
 from __future__ import annotations
 
-from dash import Input, Output, dcc, html
+from dash import MATCH, Input, Output, callback, ctx, dcc, html
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 
@@ -91,11 +94,47 @@ _TYPE_ICONS = {
 }
 
 
-class ErrorMessage(MPComponent):
+class ErrorMessageAIO(MPComponent):
+    class ids:
+        wrapper = lambda aio_id: {
+            "component": "ErrorMessageAIO",
+            "subcomponents": "wrapper",
+            "aio_id": aio_id,
+        }
+        close_button = lambda aio_id: {
+            "component": "ErrorMessageAIO",
+            "subcomponents": "close_button",
+            "aio_id": aio_id,
+        }
+        message = lambda aio_id: {
+            "component": "ErrorMessageAIO",
+            "subcomponents": "message",
+            "aio_id": aio_id,
+        }
+        div = lambda aio_id: {
+            "component": "ErrorMessageAIO",
+            "subcomponents": "div",
+            "aio_id": aio_id,
+        }
+        timer = lambda aio_id: {
+            "component": "ErrorMessageAIO",
+            "subcomponents": "timer",
+            "aio_id": aio_id,
+        }
+        visible = lambda aio_id: {
+            "component": "ErrorMessageAIO",
+            "subcomponents": "visible",
+            "aio_id": aio_id,
+        }
+
+    ids = ids
+
+    # _callbacks_registered = False # no instance registry
+
     def __init__(
         self,
         message,
-        id,
+        aio_id,
         msg_type,
         position="bottom-right",
         style=None,
@@ -125,13 +164,9 @@ class ErrorMessage(MPComponent):
             z_index (int): CSS z-index for layering.
             auto_dismiss_ms (int): Auto-dismiss delay in milliseconds. Defaults to 50000 (50s).
 
-        Returns:
-            html.Div: A wrapper containing the notification, CSS animation, and auto-dismiss timer.
         """
-        # super().__init__(id=id)
-        self.snake_id = id
-        print("aaaaa")
-        print(self.snake_id)
+
+        self.snake_id = aio_id
         self.show_icon = show_icon
         self.msg_type = msg_type
         self.message = message
@@ -187,7 +222,9 @@ class ErrorMessage(MPComponent):
 
         # Message text
         children.append(
-            html.Span(self.message, id=f"{self.snake_id}-message", style={"flex": "1"})
+            html.Span(
+                self.message, id=self.ids.message(self.snake_id), style={"flex": "1"}
+            )
         )
 
         # Close button
@@ -206,7 +243,7 @@ class ErrorMessage(MPComponent):
                     "opacity": "0.8",
                     "flexShrink": "0",
                 },
-                id=f"{self.snake_id}-close",
+                id=self.ids.close_button(self.snake_id),
                 n_clicks=0,
             )
         )
@@ -214,13 +251,13 @@ class ErrorMessage(MPComponent):
         # Notification div
         notification_div = html.Div(
             children=children,
-            id=f"{self.snake_id}-div",
+            id=self.ids.div(self.snake_id),
             style=self.notification_style,
         )
 
         # Auto-dismiss interval timer (fires once after auto_dismiss_ms)
         interval = dcc.Interval(
-            id=f"{self.snake_id}-timer",
+            id=self.ids.timer(self.snake_id),
             interval=self.auto_dismiss_ms,
             n_intervals=0,
             max_intervals=1,
@@ -232,55 +269,53 @@ class ErrorMessage(MPComponent):
         sub_layouts = self._sub_layouts
         return html.Div(
             [
+                dcc.Store(id=self.ids.visible(self.snake_id), data=False),
                 sub_layouts["notification_div"],
                 sub_layouts["interval"],
             ],
-            id=self.snake_id,
+            id=self.ids.wrapper(self.snake_id),
             style={"display": "none"},
         )
 
-    def generate_callbacks(self, app, cache) -> None:
-        """Register auto-dismiss and close button callbacks for a message snake.
+    @callback(
+        Output(ids.wrapper(MATCH), "style"),
+        Input(ids.visible(MATCH), "data"),
+        Input(ids.close_button(MATCH), "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def sync_message(command_visible, close_clicks):
+        triggered = ctx.triggered_id
 
-        Must be called once per snake_id during app setup (e.g., in generate_callbacks).
-
-        Args:
-            app: The Dash app instance.
-            snake_id (str): The snake_id used when creating the message_snake.
-        """
-
-        @app.callback(
-            Output(self.snake_id, "style"),
-            Input(f"{self.snake_id}-close", "n_clicks"),
-            prevent_initial_call=True,
-        )
-        def close_message(n_clicks):
-            print("what?")
+        if (
+            isinstance(triggered, dict)
+            and triggered.get("subcomponents") == "close_button"
+        ):
             return {"display": "none"}
 
-        """
-        @app.callback(
-            Output(self.id(self.snake_id), "style"),
-            Input(self.id(f"{self.snake_id}-timer"), "n_intervals"),
-            Input(self.id(f"{self.snake_id}-close"), "n_clicks"),
-            State(self.id(self.snake_id), "style"),
-            prevent_initial_call=True,
-        )
-        def _dismiss_message_snake(n_intervals, n_clicks, current_style):
-            # Fade out and hide the message snake on timer or close click.
-            if not current_style:
-                raise PreventUpdate
+        return {"display": "block"} if command_visible else {"display": "none"}
 
-            ctx = callback_context
-            if not ctx.triggered:
-                raise PreventUpdate
+    """
+    @callback(
+        Output(ids.wrapper(MATCH), "style"),
+        Input(ids.timer(MATCH), "n_intervals"),
+        Input(ids.close_button(MATCH), "n_clicks"),
+        State(ids.wrapper(MATCH), "style"),
+        prevent_initial_call=True,
+    )
+    def _dismiss_message_snake(n_intervals, n_clicks, current_style):
+        # Fade out and hide the message snake on timer or close click.
+        if not current_style:
+            raise PreventUpdate
 
-            # Apply fade-out: transition opacity to 0, then hide
-            new_style = {**current_style}
-            new_style["transition"] = "opacity 0.4s ease"
-            new_style["opacity"] = "0"
-            new_style["pointerEvents"] = "none"
-            # Override the fade-in animation so it does not reset
-            new_style["animation"] = "none"
-            return new_style
-        """
+        if not ctx.triggered:
+            raise PreventUpdate
+
+        # Apply fade-out: transition opacity to 0, then hide
+        new_style = {**current_style}
+        new_style["transition"] = "opacity 0.4s ease"
+        new_style["opacity"] = "0"
+        new_style["pointerEvents"] = "none"
+        # Override the fade-in animation so it does not reset
+        new_style["animation"] = "none"
+        return new_style
+    """
