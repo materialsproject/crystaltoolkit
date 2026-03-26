@@ -489,7 +489,7 @@ class StructureMoleculeComponent(MPComponent):
             Output(self.id("download-structure"), "data"),
             Input(self.id("scene"), "fileTimestamp"),
             State(self.id("scene"), "fileType"),
-            State(self.id(), "data"),
+            State(self.id("graph"), "data"),
         )
         def download_structure(file_timestamp, download_option, data):
             if not file_timestamp:
