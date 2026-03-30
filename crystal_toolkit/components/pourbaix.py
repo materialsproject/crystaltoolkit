@@ -463,12 +463,12 @@ class PourbaixDiagramComponent(MPComponent):
                             "Invalid composition input!",
                             aio_id=self.id("invalid-comp-alarm"),
                             msg_type="error",
-                        ).layout(),
+                        ),
                         ErrorMessageAIO(
                             "Invalid concentration input!",
                             aio_id=self.id("invalid-conc-alarm"),
                             msg_type="error",
-                        ).layout(),
+                        ),
                         html.Div(
                             [
                                 html.Div(

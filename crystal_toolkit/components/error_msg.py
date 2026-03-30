@@ -94,7 +94,7 @@ _TYPE_ICONS = {
 }
 
 
-class ErrorMessageAIO(MPComponent):
+class ErrorMessageAIO(html.Div, MPComponent):
     class ids:
         wrapper = lambda aio_id: {
             "component": "ErrorMessageAIO",
@@ -205,6 +205,19 @@ class ErrorMessageAIO(MPComponent):
         if style:
             self.notification_style.update(style)
 
+        # Define the component's layout, this is originally from `layout()` for MPComponent
+        # But since this is AIO, which subclassing html.Div
+        sub_layouts = self._sub_layouts
+        super().__init__(
+            [  # Equivalent to `html.Div([...])`
+                dcc.Store(id=self.ids.visible(self.snake_id), data=False),
+                sub_layouts["notification_div"],
+                sub_layouts["interval"],
+            ],
+            id=self.ids.wrapper(self.snake_id),
+            style={"display": "none"},
+        )
+
     @property
     def _sub_layouts(self):
         # Build inner content
@@ -265,6 +278,7 @@ class ErrorMessageAIO(MPComponent):
 
         return {"notification_div": notification_div, "interval": interval}
 
+    """
     def layout(self) -> html.Div:
         sub_layouts = self._sub_layouts
         return html.Div(
@@ -276,6 +290,7 @@ class ErrorMessageAIO(MPComponent):
             id=self.ids.wrapper(self.snake_id),
             style={"display": "none"},
         )
+    """
 
     @callback(
         Output(ids.wrapper(MATCH), "style"),
