@@ -15,7 +15,7 @@ Usage:
         "Invalid composition input!",
         aio_id=self.id("invalid-comp-alarm"),
         msg_type="error",
-    ).layout(),
+    ),
 
     # 2. Add to callback:
     Output(ErrorMessage.ids.visible(self.id("invalid-comp-alarm")), "data"),
