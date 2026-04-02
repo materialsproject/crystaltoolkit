@@ -101,6 +101,9 @@ def get_site_scene(
     radii = [legend.get_radius(sp, site=self) for sp in self.species]
     max_radius = float(min(radii))
 
+    rscale_factor = 0.996
+    rscale = 1.0
+
     for sp, occu in self.species.items():
         if isinstance(sp, DummySpecie):
             cube = Cubes(
@@ -140,7 +143,7 @@ def get_site_scene(
             sphere = Spheres(
                 positions=[position],
                 color=color,
-                radius=radius,
+                radius=radius * rscale,
                 phiStart=phiStart,
                 phiEnd=phiEnd,
                 clickable=True,
@@ -156,6 +159,7 @@ def get_site_scene(
                 # _meta=[site_idx // total_repeat_cell_cnt] if retain_atom_idx else None,
             )
             atoms.append(sphere)
+        rscale *= rscale_factor
 
         # Add magmoms
         if draw_magmoms and (magmom := self.properties.get("magmom")):
@@ -180,7 +184,7 @@ def get_site_scene(
         sphere = Spheres(
             positions=[position],
             color="#ffffff",
-            radius=max_radius,
+            radius=max_radius * rscale_factor,
             phiStart=phiEnd,
             phiEnd=np.pi * 2,
         )
