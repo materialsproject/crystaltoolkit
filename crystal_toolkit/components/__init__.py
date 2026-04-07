@@ -6,6 +6,7 @@ from crystal_toolkit.components.bandstructure import (
 )
 from crystal_toolkit.components.diffraction import XRayDiffractionComponent
 from crystal_toolkit.components.diffraction_tem import TEMDiffractionComponent
+from crystal_toolkit.components.error_msg import ErrorMessageAIO
 from crystal_toolkit.components.fermi_surface import FermiSurfaceComponent
 from crystal_toolkit.components.localenv import LocalEnvironmentPanel
 from crystal_toolkit.components.phase_diagram import (

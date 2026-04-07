@@ -17,6 +17,7 @@ from pymatgen.util.string import unicodeify
 from shapely.geometry import Polygon
 
 import crystal_toolkit.helpers.layouts as ctl
+from crystal_toolkit.components.error_msg import ErrorMessageAIO
 from crystal_toolkit.core.mpcomponent import MPComponent
 
 try:
@@ -458,12 +459,18 @@ class PourbaixDiagramComponent(MPComponent):
                 ),
                 html.Div(
                     [
+                        ErrorMessageAIO(
+                            "Invalid composition input!",
+                            aio_id=self.id("invalid-comp-alarm"),
+                            msg_type="error",
+                        ),
+                        ErrorMessageAIO(
+                            "Invalid concentration input!",
+                            aio_id=self.id("invalid-conc-alarm"),
+                            msg_type="error",
+                        ),
                         html.Div(
                             [
-                                self.get_alarm_window(
-                                    self.id("invalid-comp-alarm"),
-                                    message="Illegal composition entry!",
-                                ),
                                 html.Div(
                                     [
                                         html.H5(
@@ -520,12 +527,7 @@ class PourbaixDiagramComponent(MPComponent):
                             style={"display": "none"},
                         ),
                         html.Div(
-                            [
-                                self.get_alarm_window(
-                                    id=self.id("invalid-conc-alarm"),
-                                    message=f"Illegal concentration entry! Must be between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} M",
-                                ),
-                            ],
+                            [],
                             id=self.id("conc-panel"),
                             style={"display": "none"},
                         ),
@@ -794,8 +796,8 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph-panel"), "children"),
-            Output(self.id("invalid-comp-alarm"), "displayed"),
-            Output(self.id("invalid-conc-alarm"), "displayed"),
+            Output(ErrorMessageAIO.ids.visible(self.id("invalid-comp-alarm")), "data"),
+            Output(ErrorMessageAIO.ids.visible(self.id("invalid-conc-alarm")), "data"),
             Output(self.id("display-composition"), "children"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
@@ -832,7 +834,12 @@ class PourbaixDiagramComponent(MPComponent):
 
             if len(raw_comp_list) != len(elements):
                 logger.error("Invalid composition input!")
-                return (self.get_figure_div(), True, False, "")
+                return (
+                    self.get_figure_div(),
+                    True,
+                    False,
+                    "",
+                )
             try:
                 # avoid direct type casting because string inputs may raise errors
                 comp_list = [float(t) for t in raw_comp_list]
@@ -844,7 +851,12 @@ class PourbaixDiagramComponent(MPComponent):
 
             except Exception:
                 logger.error("Invalid composition input!")
-                return (self.get_figure_div(), True, False, "")
+                return (
+                    self.get_figure_div(),
+                    True,
+                    False,
+                    "",
+                )
 
             kwargs = self.reconstruct_kwargs_from_state()
 
@@ -873,8 +885,14 @@ class PourbaixDiagramComponent(MPComponent):
             for key, val in kwargs.items():
                 if "conc" in key:  # keys are encoded like "conc-Ag"
                     if val is None:
+                        logger.error("Invalid concentration input!")
                         # if the input is out of pre-defined range, Input will get None
-                        return (self.get_figure_div(), False, True, "")
+                        return (
+                            self.get_figure_div(),
+                            False,
+                            True,
+                            "",
+                        )
 
                     el = key.split("-")[1]
                     conc_dict[el] = val
