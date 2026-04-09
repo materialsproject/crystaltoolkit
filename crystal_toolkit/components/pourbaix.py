@@ -17,7 +17,7 @@ from pymatgen.util.string import unicodeify
 from shapely.geometry import Polygon
 
 import crystal_toolkit.helpers.layouts as ctl
-from crystal_toolkit.components.error_msg import ErrorMessageAIO
+from crystal_toolkit.components.messageAIO import MessageAIO
 from crystal_toolkit.core.mpcomponent import MPComponent
 
 try:
@@ -459,12 +459,12 @@ class PourbaixDiagramComponent(MPComponent):
                 ),
                 html.Div(
                     [
-                        ErrorMessageAIO(
+                        MessageAIO(
                             "Invalid composition input!",
                             aio_id=self.id("invalid-comp-alarm"),
                             msg_type="error",
                         ),
-                        ErrorMessageAIO(
+                        MessageAIO(
                             "Invalid concentration input!",
                             aio_id=self.id("invalid-conc-alarm"),
                             msg_type="error",
@@ -796,8 +796,8 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph-panel"), "children"),
-            Output(ErrorMessageAIO.ids.visible(self.id("invalid-comp-alarm")), "data"),
-            Output(ErrorMessageAIO.ids.visible(self.id("invalid-conc-alarm")), "data"),
+            Output(MessageAIO.ids.visible(self.id("invalid-comp-alarm")), "data"),
+            Output(MessageAIO.ids.visible(self.id("invalid-conc-alarm")), "data"),
             Output(self.id("display-composition"), "children"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
