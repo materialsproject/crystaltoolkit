@@ -8,17 +8,17 @@ Provides fixed-position toast notifications callable from any page.
 Supports fade-in/fade-out animations, auto-dismiss, and manual close.
 
 Usage:
-    from crystal_toolkit.components.error_msg import ErrorMessageAIO
+    from crystal_toolkit.components.error_msg import MessageAIO
 
     # 1. Include in layout
-    ErrorMessageAIO(
+    MessageAIO(
         "Invalid composition input!",
         aio_id=self.id("invalid-comp-alarm"),
         msg_type="error",
     ),
 
     # 2. Add to callback:
-    Output(ErrorMessage.ids.visible(self.id("invalid-comp-alarm")), "data"),
+    Output(MessageAIO.ids.visible(self.id("invalid-comp-alarm")), "data"),
     # Return True to display the message, and False to hide it.
 
     Note: Do not need to register callbacks as using All-in-one pattern
@@ -94,35 +94,35 @@ _TYPE_ICONS = {
 }
 
 
-class ErrorMessageAIO(html.Div, MPComponent):
+class MessageAIO(html.Div, MPComponent):
     class ids:
         wrapper = lambda aio_id: {
-            "component": "ErrorMessageAIO",
+            "component": "MessageAIO",
             "subcomponents": "wrapper",
             "aio_id": aio_id,
         }
         close_button = lambda aio_id: {
-            "component": "ErrorMessageAIO",
+            "component": "MessageAIO",
             "subcomponents": "close_button",
             "aio_id": aio_id,
         }
         message = lambda aio_id: {
-            "component": "ErrorMessageAIO",
+            "component": "MessageAIO",
             "subcomponents": "message",
             "aio_id": aio_id,
         }
         div = lambda aio_id: {
-            "component": "ErrorMessageAIO",
+            "component": "MessageAIO",
             "subcomponents": "div",
             "aio_id": aio_id,
         }
         timer = lambda aio_id: {
-            "component": "ErrorMessageAIO",
+            "component": "MessageAIO",
             "subcomponents": "timer",
             "aio_id": aio_id,
         }
         visible = lambda aio_id: {
-            "component": "ErrorMessageAIO",
+            "component": "MessageAIO",
             "subcomponents": "visible",
             "aio_id": aio_id,
         }
