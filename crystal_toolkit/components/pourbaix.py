@@ -17,7 +17,7 @@ from pymatgen.util.string import unicodeify
 from shapely.geometry import Polygon
 
 import crystal_toolkit.helpers.layouts as ctl
-from crystal_toolkit.components.error_msg import MessageAIO
+from crystal_toolkit.components.messageAIO import MessageAIO
 from crystal_toolkit.core.mpcomponent import MPComponent
 
 try:
