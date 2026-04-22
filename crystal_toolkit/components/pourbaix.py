@@ -471,55 +471,32 @@ class PourbaixDiagramComponent(MPComponent):
                         ),
                         html.Div(
                             [
+                                ctl.add_label_help(
+                                    html.Div(),
+                                    label="Composition Control",
+                                    help="Set the relative composition of non-H/O elements.",
+                                ),
                                 html.Div(
-                                    [
-                                        html.H5(
-                                            "Composition Control",
-                                            style={
-                                                "fontWeight": "bold",
-                                                "textAlign": "center",
-                                                "flex": "0 0 100%",
-                                            },
-                                        ),
-                                        html.H5(
-                                            "Composition of",
-                                            id=self.id("composition-title"),
-                                            # style={"fontWeight": "bold"},
-                                        ),
-                                    ],
+                                    id=self.id("composition-title"),
+                                    style={"marginBottom": "0.5rem"},
+                                ),
+                                dcc.Input(
+                                    id=self.id("comp-text"),
+                                    className="input",
+                                    type="text",
                                     style={
-                                        "line-height": PANEL_LINE_HEIGHT,
-                                        "display": "flex",
-                                        "flexWrap": "wrap",
-                                        "justifyContent": "center",
+                                        "textAlign": "center",
+                                        "width": "10rem",
+                                        "marginRight": "0.2rem",
+                                        "marginBottom": "0.2rem",
+                                        "height": "36px",
+                                        "fontSize": "14px",
                                     },
                                 ),
-                                PourbaixDiagramComponent.create_centered_object(
-                                    dcc.Input(
-                                        id=self.id("comp-text"),
-                                        className="input",
-                                        type="text",
-                                        style={
-                                            "textAlign": "center",
-                                            "width": "10rem",
-                                            "marginRight": "0.2rem",
-                                            "marginBottom": "0.2rem",
-                                            "height": "36px",
-                                            "fontSize": "14px",
-                                        },
-                                    ),
-                                ),
                                 ctl.Block(
-                                    PourbaixDiagramComponent.create_centered_object(
-                                        html.Div(
-                                            id=self.id("display-composition"),
-                                        )
+                                    html.Div(
+                                        id=self.id("display-composition"),
                                     )
-                                ),
-                                html.Hr(
-                                    style={
-                                        "backgroundColor": "#C5C5C6",
-                                    }
                                 ),
                                 dcc.Store(id=self.id("elements-store")),
                             ],
@@ -543,7 +520,7 @@ class PourbaixDiagramComponent(MPComponent):
                         ),
                     ],
                     style={
-                        "backgroundColor": "#F1F1F5",
+                        "backgroundColor": "#FFFFFF",
                     },
                 ),
                 html.Br(),
@@ -714,19 +691,17 @@ class PourbaixDiagramComponent(MPComponent):
             conc_inputs = []
 
             for element in sorted(elements):
-                conc_input = PourbaixDiagramComponent.create_centered_object(
-                    self.get_numerical_input(
+                conc_input = self.get_numerical_input(
                         f"conc-{element}",
                         default=1e-6,
                         min=MIN_CONCENTRATION,
                         max=MAX_CONCENTRATION,
-                        label=f"concentration of {element} ion",
+                        label=f"Concentration of {element} ion",
                         style={
                             "width": "10rem",
                             "fontSize": "14px",
                         },
                     )
-                )
 
                 conc_inputs.append(conc_input)
 
@@ -739,17 +714,11 @@ class PourbaixDiagramComponent(MPComponent):
             )
 
             comp_conc_controls.append(
-                html.H5(
-                    ion_label,
-                    style={"fontWeight": "bold", "textAlign": "center"},
+                ctl.add_label_help(
+                    html.Div(),
+                    label=ion_label,
+                    help=f"Equilibrium concentration beyond this threshold is considered unstable (meaningfully dissolved). Set the range between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} (M)",
                 ),
-            )
-            comp_conc_controls.append(
-                PourbaixDiagramComponent.create_centered_object(
-                    html.H6(
-                        f"💡 Set the range between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} (M)"
-                    )
-                )
             )
 
             comp_conc_controls += conc_inputs
@@ -768,12 +737,12 @@ class PourbaixDiagramComponent(MPComponent):
             default_comp = ":".join(["1" for _ in elements])
 
             # composition title
-            title = "💡 Composition of " + ":".join(elements)
+            title = "Composition of " + ":".join(elements)
 
             # update_string
             update_string = "Concentration update"
             if len(elements) > 1:
-                update_string = "Composition & concentration update"
+                update_string = "Update composition & concentrations"
 
             return (
                 html.Div(
