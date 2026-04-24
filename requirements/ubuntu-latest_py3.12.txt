@@ -9,24 +9,24 @@ annotated-types==0.7.0
 asttokens==3.0.1
     # via stack-data
 bibtexparser==1.4.4
-    # via pymatgen
+    # via pymatgen-core
 blake3==1.0.8
     # via emmet-core
 blinker==1.9.0
     # via flask
-boto3==1.42.68
+boto3==1.42.95
     # via mp-api
-botocore==1.42.68
+botocore==1.42.95
     # via
     #   boto3
     #   s3transfer
 cachelib==0.13.0
     # via flask-caching
-certifi==2026.2.25
+certifi==2026.4.22
     # via requests
-charset-normalizer==3.4.5
+charset-normalizer==3.4.7
     # via requests
-click==8.3.1
+click==8.3.3
     # via flask
 contourpy==1.3.3
     # via matplotlib
@@ -34,7 +34,7 @@ cycler==0.12.1
     # via matplotlib
 dash==3.4.0
     # via crystal_toolkit (pyproject.toml)
-dash-mp-components==0.5.1rc5
+dash-mp-components==0.5.1rc9
     # via crystal_toolkit (pyproject.toml)
 decorator==5.2.1
     # via ipython
@@ -46,19 +46,19 @@ flask==3.1.3
     # via
     #   dash
     #   flask-caching
-flask-caching==2.3.1
+flask-caching==2.4.0
     # via crystal_toolkit (pyproject.toml)
 fonttools==4.62.1
     # via matplotlib
 frozendict==2.4.7
     # via crystal_toolkit (pyproject.toml)
-idna==3.11
+idna==3.13
     # via requests
 imageio==2.37.3
     # via scikit-image
-importlib-metadata==8.7.1
+importlib-metadata==9.0.0
     # via dash
-ipython==9.11.0
+ipython==9.13.0
     # via crystal_toolkit (pyproject.toml)
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -74,7 +74,7 @@ jmespath==1.1.0
     #   botocore
 joblib==1.5.3
     # via
-    #   pymatgen
+    #   pymatgen-core
     #   scikit-learn
 kiwisolver==1.5.0
     # via matplotlib
@@ -82,40 +82,42 @@ latexcodec==3.0.1
     # via pybtex
 lazy-loader==0.5
     # via scikit-image
+lxml==6.1.0
+    # via pymatgen-core
 markupsafe==3.0.3
     # via
     #   flask
     #   jinja2
     #   werkzeug
-matplotlib==3.10.8
-    # via pymatgen
+matplotlib==3.10.9
+    # via pymatgen-core
 matplotlib-inline==0.2.1
     # via ipython
 monty==2026.2.18
     # via
     #   emmet-core
     #   mp-api
-    #   pymatgen
+    #   pymatgen-core
 mp-api==0.46.0
     # via crystal_toolkit (pyproject.toml)
 mpmath==1.3.0
     # via sympy
-narwhals==2.18.0
+narwhals==2.20.0
     # via plotly
 nest-asyncio==1.6.0
     # via dash
 networkx==3.6.1
     # via
-    #   pymatgen
+    #   pymatgen-core
     #   scikit-image
-numpy==2.4.3
+numpy==2.4.4
     # via
     #   contourpy
     #   imageio
     #   matplotlib
     #   monty
     #   pandas
-    #   pymatgen
+    #   pymatgen-core
     #   pymatgen-io-validation
     #   scikit-image
     #   scikit-learn
@@ -123,63 +125,67 @@ numpy==2.4.3
     #   shapely
     #   spglib
     #   tifffile
-orjson==3.11.7
+orjson==3.11.8
     # via
     #   mp-api
-    #   pymatgen
-packaging==26.0
+    #   pymatgen-core
+packaging==26.1
     # via
     #   lazy-loader
     #   matplotlib
     #   plotly
     #   scikit-image
 palettable==3.3.3
-    # via pymatgen
-pandas==3.0.1
-    # via pymatgen
+    # via pymatgen-core
+pandas==3.0.2
+    # via pymatgen-core
 parso==0.8.6
     # via jedi
 pexpect==4.9.0
     # via ipython
-pillow==12.1.1
+pillow==12.2.0
     # via
     #   imageio
     #   matplotlib
     #   scikit-image
-plotly==6.6.0
+plotly==6.7.0
     # via
     #   dash
-    #   pymatgen
+    #   pymatgen-core
 prompt-toolkit==3.0.52
+    # via ipython
+psutil==7.2.2
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pybtex==0.25.1
+pybtex==0.26.1
     # via emmet-core
-pydantic==2.12.5
+pydantic==2.13.3
     # via
     #   emmet-core
     #   pydantic-settings
     #   pymatgen-io-validation
-pydantic-core==2.41.5
+pydantic-core==2.46.3
     # via pydantic
-pydantic-settings==2.13.1
+pydantic-settings==2.14.0
     # via
     #   crystal_toolkit (pyproject.toml)
     #   emmet-core
     #   pymatgen-io-validation
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   ipython
     #   ipython-pygments-lexers
-pymatgen==2025.10.7
+pymatgen==2026.3.23
     # via
     #   crystal_toolkit (pyproject.toml)
     #   emmet-core
     #   mp-api
     #   pymatgen-io-validation
+pymatgen-core==2026.4.16
+    # via pymatgen
 pymatgen-io-validation==0.1.2
     # via emmet-core
 pyparsing==3.3.2
@@ -195,19 +201,17 @@ python-dotenv==1.2.2
     # via pydantic-settings
 pyyaml==6.0.3
     # via pybtex
-requests==2.32.5
+requests==2.33.1
     # via
     #   dash
     #   mp-api
-    #   pymatgen
+    #   pymatgen-core
     #   pymatgen-io-validation
 retrying==1.4.2
     # via dash
 ruamel-yaml==0.19.1
-    # via
-    #   monty
-    #   pymatgen
-s3transfer==0.16.0
+    # via monty
+s3transfer==0.16.1
     # via boto3
 scikit-image==0.26.0
     # via crystal_toolkit (pyproject.toml)
@@ -215,7 +219,7 @@ scikit-learn==1.8.0
     # via crystal_toolkit (pyproject.toml)
 scipy==1.17.1
     # via
-    #   pymatgen
+    #   pymatgen-core
     #   scikit-image
     #   scikit-learn
 shapely==2.1.2
@@ -223,19 +227,19 @@ shapely==2.1.2
 six==1.17.0
     # via python-dateutil
 spglib==2.7.0
-    # via pymatgen
+    # via pymatgen-core
 stack-data==0.6.3
     # via ipython
 sympy==1.14.0
-    # via pymatgen
+    # via pymatgen-core
 tabulate==0.10.0
-    # via pymatgen
+    # via pymatgen-core
 threadpoolctl==3.6.0
     # via scikit-learn
-tifffile==2026.3.3
+tifffile==2026.4.11
     # via scikit-image
 tqdm==4.67.3
-    # via pymatgen
+    # via pymatgen-core
 traitlets==5.14.3
     # via
     #   ipython
@@ -254,7 +258,7 @@ typing-inspection==0.4.2
     #   pydantic
     #   pydantic-settings
 uncertainties==3.2.3
-    # via pymatgen
+    # via pymatgen-core
 urllib3==2.6.3
     # via
     #   botocore
@@ -263,11 +267,11 @@ wcwidth==0.6.0
     # via prompt-toolkit
 webcolors==25.10.0
     # via crystal_toolkit (pyproject.toml)
-werkzeug==3.1.6
+werkzeug==3.1.8
     # via
     #   dash
     #   flask
-zipp==3.23.0
+zipp==3.23.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
