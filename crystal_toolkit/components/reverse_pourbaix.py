@@ -239,6 +239,16 @@ class ReversePourbaixDiagramComponent(MPComponent):
                     label="Show Water Stability Lines",
                     help_str="Show the hydrogen and oxygen evolution reaction lines. Potential scale is SHE.",
                 ),
+                self.get_slider_input(
+                    kwarg_label="stability_cutoff",
+                    default=0.1,
+                    domain=[0.1, 0.5],
+                    step=0.1,
+                    label = "Stability Cutoff (eV)",
+                    help_str="""
+                    Heatmap will display the count of materials below this stability cutoff. 
+                    The stability cutoff is based on the energy above the Pourbaix hull (decomposition energy, Gpbx)""",
+                ),
             ]
         )
 
