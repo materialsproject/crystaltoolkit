@@ -237,7 +237,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
                     "show_water_lines",
                     default=self.default_state["show_water_lines"],
                     label="Show Water Stability Lines",
-                    help_str="Show the hydrogen and oxygen evolution reaction lines.",
+                    help_str="Show the hydrogen and oxygen evolution reaction lines. Potential scale is SHE.",
                 ),
             ]
         )
