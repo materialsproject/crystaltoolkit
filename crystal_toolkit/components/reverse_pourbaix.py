@@ -14,11 +14,14 @@ See: Karlsson et al., Electrochimica Acta 549 (2026) 148053
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Any
 
+import pandas as pd
 import plotly.graph_objects as go
+import pyarrow.parquet as pq
 from dash import dcc, html
-from dash.dependencies import Component, Input, Output
+from dash.dependencies import Component, Input, Output, State
 from dash.exceptions import PreventUpdate
 from frozendict import frozendict
 
@@ -51,7 +54,8 @@ class ReversePourbaixDiagramComponent(MPComponent):
 
     Shows a heatmap of the number of stable materials at each pH/V
     combination, where stability is defined by a user-tunable
-    decomposition energy cutoff (eV/atom).
+    decomposition energy cutoff (eV/atom). Clicking on a cell exposes
+    the list of mp_ids stable at that condition for downstream use.
     """
 
     default_state = frozendict(
@@ -104,6 +108,26 @@ class ReversePourbaixDiagramComponent(MPComponent):
         plot_bgcolor="rgba(0,0,0,0)",
     )
 
+    def __init__(self, parquet_path: str | Path | None = None, *args, **kwargs):
+        """
+        Args:
+            parquet_path: path to the precomputed (pH, V, mp_id, decomposition_energy)
+                parquet file. Loaded once at component construction. If None, the
+                click-to-list functionality is disabled but the heatmap still works.
+        """
+        super().__init__(*args, **kwargs)
+        self._stability_df: pd.DataFrame | None = None
+        if parquet_path is not None:
+            logger.info("Loading reverse-Pourbaix stability data from %s", parquet_path)
+            df = pq.read_table(parquet_path).to_pandas()
+            # Index by (pH, V) for fast cell-click lookups.
+            self._stability_df = df.set_index(["pH", "V"]).sort_index()
+            logger.info(
+                "Loaded %d stability rows across %d cells",
+                len(df),
+                self._stability_df.index.nunique(),
+            )
+
     @staticmethod
     def _format_cutoff_key(cutoff: float) -> str:
         """Format a cutoff float to match the JSON key convention.
@@ -111,6 +135,24 @@ class ReversePourbaixDiagramComponent(MPComponent):
         JSON keys are stored as e.g. "0.1", "0.2" — i.e. one decimal.
         """
         return f"{cutoff:.1f}"
+
+    def get_stable_mp_ids(self, ph: float, v: float, cutoff: float) -> list[str]:
+        """Return mp_ids stable at (pH, V) below the given decomposition-energy cutoff.
+
+        Returns an empty list if the parquet data is not loaded.
+        """
+        if self._stability_df is None:
+            return []
+        # Round to handle float-equality edge cases in the index lookup.
+        ph_key = int(round(ph))
+        v_key = round(v * 2) / 2  # snap to 0.5 grid
+        try:
+            cell = self._stability_df.loc[(ph_key, v_key)]
+        except KeyError:
+            logger.warning("No stability data for (pH=%s, V=%s)", ph_key, v_key)
+            return []
+        stable = cell[cell["decomposition_energy"] <= cutoff]
+        return stable["mp_id"].tolist()
 
     @staticmethod
     def get_heatmap_figure(
@@ -120,32 +162,13 @@ class ReversePourbaixDiagramComponent(MPComponent):
         selected_ph: float | None = None,
         selected_v: float | None = None,
     ) -> go.Figure:
-        """Generate a Plotly heatmap figure from pre-computed data.
-
-        Args:
-            heatmap_data: dict with keys 'ph_values', 'v_values', 'cutoffs', 'grid'.
-                Each grid entry is {'pH': float, 'V': float,
-                'counts': {cutoff_str: int, ...}}.
-            stability_cutoff: decomposition-energy cutoff (eV/atom) selected
-                by the user. Must match one of the precomputed cutoffs in
-                heatmap_data['cutoffs'].
-            show_water_lines: if True, show HER/OER stability lines.
-            selected_ph: pH value of selected cell (for highlight).
-            selected_v: V value of selected cell (for highlight).
-
-        Returns:
-            go.Figure with the heatmap.
-        """
+        """Generate a Plotly heatmap figure from pre-computed data."""
         ph_values = heatmap_data["ph_values"]
         v_values = heatmap_data["v_values"]
         grid = heatmap_data["grid"]
 
         cutoff_key = ReversePourbaixDiagramComponent._format_cutoff_key(stability_cutoff)
 
-        # Build a (pH, V) -> count lookup for the requested cutoff.
-        # The slider's domain/step is constrained to the precomputed cutoffs,
-        # so a missing key here indicates a developer error (slider config and
-        # JSON have drifted out of sync) and should raise rather than be hidden.
         lookup: dict[tuple[float, float], int] = {
             (point["pH"], point["V"]): point["counts"][cutoff_key] for point in grid
         }
@@ -156,7 +179,6 @@ class ReversePourbaixDiagramComponent(MPComponent):
 
         data: list[go.BaseTraceType] = []
 
-        # Heatmap trace
         heatmap_trace = go.Heatmap(
             z=z_matrix,
             x=ph_values,
@@ -172,11 +194,8 @@ class ReversePourbaixDiagramComponent(MPComponent):
         )
         data.append(heatmap_trace)
 
-        # Water stability lines
         if show_water_lines:
             ph_range = [MIN_PH, MAX_PH]
-
-            # Hydrogen evolution line
             data.append(
                 go.Scatter(
                     x=ph_range,
@@ -188,15 +207,10 @@ class ReversePourbaixDiagramComponent(MPComponent):
                     showlegend=False,
                 )
             )
-
-            # Oxygen evolution line
             data.append(
                 go.Scatter(
                     x=ph_range,
-                    y=[
-                        -ph_range[0] * PREFAC + 1.23,
-                        -ph_range[1] * PREFAC + 1.23,
-                    ],
+                    y=[-ph_range[0] * PREFAC + 1.23, -ph_range[1] * PREFAC + 1.23],
                     mode="lines",
                     line={"color": "white", "dash": "dash", "width": 2},
                     name="O₂/H₂O",
@@ -207,11 +221,9 @@ class ReversePourbaixDiagramComponent(MPComponent):
 
         layout = {**ReversePourbaixDiagramComponent.default_plot_style}
 
-        # Add selection rectangle if a cell is selected
         if selected_ph is not None and selected_v is not None:
             ph_step = ph_values[1] - ph_values[0] if len(ph_values) > 1 else 1
             v_step = abs(v_values[0] - v_values[1]) if len(v_values) > 1 else 0.5
-
             layout["shapes"] = [
                 {
                     "type": "rect",
@@ -231,6 +243,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
         graph = html.Div(
             [
                 dcc.Graph(
+                    id=self.id("heatmap"),
                     figure=go.Figure(
                         layout={**ReversePourbaixDiagramComponent.empty_plot_style}
                     ),
@@ -242,14 +255,14 @@ class ReversePourbaixDiagramComponent(MPComponent):
             id=self.id("graph-panel"),
         )
 
+        # Holds the list of mp_ids stable at the most recently clicked cell.
+        # Downstream callbacks (filtering, table rendering, etc.) can read this.
+        mp_id_store = dcc.Store(id=self.id("stable-mp-ids"), data=[])
+
         info = html.Div(
             id=self.id("click-info"),
-            style={
-                "padding": "10px",
-                "textAlign": "center",
-                "color": "#666",
-            },
-            children="Click on the heatmap to explore stable materials at a specific condition.",
+            style={"padding": "10px", "color": "#444"},
+            children="Click on the heatmap to see the list of stable materials at that condition.",
         )
 
         options = html.Div(
@@ -280,7 +293,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
             ]
         )
 
-        return {"graph": graph, "info": info, "options": options}
+        return {"graph": graph, "info": info, "options": options, "store": mp_id_store}
 
     def layout(self) -> html.Div:
         """Return the full component layout."""
@@ -288,6 +301,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
             children=[
                 self._sub_layouts["options"],
                 self._sub_layouts["graph"],
+                self._sub_layouts["store"],
                 self._sub_layouts["info"],
             ]
         )
@@ -307,8 +321,6 @@ class ReversePourbaixDiagramComponent(MPComponent):
 
             heatmap_data = self.from_data(heatmap_json)
 
-            # The kwarg inputs come back wrapped (typically as a list) by
-            # MPComponent's input machinery; unwrap defensively.
             if isinstance(show_water_lines, list):
                 show_water_lines = show_water_lines[0] if show_water_lines else True
             if isinstance(stability_cutoff, list):
@@ -325,7 +337,50 @@ class ReversePourbaixDiagramComponent(MPComponent):
             )
 
             return dcc.Graph(
+                id=self.id("heatmap"),  # keep stable id so clickData callback can find it
                 figure=figure,
                 responsive=True,
                 config={"displayModeBar": False, "displaylogo": False},
             )
+
+        @app.callback(
+            Output(self.id("stable-mp-ids"), "data"),
+            Output(self.id("click-info"), "children"),
+            Input(self.id("heatmap"), "clickData"),
+            State(self.get_kwarg_id("stability_cutoff"), "value"),
+        )
+        def on_cell_click(click_data, stability_cutoff):
+            if not click_data:
+                raise PreventUpdate
+
+            point = click_data["points"][0]
+            ph = point["x"]
+            v = point["y"]
+
+            if isinstance(stability_cutoff, list):
+                stability_cutoff = (
+                    stability_cutoff[0] if stability_cutoff else DEFAULT_CUTOFF
+                )
+            if stability_cutoff is None:
+                stability_cutoff = DEFAULT_CUTOFF
+            cutoff = float(stability_cutoff)
+
+            mp_ids = self.get_stable_mp_ids(ph, v, cutoff)
+
+            preview = ", ".join(mp_ids[:20])
+            more = f" ... (+{len(mp_ids) - 20} more)" if len(mp_ids) > 20 else ""
+            info = html.Div(
+                [
+                    html.Div(
+                        f"pH = {ph}, V = {v} V (SHE), cutoff ≤ {cutoff} eV/atom",
+                        style={"fontWeight": "bold"},
+                    ),
+                    html.Div(f"{len(mp_ids)} stable materials"),
+                    html.Div(
+                        preview + more,
+                        style={"fontFamily": "monospace", "marginTop": "0.5em"},
+                    ),
+                ]
+            )
+
+            return mp_ids, info
