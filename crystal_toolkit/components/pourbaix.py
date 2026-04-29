@@ -598,6 +598,9 @@ class PourbaixDiagramComponent(MPComponent):
                 entry for entry in entries_obj if entry.phase_type == "Solid"
             ]
 
+            #NOTE: filter_solids bool affects both heatmap choices and decomposition energy. 
+            # Some user may want to find the decomposition eneryg of an mp-id (which is skipped in the choices) while creating the actual pbx with filter_solids = True.
+            # Pymatgen allows for this functionality, but currently this pourbaix UI does not allow for it.
             if filter_solids:
                 # O is 2.46 b/c pbx entry finds energies referenced to H2O
                 entries_HO = [ComputedEntry("H", 0), ComputedEntry("O", 2.46)]

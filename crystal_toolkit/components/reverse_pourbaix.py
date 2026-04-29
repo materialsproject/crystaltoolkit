@@ -262,7 +262,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
         info = html.Div(
             id=self.id("click-info"),
             style={"padding": "10px", "color": "#444"},
-            children="Click on the heatmap to see the list of stable materials at that condition.",
+            children="Click on the heatmap to see the list of stable materials at those conditions.",
         )
 
         options = html.Div(
@@ -372,8 +372,17 @@ class ReversePourbaixDiagramComponent(MPComponent):
             info = html.Div(
                 [
                     html.Div(
-                        f"pH = {ph}, V = {v} V (SHE), cutoff ≤ {cutoff} eV/atom",
-                        style={"fontWeight": "bold"},
+                        [
+                            html.B("Selected grid point: "),
+                            "pH = ",
+                            html.B(f"{ph}"),
+                            ", V",
+                            html.Sub("SHE"),
+                            " = ",
+                            html.B(f"{v} V"),
+                            ", cutoff ≤ ",
+                            html.B(f"{cutoff} eV/atom"),
+                        ],
                     ),
                     html.Div(f"{len(mp_ids)} stable materials"),
                     html.Div(
