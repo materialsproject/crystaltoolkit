@@ -251,7 +251,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
                     config={"displayModeBar": False, "displaylogo": False},
                 ),
             ],
-            style={"minHeight": "500px"},
+            #style={"minHeight": "500px"},
             id=self.id("graph-panel"),
         )
 
@@ -259,10 +259,21 @@ class ReversePourbaixDiagramComponent(MPComponent):
         # Downstream callbacks (filtering, table rendering, etc.) can read this.
         mp_id_store = dcc.Store(id=self.id("stable-mp-ids"), data=[])
 
+        # Selection panel — mirrors the panel structure the app uses for
+        # Options so they render identically when stacked. The click callback
+        # writes to the inner content div (id "click-info"); the outer panel
+        # chrome is static.
         info = html.Div(
-            id=self.id("click-info"),
-            style={"padding": "10px", "color": "#444"},
-            children="Click on the heatmap to see the list of stable materials at those conditions.",
+            [
+                html.Div("Selected conditions", className="panel-heading"),
+                html.Div(
+                    "Click on the heatmap to see the list of stable materials "
+                    "at those conditions.",
+                    id=self.id("click-info"),
+                    className="panel-block is-block",
+                ),
+            ],
+            className="panel",
         )
 
         options = html.Div(
@@ -367,29 +378,23 @@ class ReversePourbaixDiagramComponent(MPComponent):
 
             mp_ids = self.get_stable_mp_ids(ph, v, cutoff)
 
-            preview = ", ".join(mp_ids[:20])
-            more = f" ... (+{len(mp_ids) - 20} more)" if len(mp_ids) > 20 else ""
             info = html.Div(
                 [
-                    html.Div(
-                        [
-                            html.B("Selected grid point: "),
-                            "pH = ",
-                            html.B(f"{ph}"),
-                            ", V",
-                            html.Sub("SHE"),
-                            " = ",
-                            html.B(f"{v} V"),
-                            ", cutoff ≤ ",
-                            html.B(f"{cutoff} eV/atom"),
-                        ],
-                    ),
+                    html.Div([
+                        "pH = ",
+                        html.B(f"{ph}"),
+                        ", V",
+                        html.Sub("SHE"),
+                        " = ",
+                        html.B(f"{v} V"),
+                    ]),
+                    html.Div([
+                        "cutoff ≤ ",
+                        html.B(f"{cutoff} eV/atom"),
+                    ]),
                     html.Div(f"{len(mp_ids)} stable materials"),
-                    html.Div(
-                        preview + more,
-                        style={"fontFamily": "monospace", "marginTop": "0.5em"},
-                    ),
                 ]
             )
+
 
             return mp_ids, info
