@@ -790,7 +790,6 @@ class PourbaixDiagramComponent(MPComponent):
         @app.callback(
             Output(self.id("graph-panel"), "children"),
             Output(MessageAIO.ids.data(self.id("outputConsole")), "data"),
-            # Output(MessageAIO.ids.visible(self.id("invalid-conc-alarm")), "data"),
             Output(self.id("display-composition"), "children"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
