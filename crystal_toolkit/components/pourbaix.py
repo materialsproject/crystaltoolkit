@@ -460,14 +460,7 @@ class PourbaixDiagramComponent(MPComponent):
                 html.Div(
                     [
                         MessageAIO(
-                            "Invalid composition input!",
-                            aio_id=self.id("invalid-comp-alarm"),
-                            msg_type="error",
-                        ),
-                        MessageAIO(
-                            "Invalid concentration input!",
-                            aio_id=self.id("invalid-conc-alarm"),
-                            msg_type="error",
+                            aio_id=self.id("outputConsole"),
                         ),
                         html.Div(
                             [
@@ -796,8 +789,7 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph-panel"), "children"),
-            Output(MessageAIO.ids.visible(self.id("invalid-comp-alarm")), "data"),
-            Output(MessageAIO.ids.visible(self.id("invalid-conc-alarm")), "data"),
+            Output(MessageAIO.ids.data(self.id("outputConsole")), "data"),
             Output(self.id("display-composition"), "children"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
@@ -836,8 +828,7 @@ class PourbaixDiagramComponent(MPComponent):
                 logger.error("Invalid composition input!")
                 return (
                     self.get_figure_div(),
-                    True,
-                    False,
+                    {"message": "Invalid composition input!", "msg_type": "error"},
                     "",
                 )
             try:
@@ -853,8 +844,7 @@ class PourbaixDiagramComponent(MPComponent):
                 logger.error("Invalid composition input!")
                 return (
                     self.get_figure_div(),
-                    True,
-                    False,
+                    {"message": "Invalid composition input!", "msg_type": "error"},
                     "",
                 )
 
@@ -889,8 +879,10 @@ class PourbaixDiagramComponent(MPComponent):
                         # if the input is out of pre-defined range, Input will get None
                         return (
                             self.get_figure_div(),
-                            False,
-                            True,
+                            {
+                                "message": "Invalid concentration input!",
+                                "msg_type": "error",
+                            },
                             "",
                         )
 
@@ -919,7 +911,6 @@ class PourbaixDiagramComponent(MPComponent):
 
             return (
                 self.get_figure_div(figure=figure),
-                False,
-                False,
+                {},
                 html.Small(f"Pourbaix composition set to {unicodeify(formula)}."),
             )
