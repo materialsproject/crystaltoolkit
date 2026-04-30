@@ -291,26 +291,18 @@ class MessageAIO(html.Div, MPComponent):
     """
 
     @callback(
-        Output(ids.wrapper(MATCH), "style", allow_duplicate=True),
-        Input(ids.close_button(MATCH), "n_clicks"),
-        prevent_initial_call=True,
-    )
-    def sync_message(close_clicks):
-        return {"display": "none"}
-
-    @callback(
         Output(ids.message(MATCH), "children"),
         Output(ids.wrapper(MATCH), "style", allow_duplicate=True),
         Output(ids.div(MATCH), "style"),
+        Output(ids.close_button(MATCH), "n_clicks"),
         Input(ids.data(MATCH), "data"),
-        Input(ids.wrapper(MATCH), "style"),
+        Input(ids.close_button(MATCH), "n_clicks"),
         State(ids.div(MATCH), "style"),
         prevent_initial_call=True,
     )
-    def update_messages(input_data, cur_wrapper_style, cur_style):
-        print(input_data)
-        if not input_data:
-            return no_update, {"display": "none"}, cur_style
+    def update_messages(input_data, close_clicks, cur_style):
+        if close_clicks or not input_data:
+            return no_update, {"display": "none"}, cur_style, 0
 
         message = input_data.get("message", None)
         msg_type = input_data.get("msg_type", "info")
@@ -319,7 +311,7 @@ class MessageAIO(html.Div, MPComponent):
         type_style = _TYPE_COLORS.get(msg_type, _TYPE_COLORS["info"])
         cur_style.update(type_style)
 
-        return message, {"display": "block"}, cur_style
+        return message, {"display": "block"}, cur_style, 1
 
     """
     @callback(
