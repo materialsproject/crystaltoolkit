@@ -1,32 +1,39 @@
 """
-Author: Sheng Pang
-Modifier: Min-Hsueh Chiu
+Authors: Sheng Pang & Min-Hsueh Chiu
 
-Message Snake - A reusable Dash notification snackbar component.
-
+messageAIO - A reusable Dash notification snackbar component.
 Provides fixed-position toast notifications callable from any page.
-Supports fade-in/fade-out animations, auto-dismiss, and manual close.
+Supports fade-in/fade-out animations (not implemented), auto-dismiss (not implemented), and manual close.
+
+
+V1: The instantiated messageAIO is limited to one single `msg_type`.
+
+So it becomes difficult to use when an app has multiple msg_types.
+Developers would need to instantiate multiple MessageAIO components and
+define multiple Outputs in the callback.
+
+V2 improvement:
+- use a single instantiation and only one Output per callback.
+- If `ids.data` is change, then it should be visible, this logic should be handled here.
+
+
 
 Usage:
     from crystal_toolkit.components.error_msg import MessageAIO
 
     # 1. Include in layout
-    MessageAIO(
-        "Invalid composition input!",
-        aio_id=self.id("invalid-comp-alarm"),
-        msg_type="error",
-    ),
+    MessageAIO(aio_id=self.id(<COMPONENT_ID>)),
 
     # 2. Add to callback:
-    Output(MessageAIO.ids.visible(self.id("invalid-comp-alarm")), "data"),
-    # Return True to display the message, and False to hide it.
+    Output(MessageAIO.ids.data(self.id(<COMPONENT_ID>)), "data"),
+    Return {"message": <DISPLAY MSG>, "msg_type": <MSG_TYPE>}
 
     Note: Do not need to register callbacks as using All-in-one pattern
 """
 
 from __future__ import annotations
 
-from dash import MATCH, Input, Output, callback, ctx, dcc, html
+from dash import MATCH, Input, Output, State, callback, dcc, html, no_update
 
 from crystal_toolkit.core.mpcomponent import MPComponent
 
@@ -106,11 +113,6 @@ class MessageAIO(html.Div, MPComponent):
             "subcomponents": "close_button",
             "aio_id": aio_id,
         }
-        message = lambda aio_id: {
-            "component": "MessageAIO",
-            "subcomponents": "message",
-            "aio_id": aio_id,
-        }
         div = lambda aio_id: {
             "component": "MessageAIO",
             "subcomponents": "div",
@@ -121,9 +123,14 @@ class MessageAIO(html.Div, MPComponent):
             "subcomponents": "timer",
             "aio_id": aio_id,
         }
-        visible = lambda aio_id: {
+        data = lambda aio_id: {
             "component": "MessageAIO",
-            "subcomponents": "visible",
+            "subcomponents": "data",
+            "aio_id": aio_id,
+        }
+        message = lambda aio_id: {
+            "component": "MessageAIO",
+            "subcomponents": "message",
             "aio_id": aio_id,
         }
 
@@ -133,9 +140,7 @@ class MessageAIO(html.Div, MPComponent):
 
     def __init__(
         self,
-        message,
         aio_id,
-        msg_type,
         position="bottom-right",
         style=None,
         show_icon=False,
@@ -151,29 +156,22 @@ class MessageAIO(html.Div, MPComponent):
         to enable auto-dismiss and close functionality.
 
         Args:
-            message (str): The notification message to display.
             id (str): Unique HTML id for the notification container.
-            msg_type (str): Notification type - 'info', 'warning', 'error', 'success'.
-            position (str): Fixed position on screen. One of:
+            position (str, optional): Fixed position on screen. One of:
                 'top', 'bottom', 'center', 'top-right', 'top-left',
                 'bottom-right', 'bottom-left'.
             style (dict, optional): Additional CSS style overrides.
-            show_icon (bool): Whether to show a type-specific icon.
-            min_width (str): Minimum width of the notification.
-            max_width (str): Maximum width of the notification.
-            z_index (int): CSS z-index for layering.
-            auto_dismiss_ms (int): Auto-dismiss delay in milliseconds. Defaults to 50000 (50s).
+            show_icon (bool, optional): Whether to show a type-specific icon.
+            min_width (str, optional): Minimum width of the notification.
+            max_width (str, optional): Maximum width of the notification.
+            z_index (int, optional): CSS z-index for layering.
+            auto_dismiss_ms (int, optional): Auto-dismiss delay in milliseconds. Defaults to 50000 (50s).
 
         """
 
         self.snake_id = aio_id
         self.show_icon = show_icon
-        self.msg_type = msg_type
-        self.message = message
         self.auto_dismiss_ms = auto_dismiss_ms
-
-        # Resolve type colors
-        type_style = _TYPE_COLORS.get(msg_type, _TYPE_COLORS["info"])
 
         # Resolve position
         pos_style = _POSITION_STYLES.get(position, _POSITION_STYLES["bottom-right"])
@@ -197,7 +195,6 @@ class MessageAIO(html.Div, MPComponent):
             # Visible on mount; fade-out handled by callback via transition
             "opacity": "1",
             "transition": "opacity 0.4s ease",
-            **type_style,
             **pos_style,
         }
 
@@ -210,7 +207,10 @@ class MessageAIO(html.Div, MPComponent):
         sub_layouts = self._sub_layouts
         super().__init__(
             [  # Equivalent to `html.Div([...])`
-                dcc.Store(id=self.ids.visible(self.snake_id), data=False),
+                dcc.Store(
+                    id=self.ids.data(self.snake_id),
+                    data={"message": None, "msg_type": "info"},
+                ),
                 sub_layouts["notification_div"],
                 sub_layouts["interval"],
             ],
@@ -235,9 +235,7 @@ class MessageAIO(html.Div, MPComponent):
 
         # Message text
         children.append(
-            html.Span(
-                self.message, id=self.ids.message(self.snake_id), style={"flex": "1"}
-            )
+            html.Span(id=self.ids.message(self.snake_id), style={"flex": "1"})
         )
 
         # Close button
@@ -293,21 +291,35 @@ class MessageAIO(html.Div, MPComponent):
     """
 
     @callback(
-        Output(ids.wrapper(MATCH), "style"),
-        Input(ids.visible(MATCH), "data"),
+        Output(ids.wrapper(MATCH), "style", allow_duplicate=True),
         Input(ids.close_button(MATCH), "n_clicks"),
         prevent_initial_call=True,
     )
-    def sync_message(command_visible, close_clicks):
-        triggered = ctx.triggered_id
+    def sync_message(close_clicks):
+        return {"display": "none"}
 
-        if (
-            isinstance(triggered, dict)
-            and triggered.get("subcomponents") == "close_button"
-        ):
-            return {"display": "none"}
+    @callback(
+        Output(ids.message(MATCH), "children"),
+        Output(ids.wrapper(MATCH), "style", allow_duplicate=True),
+        Output(ids.div(MATCH), "style"),
+        Input(ids.data(MATCH), "data"),
+        Input(ids.wrapper(MATCH), "style"),
+        State(ids.div(MATCH), "style"),
+        prevent_initial_call=True,
+    )
+    def update_messages(input_data, cur_wrapper_style, cur_style):
+        print(input_data)
+        if not input_data:
+            return no_update, {"display": "none"}, cur_style
 
-        return {"display": "block"} if command_visible else {"display": "none"}
+        message = input_data.get("message", None)
+        msg_type = input_data.get("msg_type", "info")
+
+        # Resolve type colors
+        type_style = _TYPE_COLORS.get(msg_type, _TYPE_COLORS["info"])
+        cur_style.update(type_style)
+
+        return message, {"display": "block"}, cur_style
 
     """
     @callback(
