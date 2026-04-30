@@ -33,9 +33,13 @@ Usage:
 
 from __future__ import annotations
 
-from dash import MATCH, Input, Output, State, callback, dcc, html, no_update
+import logging
+
+from dash import MATCH, Input, Output, State, callback, ctx, dcc, html, no_update
 
 from crystal_toolkit.core.mpcomponent import MPComponent
+
+logger = logging.getLogger(__name__)
 
 # Bulma-inspired color scheme for notification types
 _TYPE_COLORS = {
@@ -294,24 +298,39 @@ class MessageAIO(html.Div, MPComponent):
         Output(ids.message(MATCH), "children"),
         Output(ids.wrapper(MATCH), "style", allow_duplicate=True),
         Output(ids.div(MATCH), "style"),
-        Output(ids.close_button(MATCH), "n_clicks"),
         Input(ids.data(MATCH), "data"),
         Input(ids.close_button(MATCH), "n_clicks"),
         State(ids.div(MATCH), "style"),
         prevent_initial_call=True,
     )
     def update_messages(input_data, close_clicks, cur_style):
-        if close_clicks or not input_data:
-            return no_update, {"display": "none"}, cur_style, 0
+        if not isinstance(input_data, dict):
+            raise ValueError("`input_data` must be a dictionary for MessageAIO")
+
+        if (
+            isinstance(ctx.triggered_id, dict)
+            and ctx.triggered_id.get("subcomponents") == "close_button"
+        ):
+            return no_update, {"display": "none"}, cur_style
+
+        if not input_data:
+            return no_update, {"display": "none"}, cur_style
 
         message = input_data.get("message", None)
-        msg_type = input_data.get("msg_type", "info")
+        msg_type = input_data.get("msg_type", None)
+
+        if not message:
+            raise ValueError("`message` field is required for MessageAIO")
+
+        if not msg_type:
+            logger.warning("No `msg_type`. Falling back to 'info'")
+            msg_type = "info"
 
         # Resolve type colors
-        type_style = _TYPE_COLORS.get(msg_type, _TYPE_COLORS["info"])
+        type_style = _TYPE_COLORS.get(msg_type, {})
         cur_style.update(type_style)
 
-        return message, {"display": "block"}, cur_style, 1
+        return message, {"display": "block"}, cur_style
 
     """
     @callback(
