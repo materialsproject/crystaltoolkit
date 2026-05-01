@@ -21,7 +21,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import pyarrow.parquet as pq
 from dash import dcc, html
-from dash.dependencies import Component, Input, Output, State
+from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from frozendict import frozendict
 
@@ -47,6 +47,20 @@ MAX_V = 2
 DEFAULT_CUTOFF = 0.2
 CUTOFF_RANGE = [0.1, 0.5]
 CUTOFF_STEP = 0.1
+
+def _resolve_cutoff(value) -> float:
+    """Unwrap a slider value (which may be a list) to a float, falling back
+    to the default cutoff."""
+    if isinstance(value, list):
+        value = value[0] if value else DEFAULT_CUTOFF
+    if value is None:
+        return DEFAULT_CUTOFF
+    return float(value)
+
+
+def _snap_to_grid(ph: float, v: float) -> tuple[int, float]:
+    """Snap a clicked (pH, V) point to the precomputed grid keys."""
+    return int(round(ph)), round(v * 2) / 2
 
 
 class ReversePourbaixDiagramComponent(MPComponent):
@@ -143,13 +157,11 @@ class ReversePourbaixDiagramComponent(MPComponent):
         """
         if self._stability_df is None:
             return []
-        # Round to handle float-equality edge cases in the index lookup.
-        ph_key = int(round(ph))
-        v_key = round(v * 2) / 2  # snap to 0.5 grid
+        ph_key, v_key = _snap_to_grid(ph, v)
         try:
             cell = self._stability_df.loc[(ph_key, v_key)]
         except KeyError:
-            logger.warning("No stability data for (pH=%s, V=%s)", ph_key, v_key)
+            logger.debug("No stability data for (pH=%s, V=%s)", ph_key, v_key)
             return []
         stable = cell[cell["decomposition_energy"] <= cutoff]
         return stable["mp_id"].tolist()
@@ -334,16 +346,10 @@ class ReversePourbaixDiagramComponent(MPComponent):
 
             if isinstance(show_water_lines, list):
                 show_water_lines = show_water_lines[0] if show_water_lines else True
-            if isinstance(stability_cutoff, list):
-                stability_cutoff = (
-                    stability_cutoff[0] if stability_cutoff else DEFAULT_CUTOFF
-                )
-            if stability_cutoff is None:
-                stability_cutoff = DEFAULT_CUTOFF
 
             figure = self.get_heatmap_figure(
                 heatmap_data,
-                stability_cutoff=float(stability_cutoff),
+                stability_cutoff=_resolve_cutoff(stability_cutoff),
                 show_water_lines=bool(show_water_lines),
             )
 
@@ -353,48 +359,3 @@ class ReversePourbaixDiagramComponent(MPComponent):
                 responsive=True,
                 config={"displayModeBar": False, "displaylogo": False},
             )
-
-        @app.callback(
-            Output(self.id("stable-mp-ids"), "data"),
-            Output(self.id("click-info"), "children"),
-            Input(self.id("heatmap"), "clickData"),
-            State(self.get_kwarg_id("stability_cutoff"), "value"),
-        )
-        def on_cell_click(click_data, stability_cutoff):
-            if not click_data:
-                raise PreventUpdate
-
-            point = click_data["points"][0]
-            ph = point["x"]
-            v = point["y"]
-
-            if isinstance(stability_cutoff, list):
-                stability_cutoff = (
-                    stability_cutoff[0] if stability_cutoff else DEFAULT_CUTOFF
-                )
-            if stability_cutoff is None:
-                stability_cutoff = DEFAULT_CUTOFF
-            cutoff = float(stability_cutoff)
-
-            mp_ids = self.get_stable_mp_ids(ph, v, cutoff)
-
-            info = html.Div(
-                [
-                    html.Div([
-                        "pH = ",
-                        html.B(f"{ph}"),
-                        ", V",
-                        html.Sub("SHE"),
-                        " = ",
-                        html.B(f"{v} V"),
-                    ]),
-                    html.Div([
-                        "cutoff ≤ ",
-                        html.B(f"{cutoff} eV/atom"),
-                    ]),
-                    html.Div(f"{len(mp_ids)} stable materials"),
-                ]
-            )
-
-
-            return mp_ids, info
