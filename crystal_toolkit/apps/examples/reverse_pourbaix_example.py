@@ -1,4 +1,7 @@
 """Example app for the Reverse Pourbaix Diagram Component.
+
+Renders the heatmap statically using the component's `get_heatmap_figure`
+staticmethod. No interactivity. See the Materials Project web integration.
 """
 
 from __future__ import annotations
@@ -7,33 +10,23 @@ import json
 from pathlib import Path
 
 import dash
-from dash import html
+from dash import dcc, html
 
 import crystal_toolkit.components as ctc
 from crystal_toolkit.settings import SETTINGS
 from crystal_toolkit.components.reverse_pourbaix import ReversePourbaixDiagramComponent
 
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
-app.config["suppress_callback_exceptions"] = True
 
 # Load pre-computed heatmap data
 DATA_PATH = Path(__file__).parent / "reverse_pourbaix_heatmap.json"
 
-print(f"Loading heatmap data from: {DATA_PATH}")
-
 with open(DATA_PATH) as f:
     heatmap_data = json.load(f)
 
-print(f"  Grid points: {len(heatmap_data['grid'])}")
-print(f"  pH range: {heatmap_data['ph_values'][0]} to {heatmap_data['ph_values'][-1]}")
-print(f"  V range: {heatmap_data['v_values'][-1]} to {heatmap_data['v_values'][0]}")
+# Build the heatmap figure directly — no component, no callbacks.
+figure = ReversePourbaixDiagramComponent.get_heatmap_figure(heatmap_data)
 
-# Create component
-reverse_pourbaix_component = ReversePourbaixDiagramComponent(
-    default_data=heatmap_data
-)
-
-# Layout
 layout = html.Div(
     [
         html.H1("Reverse Pourbaix Diagram"),
@@ -41,7 +34,10 @@ layout = html.Div(
             "Number of thermodynamically stable materials at each pH/potential "
             "combination (decomposition energy < 0.2 eV/atom)."
         ),
-        reverse_pourbaix_component.layout(),
+        dcc.Graph(
+            figure=figure,
+            config={"displayModeBar": False, "displaylogo": False},
+        ),
     ],
     style=dict(maxWidth="900px", margin="2em auto"),
 )
