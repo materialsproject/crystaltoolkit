@@ -13,8 +13,8 @@ import dash
 from dash import dcc, html
 
 import crystal_toolkit.components as ctc
-from crystal_toolkit.settings import SETTINGS
 from crystal_toolkit.components.reverse_pourbaix import ReversePourbaixDiagramComponent
+from crystal_toolkit.settings import SETTINGS
 
 app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 
