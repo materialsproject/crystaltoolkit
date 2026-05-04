@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import dash
 from dash import html
-from mp_api.client import MPRester
-import os
+from pymatgen.ext.matproj import MPRester
 
 import crystal_toolkit.components as ctc
 from crystal_toolkit.settings import SETTINGS
@@ -16,10 +15,8 @@ app = dash.Dash(assets_folder=SETTINGS.ASSETS_PATH)
 # for more information.
 app.config["suppress_callback_exceptions"] = True
 
-print("API_Key found:", os.environ.get("MP_API_KEY"))
-
 # first, retrieve entries from Materials Project
-with MPRester() as mpr: #os.environ.get("MP_API_KEY")
+with MPRester() as mpr:
     pourbaix_entries = mpr.get_pourbaix_entries("Fe-Co")
 
 pourbaix_component = ctc.PourbaixDiagramComponent(default_data=pourbaix_entries)

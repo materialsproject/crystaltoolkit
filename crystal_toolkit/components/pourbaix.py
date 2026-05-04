@@ -17,7 +17,7 @@ from pymatgen.util.string import unicodeify
 from shapely.geometry import Polygon
 
 import crystal_toolkit.helpers.layouts as ctl
-from crystal_toolkit.components.error_msg import ErrorMessageAIO
+from crystal_toolkit.components.messageAIO import MessageAIO
 from crystal_toolkit.core.mpcomponent import MPComponent
 
 try:
@@ -459,44 +459,60 @@ class PourbaixDiagramComponent(MPComponent):
                 ),
                 html.Div(
                     [
-                        ErrorMessageAIO(
-                            "Invalid composition input!",
-                            aio_id=self.id("invalid-comp-alarm"),
-                            msg_type="error",
-                        ),
-                        ErrorMessageAIO(
-                            "Invalid concentration input!",
-                            aio_id=self.id("invalid-conc-alarm"),
-                            msg_type="error",
+                        MessageAIO(
+                            aio_id=self.id("outputConsole"),
                         ),
                         html.Div(
                             [
-                                ctl.add_label_help(
-                                    html.Div(),
-                                    label="Composition Control",
-                                    help="Set the relative composition of non-H/O elements.",
-                                ),
                                 html.Div(
-                                    id=self.id("composition-title"),
-                                    style={"marginBottom": "0.5rem"},
-                                ),
-                                dcc.Input(
-                                    id=self.id("comp-text"),
-                                    className="input",
-                                    type="text",
+                                    [
+                                        html.H5(
+                                            "Composition Control",
+                                            style={
+                                                "fontWeight": "bold",
+                                                "textAlign": "center",
+                                                "flex": "0 0 100%",
+                                            },
+                                        ),
+                                        html.H5(
+                                            "Composition of",
+                                            id=self.id("composition-title"),
+                                            # style={"fontWeight": "bold"},
+                                        ),
+                                    ],
                                     style={
-                                        "textAlign": "center",
-                                        "width": "10rem",
-                                        "marginRight": "0.2rem",
-                                        "marginBottom": "0.2rem",
-                                        "height": "36px",
-                                        "fontSize": "14px",
+                                        "line-height": PANEL_LINE_HEIGHT,
+                                        "display": "flex",
+                                        "flexWrap": "wrap",
+                                        "justifyContent": "center",
                                     },
                                 ),
+                                PourbaixDiagramComponent.create_centered_object(
+                                    dcc.Input(
+                                        id=self.id("comp-text"),
+                                        className="input",
+                                        type="text",
+                                        style={
+                                            "textAlign": "center",
+                                            "width": "10rem",
+                                            "marginRight": "0.2rem",
+                                            "marginBottom": "0.2rem",
+                                            "height": "36px",
+                                            "fontSize": "14px",
+                                        },
+                                    ),
+                                ),
                                 ctl.Block(
-                                    html.Div(
-                                        id=self.id("display-composition"),
+                                    PourbaixDiagramComponent.create_centered_object(
+                                        html.Div(
+                                            id=self.id("display-composition"),
+                                        )
                                     )
+                                ),
+                                html.Hr(
+                                    style={
+                                        "backgroundColor": "#C5C5C6",
+                                    }
                                 ),
                                 dcc.Store(id=self.id("elements-store")),
                             ],
@@ -520,7 +536,7 @@ class PourbaixDiagramComponent(MPComponent):
                         ),
                     ],
                     style={
-                        "backgroundColor": "#FFFFFF",
+                        "backgroundColor": "#F1F1F5",
                     },
                 ),
                 html.Br(),
@@ -598,9 +614,6 @@ class PourbaixDiagramComponent(MPComponent):
                 entry for entry in entries_obj if entry.phase_type == "Solid"
             ]
 
-            #NOTE: filter_solids bool affects both heatmap choices and decomposition energy. 
-            # Some user may want to find the decomposition eneryg of an mp-id (which is skipped in the choices) while creating the actual pbx with filter_solids = True.
-            # Pymatgen allows for this functionality, but currently this pourbaix UI does not allow for it.
             if filter_solids:
                 # O is 2.46 b/c pbx entry finds energies referenced to H2O
                 entries_HO = [ComputedEntry("H", 0), ComputedEntry("O", 2.46)]
@@ -694,17 +707,19 @@ class PourbaixDiagramComponent(MPComponent):
             conc_inputs = []
 
             for element in sorted(elements):
-                conc_input = self.get_numerical_input(
+                conc_input = PourbaixDiagramComponent.create_centered_object(
+                    self.get_numerical_input(
                         f"conc-{element}",
                         default=1e-6,
                         min=MIN_CONCENTRATION,
                         max=MAX_CONCENTRATION,
-                        label=f"Concentration of {element} ion",
+                        label=f"concentration of {element} ion",
                         style={
                             "width": "10rem",
                             "fontSize": "14px",
                         },
                     )
+                )
 
                 conc_inputs.append(conc_input)
 
@@ -717,11 +732,17 @@ class PourbaixDiagramComponent(MPComponent):
             )
 
             comp_conc_controls.append(
-                ctl.add_label_help(
-                    html.Div(),
-                    label=ion_label,
-                    help=f"Equilibrium concentration beyond this threshold is considered unstable (meaningfully dissolved). Set the range between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} (M)",
+                html.H5(
+                    ion_label,
+                    style={"fontWeight": "bold", "textAlign": "center"},
                 ),
+            )
+            comp_conc_controls.append(
+                PourbaixDiagramComponent.create_centered_object(
+                    html.H6(
+                        f"💡 Set the range between {MIN_CONCENTRATION} and {MAX_CONCENTRATION} (M)"
+                    )
+                )
             )
 
             comp_conc_controls += conc_inputs
@@ -740,12 +761,12 @@ class PourbaixDiagramComponent(MPComponent):
             default_comp = ":".join(["1" for _ in elements])
 
             # composition title
-            title = "Composition of " + ":".join(elements)
+            title = "💡 Composition of " + ":".join(elements)
 
             # update_string
             update_string = "Concentration update"
             if len(elements) > 1:
-                update_string = "Update composition & concentrations"
+                update_string = "Composition & concentration update"
 
             return (
                 html.Div(
@@ -768,8 +789,7 @@ class PourbaixDiagramComponent(MPComponent):
 
         @app.callback(
             Output(self.id("graph-panel"), "children"),
-            Output(ErrorMessageAIO.ids.visible(self.id("invalid-comp-alarm")), "data"),
-            Output(ErrorMessageAIO.ids.visible(self.id("invalid-conc-alarm")), "data"),
+            Output(MessageAIO.ids.data(self.id("outputConsole")), "data"),
             Output(self.id("display-composition"), "children"),
             Input(self.id(), "data"),
             Input(self.id("display-composition"), "children"),
@@ -808,8 +828,7 @@ class PourbaixDiagramComponent(MPComponent):
                 logger.error("Invalid composition input!")
                 return (
                     self.get_figure_div(),
-                    True,
-                    False,
+                    {"message": "Invalid composition input!", "msg_type": "error"},
                     "",
                 )
             try:
@@ -825,8 +844,7 @@ class PourbaixDiagramComponent(MPComponent):
                 logger.error("Invalid composition input!")
                 return (
                     self.get_figure_div(),
-                    True,
-                    False,
+                    {"message": "Invalid composition input!", "msg_type": "error"},
                     "",
                 )
 
@@ -861,8 +879,10 @@ class PourbaixDiagramComponent(MPComponent):
                         # if the input is out of pre-defined range, Input will get None
                         return (
                             self.get_figure_div(),
-                            False,
-                            True,
+                            {
+                                "message": "Invalid concentration input!",
+                                "msg_type": "error",
+                            },
                             "",
                         )
 
@@ -891,7 +911,6 @@ class PourbaixDiagramComponent(MPComponent):
 
             return (
                 self.get_figure_div(figure=figure),
-                False,
-                False,
+                {},
                 html.Small(f"Pourbaix composition set to {unicodeify(formula)}."),
             )
