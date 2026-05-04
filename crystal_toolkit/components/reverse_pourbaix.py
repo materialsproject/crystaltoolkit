@@ -7,8 +7,6 @@ stability data from the Materials Project database.
 This is the "reverse" of the standard Pourbaix diagram: instead of showing
 stability domains for a single material, it shows how many materials are
 stable at each electrochemical condition.
-
-See: Karlsson et al., Electrochimica Acta 549 (2026) 148053
 """
 
 from __future__ import annotations
@@ -42,8 +40,7 @@ MIN_V = -2
 MAX_V = 2
 
 # Stability cutoff (eV/atom) — the recommended practical value is 0.2,
-# matching the metastability threshold used in Karlsson et al. and the
-# upstream MP/Sun/Aykol references.
+# up to 0.5 also makes sense
 DEFAULT_CUTOFF = 0.2
 CUTOFF_RANGE = [0.1, 0.5]
 CUTOFF_STEP = 0.1
@@ -68,8 +65,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
 
     Shows a heatmap of the number of stable materials at each pH/V
     combination, where stability is defined by a user-tunable
-    decomposition energy cutoff (eV/atom). Clicking on a cell exposes
-    the list of mp_ids stable at that condition for downstream use.
+    decomposition energy cutoff (eV/atom).
     """
 
     default_state = frozendict(
@@ -128,7 +124,11 @@ class ReversePourbaixDiagramComponent(MPComponent):
             parquet_path: path to the precomputed (pH, V, mp_id, decomposition_energy)
                 parquet file. Loaded once at component construction. If None, the
                 click-to-list functionality is disabled but the heatmap still works.
+                Current parquet data is computed with solid filter and default
+                ion concentrations.
         """
+        # TODO: in future, it would be nice if user can disable solid filter and 
+        # specify ion concentrations.
         super().__init__(*args, **kwargs)
         self._stability_df: pd.DataFrame | None = None
         if parquet_path is not None:
@@ -271,10 +271,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
         # Downstream callbacks (filtering, table rendering, etc.) can read this.
         mp_id_store = dcc.Store(id=self.id("stable-mp-ids"), data=[])
 
-        # Selection panel — mirrors the panel structure the app uses for
-        # Options so they render identically when stacked. The click callback
-        # writes to the inner content div (id "click-info"); the outer panel
-        # chrome is static.
+        # Selection panel
         info = html.Div(
             [
                 html.Div("Selected conditions", className="panel-heading"),
