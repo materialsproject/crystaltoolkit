@@ -22,7 +22,6 @@ from dash import dcc, html
 from dash.dependencies import Component, Input, Output
 from dash.exceptions import PreventUpdate
 from frozendict import frozendict
-
 from pymatgen.analysis.pourbaix_diagram import PREFAC
 
 from crystal_toolkit.core.mpcomponent import MPComponent
@@ -44,6 +43,7 @@ MAX_V = 2
 DEFAULT_CUTOFF = 0.2
 CUTOFF_RANGE = [0.1, 0.5]
 CUTOFF_STEP = 0.1
+
 
 def _resolve_cutoff(value) -> float:
     """Unwrap a slider value (which may be a list) to a float, falling back
@@ -98,7 +98,10 @@ class ReversePourbaixDiagramComponent(MPComponent):
             "side": "left",
             "tickfont": {"size": 16.0},
             "ticks": "inside",
-            "title": {"font": {"color": "#000000", "size": 24.0}, "text": "Potential (V vs. SHE)"},
+            "title": {
+                "font": {"color": "#000000", "size": 24.0},
+                "text": "Potential (V vs. SHE)",
+            },
             "type": "linear",
             "zeroline": False,
         },
@@ -127,7 +130,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
                 Current parquet data is computed with solid filter and default
                 ion concentrations.
         """
-        # TODO: in future, it would be nice if user can disable solid filter and 
+        # TODO: in future, it would be nice if user can disable solid filter and
         # specify ion concentrations.
         super().__init__(*args, **kwargs)
         self._stability_df: pd.DataFrame | None = None
@@ -179,15 +182,15 @@ class ReversePourbaixDiagramComponent(MPComponent):
         v_values = heatmap_data["v_values"]
         grid = heatmap_data["grid"]
 
-        cutoff_key = ReversePourbaixDiagramComponent._format_cutoff_key(stability_cutoff)
+        cutoff_key = ReversePourbaixDiagramComponent._format_cutoff_key(
+            stability_cutoff
+        )
 
         lookup: dict[tuple[float, float], int] = {
             (point["pH"], point["V"]): point["counts"][cutoff_key] for point in grid
         }
 
-        z_matrix = [
-            [lookup.get((ph, v), 0) for ph in ph_values] for v in v_values
-        ]
+        z_matrix = [[lookup.get((ph, v), 0) for ph in ph_values] for v in v_values]
 
         data: list[go.BaseTraceType] = []
 
@@ -263,7 +266,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
                     config={"displayModeBar": False, "displaylogo": False},
                 ),
             ],
-            #style={"minHeight": "500px"},
+            # style={"minHeight": "500px"},
             id=self.id("graph-panel"),
         )
 
@@ -351,7 +354,9 @@ class ReversePourbaixDiagramComponent(MPComponent):
             )
 
             return dcc.Graph(
-                id=self.id("heatmap"),  # keep stable id so clickData callback can find it
+                id=self.id(
+                    "heatmap"
+                ),  # keep stable id so clickData callback can find it
                 figure=figure,
                 responsive=True,
                 config={"displayModeBar": False, "displaylogo": False},
