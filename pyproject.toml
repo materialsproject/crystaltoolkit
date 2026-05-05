@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 authors = [{ name = "Matt Horton", email = "mkhorton@lbl.gov" }]
 
 dependencies = [
-  "dash-mp-components>=0.5.1rc9,<0.5.2",
+  "dash-mp-components>=0.5.2rc1,<0.5.3",
   "dash>=2.11.0,<4.0.0", # Issue in dash==4.0.0 with multi-select drop down: https://community.plotly.com/t/multi-select-dropdown-options-do-not-update-correct-when-labels-have-html-component-in-dash-4-0-0/96495
   "flask-caching",
   "frozendict",
