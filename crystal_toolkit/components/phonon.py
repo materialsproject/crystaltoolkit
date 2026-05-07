@@ -1010,7 +1010,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     def generate_callbacks(self, app, cache) -> None:
         @app.callback(
-            Output(self.id("ph-bsdos-graph"), "figure", allow_duplicate=True),
+            Output(self.id("ph-bsdos-graph"), "figure"),
             Output(self.id("zone"), "data"),
             Output(self.id("table"), "children"),
             Input(self.id("ph_bs"), "data"),
