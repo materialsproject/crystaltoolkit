@@ -44,22 +44,6 @@ DEFAULT_CUTOFF = 0.2
 CUTOFF_RANGE = [0.1, 0.5]
 CUTOFF_STEP = 0.1
 
-
-def _resolve_cutoff(value) -> float:
-    """Unwrap a slider value (which may be a list) to a float, falling back
-    to the default cutoff."""
-    if isinstance(value, list):
-        value = value[0] if value else DEFAULT_CUTOFF
-    if value is None:
-        return DEFAULT_CUTOFF
-    return float(value)
-
-
-def _snap_to_grid(ph: float, v: float) -> tuple[int, float]:
-    """Snap a clicked (pH, V) point to the precomputed grid keys."""
-    return int(round(ph)), round(v * 2) / 2
-
-
 class ReversePourbaixDiagramComponent(MPComponent):
     """Component for displaying a reverse Pourbaix diagram.
 
@@ -144,6 +128,22 @@ class ReversePourbaixDiagramComponent(MPComponent):
                 len(df),
                 self._stability_df.index.nunique(),
             )
+    
+    @staticmethod
+    def _resolve_cutoff(value: float | list[float] | None) -> float:
+        """Unwrap a slider value (which may be a list) to a float, falling back
+        to the default cutoff."""
+        if isinstance(value, list):
+            value = value[0] if value else DEFAULT_CUTOFF
+        if value is None:
+            return DEFAULT_CUTOFF
+        return float(value)
+
+    @staticmethod
+    def _snap_to_grid(ph: float, v: float) -> tuple[int, float]:
+        """Snap a clicked (pH, V) point to the precomputed grid keys."""
+        return int(round(ph)), round(v * 2) / 2
+    
 
     @staticmethod
     def _format_cutoff_key(cutoff: float) -> str:
@@ -160,7 +160,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
         """
         if self._stability_df is None:
             return []
-        ph_key, v_key = _snap_to_grid(ph, v)
+        ph_key, v_key = self._snap_to_grid(ph, v)
         try:
             cell = self._stability_df.loc[(ph_key, v_key)]
         except KeyError:
@@ -333,7 +333,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
         """Register Dash callbacks for interactivity."""
 
         @app.callback(
-            Output(self.id("graph-panel"), "children"),
+            Output(self.id("heatmap"), "figure"),
             Input(self.id(), "data"),
             Input(self.get_kwarg_id("show_water_lines"), "value"),
             Input(self.get_kwarg_id("stability_cutoff"), "value"),
@@ -349,15 +349,8 @@ class ReversePourbaixDiagramComponent(MPComponent):
 
             figure = self.get_heatmap_figure(
                 heatmap_data,
-                stability_cutoff=_resolve_cutoff(stability_cutoff),
+                stability_cutoff=self._resolve_cutoff(stability_cutoff),
                 show_water_lines=bool(show_water_lines),
             )
 
-            return dcc.Graph(
-                id=self.id(
-                    "heatmap"
-                ),  # keep stable id so clickData callback can find it
-                figure=figure,
-                responsive=True,
-                config={"displayModeBar": False, "displaylogo": False},
-            )
+            return figure
