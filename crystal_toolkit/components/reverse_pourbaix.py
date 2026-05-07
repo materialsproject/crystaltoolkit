@@ -44,6 +44,7 @@ DEFAULT_CUTOFF = 0.2
 CUTOFF_RANGE = [0.1, 0.5]
 CUTOFF_STEP = 0.1
 
+
 class ReversePourbaixDiagramComponent(MPComponent):
     """Component for displaying a reverse Pourbaix diagram.
 
@@ -128,7 +129,7 @@ class ReversePourbaixDiagramComponent(MPComponent):
                 len(df),
                 self._stability_df.index.nunique(),
             )
-    
+
     @staticmethod
     def _resolve_cutoff(value: float | list[float] | None) -> float:
         """Unwrap a slider value (which may be a list) to a float, falling back
@@ -143,7 +144,6 @@ class ReversePourbaixDiagramComponent(MPComponent):
     def _snap_to_grid(ph: float, v: float) -> tuple[int, float]:
         """Snap a clicked (pH, V) point to the precomputed grid keys."""
         return int(round(ph)), round(v * 2) / 2
-    
 
     @staticmethod
     def _format_cutoff_key(cutoff: float) -> str:
