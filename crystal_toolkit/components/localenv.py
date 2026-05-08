@@ -24,10 +24,10 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 )
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import CN_OPT_PARAMS, LocalStructOrderParams
+from pymatgen.analysis.lobster_env import LobsterNeighbors
 from pymatgen.core import Molecule, Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import unicodeify, unicodeify_species
 from sklearn.preprocessing import normalize
@@ -217,11 +217,9 @@ def _perform_lobsterenv_analysis(
 
     try:
         lobster_neighbors = LobsterNeighbors(
-            filename_icohp=None,
-            obj_icohp=obj_icohp,
+            icoxxlist_obj=obj_icohp,
             structure=struct,
-            obj_charge=obj_charge,
-            filename_charge=None,
+            charge_obj=obj_charge,
             which_charge=which_charge,
             valences_from_charges=True,
             perc_strength_icohp=perc_strength_icohp,
@@ -245,14 +243,14 @@ def _perform_lobsterenv_analysis(
             "LobsterEnv failed to initialize. Try adjusting the ICOHP cutoff percentage and retry."
         ) from err
 
-    try:
-        lse = lobster_neighbors.get_light_structure_environment(
-            only_cation_environments=only_cation_anion
-        )
-    except ValueError as err:
-        raise ValueError(
-            "LobsterEnv failed to determine local environments. Try adjusting the ICOHP cutoff percentage and retry."
-        ) from err
+    lse = lobster_neighbors.get_light_structure_environment(
+        only_cation_environments=only_cation_anion,
+        on_error="warn"
+    )
+    #except ValueError as err:
+    #    raise ValueError(
+    #        "LobsterEnv failed to determine local environments. Try adjusting the ICOHP cutoff percentage and retry."
+    #    ) from err
 
     all_ce = AllCoordinationGeometries()
     envs = []
