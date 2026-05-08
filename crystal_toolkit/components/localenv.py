@@ -23,8 +23,8 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
 )
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
-from pymatgen.analysis.local_env import CN_OPT_PARAMS, LocalStructOrderParams
 from pymatgen.analysis.lobster_env import LobsterNeighbors
+from pymatgen.analysis.local_env import CN_OPT_PARAMS, LocalStructOrderParams
 from pymatgen.core import Molecule, Structure
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -244,10 +244,9 @@ def _perform_lobsterenv_analysis(
         ) from err
 
     lse = lobster_neighbors.get_light_structure_environment(
-        only_cation_environments=only_cation_anion,
-        on_error="warn"
+        only_cation_environments=only_cation_anion, on_error="warn"
     )
-    #except ValueError as err:
+    # except ValueError as err:
     #    raise ValueError(
     #        "LobsterEnv failed to determine local environments. Try adjusting the ICOHP cutoff percentage and retry."
     #    ) from err
