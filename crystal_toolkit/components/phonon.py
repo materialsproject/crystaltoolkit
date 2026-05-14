@@ -25,7 +25,14 @@ from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.core.scene import Convex, Cylinders, Lines, Scene, Spheres
-from crystal_toolkit.helpers.layouts import Column, Columns, Label, get_data_list
+from crystal_toolkit.helpers.layouts import (
+    Button,
+    Column,
+    Columns,
+    Icon,
+    Label,
+    get_data_list,
+)
 from crystal_toolkit.helpers.pretty_labels import pretty_labels
 
 if TYPE_CHECKING:
@@ -161,6 +168,31 @@ class PhononBandstructureAndDosComponent(MPComponent):
         summary_dict = self._get_data_list_dict(None, None)
         summary_table = get_data_list(summary_dict)
 
+        crystal_animation_button_container = html.Div(
+            Button(
+                [
+                    Icon(kind="chart-pie"),
+                    html.Span(),
+                    "Generate Phonon Animation",
+                ],
+                kind="primary",
+                id=self.id("animation-button"),
+            ),
+            id=self.id("animation-button-container"),
+        )
+
+        return {
+            "graph": graph,
+            "convention": convention,
+            "dos-select": dos_select,
+            "label-select": label_select,
+            "zone": zone,
+            "table": summary_table,
+            "crystal_animation_button_container": crystal_animation_button_container,
+        }
+
+    def _get_animation_panel(self):
+        # tip
         tip = html.Div(
             html.Span(
                 "💡 Tips: Click different q-points and bands in the dispersion diagram to see the crystal vibration!",
@@ -188,7 +220,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 settings={"defaultZoom": 1.2},
                 axisView="SW",
                 showControls=False,  # disable download for now
-            )
+            ),
         )
 
         hr = html.Hr(
@@ -362,58 +394,44 @@ class PhononBandstructureAndDosComponent(MPComponent):
             open=True,
         )
 
-        return {
-            "graph": graph,
-            "convention": convention,
-            "dos-select": dos_select,
-            "label-select": label_select,
-            "zone": zone,
-            "table": summary_table,
-            "crystal-animation": crystal_animation,
-            "tip": tip,
-            "crystal-animation-controls": crystal_animation_controls,
-        }
-
-    def _get_animation_panel(self):
-        sub_layouts = self._sub_layouts
-        return Columns(
-            [
-                Column(
-                    [
-                        sub_layouts["tip"],
-                        html.Br(),
-                        Columns(
-                            [
-                                html.Div(
-                                    sub_layouts["crystal-animation"],
-                                    style={
-                                        "display": "flex",
-                                        "justify-content": "center",
-                                    },
-                                ),
-                                html.Div(
-                                    sub_layouts["crystal-animation-controls"],
-                                    style={
-                                        "display": "flex",
-                                        "justify-content": "flex-end",
-                                        "paddingRight": "5%",
-                                    },
-                                ),
-                            ],
-                            style={
-                                "display": "flex",
-                                "justify-content": "center",
-                            },
-                        ),
-                    ],
-                ),
-            ],
-        )
+        return [
+            Column(
+                [
+                    tip,
+                    html.Br(),
+                    Columns(
+                        [
+                            html.Div(
+                                crystal_animation,
+                                style={
+                                    "display": "flex",
+                                    "justify-content": "center",
+                                },
+                            ),
+                            html.Div(
+                                crystal_animation_controls,
+                                style={
+                                    "display": "flex",
+                                    "justify-content": "flex-end",
+                                    "paddingRight": "5%",
+                                },
+                            ),
+                        ],
+                        style={"justify-content": "center", "display": "flex"},
+                    ),
+                ],
+            ),
+        ]
 
     def layout(self) -> html.Div:
         sub_layouts = self._sub_layouts
-        crystal_animation = self._get_animation_panel()
         graph = Columns([Column([sub_layouts["graph"]])])
+        crystal_animation_container = Columns(
+            [], id=self.id("crystal-animation-container"), style={"display": "none"}
+        )
+        crystal_animation_button_container = sub_layouts[
+            "crystal_animation_button_container"
+        ]
         controls = Columns(
             [
                 Column(
@@ -432,7 +450,15 @@ class PhononBandstructureAndDosComponent(MPComponent):
             ]
         )
 
-        return html.Div([graph, crystal_animation, controls, brillouin_zone])
+        return html.Div(
+            [
+                graph,
+                crystal_animation_button_container,
+                crystal_animation_container,
+                controls,
+                brillouin_zone,
+            ]
+        )
 
     @staticmethod
     def _complex_vectors_serialization(vectors):
@@ -661,7 +687,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     "customdata": [
                         [di + last_di, band_num] for di in range(len(x_dat))
                     ],
-                    "hovertemplate": "%{y:.2f} THz",
+                    "hovertemplate": "%{y:.2f} THz<br>band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>",
                     "showlegend": False,
                     "xaxis": "x",
                     "yaxis": "y",
@@ -979,14 +1005,14 @@ class PhononBandstructureAndDosComponent(MPComponent):
 
     def generate_callbacks(self, app, cache) -> None:
         @app.callback(
-            Output(self.id("ph-bsdos-graph"), "figure"),
+            Output(self.id("ph-bsdos-graph"), "figure", allow_duplicate=True),
             Output(self.id("zone"), "data"),
             Output(self.id("table"), "children"),
             Input(self.id("ph_bs"), "data"),
             Input(self.id("ph_dos"), "data"),
-            Input(self.id("ph-bsdos-graph"), "clickData"),
+            # prevent_intial_call=True,
         )
-        def update_graph(bs, dos, nclick):
+        def update_graph(bs, dos):
             if isinstance(bs, dict):
                 # bs = PhononBS.from_pmg(bs)
                 bs = PhononBandStructureSymmLine.from_dict(bs)
@@ -994,6 +1020,24 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 dos = CompletePhononDos.from_dict(dos)
 
             figure = self.get_figure(bs, dos)
+
+            zone_scene = self.get_brillouin_zone_scene(bs)
+
+            summary_dict = self._get_data_list_dict(bs, dos)
+            summary_table = get_data_list(summary_dict)
+
+            return figure, zone_scene.to_json(), summary_table
+
+        @app.callback(
+            Output(self.id("ph-bsdos-graph"), "figure", allow_duplicate=True),
+            State(self.id("ph-bsdos-graph"), "figure"),
+            Input(self.id("ph-bsdos-graph"), "clickData"),
+            Input(self.id("animation-button"), "n_clicks"),
+            prevent_intial_call=True,
+        )
+        def update_pointer_graph(figure, nclick, animation_click):
+            if not animation_click:
+                raise PreventUpdate
 
             # remove marker if there is one
             figure["data"] = [
@@ -1021,29 +1065,36 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     "showlegend": False,
                     "customdata": [[qpoint, band_num]],
                     "hovertemplate": (
-                        "band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>"
+                        "%{y:.2f} THz<br>band: %{customdata[1]}<br>q-point: %{customdata[0]}<br>"
                     ),
                 }
             )
 
-            zone_scene = self.get_brillouin_zone_scene(bs)
+            return figure
 
-            summary_dict = self._get_data_list_dict(bs, dos)
-            summary_table = get_data_list(summary_dict)
-
-            return figure, zone_scene.to_json(), summary_table
+        # @app.callback(
+        #     Output(self.id("brillouin-zone"), "data", allow_duplicate=True),
+        #     Input(self.id("ph-bsdos-graph"), "hoverData"),
+        #     Input(self.id("ph-bsdos-graph"), "clickData"),
+        # )
+        # def highlight_bz_on_hover_bs(hover_data, click_data, label_select):
+        #     """Highlight the corresponding point/edge of the Brillouin Zone when hovering the band
+        #     structure plot.
+        #     """
+        #     # TODO: figure out what to return (CSS?) to highlight BZ edge/point
+        #     return
 
         @app.callback(
-            Output(self.id("brillouin-zone"), "data"),
-            Input(self.id("ph-bsdos-graph"), "hoverData"),
-            Input(self.id("ph-bsdos-graph"), "clickData"),
+            Output(self.id("crystal-animation-container"), "children"),
+            Output(self.id("crystal-animation-container"), "style"),
+            Output(self.id("animation-button-container"), "style"),
+            Input(self.id("animation-button"), "n_clicks"),
+            prevent_intial_call=True,
         )
-        def highlight_bz_on_hover_bs(hover_data, click_data, label_select):
-            """Highlight the corresponding point/edge of the Brillouin Zone when hovering the band
-            structure plot.
-            """
-            # TODO: figure out what to return (CSS?) to highlight BZ edge/point
-            return
+        def create_animation(nclick):
+            if not nclick:
+                raise PreventUpdate
+            return self._get_animation_panel(), {"display": "flex"}, {"display": "none"}
 
         @app.callback(
             Output(self.id("crystal-animation"), "data"),
@@ -1052,7 +1103,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             Output(self.get_kwarg_id("scale-y"), "max"),
             Output(self.get_kwarg_id("scale-z"), "max"),
             Input(self.id("ph-bsdos-graph"), "clickData"),
-            Input(self.id("ph_bs"), "data"),
+            State(self.id("ph_bs"), "data"),
             Input(self.id("supercell-controls-btn"), "n_clicks"),
             State(self.get_kwarg_id("magnitude"), "value"),
             State(self.get_kwarg_id("scale-x"), "value"),
@@ -1060,7 +1111,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             State(self.get_kwarg_id("scale-z"), "value"),
             State(self.get_kwarg_id("velocity"), "value"),
             State(self.id("color-scheme"), "value"),
-            # prevent_initial_call=True
+            Input(self.id("animation-button"), "n_clicks"),
         )
         def update_crystal_animation(
             cd,
@@ -1072,12 +1123,12 @@ class PhononBandstructureAndDosComponent(MPComponent):
             scale_z,
             velocity,
             color_scheme,
+            nclink_button,
         ):
             # Avoids using `get_all_kwargs_id` for all `Input`; instead, uses `State` to prevent flickering when users modify `scale_x`, `scale_y`, or `scale_z` fields,
             # ensuring updates occur only after the `supercell-controls-btn`` is clicked.
-            if not bs:
+            if not bs or not nclink_button:
                 raise PreventUpdate
-
             # Since `self.get_kwarg_id()` uses dash.dependencies.ALL, it returns a list of values.
             # Although we could use `magnitude_fraction = magnitude_fraction[0]` to get the first value,
             # this approach provides better clarity and readability.
@@ -1158,7 +1209,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 1,
                 int(np.floor((MAX_SUPERCELL_SITES / num_sites) ** (1 / 3))),
             )
-
             return (
                 PhononBandstructureAndDosComponent._get_time_function_json(
                     ph_bs=bs,
