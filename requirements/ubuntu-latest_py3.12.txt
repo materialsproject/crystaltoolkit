@@ -6,6 +6,8 @@
 #
 annotated-types==0.7.0
     # via pydantic
+arro3-core==0.8.0
+    # via deltalake
 asttokens==3.0.1
     # via stack-data
 bibtexparser==1.4.4
@@ -14,13 +16,13 @@ blake3==1.0.8
     # via emmet-core
 blinker==1.9.0
     # via flask
-boto3==1.42.95
+boto3==1.43.8
     # via mp-api
-botocore==1.42.95
+botocore==1.43.8
     # via
     #   boto3
     #   s3transfer
-cachelib==0.13.0
+cachelib==0.14.0
     # via flask-caching
 certifi==2026.4.22
     # via requests
@@ -34,11 +36,15 @@ cycler==0.12.1
     # via matplotlib
 dash==3.4.0
     # via crystal_toolkit (pyproject.toml)
-dash-mp-components==0.5.1rc9
+dash-mp-components==0.5.2rc1
     # via crystal_toolkit (pyproject.toml)
 decorator==5.2.1
     # via ipython
-emmet-core==0.86.3
+deltalake==1.5.1
+    # via mp-api
+deprecated==1.3.1
+    # via deltalake
+emmet-core==0.86.4
     # via mp-api
 executing==2.2.1
     # via stack-data
@@ -48,23 +54,25 @@ flask==3.1.3
     #   flask-caching
 flask-caching==2.4.0
     # via crystal_toolkit (pyproject.toml)
-fonttools==4.62.1
+fonttools==4.63.0
     # via matplotlib
 frozendict==2.4.7
     # via crystal_toolkit (pyproject.toml)
-idna==3.13
+idna==3.15
     # via requests
 imageio==2.37.3
     # via scikit-image
 importlib-metadata==9.0.0
     # via dash
+inflect==7.5.0
+    # via emmet-core
 ipython==9.13.0
     # via crystal_toolkit (pyproject.toml)
 ipython-pygments-lexers==1.1.1
     # via ipython
 itsdangerous==2.2.0
     # via flask
-jedi==0.19.2
+jedi==0.20.0
     # via ipython
 jinja2==3.1.6
     # via flask
@@ -91,18 +99,20 @@ markupsafe==3.0.3
     #   werkzeug
 matplotlib==3.10.9
     # via pymatgen-core
-matplotlib-inline==0.2.1
+matplotlib-inline==0.2.2
     # via ipython
 monty==2026.2.18
     # via
     #   emmet-core
     #   mp-api
     #   pymatgen-core
-mp-api==0.46.0
+more-itertools==11.0.2
+    # via inflect
+mp-api==0.46.1
     # via crystal_toolkit (pyproject.toml)
 mpmath==1.3.0
     # via sympy
-narwhals==2.20.0
+narwhals==2.21.0
     # via plotly
 nest-asyncio==1.6.0
     # via dash
@@ -125,11 +135,11 @@ numpy==2.4.4
     #   shapely
     #   spglib
     #   tifffile
-orjson==3.11.8
+orjson==3.11.9
     # via
     #   mp-api
     #   pymatgen-core
-packaging==26.1
+packaging==26.2
     # via
     #   lazy-loader
     #   matplotlib
@@ -137,9 +147,9 @@ packaging==26.1
     #   scikit-image
 palettable==3.3.3
     # via pymatgen-core
-pandas==3.0.2
+pandas==3.0.3
     # via pymatgen-core
-parso==0.8.6
+parso==0.8.7
     # via jedi
 pexpect==4.9.0
     # via ipython
@@ -158,18 +168,22 @@ psutil==7.2.2
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
+pubchempy==1.0.5
+    # via emmet-core
 pure-eval==0.2.3
     # via stack-data
+pyarrow==24.0.0
+    # via mp-api
 pybtex==0.26.1
     # via emmet-core
-pydantic==2.13.3
+pydantic==2.13.4
     # via
     #   emmet-core
     #   pydantic-settings
     #   pymatgen-io-validation
-pydantic-core==2.46.3
+pydantic-core==2.46.4
     # via pydantic
-pydantic-settings==2.14.0
+pydantic-settings==2.14.1
     # via
     #   crystal_toolkit (pyproject.toml)
     #   emmet-core
@@ -178,7 +192,7 @@ pygments==2.20.0
     # via
     #   ipython
     #   ipython-pygments-lexers
-pymatgen==2026.3.23
+pymatgen==2026.5.4
     # via
     #   crystal_toolkit (pyproject.toml)
     #   emmet-core
@@ -201,7 +215,7 @@ python-dotenv==1.2.2
     # via pydantic-settings
 pyyaml==6.0.3
     # via pybtex
-requests==2.33.1
+requests==2.34.2
     # via
     #   dash
     #   mp-api
@@ -211,7 +225,7 @@ retrying==1.4.2
     # via dash
 ruamel-yaml==0.19.1
     # via monty
-s3transfer==0.16.1
+s3transfer==0.17.0
     # via boto3
 scikit-image==0.26.0
     # via crystal_toolkit (pyproject.toml)
@@ -236,14 +250,16 @@ tabulate==0.10.0
     # via pymatgen-core
 threadpoolctl==3.6.0
     # via scikit-learn
-tifffile==2026.4.11
+tifffile==2026.5.2
     # via scikit-image
 tqdm==4.67.3
     # via pymatgen-core
-traitlets==5.14.3
+traitlets==5.15.0
     # via
     #   ipython
     #   matplotlib-inline
+typeguard==4.5.2
+    # via inflect
 typing-extensions==4.15.0
     # via
     #   dash
@@ -252,6 +268,7 @@ typing-extensions==4.15.0
     #   pydantic
     #   pydantic-core
     #   spglib
+    #   typeguard
     #   typing-inspection
 typing-inspection==0.4.2
     # via
@@ -259,11 +276,11 @@ typing-inspection==0.4.2
     #   pydantic-settings
 uncertainties==3.2.3
     # via pymatgen-core
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   botocore
     #   requests
-wcwidth==0.6.0
+wcwidth==0.7.0
     # via prompt-toolkit
 webcolors==25.10.0
     # via crystal_toolkit (pyproject.toml)
@@ -271,6 +288,8 @@ werkzeug==3.1.8
     # via
     #   dash
     #   flask
+wrapt==2.1.2
+    # via deprecated
 zipp==3.23.1
     # via importlib-metadata
 
