@@ -18,6 +18,7 @@ from crystal_toolkit.components.phonon import (
     PhononBandstructureAndDosPanelComponent,
 )
 from crystal_toolkit.components.pourbaix import PourbaixDiagramComponent
+from crystal_toolkit.components.reverse_pourbaix import ReversePourbaixDiagramComponent
 from crystal_toolkit.components.search import SearchComponent
 from crystal_toolkit.components.structure import StructureMoleculeComponent
 
