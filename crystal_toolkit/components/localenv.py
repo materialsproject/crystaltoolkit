@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import itertools
 from multiprocessing import cpu_count
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import dash_mp_components as mpc
 from dash import callback_context, dcc, html
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
+from monty.json import MontyDecoder
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimplestChemenvStrategy,
 )
@@ -21,6 +23,7 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
     LightStructureEnvironments,
 )
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
+from pymatgen.analysis.lobster_env import LobsterNeighbors
 from pymatgen.analysis.local_env import CN_OPT_PARAMS, LocalStructOrderParams
 from pymatgen.core import Molecule, Structure
 from pymatgen.ext.matproj import MPRester
@@ -30,6 +33,7 @@ from pymatgen.util.string import unicodeify, unicodeify_species
 from sklearn.preprocessing import normalize
 
 from crystal_toolkit.components.structure import StructureMoleculeComponent
+from crystal_toolkit.components.upload import LobsterEnvUploadComponent
 from crystal_toolkit.core.legend import Legend
 from crystal_toolkit.core.panelcomponent import PanelComponent
 from crystal_toolkit.helpers.layouts import (
@@ -42,6 +46,9 @@ from crystal_toolkit.helpers.layouts import (
     get_table,
     get_tooltip,
 )
+
+if TYPE_CHECKING:
+    from pymatgen.io.lobster import Charge, Icohplist
 
 try:
     from dscribe.descriptors import SOAP
@@ -102,6 +109,240 @@ def _get_local_order_parameters(structure_graph, n):
     return None
 
 
+def _get_lobsterenv_inputs(data: dict):
+    """Extract and deserialize lobsterenv inputs from data dict.
+
+    Args:
+        data: Dictionary containing obj_charge, obj_icohp, and structure
+
+    Returns:
+        Tuple of (structure, obj_icohp, obj_charge)
+
+    Raises:
+        ValueError: If charge and ICOHP data are not available.
+    """
+    data = data or {}
+
+    obj_charge = data.get("obj_charge")
+    obj_icohp = data.get("obj_icohp")
+    struct = data.get("structure")
+
+    if not obj_charge or not obj_icohp:
+        raise ValueError(
+            "LobsterEnv analysis requires LOBSTER outputs (ICOHP + charge data). "
+            "Please provide `obj_icohp` and `obj_charge` in the component data."
+        )
+
+    if obj_charge and isinstance(obj_charge, dict):
+        obj_charge = MontyDecoder().process_decoded(obj_charge)
+
+    if obj_icohp and isinstance(obj_icohp, dict):
+        obj_icohp = MontyDecoder().process_decoded(obj_icohp)
+
+    if struct and isinstance(struct, dict):
+        struct = MontyDecoder().process_decoded(struct)
+
+    return struct, obj_icohp, obj_charge
+
+
+def _extract_structure_from_data(data):
+    """Extract structure from data, handling both simple structures and complex dicts.
+
+    Args:
+        data: Either a Structure/Molecule object or a dict containing structure key
+
+    Returns:
+        Structure or Molecule object
+    """
+    if not data:
+        return None
+
+    # If data is a dict with a structure key (lobsterenv format), extract it
+    if isinstance(data, dict):
+        if "structure" in data:
+            struct = data.get("structure")
+            if struct and isinstance(struct, dict):
+                struct = MontyDecoder().process_decoded(struct)
+            return struct
+        # Otherwise it's a regular dict that might be serialized
+        return MontyDecoder().process_decoded(data)
+
+    # If it's already a Structure/Molecule, return as is
+    return data
+
+
+def _perform_lobsterenv_analysis(
+    struct,
+    obj_icohp: Icohplist,
+    obj_charge: Charge,
+    perc_strength_icohp: float,
+    which_charge: str,
+    only_cation_anion: bool,
+    adapt_extremum: bool,
+    noise_cutoff=1e-3,
+):
+    """Perform LobsterEnv local environment analysis.
+
+    Args:
+        struct: Structure object
+        obj_icohp: pymatgen ICOHP/ICOBI/ICOOPLIST object
+        obj_charge: pymatgen Charge object
+        perc_strength_icohp: ICOHP cutoff percentage
+        which_charge: Charge type ("Mulliken" or "Loewdin")
+        only_cation_anion: Whether to only show cation-anion bonds
+        adapt_extremum: Whether to adapt extremum to additional conditions
+        noise_cutoff: Noise cutoff threshold for LOBSTER output (default: 1e-3)
+
+    Returns:
+        html.Div with the analysis results
+
+    Raises:
+        ValueError: If analysis fails
+    """
+    sga = SpacegroupAnalyzer(struct)
+    symm_struct = sga.get_symmetrized_structure()
+    inequivalent_indices = [indices[0] for indices in symm_struct.equivalent_indices]
+    wyckoffs = symm_struct.wyckoff_symbols
+
+    edge_weight_name = "ICOHP"
+    edge_weight_units = ""
+    if obj_icohp.are_coops:
+        edge_weight_name = "ICOOP"
+    elif obj_icohp.are_cobis:
+        edge_weight_name = "ICOBI"
+    else:
+        edge_weight_units = "eV"
+
+    edge_weight_name_mapping = {edge_weight_name: edge_weight_name}
+
+    try:
+        lobster_neighbors = LobsterNeighbors(
+            icoxxlist_obj=obj_icohp,
+            structure=struct,
+            charge_obj=obj_charge,
+            which_charge=which_charge,
+            valences_from_charges=True,
+            perc_strength_icohp=perc_strength_icohp,
+            additional_condition=1 if only_cation_anion else 0,
+            adapt_extremum_to_add_cond=adapt_extremum,
+            are_coops=obj_icohp.are_coops,
+            are_cobis=obj_icohp.are_cobis,
+            noise_cutoff=noise_cutoff,
+        )
+    except ValueError as err:
+        if (
+            str(err) == "min() arg is an empty sequence"
+            or str(err)
+            == "All valences are equal to 0, additional_conditions 1, 3, 5 and 6 will not work"
+        ) and only_cation_anion:
+            raise ValueError(
+                "No cations detected. Consider analyzing all bonds instead of only cation-anion bonds, "
+                "or try adjusting the ICOHP cutoff percentage."
+            ) from err
+        raise ValueError(
+            "LobsterEnv failed to initialize. Try adjusting the ICOHP cutoff percentage and retry."
+        ) from err
+
+    lse = lobster_neighbors.get_light_structure_environment(
+        only_cation_environments=only_cation_anion, on_error="warn"
+    )
+    # except ValueError as err:
+    #    raise ValueError(
+    #        "LobsterEnv failed to determine local environments. Try adjusting the ICOHP cutoff percentage and retry."
+    #    ) from err
+
+    all_ce = AllCoordinationGeometries()
+    envs = []
+
+    for index, wyckoff in zip(inequivalent_indices, wyckoffs):
+        env = lse.coordination_environments[index]
+        if env[0]["ce_symbol"]:
+            co = all_ce.get_geometry_from_mp_symbol(env[0]["ce_symbol"])
+
+            datalist = [
+                ["Site", unicodeify_species(struct[index].species_string)],
+                ["Wyckoff Label", wyckoff],
+            ]
+
+            local_env_data = lobster_neighbors.get_nn_info(struct, index)
+
+            # Get charges based on selected charge type
+            charge_data = getattr(obj_charge, which_charge.lower(), obj_charge.mulliken)
+            charges = [charge_data[index]]
+            charges.extend([charge_data[i["site_index"]] for i in local_env_data])
+            neighbour_weights = [i["edge_properties"]["ICOHP"] for i in local_env_data]
+
+            # represent the local environment as a molecule
+            mol = Molecule.from_sites(
+                [struct[index], *lse.neighbors_sets[index][0].neighb_sites]
+            )
+            mol = mol.get_centered_molecule()
+
+            # Add the charges as a site property (hover text)
+            mol = mol.add_site_property("charge", charges)
+
+            mg = MoleculeGraph.with_empty_graph(
+                molecule=mol,
+                name="bond_strength",
+                edge_weight_name=edge_weight_name,
+                edge_weight_units=edge_weight_units,
+            )
+            for i in range(1, len(mol)):
+                mg.add_edge(0, i, weight=neighbour_weights[i - 1])
+
+            view = html.Div(
+                [
+                    StructureMoleculeComponent(
+                        struct_or_mol=mg,
+                        disable_callbacks=True,
+                        id=f"{struct.composition.reduced_formula}_site_{index}",
+                        scene_settings={
+                            "enableZoom": False,
+                            "defaultZoom": 0.6,
+                        },
+                        site_get_scene_kwargs={
+                            "edge_weight_name_mapping": edge_weight_name_mapping
+                        },
+                    )._sub_layouts["struct"]
+                ],
+                style={"width": "300px", "height": "300px"},
+            )
+
+            name = co.name
+            if co.alternative_names:
+                name += f" (also known as {', '.join(co.alternative_names)})"
+
+            datalist.extend(
+                [
+                    ["Environment", name],
+                    ["IUPAC Symbol", co.IUPAC_symbol_str],
+                    [
+                        get_tooltip(
+                            "CSM",
+                            "The continuous symmetry measure (CSM) describes the similarity to an "
+                            "ideal coordination environment. It can be understood as a 'distance' to "
+                            "a shape and ranges from 0 to 100 in which 0 corresponds to a "
+                            "coordination environment that is exactly identical to the ideal one. A "
+                            "CSM larger than 5.0 already indicates a relatively strong distortion of "
+                            "the investigated coordination environment.",
+                        ),
+                        f"{env[0]['csm']:.2f}",
+                    ],
+                    ["Interactive View", view],
+                ]
+            )
+
+            envs.append(get_table(rows=datalist))
+
+    # Group environments in rows of 2
+    envs_grouped = [envs[i : i + 2] for i in range(0, len(envs), 2)]
+    analysis_contents = [
+        Columns([Column(e, size=6) for e in env_group]) for env_group in envs_grouped
+    ]
+
+    return html.Div([html.Div(analysis_contents), html.Br()])
+
+
 class LocalEnvironmentPanel(PanelComponent):
     """A panel to analyze the local chemical environments in a crystal."""
 
@@ -111,6 +352,10 @@ class LocalEnvironmentPanel(PanelComponent):
         self.create_store(
             "display_options",
             initial_data={"color_scheme": "Jmol", "color_scale": None},
+        )
+        # Create LobsterEnv upload component
+        self.lobsterenv_upload = LobsterEnvUploadComponent(
+            id=self.id("lobsterenv_upload")
         )
 
     @property
@@ -137,6 +382,7 @@ class LocalEnvironmentPanel(PanelComponent):
             options=[
                 {"label": "ChemEnv", "value": "chemenv"},
                 {"label": "LocalEnv", "value": "localenv"},
+                {"label": "LobsterEnv", "value": "lobsterenv"},
                 {"label": "Bonding Graph", "value": "bondinggraph"},
                 {"label": "SOAP", "value": "soap"},
             ],
@@ -279,6 +525,110 @@ class LocalEnvironmentPanel(PanelComponent):
                         ),
                         html.Br(),
                         Loading(id=self.id("localenv_analysis")),
+                    ]
+                )
+
+            if algorithm == "lobsterenv":
+                description = (
+                    "The LobsterEnv algorithm is developed by George et al. to analyze "
+                    "local chemical environments based on the outputs of LOBSTER calculations. "
+                    "This analysis relies on the ICOHP values calculated by LOBSTER, which "
+                    "are a measure of bond strength. The local environment is determined by including all neighbors "
+                    "with ICOHP/ICOBI/ICOOP values stronger than a certain threshold. "
+                    "The threshold can be set as a percentage of the strongest ICOHP/ICOBI/ICOOP in the structure, and can be adjusted using the slider below. "
+                )
+
+                lobsterenv_state = {
+                    "lobsterenv-analysis-mode": "all",
+                    "perc_strength_icohp": 0.15,
+                    "which_charge": "Mulliken",
+                    "adapt_extremum": True,
+                    "noise_cutoff": 1e-3,
+                }
+
+                lobsterenv_analysis_options = [
+                    {"label": "all", "value": "all"},
+                    {"label": "cation-anion", "value": "cation-anion"},
+                ]
+
+                lobsterenv_analysis_mode = self.get_choice_input(
+                    kwarg_label="lobsterenv-analysis-mode",
+                    state=lobsterenv_state,
+                    label="Analysis mode",
+                    help_str="Choose whether to analyze all bonds or only cation-anion bonds",
+                    options=lobsterenv_analysis_options,
+                )
+
+                charge_type_options = [
+                    {"label": "Mulliken", "value": "Mulliken"},
+                    {"label": "Loewdin", "value": "Loewdin"},
+                ]
+
+                charge_type = self.get_choice_input(
+                    kwarg_label="which_charge",
+                    state=lobsterenv_state,
+                    label="Charge type",
+                    help_str="Select the atomic charge type to use for the cation-anion classification",
+                    options=charge_type_options,
+                )
+
+                icohp_cutoff = html.Div(
+                    [
+                        H5("Bond strength cutoff %"),
+                        dcc.Slider(
+                            id=self.id("perc_strength_icohp"),
+                            min=0,
+                            max=1,
+                            step=0.01,
+                            value=0.15,
+                            marks={i: f"{i:.0%}" for i in [0, 0.25, 0.5, 0.75, 1]},
+                            tooltip={"placement": "bottom", "always_visible": True},
+                        ),
+                    ],
+                    style={"width": "100%"},
+                )
+
+                adapt_extremum = self.get_bool_input(
+                    label="Adapt extremum to additional condition",
+                    kwarg_label="adapt_extremum",
+                    state=lobsterenv_state,
+                    help_str="If enabled, adapts the ICOHP/ICOBI/ICOOP extremum based on additional conditions (cation-anion mode)",
+                )
+
+                noise_cutoff = self.get_numerical_input(
+                    label="Noise cutoff",
+                    kwarg_label="noise_cutoff",
+                    state=lobsterenv_state,
+                    help_str="Noise cutoff threshold for filtering small bond strength values",
+                    shape=(),
+                    min=0.0,
+                )
+
+                lobsterenv_controls = Columns(
+                    [
+                        Column([lobsterenv_analysis_mode, charge_type], size=3),
+                        Column([icohp_cutoff], size=3),
+                        Column([adapt_extremum, noise_cutoff], size=3),
+                    ]
+                )
+
+                return html.Div(
+                    [
+                        cite_me(
+                            cite_text="How to cite LobsterEnv",
+                            doi="10.1002/cplu.202200123",
+                        ),
+                        html.Br(),
+                        dcc.Markdown(description),
+                        html.Br(),
+                        # html.H5("Upload LOBSTER Results"),
+                        self.lobsterenv_upload._sub_layouts["upload"],
+                        html.Br(),
+                        # html.H5("Analysis Parameters"),
+                        # html.Br(),
+                        lobsterenv_controls,
+                        html.Br(),
+                        Loading(id=self.id("lobsterenv_analysis")),
                     ]
                 )
 
@@ -554,7 +904,10 @@ class LocalEnvironmentPanel(PanelComponent):
                     "This feature will not work unless `dscribe` is installed on the server."
                 )
 
-            struct = self.from_data(struct)
+            struct = _extract_structure_from_data(struct)
+            if not struct:
+                raise PreventUpdate
+
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
 
             # TODO: make sure is_int kwarg information is enforced so that int() conversion is unnecessary
@@ -610,7 +963,11 @@ class LocalEnvironmentPanel(PanelComponent):
                     "This feature will not work unless `dscribe` is installed on the server."
                 )
 
-            structs = {"input": self.from_data(struct)}
+            struct = _extract_structure_from_data(struct)
+            if not struct:
+                raise PreventUpdate
+
+            structs = {"input": struct}
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
 
             elements = [str(el) for el in structs["input"].composition.elements]
@@ -705,6 +1062,106 @@ class LocalEnvironmentPanel(PanelComponent):
             )
 
         @app.callback(
+            Output(self.id("lobsterenv_analysis"), "children"),
+            Input(self.id(), "data"),
+            Input(self.lobsterenv_upload.id(), "data"),
+            Input(self.id("perc_strength_icohp"), "value"),
+            Input(self.get_kwarg_id("lobsterenv-analysis-mode"), "value"),
+            Input(self.get_kwarg_id("which_charge"), "value"),
+            Input(self.get_kwarg_id("adapt_extremum"), "value"),
+            Input(self.get_kwarg_id("noise_cutoff"), "value"),
+        )
+        def update_lobsterenv_analysis(
+            data,
+            uploaded_data,
+            perc_strength_icohp,
+            analysis_mode,
+            which_charge,
+            adapt_extremum,
+            noise_cutoff,
+        ):
+            """Generate LobsterEnv local environment analysis."""
+            # Prioritize uploaded data over component data
+            if (
+                uploaded_data
+                and uploaded_data.get("obj_icohp")
+                and not uploaded_data.get("error")
+            ):
+                data = uploaded_data
+
+            if not data:
+                raise PreventUpdate
+
+            # Handle slider value
+            if isinstance(perc_strength_icohp, list):
+                perc_strength_icohp = (
+                    float(perc_strength_icohp[0]) if perc_strength_icohp else 0.15
+                )
+            else:
+                perc_strength_icohp = (
+                    float(perc_strength_icohp)
+                    if perc_strength_icohp is not None
+                    else 0.15
+                )
+
+            # Handle charge type
+            which_charge = (
+                which_charge[0]
+                if isinstance(which_charge, list)
+                else (which_charge or "Mulliken")
+            )
+
+            # Handle adapt_extremum
+            adapt_extremum = (
+                adapt_extremum[0]
+                if isinstance(adapt_extremum, list)
+                else (adapt_extremum if adapt_extremum is not None else True)
+            )
+
+            # Handle noise_cutoff
+            noise_cutoff = (
+                float(noise_cutoff[0])
+                if isinstance(noise_cutoff, list)
+                else (float(noise_cutoff) if noise_cutoff is not None else 1e-3)
+            )
+
+            try:
+                struct, obj_icohp, obj_charge = _get_lobsterenv_inputs(data)
+            except ValueError as e:
+                return mpc.Markdown(str(e))
+
+            if (
+                not isinstance(data, dict)
+                or "obj_icohp" not in data
+                or "obj_charge" not in data
+            ):
+                return mpc.Markdown(
+                    "LobsterEnv requires LOBSTER outputs (ICOHP + charge data). "
+                    "Please provide `obj_icohp` and `obj_charge` in the component data or upload LOBSTER files."
+                )
+
+            # Determine if we should only show cation-anion bonds
+            only_cation_anion = (
+                analysis_mode == "cation-anion"
+                if isinstance(analysis_mode, str)
+                else analysis_mode[0] == "cation-anion"
+            )
+
+            try:
+                return _perform_lobsterenv_analysis(
+                    struct,
+                    obj_icohp,
+                    obj_charge,
+                    perc_strength_icohp,
+                    which_charge,
+                    only_cation_anion,
+                    adapt_extremum,
+                    noise_cutoff,
+                )
+            except ValueError as e:
+                return mpc.Markdown(str(e))
+
+        @app.callback(
             Output(self.id("bondinggraph_analysis"), "children"),
             Input(self.id("graph"), "data"),
             Input(self.id("display_options"), "data"),
@@ -752,7 +1209,10 @@ class LocalEnvironmentPanel(PanelComponent):
             if not struct:
                 raise PreventUpdate
 
-            struct = self.from_data(struct)
+            struct = _extract_structure_from_data(struct)
+            if not struct:
+                raise PreventUpdate
+
             kwargs = self.reconstruct_kwargs_from_state(callback_context.inputs)
             distance_cutoff = kwargs["distance_cutoff"]
             angle_cutoff = kwargs["angle_cutoff"]
