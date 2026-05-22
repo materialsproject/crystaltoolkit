@@ -24,12 +24,17 @@ from crystal_toolkit.helpers.layouts import (
 
 
 class SearchComponent(MPComponent):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, use_legacy_id=True, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.create_store("results")
+        self._use_legacy_id = use_legacy_id
 
     def _get_mpid_cache(self):
-        path = os.path.join(os.path.dirname(module_path), "mpid_cache.json")
+        mpid_cache_file = "mpid_cache.json"
+        if not self._use_legacy_id:
+            mpid_cache_file = "alpha_mpid_cache.json"
+
+        path = os.path.join(os.path.dirname(module_path), mpid_cache_file)
 
         mpid_cache = loadfn(path) if os.path.isfile(path) else []
         # else:
