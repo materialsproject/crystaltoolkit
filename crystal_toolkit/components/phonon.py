@@ -1269,11 +1269,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 if qpoint == -1 or band_num == -1:
                     raise ValueError("qpoint and band_num are invalid")
 
-            # magnitude
-            # magnitude = (
-            #     MAX_MAGNITUDE - MIN_MAGNITUDE
-            # ) * magnitude_fraction + MIN_MAGNITUDE
-
             # set maximum scale for supercell to limit size
             max_sc_scale = max(
                 1,
