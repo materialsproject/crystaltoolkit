@@ -47,8 +47,15 @@ MAX_MAGNITUDE = 500
 MIN_MAGNITUDE = 0
 MAX_SUPERCELL_SITES = 500
 
-DEFAULTS: dict[str, str | bool] = {
+DEFAULTS: dict[str, str | bool | int] = {
     "color_scheme": "VESTA",
+    "scale_x": 1,
+    "scale_y": 1,
+    "scale_z": 1,
+    "band_num": 0,
+    "qpoint": 0,
+    "magnitude_fraction": 1,
+    "velocity": 1.0,
 }
 
 
@@ -83,12 +90,20 @@ class PhononBandstructureAndDosComponent(MPComponent):
             **kwargs,
         )
 
+        if bandstructure_symm_line and density_of_states:
+            # initialize this for jupyter notebook rendering
+            self.create_store("ph_bs", bandstructure_symm_line)
+            self.create_store("ph_dos", density_of_states)
+
     @property
     def _sub_layouts(self) -> dict[str, Component]:
         # defaults
         state = {"label-select": "sc", "dos-select": "ap"}
 
-        fig = PhononBandstructureAndDosComponent.get_figure(None, None)
+        ph_bs = self._initial_data.get("ph_bs", None)
+        ph_dos = self._initial_data.get("ph_dos", None)
+
+        fig = PhononBandstructureAndDosComponent.get_figure(ph_bs, ph_dos)
         # Main plot
         graph = html.Div(
             [
@@ -103,7 +118,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
 
         # Brillouin zone
-        zone_scene = self.get_brillouin_zone_scene(None)
+        zone_scene = self.get_brillouin_zone_scene(
+            self._initial_data.get("ph_bs", None)
+        )
         zone = CrystalToolkitScene(
             data=zone_scene.to_json(), sceneSize="500px", id=self.id("zone")
         )
@@ -217,13 +234,33 @@ class PhononBandstructureAndDosComponent(MPComponent):
         )
 
         # crystal visualization
+        tf_data = None
+        if ph_bs := self._initial_data.get("ph_bs", None):
+            # if there is _initial_data
+            bs = PhononBS.from_pmg(ph_bs)
+            json_data, _, _ = self._generate_structure_scene(
+                bs,
+                DEFAULTS["color_scheme"],
+                DEFAULTS["scale_x"],
+                DEFAULTS["scale_y"],
+                DEFAULTS["scale_z"],
+            )
+            tf_data = PhononBandstructureAndDosComponent._get_time_function_json(
+                ph_bs=bs,
+                json_data=json_data,
+                band=DEFAULTS["band_num"],
+                qpoint=DEFAULTS["qpoint"],
+                magnitude=DEFAULTS["magnitude_fraction"],
+                velocity=DEFAULTS["velocity"],
+            )
+
         crystal_animation = html.Div(
             # CrystalToolkitAnimationScene(
             PhononAnimationScene(
-                data={"app": "phonon"},
+                data=tf_data if tf_data else {"app": "phonon"},
                 sceneSize="400px",
                 id=self.id("crystal-animation"),
-                settings={"defaultZoom": 1.2},
+                settings={"defaultZoom": 1.2, "extractAxis": True},
                 axisView="SW",
                 showControls=False,  # disable download for now
             ),
@@ -429,7 +466,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             ),
         ]
 
-    def layout(self) -> html.Div:
+    def layout(self, jupyter=False) -> html.Div:
         sub_layouts = self._sub_layouts
         graph = Columns([Column([sub_layouts["graph"]])])
         hints = Columns([Column([sub_layouts["hints"]])])
@@ -456,6 +493,16 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 Column([Label("Brillouin Zone"), sub_layouts["zone"]]),
             ]
         )
+
+        if jupyter:
+            return html.Div(
+                [
+                    graph,
+                    hints,
+                    crystal_animation_button_container,
+                    crystal_animation_container,
+                ]
+            )
 
         return html.Div(
             [
@@ -495,9 +542,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         json_data: dict,
         band: int = 0,
         qpoint: int = 0,
-        precision: int = 15,
         magnitude: int = MAX_MAGNITUDE / 2,
-        total_repeat_cell_cnt: int = 1,
         velocity: float = 1.0,
     ) -> dict:
         if not ph_bs or not json_data:
@@ -586,7 +631,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
         rdata["phases"] = phases[qpoint].tolist()
 
         # amplitude (A)
-        rdata["amplitude"] = 1 / np.linalg.norm(
+        rdata["amplitude"] = magnitude / np.linalg.norm(
             ph_bs.eigendisplacements[0][0]
         )  # magnitude
 
@@ -846,7 +891,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 "paper_bgcolor": "rgba(0,0,0,0)",
                 "plot_bgcolor": "rgba(0,0,0,0)",
             }
-
             return go.Figure(layout=empty_plot_style)
 
         if freq_range[0] is None:
@@ -1012,6 +1056,57 @@ class PhononBandstructureAndDosComponent(MPComponent):
             className="buttons",
         )
 
+    def _generate_structure_scene(
+        self, bs, color_scheme, scale_x=1, scale_y=1, scale_z=1
+    ):
+        struct = bs.structure
+        total_repeat_cell_cnt = 1
+
+        #
+        num_sites = struct.num_sites
+
+        # update structure if the controls got triggered
+        total_repeat_cell_cnt = scale_x * scale_y * scale_z
+
+        # create supercell
+        trans = SupercellTransformation(
+            ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
+        )
+        struct = trans.apply_transformation(struct)
+
+        struc_graph = StructureGraph.from_local_env_strategy(struct, CrystalNN())
+
+        # legend
+        legend = Legend(
+            struc_graph.structure,
+            color_scheme=color_scheme,
+            # radius_scheme=radius_strategy,
+            cmap_range=None,
+        )
+        self._legend = legend
+        legend_layout = html.Div(self._make_legend(legend.get_legend()))
+
+        # scene
+        scene = struc_graph.get_scene(
+            draw_image_atoms=False,
+            bonded_sites_outside_unit_cell=False,
+            site_get_scene_kwargs={
+                "retain_atom_idx": True,
+                "total_repeat_cell_cnt": total_repeat_cell_cnt,
+            },
+            legend=legend,
+        )
+
+        # axis
+        axes = struct.lattice._axes_from_lattice()
+        axes.visible = True
+        scene.contents.append(axes)
+
+        #
+        json_data = scene.to_json()
+
+        return json_data, legend_layout, num_sites
+
     def generate_callbacks(self, app, cache) -> None:
         @app.callback(
             Output(self.id("ph-bsdos-graph"), "figure", allow_duplicate=True),
@@ -1022,9 +1117,10 @@ class PhononBandstructureAndDosComponent(MPComponent):
             ),
             Input(self.id("ph_bs"), "data"),
             Input(self.id("ph_dos"), "data"),
-            # prevent_intial_call=True,
+            prevent_initial_call=True,
         )
         def update_graph(bs, dos):
+            # this is triggered from the web when updating ph_bs and ph_dos
             if isinstance(bs, dict):
                 # bs = PhononBS.from_pmg(bs)
                 bs = PhononBandStructureSymmLine.from_dict(bs)
@@ -1047,7 +1143,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
             State(self.id("ph-bsdos-graph"), "figure"),
             Input(self.id("ph-bsdos-graph"), "clickData"),
             Input(self.id("animation-button"), "n_clicks"),
-            prevent_intial_call=True,
+            prevent_initial_call=True,
         )
         def update_pointer_graph(figure, nclick, animation_click):
             if not animation_click:
@@ -1105,7 +1201,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 self.id("animation-button-container"), "style", allow_duplicate=True
             ),
             Input(self.id("animation-button"), "n_clicks"),
-            prevent_intial_call=True,
+            prevent_initial_call=True,
         )
         def create_animation(nclick):
             if not nclick:
@@ -1160,51 +1256,9 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 bs = PhononBS.from_pmg(bs)
                 # bs = PhononBandStructureSymmLine.from_dict(bs)
 
-            struct = bs.structure
-            total_repeat_cell_cnt = 1
-
-            #
-            num_sites = struct.num_sites
-
-            # update structure if the controls got triggered
-            total_repeat_cell_cnt = scale_x * scale_y * scale_z
-
-            # create supercell
-            trans = SupercellTransformation(
-                ((scale_x, 0, 0), (0, scale_y, 0), (0, 0, scale_z))
+            json_data, legend_layout, num_sites = self._generate_structure_scene(
+                bs, color_scheme, scale_x, scale_y, scale_z
             )
-            struct = trans.apply_transformation(struct)
-
-            struc_graph = StructureGraph.from_local_env_strategy(struct, CrystalNN())
-
-            # legend
-            legend = Legend(
-                struc_graph.structure,
-                color_scheme=color_scheme,
-                # radius_scheme=radius_strategy,
-                cmap_range=None,
-            )
-            self._legend = legend
-            legend_layout = html.Div(self._make_legend(legend.get_legend()))
-
-            # scene
-            scene = struc_graph.get_scene(
-                draw_image_atoms=False,
-                bonded_sites_outside_unit_cell=False,
-                site_get_scene_kwargs={
-                    "retain_atom_idx": True,
-                    "total_repeat_cell_cnt": total_repeat_cell_cnt,
-                },
-                legend=legend,
-            )
-
-            # axis
-            axes = struct.lattice._axes_from_lattice()
-            axes.visible = True
-            scene.contents.append(axes)
-
-            #
-            json_data = scene.to_json()
 
             qpoint = 0
             band_num = 0
@@ -1214,11 +1268,6 @@ class PhononBandstructureAndDosComponent(MPComponent):
                 qpoint, band_num = pt.get("customdata", [-1, -1])
                 if qpoint == -1 or band_num == -1:
                     raise ValueError("qpoint and band_num are invalid")
-
-            # magnitude
-            magnitude = (
-                MAX_MAGNITUDE - MIN_MAGNITUDE
-            ) * magnitude_fraction + MIN_MAGNITUDE
 
             # set maximum scale for supercell to limit size
             max_sc_scale = max(
@@ -1231,8 +1280,7 @@ class PhononBandstructureAndDosComponent(MPComponent):
                     json_data=json_data,
                     band=band_num,
                     qpoint=qpoint,
-                    total_repeat_cell_cnt=total_repeat_cell_cnt,
-                    magnitude=magnitude,
+                    magnitude=magnitude_fraction,
                     velocity=velocity,
                 ),
                 [None, legend_layout],

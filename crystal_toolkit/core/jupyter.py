@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import socketserver
-from typing import TYPE_CHECKING, ClassVar
+from typing import ClassVar
 from warnings import warn
 
 from dash import Dash
@@ -13,12 +13,14 @@ from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.core.structure import SiteCollection
 
 import crystal_toolkit.helpers.layouts as ctl
+from crystal_toolkit.components.phonon import PhononBandstructureAndDosComponent
 from crystal_toolkit.components.structure import StructureMoleculeComponent
+from crystal_toolkit.core.mpcomponent import MPComponent
 from crystal_toolkit.core.plugin import CrystalToolkitPlugin
 from crystal_toolkit.settings import SETTINGS
 
-if TYPE_CHECKING:
-    from crystal_toolkit.core.mpcomponent import MPComponent
+# if TYPE_CHECKING:
+#     from crystal_toolkit.core.mpcomponent import MPComponent
 
 
 class _JupyterRenderer:
@@ -28,6 +30,8 @@ class _JupyterRenderer:
         StructureGraph: StructureMoleculeComponent,
         MoleculeGraph: StructureMoleculeComponent,
     }
+
+    ctk_registry: ClassVar[set[MPComponent]] = {PhononBandstructureAndDosComponent}
 
     @staticmethod
     def _find_available_port():
@@ -65,6 +69,13 @@ class _JupyterRenderer:
                 )
                 return self.run(layout)
 
+        if any(isinstance(obj, kls) for kls in self.ctk_registry):
+            layout = ctl.Block(
+                [obj.layout(jupyter=True)],
+                style={"margin-top": "1rem", "margin-left": "1rem"},
+            )
+            return self.run(layout)
+
         raise ValueError(f"No component defined for object of type {type(obj)}.")
 
 
@@ -88,8 +99,12 @@ def _repr_mimebundle_(self, include=None, exclude=None):
 
 def _ipython_display_(self):
     """Display MSONable objects using a Crystal Toolkit component, if available."""
-    if any(isinstance(self, x) for x in _JupyterRenderer.registry):
+    if any(isinstance(self, x) for x in _JupyterRenderer.registry) or any(
+        isinstance(self, x) for x in _JupyterRenderer.ctk_registry
+    ):
         return _JupyterRenderer().display(self)
+    # if any(isinstance(self, x) for x in _JupyterRenderer.registry):
+    #     return _JupyterRenderer().display(self)
 
     # To be strict here, we could use inspect.signature
     # and .return_annotation is either a Scene or a go.Figure respectively
@@ -125,3 +140,5 @@ def patch_msonable():
     MSONable._repr_mimebundle_ = _repr_mimebundle_
     MSONable.display_json = _display_json
     MSONable._ipython_display_ = _ipython_display_
+
+    MPComponent._ipython_display_ = _ipython_display_
