@@ -52,14 +52,17 @@ void drawSpheres(triple[] C, real R, pen p=currentpen){
 }
 
 // Draw a sphere without light
-void drawSpheres_nolight(triple[] C, real R, pen p=currentpen){
-  material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);
-  for(int i=0;i<C.length;++i){
-    revolution s_rev = sphere(C[i],R);
-    surface s_surf = surface(s_rev);
-    draw(s_surf, nlpen);
-    draw(s_rev.silhouette(100), black+linewidth(3));
-  }
+void drawSpheres_nolight(triple[] C, real R, pen p=currentpen) {
+    material nlpen = material(diffusepen=opacity(1.0), emissivepen=p, shininess=0);
+    for(int i=0; i < C.length; ++i) {
+        revolution s_rev = sphere(C[i], R);
+        surface s_surf = surface(s_rev);
+        draw(s_surf, nlpen);
+        triple normal = -currentprojection.normal;  // viewing direction
+        triple center = C[i];
+        path3 outline = Circle(center, R, normal);
+        draw(outline, black+linewidth(3));
+    }
 }
 
 // Draw a cylinder
@@ -559,7 +562,6 @@ def asy_write_data(
     """
     scene_obj_type = input_scene_comp.type
     if ASY_OBJS.get(scene_obj_type) is None:
-        print(scene_obj_type)
         return
 
     asy_obj = ASY_OBJS[scene_obj_type]
