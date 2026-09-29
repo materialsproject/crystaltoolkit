@@ -42,9 +42,9 @@ class CrystalToolkitPlugin:
         if cache:
             self.cache = cache
         elif SETTINGS.DEBUG_MODE:
-            self.cache = Cache(config={"CACHE_TYPE": "null"})
+            self.cache = Cache(config={"CACHE_TYPE": "NullCache"})
         else:
-            self.cache = Cache(config={"CACHE_TYPE": "simple"})
+            self.cache = Cache(config={"CACHE_TYPE": "SimpleCache"})
 
         self.layout = layout
 
