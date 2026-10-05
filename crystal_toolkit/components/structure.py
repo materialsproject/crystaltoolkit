@@ -89,7 +89,7 @@ class StructureMoleculeComponent(MPComponent):
     def __init__(
         self,
         struct_or_mol: (
-            None | Structure | StructureGraph | Molecule | MoleculeGraph
+            Structure | StructureGraph | Molecule | MoleculeGraph | None
         ) = None,
         id: str | None = None,
         className: str = "box",
