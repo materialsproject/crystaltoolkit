@@ -103,12 +103,12 @@ server = app.server
 
 if SETTINGS.DEBUG_MODE:
     # disable cache in debug
-    cache = Cache(app.server, config={"CACHE_TYPE": "null"})
+    cache = Cache(app.server, config={"CACHE_TYPE": "NullCache"})
 else:
     cache = Cache(
         app.server,
         config={
-            "CACHE_TYPE": "redis",
+            "CACHE_TYPE": "RedisCache",
             "CACHE_REDIS_URL": os.getenv("REDIS_URL", SETTINGS.REDIS_URL),
         },
     )
