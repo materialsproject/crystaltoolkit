@@ -32,7 +32,7 @@ dependencies = [
 [project.optional-dependencies]
 server = ["dash-extensions", "gunicorn[gevent]", "habanero", "hiphive", "redis"]
 robocrys = ["robocrys"]
-temdiff = ["py4DSTEM>=0.13.11"]
+temdiff = []
 fermi = [
   "ifermi",
   "pyfftw",
