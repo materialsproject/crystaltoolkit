@@ -32,11 +32,11 @@ dependencies = [
 [project.optional-dependencies]
 server = ["dash-extensions", "gunicorn[gevent]", "habanero", "hiphive", "redis"]
 robocrys = ["robocrys"]
-temdiff = ["py4DSTEM>=0.13.11"]
+temdiff = []
 fermi = [
   "ifermi",
   "pyfftw",
-  "boltztrap2<25.11.1", # compilation issue when installing via pip
+  "boltztrap2",
 ]
 phonon = ["phonopy"]
 vtk = ["dash-vtk"]

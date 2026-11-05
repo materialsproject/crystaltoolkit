@@ -112,7 +112,7 @@ backend is supported, we recommend ``RedisCache``:
    cache = Cache(
        app.server,
        config={
-           "CACHE_TYPE": "redis",
+           "CACHE_TYPE": "RedisCache",
            "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "localhost:6379"),
        },
    )

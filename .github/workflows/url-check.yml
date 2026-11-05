@@ -17,4 +17,5 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           # --exclude-loopback ensures we don't check localhost URLs
-          args: --exclude-loopback './**/*.md' './**/*.rst'
+          # --accept "200..=299,403" treats Cloudflare anti-bot blocks (403) as valid since the target page exists
+          args: --exclude-loopback --accept "200..=299,403" './**/*.md' './**/*.rst'
