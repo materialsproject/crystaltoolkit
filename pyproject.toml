@@ -36,7 +36,7 @@ temdiff = ["quantem.diffsim>=0.1"]
 fermi = [
   "ifermi",
   "pyfftw",
-  "boltztrap2<25.11.1", # compilation issue when installing via pip
+  "boltztrap2",
 ]
 phonon = ["phonopy"]
 vtk = ["dash-vtk"]
